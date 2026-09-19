@@ -1,0 +1,13 @@
+{
+  "about": "Holds a picture, a video or a map to one shape, clipped to its corners.",
+  "fit": {
+    "about": "A wide picture in a tall frame, filling the shape or shown whole inside it.",
+    "title": "Fit"
+  },
+  "hillside": "A hillside under a morning sun",
+  "shapes": {
+    "about": "Every ratio at every corner. Whatever the frame holds is drawn at the frame's own size, so one picture fills every shape rather than setting it.",
+    "title": "Shapes"
+  },
+  "title": "Frame"
+}

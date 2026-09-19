@@ -1,0 +1,43 @@
+{
+  "about": "Lays its entries out in columns, as a root holding items that may span more than one of them.",
+  "alignment": {
+    "about": "Where an entry sits in a row taller than it is: a short entry beside one that runs to a second line.",
+    "title": "Alignment"
+  },
+  "article": "Article",
+  "aside": "Aside",
+  "counts": {
+    "about": "Every count, each drawing that many equal columns and wrapping the twelve entries into them.",
+    "title": "Counts"
+  },
+  "distribution": {
+    "about": "How the columns share the room along the row. The columns of every measure fill the grid, so the shares read alike until a theme narrows the tracks.",
+    "title": "Distribution"
+  },
+  "filled": {
+    "about": "Every measure that keeps the columns a short row leaves empty, so the six entries hold their measure rather than stretching across the row.",
+    "title": "Filled"
+  },
+  "fitted": {
+    "about": "Every measure that draws as many columns as there is room for and wraps the rest, which is the whole of the grid's responsiveness.",
+    "title": "Fitted"
+  },
+  "flow": {
+    "about": "Which way the entries are placed: along the rows, down the columns, or along the rows with a later entry pulled back into a hole an earlier one left.",
+    "title": "Flow"
+  },
+  "footer": "Footer",
+  "gaps": {
+    "about": "Every gap of the scale, between three columns of entries.",
+    "title": "Gaps"
+  },
+  "header": "Header",
+  "main": "Main",
+  "navigation": "Navigation",
+  "note": "A note that runs on to a second line in its column",
+  "spans": {
+    "about": "Every span an entry can take in a grid of twelve, drawn on the first entry with the rest a column wide.",
+    "title": "Spans"
+  },
+  "title": "Grid"
+}

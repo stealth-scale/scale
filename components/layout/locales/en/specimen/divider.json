@@ -1,0 +1,10 @@
+{
+  "about": "Draws one line between things, which a screen reader announces as a break.",
+  "orientations": {
+    "about": "A line across a column and a line down a row. The line standing up states its orientation beside its look, because a browser assumes a separator lies flat.",
+    "title": "Orientations"
+  },
+  "title": "Divider",
+  "today": "Today",
+  "yesterday": "Yesterday"
+}

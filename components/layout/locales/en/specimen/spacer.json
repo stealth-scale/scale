@@ -1,0 +1,10 @@
+{
+  "about": "Takes the room a stack has left over, which pushes what follows it to the far end.",
+  "edit": "Edit",
+  "invoices": "Invoices",
+  "room": {
+    "about": "A heading at one end of a row and its action at the other, with the spacer taking everything between. It holds nothing and is hidden from assistive technology, because empty room is not announced.",
+    "title": "Room"
+  },
+  "title": "Spacer"
+}

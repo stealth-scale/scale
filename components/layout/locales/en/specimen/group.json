@@ -1,0 +1,32 @@
+{
+  "about": "Lays controls along one direction, a semantic gap apart or attached into one control with several parts.",
+  "alignment": {
+    "about": "Where controls of different heights sit across the flow.",
+    "title": "Alignment"
+  },
+  "day": "Day",
+  "discard": "Discard",
+  "distribution": {
+    "about": "How the room left over along the flow is shared, in a group stretched to the width of a column.",
+    "title": "Distribution"
+  },
+  "gaps": {
+    "about": "Every gap a group offers, which an attached group ignores.",
+    "title": "Gaps"
+  },
+  "grow": {
+    "about": "Children that share the room evenly rather than taking what each needs.",
+    "title": "Grow"
+  },
+  "maybe": "Maybe",
+  "month": "Month",
+  "no": "No",
+  "orientation": {
+    "about": "Both directions, apart and attached. The corners between attached neighbours are squared and the border between them is drawn once, so three buttons read as one control with three parts.",
+    "title": "Orientation"
+  },
+  "save": "Save",
+  "title": "Group",
+  "week": "Week",
+  "yes": "Yes"
+}
