@@ -5,7 +5,7 @@
 import { type ReactElement } from "react";
 
 import { Menu } from "@stealthscale/component-disclosure";
-import { Switcher } from "@stealthscale/component-screen";
+import { Switcher, Toolbar } from "@stealthscale/component-screen";
 import { type ColorModeChoice, useColorMode } from "@stealthscale/provider-color-mode";
 import { useTranslation } from "@stealthscale/provider-i18n";
 
@@ -21,22 +21,28 @@ const CHOICES: readonly ColorModeChoice[] = ["system", "light", "dark"];
  *
  * @remarks
  *   The choice is the shell's, so choosing here redraws the page and is remembered under this
- *   application's name. Following the machine is a choice of its own, listed first.
+ *   application's name. Following the machine is a choice of its own, listed first. The control is
+ *   an item of the bar's row, so draw it inside `Toolbar.Root`.
  */
 export function ColorModeSwitcher(): ReactElement {
   const { t } = useTranslation("docs");
   const { choice, setColorMode } = useColorMode();
 
   return (
-    <Switcher.Root positioning={{ placement: "bottom-end" }} size="sm">
-      <Switcher.Trigger label={t("chrome.colorMode")}>
+    <Switcher.Root
+      placement="toolbar"
+      positioning={{ placement: "bottom-end" }}
+      size="md"
+      variant="outline"
+    >
+      <Toolbar.Item as={Switcher.Trigger} label={t("chrome.colorMode")}>
         <Switcher.Label>
           <Switcher.Name>{t(`chrome.${choice}`)}</Switcher.Name>
         </Switcher.Label>
         <Switcher.Indicator>
           <Chevron />
         </Switcher.Indicator>
-      </Switcher.Trigger>
+      </Toolbar.Item>
       <Menu.Positioner>
         <Switcher.Content>
           {CHOICES.map((one) => (

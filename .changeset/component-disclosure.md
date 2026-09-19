@@ -19,3 +19,8 @@ component-disclosure: hold the menu and popover marks still for a reader who ask
 
 - Both indicators turn half a revolution as the panel opens, over a transition neither held at zero
   under `_motionReduce`. `NavList`'s identical mark already did.
+
+component-disclosure: draw the menu indicator as a span
+
+- `Menu.Indicator` drew a `div` inside the trigger, and a button holds phrasing content alone. It
+  draws a `span`.

@@ -106,6 +106,12 @@ describe("declarations", () => {
     expect(result.getByRole("link", { name: "Catalogue" }).getAttribute("href")).toBe("/docs");
   });
 
+  it("does not call the trail the current page on a page under the index", async () => {
+    const { result } = await mountRoute(treeOver(LISTED), "/docs/actions/button");
+
+    expect(result.getByRole("link", { name: "Catalogue" }).getAttribute("aria-current")).toBeNull();
+  });
+
   it("opens a page the application wrote at its path under the catalogue's", async () => {
     const beside = [written("docs.theming", "Theming", "Overview")];
     const { result } = await mountRoute(treeOver(LISTED, beside), "/docs/docs/theming");

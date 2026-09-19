@@ -93,6 +93,7 @@ export {
   FIELDS,
   fieldStatusVariants,
   fieldVariants,
+  filledColumns,
   fittedColumns,
   type Flat,
   FLATS,

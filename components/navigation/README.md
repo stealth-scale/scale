@@ -36,11 +36,16 @@ import { Link } from "@stealthscale/component-navigation";
 
 | Axis      | Values               | Default |
 | --------- | -------------------- | ------- |
+| `inherit` | `true`               | off     |
 | `variant` | `plain`, `underline` | `plain` |
 
 Both looks underline under a pointer. The axis decides whether the underline is there at rest as
 well. A link inside a paragraph is found by its underline as much as by its colour, so a reader who
 cannot tell the two inks apart has nothing else to go on.
+
+Set `inherit` on a link that takes the ink of the words around it: the title of a card or the brand
+in a bar, where the surface already says it is pressed. The underline under a pointer and the focus
+ring stay.
 
 The element is `a` and takes an `href`. A link with no address is not a link to anything, and a
 browser gives it no focus, no Enter and no offer to open elsewhere, so a control that acts rather

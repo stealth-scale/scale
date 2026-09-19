@@ -80,8 +80,22 @@ describe("recipe", () => {
     expect(defaultsOf(recipe)).toStrictEqual({
       align: "start",
       divided: true,
+      gutter: "md",
       measure: "full",
       size: "md",
+    });
+  });
+
+  it("sets the title one heading step above a section's at the same size", () => {
+    expect(recipe.variants?.["size"]?.["sm"]?.["title"]).toStrictEqual({ textStyle: "heading.md" });
+    expect(recipe.variants?.["size"]?.["md"]?.["title"]).toStrictEqual({ textStyle: "heading.lg" });
+    expect(recipe.variants?.["size"]?.["lg"]?.["title"]).toStrictEqual({ textStyle: "heading.xl" });
+  });
+
+  it("insets the body and the banner on the block axis alone so the gutter holds", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["body"]).toStrictEqual({ paddingBlock: "inset.md" });
+    expect(recipe.variants?.["size"]?.["md"]?.["banner"]).toStrictEqual({
+      paddingBlock: "inset.md",
     });
   });
 

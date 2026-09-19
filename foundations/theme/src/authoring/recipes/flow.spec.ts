@@ -7,6 +7,7 @@ import {
   alignVariants,
   columnCounts,
   DISTRIBUTIONS,
+  filledColumns,
   fittedColumns,
   gapSizes,
   justifyVariants,
@@ -54,6 +55,15 @@ describe("flow", () => {
       },
     });
     expect(Object.keys(fittedColumns())).toHaveLength(12);
+  });
+
+  it("fills a row with columns of a measure whether or not every column has an entry", () => {
+    expect(filledColumns(["sm"])).toStrictEqual({
+      "fill-sm": {
+        gridTemplateColumns: "repeat(auto-fill, minmax(min({sizes.sm}, 100%), 1fr))",
+      },
+    });
+    expect(Object.keys(filledColumns())).toHaveLength(12);
   });
 
   it("draws a count of equal columns", () => {

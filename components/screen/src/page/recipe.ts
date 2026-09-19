@@ -20,7 +20,6 @@
 import {
   defineSlotRecipe,
   divider,
-  insetSizes,
   onSlots,
   sizeVariants,
   truncate,
@@ -81,6 +80,20 @@ const BEFORE_NAV = `&:has(+ .${CLASS}__nav)`;
  * The steps a page is read at, which a section inside it reads too.
  */
 const STEPS = ["sm", "md", "lg"] as const;
+
+/**
+ * The heading role the title is set in at each step, one step above the section's at the same
+ * step.
+ *
+ * @remarks
+ *   A page's title is the one heading above every section on it. Set in the same role as a
+ *   section's title, the two read as the same level and the outline the headings draw is flat.
+ */
+const TITLES = {
+  lg: { textStyle: "heading.xl" },
+  md: { textStyle: "heading.lg" },
+  sm: { textStyle: "heading.md" },
+};
 
 /**
  * Draws a full-width page at the middle size.
@@ -155,7 +168,7 @@ export const recipe = defineSlotRecipe({
       name: "stacked",
     },
   ],
-  defaultVariants: { align: "start", divided: true, measure: "full", size: "md" },
+  defaultVariants: { align: "start", divided: true, gutter: "md", measure: "full", size: "md" },
   jsx: [/^Page(\.\w+)?$/u],
   slots: [
     "root",
@@ -243,8 +256,8 @@ export const recipe = defineSlotRecipe({
         (size) => ({ gap: `gap.${size}`, paddingInlineStart: `inset.${size}` }),
         STEPS,
       ),
-      banner: insetSizes(STEPS),
-      body: insetSizes(STEPS),
+      banner: sizeVariants((size) => ({ paddingBlock: `inset.${size}` }), STEPS),
+      body: sizeVariants((size) => ({ paddingBlock: `inset.${size}` }), STEPS),
       context: sizeVariants((size) => ({ gap: `gap.${size}` }), STEPS),
       description: sizeVariants((size) => ({ textStyle: `body.${size}` }), STEPS),
       footer: sizeVariants(
@@ -258,7 +271,7 @@ export const recipe = defineSlotRecipe({
         STEPS,
       ),
       nav: sizeVariants((size) => ({ gap: `gap.${size}` }), STEPS),
-      title: sizeVariants((size) => ({ textStyle: `heading.${size}` }), STEPS),
+      title: TITLES,
       toolbar: sizeVariants((size) => ({ gap: `gap.${size}`, paddingBlock: `gap.${size}` }), STEPS),
     }),
   },

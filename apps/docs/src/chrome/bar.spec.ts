@@ -3,16 +3,31 @@ import { describe, expect, it } from "vitest";
 import { opened } from "#app.fixtures.tsx";
 
 describe("Bar", () => {
-  it("leads the brand to the index", async () => {
+  it("draws the row as a toolbar named for what it acts on", async () => {
     const result = await opened("/components/actions/button");
 
-    expect(result.getByRole("link", { name: "Stealth" }).getAttribute("href")).toBe("/components");
+    expect(result.getByRole("toolbar", { name: "Catalogue" })).toBeDefined();
   });
 
-  it("offers the control that opens the navigation", async () => {
+  it("gathers every control under one tab stop", async () => {
+    const result = await opened("/components/actions/button");
+    const row = result.getByRole("toolbar", { name: "Catalogue" });
+    const controls = Array.from(row.querySelectorAll<HTMLElement>("a, button"));
+
+    expect(controls).toHaveLength(4);
+    expect(controls.filter((control) => control.tabIndex === 0)).toHaveLength(1);
+  });
+
+  it("draws the brand", async () => {
     const result = await opened("/components/actions/button");
 
-    expect(result.getByRole("button", { name: "Navigation" })).toBeDefined();
+    expect(result.getByRole("link", { name: "Stealth" })).toBeDefined();
+  });
+
+  it("names the control that opens the navigation in words a glyph cannot say", async () => {
+    const result = await opened("/components/actions/button");
+
+    expect(result.getByRole("button", { name: "Navigation" }).textContent).toBe("");
   });
 
   it("names the theme in force", async () => {

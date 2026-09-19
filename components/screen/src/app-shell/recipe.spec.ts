@@ -33,12 +33,29 @@ describe("recipe", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
   });
 
-  it("offers the two axes a shell takes", () => {
-    expect(axesOf(recipe)).toStrictEqual(["scroll", "variant"]);
+  it("offers the three axes a shell takes", () => {
+    expect(axesOf(recipe)).toStrictEqual(["divided", "scroll", "variant"]);
   });
 
-  it("scrolls a plain page when nothing is asked for", () => {
-    expect(defaultsOf(recipe)).toStrictEqual({ scroll: "page", variant: "plain" });
+  it("scrolls a plain divided page when nothing is asked for", () => {
+    expect(defaultsOf(recipe)).toStrictEqual({ divided: true, scroll: "page", variant: "plain" });
+  });
+
+  it("parts each bar and each panel from the page with one hairline on its inner edge", () => {
+    expect(recipe.variants?.["divided"]?.["true"]).toStrictEqual({
+      aside: { borderColor: "border", borderInlineStartWidth: "sm" },
+      footer: { borderBlockStartWidth: "sm", borderColor: "border" },
+      header: { borderBlockEndWidth: "sm", borderColor: "border" },
+      navbar: { borderColor: "border", borderInlineEndWidth: "sm" },
+    });
+  });
+
+  it("fills a bar that pins to the window", () => {
+    expect(recipe.base?.["header"]?.["&[data-sticky]"]).toMatchObject({
+      background: "bg",
+      position: "sticky",
+    });
+    expect(recipe.base?.["footer"]?.["&[data-sticky]"]).toMatchObject({ background: "bg" });
   });
 
   it("offers the three ways the page and the panels are set against the ground", () => {

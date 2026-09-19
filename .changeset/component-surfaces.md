@@ -26,3 +26,10 @@ component-surfaces: publish Card
   leave the card reachable by pointer alone.
 - Two named compounds: `toned` draws the palette edge where a status meets a look that shows one,
   and `lifted` deepens the shadow where an interactive card is elevated.
+
+component-surfaces: stretch the title's link over an interactive card
+
+- `interactive` draws a pseudo-element from the link in `Card.Title` over the root, which is the
+  card's positioned ancestor. A press anywhere on the card follows the link, while the link alone
+  holds the focus and the name. The card showed a pointer cursor before this and followed nothing
+  outside the title.

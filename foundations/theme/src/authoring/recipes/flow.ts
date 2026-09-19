@@ -158,6 +158,41 @@ export function fittedColumns(
 }
 
 /**
+ * Writes the `columns` axis of a grid that fills its row with columns of one measure whether or
+ * not there are entries for all of them, keyed `fill-<measure>`.
+ *
+ * @remarks
+ *   The difference from `fit-<measure>` shows on a row with fewer entries than columns. A fitted
+ *   grid drops the empty columns and stretches the entries across the row, so one card in a group
+ *   of one runs the whole width. A filled grid keeps the empty columns, so that card keeps the
+ *   measure every other card has.
+ */
+export function filledColumns(): Record<`fill-${Width}`, SystemStyleObject>;
+
+/**
+ * Writes the filled `columns` axis for the measures a recipe names.
+ *
+ * @typeParam Offered - The measures the recipe offers.
+ */
+export function filledColumns<const Offered extends Width>(
+  widths: readonly Offered[],
+): Record<`fill-${Offered}`, SystemStyleObject>;
+
+/**
+ * Writes one entry per measure, each a template that fills the row with columns of it.
+ */
+export function filledColumns(
+  widths: readonly Width[] = WIDTHS,
+): Record<string, SystemStyleObject> {
+  return Object.fromEntries(
+    widths.map((width) => [
+      `fill-${width}`,
+      { gridTemplateColumns: `repeat(auto-fill, minmax(min({sizes.${width}}, 100%), 1fr))` },
+    ]),
+  );
+}
+
+/**
  * Selects a count of columns, which a grid draws and an entry spans.
  */
 export type Count = "1" | "10" | "11" | "12" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";

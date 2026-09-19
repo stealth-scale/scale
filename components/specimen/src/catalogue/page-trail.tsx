@@ -29,14 +29,17 @@ export interface TrailProps {
  * @remarks
  *   A component of its own because the path is read with a hook, and a page placed under nothing
  *   draws no trail at all. Draw it inside `Page.Header` from the screen package, which the page
- *   does.
+ *   does. The link matches its route exactly, because every page hangs under the index and the
+ *   router would otherwise say the trail is the current page on each of them.
  */
 export function Trail({ to }: TrailProps): ReactElement {
   const { t } = useTranslation("specimen");
 
   return (
     <Page.Context>
-      <Back to={useRouteHref(to)}>{t("page.back")}</Back>
+      <Back activeOptions={{ exact: true }} to={useRouteHref(to)}>
+        {t("page.back")}
+      </Back>
     </Page.Context>
   );
 }

@@ -6,8 +6,9 @@
  *   down either side of the page. A part left out takes no room, so a shell with one bar and no
  *   aside is the same component with fewer children.
  *   Every part is a bare container. The shell states where things go, what scrolls and how they
- *   move; what they look like is the application's, through style props or a theme. The backdrop
- *   alone is filled, because a backdrop is nothing else.
+ *   move, and draws the hairlines between its regions. What the parts look like is the
+ *   application's, through a theme. The backdrop is filled, because a backdrop is nothing else,
+ *   and a pinned bar is filled, because the page scrolls under it.
  *   A panel in the body is a track whose width moves between the width it opens to and the width it
  *   closes to. What it holds keeps the open width, so the contents do not reflow while the track
  *   moves and the track clips them instead. A panel too wide for the window leaves the body, is
@@ -102,8 +103,12 @@ const PANEL = {
 
 /**
  * Writes what a bar pinned to the window is placed by.
+ *
+ * @remarks
+ *   The fill is not optional. A pinned bar has the page scrolling under it, and a bar with no fill
+ *   shows the page through itself.
  */
-const PINNED = { position: "sticky", zIndex: "sticky" };
+const PINNED = { background: "bg", position: "sticky", zIndex: "sticky" };
 
 /**
  * Writes what a panel is placed by while the window is what scrolls: stuck under the bars pinned
@@ -186,7 +191,7 @@ export const recipe = defineSlotRecipe({
     trigger: { flexShrink: "0" },
   },
   className: CLASS,
-  defaultVariants: { scroll: "page", variant: "plain" },
+  defaultVariants: { divided: true, scroll: "page", variant: "plain" },
   jsx: [/^AppShell(\.\w+)?$/u],
   slots: [
     "root",
@@ -201,6 +206,22 @@ export const recipe = defineSlotRecipe({
     "backdrop",
   ],
   variants: {
+    /**
+     * Whether a hairline parts each bar and each panel from the page.
+     *
+     * @remarks
+     *   The lines are the shell's, because the edge between two of its regions is a thing only the
+     *   shell knows about. A sidebar inside a panel draws its ground and no line of its own.
+     */
+    divided: {
+      true: {
+        aside: { borderColor: "border", borderInlineStartWidth: "sm" },
+        footer: { borderBlockStartWidth: "sm", borderColor: "border" },
+        header: { borderBlockEndWidth: "sm", borderColor: "border" },
+        navbar: { borderColor: "border", borderInlineEndWidth: "sm" },
+      },
+    },
+
     /**
      * What scrolls under the bars: the page inside a shell the height of the window, or the window
      * itself with the bars told to stick pinning to it.

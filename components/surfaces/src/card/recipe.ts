@@ -110,6 +110,11 @@ export const recipe = defineSlotRecipe({
 
     /**
      * Whether the whole card answers to a pointer, for one whose title holds the link.
+     *
+     * @remarks
+     *   The link in the title stretches a pseudo-element over the root, which is the card's one
+     *   positioned ancestor, so a press anywhere on the card follows the link while the link alone
+     *   holds the focus and the name.
      */
     interactive: {
       true: {
@@ -121,6 +126,7 @@ export const recipe = defineSlotRecipe({
           transitionProperty: "common",
           transitionTimingFunction: "out",
         },
+        title: { "& > a::after": { content: '""', inset: "0", position: "absolute" } },
       },
     },
 

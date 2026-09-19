@@ -108,3 +108,45 @@ component-screen: publish AppShell, Page, Section, Sidebar, Switcher and Toolbar
   from the recipe's own class name. `Page`'s rule dropping the header's hairline above a navigation
   selected `[data-part=nav]`, which nothing in this repository stamps, and its specification
   asserted the same dead selector.
+
+component-screen: give the page a gutter by default and set its title larger than a section's
+
+- `Page` stated no `gutter` in its defaults, so `--page-gutter` was unset and every band's inline
+  padding fell to 0. The default is `md`.
+- `size` sets the title one heading step larger than a section's at the same step: `heading.md` at
+  `sm`, `heading.lg` at `md` and `heading.xl` at `lg`. The two were set in the same role, so an h1
+  and an h2 read at one size.
+- The body and the banner inset on the block axis alone, so the gutter holds on the inline axis.
+
+component-screen: part plain sections with room round the hairline
+
+- A plain `Section` after another draws its hairline with `gap.2xl` above and below, so two sections
+  read as two. The hairline had no room on either side.
+
+component-screen: add the divided axis to AppShell and fill a pinned bar
+
+- `AppShell divided` draws a hairline on the inner edge of each bar and each panel: under the
+  header, over the footer, on the end of the navbar and on the start of the aside. Default `true`.
+- A header or a footer told to stick takes `bg` as its fill, the way a page's pinned band does. It
+  had none, so the page showed through it.
+
+component-screen: add the subtle variant to Sidebar
+
+- `Sidebar variant="subtle"` is `bg.subtle` and no line, for a sidebar inside a shell panel where
+  the shell draws the hairline.
+
+component-screen: add the placement axis to Switcher
+
+- `Switcher placement="toolbar"` takes the width of its words and drops the detail. `sidebar`, the
+  default, fills the column as before. The root's `inlineSize: full` moved from the base into the
+  `sidebar` value.
+- `Switcher.Root` types its own `size` and `variant` over the menu's, whose `variant` axis it
+  intersected to a type no value satisfied.
+
+component-screen: measure the toolbar and let an item draw any control
+
+- `Toolbar.Root` measures its own width and writes `data-narrow` below `sm`, which is what folds a
+  `Toolbar.Action` by its priority and shows `Toolbar.Folded`. Nothing wrote the attribute before
+  this, so the row never folded.
+- `Toolbar.Item as={…}` draws the component named with the row's tab stop on the element it renders,
+  and takes that component's props beside its own: `as={Button}`, `as={Switcher.Trigger}`.

@@ -7,13 +7,15 @@
  *   theme moves the spacing and the measures of every grid by restating two scales. The columns
  *   axis states a count or a measure: a count draws that many equal columns, and `fit-<measure>`
  *   draws as many columns of that measure as there is room for and wraps the rest, which is the
- *   whole of the grid's responsiveness and needs no breakpoint from the page.
+ *   whole of the grid's responsiveness and needs no breakpoint from the page. `fill-<measure>`
+ *   keeps the columns a short row leaves empty, so an entry alone on a row keeps its measure.
  */
 
 import {
   alignVariants,
   columnCounts,
   defineSlotRecipe,
+  filledColumns,
   fittedColumns,
   gapSizes,
   justifyVariants,
@@ -33,7 +35,11 @@ export const recipe = defineSlotRecipe({
   slots: ["root", "item"],
   variants: {
     align: onSlot("root", alignVariants()),
-    columns: { ...onSlot("root", columnCounts()), ...onSlot("root", fittedColumns()) },
+    columns: {
+      ...onSlot("root", columnCounts()),
+      ...onSlot("root", filledColumns()),
+      ...onSlot("root", fittedColumns()),
+    },
     flow: {
       column: { root: { gridAutoFlow: "column" } },
       dense: { root: { gridAutoFlow: "row dense" } },

@@ -1,4 +1,4 @@
-import { createRef, type ReactElement, type ReactNode } from "react";
+import { type ComponentProps, createRef, type ReactElement, type ReactNode } from "react";
 
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
@@ -11,6 +11,10 @@ import { Root } from "#roving-focus/root.tsx";
 
 function grouped(children: ReactNode): ReactElement {
   return <Root>{children}</Root>;
+}
+
+function Owned(props: ComponentProps<"button">): ReactElement {
+  return <button {...props} id="menu" />;
 }
 
 describe("Item", () => {
@@ -35,10 +39,16 @@ describe("Item", () => {
     expect(slotElement(container, "roving-focus", "item").getAttribute("id")).toBe("cut");
   });
 
-  it("answers to an id of its own where a caller states none", () => {
+  it("writes no id on the element where a caller states none", () => {
     const { container } = render(grouped(<Item>Cut</Item>));
 
-    expect(slotElement(container, "roving-focus", "item").getAttribute("id")).not.toBe("");
+    expect(slotElement(container, "roving-focus", "item").getAttribute("id")).toBeNull();
+  });
+
+  it("keeps the id a control drawn as the item writes for itself", () => {
+    const { container } = render(grouped(<Item as={Owned}>Cut</Item>));
+
+    expect(slotElement(container, "roving-focus", "item").getAttribute("id")).toBe("menu");
   });
 
   it("tells a screen reader that a disabled item is disabled", () => {

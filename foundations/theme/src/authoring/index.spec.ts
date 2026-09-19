@@ -46,6 +46,7 @@ const SURFACE = [
   "FIELDS",
   "fieldStatusVariants",
   "fieldVariants",
+  "filledColumns",
   "fittedColumns",
   "FLATS",
   "flatVariants",

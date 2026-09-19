@@ -33,12 +33,26 @@ describe("recipe", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
   });
 
-  it("offers the two axes a switcher takes", () => {
-    expect(axesOf(recipe)).toStrictEqual(["size", "variant"]);
+  it("offers the three axes a switcher takes", () => {
+    expect(axesOf(recipe)).toStrictEqual(["placement", "size", "variant"]);
   });
 
-  it("draws a plain control at the middle size when nothing is asked for", () => {
-    expect(defaultsOf(recipe)).toStrictEqual({ size: "md", variant: "plain" });
+  it("draws a plain control at the middle size in a sidebar when nothing is asked for", () => {
+    expect(defaultsOf(recipe)).toStrictEqual({
+      placement: "sidebar",
+      size: "md",
+      variant: "plain",
+    });
+  });
+
+  it("fills a sidebar's column and takes the width of its words in a toolbar", () => {
+    expect(recipe.variants?.["placement"]?.["sidebar"]?.["root"]).toStrictEqual({
+      inlineSize: "full",
+    });
+    expect(recipe.variants?.["placement"]?.["toolbar"]).toStrictEqual({
+      detail: { display: "none" },
+      root: { inlineSize: "auto" },
+    });
   });
 
   it("offers the three ways the control is set against what holds it", () => {

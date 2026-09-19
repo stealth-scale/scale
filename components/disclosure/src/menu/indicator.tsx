@@ -8,6 +8,8 @@
  *   read as part of that control's name. A chevron drawn here would otherwise be announced after
  *   the words the control was named with, and the control already carries `aria-expanded`. A caller
  *   whose mark says something the name does not can state `aria-hidden={false}`.
+ *   The element is `span`, because it sits inside the control and a button holds phrasing content
+ *   alone.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -20,7 +22,7 @@ import { useMenu } from "#menu/machine.ts";
 /**
  * Draws the mark at the size the root states.
  */
-const Marked = withContext("div", "indicator");
+const Marked = withContext("span", "indicator");
 
 /**
  * Describes what the mark takes.
@@ -30,7 +32,7 @@ export type IndicatorProps = ComponentProps<typeof Marked>;
 /**
  * Says whether the menu is open.
  *
- * @param props - Everything a styled div takes.
+ * @param props - Everything a styled span takes.
  * @returns The mark, carrying the open state.
  */
 export function Indicator(props: IndicatorProps): ReactElement {

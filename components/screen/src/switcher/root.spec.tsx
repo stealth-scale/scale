@@ -29,6 +29,18 @@ describe("Root", () => {
     );
   });
 
+  it("draws the control in the look it is given", () => {
+    const { container } = render(
+      <Root variant="outline">
+        <Trigger label="Workspace">Acme</Trigger>
+      </Root>,
+    );
+
+    expect(slotClasses(container, "switcher", "root")).toContain(
+      variantClass(slotClass("switcher", "root"), "variant", "outline"),
+    );
+  });
+
   it("keeps the menu closed until it is asked to open", () => {
     render(
       <Root>

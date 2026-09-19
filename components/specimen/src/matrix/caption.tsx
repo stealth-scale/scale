@@ -24,18 +24,20 @@ export interface CaptionProps {
 
 /**
  * Draws a caption in the library's text: the prop in the muted ink where the axis names one, then
- * the value in full ink.
+ * the value in full ink, both at the small size.
  *
  * @remarks
  *   The muted ink and no quieter. A line this small in a lighter ink fails the contrast every
  *   theme guarantees. Both inks are tones of the library's paragraph, so a theme that moves them
- *   moves the caption with them.
+ *   moves the caption with them. The value states the same size as the prop, because a nested
+ *   text would otherwise take the middle size and the two halves of one line would read at two
+ *   sizes.
  */
 export function Caption({ children, knob }: CaptionProps): ReactElement {
   return (
-    <Text size="xs" tone="muted">
+    <Text size="sm" tone="muted">
       {knob === undefined ? null : `${knob} = `}
-      <Text as="span" tone="default" weight="medium">
+      <Text as="span" size="sm" tone="default" weight="medium">
         {children}
       </Text>
     </Text>

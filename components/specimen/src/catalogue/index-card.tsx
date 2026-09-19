@@ -9,6 +9,7 @@ import { Card } from "@stealthscale/component-surfaces";
 import { createLink, useRouteHref } from "@stealthscale/provider-router";
 
 import { type Listed } from "#catalogue/grouped.ts";
+import { marked } from "#catalogue/marked.tsx";
 
 /**
  * Draws the library's link over the router's, so a card's title navigates without a reload.
@@ -30,22 +31,25 @@ export interface EntryCardProps {
  *
  * @remarks
  *   The title is the link rather than the whole card, so a screen reader lists the page by its
- *   name and the card's words stay plain text. The card is interactive, which draws the focus of
- *   the link on the whole card.
+ *   name and the card's words stay plain text. The card is interactive, which stretches the link
+ *   over the whole card and draws its focus there. The link takes the card's ink, because the card
+ *   already says it is pressed and a grid of blue titles reads as a list of links rather than as
+ *   a catalogue. The card is outlined rather than raised, so a grid of them reads as one surface
+ *   with edges rather than as a field of shadows.
  */
 export function EntryCard({ page }: EntryCardProps): ReactElement {
   const href = useRouteHref(page.id);
 
   return (
-    <Card.Root interactive>
+    <Card.Root interactive variant="outline">
       <Card.Header>
         <Card.Title>
-          <Opening to={href} variant="plain">
+          <Opening inherit to={href} variant="plain">
             {page.entry.label}
           </Opening>
         </Card.Title>
         {page.entry.about === undefined || page.entry.about === "" ? null : (
-          <Card.Description>{page.entry.about}</Card.Description>
+          <Card.Description>{marked(page.entry.about)}</Card.Description>
         )}
       </Card.Header>
     </Card.Root>

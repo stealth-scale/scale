@@ -30,6 +30,16 @@ export const recipe = defineRecipe({
   jsx: [/^Link$/u],
   variants: {
     /**
+     * Whether the link takes the ink of the words around it rather than the theme's link ink.
+     *
+     * @remarks
+     *   For a link that is the title of a card or the brand in a bar, where the surface it sits on
+     *   already says it is pressed and the link ink would read as a second colour on the page. The
+     *   underline under a pointer and the focus ring stay, so the link is still found.
+     */
+    inherit: { true: { _visited: { color: "inherit" }, color: "inherit" } },
+
+    /**
      * Whether the underline is drawn at rest or only under a pointer.
      */
     variant: {

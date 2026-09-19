@@ -8,6 +8,9 @@
  *   the stop without registering would leave the stop pointing at nothing and take the group out
  *   of the tab order. The element is kept in state rather than in a ref, because the effect that
  *   registers it has to run again once the element is there, and a ref changing starts no effect.
+ *   The group tracks an item by its registration, so the element carries an id only where a caller
+ *   names one. A control drawn as an item keeps whatever id it writes for itself, such as the id a
+ *   menu's control is pointed at.
  */
 
 import {
@@ -40,7 +43,8 @@ export interface ItemProps extends Omit<ComponentProps<typeof Shell>, "ref"> {
   disabled?: boolean | undefined;
 
   /**
-   * The id the item answers to, which the group generates where a caller states none.
+   * The id the item answers to, which the group generates where a caller states none. The element
+   * carries it only where a caller states it.
    */
   id?: string | undefined;
 
@@ -102,7 +106,7 @@ export function Item(props: ItemProps): ReactElement {
       aria-disabled={disabled || undefined}
       data-active={activeId === id ? "" : undefined}
       data-disabled={disabled ? "" : undefined}
-      id={id}
+      id={named}
       onFocus={claim}
       ref={attach}
       tabIndex={!disabled && activeId === id ? 0 : -1}

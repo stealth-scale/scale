@@ -86,8 +86,9 @@ Set `interactive` and put a real link in the title for a card a reader presses:
 </Card.Root>
 ```
 
-The whole card shows the focus while the link carries the behaviour. Do not put a press handler or a
-`tabindex` on the root.
+The whole card follows the link and shows its focus, while the link alone carries the name and the
+behaviour. Do not put a press handler or a `tabindex` on the root, and put no second link in the
+title.
 
 Set `divided` to rule the header and the footer apart from the band between them.
 

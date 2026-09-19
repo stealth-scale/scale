@@ -4,6 +4,7 @@ import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { drawn } from "@stealthscale/testing-react";
+import { slotElement } from "@stealthscale/testing-theme";
 
 import { Page } from "#catalogue/page.tsx";
 import { type Indexed } from "#catalogue/types.ts";
@@ -78,6 +79,21 @@ describe("Page", () => {
     const { getByText } = await drawn(<Page entry={entry(page([SIZES]))} />);
 
     expect(getByText("Every step.")).toBeDefined();
+  });
+
+  it("draws the code spans of a sentence as code", async () => {
+    const looks = { about: "The `glass` look.", draw: marked, title: "Looks" };
+    const { container } = await drawn(<Page entry={entry(page([looks]), "One `size`.")} />);
+
+    expect(
+      Array.from(container.querySelectorAll("code"), (code) => code.textContent),
+    ).toStrictEqual(["size", "glass"]);
+  });
+
+  it("stands a scene's component on a stage inside its section", async () => {
+    const { container, getByText } = await drawn(<Page entry={entry(page([SIZES]))} />);
+
+    expect(slotElement(container, "card", "root").contains(getByText("drawn"))).toBe(true);
   });
 
   it("writes no opening for a scene that declares none", async () => {

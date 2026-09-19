@@ -147,12 +147,22 @@ export const recipe = defineSlotRecipe({
      * @remarks
      *   A plain section draws one hairline, above itself, and only where another section stands
      *   before it. The rule reads the root's own class on both sides, so it never fires against a
-     *   heading or anything else the page put there.
+     *   heading or anything else the page put there. The hairline keeps one large gap on either
+     *   side, so two sections read as two rather than as one list with a line through it.
      *   A card clips what it holds to its corners, so a body told to bleed runs to the edge without
      *   squaring the corner it runs into.
      */
     variant: {
-      plain: { root: { "& + &": { borderBlockStartWidth: "sm", borderColor: "border" } } },
+      plain: {
+        root: {
+          "& + &": {
+            borderBlockStartWidth: "sm",
+            borderColor: "border",
+            marginBlockStart: "gap.2xl",
+            paddingBlockStart: "gap.2xl",
+          },
+        },
+      },
       surface: { root: { overflow: "clip" } },
     },
   },

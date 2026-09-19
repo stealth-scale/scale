@@ -105,10 +105,15 @@ export const recipe = defineSlotRecipe({
 
     /**
      * How the column is set against the screen around it.
+     *
+     * @remarks
+     *   `subtle` is the muted ground and no line, for a sidebar inside a shell panel. The shell
+     *   draws the hairline between the panel and the page, so a line here would be a second one.
      */
     variant: onSlot("root", {
       outline: { borderColor: "border", borderInlineEndWidth: "sm" },
       plain: { background: "transparent" },
+      subtle: { background: "bg.subtle" },
       surface: { ...surface(), borderRadius: "0" },
     }),
   },

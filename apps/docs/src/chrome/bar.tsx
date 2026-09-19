@@ -5,52 +5,40 @@
 
 import { type ReactElement } from "react";
 
-import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
-import { Container, Grid, Stack } from "@stealthscale/component-layout";
-import { Link } from "@stealthscale/component-navigation";
-import { AppShell } from "@stealthscale/component-screen";
+import { Toolbar } from "@stealthscale/component-screen";
 import { useTranslation } from "@stealthscale/provider-i18n";
-import { createLink, useRouteHref } from "@stealthscale/provider-router";
 
-import { INDEX } from "#catalogue.ts";
+import { Brand } from "#chrome/brand.tsx";
 import { ColorModeSwitcher } from "#chrome/color-mode-switcher.tsx";
+import { Opener } from "#chrome/opener.tsx";
+import { Panel } from "#chrome/panel.tsx";
 import { ThemeSwitcher } from "#chrome/theme-switcher.tsx";
 
 /**
- * Draws the brand over the router's link, so it leads to the index without a reload.
- */
-const Brand = createLink(Link);
-
-/**
- * Draws the bar's contents as one row inside the reading gutter, the brand at the start and the
- * switchers at the end.
+ * Draws the bar's contents as the library's toolbar, the brand at the start and the switchers at
+ * the end.
  *
  * @remarks
- *   The control that opens the navigation is drawn as a quiet button, and leaves the document where
- *   the navigation has dropped under the page. The switchers sit in a grid of two equal columns,
- *   because each is drawn to fill the head of a sidebar and two of them in a row would otherwise
- *   squeeze each other's words.
+ *   Every control is an item of the row, so the row is one tab stop and the arrows move between
+ *   them. The control that opens the navigation is a quiet square holding one glyph, named in
+ *   words for a screen reader, and leaves the document where the navigation has dropped under the
+ *   page.
  */
 export function Bar(): ReactElement {
   const { t } = useTranslation("docs");
-  const home = useRouteHref(INDEX);
 
   return (
-    <Container size="full">
-      <Stack direction="row" gap="md" justify="between">
-        <Stack direction="row" gap="md">
-          <ButtonPropsProvider value={{ size: "sm", variant: "ghost" }}>
-            <AppShell.Trigger as={Button}>{t("frame.navigation")}</AppShell.Trigger>
-          </ButtonPropsProvider>
-          <Brand to={home} variant="plain">
-            {t("frame.brand")}
-          </Brand>
-        </Stack>
-        <Grid.Root columns="2" gap="sm">
-          <ThemeSwitcher />
-          <ColorModeSwitcher />
-        </Grid.Root>
-      </Stack>
-    </Container>
+    <Toolbar.Root aria-label={t("frame.bar")} size="md">
+      <Toolbar.Start>
+        <Toolbar.Item aria-label={t("frame.navigation")} as={Opener}>
+          <Panel />
+        </Toolbar.Item>
+        <Toolbar.Item as={Brand} />
+      </Toolbar.Start>
+      <Toolbar.End>
+        <ThemeSwitcher />
+        <ColorModeSwitcher />
+      </Toolbar.End>
+    </Toolbar.Root>
   );
 }

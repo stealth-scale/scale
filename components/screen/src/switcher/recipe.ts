@@ -51,12 +51,11 @@ export const recipe = defineSlotRecipe({
       ...interactive(),
       alignItems: "center",
       display: "flex",
-      inlineSize: "full",
       minInlineSize: "0",
     },
   },
   className: "switcher",
-  defaultVariants: { size: "md", variant: "plain" },
+  defaultVariants: { placement: "sidebar", size: "md", variant: "plain" },
   jsx: [/^Switcher(\.\w+)?$/u],
   slots: [
     "root",
@@ -71,6 +70,19 @@ export const recipe = defineSlotRecipe({
     "action",
   ],
   variants: {
+    /**
+     * Where the control sits, which decides how wide it is.
+     *
+     * @remarks
+     *   At the head of a sidebar the control is a row the width of the column, so the name and the
+     *   detail have the column to read in. In a toolbar it is one control among others and takes
+     *   the width of its words, and the detail goes, because a row of controls is one line tall.
+     */
+    placement: {
+      sidebar: { root: { inlineSize: "full" } },
+      toolbar: { detail: { display: "none" }, root: { inlineSize: "auto" } },
+    },
+
     size: onSlots({
       action: sizeVariants(
         (size) => ({

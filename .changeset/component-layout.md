@@ -13,3 +13,9 @@ component-layout: publish Group
 - Six axes: `align`, `attached`, `gap`, `grow`, `justify` and `orientation`.
 - The element is a `div` and says nothing about what it holds. Name the set with `role="group"` and
   `aria-label` where the children are one choice, and use a fieldset where they are form controls.
+
+component-layout: add fill-<measure> to the grid's columns axis
+
+- `Grid.Root columns="fill-xs"` draws as many columns of the measure as fit and keeps the ones a
+  short row leaves empty, so one card in a group of one keeps the measure every other card has. The
+  `fit-<measure>` values still drop the empty columns and stretch the entries across the row.

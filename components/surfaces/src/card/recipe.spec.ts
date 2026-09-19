@@ -99,6 +99,13 @@ describe("recipe", () => {
     });
   });
 
+  it("stretches the title's link over the whole interactive card", () => {
+    expect(recipe.variants?.["interactive"]?.["true"]?.["title"]).toStrictEqual({
+      "& > a::after": { content: '""', inset: "0", position: "absolute" },
+    });
+    expect(recipe.base?.["root"]).toMatchObject({ position: "relative" });
+  });
+
   it("separates the bands with a rule and the root's own inset", () => {
     expect(recipe.variants?.["divided"]?.["true"]?.["header"]).toMatchObject({
       borderBlockEndWidth: "sm",

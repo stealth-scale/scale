@@ -68,3 +68,9 @@ theme: add role tables for a ramp keyed by its own steps
 - `Application.themes` is optional. An application that states no theme draws the foundation alone.
 - A bound element carries `data-recipe` only where `process.env.NODE_ENV` is not `production`, so a
   production page carries no attribute the testing kit alone reads.
+
+theme: publish filledColumns
+
+- `filledColumns()` writes the `columns` axis keyed `fill-<measure>`, beside `fittedColumns()`. The
+  template is `repeat(auto-fill, …)`, so a row with fewer entries than columns keeps the empty
+  columns and an entry alone on a row keeps its measure.

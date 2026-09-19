@@ -13,8 +13,15 @@ describe("recipe", () => {
     expect(recipe.className).toBe("link");
   });
 
-  it("offers the one axis a link takes", () => {
-    expect(axesOf(recipe)).toStrictEqual(["variant"]);
+  it("offers the two axes a link takes", () => {
+    expect(axesOf(recipe)).toStrictEqual(["inherit", "variant"]);
+  });
+
+  it("takes the ink of the words around it whether or not it was visited", () => {
+    expect(recipe.variants?.["inherit"]?.["true"]).toStrictEqual({
+      _visited: { color: "inherit" },
+      color: "inherit",
+    });
   });
 
   it("draws no underline at rest when nothing is asked for", () => {

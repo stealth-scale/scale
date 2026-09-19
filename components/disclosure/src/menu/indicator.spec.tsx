@@ -7,10 +7,10 @@ import { Indicator } from "#menu/indicator.tsx";
 import { composed, listed } from "#menu/menu.fixtures.tsx";
 
 describe("Indicator", () => {
-  it("draws a div inside the root it needs above it", async () => {
+  it("draws a span inside the root it needs above it", async () => {
     const { container } = await drawn(listed(<Indicator />));
 
-    expect(slotElement(container, "menu", "indicator").tagName).toBe("DIV");
+    expect(slotElement(container, "menu", "indicator").tagName).toBe("SPAN");
   });
 
   it("says the menu is shut", async () => {
@@ -26,9 +26,9 @@ describe("Indicator", () => {
   });
 
   it("draws the element as names", async () => {
-    const { container } = await drawn(listed(<Indicator as="span" />));
+    const { container } = await drawn(listed(<Indicator as="i" />));
 
-    expect(slotElement(container, "menu", "indicator").tagName).toBe("SPAN");
+    expect(slotElement(container, "menu", "indicator").tagName).toBe("I");
   });
 
   it("keeps its mark out of the name the control is announced by", async () => {

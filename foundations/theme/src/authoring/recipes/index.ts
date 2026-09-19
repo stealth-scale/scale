@@ -19,6 +19,7 @@ export {
   type Count,
   COUNTS,
   DISTRIBUTIONS,
+  filledColumns,
   fittedColumns,
   gapSizes,
   type Justify,

@@ -93,7 +93,9 @@ holds, so a group of options takes `as="fieldset"` or a role and a label from yo
 Lays its entries out in columns, as `Grid.Root` holding `Grid.Item`. The columns axis states a count
 or a measure: a count draws that many equal columns, and `fit-<measure>` draws as many columns of
 that measure as there is room for and wraps the rest. A column narrows rather than overflowing when
-the grid is narrower than the measure.
+the grid is narrower than the measure. `fill-<measure>` draws the same columns and keeps the ones a
+short row leaves empty, so an entry alone on a row keeps its measure rather than stretching across
+the row.
 
 ```tsx
 import { Grid } from "@stealthscale/component-layout";
@@ -108,14 +110,14 @@ import { Grid } from "@stealthscale/component-layout";
 </Grid.Root>;
 ```
 
-| Axis      | Values                                                  | Default | Styles   |
-| --------- | ------------------------------------------------------- | ------- | -------- |
-| `columns` | `1` to `12`, and `fit-xs` to `fit-8xl`                  | `1`     | the root |
-| `gap`     | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl`       | `md`    | the root |
-| `justify` | `start`, `center`, `end`, `between`, `around`, `evenly` | start   | the root |
-| `align`   | `flex-start`, `flex-end`, `stretch`, `baseline`         | stretch | the root |
-| `flow`    | `row`, `column`, `dense`                                | row     | the root |
-| `span`    | `1` to `12`, and `full`                                 | one     | the item |
+| Axis      | Values                                                          | Default | Styles   |
+| --------- | --------------------------------------------------------------- | ------- | -------- |
+| `columns` | `1` to `12`, `fit-xs` to `fit-8xl`, and `fill-xs` to `fill-8xl` | `1`     | the root |
+| `gap`     | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl`               | `md`    | the root |
+| `justify` | `start`, `center`, `end`, `between`, `around`, `evenly`         | start   | the root |
+| `align`   | `flex-start`, `flex-end`, `stretch`, `baseline`                 | stretch | the root |
+| `flow`    | `row`, `column`, `dense`                                        | row     | the root |
+| `span`    | `1` to `12`, and `full`                                         | one     | the item |
 
 ## Container
 

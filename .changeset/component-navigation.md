@@ -22,3 +22,9 @@ component-navigation: publish NavList
 - `iconic` collapses the list to a rail of marks. Each destination keeps its words under `srOnly`,
   so a screen reader still names it and the words take no room inside the square.
 - Six axes: `highlight`, `iconic`, `radius`, `reveal`, `size` and `variant`.
+
+component-navigation: add the inherit axis to Link
+
+- `Link inherit` takes the ink of the words around it in place of the theme's link ink, visited or
+  not, and keeps the underline under a pointer and the focus ring. For the title of a card and the
+  brand in a bar, where the surface already says the words are pressed.

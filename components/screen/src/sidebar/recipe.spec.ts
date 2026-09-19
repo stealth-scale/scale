@@ -41,8 +41,14 @@ describe("recipe", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md", variant: "plain" });
   });
 
-  it("offers the three ways the column is set against the screen", () => {
-    expect(valuesOf(recipe, "variant")).toStrictEqual(["outline", "plain", "surface"]);
+  it("offers the four ways the column is set against the screen", () => {
+    expect(valuesOf(recipe, "variant")).toStrictEqual(["outline", "plain", "subtle", "surface"]);
+  });
+
+  it("draws the subtle column as a ground and no line", () => {
+    expect(recipe.variants?.["variant"]?.["subtle"]?.["root"]).toStrictEqual({
+      background: "bg.subtle",
+    });
   });
 
   it("scrolls the middle band rather than the column", () => {

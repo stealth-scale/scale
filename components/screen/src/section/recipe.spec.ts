@@ -90,7 +90,12 @@ describe("recipe", () => {
 
   it("parts one plain section from the one before it and from nothing else", () => {
     expect(recipe.variants?.["variant"]?.["plain"]?.["root"]).toStrictEqual({
-      "& + &": { borderBlockStartWidth: "sm", borderColor: "border" },
+      "& + &": {
+        borderBlockStartWidth: "sm",
+        borderColor: "border",
+        marginBlockStart: "gap.2xl",
+        paddingBlockStart: "gap.2xl",
+      },
     });
   });
 

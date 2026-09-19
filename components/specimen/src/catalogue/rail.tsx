@@ -36,7 +36,9 @@ export interface RailProps {
  *   whatever else the application's sidebar holds. One landmark rather than one per group, so a
  *   reader jumping by landmark hears the catalogue once. The list is keyed by the group of the page
  *   being read, so a navigation that lands in another group opens that branch and closes the rest,
- *   while a branch a reader opened by hand stays open until they move on.
+ *   while a branch a reader opened by hand stays open until they move on. The row of the page
+ *   being read carries a bar down its leading edge beside its tint, so it is marked twice over for
+ *   a reader who cannot separate the tint from the ground.
  */
 export function Rail({ declarations }: RailProps): ReactElement {
   const { t } = useTranslation("specimen");
@@ -47,7 +49,7 @@ export function Rail({ declarations }: RailProps): ReactElement {
   return (
     <Sidebar.Nav>
       <Sidebar.NavLabel>{t("rail.label")}</Sidebar.NavLabel>
-      <NavList.Root key={opened ?? ""} size="sm">
+      <NavList.Root highlight="bar" key={opened ?? ""} size="md">
         {groups.map((group) => (
           <Branch group={group} holdsCurrent={group.name === opened} key={group.name} />
         ))}

@@ -1,6 +1,6 @@
 /**
- * Renders a control of the bar with the shell it reads in scope, and drives it the way a pointer
- * does.
+ * Renders a control of the bar with the shell and the row it reads in scope, and drives it the way
+ * a pointer does.
  */
 
 import { type ReactElement } from "react";
@@ -8,6 +8,7 @@ import { type ReactElement } from "react";
 import { type RenderResult } from "@testing-library/react";
 import { catalogues } from "virtual:i18n";
 
+import { Toolbar } from "@stealthscale/component-screen";
 import { Shell } from "@stealthscale/provider-shell";
 import { memoryStore } from "@stealthscale/settings";
 import { drawn, pressed } from "@stealthscale/testing-react";
@@ -15,8 +16,11 @@ import { drawn, pressed } from "@stealthscale/testing-react";
 import { THEMES } from "#themes.ts";
 
 /**
- * Draws a control inside the shell, with settings kept in memory so two cases share nothing.
+ * Draws a control inside the shell and the bar's row, with settings kept in memory so two cases
+ * share nothing.
  *
+ * @remarks
+ *   The row is there because a control of the bar is an item of it and throws outside one.
  * @param control - The control under test.
  * @returns The render, once the control's machine has committed.
  */
@@ -29,7 +33,7 @@ export function shelled(control: ReactElement): Promise<RenderResult> {
       store={memoryStore()}
       themes={THEMES}
     >
-      {control}
+      <Toolbar.Root aria-label="Catalogue">{control}</Toolbar.Root>
     </Shell>,
   );
 }
