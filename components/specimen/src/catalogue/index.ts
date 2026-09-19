@@ -8,6 +8,7 @@ export { type Group, grouped, type Listed } from "#catalogue/grouped.ts";
 export { Index, type IndexProps } from "#catalogue/index-page.tsx";
 export { Page, type PageProps } from "#catalogue/page.tsx";
 export { type Part, parted, type Row } from "#catalogue/parted.ts";
+export { RailSearch, type RailSearchProps } from "#catalogue/rail-search.tsx";
 export { Rail, type RailProps } from "#catalogue/rail.tsx";
 export { declarations, indexId, NAMED, type Placing, routeId } from "#catalogue/routes.tsx";
 export type { Anatomy, Dropped, Indexed, Member, Prop } from "#catalogue/types.ts";

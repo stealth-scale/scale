@@ -56,4 +56,10 @@ describe("Root", () => {
       variantClass(slotClass("app-shell", "root"), "variant", "plain"),
     ]);
   });
+
+  it("marks itself settled once it has mounted", () => {
+    const { container } = render(<Root />);
+
+    expect(slotElement(container, "app-shell", "root").dataset["settled"]).toBe("");
+  });
 });

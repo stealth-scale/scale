@@ -96,7 +96,9 @@ theme: publish inked, drawn, hues, scaleOf, stepOf, mixed and stated from the au
   fill tinted from the page stays on the page whatever the page is.
 - `hues()` draws every hue palette that way: each hue the theme states from its color, the grey from
   the ink, and every other from the foundation's hue at the steps the foundation places its solids
-  on.
+  on. An orange and a yellow the theme does not state are drawn a step lighter by day, at 500 rather
+  than 600. A warm hue at the step a blue is drawn at reads as brown, and a warning drawn in it read
+  as earth.
 - `scaleOf()` draws a ramp in the hue and at the chroma of a color, `stepOf()` writes one step of a
   ramp, `mixed()` mixes two colors in OKLab, and `stated()` writes a color outright in both modes.
 

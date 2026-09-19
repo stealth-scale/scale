@@ -6,6 +6,9 @@
     "back": "Catalogue"
   },
   "rail": {
+    "clear": "Clear the filter",
+    "empty": "No pages match",
+    "filter": "Filter pages",
     "label": "Components",
     "ungrouped": "Other"
   }

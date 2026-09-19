@@ -48,12 +48,26 @@ export const STICKY_OFFSET = "--app-shell-sticky-offset";
 export const STICKY_TOP = "--app-shell-sticky-top";
 
 /**
- * Writes how a part of the shell moves, and states no motion for a reader who asked for none.
+ * The attribute the root writes once the shell has been laid out and painted for the first time.
+ *
+ * @remarks
+ *   A panel measures the shell after its first render and may open, close or leave the body on
+ *   what it measured. A part that moved between that first render and the measurement would
+ *   slide into place as the page appeared, so nothing in the shell moves until the root says it
+ *   has settled.
+ */
+export const SETTLED = "data-settled";
+
+/**
+ * Writes how a part of the shell moves, and states no motion for a reader who asked for none, nor
+ * before the shell has settled.
  */
 const MOVING = {
   _motionReduce: { transitionDuration: "0s" },
   transitionDuration: "moderate",
   transitionTimingFunction: "in-smooth",
+
+  [`.${CLASS}__root:not([${SETTLED}]) &`]: { transitionDuration: "0s" },
 };
 
 /**
@@ -65,17 +79,33 @@ const MOVING = {
  *   the notch and the home bar where the application draws under them.
  *   It keeps its width while it is closed and slides out instead, because a sheet that narrows to
  *   nothing reads as the page pushing it away rather than as the sheet leaving.
+ *   The slide takes the moderate duration and the visibility takes none. A closed sheet goes out
+ *   of sight once the slide has ended, through a delay as long as the slide, and an opening sheet
+ *   comes into sight the moment it opens. A browser refuses to focus an element that is hidden,
+ *   and the shell takes the reader into a sheet in the commit that opens it, so a visibility that
+ *   changed with the slide left that move refused on its first frame. Measured in Chromium: the
+ *   panel read `visibility: hidden` at the moment the trigger was pressed and the reader was left
+ *   on the body.
  */
 const OVERLAID = {
+  _motionReduce: { transitionDelay: "0s" },
   blockSize: "100dvh",
   inlineSize: `min(var(${PANEL_SIZE}), calc(100dvw - {sizes.16}))`,
   insetBlock: "0",
   paddingBlockEnd: "safe.bottom",
   paddingBlockStart: "safe.top",
   position: "fixed",
+  transitionDelay: "0s",
+  transitionDuration: "{durations.moderate}, 0s",
   transitionProperty: "translate, visibility",
   zIndex: "modal",
 };
+
+/**
+ * Writes what a closed sheet shares whichever side it slides out to: the visibility held until
+ * the slide has ended.
+ */
+const SLID_OUT = { transitionDelay: "0s, {durations.moderate}" };
 
 /**
  * Writes what both panels share.
@@ -132,7 +162,11 @@ export const recipe = defineSlotRecipe({
 
       "&[data-overlaid]": {
         ...OVERLAID,
-        "&[data-state=closed]": { _rtl: { translate: "-100% 0" }, translate: "100% 0" },
+        "&[data-state=closed]": {
+          ...SLID_OUT,
+          _rtl: { translate: "-100% 0" },
+          translate: "100% 0",
+        },
         insetInlineEnd: "0",
       },
     },
@@ -184,7 +218,11 @@ export const recipe = defineSlotRecipe({
 
       "&[data-overlaid]": {
         ...OVERLAID,
-        "&[data-state=closed]": { _rtl: { translate: "100% 0" }, translate: "-100% 0" },
+        "&[data-state=closed]": {
+          ...SLID_OUT,
+          _rtl: { translate: "100% 0" },
+          translate: "-100% 0",
+        },
         insetInlineStart: "0",
       },
     },

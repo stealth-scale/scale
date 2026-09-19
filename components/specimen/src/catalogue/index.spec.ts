@@ -9,6 +9,7 @@ describe("index", () => {
       "NAMED",
       "Page",
       "Rail",
+      "RailSearch",
       "declarations",
       "declared",
       "entryOf",

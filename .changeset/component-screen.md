@@ -170,3 +170,15 @@ component-screen: draw the shell the way a page is read
   semibold and its control in the neutral palette's ink, and in a toolbar draws its mark as a tinted
   square with a wider gap. The tick of an option is placed at the row's end whatever the menu
   states, and the mark that opens the list holds still and centred as the list opens.
+
+component-screen: hold the shell still until it has settled and bring a sheet into sight at once
+
+- `AppShell.Root` writes `data-settled` on itself in an effect after its first paint, and no panel
+  and no backdrop transitions before it is there. A panel's first render answers for a narrow shell
+  until it has measured the root, so a panel beside the page on a wide screen was drawn closed and
+  then opened, and the page beside it slid 256 pixels into place on every load. Measured in Firefox
+  at 2560 pixels: the page's header moved from 1 to 256 pixels over 100 milliseconds.
+- A sheet's visibility changes in no time, with a delay as long as the slide while it closes. The
+  visibility changed with the slide, so a sheet read `visibility: hidden` on the frame it opened,
+  the browser refused to focus it, and the reader was left on the body. Measured in Chromium after a
+  press on the trigger: `visibility: hidden` at 0 milliseconds and `visible` at 50.

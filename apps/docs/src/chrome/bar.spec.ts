@@ -7,22 +7,28 @@ describe("Bar", () => {
   it("draws the row as a toolbar named for what it acts on", async () => {
     const result = await opened("/components/actions/button");
 
-    expect(result.getByRole("toolbar", { name: "Catalogue" })).toBeDefined();
+    expect(result.getByRole("toolbar", { name: "Docs" })).toBeDefined();
   });
 
   it("gathers every control under one tab stop", async () => {
     const result = await opened("/components/actions/button");
-    const row = result.getByRole("toolbar", { name: "Catalogue" });
+    const row = result.getByRole("toolbar", { name: "Docs" });
     const controls = Array.from(row.querySelectorAll<HTMLElement>("a, button"));
 
-    expect(controls).toHaveLength(4);
+    expect(controls).toHaveLength(5);
     expect(controls.filter((control) => control.tabIndex === 0)).toHaveLength(1);
   });
 
   it("draws the brand", async () => {
     const result = await opened("/components/actions/button");
 
-    expect(result.getByRole("link", { name: "Stealth" })).toBeDefined();
+    expect(result.getByRole("link", { name: "Stealth Scale" })).toBeDefined();
+  });
+
+  it("draws the link to the catalogue", async () => {
+    const result = await opened("/components/actions/button");
+
+    expect(result.getByRole("link", { name: "Components" })).toBeDefined();
   });
 
   it("names the control that opens the navigation in words a glyph cannot say", async () => {

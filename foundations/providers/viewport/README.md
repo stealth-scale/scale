@@ -97,10 +97,12 @@ const narrow = useNarrow(ref, 600);
 ```
 
 The element is measured once it is laid out and again whenever its size changes, and an element that
-arrives after the first layout is measured when it arrives. Before it is measured, and while the ref
-holds nothing, the result comes from the viewport: narrow under `md`, which is what a phone is, so a
-phone never lays out wide first. Pass a third argument to assume narrow under a different
-breakpoint.
+arrives after the first layout is measured when it arrives. The first measurement is taken before
+the browser paints, so a component that folds on it is never painted folded and then unfolded.
+Before it is measured, and while the ref holds nothing, the result comes from the viewport: narrow
+under `md`, which is what a phone is, so a phone never lays out wide first. Pass a third argument to
+assume narrow under a different breakpoint. An element that measures no width has no box to compare,
+and the result it had stands.
 
 `widthOf` reads the width a breakpoint starts at, so a component measures against the vocabulary
 rather than against a number a caller invented:

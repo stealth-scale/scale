@@ -87,6 +87,15 @@ const LIFT = 0.12;
 const STEPS: Record<Side, number> = { dark: 400, light: 600 };
 
 /**
+ * Lists the hues whose light-mode solid is drawn a step lighter.
+ *
+ * @remarks
+ *   An orange or a yellow at the step a blue is drawn at is a brown, because the eye reads a warm
+ *   hue at that lightness as earth rather than as the hue. A step lighter it reads as amber.
+ */
+const WARM: ReadonlySet<Hue> = new Set<Hue>(["orange", "yellow"]);
+
+/**
  * Picks the ink or the page of one side, whichever reads better on a color.
  */
 function over(color: string, side: Written): string {
@@ -192,8 +201,9 @@ function foundationOf(hue: Hue, modes: Inked): Record<Side, string> {
   if (hue === "gray") return { dark: modes.dark.ink, light: modes.light.ink };
 
   const [angle, chroma] = RAMPS[hue];
+  const light = WARM.has(hue) ? STEPS.light - 100 : STEPS.light;
 
-  return { dark: stepOf(angle, chroma, STEPS.dark), light: stepOf(angle, chroma, STEPS.light) };
+  return { dark: stepOf(angle, chroma, STEPS.dark), light: stepOf(angle, chroma, light) };
 }
 
 /**

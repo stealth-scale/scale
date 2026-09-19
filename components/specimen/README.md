@@ -77,6 +77,28 @@ The rail is one block of a sidebar, `Sidebar.Nav` under its own heading, so draw
 being read is open, and a reader opens and closes the others by hand. A navigation into another
 group redraws the list, which opens that group's branch and closes the rest.
 
+`RailSearch` draws the field that narrows the rail. It is the forms package's search input in the
+room the sidebar keeps for one, and the platform's modifier and K put the reader in it from anywhere
+on the page. The words are the application's state, handed to the field and to the rail alike:
+
+```tsx
+const [query, setQuery] = useState("");
+
+<Sidebar.Root>
+  <Sidebar.Header>
+    <RailSearch onValueChange={setQuery} value={query} />
+  </Sidebar.Header>
+  <Sidebar.Content>
+    <Rail declarations={compiled} query={query} />
+  </Sidebar.Content>
+</Sidebar.Root>;
+```
+
+A query keeps the pages whose words contain it, whatever the case, and opens every branch it leaves
+standing. A query no page matches leaves the sidebar's empty line in place of the list. The search
+reads the shell's `navbar` panel, so draw it inside `AppShell.Root`: where the shell has folded the
+panel over the page and closed it, the shortcut opens the panel first.
+
 A page the application writes carries an entry under `navigation`, and nests under the catalogue's
 route unless it names a parent of its own:
 

@@ -91,6 +91,26 @@ describe("recipe", () => {
     });
   });
 
+  it("brings a sheet into sight the moment it opens", () => {
+    expect(recipe.base?.["navbar"]?.["&[data-overlaid]"]).toMatchObject({
+      transitionDelay: "0s",
+      transitionDuration: "{durations.moderate}, 0s",
+      transitionProperty: "translate, visibility",
+    });
+  });
+
+  it("takes a sheet out of sight once its slide has ended", () => {
+    expect(recipe.base?.["navbar"]?.["&[data-overlaid]"]?.["&[data-state=closed]"]).toMatchObject({
+      transitionDelay: "0s, {durations.moderate}",
+    });
+    expect(recipe.base?.["aside"]?.["&[data-overlaid]"]?.["&[data-state=closed]"]).toMatchObject({
+      transitionDelay: "0s, {durations.moderate}",
+    });
+    expect(recipe.base?.["aside"]?.["&[data-overlaid]"]?.["_motionReduce"]).toStrictEqual({
+      transitionDelay: "0s",
+    });
+  });
+
   it("closes a panel to the rail its collapse states", () => {
     expect(recipe.base?.["navbar"]?.["&[data-collapse=icons]"]).toStrictEqual({
       [PANEL_RAIL]: "sizes.16",
@@ -112,6 +132,14 @@ describe("recipe", () => {
       transitionDuration: "0s",
     });
     expect(recipe.base?.["navbar"]?.["_motionReduce"]).toStrictEqual({ transitionDuration: "0s" });
+  });
+
+  it("moves nothing before the root has settled", () => {
+    const unsettled = ".app-shell__root:not([data-settled]) &";
+
+    expect(recipe.base?.["navbar"]?.[unsettled]).toStrictEqual({ transitionDuration: "0s" });
+    expect(recipe.base?.["aside"]?.[unsettled]).toStrictEqual({ transitionDuration: "0s" });
+    expect(recipe.base?.["backdrop"]?.[unsettled]).toStrictEqual({ transitionDuration: "0s" });
   });
 
   it("gives the page a row of its own beside a panel that has dropped under it", () => {

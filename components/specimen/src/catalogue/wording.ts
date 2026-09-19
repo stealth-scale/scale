@@ -20,6 +20,22 @@ import { NAMESPACE } from "#words.ts";
 const SEPARATOR = ":";
 
 /**
+ * Returns the words any page's keys resolve to, for a caller reading pages of several namespaces.
+ *
+ * @returns A function from a namespace and a key to the words, which returns a key as it is where
+ *   the namespace has no entry for it. An empty or absent namespace is the catalogue's own.
+ */
+export function useWordings(): (namespace: string | undefined, key: string) => string {
+  const { t } = useTranslation(NAMESPACE);
+
+  return (namespace, key) => {
+    const named = namespace === undefined || namespace === "" ? NAMESPACE : namespace;
+
+    return t(`${named}${SEPARATOR}${key}`, { defaultValue: key });
+  };
+}
+
+/**
  * Returns the words a page's keys resolve to.
  *
  * @param namespace - The namespace the page names, or empty for the catalogue's own.
@@ -27,8 +43,7 @@ const SEPARATOR = ":";
  *   has no entry for it.
  */
 export function useWording(namespace: string | undefined): (key: string) => string {
-  const { t } = useTranslation(NAMESPACE);
-  const named = namespace === undefined || namespace === "" ? NAMESPACE : namespace;
+  const word = useWordings();
 
-  return (key) => t(`${named}${SEPARATOR}${key}`, { defaultValue: key });
+  return (key) => word(namespace, key);
 }

@@ -1,4 +1,4 @@
-import { act } from "@testing-library/react";
+import { act, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { mountRoute } from "@stealthscale/testing-router";
@@ -123,5 +123,37 @@ describe("Rail", () => {
     expect(result.getByRole("link", { name: "Button" }).getAttribute("href")).toBe(
       "/reference/actions/button",
     );
+  });
+
+  it("lists every page when the query is blank", async () => {
+    const { result } = await mountRoute(treeOver(GROUPED, [], "/docs", "  "), "/docs");
+
+    expect(result.getAllByRole("button").map((one) => one.textContent)).toStrictEqual([
+      "Actions",
+      "Data",
+    ]);
+  });
+
+  it("keeps the pages whose words contain the query whatever the case", async () => {
+    const { result } = await mountRoute(treeOver(GROUPED, [], "/docs", "BAD"), "/docs");
+    const rail = within(result.getByRole("navigation"));
+
+    expect(rail.getByRole("link", { name: "Badge" })).toBeDefined();
+    expect(rail.queryByRole("button", { name: "Actions" })).toBeNull();
+  });
+
+  it("opens every branch the query leaves standing", async () => {
+    const { result } = await mountRoute(treeOver(GROUPED, [], "/docs", "b"), "/docs");
+
+    expect(
+      result.getAllByRole("button").map((one) => one.getAttribute("aria-expanded")),
+    ).toStrictEqual(["true", "true"]);
+  });
+
+  it("says no pages match where the query names none", async () => {
+    const { result } = await mountRoute(treeOver(GROUPED, [], "/docs", "zzz"), "/docs");
+
+    expect(result.queryAllByRole("button")).toHaveLength(0);
+    expect(result.getByText("No pages match")).toBeDefined();
   });
 });

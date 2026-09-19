@@ -4,8 +4,9 @@
     "theme": "Theme"
   },
   "frame": {
-    "bar": "Catalogue",
-    "brand": "Stealth",
+    "bar": "Docs",
+    "brand": "Stealth Scale",
+    "components": "Components",
     "navigation": "Toggle navigation",
     "skip": "Skip to content"
   }

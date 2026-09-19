@@ -35,6 +35,14 @@ interface Watched {
  *   beside an open sidebar answers for its own width rather than the window's. Before it is
  *   measured, and while the ref holds nothing, the answer comes from the viewport: narrow under the
  *   breakpoint given, which is what a phone is, so a phone never lays out wide first.
+ *   The first measurement is taken in the layout effect itself and not left to the observer. The
+ *   viewport's own first answer is its fallback, because the window is read in an effect, so the
+ *   first render of every measured component is the narrow one. A measurement taken before the
+ *   browser paints redraws the component wide in the same frame. Left to the observer, the narrow
+ *   layout was painted first and the wide one a frame later, which read as the page's header
+ *   sliding into place on every page opened.
+ *   An element that measures no width has no box to compare, because it is not laid out or the
+ *   document has no layout at all, and the answer it had stands.
  *   The wiring effect names no dependencies, because a ref changing is not a render and nothing
  *   else would notice an element that arrives after the first layout. It rewires only when the
  *   element or the width differs from what it is already watching, so running on every render
@@ -68,9 +76,18 @@ export function useNarrow(
 
     if (element === null) return;
 
-    const observer = new ResizeObserver(() => {
-      setMeasured(element.getBoundingClientRect().width < width);
-    });
+    /**
+     * Measures the element and stores whether it is narrower than the width, unless it has no box.
+     */
+    const read = (): void => {
+      const box = element.getBoundingClientRect().width;
+
+      if (box > 0) setMeasured(box < width);
+    };
+
+    read();
+
+    const observer = new ResizeObserver(read);
 
     observer.observe(element);
 

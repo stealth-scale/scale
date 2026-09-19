@@ -88,21 +88,54 @@ describe("recipe", () => {
   });
 
   it("clears the inset a leading mark takes off a square button", () => {
-    expect(recipe.compoundVariants).toStrictEqual([
-      {
-        className: "button--squared",
-        css: { "&:has(> svg:first-child)": { paddingInline: "0" } },
-        shape: "square",
-      },
-    ]);
+    expect(recipe.compoundVariants?.[0]).toStrictEqual({
+      className: "button--squared",
+      css: { "&:has(> svg:first-child)": { paddingInline: "0" } },
+      shape: "square",
+    });
   });
 
-  it("fills a button that stays pressed against the attribute that says so", () => {
-    expect(recipe.base?.["_pressed"]).toStrictEqual({
-      background: "colorPalette.subtle",
-      borderColor: "colorPalette.border",
-      color: "colorPalette.fg",
+  it("fills a quiet look that is on with the subtle fill against the attributes that say so", () => {
+    expect(recipe.compoundVariants?.[1]).toStrictEqual({
+      className: "button--on",
+      css: {
+        _currentPage: {
+          background: "colorPalette.subtle",
+          color: "colorPalette.fg",
+          fontWeight: "semibold",
+        },
+        _pressed: {
+          background: "colorPalette.subtle",
+          borderColor: "colorPalette.border",
+          color: "colorPalette.fg",
+        },
+      },
+      variant: ["ghost", "glass", "outline", "plain"],
     });
+  });
+
+  it("fills a look drawn in the subtle fill with the muted fill while it is on", () => {
+    expect(recipe.compoundVariants?.[2]).toStrictEqual({
+      className: "button--on-deeper",
+      css: {
+        _currentPage: {
+          background: "colorPalette.muted",
+          color: "colorPalette.fg",
+          fontWeight: "semibold",
+        },
+        _pressed: {
+          background: "colorPalette.muted",
+          borderColor: "colorPalette.border",
+          color: "colorPalette.fg",
+        },
+      },
+      variant: ["subtle", "surface"],
+    });
+  });
+
+  it("writes no fill for a solid button that is on", () => {
+    expect(recipe.compoundVariants).toHaveLength(3);
+    expect(recipe.base?.["_pressed"]).toBeUndefined();
   });
 
   it("tracks every tag whose name ends in Button", () => {

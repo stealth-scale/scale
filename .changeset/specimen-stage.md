@@ -43,3 +43,18 @@ specimen: seat the matrix's cells at the top and quieten the rail
 - The rail names its landmark for a screen reader alone and draws no heading over the list, and the
   row of the page being read is marked by the list's own tint rather than a bar down its edge.
 - Each scene stands on an elevated card rather than an outlined one.
+
+specimen: narrow the rail with a search
+
+- `RailSearch` draws the field that narrows the rail: the forms package's search input in the room
+  the sidebar keeps for one, named `Filter pages`, with a control that empties it. `Mod+K` puts the
+  reader in it from anywhere on the page, through the hotkeys provider, and opens the shell's
+  `navbar` panel first where the shell has folded it over the page and closed it. The words are the
+  application's state, handed to the field and to the rail alike.
+- `Rail` takes `query`. It keeps the pages whose words contain the query, whatever the case, opens
+  every branch it leaves standing, and draws the sidebar's empty line, `No pages match`, in place of
+  the list where no page does. The words are resolved through each page's namespace, so a rail read
+  in another language is filtered on the words a reader sees.
+- `useWordings` resolves a key in any namespace named at the call, for a caller reading pages of
+  several namespaces. `useWording` is built on it.
+- The package peers on `@stealthscale/component-forms` and `@stealthscale/provider-hotkeys`.

@@ -108,12 +108,14 @@ export function onRoute(element: ReactElement): Promise<Mounted> {
  * @param listed - The specimen pages to list.
  * @param beside - Whatever the application declared beside them.
  * @param mounted - The path the catalogue hangs beneath.
+ * @param query - The words the rail is narrowed by, or nothing for every page.
  * @returns The tree, as `createRouter` takes it.
  */
 export function treeOver(
   listed: readonly Indexed[],
   beside: readonly RouteDeclaration[] = [],
   mounted = "/docs",
+  query?: string,
 ): AnyRoute {
   const compiled = declarations(listed, { beside, id: CATALOGUE, layout: [FRAME], path: mounted });
 
@@ -125,7 +127,7 @@ export function treeOver(
       <div>
         <Sidebar.Root>
           <Sidebar.Content>
-            <Rail declarations={compiled} />
+            <Rail declarations={compiled} query={query} />
           </Sidebar.Content>
         </Sidebar.Root>
         {children}

@@ -11,6 +11,7 @@ describe("index", () => {
       "NAMESPACE",
       "Page",
       "Rail",
+      "RailSearch",
       "Tile",
       "captionOf",
       "declarations",

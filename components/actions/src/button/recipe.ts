@@ -13,9 +13,15 @@
  *   dropping under the pointer. The box holds still, because a control that shrinks or shifts
  *   under a press is one a reader can miss. The square is listed under `staticCss`, because the
  *   icon button fixes it through a default prop and no JSX literal writes it for the compiler to
- *   extract. A button that stays pressed states `aria-pressed`, and the fill it keeps while on is
- *   written against that attribute, so the fill and what a screen reader announces cannot
- *   disagree.
+ *   extract.
+ *   A button that stays on states `aria-pressed`, and a link drawn as a button in a bar of an
+ *   application's sections states `aria-current="page"` on the section being read. The fill each
+ *   keeps while on is written against those attributes, so the fill and what a screen reader
+ *   announces cannot disagree. It is written in a compound over the looks rather than in the base,
+ *   because the compiler emits a look's own fill in a later cascade layer than the base and the
+ *   later layer wins whatever the selector's specificity. The quiet looks take the palette's
+ *   subtle fill, and the two looks already drawn in it take the muted fill, so a control that is
+ *   on stands one step off its rest in every look that has room to.
  */
 
 import {
@@ -26,8 +32,19 @@ import {
   lookVariants,
   statusEmitted,
   statusVariants,
+  type SystemStyleObject,
   touchTarget,
 } from "@stealthscale/theme/authoring";
+
+/**
+ * Writes the fill a button keeps while it is on, for a look drawn without one at rest.
+ */
+function on(background: "colorPalette.muted" | "colorPalette.subtle"): SystemStyleObject {
+  return {
+    _currentPage: { background, color: "colorPalette.fg", fontWeight: "semibold" },
+    _pressed: { background, borderColor: "colorPalette.border", color: "colorPalette.fg" },
+  };
+}
 
 /**
  * Draws a button on the primary palette in the solid look and the middle size until a caller says
@@ -37,11 +54,6 @@ export const recipe = defineRecipe({
   base: {
     ...interactive(),
     ...touchTarget(),
-    _pressed: {
-      background: "colorPalette.subtle",
-      borderColor: "colorPalette.border",
-      color: "colorPalette.fg",
-    },
     alignItems: "center",
     appearance: "none",
     borderColor: "transparent",
@@ -63,6 +75,16 @@ export const recipe = defineRecipe({
       name: "squared",
       shape: "square",
     },
+    {
+      css: on("colorPalette.subtle"),
+      name: "on",
+      variant: ["ghost", "glass", "outline", "plain"],
+    },
+    {
+      css: on("colorPalette.muted"),
+      name: "on-deeper",
+      variant: ["subtle", "surface"],
+    },
   ],
   defaultVariants: { size: "md", variant: "solid" },
   jsx: [/Button$/u],
@@ -75,7 +97,6 @@ export const recipe = defineRecipe({
     shape: {
       square: { aspectRatio: "square", paddingInline: "0" },
     },
-
     size: controlSizes(),
     status: statusVariants(),
     variant: { ...lookVariants(), glass: { layerStyle: "glass" } },

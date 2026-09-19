@@ -123,4 +123,14 @@ describe("drawn", () => {
       base: "oklch(47.0% 0.1372 262.0)",
     });
   });
+
+  it("draws an orange and a yellow a step lighter by day", () => {
+    const every = hues(MODES);
+
+    expect(every.orange.solid.DEFAULT.value).toStrictEqual({
+      _dark: "oklch(72.0% 0.1410 60.0)",
+      base: "oklch(58.0% 0.1500 60.0)",
+    });
+    expect(every.yellow.solid.DEFAULT.value).toMatchObject({ base: "oklch(58.0% 0.1500 95.0)" });
+  });
 });

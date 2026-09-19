@@ -54,11 +54,13 @@
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
     "@rolldown/plugin-babel": "catalog:",
+    "@stealthscale/component-forms": "workspace:^",
     "@stealthscale/component-layout": "workspace:^",
     "@stealthscale/component-navigation": "workspace:^",
     "@stealthscale/component-screen": "workspace:^",
     "@stealthscale/component-surfaces": "workspace:^",
     "@stealthscale/component-typography": "workspace:^",
+    "@stealthscale/provider-hotkeys": "workspace:^",
     "@stealthscale/provider-i18n": "workspace:^",
     "@stealthscale/provider-router": "workspace:^",
     "@stealthscale/testing-react": "workspace:^",
@@ -82,11 +84,13 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
+    "@stealthscale/component-forms": "workspace:^",
     "@stealthscale/component-layout": "workspace:^",
     "@stealthscale/component-navigation": "workspace:^",
     "@stealthscale/component-screen": "workspace:^",
     "@stealthscale/component-surfaces": "workspace:^",
     "@stealthscale/component-typography": "workspace:^",
+    "@stealthscale/provider-hotkeys": "workspace:^",
     "@stealthscale/provider-i18n": "workspace:^",
     "@stealthscale/provider-router": "workspace:^",
     "@stealthscale/theme": "workspace:^",
