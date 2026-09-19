@@ -30,6 +30,14 @@ export default defineConfig(import.meta.dirname, {
       rules: { "unicorn/no-empty-file": "off" },
     }),
 
+    lint.relax({
+      because:
+        "a command prints what it read, which is what the console is for, and drives one browser " +
+        "through one step after another, which is what a loop of awaits is for",
+      files: ["scripts/**/*.ts"],
+      rules: { "no-await-in-loop": "off", "no-console": "off" },
+    }),
+
     exampleAppWorker,
     exampleLibUi,
   ],

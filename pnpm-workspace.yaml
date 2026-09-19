@@ -81,6 +81,7 @@ catalog:
   lefthook: ^2.1.12
   oxc-transform-react: ^0.149.0
   packageurl-js: ^2.0.1
+  playwright: ^1.63.0
   postcss: ^8.5.28
   postcss-selector-parser: ^7.1.6
   publint: ^0.3.24

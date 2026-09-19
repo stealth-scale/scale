@@ -6,8 +6,10 @@
   "type": "module",
   "scripts": {
     "bootstrap": "pnpm -r --filter '{foundations/*}' --filter '{packages/*}' --filter '{components/*}' --filter '{themes/*}' run build",
+    "dom": "node scripts/catalogue/dom.ts",
     "prepare": "lefthook install",
-    "ready": "pnpm run bootstrap && vp run ci"
+    "ready": "pnpm run bootstrap && vp run ci",
+    "shot": "node scripts/catalogue/shot.ts"
   },
   "devDependencies": {
     "@changesets/changelog-github": "catalog:",
@@ -29,10 +31,12 @@
     "@stealthscale/vite-config-typescript": "workspace:^",
     "@types/node": "catalog:",
     "@vitest/eslint-plugin": "catalog:",
+    "axe-core": "catalog:",
     "eslint-plugin-jsdoc": "catalog:",
     "eslint-plugin-perfectionist": "catalog:",
     "eslint-plugin-tsdoc": "catalog:",
     "lefthook": "catalog:",
+    "playwright": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:"
