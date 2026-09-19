@@ -32,12 +32,28 @@ describe("recipe", () => {
   it("hides everything inside it while it stands in", () => {
     expect(recipe.variants?.["loading"]?.["true"]).toMatchObject({
       "&::before, &::after, *": { visibility: "hidden" },
+      background: "bg.emphasized",
       color: "transparent",
     });
   });
 
-  it("fades the content in once it has arrived", () => {
-    expect(recipe.variants?.["loading"]?.["false"]).toStrictEqual({ animationStyle: "fade.in" });
+  it("fades the content in from the base once it has arrived", () => {
+    expect(recipe.base).toStrictEqual({ animationStyle: "fade.in" });
+    expect(recipe.variants?.["loading"]).not.toHaveProperty("false");
+  });
+
+  it("moves only while it stands in", () => {
+    expect(recipe.variants?.["motion"]).toStrictEqual({
+      none: { "&.skeleton--loading_true": { animation: "none" } },
+      pulse: { "&.skeleton--loading_true": { animationStyle: "pulse" } },
+      shimmer: {
+        "&.skeleton--loading_true": {
+          animationStyle: "shimmer",
+          backgroundImage: "linear-gradient(270deg, {colors.bg.muted}, {colors.bg.emphasized})",
+          backgroundSize: "400% 100%",
+        },
+      },
+    });
   });
 
   it("tracks the tag named Skeleton and not the paragraph of them", () => {
