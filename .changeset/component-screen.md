@@ -182,3 +182,15 @@ component-screen: hold the shell still until it has settled and bring a sheet in
   visibility changed with the slide, so a sheet read `visibility: hidden` on the frame it opened,
   the browser refused to focus it, and the reader was left on the body. Measured in Chromium after a
   press on the trigger: `visibility: hidden` at 0 milliseconds and `visible` at 50.
+
+component-screen: lay a page's body beside its aside
+
+- A `Page.Root` holding a `Page.Aside` becomes a grid from the `lg` breakpoint up: every band
+  across, and the body beside the aside, which is as wide as what it holds, parted by the extra
+  large gap. Every band names its area, so a page with no aside lays out as it did. Below the
+  breakpoint the root stays a column and the aside stacks under the body.
+- `Page.Aside` takes `folds`: `under` stacks it below the breakpoint, and `hide` drops it, for a
+  rail of headings a phone has no room for. It takes `sticky`, which keeps it at the top of its row
+  under the shell's pinned bars while the body scrolls past.
+- A `Section.Root` scrolled to by its id stops one large gap under the shell's pinned bars, so a
+  title reached from a table of contents is read rather than covered.

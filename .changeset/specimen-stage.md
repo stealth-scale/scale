@@ -36,10 +36,10 @@ specimen: cross two axes in a matrix and read a page's words from the catalogue
   in another namespace names it with `namespace`, and `Entry` carries it for the rail and the index.
 - A group's heading is looked up as `groups.<name>` and shown as the name where no entry exists.
 
-specimen: seat the matrix's cells at the top and quieten the rail
+specimen: centre the matrix's cells and quieten the rail
 
-- A matrix seats each cell at the top of its row once unfolded, so a small cell beside a tall one no
-  longer floats in the room the tall one takes.
+- A matrix centres each cell in its row once unfolded, so a row of one control at every size reads
+  as one line of controls, the way a row of mixed controls lines up on a page.
 - The rail names its landmark for a screen reader alone and draws no heading over the list, and the
   row of the page being read is marked by the list's own tint rather than a bar down its edge.
 - Each scene stands on an elevated card rather than an outlined one.
@@ -58,3 +58,17 @@ specimen: narrow the rail with a search
 - `useWordings` resolves a key in any namespace named at the call, for a caller reading pages of
   several namespaces. `useWording` is built on it.
 - The package peers on `@stealthscale/component-forms` and `@stealthscale/provider-hotkeys`.
+
+specimen: file each page under its group and list its sections beside it
+
+- The trail above a page and the index's title read `Components`, and the group a page is filed
+  under stands beside its title as a badge on the neutral palette, worded the way the rail words it.
+  A page filed under no group has none.
+- Each scene's section is anchored by its worded title, `looks-and-sizes`, through `slugOf`, which
+  lowers the case and writes every run of punctuation and space as one hyphen.
+- A rail beside the page, `On this page`, lists the sections through the navigation package's table
+  of contents in the page's aside. It marks the sections on screen, scrolls the page to the one
+  pressed, sticks beside the body on a wide page and leaves a narrow one. A page with no scenes
+  draws no rail.
+- The page is composed from `Header`, `SceneSection` and `Contents`, one file each.
+- The package peers on `@stealthscale/component-data`.

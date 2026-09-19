@@ -155,6 +155,45 @@ describe("recipe", () => {
     expect(JSON.stringify(recipe)).not.toContain("data-part");
   });
 
+  it("lays the body beside an aside from the large breakpoint up", () => {
+    expect(recipe.base?.["root"]?.["&:has(> .page__aside)"]).toStrictEqual({
+      lg: {
+        columnGap: "gap.xl",
+        display: "grid",
+        gridTemplateAreas:
+          '"banner banner" "header header" "nav nav" "toolbar toolbar" "body aside" "footer footer"',
+        gridTemplateColumns: "minmax(0, 1fr) auto",
+      },
+    });
+  });
+
+  it("names the area each band takes in that grid", () => {
+    const areas = ["banner", "header", "nav", "toolbar", "body", "aside", "footer"] as const;
+
+    expect(areas.map((band) => recipe.base?.[band]?.["gridArea"])).toStrictEqual([...areas]);
+  });
+
+  it("drops an aside that folds to nothing below the large breakpoint", () => {
+    expect(recipe.base?.["aside"]?.["&[data-folds=hide]"]).toStrictEqual({
+      lgDown: { display: "none" },
+    });
+  });
+
+  it("keeps a sticking aside at the top of its row under the shell's pinned bars", () => {
+    expect(recipe.base?.["aside"]?.["&[data-sticky]"]).toStrictEqual({
+      alignSelf: "start",
+      insetBlockStart: "calc(var(--app-shell-sticky-top, 0px) + {spacing.gap.xl})",
+      position: "sticky",
+    });
+  });
+
+  it("insets an aside beside the body on its end alone", () => {
+    expect(recipe.base?.["aside"]).toMatchObject({
+      lg: { paddingInlineStart: "0" },
+      paddingInline: `var(${GUTTER})`,
+    });
+  });
+
   it("stacks the marks under the title on a narrow page", () => {
     const stacked = recipe.compoundVariants?.find((each) =>
       (each.className ?? "").endsWith("header--stacked"),

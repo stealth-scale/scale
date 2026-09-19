@@ -86,7 +86,7 @@ describe("declarations", () => {
   it("opens the index at the catalogue's path", async () => {
     const { result } = await mountRoute(treeOver(LISTED), "/docs");
 
-    expect(result.getByRole("heading", { level: 1 }).textContent).toBe("Catalogue");
+    expect(result.getByRole("heading", { level: 1 }).textContent).toBe("Components");
   });
 
   it("opens a page at its path under the catalogue's", async () => {
@@ -104,13 +104,15 @@ describe("declarations", () => {
   it("leads a page back to the index", async () => {
     const { result } = await mountRoute(treeOver(LISTED), "/docs/actions/button");
 
-    expect(result.getByRole("link", { name: "Catalogue" }).getAttribute("href")).toBe("/docs");
+    expect(result.getByRole("link", { name: "Components" }).getAttribute("href")).toBe("/docs");
   });
 
   it("does not call the trail the current page on a page under the index", async () => {
     const { result } = await mountRoute(treeOver(LISTED), "/docs/actions/button");
 
-    expect(result.getByRole("link", { name: "Catalogue" }).getAttribute("aria-current")).toBeNull();
+    expect(
+      result.getByRole("link", { name: "Components" }).getAttribute("aria-current"),
+    ).toBeNull();
   });
 
   it("opens a page the application wrote at its path under the catalogue's", async () => {

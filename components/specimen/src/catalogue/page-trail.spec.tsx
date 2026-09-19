@@ -15,7 +15,7 @@ describe("Trail", () => {
       </Page.Root>,
     );
 
-    expect(result.getByRole("link", { name: "Catalogue" })).toBeDefined();
+    expect(result.getByRole("link", { name: "Components" })).toBeDefined();
   });
 
   it("leads to the route the id names", async () => {

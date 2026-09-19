@@ -59,8 +59,22 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers the four statuses", () => {
-    expect(valuesOf(recipe, "status")).toStrictEqual(["error", "info", "success", "warning"]);
+  it("offers the four statuses and the neutral palette", () => {
+    expect(valuesOf(recipe, "status")).toStrictEqual([
+      "error",
+      "info",
+      "neutral",
+      "success",
+      "warning",
+    ]);
+  });
+
+  it("emits the square and every status whether or not a page writes them", () => {
+    expect(recipe.staticCss).toStrictEqual([
+      { shape: ["square"] },
+      { status: ["info", "success", "warning", "error"] },
+      { status: ["neutral"] },
+    ]);
   });
 
   it("offers the square shape", () => {

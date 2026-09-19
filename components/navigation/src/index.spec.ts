@@ -9,6 +9,18 @@ describe("index", () => {
       "Link",
       "LinkPropsProvider",
       "NavList",
+      "Toc",
+    ]);
+  });
+
+  it("publishes the rail of headings as a namespace of its parts", () => {
+    expect(Object.keys(barrel.Toc).toSorted()).toStrictEqual([
+      "Indicator",
+      "Item",
+      "Link",
+      "List",
+      "Root",
+      "Title",
     ]);
   });
 

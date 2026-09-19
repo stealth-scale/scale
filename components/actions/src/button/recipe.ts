@@ -13,7 +13,9 @@
  *   dropping under the pointer. The box holds still, because a control that shrinks or shifts
  *   under a press is one a reader can miss. The square is listed under `staticCss`, because the
  *   icon button fixes it through a default prop and no JSX literal writes it for the compiler to
- *   extract.
+ *   extract. The `status` axis offers `neutral` beside the four statuses, for a control in a bar
+ *   that reads in the ink of the words beside it, and it is listed under `staticCss` for the same
+ *   reason as the square: a bar sets it through a provider.
  *   A button that stays on states `aria-pressed`, and a link drawn as a button in a bar of an
  *   application's sections states `aria-current="page"` on the section being read. The fill each
  *   keeps while on is written against those attributes, so the fill and what a screen reader
@@ -88,7 +90,7 @@ export const recipe = defineRecipe({
   ],
   defaultVariants: { size: "md", variant: "solid" },
   jsx: [/Button$/u],
-  staticCss: [{ shape: ["square"] }, statusEmitted()],
+  staticCss: [{ shape: ["square"] }, statusEmitted(), { status: ["neutral"] }],
   variants: {
     effect: {
       glow: { layerStyle: "glow.md" },
@@ -98,7 +100,7 @@ export const recipe = defineRecipe({
       square: { aspectRatio: "square", paddingInline: "0" },
     },
     size: controlSizes(),
-    status: statusVariants(),
+    status: { ...statusVariants(), neutral: { colorPalette: "neutral" } },
     variant: { ...lookVariants(), glass: { layerStyle: "glass" } },
   },
 });

@@ -278,6 +278,9 @@ catalogs:
     '@zag-js/tabs':
       specifier: 1.44.0
       version: 1.44.0
+    '@zag-js/toc':
+      specifier: 1.44.0
+      version: 1.44.0
     '@zag-js/tooltip':
       specifier: 1.44.0
       version: 1.44.0
@@ -1358,6 +1361,9 @@ importers:
       '@zag-js/react':
         specifier: 'catalog:'
         version: 1.44.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@zag-js/toc':
+        specifier: 'catalog:'
+        version: 1.44.0
       '@zag-js/types':
         specifier: 'catalog:'
         version: 1.44.0
@@ -1588,6 +1594,9 @@ importers:
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
         version: 0.2.4(@babel/core@7.29.7(supports-color@10.2.2))(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.7)
+      '@stealthscale/component-data':
+        specifier: workspace:^
+        version: link:../data
       '@stealthscale/component-forms':
         specifier: workspace:^
         version: link:../forms
@@ -6985,6 +6994,9 @@ packages:
   '@zag-js/tabs@1.44.0':
     resolution: {integrity: sha512-RZq89qz3SRVDHa1Og/Apco1gGPt0qK9tfoiWf61NA/ckV8r2LGf8IxvilGgUuHc5TUYWh938ERzZ4vjqWzGRug==}
 
+  '@zag-js/toc@1.44.0':
+    resolution: {integrity: sha512-2H1j/fSbjiKMOCdE9c5l6UZ8iOPrJsdrAFPX9M81M//ceSHz0NZBLz+Gb8LrRYr9uo4kK34kV1QNRoiOA+MMXA==}
+
   '@zag-js/tooltip@1.44.0':
     resolution: {integrity: sha512-OnOQ3NSXDe9YAoekKWMnbEVvoAa5R3ZdXyHx3UEFxIRjPB+J5xk8+8MVNR6715ifndLmBjexVm/UR//Bf47tpA==}
 
@@ -10620,6 +10632,14 @@ snapshots:
       '@zag-js/utils': 1.44.0
 
   '@zag-js/tabs@1.44.0':
+    dependencies:
+      '@zag-js/anatomy': 1.44.0
+      '@zag-js/core': 1.44.0
+      '@zag-js/dom-query': 1.44.0
+      '@zag-js/types': 1.44.0
+      '@zag-js/utils': 1.44.0
+
+  '@zag-js/toc@1.44.0':
     dependencies:
       '@zag-js/anatomy': 1.44.0
       '@zag-js/core': 1.44.0

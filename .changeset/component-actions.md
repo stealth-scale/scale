@@ -29,3 +29,9 @@ component-actions: fill a button that is on in a compound over the looks
   compiler emits a look's own fill in a later cascade layer than the base, and the browser applies
   the later layer whatever the selector's specificity, so the base rule never applied. Measured on
   the ghost look: the pressed fill computed transparent.
+
+component-actions: add the neutral value to the button's status axis
+
+- `Button status="neutral"` points the palette at the neutral one, for a control in a bar that reads
+  in the ink of the words beside it. The value is emitted whether or not a page writes it, beside
+  the four statuses, because a bar sets it through a provider.

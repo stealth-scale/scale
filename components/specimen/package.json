@@ -54,6 +54,7 @@
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
     "@rolldown/plugin-babel": "catalog:",
+    "@stealthscale/component-data": "workspace:^",
     "@stealthscale/component-forms": "workspace:^",
     "@stealthscale/component-layout": "workspace:^",
     "@stealthscale/component-navigation": "workspace:^",
@@ -84,6 +85,7 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
+    "@stealthscale/component-data": "workspace:^",
     "@stealthscale/component-forms": "workspace:^",
     "@stealthscale/component-layout": "workspace:^",
     "@stealthscale/component-navigation": "workspace:^",

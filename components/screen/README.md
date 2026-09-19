@@ -189,6 +189,26 @@ it drops. `Page.Picker` is the control a folded page offers in place of a strip 
 a disclosure's trigger, `<Menu.Trigger as={Page.Picker} />`, which gives it `aria-expanded` and
 `aria-controls` against the list the disclosure draws.
 
+`Page.Aside` stands beside the body: an activity trail, a panel of metadata, a list of the headings
+on the page. Draw it after the body and name it, because it is a complementary landmark. From the
+`lg` breakpoint up the page becomes a grid, every band across and the body beside the aside, which
+is as wide as what it holds. Below that the aside stacks under the body, or leaves the page with
+`folds="hide"`, for a rail a phone has no room for. Set `sticky` to keep it in view under the
+shell's pinned bars while the body scrolls past.
+
+```tsx
+<Page.Root>
+  <Page.Header>…</Page.Header>
+  <Page.Body>…</Page.Body>
+  <Page.Aside aria-label="On this page" folds="hide" sticky>
+    <Toc.Root items={items}>…</Toc.Root>
+  </Page.Aside>
+</Page.Root>
+```
+
+A section scrolled to by its id stops a gap under the shell's pinned bars, so a title reached from a
+table of contents is read rather than covered.
+
 ## Section
 
 Draws one block of a page under its own heading, with the controls that act on that block. Composed

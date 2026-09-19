@@ -9,7 +9,6 @@ import { useTranslation } from "@stealthscale/provider-i18n";
 import { createLink, useRouteHref } from "@stealthscale/provider-router";
 
 import { INDEX } from "#catalogue.ts";
-import { quiet } from "#chrome/quiet.ts";
 
 /**
  * Draws the button over the router's link, so it leads to the catalogue without a reload and says
@@ -36,7 +35,7 @@ export function SectionLink(props: SectionLinkProps): ReactElement {
   const { t } = useTranslation("docs");
 
   return (
-    <Section as="a" className={quiet} size="sm" to={useRouteHref(INDEX)} variant="ghost" {...props}>
+    <Section as="a" size="sm" status="neutral" to={useRouteHref(INDEX)} variant="ghost" {...props}>
       {t("frame.components")}
     </Section>
   );

@@ -1,3 +1,4 @@
+import { within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { opened } from "#app.fixtures.tsx";
@@ -27,8 +28,9 @@ describe("Bar", () => {
 
   it("draws the link to the catalogue", async () => {
     const result = await opened("/components/actions/button");
+    const row = result.getByRole("toolbar", { name: "Docs" });
 
-    expect(result.getByRole("link", { name: "Components" })).toBeDefined();
+    expect(within(row).getByRole("link", { name: "Components" })).toBeDefined();
   });
 
   it("names the control that opens the navigation in words a glyph cannot say", async () => {

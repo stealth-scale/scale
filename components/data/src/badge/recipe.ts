@@ -11,7 +11,9 @@
  *   The numbers are tabular, because a badge nearly always holds a count and a column of counts
  *   that shifts width as it changes is hard to read down. Nothing wraps, and the badge does not
  *   shrink, so a long label pushes the line rather than folding to two and doubling the row's
- *   height.
+ *   height. The `status` axis offers `neutral` beside the four statuses, for a label that states a
+ *   fact rather than a state, such as the group a page is filed under, and it is listed under
+ *   `staticCss` beside them so a page that sets it from data reaches a rule.
  */
 
 import {
@@ -43,11 +45,11 @@ export const recipe = defineRecipe({
   className: "badge",
   defaultVariants: { radius: "l2", size: "md", variant: "subtle" },
   jsx: [/Badge$/u],
-  staticCss: [statusEmitted()],
+  staticCss: [statusEmitted(), { status: ["neutral"] }],
   variants: {
     radius: cornerVariants(),
     size: tagSizes(),
-    status: statusVariants(),
+    status: { ...statusVariants(), neutral: { colorPalette: "neutral" } },
     variant: flatVariants(),
   },
 });

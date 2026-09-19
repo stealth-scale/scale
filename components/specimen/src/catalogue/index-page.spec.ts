@@ -16,7 +16,7 @@ describe("Index", () => {
   it("heads the page out of the catalogue rather than the key", async () => {
     const { result } = await mountRoute(treeOver(LISTED), "/docs");
 
-    expect(result.getByRole("heading", { level: 1 }).textContent).toBe("Catalogue");
+    expect(result.getByRole("heading", { level: 1 }).textContent).toBe("Components");
   });
 
   it("heads one section per group with the group's name", async () => {

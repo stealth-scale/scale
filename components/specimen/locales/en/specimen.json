@@ -1,9 +1,12 @@
 {
+  "contents": {
+    "title": "On this page"
+  },
   "index": {
-    "title": "Catalogue"
+    "title": "Components"
   },
   "page": {
-    "back": "Catalogue"
+    "back": "Components"
   },
   "rail": {
     "clear": "Clear the filter",

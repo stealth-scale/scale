@@ -103,6 +103,12 @@ describe("recipe", () => {
     expect(recipe.variants?.["variant"]?.["surface"]?.["root"]).toStrictEqual({ overflow: "clip" });
   });
 
+  it("stops a gap under the shell's pinned bars when scrolled to", () => {
+    expect(recipe.base?.["root"]).toMatchObject({
+      scrollMarginBlockStart: "calc(var(--app-shell-sticky-top, 0px) + {spacing.gap.lg})",
+    });
+  });
+
   it("parts one plain section from the one before it and from nothing else", () => {
     expect(recipe.variants?.["variant"]?.["plain"]?.["root"]).toStrictEqual({
       "& + &": {

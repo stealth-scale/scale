@@ -10,7 +10,6 @@ import { useColorMode } from "@stealthscale/provider-color-mode";
 import { useTranslation } from "@stealthscale/provider-i18n";
 
 import { Moon } from "#chrome/moon.tsx";
-import { quiet } from "#chrome/quiet.ts";
 import { Sun } from "#chrome/sun.tsx";
 
 /**
@@ -32,11 +31,11 @@ export function ColorModeToggle(): ReactElement {
       aria-label={t("chrome.darkMode")}
       aria-pressed={dark}
       as={IconButton}
-      className={quiet}
       onClick={() => {
         setColorMode(dark ? "light" : "dark");
       }}
       size="sm"
+      status="neutral"
       variant="ghost"
     >
       {dark ? <Moon /> : <Sun />}

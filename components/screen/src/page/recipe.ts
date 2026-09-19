@@ -15,6 +15,13 @@
  *   moves all of them and a band that bleeds reads the same numbers to line its own cells up.
  *   Narrowness is measured on the root, not on the window, so a page beside an open sidebar folds
  *   on its own room.
+ *   A page holding an aside becomes a grid from the large breakpoint up: every band across the
+ *   top and the foot, and the body beside the aside between them, the aside as wide as what it
+ *   holds. That is read off the window, because the aside is a rail of the kind a docs page keeps
+ *   beside its text, and the width the rail is worth its room at is the one the window gives the
+ *   whole screen. Below it the root stays a column and the aside stacks under the body, or leaves
+ *   the page where it says it folds to nothing. An aside told to stick keeps to the top of its
+ *   row, under the shell's pinned bars, while the body scrolls past.
  */
 
 import {
@@ -78,6 +85,29 @@ const CLASS = "page";
 const BEFORE_NAV = `&:has(+ .${CLASS}__nav)`;
 
 /**
+ * Selects a root holding an aside, which lays its bands out as a grid from the large breakpoint.
+ */
+const WITH_ASIDE = `&:has(> .${CLASS}__aside)`;
+
+/**
+ * The property the shell states the height of its pinned bars in, which an aside that sticks
+ * keeps under.
+ */
+const SHELL_TOP = "--app-shell-sticky-top";
+
+/**
+ * Writes the rows and the columns of a page holding an aside: every band across, and the body
+ * beside the aside.
+ */
+const BESIDE = {
+  columnGap: "gap.xl",
+  display: "grid",
+  gridTemplateAreas:
+    '"banner banner" "header header" "nav nav" "toolbar toolbar" "body aside" "footer footer"',
+  gridTemplateColumns: "minmax(0, 1fr) auto",
+};
+
+/**
  * The steps a page is read at, which a section inside it reads too.
  */
 const STEPS = ["sm", "md", "lg"] as const;
@@ -103,13 +133,25 @@ export const recipe = defineSlotRecipe({
   base: {
     action: { ...FOLDING, flexShrink: "0" },
     actions: { ...ROW, flexWrap: "nowrap", gridArea: "actions", justifySelf: "end" },
-    aside: { minInlineSize: "0" },
-    banner: { ...BAND, flexShrink: "0" },
+    aside: {
+      "&[data-folds=hide]": { lgDown: { display: "none" } },
+      "&[data-sticky]": {
+        alignSelf: "start",
+        insetBlockStart: `calc(var(${SHELL_TOP}, 0px) + {spacing.gap.xl})`,
+        position: "sticky",
+      },
+      gridArea: "aside",
+      lg: { paddingInlineStart: "0" },
+      minInlineSize: "0",
+      paddingInline: `var(${GUTTER})`,
+    },
+    banner: { ...BAND, flexShrink: "0", gridArea: "banner" },
     body: {
       ...BAND,
       display: "flex",
       flex: "1",
       flexDirection: "column",
+      gridArea: "body",
       minBlockSize: "0",
     },
     context: { ...ROW, gridArea: "context" },
@@ -120,13 +162,19 @@ export const recipe = defineSlotRecipe({
       minInlineSize: "0",
     },
     folded: { ...FOLDED, alignItems: "center", flexShrink: "0", justifyContent: "center" },
-    footer: { ...BAND, ...ROW, "&[data-sticky]": { ...STUCK, insetBlockEnd: "0" } },
+    footer: {
+      ...BAND,
+      ...ROW,
+      "&[data-sticky]": { ...STUCK, insetBlockEnd: "0" },
+      gridArea: "footer",
+    },
     header: {
       ...BAND,
       "&[data-sticky]": STUCK,
       alignItems: "center",
       [BEFORE_NAV]: { borderBlockEndWidth: "0" },
       display: "grid",
+      gridArea: "header",
       gridTemplateAreas:
         '"context context context context" "leading title meta actions" "description description description description"',
       gridTemplateColumns: "auto auto minmax(0, 1fr) auto",
@@ -139,6 +187,7 @@ export const recipe = defineSlotRecipe({
       alignItems: "center",
       display: "flex",
       flexWrap: "wrap",
+      gridArea: "nav",
       justifyContent: "space-between",
     },
     palette: { inlineSize: "var(--reference-width)", overflow: "clip" },
@@ -149,10 +198,11 @@ export const recipe = defineSlotRecipe({
       inlineSize: "100%",
       minBlockSize: "100%",
       minInlineSize: "0",
+      [WITH_ASIDE]: { lg: BESIDE },
     },
     tabs: { borderBlockEndWidth: "0" },
     title: { gridArea: "title", minInlineSize: "0", overflowWrap: "anywhere" },
-    toolbar: { ...BAND, ...ROW, "&[data-sticky]": STUCK },
+    toolbar: { ...BAND, ...ROW, "&[data-sticky]": STUCK, gridArea: "toolbar" },
     trail: { color: "fg.muted" },
   },
   className: CLASS,

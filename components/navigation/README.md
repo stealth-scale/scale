@@ -1,9 +1,10 @@
 # @stealthscale/component-navigation
 
 Draws the ways a person moves between places: the link, the trail of crumbs from the front of a
-site, and the list of destinations a page is reached from. Every component binds a recipe and draws
-nothing of its own, so a theme restyles all of them by extending the recipe. The preset under
-`./theme` registers the recipes with an application's compiler.
+site, the list of destinations a page is reached from, and the rail of headings a page is moved
+through. Every component binds a recipe and draws nothing of its own, so a theme restyles all of
+them by extending the recipe. The preset under `./theme` registers the recipes with an application's
+compiler.
 
 Every value a theme can change on a component is an axis of its recipe, so a caller sets it as a
 prop and writes no style. A caller changes the element a component draws with `as`.
@@ -185,6 +186,60 @@ Nested rows are the same `Item` and `Link`. `Content` mutes the ink and they inh
 
 Say that a list is loading. State `aria-busy` on the root around a set of `NavList.Skeleton` rows,
 and put the feedback package's skeleton inside each one.
+
+## Toc
+
+Lists the headings on a page and marks the ones on screen. Composed as `Toc.Root` holding a title, a
+list of one row per heading, and the mark that slides down the list.
+
+```tsx
+import { Toc } from "@stealthscale/component-navigation";
+
+const items = [
+  { depth: 2, value: "install" },
+  { depth: 3, value: "peers" },
+  { depth: 2, value: "usage" },
+];
+
+<Toc.Root items={items}>
+  <Toc.Title>On this page</Toc.Title>
+  <Toc.List>
+    <Toc.Indicator />
+    {items.map((item) => (
+      <Toc.Item item={item} key={item.value}>
+        <Toc.Link href={`#${item.value}`} item={item}>
+          {titles[item.value]}
+        </Toc.Link>
+      </Toc.Item>
+    ))}
+  </Toc.List>
+</Toc.Root>;
+```
+
+| Axis   | Values           | Default |
+| ------ | ---------------- | ------- |
+| `size` | `sm`, `md`, `lg` | `md`    |
+
+| Part        | Element | Draws                                               |
+| ----------- | ------- | --------------------------------------------------- |
+| `Root`      | `nav`   | The landmark, named by the title                    |
+| `Title`     | `div`   | The words the landmark is named by                  |
+| `List`      | `ul`    | One row per heading                                 |
+| `Item`      | `li`    | One row, indented by its heading's depth            |
+| `Link`      | `a`     | The link to one heading                             |
+| `Indicator` | `li`    | The mark beside the rows whose heading is on screen |
+
+Each item names a heading by its `value`, which is the id of the heading's element in the document,
+and its `depth`, which is the heading's level. The root watches those elements and marks the rows
+whose element is on screen, with `aria-current="location"` on their links. A press on a link scrolls
+the page to the heading. Where the page scrolls inside an element rather than the window, pass
+`scrollEl` so the root watches and scrolls that element.
+
+`Toc.Root` takes the machine's own settings beside the items: `rootMargin` and `threshold` for the
+band a heading counts as on screen in, `autoScroll` for keeping the marked row in view in a rail
+that scrolls itself, `scrollBehavior`, `onActiveChange`, and `activeIds` or `defaultActiveIds` to
+drive which rows are marked. Draw `Toc.Indicator` as the list's first child, because the machine
+measures the marked rows against the list.
 
 ## Licence
 

@@ -18,6 +18,8 @@
  *   `annotated` moves the header into a column beside the body, which is how a settings page reads.
  *   It folds back over the body on a narrow root, measured by the component and written as
  *   `data-narrow`, so a consumer writes no breakpoint.
+ *   A section scrolled to by its id stops a gap under the shell's pinned bars rather than under
+ *   them, so a title reached from a table of contents is read rather than covered.
  */
 
 import {
@@ -68,7 +70,12 @@ export const recipe = defineSlotRecipe({
       gridTemplateColumns: "minmax(0, 1fr) auto",
       minInlineSize: "0",
     },
-    root: { display: "flex", flexDirection: "column", minInlineSize: "0" },
+    root: {
+      display: "flex",
+      flexDirection: "column",
+      minInlineSize: "0",
+      scrollMarginBlockStart: "calc(var(--app-shell-sticky-top, 0px) + {spacing.gap.lg})",
+    },
     title: { gridArea: "title", minInlineSize: "0", overflowWrap: "anywhere" },
   },
   className: "section",

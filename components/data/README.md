@@ -56,7 +56,7 @@ put them in the badge and let the colour repeat them.
 | --------- | ------------------------------------------------- | -------- |
 | `variant` | `solid`, `subtle`, `surface`, `outline`, `plain`  | `subtle` |
 | `size`    | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl` | `md`     |
-| `status`  | `info`, `success`, `warning`, `error`             | primary  |
+| `status`  | `info`, `success`, `warning`, `error`, `neutral`  | primary  |
 | `radius`  | `l1`, `l2`, `l3`, `full`                          | `l2`     |
 
 There is no ghost look here. A ghost control is a transparent box that fills in under a pointer, and

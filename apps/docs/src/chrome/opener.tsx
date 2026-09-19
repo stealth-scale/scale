@@ -9,7 +9,6 @@ import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
 import { AppShell } from "@stealthscale/component-screen";
 
 import { Panel } from "#chrome/panel.tsx";
-import { quiet } from "#chrome/quiet.ts";
 
 /**
  * Describes what the control takes: everything the shell's trigger takes.
@@ -31,8 +30,10 @@ export function Opener(props: OpenerProps): ReactElement {
   const open = AppShell.useAppShellPanel("navbar")?.open ?? false;
 
   return (
-    <ButtonPropsProvider value={{ shape: "square", size: "sm", variant: "ghost" }}>
-      <AppShell.Trigger as={Button} className={quiet} {...props}>
+    <ButtonPropsProvider
+      value={{ shape: "square", size: "sm", status: "neutral", variant: "ghost" }}
+    >
+      <AppShell.Trigger as={Button} {...props}>
         <Panel open={open} />
       </AppShell.Trigger>
     </ButtonPropsProvider>

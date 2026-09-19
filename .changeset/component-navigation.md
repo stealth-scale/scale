@@ -47,3 +47,21 @@ component-navigation: slide a branch open and draw the rows a sidebar's size
 - A group's row is set in the palette's own ink, a step quieter than the page's, and the row of the
   page being read is set in the page's ink and semibold whatever the size states. A hovered row
   takes the palette's subtle fill, which leaves a list on a subtle surface still.
+
+component-navigation: publish Toc
+
+- `Toc` lists the headings on a page and marks the ones on screen. Six parts under one namespace:
+  `Root` is the `nav` landmark named by `Title`, `List` holds one `Item` per heading, each holding
+  the `Link` to it, and `Indicator` is the mark that slides down the list to the rows whose heading
+  is on screen.
+- The root runs `@zag-js/toc`. Each item names a heading by its id in the document and its depth.
+  The machine watches those elements with an intersection observer, writes `aria-current="location"`
+  on the links of the ones on screen, measures their rows and writes the mark's place on the root as
+  `--top` and `--height`. A press on a link scrolls the page to the heading. Where `scrollEl` names
+  the element the page scrolls in, the press scrolls that element.
+- A row is indented one gap for each level under the top through the `--depth` the machine writes. A
+  link is muted. It is set in the page's ink and a step heavier while its heading is on screen, and
+  it is cut short on one line. The title is set small in capitals and reads as the label of the list
+  rather than as a heading of the page.
+- One axis, `size`, at `sm`, `md` and `lg`. The links read the body role one step smaller than the
+  size and the title reads the label role two steps smaller.

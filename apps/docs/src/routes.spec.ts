@@ -25,7 +25,7 @@ describe("buildTree", () => {
   it("opens the index at the catalogue's path", async () => {
     const result = await opened("/components");
 
-    expect(result.getByRole("heading", { level: 1 }).textContent).toBe("Catalogue");
+    expect(result.getByRole("heading", { level: 1 }).textContent).toBe("Components");
   });
 
   it("opens a page the build indexed at its path under the catalogue's", async () => {

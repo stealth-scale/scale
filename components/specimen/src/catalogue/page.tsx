@@ -1,16 +1,17 @@
 /**
- * Draws one page: the way back, its title and its opening, then each scene as a section with the
- * component on a stage of its own.
+ * Draws one page: its head, each scene as a section with the component on a stage of its own,
+ * and the rail beside them listing the sections.
  */
 
 import { type ReactElement, useEffect, useState } from "react";
 
 import * as Screen from "@stealthscale/component-screen";
-import { Card } from "@stealthscale/component-surfaces";
 
 import { declared } from "#catalogue/declared.ts";
-import { marked } from "#catalogue/marked.tsx";
-import { Trail } from "#catalogue/page-trail.tsx";
+import { Contents } from "#catalogue/page-contents.tsx";
+import { Header } from "#catalogue/page-header.tsx";
+import { SceneSection } from "#catalogue/page-scene.tsx";
+import { slugOf } from "#catalogue/slug.ts";
 import { type Indexed } from "#catalogue/types.ts";
 import { useWording } from "#catalogue/wording.ts";
 import { type Specimen } from "#page.ts";
@@ -37,13 +38,17 @@ export interface PageProps {
  *   The module is loaded rather than imported, because the index reaches every page through a
  *   dynamic import and the bundler emits one chunk for each. Opening a page is the first time its
  *   components are fetched.
- *   Each scene draws its component on a card, so the component stands on a surface with an edge
- *   rather than loose on the page, and a sentence's backticks are drawn as code. The title, the
- *   opening and each scene's words are keys in the namespace the page names, where it names one.
+ *   Each scene is anchored by its worded title, so the rail beside the page points at it and the
+ *   address of a section reads as its title does. A page with no scenes draws no rail.
  */
 export function Page({ back, entry }: PageProps): ReactElement {
   const [page, setPage] = useState<Specimen | undefined>();
   const word = useWording(entry.namespace);
+  const scenes = (page?.scenes ?? []).map((scene) => ({
+    id: slugOf(word(scene.title)),
+    scene,
+    title: word(scene.title),
+  }));
 
   useEffect(() => {
     let watching = true;
@@ -70,32 +75,13 @@ export function Page({ back, entry }: PageProps): ReactElement {
 
   return (
     <Screen.Page.Root>
-      <Screen.Page.Header>
-        {back === undefined ? null : <Trail to={back} />}
-        <Screen.Page.Title>{word(entry.title)}</Screen.Page.Title>
-        {entry.about === "" ? null : (
-          <Screen.Page.Description>{marked(word(entry.about))}</Screen.Page.Description>
-        )}
-      </Screen.Page.Header>
+      <Header back={back} entry={entry} />
       <Screen.Page.Body>
-        {(page?.scenes ?? []).map((scene) => (
-          <Screen.Section.Root key={scene.title}>
-            <Screen.Section.Header>
-              <Screen.Section.Title>{word(scene.title)}</Screen.Section.Title>
-              {scene.about === undefined ? null : (
-                <Screen.Section.Description>{marked(word(scene.about))}</Screen.Section.Description>
-              )}
-            </Screen.Section.Header>
-            <Screen.Section.Body>
-              <Card.Root as="div" variant="elevated">
-                <Card.Content>
-                  <scene.draw />
-                </Card.Content>
-              </Card.Root>
-            </Screen.Section.Body>
-          </Screen.Section.Root>
+        {scenes.map(({ id, scene }) => (
+          <SceneSection id={id} key={id} namespace={entry.namespace} scene={scene} />
         ))}
       </Screen.Page.Body>
+      {scenes.length === 0 ? null : <Contents of={scenes} />}
     </Screen.Page.Root>
   );
 }

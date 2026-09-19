@@ -5,7 +5,7 @@
 
 export { Action, type ActionProps } from "#page/action.tsx";
 export { Actions, type ActionsProps } from "#page/actions.ts";
-export { Aside, type AsideProps } from "#page/aside.ts";
+export { Aside, type AsideFold, type AsideProps } from "#page/aside.tsx";
 export { Banner, type BannerProps } from "#page/banner.ts";
 export { Body, type BodyProps } from "#page/body.ts";
 export { Context, type ContextProps } from "#page/context-band.ts";

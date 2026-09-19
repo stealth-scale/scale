@@ -49,7 +49,7 @@ it has checked.
 | ----------- | ------------------------------------------------------------------ | ------- |
 | `variant`   | `solid`, `subtle`, `surface`, `outline`, `ghost`, `plain`, `glass` | `solid` |
 | `size`      | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl`                  | `md`    |
-| `status`    | `info`, `success`, `warning`, `error`                              | primary |
+| `status`    | `info`, `success`, `warning`, `error`, `neutral`                   | primary |
 | `shape`     | `square`                                                           | none    |
 | `effect`    | `glow`                                                             | none    |
 | `elevation` | `raised`, `floating`                                               | flat    |
@@ -81,6 +81,14 @@ against that attribute, so the fill and what a screen reader announces cannot di
   {dark ? <Moon /> : <Sun />}
 </IconButton>
 ```
+
+A link drawn as a button in a bar of an application's sections states `aria-current="page"` on the
+section being read, and the recipe fills it the same way, set semibold. The ghost, glass, outline
+and plain looks take the palette's subtle fill while on, the subtle and surface looks the muted
+fill, and the solid look stays as it is.
+
+A control in a bar reads in the ink of the words beside it. Set `status="neutral"`, which points the
+palette at the neutral one, the way the four statuses point it at theirs.
 
 ## Licence
 

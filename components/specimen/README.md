@@ -9,12 +9,14 @@ what draws the pages an application indexed.
 pnpm add -D @stealthscale/specimen
 ```
 
-The package peers on `@stealthscale/component-layout`, `@stealthscale/component-navigation`,
+The package peers on `@stealthscale/component-data`, `@stealthscale/component-forms`,
+`@stealthscale/component-layout`, `@stealthscale/component-navigation`,
 `@stealthscale/component-screen`, `@stealthscale/component-surfaces`,
-`@stealthscale/component-typography`, `@stealthscale/provider-i18n`,
-`@stealthscale/provider-router`, `@stealthscale/vite-plugin-specimen` and `react`. A package writing
-specimens does not declare it, the way a package writing specifications does not declare the testing
-kits: a specimen runs in the catalogue and resolves through the workspace root.
+`@stealthscale/component-typography`, `@stealthscale/provider-hotkeys`,
+`@stealthscale/provider-i18n`, `@stealthscale/provider-router`, `@stealthscale/vite-plugin-specimen`
+and `react`. A package writing specimens does not declare it, the way a package writing
+specifications does not declare the testing kits: a specimen runs in the catalogue and resolves
+through the workspace root.
 
 ## The catalogue
 
@@ -128,7 +130,11 @@ serves it, and an application drawing it elsewhere as well hands it the same dec
 
 `Page` loads a page's module and draws its scenes, each as a section under its title, which is the
 first time that component reaches the browser. The row above the page's title leads back to the
-index. `declared` and `parted` are the shaping behind it. `parted` splits what a page's parts accept
+index, and the group the page is filed under stands beside the title as a badge. Each section is
+anchored by its worded title, `looks-and-sizes`, and a rail beside the page lists the sections,
+marks the ones on screen and scrolls the page to the one pressed. The rail is the navigation
+package's table of contents in the page's aside, which leaves a narrow page and sticks beside a wide
+one. `declared` and `parted` are the shaping behind it. `parted` splits what a page's parts accept
 into the variants a theme moves and the options a caller sets, each row carrying the members of
 every named type it refers to, with the dropped counts beside them.
 
