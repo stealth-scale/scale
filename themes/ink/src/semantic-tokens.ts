@@ -18,6 +18,7 @@ import {
   hues,
   type Inked,
   inked,
+  mixed,
   oklch,
   palettes,
   stated,
@@ -68,15 +69,25 @@ const MODES: Inked = {
 };
 
 /**
- * Draws the grey palette: the solid and the text on it from the charcoal and the white, and every
- * other role from the page's own families.
+ * Fixes how far the grey palette's ink is faded from the page's ink in each mode: a fifth of the
+ * way to the paper by day, and a tenth of the way to the night after dark, which is a grey a
+ * quiet control's words are read in.
+ */
+const FADE = { dark: 0.11, light: 0.2 };
+
+/**
+ * Draws the grey palette: the solid and the text on it from the charcoal and the white, its own
+ * ink a little faded from the page's, and every other role from the page's own families.
  */
 const gray = {
   ...drawn(SOLID, MODES),
   bg: stated("{colors.bg}"),
   border: { DEFAULT: stated("{colors.border}"), hover: stated("{colors.border.emphasized}") },
   emphasized: stated("{colors.bg.emphasized}"),
-  fg: { DEFAULT: stated("{colors.fg}"), muted: stated("{colors.fg.muted}") },
+  fg: {
+    DEFAULT: stated(mixed(CHARCOAL, PAPER, FADE.light), mixed(CHALK, NIGHT, FADE.dark)),
+    muted: stated("{colors.fg.muted}"),
+  },
   focusRing: stated("{colors.border.emphasized}"),
   muted: stated("{colors.bg.muted}"),
   subtle: stated("{colors.bg.subtle}"),

@@ -111,11 +111,13 @@ describe("color", () => {
     expect(modedAt(drawn, "DEFAULT", "_dark")).toContain("13.0%");
   });
 
-  it("draws a surface away from the page in both modes", () => {
+  it("draws a surface further from a dark page than from a light one", () => {
     const drawn = backgrounds({ dark: 13, light: 97 }, 262, 0.006);
 
     expect(modedAt(drawn, "muted", "_dark")).toContain("20.0%");
-    expect(modedAt(drawn, "muted", "base")).toContain("90.0%");
+    expect(modedAt(drawn, "muted", "base")).toContain("93.0%");
+    expect(modedAt(drawn, "emphasized", "_dark")).toContain("24.0%");
+    expect(modedAt(drawn, "emphasized", "base")).toContain("90.0%");
   });
 
   it("draws the inverted surface at the other mode's page", () => {
@@ -128,7 +130,7 @@ describe("color", () => {
   it("stops at white or black rather than wrapping", () => {
     const drawn = backgrounds({ dark: 2, light: 99 }, 262, 0.006);
 
-    expect(modedAt(drawn, "emphasized", "base")).toContain("88.0%");
+    expect(modedAt(drawn, "panel", "base")).toContain("100.0%");
     expect(modedAt(drawn, "emphasized", "_dark")).toContain("13.0%");
   });
 

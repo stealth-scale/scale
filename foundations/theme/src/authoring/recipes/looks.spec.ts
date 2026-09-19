@@ -110,13 +110,13 @@ describe("highlightVariants", () => {
   it("puts every mark under the highlighted condition", () => {
     expect(highlightVariants(["tint", "fill"])).toStrictEqual({
       fill: { _highlighted: { layerStyle: "fill.solid" } },
-      tint: { _highlighted: { layerStyle: "fill.subtle" } },
+      tint: { _highlighted: { layerStyle: "fill.muted" } },
     });
   });
 
   it("tints the row behind the bar so the mark is carried twice over", () => {
     expect(highlightVariants(["bar"])).toStrictEqual({
-      bar: { _highlighted: { background: "colorPalette.subtle", layerStyle: "indicator.start" } },
+      bar: { _highlighted: { background: "colorPalette.muted", layerStyle: "indicator.start" } },
     });
   });
 
@@ -126,8 +126,8 @@ describe("highlightVariants", () => {
 
   it("puts every mark under the current page where a recipe asks for it", () => {
     expect(highlightVariants(["tint", "bar"], "_currentPage")).toStrictEqual({
-      bar: { _currentPage: { background: "colorPalette.subtle", layerStyle: "indicator.start" } },
-      tint: { _currentPage: { layerStyle: "fill.subtle" } },
+      bar: { _currentPage: { background: "colorPalette.muted", layerStyle: "indicator.start" } },
+      tint: { _currentPage: { layerStyle: "fill.muted" } },
     });
   });
 

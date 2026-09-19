@@ -367,16 +367,8 @@ function lit(page: number, steps: number, tint: Tint): string {
 }
 
 /**
- * Places a surface the same distance away from both pages, which is towards white on a dark page
- * and towards black on a light one.
- */
-function away(pages: PageLightness, steps: number, tint: Tint): Moded {
-  return { value: { _dark: lit(pages.dark, steps, tint), base: lit(pages.light, -steps, tint) } };
-}
-
-/**
- * Places a surface at one distance on a dark page and another on a light one, where the two pages
- * do not want the same step.
+ * Places a surface at one distance on a dark page and another on a light one: towards white on the
+ * dark page and towards black on the light one.
  */
 function split(pages: PageLightness, dark: number, light: number, tint: Tint): Moded {
   return { value: { _dark: lit(pages.dark, dark, tint), base: lit(pages.light, light, tint) } };
@@ -386,9 +378,10 @@ function split(pages: PageLightness, dark: number, light: number, tint: Tint): M
  * Draws the surfaces a page is built from, each a fixed distance from the page itself.
  *
  * @remarks
- *   The distances are signed rather than absolute: a panel is lighter than a dark page and darker
- *   than a light one, so one number covers both modes. The status members reference the status
- *   palettes' quiet fills.
+ *   The surfaces step further from a dark page than from a light one, because a light page is
+ *   near white and a step of the same size reads twice as strong there: the quiet fills sit two,
+ *   four and seven points below a light page and four, seven and eleven above a dark one. The
+ *   status members reference the status palettes' quiet fills.
  * @param pages - Where the page sits in each mode.
  * @param hue - The hue every surface is tinted with.
  * @param chroma - How far that tint goes.
@@ -399,10 +392,10 @@ export function backgrounds(pages: PageLightness, hue: number, chroma: number): 
   return {
     backdrop: { value: { _dark: "oklch(0% 0 0 / 0.64)", base: "oklch(0% 0 0 / 0.44)" } },
     DEFAULT: split(pages, 0, 0, tint),
-    disabled: away(pages, 7, tint),
-    emphasized: away(pages, 11, tint),
+    disabled: split(pages, 7, -4, tint),
+    emphasized: split(pages, 11, -7, tint),
     inverted: split(pages, pages.light - pages.dark, pages.dark - pages.light, tint),
-    muted: away(pages, 7, tint),
+    muted: split(pages, 7, -4, tint),
     panel: split(pages, 4, 3, tint),
     popover: split(pages, 7, 3, tint),
     subtle: split(pages, 4, -2, tint),

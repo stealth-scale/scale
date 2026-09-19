@@ -29,3 +29,8 @@ component-disclosure: show every component
 
 - One specimen per component, each scene drawing every value of every axis the recipe offers, with
   the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.
+
+component-disclosure: draw no ring on a menu's panel
+
+- The machine moves focus onto the panel as it opens, and the ring drawn for that read as the panel
+  being selected rather than as the highlighted row. The panel keeps `outline: 0` and no ring.

@@ -24,7 +24,7 @@ describe("Rail", () => {
   it("names the landmark out of the catalogue rather than the key", async () => {
     const { result } = await mountRoute(treeOver(GROUPED), "/docs/actions/button");
 
-    expect(result.getByRole("navigation", { name: "Pages" })).toBeDefined();
+    expect(result.getByRole("navigation", { name: "Components" })).toBeDefined();
   });
 
   it("draws every group the declarations carry as a branch", async () => {

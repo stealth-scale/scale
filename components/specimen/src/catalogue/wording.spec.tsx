@@ -15,19 +15,19 @@ describe("useWording", () => {
   it("resolves a key in the catalogue's own namespace where the page names none", () => {
     const { getByRole } = render(<Worded named={undefined} of="rail.label" />);
 
-    expect(getByRole("status").textContent).toBe("Pages");
+    expect(getByRole("status").textContent).toBe("Components");
   });
 
   it("resolves a key in the catalogue's own namespace where the page names an empty one", () => {
     const { getByRole } = render(<Worded named="" of="rail.label" />);
 
-    expect(getByRole("status").textContent).toBe("Pages");
+    expect(getByRole("status").textContent).toBe("Components");
   });
 
   it("resolves a key through the namespace the page names", () => {
     const { getByRole } = render(<Worded named="specimen" of="rail.label" />);
 
-    expect(getByRole("status").textContent).toBe("Pages");
+    expect(getByRole("status").textContent).toBe("Components");
   });
 
   it("returns a key the namespace has no entry for as written", () => {

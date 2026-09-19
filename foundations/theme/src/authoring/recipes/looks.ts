@@ -146,11 +146,15 @@ export const HIGHLIGHTS: readonly Highlight[] = ["tint", "fill", "bar"];
 
 /**
  * Maps each highlight to the layer style that draws it.
+ *
+ * @remarks
+ *   The tint is the muted fill rather than the subtle one, because a list is as often drawn on a
+ *   subtle surface as on the page, and a subtle mark on a subtle surface marks nothing.
  */
 const MARKS: Readonly<Record<Highlight, string>> = {
   bar: "indicator.start",
   fill: "fill.solid",
-  tint: "fill.subtle",
+  tint: "fill.muted",
 };
 
 /**
@@ -207,7 +211,7 @@ export function highlightVariants(
   return recordOf(highlights, (highlight): SystemStyleObject => {
     const marked =
       highlight === "bar"
-        ? { background: "colorPalette.subtle", layerStyle: MARKS[highlight] }
+        ? { background: "colorPalette.muted", layerStyle: MARKS[highlight] }
         : { layerStyle: MARKS[highlight] };
 
     return when === "_currentPage" ? { _currentPage: marked } : { _highlighted: marked };

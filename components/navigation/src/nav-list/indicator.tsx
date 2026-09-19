@@ -4,10 +4,13 @@
  * @remarks
  *   The mark says nothing a screen reader needs, because the trigger it sits in already says
  *   whether the list is expanded. It is hidden from the accessibility tree for that reason, and a
- *   caller hands over a glyph without sizing it or turning it.
+ *   caller hands over a glyph without sizing it or turning it. The machine writes which way the
+ *   branch is, and the recipe turns the mark on that.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
+
+import { mergeProps } from "@zag-js/react";
 
 import { withContext } from "#nav-list/context.ts";
 import { useBranch } from "#nav-list/state.ts";
@@ -29,7 +32,7 @@ export type IndicatorProps = ComponentProps<typeof Turned>;
  * @returns The mark, turned to whichever way the branch is.
  */
 export function Indicator(props: IndicatorProps): ReactElement {
-  const branch = useBranch();
+  const api = useBranch();
 
-  return <Turned data-state={branch.open ? "open" : "closed"} {...props} />;
+  return <Turned {...mergeProps(api.getIndicatorProps(), props)} />;
 }

@@ -44,7 +44,7 @@ export function ThemeSwitcher(): ReactElement {
     <Switcher.Root
       placement="toolbar"
       positioning={{ placement: "bottom-end" }}
-      size="md"
+      size="sm"
       variant="outline"
     >
       <Toolbar.Item as={Switcher.Trigger} label={t("chrome.theme")}>

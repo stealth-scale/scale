@@ -76,13 +76,27 @@ describe("recipe", () => {
     expect(axesOf(recipe)).not.toContain("narrow");
   });
 
-  it("draws a full-width page at the middle size when nothing is asked for", () => {
+  it("draws a full-width page at the middle size with a wide gutter when nothing is asked for", () => {
     expect(defaultsOf(recipe)).toStrictEqual({
       align: "start",
       divided: true,
-      gutter: "md",
+      gutter: "xl",
       measure: "full",
       size: "md",
+    });
+  });
+
+  it("keeps the header closer to its body than to the bar above it", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["header"]).toStrictEqual({
+      paddingBlockEnd: "gap.md",
+      paddingBlockStart: "inset.md",
+    });
+  });
+
+  it("sets the context a text step below the page", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["context"]).toStrictEqual({
+      gap: "gap.md",
+      textStyle: "body.sm",
     });
   });
 

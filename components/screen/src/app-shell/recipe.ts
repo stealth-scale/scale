@@ -106,9 +106,10 @@ const PANEL = {
  *
  * @remarks
  *   The fill is not optional. A pinned bar has the page scrolling under it, and a bar with no fill
- *   shows the page through itself.
+ *   shows the page through itself. It is the panel surface rather than the page, so the bar reads
+ *   as a thing laid over the page rather than as a strip of it.
  */
-const PINNED = { background: "bg", position: "sticky", zIndex: "sticky" };
+const PINNED = { background: "bg.panel", position: "sticky", zIndex: "sticky" };
 
 /**
  * Writes what a panel is placed by while the window is what scrolls: stuck under the bars pinned

@@ -26,8 +26,9 @@ export type BrandProps = Omit<ComponentProps<typeof Home>, "children" | "to">;
  *
  * @remarks
  *   The link takes the ink of the bar rather than the link ink, because a bar with one blue word
- *   in it reads as a bar with one link in it. The name is set semibold, which is what marks it as
- *   the brand among the controls beside it. The toolbar's item draws this through `as`, so the
+ *   in it reads as a bar with one link in it. The name is set semibold at the small size, which is
+ *   what marks it as the brand among the controls beside it without it reading as a heading of
+ *   the bar. The toolbar's item draws this through `as`, so the
  *   row's tab stop lands on the link. The link says it is the current page on the index alone,
  *   because the router would otherwise match every page under the index as well.
  * @param props - The row's tab stop and everything else an anchor takes.
@@ -44,7 +45,7 @@ export function Brand(props: BrandProps): ReactElement {
       variant="plain"
       {...props}
     >
-      <Text as="span" weight="semibold">
+      <Text as="span" size="sm" weight="semibold">
         {t("frame.brand")}
       </Text>
     </Home>

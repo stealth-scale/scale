@@ -106,3 +106,17 @@ theme: hold a control still under a press
   undid the scale for a disabled control and for a reader who asked for less motion. A press is read
   from the pressed fill, a ripple and an elevation dropping, and every control that shares the
   fragment holds its box still.
+
+theme: set the headings, the surfaces and the highlight the way a page is read
+
+- A heading role states its own leading and tracking: a section heading at the text's own leading
+  and no tracking, a page heading a little closer, and a hero heading tight and tracked in. Every
+  heading was set tight before this, which read as a hero at every size.
+- The quiet surfaces step two, four and seven points below a light page, where they stepped two,
+  seven and eleven, so a muted fill on paper is a light grey rather than a mid one. A dark page
+  keeps its steps.
+- The `tint` highlight is the muted fill rather than the subtle one, because a list is as often
+  drawn on a subtle surface as on the page, and a subtle mark on a subtle surface marks nothing.
+- `inked()` fades a muted ink two fifths of the way to the page and a subtle one nearly two thirds,
+  and keeps every line closer to the page than before, so a theme drawn from a palette reads its
+  secondary lines and hairlines the way the foundation does.

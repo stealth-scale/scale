@@ -1,7 +1,7 @@
-import { fireEvent } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { NavList } from "@stealthscale/component-navigation";
+import { pressed } from "@stealthscale/testing-react";
 
 import { onRoute, THERE } from "#catalogue/mounted.fixtures.tsx";
 import { Branch } from "#catalogue/rail-branch.tsx";
@@ -56,7 +56,7 @@ describe("Branch", () => {
       </NavList.Root>,
     );
 
-    fireEvent.click(result.getByRole("button", { name: "Data" }));
+    await pressed(result.getByRole("button", { name: "Data" }));
 
     expect(result.getByRole("link", { name: "Badge" })).toBeDefined();
   });

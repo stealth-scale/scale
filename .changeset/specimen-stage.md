@@ -35,3 +35,11 @@ specimen: cross two axes in a matrix and read a page's words from the catalogue
   the language a reader chose, and a key with no entry is shown as the key. A page whose words live
   in another namespace names it with `namespace`, and `Entry` carries it for the rail and the index.
 - A group's heading is looked up as `groups.<name>` and shown as the name where no entry exists.
+
+specimen: seat the matrix's cells at the top and quieten the rail
+
+- A matrix seats each cell at the top of its row once unfolded, so a small cell beside a tall one no
+  longer floats in the room the tall one takes.
+- The rail names its landmark for a screen reader alone and draws no heading over the list, and the
+  row of the page being read is marked by the list's own tint rather than a bar down its edge.
+- Each scene stands on an elevated card rather than an outlined one.

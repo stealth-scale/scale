@@ -24,7 +24,7 @@ describe("Index", () => {
 
     expect(
       result.getAllByRole("heading", { level: 2 }).map((one) => one.textContent),
-    ).toStrictEqual(["Pages", "Actions", "Data", "Other"]);
+    ).toStrictEqual(["Actions", "Data", "Other"]);
   });
 
   it("titles one card per page with the page's words", async () => {

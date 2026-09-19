@@ -18,7 +18,7 @@ export interface PanelProps {
 }
 
 /**
- * Draws a panel glyph at the large icon size.
+ * Draws a panel glyph at the small icon size, which is the mark a bar's control holds.
  *
  * @remarks
  *   Inline rather than from an icon set, because the library ships none and the bar needs one
@@ -29,7 +29,7 @@ export interface PanelProps {
  */
 export function Panel({ open }: PanelProps): ReactElement {
   return (
-    <Icon size="lg" viewBox="0 0 24 24">
+    <Icon size="sm" viewBox="0 0 24 24">
       <rect
         fill="none"
         height="18"

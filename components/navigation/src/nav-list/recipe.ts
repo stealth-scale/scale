@@ -11,13 +11,16 @@
  *   stylesheet happened to write last.
  *   A nested list reuses the item and the link rather than naming a second pair. The content mutes
  *   the ink and every row below it inherits, so one rule says a nested row is quieter and the parts
- *   a caller composes stay the same at every depth.
+ *   a caller composes stay the same at every depth. It slides open and closed from the height the
+ *   branch's machine measures, through the theme's collapse motion, and the mark on the row turns
+ *   a quarter as it opens, so a reader sees the list arrive rather than appear.
  *   `iconic` draws the rows as squares with their words read but not seen. It is a variant rather
  *   than an attribute read from an ancestor, so the slot recipe hands it to every part through the
  *   root and no part selects on a scope it does not own.
  */
 
 import {
+  below,
   cornerVariants,
   defineSlotRecipe,
   HIGHLIGHTS,
@@ -25,7 +28,9 @@ import {
   interactive,
   onSlots,
   row,
+  type Scale,
   sizeVariants,
+  type SystemStyleObject,
   truncate,
 } from "@stealthscale/theme/authoring";
 
@@ -69,13 +74,34 @@ const SQUARED = {
 const PRESSABLE = {
   ...row(),
   ...interactive(),
-  _currentPage: { color: "fg", fontWeight: "semibold" },
   _hover: { background: "colorPalette.subtle" },
   cursor: "button",
   inlineSize: "full",
   justifyContent: "flex-start",
   minInlineSize: "0",
 };
+
+/**
+ * Writes the room a row takes at one size: as tall as a tag of that name, with the label, the
+ * inset and the gap two steps below it, and the page being read set in the ink and semibold.
+ *
+ * @remarks
+ *   A list of destinations is read down a column, twenty rows at a time, and a row set in the
+ *   label of a control at the same name reads as a column of buttons. The words and the inset step
+ *   down twice, so a medium list is a column of short rows in the smallest label, which is how a
+ *   sidebar keeps its whole tree in view. The current page's weight is written here beside the
+ *   label rather than on the row's base, because the label states a weight of its own and the
+ *   compiler lets a variant's value beat the base's, whichever was written later.
+ */
+function rowed(size: Scale): SystemStyleObject {
+  return {
+    _currentPage: { color: "fg", fontWeight: "semibold" },
+    blockSize: `tag.${size}`,
+    gap: `gap.${below(below(size))}`,
+    paddingInline: `inset.${below(below(size))}`,
+    textStyle: `label.${below(below(size))}`,
+  };
+}
 
 /**
  * Writes what sits at the end of a row: over the row, centred against it, out of the flow.
@@ -96,6 +122,8 @@ export const recipe = defineSlotRecipe({
     badge: { ...BESIDE, pointerEvents: "none" },
     branch: { listStyle: "none", minInlineSize: "0" },
     content: {
+      _closed: { animationStyle: "collapse.out" },
+      _open: { animationStyle: "collapse.in" },
       "&[hidden]": { display: "none" },
       borderColor: "border",
       borderInlineStartWidth: "sm",
@@ -105,11 +133,13 @@ export const recipe = defineSlotRecipe({
       listStyle: "none",
       margin: "0",
       minInlineSize: "0",
+      overflow: "hidden",
       padding: "0",
     },
     indicator: {
       _motionReduce: { transitionDuration: "0s" },
-      _rtl: { rotate: "180deg" },
+      _open: { rotate: "90deg" },
+      _rtl: { _open: { rotate: "90deg" }, rotate: "180deg" },
       color: "fg.muted",
       display: "flex",
       flexShrink: "0",
@@ -129,7 +159,13 @@ export const recipe = defineSlotRecipe({
       padding: "0",
     },
     skeleton: { alignItems: "center", display: "flex" },
-    trigger: { ...PRESSABLE, appearance: "none", background: "transparent", borderStyle: "none" },
+    trigger: {
+      ...PRESSABLE,
+      appearance: "none",
+      background: "transparent",
+      borderStyle: "none",
+      color: "colorPalette.fg",
+    },
   },
   className: CLASS,
   compoundVariants: [
@@ -216,39 +252,24 @@ export const recipe = defineSlotRecipe({
     size: onSlots({
       content: sizeVariants(
         (size) => ({
-          gap: `gap.${size}`,
-          marginInlineStart: `inset.${size}`,
-          paddingInlineStart: `inset.${size}`,
+          gap: `gap.${below(size)}`,
+          marginInlineStart: `inset.${below(size)}`,
+          paddingBlock: "0.5",
+          paddingInlineStart: `inset.${below(size)}`,
         }),
         ["sm", "md", "lg"],
       ),
-      link: sizeVariants(
-        (size) => ({
-          blockSize: `tag.${size}`,
-          gap: `gap.${size}`,
-          paddingInline: `inset.${size}`,
-          textStyle: `label.${size}`,
-        }),
-        ["sm", "md", "lg"],
-      ),
-      root: sizeVariants((size) => ({ gap: `gap.${size}` }), ["sm", "md", "lg"]),
+      link: sizeVariants(rowed, ["sm", "md", "lg"]),
+      root: sizeVariants((size) => ({ gap: `gap.${below(below(size))}` }), ["sm", "md", "lg"]),
       skeleton: sizeVariants(
         (size) => ({
           blockSize: `tag.${size}`,
-          gap: `gap.${size}`,
-          paddingInline: `inset.${size}`,
+          gap: `gap.${below(below(size))}`,
+          paddingInline: `inset.${below(below(size))}`,
         }),
         ["sm", "md", "lg"],
       ),
-      trigger: sizeVariants(
-        (size) => ({
-          blockSize: `tag.${size}`,
-          gap: `gap.${size}`,
-          paddingInline: `inset.${size}`,
-          textStyle: `label.${size}`,
-        }),
-        ["sm", "md", "lg"],
-      ),
+      trigger: sizeVariants(rowed, ["sm", "md", "lg"]),
     }),
 
     /**

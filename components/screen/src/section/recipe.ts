@@ -10,13 +10,18 @@
  *   to bleed drops the padding and runs to the card's edges while its neighbours keep theirs. One
  *   value moves all of them.
  *   The description stops at the reading measure, which the theme states in characters rather than
- *   in a length, so the line a reader follows holds its count at every type size.
+ *   in a length, so the line a reader follows holds its count at every type size. It is set a text
+ *   step below the section in the page's own ink, and the title a heading step below the page's,
+ *   so a section reads as a part of the page it is on rather than as a page of its own. The bands
+ *   are parted by the gap two steps above the size, because a title needs more air below it than
+ *   two controls need between them.
  *   `annotated` moves the header into a column beside the body, which is how a settings page reads.
  *   It folds back over the body on a narrow root, measured by the component and written as
  *   `data-narrow`, so a consumer writes no breakpoint.
  */
 
 import {
+  below,
   defineSlotRecipe,
   divider,
   onSlots,
@@ -25,6 +30,11 @@ import {
 } from "@stealthscale/theme/authoring";
 
 import { FOLDED, FOLDING } from "#folding/index.ts";
+
+/**
+ * Maps each size to the gap two steps above it, which parts the header from the body.
+ */
+const AIRED = { lg: "2xl", md: "xl", sm: "lg" } as const;
 
 /**
  * The property the root states the room a card keeps in, which every band reads.
@@ -45,7 +55,6 @@ export const recipe = defineSlotRecipe({
     actions: { ...ROW, flexWrap: "nowrap", gridArea: "actions", justifySelf: "end" },
     body: { minInlineSize: "0" },
     description: {
-      color: "fg.muted",
       gridArea: "description",
       maxInlineSize: "prose",
       minInlineSize: "0",
@@ -132,13 +141,16 @@ export const recipe = defineSlotRecipe({
         (size) => ({ gap: `gap.${size}`, paddingInlineStart: `gap.${size}` }),
         ["sm", "md", "lg"],
       ),
-      description: sizeVariants((size) => ({ textStyle: `body.${size}` }), ["sm", "md", "lg"]),
-      footer: sizeVariants((size) => ({ gap: `gap.${size}` }), ["sm", "md", "lg"]),
-      root: sizeVariants(
-        (size) => ({ gap: `gap.${size}`, [ROOM]: `{spacing.inset.${size}}` }),
+      description: sizeVariants(
+        (size) => ({ textStyle: `body.${below(size)}` }),
         ["sm", "md", "lg"],
       ),
-      title: sizeVariants((size) => ({ textStyle: `heading.${size}` }), ["sm", "md", "lg"]),
+      footer: sizeVariants((size) => ({ gap: `gap.${size}` }), ["sm", "md", "lg"]),
+      root: sizeVariants(
+        (size) => ({ gap: `gap.${AIRED[size]}`, [ROOM]: `{spacing.inset.${size}}` }),
+        ["sm", "md", "lg"],
+      ),
+      title: sizeVariants((size) => ({ textStyle: `heading.${below(size)}` }), ["sm", "md", "lg"]),
     }),
 
     /**

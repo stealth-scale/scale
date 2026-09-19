@@ -34,11 +34,13 @@ export interface RailProps {
  * @remarks
  *   The block is a sidebar's, so draw it inside `Sidebar.Root` from the screen package, beside
  *   whatever else the application's sidebar holds. One landmark rather than one per group, so a
- *   reader jumping by landmark hears the catalogue once. The list is keyed by the group of the page
+ *   reader jumping by landmark hears the catalogue once, and it is named for a screen reader alone,
+ *   because a heading over a list of every component names what the reader can already see. The
+ *   list is keyed by the group of the page
  *   being read, so a navigation that lands in another group opens that branch and closes the rest,
  *   while a branch a reader opened by hand stays open until they move on. The row of the page
- *   being read carries a bar down its leading edge beside its tint, so it is marked twice over for
- *   a reader who cannot separate the tint from the ground.
+ *   being read is tinted a step off the sidebar's ground and set semibold, which the list's own
+ *   default draws, so it reads as the row a reader is on without a mark of its own.
  */
 export function Rail({ declarations }: RailProps): ReactElement {
   const { t } = useTranslation("specimen");
@@ -47,9 +49,8 @@ export function Rail({ declarations }: RailProps): ReactElement {
   const opened = groups.find((group) => group.pages.some((page) => page.id === current))?.name;
 
   return (
-    <Sidebar.Nav>
-      <Sidebar.NavLabel>{t("rail.label")}</Sidebar.NavLabel>
-      <NavList.Root highlight="bar" key={opened ?? ""} size="md">
+    <Sidebar.Nav aria-label={t("rail.label")}>
+      <NavList.Root key={opened ?? ""} size="md">
         {groups.map((group) => (
           <Branch group={group} holdsCurrent={group.name === opened} key={group.name} />
         ))}

@@ -50,12 +50,12 @@ describe("recipe", () => {
     });
   });
 
-  it("fills a bar that pins to the window", () => {
+  it("fills a bar that pins to the window with the panel surface", () => {
     expect(recipe.base?.["header"]?.["&[data-sticky]"]).toMatchObject({
-      background: "bg",
+      background: "bg.panel",
       position: "sticky",
     });
-    expect(recipe.base?.["footer"]?.["&[data-sticky]"]).toMatchObject({ background: "bg" });
+    expect(recipe.base?.["footer"]?.["&[data-sticky]"]).toMatchObject({ background: "bg.panel" });
   });
 
   it("offers the three ways the page and the panels are set against the ground", () => {

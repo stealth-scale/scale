@@ -36,9 +36,16 @@ describe("semanticTokens", () => {
       _dark: "{colors.border}",
       base: "{colors.border}",
     });
+    expect(semanticTokens.colors.gray.fg.muted.value).toStrictEqual({
+      _dark: "{colors.fg.muted}",
+      base: "{colors.fg.muted}",
+    });
+  });
+
+  it("fades the grey palette's own ink a little from the page's", () => {
     expect(semanticTokens.colors.gray.fg.DEFAULT.value).toStrictEqual({
-      _dark: "{colors.fg}",
-      base: "{colors.fg}",
+      _dark: "oklch(87.8% 0.0073 262.0)",
+      base: "oklch(33.8% 0.0073 262.0)",
     });
   });
 

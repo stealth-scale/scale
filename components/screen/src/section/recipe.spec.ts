@@ -84,6 +84,21 @@ describe("recipe", () => {
     });
   });
 
+  it("parts the bands by the gap two steps above the size", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["root"]).toMatchObject({ gap: "gap.xl" });
+    expect(recipe.variants?.["size"]?.["sm"]?.["root"]).toMatchObject({ gap: "gap.lg" });
+  });
+
+  it("sets the title a heading step and the description a text step below the size", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["title"]).toStrictEqual({
+      textStyle: "heading.sm",
+    });
+    expect(recipe.variants?.["size"]?.["md"]?.["description"]).toStrictEqual({
+      textStyle: "body.sm",
+    });
+    expect(recipe.base?.["description"]).not.toHaveProperty("color");
+  });
+
   it("clips a card so a bleeding body keeps its corners", () => {
     expect(recipe.variants?.["variant"]?.["surface"]?.["root"]).toStrictEqual({ overflow: "clip" });
   });

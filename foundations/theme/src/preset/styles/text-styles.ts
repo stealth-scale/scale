@@ -62,10 +62,21 @@ function role(stated: Role): Record<"value", TextStyle> {
 }
 
 /**
- * Writes a heading role at one size, in the heading face and set tight.
+ * Writes a heading role at one size, in the heading face.
+ *
+ * @remarks
+ *   The leading and the tracking are the role's to state, because a heading of a document and a
+ *   heading of a page are read differently: a section title at the text's own size keeps the
+ *   text's leading and no tracking, a page title is set a little closer, and a hero heading is set
+ *   tight and tracked in.
  */
-function heading(size: string, weight = "semibold"): Record<"value", TextStyle> {
-  return role({ family: "heading", leading: "tight", size, tracking: "tight", weight });
+function heading(
+  size: string,
+  leading: string,
+  tracking = "normal",
+  weight = "semibold",
+): Record<"value", TextStyle> {
+  return role({ family: "heading", leading, size, tracking, weight });
 }
 
 /**
@@ -121,14 +132,14 @@ export const textStyles: TextStyles = {
     }),
   },
   heading: {
-    "2xl": heading("4xl", "bold"),
-    "3xl": heading("6xl", "bold"),
-    "4xl": heading("8xl", "bold"),
-    lg: heading("2xl"),
-    md: heading("xl"),
-    sm: heading("lg"),
-    xl: heading("3xl", "bold"),
-    xs: heading("md"),
+    "2xl": heading("4xl", "tight", "tight", "bold"),
+    "3xl": heading("6xl", "tight", "tight", "bold"),
+    "4xl": heading("8xl", "tight", "tight", "bold"),
+    lg: heading("2xl", "snug"),
+    md: heading("xl", "snug"),
+    sm: heading("lg", "normal"),
+    xl: heading("3xl", "tight", "tight", "bold"),
+    xs: heading("md", "normal"),
   },
   label: {
     "2xl": label("lg"),

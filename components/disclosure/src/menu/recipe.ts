@@ -14,7 +14,9 @@
  *   page. It states no width: the machine sets `max-content`, so the panel is as wide as its widest
  *   row, and a caller wanting the control's width asks the machine for it.
  *   The panel enters from the side it was placed on rather than always from the top, which is what
- *   the `slide-fade` motion reads off the placement the machine writes.
+ *   the `slide-fade` motion reads off the placement the machine writes. It carries no focus ring:
+ *   the machine moves focus onto it as it opens, and a ring drawn for that reads as the panel being
+ *   selected rather than as the row the highlight marks, which is where the reader's attention is.
  *   A row that carries a mark leaves room for one in a gutter the size axis measures, and every row
  *   of a menu that offers marks leaves the same gutter, so a list of options does not step sideways
  *   as the marks appear.
@@ -69,7 +71,6 @@ export const recipe = defineSlotRecipe({
     arrowTip: { borderInlineStartWidth: "sm", borderTopWidth: "sm" },
     content: {
       ...motion("slide-fade.in", "slide-fade.out"),
-      _focusVisible: { focusVisibleRing: "outside" },
       display: "flex",
       flexDirection: "column",
       maxBlockSize: "var(--available-height)",

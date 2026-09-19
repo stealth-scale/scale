@@ -33,3 +33,17 @@ component-navigation: show every component
 
 - One specimen per component, each scene drawing every value of every axis the recipe offers, with
   the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.
+
+component-navigation: slide a branch open and draw the rows a sidebar's size
+
+- A branch runs the collapsible machine rather than a flag of its own. The machine measures the list
+  beneath the row and writes its height, which the theme's `collapse` motion runs to, so the list
+  slides open and closed and the mark on the row turns a quarter as it does. `Branch` takes the
+  machine's settings, `open`, `defaultOpen`, `onOpenChange` and `disabled` among them, and its `id`
+  names the machine, which builds the references between the row and its list from it.
+- A row is as tall as a tag of its size and carries the label, the inset and the gap two steps
+  smaller, so a medium list is a column of short rows in the smallest label. A nested list is
+  indented by the inset a step smaller and keeps a little room at either end of its rows.
+- A group's row is set in the palette's own ink, a step quieter than the page's, and the row of the
+  page being read is set in the page's ink and semibold whatever the size states. A hovered row
+  takes the palette's subtle fill, which leaves a list on a subtle surface still.

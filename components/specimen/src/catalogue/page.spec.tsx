@@ -82,7 +82,7 @@ describe("Page", () => {
     const { getByRole, getByText } = await drawn(<Page entry={named} />);
 
     expect(getByRole("heading", { level: 1 }).textContent).toBe("Catalogue");
-    expect(getByRole("heading", { level: 2 }).textContent).toBe("Pages");
+    expect(getByRole("heading", { level: 2 }).textContent).toBe("Components");
     expect(getByText("Other")).toBeDefined();
   });
 

@@ -41,9 +41,11 @@ describe("Content", () => {
     expect(screen.queryByRole("link", { name: "Team" })).toBeNull();
   });
 
-  it("carries the identifier the trigger points at", () => {
+  it("carries the identifier the machine builds from the id a caller names", () => {
     const { container } = render(branched(<Content>rows</Content>, { id: "settings-rows" }));
 
-    expect(slotElement(container, "nav-list", "content").id).toBe("settings-rows");
+    expect(slotElement(container, "nav-list", "content").id).toBe(
+      "collapsible:settings-rows:content",
+    );
   });
 });

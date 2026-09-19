@@ -19,6 +19,6 @@ describe("useWords", () => {
   it("reads a word by the rest of its key under the prefix named", () => {
     const { getByRole } = render(<Labelled />);
 
-    expect(getByRole("status").textContent).toBe("Pages");
+    expect(getByRole("status").textContent).toBe("Components");
   });
 });

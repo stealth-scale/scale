@@ -49,9 +49,12 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual(["outline", "plain", "surface"]);
   });
 
-  it("states the gap as one property every band reads", () => {
+  it("states the gap two steps below the size as one property every band reads", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["root"]).toStrictEqual({
-      [GAP]: "{spacing.gap.md}",
+      [GAP]: "{spacing.gap.xs}",
+    });
+    expect(recipe.variants?.["size"]?.["lg"]?.["root"]).toStrictEqual({
+      [GAP]: "{spacing.gap.sm}",
     });
     expect(recipe.base?.["start"]).toMatchObject({ gap: `var(${GAP})` });
   });

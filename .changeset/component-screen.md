@@ -155,3 +155,18 @@ component-screen: show every component
 
 - One specimen per component, each scene drawing every value of every axis the recipe offers, with
   the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.
+
+component-screen: draw the shell the way a page is read
+
+- A pinned bar of the shell is filled with the panel surface rather than the page, so it reads as a
+  thing laid over the page.
+- A toolbar's gap is the gap two steps smaller than its size, so a bar of icon buttons reads as one
+  bar.
+- A page opens at the extra-large gutter, its header keeps closer to its body than to the bar before
+  it, and its context is set a text step smaller than the page.
+- A section's title is a heading step and its description a text step smaller than the page's, in
+  the page's own ink, and its bands are parted by the gap two steps larger than the size.
+- A switcher holds its size's control height with no padding on the block axis, sets its name
+  semibold and its control in the neutral palette's ink, and in a toolbar draws its mark as a tinted
+  square with a wider gap. The tick of an option is placed at the row's end whatever the menu
+  states, and the mark that opens the list holds still and centred as the list opens.

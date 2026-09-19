@@ -87,7 +87,7 @@ export function Page({ back, entry }: PageProps): ReactElement {
               )}
             </Screen.Section.Header>
             <Screen.Section.Body>
-              <Card.Root as="div" variant="outline">
+              <Card.Root as="div" variant="elevated">
                 <Card.Content>
                   <scene.draw />
                 </Card.Content>

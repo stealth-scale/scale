@@ -33,6 +33,10 @@ describe("recipe", () => {
     });
   });
 
+  it("seats each cell at the top of its row once unfolded", () => {
+    expect(recipe.base?.["grid"]).toMatchObject({ "@/md": { alignItems: "start" } });
+  });
+
   it("folds the grid into rows below the middle container size", () => {
     expect(recipe.base?.["grid"]).toMatchObject({ "@/md": { display: "grid" }, display: "flex" });
     expect(recipe.base?.["head"]).toMatchObject({

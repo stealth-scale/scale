@@ -45,14 +45,43 @@ describe("recipe", () => {
     });
   });
 
-  it("shrinks the mark to an icon's box in a toolbar", () => {
+  it("shrinks the mark to a tinted square in a toolbar and opens the control's gap", () => {
     expect(recipe.compoundVariants).toStrictEqual([
       {
+        className: "switcher__root--marked",
+        css: { root: { gap: "gap.lg" } },
+        placement: "toolbar",
+      },
+      {
         className: "switcher__mark--marked",
-        css: { mark: { boxSize: "icon.md" } },
+        css: {
+          mark: {
+            background: "bg.muted",
+            borderRadius: "l1",
+            boxSize: "icon.md",
+            fontSize: "xs",
+            fontWeight: "semibold",
+            justifyContent: "center",
+            lineHeight: "tight",
+          },
+        },
         placement: "toolbar",
       },
     ]);
+  });
+
+  it("holds the control at its size's height and sets the name semibold", () => {
+    expect(recipe.variants?.["size"]?.["sm"]?.["root"]).toStrictEqual({
+      borderRadius: "l2",
+      gap: "gap.sm",
+      minBlockSize: "control.sm",
+      paddingInline: "gap.sm",
+    });
+    expect(recipe.variants?.["size"]?.["sm"]?.["name"]).toStrictEqual({
+      fontSize: "sm",
+      fontWeight: "semibold",
+      lineHeight: "tight",
+    });
   });
 
   it("fills a sidebar's column and takes the width of its words in a toolbar", () => {
@@ -86,18 +115,31 @@ describe("recipe", () => {
   });
 
   it("puts the tick at the end of the row and keeps the row's end clear for it", () => {
-    expect(recipe.base?.["check"]).toMatchObject({ insetInlineStart: "auto" });
+    expect(recipe.base?.["check"]).not.toHaveProperty("insetInlineStart");
     expect(recipe.variants?.["size"]?.["md"]?.["check"]).toStrictEqual({
       boxSize: "icon.md",
       insetInlineEnd: "gap.md",
+      insetInlineStart: "auto",
     });
     expect(recipe.variants?.["size"]?.["md"]?.["option"]).toMatchObject({
       paddingInlineEnd: "calc({sizes.icon.md} + 2 * {spacing.gap.md})",
     });
   });
 
-  it("pushes the mark that opens the list to the end of the control", () => {
-    expect(recipe.base?.["indicator"]).toMatchObject({ marginInlineStart: "auto" });
+  it("pushes the mark that opens the list to the end of the control and holds it still", () => {
+    expect(recipe.base?.["indicator"]).toMatchObject({
+      _open: { rotate: "0deg" },
+      alignItems: "center",
+      display: "inline-flex",
+      marginInlineStart: "auto",
+    });
+  });
+
+  it("sets the control in the neutral palette's ink", () => {
+    expect(recipe.base?.["root"]).toMatchObject({
+      color: "colorPalette.fg",
+      colorPalette: "neutral",
+    });
   });
 
   it("tracks every tag under the Switcher namespace", () => {

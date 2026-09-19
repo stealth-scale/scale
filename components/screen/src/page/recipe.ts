@@ -18,6 +18,7 @@
  */
 
 import {
+  below,
   defineSlotRecipe,
   divider,
   onSlots,
@@ -168,7 +169,7 @@ export const recipe = defineSlotRecipe({
       name: "stacked",
     },
   ],
-  defaultVariants: { align: "start", divided: true, gutter: "md", measure: "full", size: "md" },
+  defaultVariants: { align: "start", divided: true, gutter: "xl", measure: "full", size: "md" },
   jsx: [/^Page(\.\w+)?$/u],
   slots: [
     "root",
@@ -215,6 +216,11 @@ export const recipe = defineSlotRecipe({
 
     /**
      * The room at the page's inline edges, which every band reads.
+     *
+     * @remarks
+     *   A page opens at the extra-large inset, because a page is read at arm's length and its
+     *   bands want more room at the edge than a control wants inside it. A folded page pulls the
+     *   gutter in.
      */
     gutter: onSlots({ root: sizeVariants((size) => ({ [GUTTER]: `{spacing.inset.${size}}` })) }),
 
@@ -258,13 +264,19 @@ export const recipe = defineSlotRecipe({
       ),
       banner: sizeVariants((size) => ({ paddingBlock: `inset.${size}` }), STEPS),
       body: sizeVariants((size) => ({ paddingBlock: `inset.${size}` }), STEPS),
-      context: sizeVariants((size) => ({ gap: `gap.${size}` }), STEPS),
+      context: sizeVariants(
+        (size) => ({ gap: `gap.${size}`, textStyle: `body.${below(size)}` }),
+        STEPS,
+      ),
       description: sizeVariants((size) => ({ textStyle: `body.${size}` }), STEPS),
       footer: sizeVariants(
         (size) => ({ gap: `gap.${size}`, paddingBlock: `inset.${size}` }),
         STEPS,
       ),
-      header: sizeVariants((size) => ({ paddingBlock: `inset.${size}` }), STEPS),
+      header: sizeVariants(
+        (size) => ({ paddingBlockEnd: `gap.${size}`, paddingBlockStart: `inset.${size}` }),
+        STEPS,
+      ),
       leading: sizeVariants((size) => ({ marginInlineEnd: `gap.${size}` }), STEPS),
       meta: sizeVariants(
         (size) => ({ gap: `gap.${size}`, marginInlineStart: `gap.${size}` }),

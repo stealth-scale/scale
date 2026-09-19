@@ -6,7 +6,7 @@ describe("Frame", () => {
   it("draws the rail beside the page", async () => {
     const result = await opened("/components/actions/button");
 
-    expect(result.getByRole("navigation", { name: "Pages" })).toBeDefined();
+    expect(result.getByRole("navigation", { name: "Components" })).toBeDefined();
   });
 
   it("draws the page in the main landmark", async () => {

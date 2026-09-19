@@ -52,7 +52,7 @@ describe("recipe", () => {
 
   it("marks the highlighted row rather than the focused one", () => {
     expect(recipe.variants?.["highlight"]?.["tint"]?.["item"]).toStrictEqual({
-      _highlighted: { layerStyle: "fill.subtle" },
+      _highlighted: { layerStyle: "fill.muted" },
     });
   });
 

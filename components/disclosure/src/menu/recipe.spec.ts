@@ -94,6 +94,11 @@ describe("recipe", () => {
     expect(recipe.base?.["content"]).not.toHaveProperty("minInlineSize");
   });
 
+  it("draws no ring on the panel the machine focuses as it opens", () => {
+    expect(recipe.base?.["content"]).toMatchObject({ outline: "0" });
+    expect(recipe.base?.["content"]).not.toHaveProperty("_focusVisible");
+  });
+
   it("leaves the gutter a mark sits in on a row that carries one", () => {
     expect(recipe.base?.["item"]).toMatchObject({
       "&[data-type]": { paddingInlineStart: "var(--menu-gutter)" },

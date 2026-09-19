@@ -16,7 +16,7 @@ describe("EntryCard", () => {
     const entry = { about: "rail.ungrouped", label: "rail.label", namespace: "specimen" };
     const { result } = await onRoute(<EntryCard page={{ entry, id: THERE }} />);
 
-    expect(result.getByRole("heading", { level: 3 }).textContent).toBe("Pages");
+    expect(result.getByRole("heading", { level: 3 }).textContent).toBe("Components");
     expect(result.getByText("Other")).toBeDefined();
   });
 

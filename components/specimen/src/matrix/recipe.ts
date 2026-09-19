@@ -12,7 +12,9 @@
  *   caption the top edge held, wrapping where the row runs out of room. The root is the container
  *   the grid measures itself against, because a grid folds on the room it is given and not on the
  *   window. A grid wider than its column once unfolded scrolls across, because a row folded under
- *   itself no longer lines up with the caption above it.
+ *   itself no longer lines up with the caption above it. The cells sit at the top of their row
+ *   rather than the middle, because a row is as tall as its tallest cell and a small cell centred
+ *   against a tall one floats in the room the tall one takes.
  */
 
 import {
@@ -60,7 +62,7 @@ export const recipe = defineSlotRecipe({
       flexDirection: "column",
       gap: "gap.2xl",
       [UNFOLDED]: {
-        alignItems: "center",
+        alignItems: "start",
         columnGap: "gap.lg",
         display: "grid",
         justifyContent: "start",

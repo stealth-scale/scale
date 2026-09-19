@@ -81,13 +81,22 @@ const DISTANCED = ["backdrop", "disabled", "emphasized", "muted", "subtle"] as c
 
 /**
  * Fixes how far each faded ink is mixed towards the page.
+ *
+ * @remarks
+ *   A muted ink sits two fifths of the way to the page and a subtle one nearly two thirds, which
+ *   on a charcoal ink over paper is a mid grey and a light grey: the two steps a secondary line
+ *   and a placeholder are read in.
  */
-const FADES = { muted: 0.25, subtle: 0.5 };
+const FADES = { muted: 0.4, subtle: 0.62 };
 
 /**
  * Fixes how far each line is mixed from the page towards the ink.
+ *
+ * @remarks
+ *   A line is a hairline, so it stays close to the page: the default line goes a seventh of the
+ *   way to the ink, and the emphasized one, which a control's edge is drawn in, two fifths.
  */
-const WEIGHTS = { DEFAULT: 0.2, emphasized: 0.45, muted: 0.12, subtle: 0.08 };
+const WEIGHTS = { DEFAULT: 0.14, emphasized: 0.4, muted: 0.09, subtle: 0.05 };
 
 /**
  * Fixes the chroma below which a color is a grey, whose hue is noise and reads as zero.

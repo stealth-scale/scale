@@ -15,7 +15,13 @@
  *   where a menu's row carries neither. The name and the detail are cut short rather than wrapped,
  *   so the control keeps one height whatever the current thing is called. The tick sits at the end
  *   of the row rather than in the menu's leading gutter, because the row's mark is drawn there, and
- *   the row keeps room at its end for it so the words never run under it.
+ *   the row keeps room at its end for it so the words never run under it. Where it sits is written
+ *   on the size axis beside its box, because the menu's own gutter is written there too and the
+ *   compiler lets the later of two axis values win where a base value would lose. The mark that
+ *   opens the list holds still as the list opens: it is a pair of chevrons saying the control
+ *   switches, not an arrow saying which way the panel went. The control is set in the neutral
+ *   palette's ink, which is a step quieter than the page's, so it reads as a control among the
+ *   controls of a bar rather than as a heading in it.
  */
 
 import {
@@ -38,13 +44,16 @@ export const recipe = defineSlotRecipe({
       alignItems: "center",
       display: "inline-flex",
       flexShrink: "0",
-      insetInlineStart: "auto",
     },
     content: { display: "flex", flexDirection: "column", minInlineSize: "0" },
     detail: { ...truncate(), color: "fg.muted", textStyle: "caption" },
     indicator: {
+      _open: { rotate: "0deg" },
+      alignItems: "center",
       color: "fg.muted",
+      display: "inline-flex",
       flexShrink: "0",
+      justifyContent: "center",
       marginInlineStart: "auto",
       transitionDuration: "fast",
       transitionProperty: "common",
@@ -57,6 +66,8 @@ export const recipe = defineSlotRecipe({
     root: {
       ...interactive(),
       alignItems: "center",
+      color: "colorPalette.fg",
+      colorPalette: "neutral",
       display: "flex",
       minInlineSize: "0",
     },
@@ -64,7 +75,18 @@ export const recipe = defineSlotRecipe({
   className: "switcher",
   compoundVariants: [
     {
-      css: { mark: { boxSize: "icon.md" } },
+      css: {
+        mark: {
+          background: "bg.muted",
+          borderRadius: "l1",
+          boxSize: "icon.md",
+          fontSize: "xs",
+          fontWeight: "semibold",
+          justifyContent: "center",
+          lineHeight: "tight",
+        },
+        root: { gap: "gap.lg" },
+      },
       name: "marked",
       placement: "toolbar",
     },
@@ -110,7 +132,11 @@ export const recipe = defineSlotRecipe({
         ["sm", "md", "lg"],
       ),
       check: sizeVariants(
-        (size) => ({ boxSize: `icon.${size}`, insetInlineEnd: `gap.${size}` }),
+        (size) => ({
+          boxSize: `icon.${size}`,
+          insetInlineEnd: `gap.${size}`,
+          insetInlineStart: "auto",
+        }),
         ["sm", "md", "lg"],
       ),
       content: sizeVariants(
@@ -119,7 +145,10 @@ export const recipe = defineSlotRecipe({
       ),
       indicator: sizeVariants((size) => ({ boxSize: `icon.${size}` }), ["sm", "md", "lg"]),
       mark: sizeVariants((size) => ({ boxSize: `control.${size}` }), ["sm", "md", "lg"]),
-      name: sizeVariants((size) => ({ textStyle: `label.${size}` }), ["sm", "md", "lg"]),
+      name: sizeVariants(
+        (size) => ({ fontSize: size, fontWeight: "semibold", lineHeight: "tight" }),
+        ["sm", "md", "lg"],
+      ),
       option: sizeVariants(
         (size) => ({
           gap: `gap.${size}`,
@@ -130,7 +159,12 @@ export const recipe = defineSlotRecipe({
         ["sm", "md", "lg"],
       ),
       root: sizeVariants(
-        (size) => ({ borderRadius: "l2", gap: `gap.${size}`, padding: `gap.${size}` }),
+        (size) => ({
+          borderRadius: "l2",
+          gap: `gap.${size}`,
+          minBlockSize: `control.${size}`,
+          paddingInline: `gap.${size}`,
+        }),
         ["sm", "md", "lg"],
       ),
     }),
