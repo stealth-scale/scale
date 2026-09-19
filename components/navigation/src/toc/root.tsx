@@ -5,7 +5,10 @@
  *   The element is `nav`, which is the landmark a person navigating by landmark reaches. The
  *   machine names it after the title, so a page holding a rail beside its other navigation
  *   landmarks announces this one by the words the title holds. Draw a title, or the landmark is
- *   named by nothing.
+ *   named by nothing. Every heading on screen is marked, read through an observer over the band
+ *   `rootMargin` states. The machine's own band leaves out the foot of the viewport, so a short
+ *   last section is never marked. A rail beside a page of sections states `rootMargin="0px"`, which
+ *   marks every section in view and the last one once the page reaches its end.
  */
 
 import { type ComponentProps, type ReactElement } from "react";

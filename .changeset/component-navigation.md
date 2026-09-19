@@ -65,3 +65,5 @@ component-navigation: publish Toc
   rather than as a heading of the page.
 - One axis, `size`, at `sm`, `md` and `lg`. The links read the body role one step smaller than the
   size and the title reads the label role two steps smaller.
+- The rail is at least eleven rems wide, so a page of short titles draws the same rail as a page of
+  long ones.

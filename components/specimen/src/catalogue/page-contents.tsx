@@ -40,7 +40,9 @@ export interface ContentsProps {
  *   Draw it inside `Page.Root` from the screen package, after the body. The aside leaves a narrow
  *   page, because the rail is a way of moving through a long page and a phone moves through one by
  *   scrolling. The rail is the navigation package's table of contents, so the mark follows the
- *   sections as they come on screen and a press scrolls the page to one.
+ *   sections as they come on screen and a press scrolls the page to one. The band the sections are
+ *   read in is the whole viewport, so every section in view is marked and the last one is marked
+ *   once the page reaches its end.
  */
 export function Contents({ of }: ContentsProps): ReactElement {
   const { t } = useTranslation("specimen");
@@ -51,7 +53,7 @@ export function Contents({ of }: ContentsProps): ReactElement {
 
   return (
     <Page.Aside aria-label={t("contents.title")} folds="hide" sticky>
-      <Toc.Root items={listed.map(({ item }) => item)} size="sm">
+      <Toc.Root items={listed.map(({ item }) => item)} rootMargin="0px" size="sm">
         <Toc.Title>{t("contents.title")}</Toc.Title>
         <Toc.List>
           <Toc.Indicator />

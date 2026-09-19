@@ -194,3 +194,5 @@ component-screen: lay a page's body beside its aside
   under the shell's pinned bars while the body scrolls past.
 - A `Section.Root` scrolled to by its id stops one large gap under the shell's pinned bars, so a
   title reached from a table of contents is read rather than covered.
+- The aside keeps the same inset on the block axis as the body, so what it holds starts on the line
+  the body's first section starts on.

@@ -13,8 +13,9 @@
  *   The links are muted and the one naming a heading on screen is set in the page's ink and a
  *   step heavier, so a reader scanning the rail finds where they are without reading the mark.
  *   A long title is cut short on one line, because a rail of many titles is a list to scan rather
- *   than a column of prose. The title of the rail is set small in capitals, so it reads as the
- *   label of the list rather than as a heading of the page.
+ *   than a column of prose. The rail is at least eleven rems wide, so a page of short titles
+ *   draws the same rail as a page of long ones. The title of the rail is set small in capitals, so
+ *   it reads as the label of the list rather than as a heading of the page.
  */
 
 import {
@@ -71,7 +72,12 @@ export const recipe = defineSlotRecipe({
       padding: "0",
       position: "relative",
     },
-    root: { colorPalette: "primary", display: "flex", flexDirection: "column" },
+    root: {
+      colorPalette: "primary",
+      display: "flex",
+      flexDirection: "column",
+      minInlineSize: "44",
+    },
     title: {
       color: "fg.muted",
       fontWeight: "semibold",

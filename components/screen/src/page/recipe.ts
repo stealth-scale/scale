@@ -312,6 +312,7 @@ export const recipe = defineSlotRecipe({
         (size) => ({ gap: `gap.${size}`, paddingInlineStart: `inset.${size}` }),
         STEPS,
       ),
+      aside: sizeVariants((size) => ({ paddingBlock: `inset.${size}` }), STEPS),
       banner: sizeVariants((size) => ({ paddingBlock: `inset.${size}` }), STEPS),
       body: sizeVariants((size) => ({ paddingBlock: `inset.${size}` }), STEPS),
       context: sizeVariants(

@@ -54,8 +54,10 @@ describe("Link", () => {
     await settled();
 
     expect(scrolled.top).not.toBe(-1);
+    expect(window.location.hash).toBe("#looks");
 
     box.remove();
+    window.location.hash = "";
   });
 
   it("draws the element as names", async () => {

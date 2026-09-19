@@ -36,6 +36,10 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "size")).toStrictEqual(["lg", "md", "sm"]);
   });
 
+  it("draws the rail at least eleven rems wide", () => {
+    expect(recipe.base?.["root"]).toMatchObject({ minInlineSize: "44" });
+  });
+
   it("reads the body role a step below the size and the label role two below", () => {
     expect(recipe.variants?.["size"]?.["md"]).toStrictEqual({
       link: {

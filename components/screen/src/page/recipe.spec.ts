@@ -194,6 +194,12 @@ describe("recipe", () => {
     });
   });
 
+  it("insets an aside on the block axis as the body is so the two start on one line", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["aside"]).toStrictEqual(
+      recipe.variants?.["size"]?.["md"]?.["body"],
+    );
+  });
+
   it("stacks the marks under the title on a narrow page", () => {
     const stacked = recipe.compoundVariants?.find((each) =>
       (each.className ?? "").endsWith("header--stacked"),

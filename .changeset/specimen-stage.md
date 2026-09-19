@@ -71,4 +71,7 @@ specimen: file each page under its group and list its sections beside it
   pressed, sticks beside the body on a wide page and leaves a narrow one. A page with no scenes
   draws no rail.
 - The page is composed from `Header`, `SceneSection` and `Contents`, one file each.
+- The rail reads the sections over the whole viewport, `rootMargin="0px"`, so every section in view
+  is marked and the last one is marked once the page reaches its end. The machine's own band leaves
+  out the foot of the viewport, and a short last section was never marked.
 - The package peers on `@stealthscale/component-data`.
