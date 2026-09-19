@@ -80,3 +80,22 @@ theme: publish SystemStyleObject from the authoring entry
 - A recipe that builds a value by hand names the type from `@stealthscale/theme/authoring`, without
   importing the runtime entry. A preset loaded by the compiler runs without a browser, and the
   runtime entry pulls the provider and React behind it.
+
+theme: publish inked, drawn, hues, scaleOf, stepOf, mixed and stated from the authoring entry
+
+- `inked()` draws the three families from a page and an ink stated for each mode: every surface a
+  fixed distance from the page in the page's own tint, every line the page mixed towards the ink,
+  and every faded ink the ink mixed towards the page. A theme drawn from a palette adds no grey of
+  its own.
+- `drawn()` draws a hue palette from one color over those pages, for both modes or one color per
+  mode: the solid is the color, every quiet fill is the page tinted towards it and held a least
+  distance from the page, the ink, the line and the ring are the color pushed towards the mode's ink
+  until each stands far enough from the page, the text on the solid is whichever of the ink and the
+  page reads better on it, and the hovers are lifted towards that text. A fill read from a ramp can
+  land darker than a dark page the palette puts at a third of the way up, and read as a stain. A
+  fill tinted from the page stays on the page whatever the page is.
+- `hues()` draws every hue palette that way: each hue the theme states from its color, the grey from
+  the ink, and every other from the foundation's hue at the steps the foundation places its solids
+  on.
+- `scaleOf()` draws a ramp in the hue and at the chroma of a color, `stepOf()` writes one step of a
+  ramp, `mixed()` mixes two colors in OKLab, and `stated()` writes a color outright in both modes.

@@ -24,9 +24,10 @@ type Colors = NonNullable<Tokens["colors"]>;
  * @remarks
  *   The grey is tinted towards the blue, so a page and its panels sit in the same light as the
  *   primary palette. Its chroma is below the threshold at which a ramp reads as a color, so it
- *   holds that chroma at both ends rather than falling away.
+ *   holds that chroma at both ends rather than falling away. Published so a theme drawn from a
+ *   palette reads the foundation's hue for every palette it does not state.
  */
-const RAMPS: Readonly<Record<Hue, readonly [hue: number, chroma: number]>> = {
+export const RAMPS: Readonly<Record<Hue, readonly [hue: number, chroma: number]>> = {
   blue: [262, 0.14],
   cyan: [220, 0.13],
   gray: [262, 0.008],

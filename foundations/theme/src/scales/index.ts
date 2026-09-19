@@ -20,12 +20,14 @@ export {
   ROLE_STEPS,
   type RoleSteps,
   type Step,
+  stepOf,
   stepped,
   type Steps,
   surfaces,
   type SurfaceSteps,
 } from "#scales/color.ts";
 export { radii, shadows } from "#scales/depth.ts";
+export { drawn, hues, type Solid } from "#scales/drawn.ts";
 export {
   controls,
   type Corner,
@@ -40,6 +42,7 @@ export {
   type Width,
   WIDTHS,
 } from "#scales/geometry.ts";
+export { type Inked, inked, mixed, scaleOf, stated, type Written } from "#scales/inked.ts";
 export { slides } from "#scales/motion.ts";
 export {
   families,

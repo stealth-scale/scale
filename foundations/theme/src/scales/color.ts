@@ -234,6 +234,24 @@ function share(saturation: number, chroma: number): number {
 }
 
 /**
+ * Writes one step of the ramp a hue and a chroma draw, as CSS reads it.
+ *
+ * @param hue - Degrees around the wheel.
+ * @param chroma - How far from grey the middle of the ramp sits.
+ * @param step - The step to write, `50` to `950`.
+ * @throws {@link Error} When no ramp has the step.
+ */
+export function stepOf(hue: number, chroma: number, step: number): string {
+  const stop = STOPS.find(([at]) => at === step);
+
+  if (stop === undefined) throw new Error(`${String(step)} is not a step of a ramp`);
+
+  const [, lightness, saturation] = stop;
+
+  return oklch(lightness, chroma * share(saturation, chroma), hue);
+}
+
+/**
  * Draws the eleven steps of one hue, keyed `50` to `950`.
  *
  * @param hue - Degrees around the wheel.
@@ -241,10 +259,7 @@ function share(saturation: number, chroma: number): number {
  */
 export function colorScale(hue: number, chroma: number): Colors {
   return Object.fromEntries(
-    STOPS.map(([step, lightness, saturation]) => [
-      String(step),
-      { value: oklch(lightness, chroma * share(saturation, chroma), hue) },
-    ]),
+    STOPS.map(([step]) => [String(step), { value: stepOf(hue, chroma, step) }]),
   );
 }
 

@@ -15,6 +15,7 @@ import {
   paletteRoles,
   ramp,
   ROLE_STEPS,
+  stepOf,
   stepped,
   surfaces,
   type SurfaceSteps,
@@ -54,6 +55,14 @@ describe("color", () => {
   it("draws every step in the hue it was given", () => {
     expect(tokenAt(colorScale(262, 0.14), "500")).toContain("262.0");
     expect(tokenAt(colorScale(262, 0.14), "50")).toContain("262.0");
+  });
+
+  it("writes one step of a ramp as the ramp draws it", () => {
+    expect(stepOf(262, 0.14, 500)).toBe(tokenAt(colorScale(262, 0.14), "500"));
+  });
+
+  it("refuses a step no ramp has", () => {
+    expect(() => stepOf(262, 0.14, 450)).toThrow("450 is not a step of a ramp");
   });
 
   it("holds a near-grey ramp at its stated chroma at both ends", () => {
