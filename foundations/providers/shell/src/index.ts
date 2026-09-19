@@ -9,4 +9,10 @@
  */
 
 export { Shell, type ShellProps } from "#shell.tsx";
+export {
+  THEME_SETTING,
+  type ThemeChoiceContextValue,
+  themeSetting,
+  useThemeChoice,
+} from "#theme-choice.ts";
 export { Themed, type ThemedProps } from "#themed.tsx";

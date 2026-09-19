@@ -1,12 +1,10 @@
 /**
- * Turns the pages a build indexed into the routes and the frame an application compiles.
+ * Turns the pages a build indexed into the route declarations an application compiles.
  */
 
-import { type FunctionComponent } from "react";
+import { Outlet, type RouteDeclaration } from "@stealthscale/provider-router";
 
-import { type LayoutProps, type RouteDeclaration } from "@stealthscale/provider-router";
-
-import { Catalogue } from "#catalogue/catalogue.tsx";
+import { Index } from "#catalogue/index-page.tsx";
 import { Page } from "#catalogue/page.tsx";
 import { type Indexed } from "#catalogue/types.ts";
 
@@ -17,16 +15,39 @@ import { type Indexed } from "#catalogue/types.ts";
 export const NAMED = "specimen";
 
 /**
- * The frame every page of a catalogue is drawn inside.
+ * Describes where an application puts the catalogue: the route it hangs under, the frame it is
+ * drawn in, and what the application lists beside the pages the build found.
  */
-export const FRAME = "specimen.catalogue";
+export interface Placing {
+  /**
+   * Pages the application wrote itself, which are compiled with the rest and listed by the rail and
+   * the index where they carry an entry. One naming no parent nests under the catalogue's route.
+   */
+  readonly beside?: readonly RouteDeclaration[] | undefined;
+
+  /**
+   * The id of the route the catalogue hangs under, which the index is named after.
+   */
+  readonly id: string;
+
+  /**
+   * The layouts the catalogue is drawn in, outermost first, which the application registers with
+   * the compiler. Drawn bare where this is absent.
+   */
+  readonly layout?: readonly string[] | undefined;
+
+  /**
+   * The path the catalogue is served under, relative to the compiler's parent.
+   */
+  readonly path: string;
+}
 
 /**
  * Returns the id a page is routed under.
  *
  * @remarks
  *   The identifier's slashes become dots, because a route id names a route and a path addresses it.
- *   `actions/button` is served at `actions/button` under its parent, and referred to as
+ *   `actions/button` is served at `actions/button` under the catalogue's route, and referred to as
  *   `specimen.actions.button`.
  */
 export function routeId(id: string): string {
@@ -34,47 +55,58 @@ export function routeId(id: string): string {
 }
 
 /**
- * Returns one declaration per page, each drawing that page inside the catalogue's frame.
- *
- * @remarks
- *   The component is a closure over the entry rather than a lazy import, because every page is the
- *   same component against different data. The page's own module is still loaded only when somebody
- *   opens it, by the loader the index put on the entry.
- *   The path carries no leading slash, so every page hangs beneath whatever parent the application
- *   compiles them under. Mounting that parent at `/docs` addresses this page at
- *   `/docs/actions/button` without the package knowing.
- * @param pages - The pages the index found, which is what `virtual:specimen-index` exports.
- * @returns One declaration per page, in the order the index gave them.
+ * Returns the id of the index the pages of a catalogue lead back to.
  */
-export function declarations(pages: readonly Indexed[]): readonly RouteDeclaration[] {
-  return pages.map((page) => ({
-    component: () => <Page entry={page} />,
-    id: routeId(page.id),
-    layout: [FRAME],
-    navigation: { group: page.group, label: page.title },
-    path: page.id,
-  }));
+export function indexId(id: string): string {
+  return `${id}.index`;
 }
 
 /**
- * Returns the default frame those declarations name, drawn over every route the rail lists.
+ * Returns a page the application wrote, nested under the catalogue's route unless it names a
+ * parent of its own.
+ */
+function under(one: RouteDeclaration, id: string): RouteDeclaration {
+  return one.parent === undefined ? { ...one, parent: id } : one;
+}
+
+/**
+ * Returns the declarations a catalogue compiles to: the route it hangs under, its index, and one
+ * page per entry, each nested under that route.
  *
  * @remarks
- *   Handed to `compileRoutes` beside the declarations, and given every declaration compiled rather
- *   than the specimen pages alone, so a page an application wrote is listed beside a page the
- *   plugin found. A pathless route draws the frame, so it adds no segment to any page's address and
- *   the rail is rendered once above all of them.
- *   An application wanting a frame of its own passes one under `FRAME` instead of calling this, and
- *   draws `Rail` wherever it likes inside it.
- * @param compiled - Every declaration the catalogue is compiled from.
- * @returns The frame, under the name every declaration asks for.
+ *   The route the catalogue hangs under draws the router's outlet and nothing else, because a route
+ *   with children is what puts them all under one path and one frame. The index is that route's own
+ *   index route, so the catalogue's path opens the index and a page's path opens the page.
+ *   A page's component is a closure over the entry rather than a lazy import, because every page
+ *   is the same component against different data. The page's own module is still loaded only when
+ *   somebody opens it, by the loader the index put on the entry. A page's path carries no leading
+ *   slash, so a catalogue at `/components` serves `actions/button` at `/components/actions/button`
+ *   without the package knowing.
+ * @param pages - The pages the index found, which is what `virtual:specimen-index` exports.
+ * @param placing - Where the application puts the catalogue. `Placing` documents every member.
+ * @returns The route, its index, then the pages in the order the index gave them, then whatever the
+ *   application listed beside them.
  */
-export function layouts(
-  compiled: readonly RouteDeclaration[],
-): Readonly<Record<string, FunctionComponent<LayoutProps>>> {
-  return {
-    [FRAME]: ({ children }: LayoutProps) => (
-      <Catalogue declarations={compiled}>{children}</Catalogue>
-    ),
-  };
+export function declarations(
+  pages: readonly Indexed[],
+  placing: Placing,
+): readonly RouteDeclaration[] {
+  const { beside = [], id, layout, path } = placing;
+  const index = indexId(id);
+  const listed: readonly RouteDeclaration[] = [
+    ...pages.map((page) => ({
+      component: () => <Page back={index} entry={page} />,
+      id: routeId(page.id),
+      navigation: { about: page.about, group: page.group, label: page.title },
+      parent: id,
+      path: page.id,
+    })),
+    ...beside.map((one) => under(one, id)),
+  ];
+
+  return [
+    { component: Outlet, id, ...(layout === undefined ? {} : { layout }), path },
+    { component: () => <Index declarations={listed} />, id: index, parent: id, path: "/" },
+    ...listed,
+  ];
 }

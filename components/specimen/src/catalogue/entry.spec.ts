@@ -23,6 +23,14 @@ describe("entryOf", () => {
     expect(entryOf(declaring({ label: "Button" }))?.group).toBeUndefined();
   });
 
+  it("reads the opening a declaration carries", () => {
+    expect(entryOf(declaring({ about: "Presses.", label: "Button" }))?.about).toBe("Presses.");
+  });
+
+  it("reads no opening where the declaration carries none", () => {
+    expect(entryOf(declaring({ label: "Button" }))?.about).toBeUndefined();
+  });
+
   it("reads no group where the declaration names one that is not words", () => {
     expect(entryOf(declaring({ group: 1, label: "Button" }))?.group).toBeUndefined();
   });

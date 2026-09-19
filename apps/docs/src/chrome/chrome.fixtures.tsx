@@ -1,0 +1,48 @@
+/**
+ * Renders a control of the bar with the shell it reads in scope, and drives it the way a pointer
+ * does.
+ */
+
+import { type ReactElement } from "react";
+
+import { type RenderResult } from "@testing-library/react";
+import { catalogues } from "virtual:i18n";
+
+import { Shell } from "@stealthscale/provider-shell";
+import { memoryStore } from "@stealthscale/settings";
+import { drawn, pressed } from "@stealthscale/testing-react";
+
+import { THEMES } from "#themes.ts";
+
+/**
+ * Draws a control inside the shell, with settings kept in memory so two cases share nothing.
+ *
+ * @param control - The control under test.
+ * @returns The render, once the control's machine has committed.
+ */
+export function shelled(control: ReactElement): Promise<RenderResult> {
+  return drawn(
+    <Shell
+      app="docs"
+      catalogues={catalogues}
+      locales={["en"]}
+      store={memoryStore()}
+      themes={THEMES}
+    >
+      {control}
+    </Shell>,
+  );
+}
+
+/**
+ * Opens a switcher and chooses one of its rows.
+ *
+ * @param result - The render holding the switcher.
+ * @param control - The accessible name of the switcher's control.
+ * @param option - The words of the row to choose.
+ * @returns Nothing. The caller reads the screen.
+ */
+export async function chosen(result: RenderResult, control: string, option: string): Promise<void> {
+  await pressed(result.getByRole("button", { name: control }));
+  await pressed(result.getByRole("menuitemradio", { name: option }));
+}

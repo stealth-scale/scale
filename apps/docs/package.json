@@ -6,6 +6,7 @@
   "license": "MIT",
   "type": "module",
   "imports": {
+    "#theme.config.ts": "./theme.config.ts",
     "#*": "./src/*"
   },
   "scripts": {
@@ -15,9 +16,16 @@
     "test": "vp test"
   },
   "dependencies": {
+    "@stealthscale/component-a11y": "workspace:^",
     "@stealthscale/component-actions": "workspace:^",
+    "@stealthscale/component-disclosure": "workspace:^",
     "@stealthscale/component-layout": "workspace:^",
+    "@stealthscale/component-navigation": "workspace:^",
+    "@stealthscale/component-screen": "workspace:^",
+    "@stealthscale/component-surfaces": "workspace:^",
     "@stealthscale/component-typography": "workspace:^",
+    "@stealthscale/provider-color-mode": "workspace:^",
+    "@stealthscale/provider-i18n": "workspace:^",
     "@stealthscale/provider-router": "workspace:^",
     "@stealthscale/provider-shell": "workspace:^",
     "@stealthscale/specimen": "workspace:^",
@@ -35,6 +43,8 @@
   },
   "devDependencies": {
     "@rolldown/plugin-babel": "catalog:",
+    "@stealthscale/settings": "workspace:^",
+    "@stealthscale/testing-react": "workspace:^",
     "@stealthscale/testing-router": "workspace:^",
     "@stealthscale/vite-config": "workspace:^",
     "@stealthscale/vite-config-i18n": "workspace:^",

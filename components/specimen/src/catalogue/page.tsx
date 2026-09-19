@@ -1,13 +1,13 @@
 /**
- * Draws one page: its opening, then each scene under its title.
+ * Draws one page: the way back, its title and its opening, then each scene as a section.
  */
 
 import { type ReactElement, useEffect, useState } from "react";
 
-import { Stack } from "@stealthscale/component-layout";
-import { Heading, Text } from "@stealthscale/component-typography";
+import * as Screen from "@stealthscale/component-screen";
 
 import { declared } from "#catalogue/declared.ts";
+import { Trail } from "#catalogue/page-trail.tsx";
 import { type Indexed } from "#catalogue/types.ts";
 import { type Specimen } from "#page.ts";
 
@@ -16,9 +16,14 @@ import { type Specimen } from "#page.ts";
  */
 export interface PageProps {
   /**
+   * The id of the route the trail at the head of the page leads to. No trail where it is absent.
+   */
+  readonly back?: string | undefined;
+
+  /**
    * The entry the index holds for it.
    */
-  entry: Indexed;
+  readonly entry: Indexed;
 }
 
 /**
@@ -29,7 +34,7 @@ export interface PageProps {
  *   dynamic import and the bundler emits one chunk for each. Opening a page is the first time its
  *   components are fetched.
  */
-export function Page({ entry }: PageProps): ReactElement {
+export function Page({ back, entry }: PageProps): ReactElement {
   const [page, setPage] = useState<Specimen | undefined>();
 
   useEffect(() => {
@@ -56,24 +61,29 @@ export function Page({ entry }: PageProps): ReactElement {
   }, [entry]);
 
   return (
-    <Stack as="article" gap="2xl">
-      <Stack gap="xs">
-        <Heading size="xl">{entry.title}</Heading>
-        {entry.about === "" ? undefined : <Text tone="muted">{entry.about}</Text>}
-      </Stack>
-      {(page?.scenes ?? []).map((scene) => (
-        <Stack gap="sm" key={scene.title}>
-          <Heading as="h2" size="sm">
-            {scene.title}
-          </Heading>
-          {scene.about === undefined ? undefined : (
-            <Text size="sm" tone="muted">
-              {scene.about}
-            </Text>
-          )}
-          <scene.draw />
-        </Stack>
-      ))}
-    </Stack>
+    <Screen.Page.Root>
+      <Screen.Page.Header>
+        {back === undefined ? null : <Trail to={back} />}
+        <Screen.Page.Title>{entry.title}</Screen.Page.Title>
+        {entry.about === "" ? null : (
+          <Screen.Page.Description>{entry.about}</Screen.Page.Description>
+        )}
+      </Screen.Page.Header>
+      <Screen.Page.Body>
+        {(page?.scenes ?? []).map((scene) => (
+          <Screen.Section.Root key={scene.title}>
+            <Screen.Section.Header>
+              <Screen.Section.Title>{scene.title}</Screen.Section.Title>
+              {scene.about === undefined ? null : (
+                <Screen.Section.Description>{scene.about}</Screen.Section.Description>
+              )}
+            </Screen.Section.Header>
+            <Screen.Section.Body>
+              <scene.draw />
+            </Screen.Section.Body>
+          </Screen.Section.Root>
+        ))}
+      </Screen.Page.Body>
+    </Screen.Page.Root>
   );
 }

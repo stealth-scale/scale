@@ -9,32 +9,48 @@ what draws the pages an application indexed.
 pnpm add -D @stealthscale/specimen
 ```
 
-The package peers on `@stealthscale/component-actions`, `@stealthscale/component-layout`,
+The package peers on `@stealthscale/component-layout`, `@stealthscale/component-navigation`,
+`@stealthscale/component-screen`, `@stealthscale/component-surfaces`,
 `@stealthscale/component-typography`, `@stealthscale/provider-i18n`,
-`@stealthscale/vite-plugin-specimen` and `react`. A package writing specimens does not declare it,
-the way a package writing specifications does not declare the testing kits: a specimen runs in the
-catalogue and resolves through the workspace root.
+`@stealthscale/provider-router`, `@stealthscale/vite-plugin-specimen` and `react`. A package writing
+specimens does not declare it, the way a package writing specifications does not declare the testing
+kits: a specimen runs in the catalogue and resolves through the workspace root.
 
 ## The catalogue
 
-The package publishes routes and a frame, and builds no router. An application compiles them beneath
-one of its own routes.
+The package publishes route declarations and builds no router and no shell. An application places
+the catalogue under a route of its own, registers the frame it is drawn in, and compiles the result
+beside whatever else it declares.
 
-```ts
+```tsx
 import { compileRoutes } from "@stealthscale/provider-router";
-import { declarations, layouts } from "@stealthscale/specimen";
+import { declarations } from "@stealthscale/specimen";
 import { pages } from "virtual:specimen-index";
 
-const under = createRoute({ getParentRoute: () => root, path: "/pages" });
-const compiled = [...declarations(pages), ...whateverElseYouWrote()];
+const compiled = declarations(pages, {
+  id: "docs.components",
+  layout: ["docs.frame"],
+  path: "components",
+});
 
-under.addChildren([...compileRoutes(compiled, { layouts: layouts(compiled), parent: under })]);
+root.addChildren([...compileRoutes(compiled, { layouts: { "docs.frame": Frame }, parent: root })]);
 ```
 
-`declarations` gives one route per page, addressed by the identifier the page declares and carrying
-no leading slash. Every page hangs beneath whatever parent it is compiled under, so mounting that
-parent at `/docs` serves the button at `/docs/actions/button`. The prefix stays with the
-application.
+`declarations` returns the route the catalogue hangs under, its index, and one page per entry. The
+route draws the router's outlet and nothing else, so every page is served beneath its path and drawn
+inside its frame. Placing the catalogue at `components` serves the index at `/components` and the
+button at `/components/actions/button`. A page's route is named `routeId(page.id)`, which turns the
+identifier's slashes into dots: `specimen.actions.button`. The index is named `indexId(id)`:
+`docs.components.index`.
+
+`Placing` states where the catalogue goes:
+
+| Member   | What it states                                                                           |
+| -------- | ---------------------------------------------------------------------------------------- |
+| `id`     | The id of the route the catalogue hangs under                                            |
+| `path`   | The path that route is served at, relative to the compiler's parent                      |
+| `layout` | The layouts the catalogue is drawn in, outermost first. Drawn bare when absent           |
+| `beside` | Pages the application wrote, compiled with the rest and listed by the rail and the index |
 
 The pages are passed in rather than imported, so this package draws a catalogue without the build
 plugin in its own graph and a specification renders one without a build at all.
@@ -42,16 +58,37 @@ plugin in its own graph and a specification renders one without a build at all.
 ## The rail
 
 `Rail` reads declarations, not the index. Anything compiled into the catalogue that carries an entry
-is listed, so a page an application wrote itself appears beside a page the plugin found.
+is listed, so a page an application wrote itself appears beside a page the plugin found. Hand it the
+array `declarations` returned.
+
+```tsx
+import { Sidebar } from "@stealthscale/component-screen";
+import { Rail } from "@stealthscale/specimen";
+
+<Sidebar.Root>
+  <Sidebar.Content>
+    <Rail declarations={compiled} />
+  </Sidebar.Content>
+</Sidebar.Root>;
+```
+
+The rail is one block of a sidebar, `Sidebar.Nav` under its own heading, so draw it inside
+`Sidebar.Root` from the screen package. It holds one branch per group. The branch holding the page
+being read is open, and a reader opens and closes the others by hand. A navigation into another
+group redraws the list, which opens that group's branch and closes the rest.
+
+A page the application writes carries an entry under `navigation`, and nests under the catalogue's
+route unless it names a parent of its own:
 
 ```ts
 const overview: RouteDeclaration = {
   component: Overview,
   id: "docs.theming.overview",
-  layout: [FRAME],
-  navigation: { group: "Theming", label: "Overview" },
+  navigation: { about: "How a theme is built.", group: "Theming", label: "Overview" },
   path: "theming/overview",
 };
+
+declarations(pages, { beside: [overview], id: "docs.components", path: "components" });
 ```
 
 `Entry` is that shape and `entryOf` reads it, because the router types `navigation` as `unknown` and
@@ -59,23 +96,19 @@ a declaration the catalogue did not write could carry anything under that name. 
 carrying no entry is left out, which is what a page in no rail looks like.
 
 `grouped` sorts those into the tree the rail draws: groups by name, pages by the words their entry
-carries, and pages naming no group under a heading of their own, last. `routeId` names a page for a
-link, turning slashes into dots: `specimen.actions.button`.
+carries, and pages naming no group under a heading of their own, last.
 
-## The frame
+## The index and the pages
 
-`Catalogue` is the simple frame, a rail beside the page, and `layouts` hands it to `compileRoutes`
-under `FRAME`. A pathless route draws it, so it adds no segment to any address and the rail is
-rendered once above every page.
+`Index` draws the catalogue's index: one section per group, holding a card per page. The card's
+title is the link, and its description is the sentence the page opens with. The catalogue's route
+serves it, and an application drawing it elsewhere as well hands it the same declarations.
 
-An application wanting a top bar, a search or a switcher writes its own frame, passes it under
-`FRAME` instead of calling `layouts`, and places `Rail` wherever it likes inside it. Nothing else in
-this package reaches `Catalogue`.
-
-`Page` loads a page's module and draws its scenes, which is the first time that component reaches
-the browser. `declared` and `parted` are the shaping behind it. `parted` splits what a page's parts
-accept into the variants a theme moves and the options a caller sets, each row carrying the members
-of every named type it refers to, with the dropped counts beside them.
+`Page` loads a page's module and draws its scenes, each as a section under its title, which is the
+first time that component reaches the browser. The row above the page's title leads back to the
+index. `declared` and `parted` are the shaping behind it. `parted` splits what a page's parts accept
+into the variants a theme moves and the options a caller sets, each row carrying the members of
+every named type it refers to, with the dropped counts beside them.
 
 ## The words
 
@@ -154,9 +187,10 @@ Two axes at once are one matrix inside another, with the inner one running acros
 
 ## No recipe of its own
 
-Every part a matrix draws is a component of the library: the arrangement is `Stack`, the caption is
-`Text`. The package therefore states no recipe and registers no preset, and a theme that moves the
-stack or the paragraph moves the catalogue with them.
+Every part the catalogue draws is a component of the library: the arrangement is `Stack`, the
+caption is `Text`, the page is `Page`, the rail is `Sidebar.Nav` over `NavList`. The package
+therefore states no recipe and registers no preset, and a theme that moves the library moves the
+catalogue with it.
 
 Both arrangements are written out rather than forwarded to one stack, because the compiler extracts
 a value written as a JSX literal and nothing it reads from a prop.
@@ -164,7 +198,8 @@ a value written as a JSX literal and nothing it reads from a prop.
 ## Types
 
 `Axis<Value>` describes an axis: `of`, `knob` and `label`. `MatrixProps<Value>` extends it with
-`children` and `direction`. `Specimen` and `Scene` describe what a page declares.
+`children` and `direction`. `Specimen` and `Scene` describe what a page declares. `Placing`
+describes where a catalogue goes.
 
 ## Licence
 

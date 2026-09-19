@@ -1,4 +1,10 @@
 {
+  "index": {
+    "title": "Catalogue"
+  },
+  "page": {
+    "back": "Catalogue"
+  },
   "rail": {
     "label": "Pages",
     "ungrouped": "Other"

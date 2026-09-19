@@ -5,8 +5,7 @@ import * as barrel from "#catalogue/index.ts";
 describe("index", () => {
   it("names everything the catalogue publishes and nothing beside it", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
-      "Catalogue",
-      "FRAME",
+      "Index",
       "NAMED",
       "Page",
       "Rail",
@@ -14,7 +13,7 @@ describe("index", () => {
       "declared",
       "entryOf",
       "grouped",
-      "layouts",
+      "indexId",
       "parted",
       "routeId",
     ]);

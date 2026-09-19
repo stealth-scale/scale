@@ -1,0 +1,14 @@
+{
+  "chrome": {
+    "colorMode": "Colour mode",
+    "dark": "Dark",
+    "light": "Light",
+    "system": "System",
+    "theme": "Theme"
+  },
+  "frame": {
+    "brand": "Stealth",
+    "navigation": "Navigation",
+    "skip": "Skip to content"
+  }
+}

@@ -502,15 +502,36 @@ importers:
 
   apps/docs:
     dependencies:
+      '@stealthscale/component-a11y':
+        specifier: workspace:^
+        version: link:../../components/a11y
       '@stealthscale/component-actions':
         specifier: workspace:^
         version: link:../../components/actions
+      '@stealthscale/component-disclosure':
+        specifier: workspace:^
+        version: link:../../components/disclosure
       '@stealthscale/component-layout':
         specifier: workspace:^
         version: link:../../components/layout
+      '@stealthscale/component-navigation':
+        specifier: workspace:^
+        version: link:../../components/navigation
+      '@stealthscale/component-screen':
+        specifier: workspace:^
+        version: link:../../components/screen
+      '@stealthscale/component-surfaces':
+        specifier: workspace:^
+        version: link:../../components/surfaces
       '@stealthscale/component-typography':
         specifier: workspace:^
         version: link:../../components/typography
+      '@stealthscale/provider-color-mode':
+        specifier: workspace:^
+        version: link:../../foundations/providers/color-mode
+      '@stealthscale/provider-i18n':
+        specifier: workspace:^
+        version: link:../../foundations/providers/i18n
       '@stealthscale/provider-router':
         specifier: workspace:^
         version: link:../../foundations/providers/router
@@ -557,6 +578,12 @@ importers:
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
         version: 0.2.4(@babel/core@7.29.7(supports-color@10.2.2))(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.7)
+      '@stealthscale/settings':
+        specifier: workspace:^
+        version: link:../../foundations/settings
+      '@stealthscale/testing-react':
+        specifier: workspace:^
+        version: link:../../packages/testing-react
       '@stealthscale/testing-router':
         specifier: workspace:^
         version: link:../../packages/testing-router
@@ -1457,12 +1484,18 @@ importers:
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
         version: 0.2.4(@babel/core@7.29.7(supports-color@10.2.2))(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.7)
-      '@stealthscale/component-actions':
-        specifier: workspace:^
-        version: link:../actions
       '@stealthscale/component-layout':
         specifier: workspace:^
         version: link:../layout
+      '@stealthscale/component-navigation':
+        specifier: workspace:^
+        version: link:../navigation
+      '@stealthscale/component-screen':
+        specifier: workspace:^
+        version: link:../screen
+      '@stealthscale/component-surfaces':
+        specifier: workspace:^
+        version: link:../surfaces
       '@stealthscale/component-typography':
         specifier: workspace:^
         version: link:../typography

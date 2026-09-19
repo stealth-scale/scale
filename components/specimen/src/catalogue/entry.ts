@@ -5,7 +5,7 @@
 import { type RouteDeclaration } from "@stealthscale/provider-router";
 
 /**
- * Describes what a declaration carries for the rail to list it by.
+ * Describes what a declaration carries for the rail and the index to list it by.
  *
  * @remarks
  *   Published, because the rail lists whatever an application compiled beside the specimen pages. A
@@ -13,6 +13,11 @@ import { type RouteDeclaration } from "@stealthscale/provider-router";
  *   heading, without the catalogue knowing what it draws.
  */
 export interface Entry {
+  /**
+   * The sentence the index opens the page's card with. Empty where it is absent.
+   */
+  readonly about?: string | undefined;
+
   /**
    * The heading the rail lists it under. Listed under no heading of its own where it is absent.
    */
@@ -22,6 +27,15 @@ export interface Entry {
    * The words the rail writes.
    */
   readonly label: string;
+}
+
+/**
+ * Reads one optional string off an entry, or undefined where it holds anything else.
+ */
+function stringAt(entry: object, name: string): string | undefined {
+  const held: unknown = Reflect.get(entry, name);
+
+  return typeof held === "string" ? held : undefined;
 }
 
 /**
@@ -38,9 +52,17 @@ export function entryOf(declaration: RouteDeclaration): Entry | undefined {
   const entry: unknown = declaration.navigation;
 
   if (typeof entry !== "object" || entry === null) return undefined;
-  if (!("label" in entry) || typeof entry.label !== "string") return undefined;
 
-  const group: unknown = "group" in entry ? entry.group : undefined;
+  const label = stringAt(entry, "label");
 
-  return { group: typeof group === "string" ? group : undefined, label: entry.label };
+  if (label === undefined) return undefined;
+
+  const about = stringAt(entry, "about");
+  const group = stringAt(entry, "group");
+
+  return {
+    ...(about === undefined ? {} : { about }),
+    ...(group === undefined ? {} : { group }),
+    label,
+  };
 }

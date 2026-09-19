@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { entry } from "#catalogue/mounted.fixtures.ts";
-import { declarations, FRAME, layouts, routeId } from "#catalogue/routes.tsx";
+import { mountRoute } from "@stealthscale/testing-router";
+
+import { entry, treeOver, written } from "#catalogue/mounted.fixtures.tsx";
+import { declarations, indexId, routeId } from "#catalogue/routes.tsx";
 
 const LISTED = [entry("actions/button", "Actions", "Button"), entry("portal", "", "Portal")];
+
+const PLACED = { id: "docs.components", layout: ["docs.frame"], path: "components" };
 
 describe("declarations", () => {
   it("names a page under the prefix with its slashes as dots", () => {
@@ -14,37 +18,100 @@ describe("declarations", () => {
     expect(routeId("portal")).toBe("specimen.portal");
   });
 
-  it("returns one declaration per page", () => {
-    expect(declarations(LISTED)).toHaveLength(2);
+  it("names the index after the route the catalogue hangs under", () => {
+    expect(indexId("docs.components")).toBe("docs.components.index");
   });
 
-  it("keeps the pages in the order the index gave them", () => {
-    expect(declarations(LISTED).map((one) => one.id)).toStrictEqual([
+  it("returns the route and its index and one page per entry", () => {
+    expect(declarations(LISTED, PLACED).map((one) => one.id)).toStrictEqual([
+      "docs.components",
+      "docs.components.index",
       "specimen.actions.button",
       "specimen.portal",
     ]);
   });
 
-  it("addresses a page by the identifier it declares and no leading slash", () => {
-    expect(declarations(LISTED)[0]?.path).toBe("actions/button");
+  it("serves the catalogue at the path it was placed at inside its frame", () => {
+    expect(declarations(LISTED, PLACED)[0]).toMatchObject({
+      layout: ["docs.frame"],
+      path: "components",
+    });
   });
 
-  it("draws every page inside the catalogue's frame", () => {
-    expect(declarations(LISTED)[0]?.layout).toStrictEqual([FRAME]);
+  it("draws the catalogue bare where it was placed in no frame", () => {
+    expect(
+      declarations(LISTED, { id: "docs.components", path: "components" })[0],
+    ).not.toHaveProperty("layout");
   });
 
-  it("carries the words and the group a rail lists the page by", () => {
-    expect(declarations(LISTED)[0]?.navigation).toStrictEqual({
+  it("serves the index at the catalogue's own path", () => {
+    expect(declarations(LISTED, PLACED)[1]).toMatchObject({ parent: "docs.components", path: "/" });
+  });
+
+  it("nests a page under the catalogue at the identifier it declares", () => {
+    expect(declarations(LISTED, PLACED)[2]).toMatchObject({
+      parent: "docs.components",
+      path: "actions/button",
+    });
+  });
+
+  it("carries the words and the group and the opening a page is listed by", () => {
+    expect(
+      declarations([entry("actions/button", "Actions", "Button", "Presses.")], PLACED)[2]
+        ?.navigation,
+    ).toStrictEqual({
+      about: "Presses.",
       group: "Actions",
       label: "Button",
     });
   });
 
-  it("returns nothing for an index that found no page", () => {
-    expect(declarations([])).toStrictEqual([]);
+  it("nests a page the application wrote under the catalogue where it names no parent", () => {
+    const beside = [written("docs.theming", "Theming", "Overview")];
+
+    expect(declarations([], { ...PLACED, beside })[2]?.parent).toBe("docs.components");
   });
 
-  it("provides the frame every declaration asks for", () => {
-    expect(Object.keys(layouts(declarations(LISTED)))).toStrictEqual([FRAME]);
+  it("leaves a page the application wrote under the parent it names", () => {
+    const beside = [{ ...written("docs.theming", "Theming", "Overview"), parent: "docs.home" }];
+
+    expect(declarations([], { ...PLACED, beside })[2]?.parent).toBe("docs.home");
+  });
+
+  it("returns the route and its index for an index that found no page", () => {
+    expect(declarations([], PLACED)).toHaveLength(2);
+  });
+
+  it("opens the index at the catalogue's path", async () => {
+    const { result } = await mountRoute(treeOver(LISTED), "/docs");
+
+    expect(result.getByRole("heading", { level: 1 }).textContent).toBe("Catalogue");
+  });
+
+  it("opens a page at its path under the catalogue's", async () => {
+    const { result } = await mountRoute(treeOver(LISTED), "/docs/actions/button");
+
+    expect(result.getByRole("heading", { level: 1 }).textContent).toBe("Button");
+  });
+
+  it("draws every page inside the frame the catalogue was placed in", async () => {
+    const { result } = await mountRoute(treeOver(LISTED), "/docs/actions/button");
+
+    expect(result.getByRole("navigation")).toBeDefined();
+  });
+
+  it("leads a page back to the index", async () => {
+    const { result } = await mountRoute(treeOver(LISTED), "/docs/actions/button");
+
+    expect(result.getByRole("link", { name: "Catalogue" }).getAttribute("href")).toBe("/docs");
+  });
+
+  it("opens a page the application wrote at its path under the catalogue's", async () => {
+    const beside = [written("docs.theming", "Theming", "Overview")];
+    const { result } = await mountRoute(treeOver(LISTED, beside), "/docs/docs/theming");
+
+    expect(result.getByRole("link", { name: "Overview" }).getAttribute("aria-current")).toBe(
+      "page",
+    );
   });
 });

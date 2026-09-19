@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { grouped } from "#catalogue/grouped.ts";
-import { written } from "#catalogue/mounted.fixtures.ts";
+import { written } from "#catalogue/mounted.fixtures.tsx";
 
 function nothing(): null {
   return null;

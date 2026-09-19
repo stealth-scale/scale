@@ -78,9 +78,10 @@ export interface ShellProps {
   readonly store?: SettingStore | undefined;
 
   /**
-   * The theme to draw in. The application's first where this is absent.
+   * The themes the application offers, the first drawn until a person chooses another. None where
+   * this is absent, which draws the application's first theme and offers no switch.
    */
-  readonly theme?: string | undefined;
+  readonly themes?: readonly string[] | undefined;
 }
 
 /**
@@ -89,11 +90,12 @@ export interface ShellProps {
  * @remarks
  *   The order is the point, and it is what an application would otherwise re-derive at every mount.
  *   The root node comes first, because a portal attaches and a measurement is taken against it. The
- *   colour mode and the theme come next, so whatever renders below is drawn in them. The locale
- *   follows the theme and the catalogues follow the locale, because every string is read in it. The
- *   viewport reads the theme's breakpoints, so it comes after the theme. Shortcuts come last.
- *   Routes and data stay the application's own. It renders its router and its clients as children,
- *   so an application without either bundles neither.
+ *   colour mode and the theme come next, so whatever renders below is drawn in them, and both are
+ *   settings a person's choice is remembered under. The locale follows the theme and the catalogues
+ *   follow the locale, because every string is read in it. The viewport reads the theme's
+ *   breakpoints, so it comes after the theme. Shortcuts come last. Routes and data stay the
+ *   application's own. It renders its router and its clients as children, so an application
+ *   without either bundles neither.
  * @param props - The props. `ShellProps` documents every member.
  */
 export function Shell({
@@ -106,12 +108,12 @@ export function Shell({
   rootNode,
   sizes,
   store,
-  theme,
+  themes,
 }: ShellProps): ReactElement {
   return (
     <EnvironmentProvider value={rootNode}>
       <ColorModeProvider app={app} store={store}>
-        <Themed theme={theme}>
+        <Themed app={app} store={store} themes={themes}>
           <LocaleProvider app={app} locales={locales} store={store}>
             <I18nProvider catalogues={catalogues} settings={i18n}>
               <ViewportProvider sizes={sizes}>

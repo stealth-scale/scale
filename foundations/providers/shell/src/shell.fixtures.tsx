@@ -12,6 +12,8 @@ import { useLocale } from "@stealthscale/provider-locale";
 import { useViewport } from "@stealthscale/provider-viewport";
 import { useTheme } from "@stealthscale/theme";
 
+import { useThemeChoice } from "#theme-choice.ts";
+
 /**
  * Reads one string of the menu.
  *
@@ -39,6 +41,33 @@ export function Switched(): ReactElement {
  */
 export function Chosen(): ReactElement {
   return <p>{useColorMode().choice}</p>;
+}
+
+/**
+ * Reads the theme a person chose beside the themes on offer, and offers a button per theme and one
+ * for a theme nobody offers.
+ *
+ * @returns A paragraph with the choice, and the buttons.
+ */
+export function Picked(): ReactElement {
+  const { setTheme, theme, themes } = useThemeChoice();
+
+  return (
+    <div>
+      <p>{`${theme ?? "none"} of ${themes.length === 0 ? "nothing" : themes.join(",")}`}</p>
+      {[...themes, "folio"].map((name) => (
+        <button
+          key={name}
+          onClick={() => {
+            setTheme(name);
+          }}
+          type="button"
+        >
+          {name}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 /**

@@ -33,9 +33,9 @@ function page(scenes: readonly unknown[]): unknown {
 
 describe("Page", () => {
   it("heads the page with its title", async () => {
-    const { getByText } = await drawn(<Page entry={entry(page([]))} />);
+    const { getByRole } = await drawn(<Page entry={entry(page([]))} />);
 
-    expect(getByText("Badge")).toBeDefined();
+    expect(getByRole("heading", { level: 1 }).textContent).toBe("Badge");
   });
 
   it("opens with the sentence the page declares", async () => {
@@ -50,16 +50,28 @@ describe("Page", () => {
     expect(container.textContent).toBe("Badge");
   });
 
+  it("states no trail where the page was placed under nothing", async () => {
+    const { queryByRole } = await drawn(<Page entry={entry(page([]))} />);
+
+    expect(queryByRole("link")).toBeNull();
+  });
+
   it("draws each scene the page lists", async () => {
     const { getByText } = await drawn(<Page entry={entry(page([SIZES]))} />);
 
     expect(getByText("drawn")).toBeDefined();
   });
 
-  it("heads a scene with its title", async () => {
-    const { getByText } = await drawn(<Page entry={entry(page([SIZES]))} />);
+  it("draws a scene as a section of the page", async () => {
+    const { getByRole } = await drawn(<Page entry={entry(page([SIZES]))} />);
 
-    expect(getByText("Sizes")).toBeDefined();
+    expect(getByRole("region", { name: "Sizes" })).toBeDefined();
+  });
+
+  it("heads a scene with its title", async () => {
+    const { getByRole } = await drawn(<Page entry={entry(page([SIZES]))} />);
+
+    expect(getByRole("heading", { level: 2 }).textContent).toBe("Sizes");
   });
 
   it("opens a scene with the sentence it declares", async () => {
