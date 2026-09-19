@@ -1,0 +1,18 @@
+{
+  "about": "Draws a box a person types one line into.",
+  "email": "name@example.com",
+  "looks": {
+    "about": "Every look at every size. The size reads the control scale, so a field lines up with a button of the same size beside it.",
+    "title": "Looks and sizes"
+  },
+  "search": "Search invoices",
+  "states": {
+    "about": "A field as it is, disabled, read only, and wrong. A field that is wrong states `aria-invalid`, so the styling and what a screen reader reads cannot disagree.",
+    "title": "States"
+  },
+  "statuses": {
+    "about": "Every status in every look.",
+    "title": "Statuses"
+  },
+  "title": "Input"
+}

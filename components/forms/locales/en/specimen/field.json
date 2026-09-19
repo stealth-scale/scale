@@ -1,0 +1,24 @@
+{
+  "about": "Wraps a control in everything that explains it: a label, the text a person needs in advance, a count and what went wrong.",
+  "email": "Email",
+  "helper": "We only write about invoices.",
+  "orientations": {
+    "about": "The label above the control, and the label beside it.",
+    "title": "Orientations"
+  },
+  "sizes": {
+    "about": "Every size, which every part reads.",
+    "title": "Sizes"
+  },
+  "states": {
+    "about": "A field as it is, required, disabled, read only, and wrong. The error text draws nothing where the field is not wrong, and the mark draws nothing where it is optional.",
+    "title": "States"
+  },
+  "statuses": {
+    "about": "Every status on a field that is wrong, which the error text and the mark read.",
+    "title": "Statuses"
+  },
+  "title": "Field",
+  "unknown": "That address is not one we recognise.",
+  "used": "12 of 80"
+}

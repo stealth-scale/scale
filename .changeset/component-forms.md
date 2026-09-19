@@ -102,3 +102,8 @@ component-forms: publish Fieldset, Field, Checkbox, Switch, Textarea and InputGr
   glyph reaches the field behind it and a control drawn in a mark still works.
 - `Input` gains a `status` row in the README, which the axis it took in the previous release left
   undocumented.
+
+component-forms: show every component
+
+- One specimen per component, each scene drawing every value of every axis the recipe offers, with
+  the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.

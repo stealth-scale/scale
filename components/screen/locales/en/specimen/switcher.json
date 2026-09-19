@@ -1,0 +1,17 @@
+{
+  "about": "Draws the control at the head of a sidebar that names what is being worked in and opens the rest.",
+  "acme": "Acme",
+  "fathom": "Fathom",
+  "looks": {
+    "about": "Every look at every size, at the head of a sidebar. Press a control and the rest open beneath it.",
+    "title": "Looks and sizes"
+  },
+  "placement": {
+    "about": "At the head of a sidebar, a row the width of the column. In a toolbar, the width of its words with the detail dropped.",
+    "title": "Placement"
+  },
+  "pro": "Pro plan",
+  "title": "Switcher",
+  "trial": "Trial",
+  "workspace": "Workspace"
+}

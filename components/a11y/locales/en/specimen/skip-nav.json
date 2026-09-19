@@ -1,0 +1,10 @@
+{
+  "about": "Carries a keyboard past the navigation: a link at the top of the document, hidden until focus reaches it, and the target where the content starts.",
+  "content": "The content the link lands on.",
+  "pair": {
+    "about": "The link and its target. Press Tab into the panel and the link comes into view; press Enter and focus lands on the target.",
+    "title": "Link and target"
+  },
+  "skip": "Skip to the sample",
+  "title": "Skip nav"
+}

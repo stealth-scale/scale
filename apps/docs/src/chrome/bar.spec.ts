@@ -28,7 +28,7 @@ describe("Bar", () => {
   it("names the control that opens the navigation in words a glyph cannot say", async () => {
     const result = await opened("/components/actions/button");
 
-    expect(result.getByRole("button", { name: "Navigation" }).textContent).toBe("");
+    expect(result.getByRole("button", { name: "Toggle navigation" }).textContent).toBe("");
   });
 
   it("names the theme in force", async () => {

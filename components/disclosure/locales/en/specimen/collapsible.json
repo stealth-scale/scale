@@ -1,0 +1,18 @@
+{
+  "about": "Shows and hides the block beneath a control.",
+  "arrives": "Arrives Thursday between nine and noon. Somebody has to be in to sign for it.",
+  "delivery": "Delivery details",
+  "looks": {
+    "about": "Every look at every size, each open so the block shows. The size sets the control, the block and the mark from one step of the scale.",
+    "title": "Looks and sizes"
+  },
+  "motion": {
+    "about": "How the block opens: sliding, fading, or at once. Press the control to see it.",
+    "title": "Motion"
+  },
+  "preview": {
+    "about": "A block that leaves a strip showing while closed, so a reader sees the first line and the control reveals the rest.",
+    "title": "Preview"
+  },
+  "title": "Collapsible"
+}

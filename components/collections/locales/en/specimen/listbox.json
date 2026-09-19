@@ -1,0 +1,25 @@
+{
+  "about": "Draws a list of rows a person picks from, with the keys the ARIA pattern calls for.",
+  "clients": "Clients",
+  "corners": {
+    "about": "Every corner of the list.",
+    "title": "Corners"
+  },
+  "fathom": "Fathom",
+  "highlights": {
+    "about": "Every highlight, on the row the keys are on. Move down a list with the arrows.",
+    "title": "Highlights"
+  },
+  "lantern": "Lantern",
+  "looks": {
+    "about": "Every look at every size.",
+    "title": "Looks and sizes"
+  },
+  "narrowing": {
+    "about": "A list narrowed by a field above it, picking one row or many.",
+    "title": "Narrowing"
+  },
+  "pebble": "Pebble",
+  "quartz": "Quartz",
+  "title": "Listbox"
+}

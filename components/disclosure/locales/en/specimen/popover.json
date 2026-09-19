@@ -1,0 +1,16 @@
+{
+  "about": "Opens a panel beside a control: a heading, a paragraph and often a control.",
+  "close": "Close the filters",
+  "filter": "Filter the list",
+  "filters": "Filters",
+  "looks": {
+    "about": "Every look at every size. Press a control and the panel opens beside it.",
+    "title": "Looks and sizes"
+  },
+  "only": "Only rows matching all of these are shown.",
+  "placement": {
+    "about": "The panel on each side of the control, which the machine's positioning decides.",
+    "title": "Placement"
+  },
+  "title": "Popover"
+}

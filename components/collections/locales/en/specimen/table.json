@@ -1,0 +1,37 @@
+{
+  "about": "Draws a table of records.",
+  "alignment": {
+    "about": "Where a cell's figure sits in a row taller than it is.",
+    "title": "Alignment"
+  },
+  "caption": "Invoices this quarter",
+  "client": "Client",
+  "corners": {
+    "about": "Every corner of the outlined box a table sits in.",
+    "title": "Corners"
+  },
+  "due": "Due",
+  "fathom": "Fathom",
+  "lantern": "Lantern",
+  "layouts": {
+    "about": "Columns sized to their contents, and columns sharing the width evenly.",
+    "title": "Layouts"
+  },
+  "looks": {
+    "about": "Every look at every size.",
+    "title": "Looks and sizes"
+  },
+  "pebble": "Pebble",
+  "rows": {
+    "about": "Rows as they are, striped, ruled between the columns, and responding to a pointer.",
+    "title": "Rows"
+  },
+  "sortTotal": "Sort by total",
+  "sticky": {
+    "about": "A wide table whose header and first column stay in view as it scrolls.",
+    "title": "Sticky"
+  },
+  "status": "Status",
+  "title": "Table",
+  "total": "Total"
+}

@@ -1,0 +1,16 @@
+{
+  "about": "Holds one tab stop for a set of controls: Tab reaches the set and the arrows move inside it.",
+  "copy": "Copy",
+  "cut": "Cut",
+  "editing": "Editing",
+  "orientations": {
+    "about": "Which arrows move the stop: across, down, or either way. Reach a set with Tab and press an arrow.",
+    "title": "Orientations"
+  },
+  "paste": "Paste",
+  "title": "Roving focus",
+  "wrap": {
+    "about": "An arrow past the last control stops there, or, with `wrap`, comes round to the first.",
+    "title": "Wrap"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "about": "Draws a list, as a root holding items, each with an indicator where the caller draws the mark.",
+  "alignment": {
+    "about": "Where a plain entry's mark sits against words that run to more than one line.",
+    "title": "Alignment"
+  },
+  "bread": "Bread",
+  "butter": "Butter",
+  "gaps": {
+    "about": "Every gap between the entries.",
+    "title": "Gaps"
+  },
+  "looks": {
+    "about": "The browser's marker beside a plain list, whose entries draw their own mark in the indicator.",
+    "title": "Looks"
+  },
+  "markers": {
+    "about": "Every marker the browser can draw, the numbered ones on an ordered list.",
+    "title": "Markers"
+  },
+  "milk": "Milk",
+  "motion": {
+    "about": "How the entries enter the page.",
+    "title": "Motion"
+  },
+  "note": "A longer entry, with enough words to run on to a second line inside a narrow column and show where the mark sits",
+  "title": "List"
+}

@@ -1,0 +1,16 @@
+{
+  "about": "Draws one block of a page under its own heading, with the controls that act on that block.",
+  "add": "Add a card",
+  "annotated": {
+    "about": "The heading above the body, and the heading beside it as a column explaining the block, which is how a settings page reads.",
+    "title": "Annotated"
+  },
+  "cards": "Cards this account can be charged on.",
+  "content": "The cards, one under another.",
+  "looks": {
+    "about": "Both looks at every size.",
+    "title": "Looks and sizes"
+  },
+  "payment": "Payment methods",
+  "title": "Section"
+}

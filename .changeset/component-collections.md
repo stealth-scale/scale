@@ -50,3 +50,11 @@ component-collections: publish Table
   an attribute rather than an axis, because a slot recipe resolves its variants once at the root.
 - Every value is a semantic token or a helper's. The stripe and the hover reach the body's own rows
   rather than every row of the table, since `:nth-of-type` counts within a parent.
+
+component-collections: show every component
+
+- One specimen per component, each scene drawing every value of every axis the recipe offers, with
+  the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.
+- The README's listbox example passes `item` to `Listbox.ItemText` and `Listbox.ItemIndicator`,
+  which both require it, and its axis table lists the two looks the recipe offers. An `outline` look
+  was listed that no recipe drew.

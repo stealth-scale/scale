@@ -1,0 +1,18 @@
+{
+  "about": "Draws the palette a person opens with a keystroke, types into, and runs one thing from.",
+  "archive": "Archive invoice",
+  "commands": "Commands",
+  "duplicate": "Duplicate invoice",
+  "invoices": "Invoices",
+  "navigation": "Navigation",
+  "new": "New invoice",
+  "none": "No command matches",
+  "overview": "Go to overview",
+  "settings": "Go to settings",
+  "sizes": {
+    "about": "Every size. Type into a field to narrow the list, and move down it with the arrows.",
+    "title": "Sizes"
+  },
+  "title": "Command",
+  "type": "Type a command"
+}

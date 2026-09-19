@@ -1,0 +1,9 @@
+{
+  "about": "Exposes its words to a screen reader and draws them nowhere.",
+  "close": "Close",
+  "focusable": {
+    "about": "Hidden words beside a control that is hidden until focus reaches it. Both buttons carry the word a screen reader hears; press Tab into the panel and the second draws its words.",
+    "title": "Focusable"
+  },
+  "title": "Visually hidden"
+}

@@ -46,3 +46,8 @@ component-typography: publish Em, Strong, Mark, Quote and Span
 - The span's `truncate` sets `display: inline-block` beside the properties the `truncate` helper
   writes. `overflow` has no effect on a non-replaced inline box, so the README's former
   `<Text as="span" truncate>` example cut nothing. The example is replaced.
+
+component-typography: show every component
+
+- One specimen per component, each scene drawing every value of every axis the recipe offers, with
+  the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.

@@ -1,0 +1,23 @@
+{
+  "about": "Lays an application out: bars across the top and the bottom, and a body between them holding a panel down either side of the page.",
+  "acme": "Acme",
+  "detail": "Invoice detail",
+  "divided": {
+    "about": "A hairline on the inner edge of each bar and each panel, beside a shell with none.",
+    "title": "Divided"
+  },
+  "footer": "Footer",
+  "invoices": "Invoices",
+  "looks": {
+    "about": "Every look. Plain sets the page against the ground; inset raises the page as a card on a muted ground; floating raises the contents of each panel instead.",
+    "title": "Looks"
+  },
+  "navigation": "Navigation",
+  "overview": "Overview",
+  "page": "The page",
+  "scroll": {
+    "about": "The page scrolling inside a shell the height of the window, and the document growing under bars that stick.",
+    "title": "Scroll"
+  },
+  "title": "App shell"
+}

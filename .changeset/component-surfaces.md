@@ -33,3 +33,8 @@ component-surfaces: stretch the title's link over an interactive card
   card's positioned ancestor. A press anywhere on the card follows the link, while the link alone
   holds the focus and the name. The card showed a pointer cursor before this and followed nothing
   outside the title.
+
+component-surfaces: show every component
+
+- One specimen per component, each scene drawing every value of every axis the recipe offers, with
+  the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.

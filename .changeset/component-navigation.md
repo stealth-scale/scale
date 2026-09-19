@@ -28,3 +28,8 @@ component-navigation: add the inherit axis to Link
 - `Link inherit` takes the ink of the words around it in place of the theme's link ink, visited or
   not, and keeps the underline under a pointer and the focus ring. For the title of a card and the
   brand in a bar, where the surface already says the words are pressed.
+
+component-navigation: show every component
+
+- One specimen per component, each scene drawing every value of every axis the recipe offers, with
+  the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.

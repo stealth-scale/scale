@@ -1,0 +1,38 @@
+{
+  "about": "Draws a panel a reader takes in on its own: a picture, a header, the substance, and whatever they act on.",
+  "corners": {
+    "about": "Every corner at every size.",
+    "title": "Corners and sizes"
+  },
+  "distribution": {
+    "about": "How the footer shares its room among the controls.",
+    "title": "Distribution"
+  },
+  "divided": {
+    "about": "The header and the footer ruled apart from the band between them, beside a card left whole.",
+    "title": "Divided"
+  },
+  "interactive": {
+    "about": "A card a reader presses, which follows the link in its title and shows its focus, beside one that only holds.",
+    "title": "Interactive"
+  },
+  "issued": "Issued on 2 September",
+  "invoice": "Invoice 4821",
+  "lines": "Three lines, one unbilled.",
+  "looks": {
+    "about": "Every look in every status.",
+    "title": "Looks and statuses"
+  },
+  "more": "More about this invoice",
+  "motion": {
+    "about": "How the card enters the page.",
+    "title": "Motion"
+  },
+  "orientation": {
+    "about": "The bands stacked, and the bands side by side.",
+    "title": "Orientation"
+  },
+  "remind": "Remind",
+  "send": "Send",
+  "title": "Card"
+}

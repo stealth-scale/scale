@@ -1,0 +1,29 @@
+{
+  "about": "Draws a heading, in a heading role, an ink, an effect and a motion, at the level `as` names.",
+  "effects": {
+    "about": "The two effects a heading can carry: a gradient across the words, and a shine that passes over them.",
+    "title": "Effects"
+  },
+  "inks": {
+    "about": "Every ink. The inverted one is for a dark surface and reads as nothing on the page.",
+    "title": "Inks"
+  },
+  "motion": {
+    "about": "How a heading enters the page.",
+    "title": "Motion"
+  },
+  "quarterly": "Quarterly report",
+  "release": "Release notes",
+  "settings": "Account settings",
+  "sizes": {
+    "about": "Every size, from a caption to a page title. The size states the heading's prominence rather than its level, which `as` names.",
+    "title": "Sizes"
+  },
+  "title": "Heading",
+  "truncate": {
+    "about": "A heading cut to one line beside one left to wrap.",
+    "title": "Truncate"
+  },
+  "welcome": "Welcome back, Ada",
+  "winding": "A long title for a page that could have used a shorter one and wraps onto a second line"
+}

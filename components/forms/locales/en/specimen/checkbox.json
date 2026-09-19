@@ -1,0 +1,35 @@
+{
+  "about": "Draws a box a person turns on and off, and the words that name it.",
+  "alignment": {
+    "about": "Where the box sits against a label that runs to more than one line: halfway down the block, or on the first line.",
+    "title": "Alignment"
+  },
+  "corners": {
+    "about": "Every corner.",
+    "title": "Corners"
+  },
+  "long": "Send me a summary of every invoice at the end of the week, with the totals and anything still unpaid",
+  "looks": {
+    "about": "Every look at every size, each turned on so the fill shows.",
+    "title": "Looks and sizes"
+  },
+  "motion": {
+    "about": "How the row enters the page.",
+    "title": "Motion"
+  },
+  "spread": {
+    "about": "A row that takes what it needs, and a settings row that takes the width it is given with the box at the far end.",
+    "title": "Spread"
+  },
+  "states": {
+    "about": "Off, on, partly on, and out of reach, in every look.",
+    "title": "States"
+  },
+  "statuses": {
+    "about": "Every status in every look.",
+    "title": "Statuses"
+  },
+  "terms": "Accept the terms",
+  "title": "Checkbox",
+  "weekly": "Weekly summary"
+}

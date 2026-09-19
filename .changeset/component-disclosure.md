@@ -24,3 +24,8 @@ component-disclosure: draw the menu indicator as a span
 
 - `Menu.Indicator` drew a `div` inside the trigger, and a button holds phrasing content alone. It
   draws a `span`.
+
+component-disclosure: show every component
+
+- One specimen per component, each scene drawing every value of every axis the recipe offers, with
+  the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.

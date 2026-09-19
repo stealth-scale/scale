@@ -23,3 +23,17 @@ component-feedback: publish Alert
   indicator takes no colour of its own so a solid alert marks itself in the measured ink.
 - The content band holds a minimum inline size of zero, so a long word wraps rather than pushing the
   aside off the end.
+
+component-feedback: stop a loaded skeleton moving
+
+- The fade a skeleton reveals its content with is written in the recipe's base. It was written at
+  `loading: false`, which the compiler drops because a boolean axis carries no class at `false`, so
+  the content never faded in.
+- Each motion is written under the class the loading state carries, so a skeleton that has loaded
+  keeps neither the pulse nor the shimmer nor the surface it pulsed on. The surface a skeleton
+  stands in on is now part of `loading`, so a still skeleton is drawn too.
+
+component-feedback: show every component
+
+- One specimen per component, each scene drawing every value of every axis the recipe offers, with
+  the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.

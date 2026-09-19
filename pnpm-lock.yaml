@@ -508,15 +508,33 @@ importers:
       '@stealthscale/component-actions':
         specifier: workspace:^
         version: link:../../components/actions
+      '@stealthscale/component-collections':
+        specifier: workspace:^
+        version: link:../../components/collections
+      '@stealthscale/component-data':
+        specifier: workspace:^
+        version: link:../../components/data
       '@stealthscale/component-disclosure':
         specifier: workspace:^
         version: link:../../components/disclosure
+      '@stealthscale/component-feedback':
+        specifier: workspace:^
+        version: link:../../components/feedback
+      '@stealthscale/component-forms':
+        specifier: workspace:^
+        version: link:../../components/forms
       '@stealthscale/component-layout':
         specifier: workspace:^
         version: link:../../components/layout
+      '@stealthscale/component-modals':
+        specifier: workspace:^
+        version: link:../../components/modals
       '@stealthscale/component-navigation':
         specifier: workspace:^
         version: link:../../components/navigation
+      '@stealthscale/component-primitives':
+        specifier: workspace:^
+        version: link:../../components/primitives
       '@stealthscale/component-screen':
         specifier: workspace:^
         version: link:../../components/screen
@@ -647,6 +665,12 @@ importers:
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
         version: 0.2.4(@babel/core@7.29.7(supports-color@10.2.2))(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.7)
+      '@stealthscale/component-actions':
+        specifier: workspace:^
+        version: link:../actions
+      '@stealthscale/component-layout':
+        specifier: workspace:^
+        version: link:../layout
       '@stealthscale/hooks':
         specifier: workspace:^
         version: link:../../foundations/hooks
@@ -656,9 +680,15 @@ importers:
       '@stealthscale/vite-config':
         specifier: workspace:^
         version: link:../../packages/vite-config
+      '@stealthscale/vite-config-i18n':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-i18n
       '@stealthscale/vite-config-react':
         specifier: workspace:^
         version: link:../../packages/vite-config-react
+      '@stealthscale/vite-config-specimen':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-specimen
       '@stealthscale/vite-config-theme':
         specifier: workspace:^
         version: link:../../packages/vite-config-theme
@@ -795,9 +825,15 @@ importers:
       '@stealthscale/vite-config':
         specifier: workspace:^
         version: link:../../packages/vite-config
+      '@stealthscale/vite-config-i18n':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-i18n
       '@stealthscale/vite-config-react':
         specifier: workspace:^
         version: link:../../packages/vite-config-react
+      '@stealthscale/vite-config-specimen':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-specimen
       '@stealthscale/vite-config-theme':
         specifier: workspace:^
         version: link:../../packages/vite-config-theme
@@ -909,9 +945,15 @@ importers:
       '@stealthscale/vite-config':
         specifier: workspace:^
         version: link:../../packages/vite-config
+      '@stealthscale/vite-config-i18n':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-i18n
       '@stealthscale/vite-config-react':
         specifier: workspace:^
         version: link:../../packages/vite-config-react
+      '@stealthscale/vite-config-specimen':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-specimen
       '@stealthscale/vite-config-theme':
         specifier: workspace:^
         version: link:../../packages/vite-config-theme
@@ -982,6 +1024,9 @@ importers:
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
         version: 0.2.4(@babel/core@7.29.7(supports-color@10.2.2))(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.7)
+      '@stealthscale/component-actions':
+        specifier: workspace:^
+        version: link:../actions
       '@stealthscale/hooks':
         specifier: workspace:^
         version: link:../../foundations/hooks
@@ -991,9 +1036,15 @@ importers:
       '@stealthscale/vite-config':
         specifier: workspace:^
         version: link:../../packages/vite-config
+      '@stealthscale/vite-config-i18n':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-i18n
       '@stealthscale/vite-config-react':
         specifier: workspace:^
         version: link:../../packages/vite-config-react
+      '@stealthscale/vite-config-specimen':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-specimen
       '@stealthscale/vite-config-theme':
         specifier: workspace:^
         version: link:../../packages/vite-config-theme
@@ -1045,15 +1096,24 @@ importers:
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
         version: 0.2.4(@babel/core@7.29.7(supports-color@10.2.2))(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.7)
+      '@stealthscale/component-actions':
+        specifier: workspace:^
+        version: link:../actions
       '@stealthscale/theme':
         specifier: workspace:^
         version: link:../../foundations/theme
       '@stealthscale/vite-config':
         specifier: workspace:^
         version: link:../../packages/vite-config
+      '@stealthscale/vite-config-i18n':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-i18n
       '@stealthscale/vite-config-react':
         specifier: workspace:^
         version: link:../../packages/vite-config-react
+      '@stealthscale/vite-config-specimen':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-specimen
       '@stealthscale/vite-config-theme':
         specifier: workspace:^
         version: link:../../packages/vite-config-theme
@@ -1124,9 +1184,15 @@ importers:
       '@stealthscale/vite-config':
         specifier: workspace:^
         version: link:../../packages/vite-config
+      '@stealthscale/vite-config-i18n':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-i18n
       '@stealthscale/vite-config-react':
         specifier: workspace:^
         version: link:../../packages/vite-config-react
+      '@stealthscale/vite-config-specimen':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-specimen
       '@stealthscale/vite-config-theme':
         specifier: workspace:^
         version: link:../../packages/vite-config-theme
@@ -1253,9 +1319,15 @@ importers:
       '@stealthscale/vite-config':
         specifier: workspace:^
         version: link:../../packages/vite-config
+      '@stealthscale/vite-config-i18n':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-i18n
       '@stealthscale/vite-config-react':
         specifier: workspace:^
         version: link:../../packages/vite-config-react
+      '@stealthscale/vite-config-specimen':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-specimen
       '@stealthscale/vite-config-theme':
         specifier: workspace:^
         version: link:../../packages/vite-config-theme
@@ -1313,9 +1385,15 @@ importers:
       '@stealthscale/vite-config':
         specifier: workspace:^
         version: link:../../packages/vite-config
+      '@stealthscale/vite-config-i18n':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-i18n
       '@stealthscale/vite-config-react':
         specifier: workspace:^
         version: link:../../packages/vite-config-react
+      '@stealthscale/vite-config-specimen':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-specimen
       '@stealthscale/vite-config-theme':
         specifier: workspace:^
         version: link:../../packages/vite-config-theme
@@ -1364,12 +1442,21 @@ importers:
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
         version: 0.2.4(@babel/core@7.29.7(supports-color@10.2.2))(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.7)
+      '@stealthscale/component-layout':
+        specifier: workspace:^
+        version: link:../layout
       '@stealthscale/vite-config':
         specifier: workspace:^
         version: link:../../packages/vite-config
+      '@stealthscale/vite-config-i18n':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-i18n
       '@stealthscale/vite-config-react':
         specifier: workspace:^
         version: link:../../packages/vite-config-react
+      '@stealthscale/vite-config-specimen':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-specimen
       '@stealthscale/vite-config-typescript':
         specifier: workspace:^
         version: link:../../packages/vite-config-typescript
@@ -1424,6 +1511,9 @@ importers:
       '@stealthscale/component-disclosure':
         specifier: workspace:^
         version: link:../disclosure
+      '@stealthscale/component-forms':
+        specifier: workspace:^
+        version: link:../forms
       '@stealthscale/component-layout':
         specifier: workspace:^
         version: link:../layout
@@ -1445,9 +1535,15 @@ importers:
       '@stealthscale/vite-config':
         specifier: workspace:^
         version: link:../../packages/vite-config
+      '@stealthscale/vite-config-i18n':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-i18n
       '@stealthscale/vite-config-react':
         specifier: workspace:^
         version: link:../../packages/vite-config-react
+      '@stealthscale/vite-config-specimen':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-specimen
       '@stealthscale/vite-config-theme':
         specifier: workspace:^
         version: link:../../packages/vite-config-theme
@@ -1587,15 +1683,27 @@ importers:
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
         version: 0.2.4(@babel/core@7.29.7(supports-color@10.2.2))(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.7)
+      '@stealthscale/component-actions':
+        specifier: workspace:^
+        version: link:../actions
+      '@stealthscale/component-navigation':
+        specifier: workspace:^
+        version: link:../navigation
       '@stealthscale/theme':
         specifier: workspace:^
         version: link:../../foundations/theme
       '@stealthscale/vite-config':
         specifier: workspace:^
         version: link:../../packages/vite-config
+      '@stealthscale/vite-config-i18n':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-i18n
       '@stealthscale/vite-config-react':
         specifier: workspace:^
         version: link:../../packages/vite-config-react
+      '@stealthscale/vite-config-specimen':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-specimen
       '@stealthscale/vite-config-theme':
         specifier: workspace:^
         version: link:../../packages/vite-config-theme
@@ -1650,9 +1758,15 @@ importers:
       '@stealthscale/vite-config':
         specifier: workspace:^
         version: link:../../packages/vite-config
+      '@stealthscale/vite-config-i18n':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-i18n
       '@stealthscale/vite-config-react':
         specifier: workspace:^
         version: link:../../packages/vite-config-react
+      '@stealthscale/vite-config-specimen':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-specimen
       '@stealthscale/vite-config-theme':
         specifier: workspace:^
         version: link:../../packages/vite-config-theme

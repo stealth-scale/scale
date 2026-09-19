@@ -150,3 +150,8 @@ component-screen: measure the toolbar and let an item draw any control
   this, so the row never folded.
 - `Toolbar.Item as={…}` draws the component named with the row's tab stop on the element it renders,
   and takes that component's props beside its own: `as={Button}`, `as={Switcher.Trigger}`.
+
+component-screen: show every component
+
+- One specimen per component, each scene drawing every value of every axis the recipe offers, with
+  the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.

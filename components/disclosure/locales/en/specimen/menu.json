@@ -1,0 +1,32 @@
+{
+  "about": "Opens a list of things a reader chooses from.",
+  "actions": "Actions",
+  "compact": "Compact rows",
+  "delete": "Delete",
+  "duplicate": "Duplicate",
+  "email": "Email",
+  "highlights": {
+    "about": "Every highlight at every size, on the row the reader is on. Open a menu and move down it.",
+    "title": "Highlights and sizes"
+  },
+  "inset": {
+    "about": "Rows as they are, and rows left the gutter a mark is drawn in.",
+    "title": "Inset"
+  },
+  "link": "Copy link",
+  "looks": {
+    "about": "Every look. Press a control and the rows open beneath it.",
+    "title": "Looks"
+  },
+  "options": {
+    "about": "Rows that carry a choice: a tick that turns on and off, and one of a set. A submenu opens from the row that names it.",
+    "title": "Options and submenus"
+  },
+  "rename": "Rename",
+  "share": "Share",
+  "sort": "Sort by",
+  "sortDate": "Date",
+  "sortName": "Name",
+  "title": "Menu",
+  "view": "View"
+}

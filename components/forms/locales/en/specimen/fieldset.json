@@ -1,0 +1,25 @@
+{
+  "about": "Groups fields that belong together and names the group.",
+  "address": "Address",
+  "city": "City",
+  "delivery": "Delivery",
+  "helper": "We deliver on weekdays.",
+  "none": "Fill in both before going on.",
+  "orientations": {
+    "about": "The fields one under another, and side by side.",
+    "title": "Orientations"
+  },
+  "sizes": {
+    "about": "Every size, which the legend, the texts and the fields inside read.",
+    "title": "Sizes"
+  },
+  "states": {
+    "about": "A group as it is, out of reach, and wrong. Disabling the group takes every field out of reach and leaves the legend alone.",
+    "title": "States"
+  },
+  "statuses": {
+    "about": "Every status on a group that is wrong, which the error text reads.",
+    "title": "Statuses"
+  },
+  "title": "Fieldset"
+}

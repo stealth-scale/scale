@@ -1,0 +1,32 @@
+{
+  "about": "Draws a paragraph, in a size, an ink, a weight and an alignment.",
+  "alignment": {
+    "about": "Where the lines of a paragraph sit in the measure they are given.",
+    "title": "Alignment"
+  },
+  "inks": {
+    "about": "Every ink at every weight. An ink reads the palette of its name, so the inverted one is for a dark surface and reads as nothing on the page.",
+    "title": "Inks and weights"
+  },
+  "mask": {
+    "about": "A paragraph faded out at its foot, for a preview that is cut rather than finished.",
+    "title": "Mask"
+  },
+  "motion": {
+    "about": "How a paragraph enters the page.",
+    "title": "Motion"
+  },
+  "note": "The invoice was sent on Tuesday and paid before the week was out.",
+  "passage": "Perfection is reached not when there is nothing left to add, but when there is nothing left to take away. Every part that stays has earned its place, and the whole reads as one thing rather than many.",
+  "reminder": "Your session ends in five minutes.",
+  "sizes": {
+    "about": "Every body size.",
+    "title": "Sizes"
+  },
+  "summary": "Three of the four checks passed and the fourth is waiting on a review.",
+  "title": "Text",
+  "truncate": {
+    "about": "A paragraph cut to one line beside one left to wrap. Keep the full words reachable, in a title or in text nearby.",
+    "title": "Truncate"
+  }
+}

@@ -18,3 +18,8 @@ component-a11y: write no id on a roving focus item unless a caller names one
 - The item holding the tab stop is stamped `data-stop` rather than `data-active`. The theme reads
   `[data-active]` as a control being pressed, so a button drawn as an item was filled for holding
   the stop.
+
+component-a11y: show every component
+
+- One specimen per component, each scene drawing every value of every axis the recipe offers, with
+  the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.

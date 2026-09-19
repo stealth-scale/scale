@@ -22,3 +22,8 @@ component-modals: publish Command
   identifier that crashed `document.querySelector`, which the machine calls to find the row the keys
   are on.
 - One axis: `size`. The field draws no edge of its own, because the palette is the edge round it.
+
+component-modals: show every component
+
+- One specimen per component, each scene drawing every value of every axis the recipe offers, with
+  the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.

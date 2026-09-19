@@ -1,0 +1,18 @@
+{
+  "about": "Draws a row of controls over a table or a list, folding what matters least on a narrow row.",
+  "columns": "Columns",
+  "corners": {
+    "about": "Every corner of an outlined row.",
+    "title": "Corners"
+  },
+  "export": "Export",
+  "filter": "Filter",
+  "invoices": "Invoices",
+  "looks": {
+    "about": "Every look at every size. The row is one stop in the tab order and the arrows move along it.",
+    "title": "Looks and sizes"
+  },
+  "more": "More",
+  "search": "Search invoices",
+  "title": "Toolbar"
+}

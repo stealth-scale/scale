@@ -1,0 +1,22 @@
+{
+  "about": "Draws a quotation set as its own block, as a figure holding an icon, the content and a caption.",
+  "author": "Antoine de Saint-Exupéry",
+  "distribution": {
+    "about": "Where the quotation sits in the width it is given.",
+    "title": "Distribution"
+  },
+  "looks": {
+    "about": "Every look in every status. The look styles the root and the icon, and the status points the palette at the semantic palette of its name.",
+    "title": "Looks and statuses"
+  },
+  "motion": {
+    "about": "How the quotation enters the page.",
+    "title": "Motion"
+  },
+  "quotation": "Perfection is reached when there is nothing left to take away.",
+  "sizes": {
+    "about": "Every size, which sets the root's inset and the content's type.",
+    "title": "Sizes"
+  },
+  "title": "Blockquote"
+}

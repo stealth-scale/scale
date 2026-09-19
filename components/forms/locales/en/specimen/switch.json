@@ -1,0 +1,31 @@
+{
+  "about": "Draws a track a person throws on and off, and the words that name it.",
+  "alignment": {
+    "about": "Where the track sits against a label that runs to more than one line.",
+    "title": "Alignment"
+  },
+  "corners": {
+    "about": "Every corner of the track.",
+    "title": "Corners"
+  },
+  "dark": "Dark mode",
+  "long": "Keep me signed in on this device until I sign out, even after the browser is closed",
+  "looks": {
+    "about": "Every look at every size, each thrown on so the fill shows.",
+    "title": "Looks and sizes"
+  },
+  "notifications": "Notifications",
+  "spread": {
+    "about": "A row that takes what it needs, and a settings row that takes the width it is given with the track at the far end.",
+    "title": "Spread"
+  },
+  "states": {
+    "about": "Off, on, and out of reach, in every look.",
+    "title": "States"
+  },
+  "statuses": {
+    "about": "Every status in every look.",
+    "title": "Statuses"
+  },
+  "title": "Switch"
+}
