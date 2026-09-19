@@ -1,7 +1,9 @@
 import { type ReactElement } from "react";
 
-import { render, waitFor } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+
+import { drawn } from "@stealthscale/testing-react";
 
 import { Page } from "#catalogue/page.tsx";
 import { type Indexed } from "#catalogue/types.ts";
@@ -19,77 +21,71 @@ function entry(module: unknown, about = ""): Indexed {
   };
 }
 
-function drawn(): ReactElement {
+function marked(): ReactElement {
   return <span>drawn</span>;
 }
 
-const SIZES = { about: "Every step.", draw: drawn, title: "Sizes" };
+const SIZES = { about: "Every step.", draw: marked, title: "Sizes" };
 
 function page(scenes: readonly unknown[]): unknown {
   return { default: { id: "data/badge", scenes } };
 }
 
 describe("Page", () => {
-  it("heads the page with its title", () => {
-    const { getByText } = render(<Page entry={entry(page([]))} />);
+  it("heads the page with its title", async () => {
+    const { getByText } = await drawn(<Page entry={entry(page([]))} />);
 
     expect(getByText("Badge")).toBeDefined();
   });
 
-  it("opens with the sentence the page declares", () => {
-    const { getByText } = render(<Page entry={entry(page([]), "A small label.")} />);
+  it("opens with the sentence the page declares", async () => {
+    const { getByText } = await drawn(<Page entry={entry(page([]), "A small label.")} />);
 
     expect(getByText("A small label.")).toBeDefined();
   });
 
-  it("writes no opening where the page declares none", () => {
-    const { container } = render(<Page entry={entry(page([]))} />);
+  it("writes no opening where the page declares none", async () => {
+    const { container } = await drawn(<Page entry={entry(page([]))} />);
 
     expect(container.textContent).toBe("Badge");
   });
 
   it("draws each scene the page lists", async () => {
-    const { findByText } = render(<Page entry={entry(page([SIZES]))} />);
+    const { getByText } = await drawn(<Page entry={entry(page([SIZES]))} />);
 
-    await expect(findByText("drawn")).resolves.toBeDefined();
+    expect(getByText("drawn")).toBeDefined();
   });
 
   it("heads a scene with its title", async () => {
-    const { findByText } = render(<Page entry={entry(page([SIZES]))} />);
+    const { getByText } = await drawn(<Page entry={entry(page([SIZES]))} />);
 
-    await expect(findByText("Sizes")).resolves.toBeDefined();
+    expect(getByText("Sizes")).toBeDefined();
   });
 
   it("opens a scene with the sentence it declares", async () => {
-    const { findByText } = render(<Page entry={entry(page([SIZES]))} />);
+    const { getByText } = await drawn(<Page entry={entry(page([SIZES]))} />);
 
-    await expect(findByText("Every step.")).resolves.toBeDefined();
+    expect(getByText("Every step.")).toBeDefined();
   });
 
   it("writes no opening for a scene that declares none", async () => {
-    const quiet = { draw: drawn, title: "Sizes" };
-    const { findByText, queryByText } = render(<Page entry={entry(page([quiet]))} />);
-
-    await findByText("drawn");
+    const quiet = { draw: marked, title: "Sizes" };
+    const { queryByText } = await drawn(<Page entry={entry(page([quiet]))} />);
 
     expect(queryByText("Every step.")).toBeNull();
   });
 
   it("draws no scene for a module that declares no page", async () => {
-    const { container } = render(<Page entry={entry({})} />);
+    const { container } = await drawn(<Page entry={entry({})} />);
 
-    await waitFor(() => {
-      expect(container.textContent).toBe("Badge");
-    });
+    expect(container.textContent).toBe("Badge");
   });
 
   it("draws no scene where the module failed to load", async () => {
     const broken: Indexed = { ...entry({}), load: () => Promise.reject(new Error("gone")) };
-    const { container } = render(<Page entry={broken} />);
+    const { container } = await drawn(<Page entry={broken} />);
 
-    await waitFor(() => {
-      expect(container.textContent).toBe("Badge");
-    });
+    expect(container.textContent).toBe("Badge");
   });
 
   it("leaves the page alone when it is taken off the screen before the module arrives", () => {

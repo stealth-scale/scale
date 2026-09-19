@@ -54,6 +54,7 @@
     "@stealthscale/component-typography": "workspace:^",
     "@stealthscale/provider-i18n": "workspace:^",
     "@stealthscale/provider-router": "workspace:^",
+    "@stealthscale/testing-react": "workspace:^",
     "@stealthscale/testing-router": "workspace:^",
     "@stealthscale/vite-config": "workspace:^",
     "@stealthscale/vite-config-i18n": "workspace:^",

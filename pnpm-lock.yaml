@@ -1472,6 +1472,9 @@ importers:
       '@stealthscale/provider-router':
         specifier: workspace:^
         version: link:../../foundations/providers/router
+      '@stealthscale/testing-react':
+        specifier: workspace:^
+        version: link:../../packages/testing-react
       '@stealthscale/testing-router':
         specifier: workspace:^
         version: link:../../packages/testing-router

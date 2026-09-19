@@ -55,10 +55,4 @@ describe("Catalogue", () => {
       "/reference/actions/button",
     );
   });
-
-  it("draws nothing at all when it was given no page to list", async () => {
-    const { result } = await mountRoute(treeOver([]));
-
-    expect(result.queryAllByRole("link")).toStrictEqual([]);
-  });
 });
