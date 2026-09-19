@@ -10,6 +10,7 @@ import { createLink, useRouteHref } from "@stealthscale/provider-router";
 
 import { type Listed } from "#catalogue/grouped.ts";
 import { marked } from "#catalogue/marked.tsx";
+import { useWording } from "#catalogue/wording.ts";
 
 /**
  * Draws the library's link over the router's, so a card's title navigates without a reload.
@@ -39,17 +40,18 @@ export interface EntryCardProps {
  */
 export function EntryCard({ page }: EntryCardProps): ReactElement {
   const href = useRouteHref(page.id);
+  const word = useWording(page.entry.namespace);
 
   return (
     <Card.Root interactive variant="outline">
       <Card.Header>
         <Card.Title>
           <Opening inherit to={href} variant="plain">
-            {page.entry.label}
+            {word(page.entry.label)}
           </Opening>
         </Card.Title>
         {page.entry.about === undefined || page.entry.about === "" ? null : (
-          <Card.Description>{marked(page.entry.about)}</Card.Description>
+          <Card.Description>{marked(word(page.entry.about))}</Card.Description>
         )}
       </Card.Header>
     </Card.Root>

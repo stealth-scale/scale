@@ -1,5 +1,5 @@
 /**
- * Builds the package for a browser, with the React layers added.
+ * Builds the package for a browser, with the React and i18n layers added.
  *
  * @remarks
  *   No theme layers, because the package states no recipe of its own. Every part it draws is a

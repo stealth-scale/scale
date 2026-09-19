@@ -15,3 +15,6 @@ component-a11y: write no id on a roving focus item unless a caller names one
   item lost its own id: a menu's trigger, which its panel's `aria-labelledby` points at. The group
   tracks an item by its registration and moves focus through the element, so the element now carries
   an id only where a caller states one.
+- The item holding the tab stop is stamped `data-stop` rather than `data-active`. The theme reads
+  `[data-active]` as a control being pressed, so a button drawn as an item was filled for holding
+  the stop.

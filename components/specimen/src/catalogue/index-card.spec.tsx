@@ -12,6 +12,14 @@ describe("EntryCard", () => {
     expect(result.getByRole("heading", { level: 3 }).textContent).toBe("Badge");
   });
 
+  it("resolves the title and the sentence through the namespace the entry names", async () => {
+    const entry = { about: "rail.ungrouped", label: "rail.label", namespace: "specimen" };
+    const { result } = await onRoute(<EntryCard page={{ entry, id: THERE }} />);
+
+    expect(result.getByRole("heading", { level: 3 }).textContent).toBe("Pages");
+    expect(result.getByText("Other")).toBeDefined();
+  });
+
   it("leads the title to the page the id names", async () => {
     const { result } = await onRoute(<EntryCard page={{ entry: { label: "Badge" }, id: THERE }} />);
 

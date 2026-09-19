@@ -14,3 +14,4 @@
 export * from "#catalogue/index.ts";
 export * from "#matrix/index.ts";
 export { scene, type Scene, specimen, type Specimen } from "#page.ts";
+export { NAMESPACE, type Namespace, type Prefix, useWords } from "#words.ts";

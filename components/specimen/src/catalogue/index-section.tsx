@@ -36,7 +36,11 @@ export function GroupSection({ group }: GroupSectionProps): ReactElement {
   return (
     <Section.Root>
       <Section.Header>
-        <Section.Title>{group.name === "" ? t("rail.ungrouped") : group.name}</Section.Title>
+        <Section.Title>
+          {group.name === ""
+            ? t("rail.ungrouped")
+            : t(`groups.${group.name}`, { defaultValue: group.name })}
+        </Section.Title>
       </Section.Header>
       <Section.Body>
         <Grid.Root columns="fill-xs" gap="md">

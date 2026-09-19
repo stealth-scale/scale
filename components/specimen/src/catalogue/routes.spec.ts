@@ -55,7 +55,7 @@ describe("declarations", () => {
     });
   });
 
-  it("carries the words and the group and the opening a page is listed by", () => {
+  it("carries the words and the group and the opening and the namespace of a page", () => {
     expect(
       declarations([entry("actions/button", "Actions", "Button", "Presses.")], PLACED)[2]
         ?.navigation,
@@ -63,6 +63,7 @@ describe("declarations", () => {
       about: "Presses.",
       group: "Actions",
       label: "Button",
+      namespace: "",
     });
   });
 

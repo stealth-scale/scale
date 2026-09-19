@@ -156,6 +156,12 @@ export interface Entry {
   id: string;
 
   /**
+   * The catalogue namespace the page's words are keys in. Empty when the file declares none, and
+   * the words are then keys in the catalogue's own namespace.
+   */
+  namespace: string;
+
+  /**
    * The absolute path of the file, which the emitted loader imports.
    */
   path: string;
@@ -245,6 +251,12 @@ export interface Indexed {
    *   component.
    */
   load: () => Promise<unknown>;
+
+  /**
+   * The catalogue namespace the page's words are keys in. Empty when the file declares none, and
+   * the words are then keys in the catalogue's own namespace.
+   */
+  namespace: string;
 
   /**
    * The name of the package the page's components are imported from. Empty when no manifest above

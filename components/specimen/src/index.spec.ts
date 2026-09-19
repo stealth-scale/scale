@@ -8,6 +8,7 @@ describe("index", () => {
       "Index",
       "Matrix",
       "NAMED",
+      "NAMESPACE",
       "Page",
       "Rail",
       "captionOf",
@@ -21,6 +22,7 @@ describe("index", () => {
       "routeId",
       "scene",
       "specimen",
+      "useWords",
     ]);
   });
 
@@ -28,7 +30,7 @@ describe("index", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {
-      expect(name).not.toMatch(/^(?:recipe|with|use|PropsProvider)/u);
+      expect(name).not.toMatch(/^(?:recipe|with|PropsProvider)/u);
     }
   });
 });

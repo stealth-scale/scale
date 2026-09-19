@@ -12,6 +12,7 @@ import { declared } from "#catalogue/declared.ts";
 import { marked } from "#catalogue/marked.tsx";
 import { Trail } from "#catalogue/page-trail.tsx";
 import { type Indexed } from "#catalogue/types.ts";
+import { useWording } from "#catalogue/wording.ts";
 import { type Specimen } from "#page.ts";
 
 /**
@@ -37,10 +38,12 @@ export interface PageProps {
  *   dynamic import and the bundler emits one chunk for each. Opening a page is the first time its
  *   components are fetched.
  *   Each scene draws its component on a card, so the component stands on a surface with an edge
- *   rather than loose on the page, and a sentence's backticks are drawn as code.
+ *   rather than loose on the page, and a sentence's backticks are drawn as code. The title, the
+ *   opening and each scene's words are keys in the namespace the page names, where it names one.
  */
 export function Page({ back, entry }: PageProps): ReactElement {
   const [page, setPage] = useState<Specimen | undefined>();
+  const word = useWording(entry.namespace);
 
   useEffect(() => {
     let watching = true;
@@ -69,18 +72,18 @@ export function Page({ back, entry }: PageProps): ReactElement {
     <Screen.Page.Root>
       <Screen.Page.Header>
         {back === undefined ? null : <Trail to={back} />}
-        <Screen.Page.Title>{entry.title}</Screen.Page.Title>
+        <Screen.Page.Title>{word(entry.title)}</Screen.Page.Title>
         {entry.about === "" ? null : (
-          <Screen.Page.Description>{marked(entry.about)}</Screen.Page.Description>
+          <Screen.Page.Description>{marked(word(entry.about))}</Screen.Page.Description>
         )}
       </Screen.Page.Header>
       <Screen.Page.Body>
         {(page?.scenes ?? []).map((scene) => (
           <Screen.Section.Root key={scene.title}>
             <Screen.Section.Header>
-              <Screen.Section.Title>{scene.title}</Screen.Section.Title>
+              <Screen.Section.Title>{word(scene.title)}</Screen.Section.Title>
               {scene.about === undefined ? null : (
-                <Screen.Section.Description>{marked(scene.about)}</Screen.Section.Description>
+                <Screen.Section.Description>{marked(word(scene.about))}</Screen.Section.Description>
               )}
             </Screen.Section.Header>
             <Screen.Section.Body>

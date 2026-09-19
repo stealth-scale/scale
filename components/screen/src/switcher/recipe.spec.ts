@@ -45,6 +45,16 @@ describe("recipe", () => {
     });
   });
 
+  it("shrinks the mark to an icon's box in a toolbar", () => {
+    expect(recipe.compoundVariants).toStrictEqual([
+      {
+        className: "switcher__mark--marked",
+        css: { mark: { boxSize: "icon.md" } },
+        placement: "toolbar",
+      },
+    ]);
+  });
+
   it("fills a sidebar's column and takes the width of its words in a toolbar", () => {
     expect(recipe.variants?.["placement"]?.["sidebar"]?.["root"]).toStrictEqual({
       inlineSize: "full",
@@ -73,6 +83,17 @@ describe("recipe", () => {
 
   it("draws the detail quieter than the name", () => {
     expect(recipe.base?.["detail"]).toMatchObject({ color: "fg.muted", textStyle: "caption" });
+  });
+
+  it("puts the tick at the end of the row and keeps the row's end clear for it", () => {
+    expect(recipe.base?.["check"]).toMatchObject({ insetInlineStart: "auto" });
+    expect(recipe.variants?.["size"]?.["md"]?.["check"]).toStrictEqual({
+      boxSize: "icon.md",
+      insetInlineEnd: "gap.md",
+    });
+    expect(recipe.variants?.["size"]?.["md"]?.["option"]).toMatchObject({
+      paddingInlineEnd: "calc({sizes.icon.md} + 2 * {spacing.gap.md})",
+    });
   });
 
   it("pushes the mark that opens the list to the end of the control", () => {

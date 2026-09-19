@@ -8,6 +8,7 @@ import { NavList } from "@stealthscale/component-navigation";
 import { createLink, useRouteHref } from "@stealthscale/provider-router";
 
 import { type Listed } from "#catalogue/grouped.ts";
+import { useWording } from "#catalogue/wording.ts";
 
 /**
  * Draws the navigation list's link over the router's, so a row navigates without a reload and
@@ -34,9 +35,11 @@ export interface RowProps {
  *   does.
  */
 export function Row({ page }: RowProps): ReactElement {
+  const word = useWording(page.entry.namespace);
+
   return (
     <NavList.Item>
-      <Destination to={useRouteHref(page.id)}>{page.entry.label}</Destination>
+      <Destination to={useRouteHref(page.id)}>{word(page.entry.label)}</Destination>
     </NavList.Item>
   );
 }

@@ -30,7 +30,7 @@ describe("read", () => {
   it("returns every field a page states", () => {
     const held = page(
       file(
-        `{ about: "A word.", group: "Feedback", id: "feedback/badge", title: "Badge", scenes: [] }`,
+        `{ about: "A word.", group: "Feedback", id: "feedback/badge", namespace: "data", title: "Badge", scenes: [] }`,
       ),
     );
 
@@ -38,6 +38,7 @@ describe("read", () => {
       about: "A word.",
       group: "Feedback",
       id: "feedback/badge",
+      namespace: "data",
       path: "/src/badge/badge.specimen.tsx",
       title: "Badge",
     });
@@ -45,6 +46,10 @@ describe("read", () => {
 
   it("returns an empty group when the page states none", () => {
     expect(page(file(`{ id: "feedback/badge", scenes: [] }`)).group).toBe("");
+  });
+
+  it("returns an empty namespace when the page states none", () => {
+    expect(page(file(`{ id: "feedback/badge", scenes: [] }`)).namespace).toBe("");
   });
 
   it("returns an empty opening when the page states none", () => {
@@ -189,6 +194,7 @@ describe("read", () => {
       about: "",
       group: "",
       id: "a",
+      namespace: "",
       path: "/src/badge/badge.specimen.tsx",
       title: "A",
     });

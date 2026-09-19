@@ -50,6 +50,7 @@ export function entry(id: string, group: string, title: string, about = ""): Ind
     group,
     id,
     load: () => Promise.resolve({}),
+    namespace: "",
     package: "@stealthscale/component-actions",
     path: `src/${id}.specimen.tsx`,
     source: () => Promise.resolve({ default: "" }),

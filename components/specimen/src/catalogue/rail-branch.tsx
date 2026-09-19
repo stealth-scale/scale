@@ -40,7 +40,9 @@ export function Branch({ group, holdsCurrent }: BranchProps): ReactElement {
   return (
     <NavList.Branch defaultOpen={holdsCurrent}>
       <NavList.Trigger>
-        {group.name === "" ? t("rail.ungrouped") : group.name}
+        {group.name === ""
+          ? t("rail.ungrouped")
+          : t(`groups.${group.name}`, { defaultValue: group.name })}
         <NavList.Indicator>
           <Chevron />
         </NavList.Indicator>

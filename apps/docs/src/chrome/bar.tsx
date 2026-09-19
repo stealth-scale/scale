@@ -1,6 +1,6 @@
 /**
- * Draws what the bar across the top holds: the control that opens the navigation, the brand, and
- * the switchers.
+ * Draws what the bar across the top holds: the control that opens the navigation, the brand, the
+ * theme switcher and the switch between light and dark.
  */
 
 import { type ReactElement } from "react";
@@ -9,13 +9,12 @@ import { Toolbar } from "@stealthscale/component-screen";
 import { useTranslation } from "@stealthscale/provider-i18n";
 
 import { Brand } from "#chrome/brand.tsx";
-import { ColorModeSwitcher } from "#chrome/color-mode-switcher.tsx";
+import { ColorModeToggle } from "#chrome/color-mode-toggle.tsx";
 import { Opener } from "#chrome/opener.tsx";
-import { Panel } from "#chrome/panel.tsx";
 import { ThemeSwitcher } from "#chrome/theme-switcher.tsx";
 
 /**
- * Draws the bar's contents as the library's toolbar, the brand at the start and the switchers at
+ * Draws the bar's contents as the library's toolbar, the brand at the start and the switches at
  * the end.
  *
  * @remarks
@@ -30,14 +29,12 @@ export function Bar(): ReactElement {
   return (
     <Toolbar.Root aria-label={t("frame.bar")} size="md">
       <Toolbar.Start>
-        <Toolbar.Item aria-label={t("frame.navigation")} as={Opener}>
-          <Panel />
-        </Toolbar.Item>
+        <Toolbar.Item aria-label={t("frame.navigation")} as={Opener} />
         <Toolbar.Item as={Brand} />
       </Toolbar.Start>
       <Toolbar.End>
         <ThemeSwitcher />
-        <ColorModeSwitcher />
+        <ColorModeToggle />
       </Toolbar.End>
     </Toolbar.Root>
   );

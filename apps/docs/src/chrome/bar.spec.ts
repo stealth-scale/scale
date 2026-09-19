@@ -36,9 +36,11 @@ describe("Bar", () => {
     expect(result.getByRole("button", { name: "Theme graphite" })).toBeDefined();
   });
 
-  it("names the colour mode in force", async () => {
+  it("offers the switch between light and dark", async () => {
     const result = await opened("/components/actions/button");
 
-    expect(result.getByRole("button", { name: "Colour mode System" })).toBeDefined();
+    expect(result.getByRole("button", { name: "Dark mode" }).getAttribute("aria-pressed")).toBe(
+      "false",
+    );
   });
 });

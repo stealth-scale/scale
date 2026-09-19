@@ -11,3 +11,9 @@ vite-plugin-specimen: classify a dependency's declaration as an option
   under `dropped.foreign`.
 - The index build reads each package directory's manifest once per build when it names the package a
   specimen belongs to.
+
+vite-plugin-specimen: carry the namespace a page names its catalogue by
+
+- A page that states `namespace` as a literal in its `specimen()` call carries it into the index as
+  `Indexed.namespace`, empty where it states none, so a catalogue resolves the page's words in the
+  namespace they are keys in.

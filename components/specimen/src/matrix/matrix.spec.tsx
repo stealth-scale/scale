@@ -8,10 +8,24 @@ import { Matrix } from "#matrix/matrix.tsx";
 
 const SIZES = ["sm", "md", "lg"] as const;
 
+const LOOKS = ["solid", "ghost"] as const;
+
 function drawn(knob?: string): HTMLElement {
   return render(
     <Matrix knob={knob} of={SIZES}>
       {(size) => <button type="button">{size}</button>}
+    </Matrix>,
+  ).container;
+}
+
+function crossed(): HTMLElement {
+  return render(
+    <Matrix across={{ knob: "size", of: SIZES }} knob="variant" of={LOOKS}>
+      {(look, size) => (
+        <button type="button">
+          {look} {size}
+        </button>
+      )}
     </Matrix>,
   ).container;
 }
@@ -51,18 +65,38 @@ describe("Matrix", () => {
     expect(container.textContent).toBe("");
   });
 
-  it("runs the cells down until a caller asks for a row", () => {
-    expect(recipeClasses(drawn(), "stack")).not.toContain("stack--row");
+  it("runs the cells across in a row that wraps until a caller asks for a column", () => {
+    expect(recipeClasses(drawn(), "stack")).toContain("stack--row");
+    expect(recipeClasses(drawn(), "stack")).toContain("stack--wrap");
   });
 
-  it("runs the cells across when a caller asks for a row", () => {
+  it("runs the cells down when a caller asks for a column", () => {
     const { container } = render(
-      <Matrix direction="row" of={SIZES}>
+      <Matrix direction="column" of={SIZES}>
         {(size) => <span>{size}</span>}
       </Matrix>,
     );
 
-    expect(recipeClasses(container, "stack")).toContain("stack--row");
+    expect(recipeClasses(container, "stack")).not.toContain("stack--row");
+  });
+
+  it("crosses two axes into one cell per pair", () => {
+    const labels = [...crossed().querySelectorAll("button")].map((held) => held.textContent);
+
+    expect(labels).toStrictEqual([
+      "solid sm",
+      "solid md",
+      "solid lg",
+      "ghost sm",
+      "ghost md",
+      "ghost lg",
+    ]);
+  });
+
+  it("captions each row with the first axis and each cell in it with the second", () => {
+    expect(crossed().textContent).toBe(
+      "variant = solidsize = smsolid smsize = mdsolid mdsize = lgsolid lgvariant = ghostsize = smghost smsize = mdghost mdsize = lgghost lg",
+    );
   });
 
   it("breaks no accessibility rule", async () => {

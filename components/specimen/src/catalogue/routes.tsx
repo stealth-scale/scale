@@ -97,7 +97,12 @@ export function declarations(
     ...pages.map((page) => ({
       component: () => <Page back={index} entry={page} />,
       id: routeId(page.id),
-      navigation: { about: page.about, group: page.group, label: page.title },
+      navigation: {
+        about: page.about,
+        group: page.group,
+        label: page.title,
+        namespace: page.namespace,
+      },
       parent: id,
       path: page.id,
     })),

@@ -1,0 +1,27 @@
+{
+  "about": "The element a person presses, and the square that holds one glyph.",
+  "approve": "Approve",
+  "elevation": {
+    "about": "A lifted button rises under a pointer and drops towards the page under a press.",
+    "title": "Elevation"
+  },
+  "looks": {
+    "about": "Every look the vocabulary offers, and the `glass` layer style the button adds beside them, crossed with every size. A look reads the palette rather than a colour, so a status or a theme moves all of them at once.",
+    "title": "Looks and sizes"
+  },
+  "publish": "Publish",
+  "retry": "Retry",
+  "square": {
+    "about": "A button holding one glyph fixes the square shape and requires an accessible name, because the glyph names nothing.",
+    "title": "One glyph"
+  },
+  "states": {
+    "about": "A disabled button keeps its box and stops taking a press.",
+    "title": "States"
+  },
+  "statuses": {
+    "about": "A status points the palette at the semantic palette of its name and sets nothing else, so the look decides how that palette is drawn.",
+    "title": "Statuses"
+  },
+  "title": "Button"
+}

@@ -245,4 +245,21 @@ describe("emit", () => {
 
     expect([...held.values()][0]?.listing).toMatch(/package: "@kit\/actions"/u);
   });
+
+  it("carries the namespace a page names its catalogue by", () => {
+    const held = listings(SERVING, [
+      {
+        path: "/work/src/badge/badge.specimen.tsx",
+        text: `export default specimen({ id: "data/badge", namespace: "data", scenes: [] });\n`,
+      },
+    ]);
+
+    expect(listed(held, "/work/src/badge/badge.specimen.tsx")).toMatch(/namespace: "data"/u);
+  });
+
+  it("carries an empty namespace for a page that names none", () => {
+    const held = listings(SERVING, [file("feedback/badge")]);
+
+    expect(listed(held, "/work/src/badge/badge.specimen.tsx")).toMatch(/namespace: ""/u);
+  });
 });

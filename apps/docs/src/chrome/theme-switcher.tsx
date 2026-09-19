@@ -8,8 +8,24 @@ import { Menu } from "@stealthscale/component-disclosure";
 import { Switcher, Toolbar } from "@stealthscale/component-screen";
 import { useTranslation } from "@stealthscale/provider-i18n";
 import { useThemeChoice } from "@stealthscale/provider-shell";
+import { css } from "@stealthscale/theme";
 
 import { Chevron } from "#chrome/chevron.tsx";
+
+/**
+ * Draws a theme's swatch: a dot in that theme's own primary, whatever theme the page wears.
+ *
+ * @remarks
+ *   The dot carries `data-theme` itself, so the compiler's tokens for that theme apply to it and
+ *   `primary.solid` resolves to the theme the dot stands for. The mode follows the page, because a
+ *   theme's dark tokens apply under the page's mode attribute as well.
+ */
+const swatch = css({
+  background: "primary.solid",
+  borderRadius: "full",
+  boxSize: "50%",
+  margin: "auto",
+});
 
 /**
  * Draws the control naming the theme in force, which opens the rest.
@@ -17,8 +33,8 @@ import { Chevron } from "#chrome/chevron.tsx";
  * @remarks
  *   The choice is the shell's, so choosing here redraws the page and is remembered under this
  *   application's name. The names are the themes' own, which is what a designer judging one
- *   against another asks for. The control is an item of the bar's row, so draw it inside
- *   `Toolbar.Root`.
+ *   against another asks for, and each carries a swatch of its primary. The control is an item of
+ *   the bar's row, so draw it inside `Toolbar.Root`.
  */
 export function ThemeSwitcher(): ReactElement {
   const { t } = useTranslation("docs");
@@ -32,6 +48,9 @@ export function ThemeSwitcher(): ReactElement {
       variant="outline"
     >
       <Toolbar.Item as={Switcher.Trigger} label={t("chrome.theme")}>
+        <Switcher.Mark>
+          <span className={swatch} data-theme={theme} />
+        </Switcher.Mark>
         <Switcher.Label>
           <Switcher.Name>{theme}</Switcher.Name>
         </Switcher.Label>
@@ -51,6 +70,9 @@ export function ThemeSwitcher(): ReactElement {
               type="radio"
               value={name}
             >
+              <Switcher.Mark>
+                <span className={swatch} data-theme={name} />
+              </Switcher.Mark>
               <Menu.ItemText>{name}</Menu.ItemText>
               <Switcher.Check>✓</Switcher.Check>
             </Switcher.Option>

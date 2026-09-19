@@ -92,6 +92,14 @@ describe("recipe", () => {
     ]);
   });
 
+  it("fills a button that stays pressed against the attribute that says so", () => {
+    expect(recipe.base?.["_pressed"]).toStrictEqual({
+      background: "colorPalette.subtle",
+      borderColor: "colorPalette.border",
+      color: "colorPalette.fg",
+    });
+  });
+
   it("tracks every tag whose name ends in Button", () => {
     expect(recipe.jsx).toStrictEqual([/Button$/u]);
   });

@@ -16,6 +16,16 @@ describe("Row", () => {
     expect(result.getByRole("link", { name: "Badge" })).toBeDefined();
   });
 
+  it("resolves the words through the namespace the entry names", async () => {
+    const { result } = await onRoute(
+      <NavList.Root>
+        <Row page={{ entry: { label: "rail.label", namespace: "specimen" }, id: THERE }} />
+      </NavList.Root>,
+    );
+
+    expect(result.getByRole("link", { name: "Pages" })).toBeDefined();
+  });
+
   it("addresses the page the id names", async () => {
     const { result } = await onRoute(
       <NavList.Root>

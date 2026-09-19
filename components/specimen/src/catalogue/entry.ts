@@ -27,6 +27,12 @@ export interface Entry {
    * The words the rail writes.
    */
   readonly label: string;
+
+  /**
+   * The catalogue namespace the label and the sentence are keys in. Shown as written where it is
+   * absent.
+   */
+  readonly namespace?: string | undefined;
 }
 
 /**
@@ -59,10 +65,12 @@ export function entryOf(declaration: RouteDeclaration): Entry | undefined {
 
   const about = stringAt(entry, "about");
   const group = stringAt(entry, "group");
+  const namespace = stringAt(entry, "namespace");
 
   return {
     ...(about === undefined ? {} : { about }),
     ...(group === undefined ? {} : { group }),
     label,
+    ...(namespace === undefined || namespace === "" ? {} : { namespace }),
   };
 }

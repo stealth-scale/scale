@@ -1,9 +1,6 @@
 {
   "chrome": {
-    "colorMode": "Colour mode",
-    "dark": "Dark",
-    "light": "Light",
-    "system": "System",
+    "darkMode": "Dark mode",
     "theme": "Theme"
   },
   "frame": {

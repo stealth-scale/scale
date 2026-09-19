@@ -20,4 +20,12 @@ describe("Opener", () => {
     expect(control.getAttribute("aria-expanded")).toBe("true");
     expect(control.getAttribute("aria-controls")).not.toBeNull();
   });
+
+  it("draws the arrow that closes the navigation while it is open", async () => {
+    const result = await opened("/components/actions/button");
+
+    expect(
+      result.getByRole("button", { name: "Navigation" }).querySelectorAll("path"),
+    ).toHaveLength(2);
+  });
 });

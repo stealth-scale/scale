@@ -11,6 +11,9 @@
  *   The group tracks an item by its registration, so the element carries an id only where a caller
  *   names one. A control drawn as an item keeps whatever id it writes for itself, such as the id a
  *   menu's control is pointed at.
+ *   The item holding the stop is stamped `data-stop` rather than `data-active`, because the theme
+ *   reads `[data-active]` as a control being pressed and a control drawn as an item would be filled
+ *   for holding the stop.
  */
 
 import {
@@ -104,8 +107,8 @@ export function Item(props: ItemProps): ReactElement {
   return (
     <Shell
       aria-disabled={disabled || undefined}
-      data-active={activeId === id ? "" : undefined}
       data-disabled={disabled ? "" : undefined}
+      data-stop={activeId === id ? "" : undefined}
       id={named}
       onFocus={claim}
       ref={attach}

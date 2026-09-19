@@ -56,6 +56,17 @@ export interface Specimen {
   id: string;
 
   /**
+   * The catalogue namespace the page's words are keys in: the title, the opening, and each
+   * scene's title and opening. The catalogue's own, `specimen`, when absent.
+   *
+   * @remarks
+   *   Stated as a literal, because the index plugin reads it out of the source. The words follow
+   *   the language a reader chose, and a key with no entry is shown as the key, so a page written
+   *   in plain words reads as written.
+   */
+  namespace?: string;
+
+  /**
    * The scenes, in the order they are drawn.
    *
    * @remarks

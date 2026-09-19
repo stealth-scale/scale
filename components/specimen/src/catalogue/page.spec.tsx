@@ -9,12 +9,13 @@ import { slotElement } from "@stealthscale/testing-theme";
 import { Page } from "#catalogue/page.tsx";
 import { type Indexed } from "#catalogue/types.ts";
 
-function entry(module: unknown, about = ""): Indexed {
+function entry(module: unknown, about = "", namespace = ""): Indexed {
   return {
     about,
     group: "Data",
     id: "data/badge",
     load: () => Promise.resolve(module),
+    namespace,
     package: "@stealthscale/component-data",
     path: "src/badge.specimen.tsx",
     source: () => Promise.resolve({ default: "" }),
@@ -73,6 +74,16 @@ describe("Page", () => {
     const { getByRole } = await drawn(<Page entry={entry(page([SIZES]))} />);
 
     expect(getByRole("heading", { level: 2 }).textContent).toBe("Sizes");
+  });
+
+  it("resolves the title, the opening and a scene's words through the namespace named", async () => {
+    const keyed = { about: "rail.ungrouped", draw: marked, title: "rail.label" };
+    const named = { ...entry(page([keyed]), "page.back", "specimen"), title: "index.title" };
+    const { getByRole, getByText } = await drawn(<Page entry={named} />);
+
+    expect(getByRole("heading", { level: 1 }).textContent).toBe("Catalogue");
+    expect(getByRole("heading", { level: 2 }).textContent).toBe("Pages");
+    expect(getByText("Other")).toBeDefined();
   });
 
   it("opens a scene with the sentence it declares", async () => {

@@ -13,7 +13,9 @@
  *   leave every row with nothing to read. The rows are the menu's, drawn under slots of this
  *   recipe's own, because a row of things to switch between carries a mark and two lines of text
  *   where a menu's row carries neither. The name and the detail are cut short rather than wrapped,
- *   so the control keeps one height whatever the current thing is called.
+ *   so the control keeps one height whatever the current thing is called. The tick sits at the end
+ *   of the row rather than in the menu's leading gutter, because the row's mark is drawn there, and
+ *   the row keeps room at its end for it so the words never run under it.
  */
 
 import {
@@ -32,7 +34,12 @@ import {
 export const recipe = defineSlotRecipe({
   base: {
     action: { ...row(), color: "fg.muted" },
-    check: { alignItems: "center", display: "inline-flex", flexShrink: "0" },
+    check: {
+      alignItems: "center",
+      display: "inline-flex",
+      flexShrink: "0",
+      insetInlineStart: "auto",
+    },
     content: { display: "flex", flexDirection: "column", minInlineSize: "0" },
     detail: { ...truncate(), color: "fg.muted", textStyle: "caption" },
     indicator: {
@@ -55,6 +62,13 @@ export const recipe = defineSlotRecipe({
     },
   },
   className: "switcher",
+  compoundVariants: [
+    {
+      css: { mark: { boxSize: "icon.md" } },
+      name: "marked",
+      placement: "toolbar",
+    },
+  ],
   defaultVariants: { placement: "sidebar", size: "md", variant: "plain" },
   jsx: [/^Switcher(\.\w+)?$/u],
   slots: [
@@ -77,6 +91,8 @@ export const recipe = defineSlotRecipe({
      *   At the head of a sidebar the control is a row the width of the column, so the name and the
      *   detail have the column to read in. In a toolbar it is one control among others and takes
      *   the width of its words, and the detail goes, because a row of controls is one line tall.
+     *   The mark shrinks to an icon's box there, through the `marked` compound, because the size
+     *   axis draws it a control's box for the sidebar and a compound is what outranks an axis.
      */
     placement: {
       sidebar: { root: { inlineSize: "full" } },
@@ -93,7 +109,10 @@ export const recipe = defineSlotRecipe({
         }),
         ["sm", "md", "lg"],
       ),
-      check: sizeVariants((size) => ({ boxSize: `icon.${size}` }), ["sm", "md", "lg"]),
+      check: sizeVariants(
+        (size) => ({ boxSize: `icon.${size}`, insetInlineEnd: `gap.${size}` }),
+        ["sm", "md", "lg"],
+      ),
       content: sizeVariants(
         (size) => ({ gap: `gap.${size}`, padding: `gap.${size}` }),
         ["sm", "md", "lg"],
@@ -102,7 +121,12 @@ export const recipe = defineSlotRecipe({
       mark: sizeVariants((size) => ({ boxSize: `control.${size}` }), ["sm", "md", "lg"]),
       name: sizeVariants((size) => ({ textStyle: `label.${size}` }), ["sm", "md", "lg"]),
       option: sizeVariants(
-        (size) => ({ gap: `gap.${size}`, minBlockSize: `control.${size}`, padding: `gap.${size}` }),
+        (size) => ({
+          gap: `gap.${size}`,
+          minBlockSize: `control.${size}`,
+          padding: `gap.${size}`,
+          paddingInlineEnd: `calc({sizes.icon.${size}} + 2 * {spacing.gap.${size}})`,
+        }),
         ["sm", "md", "lg"],
       ),
       root: sizeVariants(

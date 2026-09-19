@@ -61,7 +61,7 @@ describe("Item", () => {
   it("marks the item that holds the tab stop", () => {
     const { getByText } = render(grouped(<Item id="cut">Cut</Item>));
 
-    expect(getByText("Cut").dataset["active"]).toBe("");
+    expect(getByText("Cut").dataset["stop"]).toBe("");
   });
 
   it("hands the element to a caller holding a reference", () => {

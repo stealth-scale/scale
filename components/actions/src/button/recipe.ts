@@ -11,7 +11,9 @@
  *   read from the look's own pressed fill and from the elevation dropping under the pointer. The
  *   box scales rather than shifting, because a control that shifts under a press is one a reader
  *   can miss. The square is listed under `staticCss`, because the icon button fixes it through a
- *   default prop and no JSX literal writes it for the compiler to extract.
+ *   default prop and no JSX literal writes it for the compiler to extract. A button that stays
+ *   pressed states `aria-pressed`, and the fill it keeps while on is written against that
+ *   attribute, so the fill and what a screen reader announces cannot disagree.
  */
 
 import {
@@ -33,6 +35,11 @@ export const recipe = defineRecipe({
   base: {
     ...interactive(),
     ...touchTarget(),
+    _pressed: {
+      background: "colorPalette.subtle",
+      borderColor: "colorPalette.border",
+      color: "colorPalette.fg",
+    },
     alignItems: "center",
     appearance: "none",
     borderColor: "transparent",

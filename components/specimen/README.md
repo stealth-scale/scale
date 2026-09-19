@@ -115,7 +115,28 @@ every named type it refers to, with the dropped counts beside them.
 Every word the catalogue writes itself is a key under the `specimen` namespace, in
 `locales/en/specimen.json`. An application overriding one declares the same key under the same
 namespace: the plugin reads packages deepest first and the application last, so the application
-wins.
+wins. A group's heading is looked up as `groups.<name>` in the same namespace and shown as the name
+where no entry exists, so an application translates the groups in one place.
+
+A page's own words are keys in the same namespace, under a prefix of the page's own. The package
+that writes the page keeps them beside it as `locales/<language>/specimen/<page>.json`, which the
+plugin places under `<page>` in the namespace. The page's title, its opening and each scene's title
+and opening are keys the catalogue resolves in the language a reader chose, and a key with no entry
+is shown as the key, so a page written in plain words reads as written. A page whose words live in
+another namespace names it with `namespace`.
+
+A scene reads its words through `useWords`, bound to the namespace under the prefix it names, so a
+specimen imports nothing from the i18n foundation:
+
+```tsx
+import { useWords } from "@stealthscale/specimen";
+
+function Looks(): ReactElement {
+  const { t } = useWords("button");
+
+  return <Button>{t("publish")}</Button>;
+}
+```
 
 ## specimen
 
@@ -147,13 +168,14 @@ export default specimen({
 });
 ```
 
-| Field    | What it declares                                                    |
-| -------- | ------------------------------------------------------------------- |
-| `id`     | The address of the page, required and unique across the catalogue   |
-| `scenes` | The scenes, in the order they are drawn                             |
-| `title`  | The page heading. The last segment of the identifier when absent    |
-| `group`  | The group a navigation rail lists the page under. Empty when absent |
-| `about`  | The sentence or two the page opens with. Empty when absent          |
+| Field       | What it declares                                                            |
+| ----------- | --------------------------------------------------------------------------- |
+| `id`        | The address of the page, required and unique across the catalogue           |
+| `scenes`    | The scenes, in the order they are drawn                                     |
+| `title`     | The page heading. The last segment of the identifier when absent            |
+| `group`     | The group a navigation rail lists the page under. Empty when absent         |
+| `about`     | The sentence or two the page opens with. Empty when absent                  |
+| `namespace` | The catalogue namespace the words are keys in. Shown as written when absent |
 
 The scenes are listed rather than gathered from the file's exports, because a module returns its
 names in alphabetical order and a page written Variants, States, Anatomy would be read back Anatomy,
@@ -164,26 +186,31 @@ render.
 
 ## Matrix
 
-`Matrix` draws one captioned cell per value of an axis.
+`Matrix` draws one captioned cell per value of an axis, or one per pair of values where a second
+axis crosses the first.
 
-| Prop        | What it does                                                        |
-| ----------- | ------------------------------------------------------------------- |
-| `of`        | The values, in the order the cells are drawn                        |
-| `knob`      | The prop the axis turns, written before each value in the muted ink |
-| `label`     | Converts a value into the name its cell is captioned with           |
-| `direction` | Which way the cells run, `column` or `row`. `column` by default     |
-
-Two axes at once are one matrix inside another, with the inner one running across.
+| Prop        | What it does                                                             |
+| ----------- | ------------------------------------------------------------------------ |
+| `of`        | The values, in the order the cells are drawn                             |
+| `knob`      | The prop the axis turns, written before each value in the muted ink      |
+| `label`     | Converts a value into the name its cell is captioned with                |
+| `across`    | A second axis, whose values run across each row of the first             |
+| `direction` | Which way the cells of one axis run, `row` or `column`. `row` by default |
 
 ```tsx
-<Matrix knob="variant" of={VARIANTS}>
-  {(variant) => (
-    <Matrix direction="row" knob="size" of={SIZES}>
-      {(size) => <Button size={size} variant={variant} />}
-    </Matrix>
+<Matrix across={{ knob: "size", of: SIZES }} knob="variant" of={VARIANTS}>
+  {(variant, size) => (
+    <Button size={size} variant={variant}>
+      Publish
+    </Button>
   )}
 </Matrix>
 ```
+
+One axis is a row of captioned cells that wraps where it runs out of room, so a row of sizes folds
+onto the next line on a narrow page, or a column of them. Two axes are one captioned row per value
+of the first axis, holding one captioned cell per value of the second. A third axis nests one matrix
+in another.
 
 ## No recipe of its own
 
@@ -191,9 +218,6 @@ Every part the catalogue draws is a component of the library: the arrangement is
 caption is `Text`, the page is `Page`, the rail is `Sidebar.Nav` over `NavList`. The package
 therefore states no recipe and registers no preset, and a theme that moves the library moves the
 catalogue with it.
-
-Both arrangements are written out rather than forwarded to one stack, because the compiler extracts
-a value written as a JSX literal and nothing it reads from a prop.
 
 ## Types
 

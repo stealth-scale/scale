@@ -73,6 +73,15 @@ import { Icon } from "@stealthscale/component-typography";
 </IconButton>;
 ```
 
+A button that stays pressed is a button with `aria-pressed`. The recipe fills it while it is on,
+against that attribute, so the fill and what a screen reader announces cannot disagree:
+
+```tsx
+<IconButton aria-label="Dark mode" aria-pressed={dark} onClick={toggle} variant="ghost">
+  {dark ? <Moon /> : <Sun />}
+</IconButton>
+```
+
 ## Licence
 
 MIT. See [LICENSE](LICENSE).

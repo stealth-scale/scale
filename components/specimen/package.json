@@ -83,6 +83,7 @@
     "@stealthscale/component-typography": "workspace:^",
     "@stealthscale/provider-i18n": "workspace:^",
     "@stealthscale/provider-router": "workspace:^",
+    "@stealthscale/theme": "workspace:^",
     "@stealthscale/vite-plugin-specimen": "workspace:^",
     "react": "catalog:"
   },
