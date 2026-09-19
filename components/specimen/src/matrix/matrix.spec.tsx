@@ -2,7 +2,7 @@ import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { accessibilityViolations } from "@stealthscale/testing-react";
-import { recipeClasses } from "@stealthscale/testing-theme";
+import { recipeClasses, slotClasses, slotVariantClass } from "@stealthscale/testing-theme";
 
 import { Matrix } from "#matrix/matrix.tsx";
 
@@ -68,6 +68,7 @@ describe("Matrix", () => {
   it("runs the cells across in a row that wraps until a caller asks for a column", () => {
     expect(recipeClasses(drawn(), "stack")).toContain("stack--row");
     expect(recipeClasses(drawn(), "stack")).toContain("stack--wrap");
+    expect(slotClasses(drawn(), "matrix", "item")).toContain("matrix__item");
   });
 
   it("runs the cells down when a caller asks for a column", () => {
@@ -78,6 +79,12 @@ describe("Matrix", () => {
     );
 
     expect(recipeClasses(container, "stack")).not.toContain("stack--row");
+  });
+
+  it("hands the grid the count of values running across", () => {
+    expect(slotClasses(crossed(), "matrix", "grid")).toContain(
+      slotVariantClass("matrix", "grid", "across", "3"),
+    );
   });
 
   it("crosses two axes into one cell per pair", () => {
@@ -93,10 +100,29 @@ describe("Matrix", () => {
     ]);
   });
 
-  it("captions each row with the first axis and each cell in it with the second", () => {
-    expect(crossed().textContent).toBe(
-      "variant = solidsize = smsolid smsize = mdsolid mdsize = lgsolid lgvariant = ghostsize = smghost smsize = mdghost mdsize = lgghost lg",
-    );
+  it("captions the second axis along the top and the first down the side", () => {
+    const container = crossed();
+    const [top, ...rows] = [...(container.querySelector(".matrix__grid")?.children ?? [])];
+
+    expect(top?.textContent).toBe("size = smsize = mdsize = lg");
+    expect(rows.map((one) => one.firstElementChild?.textContent)).toStrictEqual([
+      "variant = solid",
+      "variant = ghost",
+    ]);
+  });
+
+  it("carries the top edge's caption in every cell, for the rows once folded", () => {
+    const cells = [...crossed().querySelectorAll("button")].map((held) => held.parentElement);
+
+    expect(cells.map((held) => held?.firstElementChild?.textContent)).toStrictEqual([
+      "size = sm",
+      "size = md",
+      "size = lg",
+      "size = sm",
+      "size = md",
+      "size = lg",
+    ]);
+    expect(slotClasses(crossed(), "matrix", "label")).toContain("matrix__label");
   });
 
   it("breaks no accessibility rule", async () => {

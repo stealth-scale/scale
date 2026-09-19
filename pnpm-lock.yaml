@@ -1175,15 +1175,24 @@ importers:
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
         version: 0.2.4(@babel/core@7.29.7(supports-color@10.2.2))(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.7)
+      '@stealthscale/component-actions':
+        specifier: workspace:^
+        version: link:../actions
       '@stealthscale/theme':
         specifier: workspace:^
         version: link:../../foundations/theme
       '@stealthscale/vite-config':
         specifier: workspace:^
         version: link:../../packages/vite-config
+      '@stealthscale/vite-config-i18n':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-i18n
       '@stealthscale/vite-config-react':
         specifier: workspace:^
         version: link:../../packages/vite-config-react
+      '@stealthscale/vite-config-specimen':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-specimen
       '@stealthscale/vite-config-theme':
         specifier: workspace:^
         version: link:../../packages/vite-config-theme
@@ -1518,6 +1527,9 @@ importers:
       '@stealthscale/testing-router':
         specifier: workspace:^
         version: link:../../packages/testing-router
+      '@stealthscale/testing-theme':
+        specifier: workspace:^
+        version: link:../../packages/testing-theme
       '@stealthscale/vite-config':
         specifier: workspace:^
         version: link:../../packages/vite-config

@@ -11,6 +11,7 @@ describe("index", () => {
       "NAMESPACE",
       "Page",
       "Rail",
+      "Tile",
       "captionOf",
       "declarations",
       "declared",
@@ -23,6 +24,7 @@ describe("index", () => {
       "scene",
       "specimen",
       "useWords",
+      "valuesOf",
     ]);
   });
 

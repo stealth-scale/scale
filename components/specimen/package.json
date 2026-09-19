@@ -31,11 +31,16 @@
       "stealth-source": "./src/index.ts",
       "default": "./dist/index.js"
     },
+    "./theme": {
+      "stealth-source": "./src/theme.ts",
+      "default": "./dist/theme.js"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
     "exports": {
       ".": "./dist/index.js",
+      "./theme": "./dist/theme.js",
       "./package.json": "./package.json"
     },
     "access": "public"
@@ -58,6 +63,7 @@
     "@stealthscale/provider-router": "workspace:^",
     "@stealthscale/testing-react": "workspace:^",
     "@stealthscale/testing-router": "workspace:^",
+    "@stealthscale/testing-theme": "workspace:^",
     "@stealthscale/vite-config": "workspace:^",
     "@stealthscale/vite-config-i18n": "workspace:^",
     "@stealthscale/vite-config-react": "workspace:^",
