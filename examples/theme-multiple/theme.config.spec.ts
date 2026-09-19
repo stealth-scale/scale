@@ -37,40 +37,32 @@ describe("theme.config", () => {
       "folio",
       "forge",
       "abyss",
-      "graphite",
-      "graphite-dimmed",
-      "graphite-contrast",
-      "steel",
-      "steel-gray",
-      "compass",
-      "compass-contrast",
-      "quartz",
-      "asphalt",
-      "pebble",
-      "lantern",
-      "prism",
+      "ink",
+      "cinder",
+      "harbour",
+      "admiral",
+      "regatta",
+      "pine",
+      "carnival",
+      "dusk",
+      "neon",
+      "blush",
     ]);
   });
 
-  it("compiles every published theme's page as a reference into its own neutral ramp", () => {
-    expect(declared(css, "[data-theme=graphite]", "--colors-bg")).toBe("var(--colors-gray-0)");
-    expect(declared(css, "[data-theme=graphite]", "--colors-gray-0")).toBe(
-      "oklch(100.0% 0.0000 0.0)",
-    );
-    expect(declared(css, "[data-theme=steel]", "--colors-bg")).toBe("var(--colors-gray-white)");
-    expect(declared(css, "[data-theme=pebble]", "--colors-gray-950")).toBe(
-      "oklch(14.5% 0.0000 0.0)",
-    );
-    expect(declared(css, "[data-theme=asphalt]", "--fonts-body")).toContain("Inter Variable");
+  it("compiles a published theme's page and ink as the colors it states", () => {
+    expect(declared(css, "[data-theme=cinder]", "--colors-bg")).toBe("#EEEEEE");
+    expect(declared(css, "[data-theme=cinder]", "--colors-fg")).toBe("#303841");
+    expect(declared(css, "[data-theme=blush]", "--colors-bg")).toBe("#F5F5F5");
+    expect(declared(css, "[data-theme=ink]", "--colors-bg")).toBe("oklch(97.0% 0.0060 262.0)");
   });
 
-  it("compiles a derived variant with its own dark ramp", () => {
-    expect(declared(css, "[data-theme=graphite-dimmed]", "--colors-blue-dark-0")).toBe(
-      "oklch(91.0% 0.0481 241.6)",
+  it("compiles a published theme's solid as the color it pins", () => {
+    expect(declared(css, "[data-theme=cinder]", "--colors-red-solid")).toBe("#D72323");
+    expect(declared(css, "[data-theme=cinder]", "--colors-primary-solid")).toBe(
+      "var(--colors-red-solid)",
     );
-    expect(declared(css, "[data-theme=graphite]", "--colors-blue-dark-0")).toBe(
-      "oklch(91.6% 0.0447 241.1)",
-    );
+    expect(declared(css, "[data-theme=neon]", "--colors-purple-solid")).toBe("#8C00FF");
   });
 
   it("states the preset of the application's own recipes", () => {

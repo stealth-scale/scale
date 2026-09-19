@@ -10,4 +10,15 @@
 /**
  * The names, the first being the theme a page wears until somebody switches.
  */
-export const THEMES: readonly string[] = ["asphalt", "prism"];
+export const THEMES: readonly string[] = [
+  "ink",
+  "cinder",
+  "harbour",
+  "admiral",
+  "regatta",
+  "pine",
+  "carnival",
+  "dusk",
+  "neon",
+  "blush",
+];

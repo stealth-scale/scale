@@ -179,39 +179,6 @@ catalogs:
     '@cyclonedx/cyclonedx-library':
       specifier: ^10.2.0
       version: 10.2.0
-    '@fontsource-variable/geist':
-      specifier: ^5.3.0
-      version: 5.3.0
-    '@fontsource-variable/geist-mono':
-      specifier: ^5.3.0
-      version: 5.3.0
-    '@fontsource-variable/ibm-plex-sans':
-      specifier: ^5.3.0
-      version: 5.3.0
-    '@fontsource-variable/inter':
-      specifier: ^5.3.0
-      version: 5.3.0
-    '@fontsource-variable/mona-sans':
-      specifier: ^5.3.0
-      version: 5.3.0
-    '@fontsource-variable/roboto':
-      specifier: ^5.3.0
-      version: 5.3.0
-    '@fontsource-variable/source-code-pro':
-      specifier: ^5.3.0
-      version: 5.3.0
-    '@fontsource-variable/source-sans-3':
-      specifier: ^5.3.0
-      version: 5.3.0
-    '@fontsource-variable/ubuntu-sans':
-      specifier: ^5.3.0
-      version: 5.3.0
-    '@fontsource-variable/ubuntu-sans-mono':
-      specifier: ^5.3.0
-      version: 5.3.0
-    '@fontsource/ibm-plex-mono':
-      specifier: ^5.3.0
-      version: 5.3.0
     '@mdx-js/rollup':
       specifier: ^3.1.1
       version: 3.1.1
@@ -571,30 +538,36 @@ importers:
       '@stealthscale/theme':
         specifier: workspace:^
         version: link:../../foundations/theme
-      '@stealthscale/theme-asphalt':
+      '@stealthscale/theme-admiral':
         specifier: workspace:^
-        version: link:../../themes/asphalt
-      '@stealthscale/theme-compass':
+        version: link:../../themes/admiral
+      '@stealthscale/theme-blush':
         specifier: workspace:^
-        version: link:../../themes/compass
-      '@stealthscale/theme-graphite':
+        version: link:../../themes/blush
+      '@stealthscale/theme-carnival':
         specifier: workspace:^
-        version: link:../../themes/graphite
-      '@stealthscale/theme-lantern':
+        version: link:../../themes/carnival
+      '@stealthscale/theme-cinder':
         specifier: workspace:^
-        version: link:../../themes/lantern
-      '@stealthscale/theme-pebble':
+        version: link:../../themes/cinder
+      '@stealthscale/theme-dusk':
         specifier: workspace:^
-        version: link:../../themes/pebble
-      '@stealthscale/theme-prism':
+        version: link:../../themes/dusk
+      '@stealthscale/theme-harbour':
         specifier: workspace:^
-        version: link:../../themes/prism
-      '@stealthscale/theme-quartz':
+        version: link:../../themes/harbour
+      '@stealthscale/theme-ink':
         specifier: workspace:^
-        version: link:../../themes/quartz
-      '@stealthscale/theme-steel':
+        version: link:../../themes/ink
+      '@stealthscale/theme-neon':
         specifier: workspace:^
-        version: link:../../themes/steel
+        version: link:../../themes/neon
+      '@stealthscale/theme-pine':
+        specifier: workspace:^
+        version: link:../../themes/pine
+      '@stealthscale/theme-regatta':
+        specifier: workspace:^
+        version: link:../../themes/regatta
       react:
         specifier: 'catalog:'
         version: 19.3.0
@@ -3006,30 +2979,36 @@ importers:
       '@stealthscale/theme':
         specifier: workspace:^
         version: link:../../foundations/theme
-      '@stealthscale/theme-asphalt':
+      '@stealthscale/theme-admiral':
         specifier: workspace:^
-        version: link:../../themes/asphalt
-      '@stealthscale/theme-compass':
+        version: link:../../themes/admiral
+      '@stealthscale/theme-blush':
         specifier: workspace:^
-        version: link:../../themes/compass
-      '@stealthscale/theme-graphite':
+        version: link:../../themes/blush
+      '@stealthscale/theme-carnival':
         specifier: workspace:^
-        version: link:../../themes/graphite
-      '@stealthscale/theme-lantern':
+        version: link:../../themes/carnival
+      '@stealthscale/theme-cinder':
         specifier: workspace:^
-        version: link:../../themes/lantern
-      '@stealthscale/theme-pebble':
+        version: link:../../themes/cinder
+      '@stealthscale/theme-dusk':
         specifier: workspace:^
-        version: link:../../themes/pebble
-      '@stealthscale/theme-prism':
+        version: link:../../themes/dusk
+      '@stealthscale/theme-harbour':
         specifier: workspace:^
-        version: link:../../themes/prism
-      '@stealthscale/theme-quartz':
+        version: link:../../themes/harbour
+      '@stealthscale/theme-ink':
         specifier: workspace:^
-        version: link:../../themes/quartz
-      '@stealthscale/theme-steel':
+        version: link:../../themes/ink
+      '@stealthscale/theme-neon':
         specifier: workspace:^
-        version: link:../../themes/steel
+        version: link:../../themes/neon
+      '@stealthscale/theme-pine':
+        specifier: workspace:^
+        version: link:../../themes/pine
+      '@stealthscale/theme-regatta':
+        specifier: workspace:^
+        version: link:../../themes/regatta
       react:
         specifier: 'catalog:'
         version: 19.3.0
@@ -4715,11 +4694,7 @@ importers:
         specifier: 'catalog:'
         version: 4.1.11(@types/node@26.5.1)(@vitest/browser-playwright@4.1.11)(@vitest/browser-preview@4.1.11)(@vitest/coverage-v8@4.1.11)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
 
-  themes/asphalt:
-    dependencies:
-      '@fontsource-variable/inter':
-        specifier: 'catalog:'
-        version: 5.3.0
+  themes/admiral:
     devDependencies:
       '@arethetypeswrong/core':
         specifier: 'catalog:'
@@ -4755,14 +4730,7 @@ importers:
         specifier: 'catalog:'
         version: 4.1.11(@types/node@26.5.1)(@vitest/browser-playwright@4.1.11)(@vitest/browser-preview@4.1.11)(@vitest/coverage-v8@4.1.11)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
 
-  themes/compass:
-    dependencies:
-      '@fontsource-variable/ubuntu-sans':
-        specifier: 'catalog:'
-        version: 5.3.0
-      '@fontsource-variable/ubuntu-sans-mono':
-        specifier: 'catalog:'
-        version: 5.3.0
+  themes/blush:
     devDependencies:
       '@arethetypeswrong/core':
         specifier: 'catalog:'
@@ -4798,11 +4766,7 @@ importers:
         specifier: 'catalog:'
         version: 4.1.11(@types/node@26.5.1)(@vitest/browser-playwright@4.1.11)(@vitest/browser-preview@4.1.11)(@vitest/coverage-v8@4.1.11)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
 
-  themes/graphite:
-    dependencies:
-      '@fontsource-variable/mona-sans':
-        specifier: 'catalog:'
-        version: 5.3.0
+  themes/carnival:
     devDependencies:
       '@arethetypeswrong/core':
         specifier: 'catalog:'
@@ -4838,7 +4802,7 @@ importers:
         specifier: 'catalog:'
         version: 4.1.11(@types/node@26.5.1)(@vitest/browser-playwright@4.1.11)(@vitest/browser-preview@4.1.11)(@vitest/coverage-v8@4.1.11)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
 
-  themes/lantern:
+  themes/cinder:
     devDependencies:
       '@arethetypeswrong/core':
         specifier: 'catalog:'
@@ -4874,14 +4838,7 @@ importers:
         specifier: 'catalog:'
         version: 4.1.11(@types/node@26.5.1)(@vitest/browser-playwright@4.1.11)(@vitest/browser-preview@4.1.11)(@vitest/coverage-v8@4.1.11)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
 
-  themes/pebble:
-    dependencies:
-      '@fontsource-variable/geist':
-        specifier: 'catalog:'
-        version: 5.3.0
-      '@fontsource-variable/geist-mono':
-        specifier: 'catalog:'
-        version: 5.3.0
+  themes/dusk:
     devDependencies:
       '@arethetypeswrong/core':
         specifier: 'catalog:'
@@ -4917,14 +4874,7 @@ importers:
         specifier: 'catalog:'
         version: 4.1.11(@types/node@26.5.1)(@vitest/browser-playwright@4.1.11)(@vitest/browser-preview@4.1.11)(@vitest/coverage-v8@4.1.11)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
 
-  themes/prism:
-    dependencies:
-      '@fontsource-variable/source-code-pro':
-        specifier: 'catalog:'
-        version: 5.3.0
-      '@fontsource-variable/source-sans-3':
-        specifier: 'catalog:'
-        version: 5.3.0
+  themes/harbour:
     devDependencies:
       '@arethetypeswrong/core':
         specifier: 'catalog:'
@@ -4960,11 +4910,7 @@ importers:
         specifier: 'catalog:'
         version: 4.1.11(@types/node@26.5.1)(@vitest/browser-playwright@4.1.11)(@vitest/browser-preview@4.1.11)(@vitest/coverage-v8@4.1.11)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
 
-  themes/quartz:
-    dependencies:
-      '@fontsource-variable/roboto':
-        specifier: 'catalog:'
-        version: 5.3.0
+  themes/ink:
     devDependencies:
       '@arethetypeswrong/core':
         specifier: 'catalog:'
@@ -5000,14 +4946,79 @@ importers:
         specifier: 'catalog:'
         version: 4.1.11(@types/node@26.5.1)(@vitest/browser-playwright@4.1.11)(@vitest/browser-preview@4.1.11)(@vitest/coverage-v8@4.1.11)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
 
-  themes/steel:
-    dependencies:
-      '@fontsource-variable/ibm-plex-sans':
+  themes/neon:
+    devDependencies:
+      '@arethetypeswrong/core':
         specifier: 'catalog:'
-        version: 5.3.0
-      '@fontsource/ibm-plex-mono':
+        version: 0.18.5
+      '@stealthscale/theme':
+        specifier: workspace:^
+        version: link:../../foundations/theme
+      '@stealthscale/vite-config':
+        specifier: workspace:^
+        version: link:../../packages/vite-config
+      '@stealthscale/vite-config-theme':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-theme
+      '@stealthscale/vite-config-typescript':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-typescript
+      '@stealthscale/vite-plugin-theme':
+        specifier: workspace:^
+        version: link:../../packages/vite-plugin-theme
+      '@types/node':
         specifier: 'catalog:'
-        version: 5.3.0
+        version: 26.5.1
+      happy-dom:
+        specifier: 'catalog:'
+        version: 20.14.5
+      publint:
+        specifier: 'catalog:'
+        version: 0.3.24
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@types/node@26.5.1)(@vitest/browser-playwright@4.1.11)(@vitest/browser-preview@4.1.11)(@vitest/coverage-v8@4.1.11)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
+
+  themes/pine:
+    devDependencies:
+      '@arethetypeswrong/core':
+        specifier: 'catalog:'
+        version: 0.18.5
+      '@stealthscale/theme':
+        specifier: workspace:^
+        version: link:../../foundations/theme
+      '@stealthscale/vite-config':
+        specifier: workspace:^
+        version: link:../../packages/vite-config
+      '@stealthscale/vite-config-theme':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-theme
+      '@stealthscale/vite-config-typescript':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-typescript
+      '@stealthscale/vite-plugin-theme':
+        specifier: workspace:^
+        version: link:../../packages/vite-plugin-theme
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.5.1
+      happy-dom:
+        specifier: 'catalog:'
+        version: 20.14.5
+      publint:
+        specifier: 'catalog:'
+        version: 0.3.24
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.11(@types/node@26.5.1)(@vitest/browser-playwright@4.1.11)(@vitest/browser-preview@4.1.11)(@vitest/coverage-v8@4.1.11)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
+
+  themes/regatta:
     devDependencies:
       '@arethetypeswrong/core':
         specifier: 'catalog:'
@@ -5427,39 +5438,6 @@ packages:
 
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
-
-  '@fontsource-variable/geist-mono@5.3.0':
-    resolution: {integrity: sha512-vBbuwDEo9AkrqADMXOrlAR3DFcJi4/JxeuU43FoiQERnNwsfXNnvxvReZG02cQKmyk4DZkZdBZX3oTDvy2zBAw==}
-
-  '@fontsource-variable/geist@5.3.0':
-    resolution: {integrity: sha512-j0m+vLQuG5XAYoHtGCVu0spvlGreR3EzpECUVzkFmI1mTVnAO38l/NEPDCFgZ177JxzYJCLSmTQibIiYPilGrA==}
-
-  '@fontsource-variable/ibm-plex-sans@5.3.0':
-    resolution: {integrity: sha512-agG8tXFEo0hD9+J7npa4vbbWult52eMLVaQ6WQRlhs/iCAojrMAoejru85W9HTVXHfyUj96KM7gp/KGAS87XaQ==}
-
-  '@fontsource-variable/inter@5.3.0':
-    resolution: {integrity: sha512-OupL48va4JNofb97w6NYeF9S7W/kHNKM0Er8Dem5nqi4jeOLrVJDoE8tZEpnMJmtkvNbB1EIPPwHcdkF6b1oUA==}
-
-  '@fontsource-variable/mona-sans@5.3.0':
-    resolution: {integrity: sha512-PkxRB3KI4z9Gjpk7vVqgO3GMSyQuOIIj4TaRDbvbcDj8SzWwI38jvLTQxJM/cTRorhcT7h8qjcllR+qjRtM/Fg==}
-
-  '@fontsource-variable/roboto@5.3.0':
-    resolution: {integrity: sha512-BoaaZiQf8fgtxv07KXkTwx1bKz/EoqIlTXq2OOKKXINxp6qXWdnlChqV+hSaDANS49yyUASFl3OVBMMDTCIHFA==}
-
-  '@fontsource-variable/source-code-pro@5.3.0':
-    resolution: {integrity: sha512-CxzAbqtNrQ6EQXTb9ovRZIRiOhFPcBQhNKla58K5UV6IMoL/ROkWxXDSBOa/frIDLuV4B5PLHI4R1e9SWVinYg==}
-
-  '@fontsource-variable/source-sans-3@5.3.0':
-    resolution: {integrity: sha512-dpi0GZk7EQe2tYpg6Q0Fx0OmUgnuGu+0rHPgtXqtKhglYmJuP7jZ12Mu1uN+NfRaJRY1Emn8AQJEWzmoZ4wa9g==}
-
-  '@fontsource-variable/ubuntu-sans-mono@5.3.0':
-    resolution: {integrity: sha512-NWIfp6UafurjxtD4p/c1SPu/vBPY96670wip6tHEPbg84knRUhMbGqLN0gW1mNjs+DQJ7MIDcuP5+cZyQNANSg==}
-
-  '@fontsource-variable/ubuntu-sans@5.3.0':
-    resolution: {integrity: sha512-SsQHgZOfw7O6S3c8XtObfXIG034nUpPXWdPhjeFRwtfESjALC9wUYeMTXXalutKpk+mFs3V4vRQVJpeJvmZ9iA==}
-
-  '@fontsource/ibm-plex-mono@5.3.0':
-    resolution: {integrity: sha512-eTgnZjZEGk1QtD3ZstF+Vclo2HLAni8YMy34/DxllwZvyz1lR/1RF/xTiAquOBO7MvqBx8D2Ig2WCPMVfdZu7Q==}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -9389,28 +9367,6 @@ snapshots:
       '@floating-ui/utils': 0.2.12
 
   '@floating-ui/utils@0.2.12': {}
-
-  '@fontsource-variable/geist-mono@5.3.0': {}
-
-  '@fontsource-variable/geist@5.3.0': {}
-
-  '@fontsource-variable/ibm-plex-sans@5.3.0': {}
-
-  '@fontsource-variable/inter@5.3.0': {}
-
-  '@fontsource-variable/mona-sans@5.3.0': {}
-
-  '@fontsource-variable/roboto@5.3.0': {}
-
-  '@fontsource-variable/source-code-pro@5.3.0': {}
-
-  '@fontsource-variable/source-sans-3@5.3.0': {}
-
-  '@fontsource-variable/ubuntu-sans-mono@5.3.0': {}
-
-  '@fontsource-variable/ubuntu-sans@5.3.0': {}
-
-  '@fontsource/ibm-plex-mono@5.3.0': {}
 
   '@humanfs/core@0.19.2':
     dependencies:

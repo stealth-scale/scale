@@ -1,32 +1,13 @@
 /**
- * Lists the eight published themes with the variants derived from them, in the order the page
- * offers them after the four example themes.
+ * Lists the ten published themes, in the order the page offers them after the four example themes.
  */
 
-import { asphalt } from "@stealthscale/theme-asphalt";
-import { compass, compassContrast } from "@stealthscale/theme-compass";
-import { graphite, graphiteContrast, graphiteDimmed } from "@stealthscale/theme-graphite";
-import { lantern } from "@stealthscale/theme-lantern";
-import { pebble } from "@stealthscale/theme-pebble";
-import { prism } from "@stealthscale/theme-prism";
-import { quartz } from "@stealthscale/theme-quartz";
-import { steel, steelGray } from "@stealthscale/theme-steel";
-import { type Theme } from "@stealthscale/theme/authoring";
+import { ink } from "@stealthscale/theme-ink";
+
+import { paletteThemes } from "#palette-themes.ts";
 
 /**
- * Lists the published themes, each root followed by the variants derived from it.
+ * Lists the published themes: Ink, the look the components were drawn against, then nine each
+ * drawn from four colors stated outright.
  */
-export const publishedThemes: readonly Theme[] = [
-  graphite,
-  graphiteDimmed,
-  graphiteContrast,
-  steel,
-  steelGray,
-  compass,
-  compassContrast,
-  quartz,
-  asphalt,
-  pebble,
-  lantern,
-  prism,
-];
+export const publishedThemes = [ink, ...paletteThemes] as const;

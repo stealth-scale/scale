@@ -17,7 +17,7 @@ here, and the testing kits that check each package against its contract.
 | -------------- | --------------------------------------------------------------------------------- |
 | `foundations/` | The theme, the hooks, the settings store and the providers an application renders |
 | `components/`  | The component libraries, one package for each kind of thing a page draws          |
-| `themes/`      | The published themes, each a root theme with the variants derived from it         |
+| `themes/`      | The published themes, each drawn from four colors stated outright                 |
 | `packages/`    | The build tiers, the bundler plugins and the testing kits                         |
 | `examples/`    | Private applications that each demonstrate one decision                           |
 | `docs/`        | The decision records, the design proposals and the writing standards              |
@@ -118,21 +118,26 @@ with an application's compiler.
 
 ### The themes
 
-Every theme fills the contract with ramps of its own, keyed by their own steps, and places each role
-on a step that clears the gate: 7:1 for text and 3:1 for a line or a ring, in both modes. A theme
-depends on the open faces it names and on nothing else. An application lists a theme in
-`theme.config.ts` and a page switches to it with `data-theme`.
+Ink is the look the components were drawn against: charcoal on paper with a blue accent, on the
+foundation's own greys. Every other theme is drawn from four colors stated outright: a page and an
+ink for each mode, and the colors the palettes are drawn from. Every other value is a tint or a mix
+of the four, drawn with `inked`, `hues` and `scaleOf` from the foundation's authoring entry. The
+specifications check the contract and the steps a reader has to tell apart, and leave the contrast
+checks out with the reason beside the skip: a theme keeps its colors as stated. An application lists
+a theme in `theme.config.ts` and a page switches to it with `data-theme`.
 
-| Package                             | What it draws                                                                                                                                  |
-| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`theme-graphite`](themes/graphite) | A developer's product on cool greys with a blue accent, a green call to action and Mona Sans. Variants: `graphite-dimmed`, `graphite-contrast` |
-| [`theme-steel`](themes/steel)       | An enterprise product on plain greys with a cobalt blue, square corners and IBM Plex. Variant: `steel-gray`                                    |
-| [`theme-compass`](themes/compass)   | A team product on soft neutrals with a bright blue, a lime success and small corners. Variant: `compass-contrast`                              |
-| [`theme-quartz`](themes/quartz)     | A productivity suite on plain greys with a deep blue brand, four-pixel corners and Roboto                                                      |
-| [`theme-asphalt`](themes/asphalt)   | A mobility product in black and white, with a blue accent, eight-pixel corners and Inter                                                       |
-| [`theme-pebble`](themes/pebble)     | A web application in plain neutrals with a black primary button, ten-pixel corners and Geist                                                   |
-| [`theme-lantern`](themes/lantern)   | An enterprise product on a light grey page with a daybreak blue, six-pixel corners and a system face                                           |
-| [`theme-prism`](themes/prism)       | A creative tool on cool greys with an indigo-blue accent, eight-pixel corners and Source Sans                                                  |
+| Package                             | What it draws                                                                          |
+| ----------------------------------- | -------------------------------------------------------------------------------------- |
+| [`theme-ink`](themes/ink)           | Charcoal on paper by day, paper on charcoal after dark, and a blue accent              |
+| [`theme-cinder`](themes/cinder)     | A red product on slate and ash, with sharp corners and hard shadows                    |
+| [`theme-harbour`](themes/harbour)   | A steel blue product on navy and mist                                                  |
+| [`theme-admiral`](themes/admiral)   | A teal blue product on navy and chalk                                                  |
+| [`theme-regatta`](themes/regatta)   | A crimson product with deep blue and teal beside it, on navy after dark, sharp corners |
+| [`theme-pine`](themes/pine)         | A green product with teal and sage beside it, on the night after dark                  |
+| [`theme-carnival`](themes/carnival) | A red product with orange and yellow beside it, on navy after dark and on cream by day |
+| [`theme-dusk`](themes/dusk)         | A coral product with mauve and plum beside it, on navy after dark, with soft corners   |
+| [`theme-neon`](themes/neon)         | A violet product with hot pink and yellow beside it, on grape after dark, soft corners |
+| [`theme-blush`](themes/blush)       | A pink product on navy and pearl, with round corners                                   |
 
 ## The tiers
 
