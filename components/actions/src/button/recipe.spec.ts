@@ -67,8 +67,13 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "shape")).toStrictEqual(["square"]);
   });
 
-  it("offers the glow and the ripple as effects", () => {
-    expect(valuesOf(recipe, "effect")).toStrictEqual(["glow", "ripple"]);
+  it("offers the glow as an effect", () => {
+    expect(valuesOf(recipe, "effect")).toStrictEqual(["glow"]);
+  });
+
+  it("ripples under every press and holds its box still", () => {
+    expect(recipe.base).toMatchObject({ layerStyle: "ripple" });
+    expect(recipe.base).not.toHaveProperty("_active");
   });
 
   it("offers a raised and a floating elevation", () => {

@@ -19,11 +19,11 @@ The package peers on `react` and `@stealthscale/theme`. An application lists the
 ## Button
 
 Draws the element a person presses, in a look, a size and a status, raised off the page and glowing
-or rippling where a page sets that effect. Under a press the look fills to its pressed colour, the
-box scales to 98 percent, and an elevated button drops towards the page. A button that opens with a
-mark leads with one step less inset, so the room before the mark is the width of the gap after it
-rather than a word's worth. The element is `button`, and `type` defaults to `button` so one inside a
-form does not send it.
+where a page sets that effect. Under a press the look fills to its pressed colour, a ripple spreads
+from the middle of the box and fades on the release, and an elevated button drops towards the page.
+The box holds still. A button that opens with a mark leads with one step less inset, so the room
+before the mark is the width of the gap after it rather than a word's worth. The element is
+`button`, and `type` defaults to `button` so one inside a form does not send it.
 
 ```tsx
 import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
@@ -51,7 +51,7 @@ it has checked.
 | `size`      | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl`                  | `md`    |
 | `status`    | `info`, `success`, `warning`, `error`                              | primary |
 | `shape`     | `square`                                                           | none    |
-| `effect`    | `glow`, `ripple`                                                   | none    |
+| `effect`    | `glow`                                                             | none    |
 | `elevation` | `raised`, `floating`                                               | flat    |
 
 ## IconButton

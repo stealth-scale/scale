@@ -89,7 +89,7 @@ function Elevation(): ReactElement {
 }
 
 /**
- * Draws both effects in every look.
+ * Draws the glow in every look.
  */
 function Effects(): ReactElement {
   const { t } = useWords("button");
@@ -186,7 +186,7 @@ export const elevation: Scene = {
 };
 
 /**
- * Both effects in every look.
+ * The glow in every look.
  */
 export const effects: Scene = {
   about: "button.effects.about",

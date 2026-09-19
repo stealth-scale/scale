@@ -99,3 +99,10 @@ theme: publish inked, drawn, hues, scaleOf, stepOf, mixed and stated from the au
   on.
 - `scaleOf()` draws a ramp in the hue and at the chroma of a color, `stepOf()` writes one step of a
   ramp, `mixed()` mixes two colors in OKLab, and `stated()` writes a color outright in both modes.
+
+theme: hold a control still under a press
+
+- `interactive()` no longer scales the box to 98 percent under `_active`, and drops the rules that
+  undid the scale for a disabled control and for a reader who asked for less motion. A press is read
+  from the pressed fill, a ripple and an elevation dropping, and every control that shares the
+  fragment holds its box still.

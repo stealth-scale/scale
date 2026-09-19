@@ -12,13 +12,13 @@ import type { SystemStyleObject } from "#generated/types/system.d.mts";
  * @remarks
  *   The ring is the compiler's `focusVisibleRing` utility drawn outside the box, so a focused
  *   control does not change size, and its color is the palette's `focusRing` role, so a theme
- *   moves it with the palette.
+ *   moves it with the palette. The box holds still under a press: a press is read from the look's
+ *   pressed fill, from a ripple where the recipe draws one, and from an elevation dropping, and a
+ *   box that shrinks under the pointer reads as flinching rather than as answering.
  */
 export function interactive(): SystemStyleObject {
   return {
-    _active: { scale: "0.98" },
-    _disabled: { _active: { scale: "1" }, layerStyle: "disabled" },
-    _motionReduce: { _active: { scale: "1" } },
+    _disabled: { layerStyle: "disabled" },
     cursor: "button",
     focusRingColor: "colorPalette.focusRing",
     focusVisibleRing: "outside",

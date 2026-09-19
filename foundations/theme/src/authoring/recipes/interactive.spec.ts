@@ -27,6 +27,11 @@ describe("interactive", () => {
     expect(interactive()).toMatchObject({ _disabled: { layerStyle: "disabled" } });
   });
 
+  it("holds the box still under a press", () => {
+    expect(interactive()).not.toHaveProperty("_active");
+    expect(JSON.stringify(interactive())).not.toContain("scale");
+  });
+
   it("draws a link in the link ink with an underline on hover", () => {
     expect(link()).toMatchObject({
       _hover: { textDecoration: "underline", textUnderlineOffset: "normal" },
