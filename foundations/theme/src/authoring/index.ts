@@ -150,6 +150,9 @@ export {
   type Theme,
   type ThemeConfig,
 } from "#authoring/theme.ts";
+// The style object a recipe's values are written in, published here so a recipe that builds a
+// value by hand names the type without importing the runtime entry and the provider behind it.
+export type { SystemStyleObject } from "#generated/types/system.d.mts";
 export {
   type AnimationStyles,
   type LayerStyles,

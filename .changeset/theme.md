@@ -74,3 +74,9 @@ theme: publish filledColumns
 - `filledColumns()` writes the `columns` axis keyed `fill-<measure>`, beside `fittedColumns()`. The
   template is `repeat(auto-fill, …)`, so a row with fewer entries than columns keeps the empty
   columns and an entry alone on a row keeps its measure.
+
+theme: publish SystemStyleObject from the authoring entry
+
+- A recipe that builds a value by hand names the type from `@stealthscale/theme/authoring`, without
+  importing the runtime entry. A preset loaded by the compiler runs without a browser, and the
+  runtime entry pulls the provider and React behind it.
