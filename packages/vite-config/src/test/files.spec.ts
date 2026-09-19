@@ -28,4 +28,9 @@ describe("files", () => {
     expect(block().exclude).toContain("**/node_modules/**");
     expect(block().exclude).toContain("**/.git/**");
   });
+
+  it("walks past the agent worktrees below the root and nowhere else", () => {
+    expect(block().exclude).toContain(".claude/**");
+    expect(block().exclude).not.toContain("**/.claude/**");
+  });
 });
