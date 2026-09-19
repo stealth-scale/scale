@@ -10,17 +10,4 @@
 /**
  * The names, the first being the theme a page wears until somebody switches.
  */
-export const THEMES: readonly string[] = [
-  "graphite",
-  "graphite-dimmed",
-  "graphite-contrast",
-  "steel",
-  "steel-gray",
-  "compass",
-  "compass-contrast",
-  "quartz",
-  "asphalt",
-  "pebble",
-  "lantern",
-  "prism",
-];
+export const THEMES: readonly string[] = ["asphalt", "prism"];
