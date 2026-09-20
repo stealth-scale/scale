@@ -193,7 +193,7 @@ function Gapped(): ReactElement {
   const { t } = useWords("status-matrix");
 
   return (
-    <Board columns="fill-md">
+    <Board>
       <Sample of={t("gap.every")}>
         <Health />
       </Sample>
@@ -233,7 +233,7 @@ function Plain(): ReactElement {
   const { t } = useWords("status-matrix");
 
   return (
-    <Board columns="fill-md">
+    <Board>
       <Sample of={t("plain.through")}>
         <Health flat />
       </Sample>

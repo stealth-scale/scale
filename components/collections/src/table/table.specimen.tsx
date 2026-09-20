@@ -369,7 +369,7 @@ function Gathered(): ReactElement {
   const rows = useAccounts();
 
   return (
-    <Board>
+    <Board place="start">
       <Sample of={t("gathered.of")}>
         <Table.Simple<Account>
           caption={t("caption")}
