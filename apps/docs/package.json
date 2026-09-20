@@ -19,6 +19,7 @@
     "@stealthscale/component-a11y": "workspace:^",
     "@stealthscale/component-actions": "workspace:^",
     "@stealthscale/component-collections": "workspace:^",
+    "@stealthscale/component-content": "workspace:^",
     "@stealthscale/component-data": "workspace:^",
     "@stealthscale/component-disclosure": "workspace:^",
     "@stealthscale/component-feedback": "workspace:^",

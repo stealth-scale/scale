@@ -9,7 +9,9 @@
 
 import { definePreset } from "@stealthscale/theme/authoring";
 
+import { recipe as codeBlock } from "#code-block/recipe.ts";
+
 export default definePreset({
   name: "@stealthscale/component-content",
-  theme: { extend: { recipes: {} } },
+  theme: { extend: { slotRecipes: { codeBlock } } },
 });

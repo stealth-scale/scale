@@ -1,0 +1,26 @@
+{
+  "about": "A passage of code in a dark panel, each kind of token in its own ink, headed by what the code is and whatever control a page puts beside it.",
+  "copied": "Copied the code",
+  "copy": "Copy the code",
+  "file": {
+    "about": "A component file under its name, with the clipboard's trigger in the header's control drawn as the library's icon button. The panel is dark whatever the page is, so the same block reads the same on every page.",
+    "title": "A file"
+  },
+  "languages": {
+    "about": "The highlighter knows the language from its name and colours the passage on its first paint. A language it does not know is set as plain text.",
+    "title": "Languages"
+  },
+  "modes": {
+    "about": "The panel is dark by default whatever the page is in, so a block reads the same on every page. `mode=\"light\"` draws it light on any page, and `mode=\"inherit\"` leaves it in the page's own mode. Toggle the page to see the third one follow.",
+    "title": "Modes"
+  },
+  "plain": {
+    "about": "A passage with no language named is set as it was written, in the code role, with no token coloured.",
+    "title": "Plain text"
+  },
+  "sizes": {
+    "about": "The two sizes the code role is set at. The header reads a step down from the code.",
+    "title": "Sizes"
+  },
+  "title": "Code block"
+}
