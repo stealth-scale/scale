@@ -90,9 +90,9 @@ catalog:
   stylelint-order: ^8.1.1
   stylelint-use-nesting: ^6.0.2
   typescript: ^7.0.2
-  vite: npm:@voidzero-dev/vite-plus-core@0.3.1
+  vite: npm:@voidzero-dev/vite-plus-core@0.3.3
   vite-plugin-stylelint: ^6.3.0
-  vite-plus: 0.3.1
+  vite-plus: 0.3.3
   vitest: 4.1.11
   yaml: ^2.9.1
 
@@ -117,7 +117,7 @@ overrides:
   # component uncompiled. The Babel bridge accepts either major, so the peer is held at 7.
   "@rolldown/plugin-babel>@babel/core": ^7.29.0
 
-# `vite` here is Vite+ under an alias, so its version reads as 0.3.1 and every package asking for
+# `vite` here is Vite+ under an alias, so its version reads as the toolchain's and every package asking for
 # a real Vite range reports an unmet peer. The range they ask for is satisfied; the number they
 # read is not the one they are checking against.
 peerDependencyRules:
@@ -130,7 +130,17 @@ peerDependencyRules:
 # is listed below, which is the answer to a package taken over between one release and the next.
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
-  - yaml@2.9.1
+  - vite-plus@0.3.3
+  - "@voidzero-dev/vite-plus-core@0.3.3"
+  - "@voidzero-dev/vite-plus-darwin-arm64@0.3.3"
+  - "@voidzero-dev/vite-plus-darwin-x64@0.3.3"
+  - "@voidzero-dev/vite-plus-linux-arm64-gnu@0.3.3"
+  - "@voidzero-dev/vite-plus-linux-arm64-musl@0.3.3"
+  - "@voidzero-dev/vite-plus-linux-x64-gnu@0.3.3"
+  - "@voidzero-dev/vite-plus-linux-x64-musl@0.3.3"
+  - "@voidzero-dev/vite-plus-win32-arm64-msvc@0.3.3"
+  - "@voidzero-dev/vite-plus-win32-x64-msvc@0.3.3"
+
 # lefthook's postinstall installs the hooks, which the `prepare` script already does by name. A
 # dependency that runs no script at install time is one fewer thing to audit, and `prepare` fails
 # visibly where a postinstall swallows its own error.
