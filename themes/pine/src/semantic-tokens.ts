@@ -13,6 +13,7 @@
  */
 
 import {
+  coded,
   hues,
   type Inked,
   inked,
@@ -54,6 +55,7 @@ const CORNER = "0.5rem";
 export const semanticTokens: ThemeTokens = {
   colors: {
     ...inked(MODES),
+    ...coded(MODES, { keyword: GREEN, string: SAGE, type: TEAL }),
     ...palettes({ accent: "green", primary: "teal", secondary: "cyan" }),
     ...hues(MODES, { cyan: TEAL, green: SAGE, teal: GREEN }),
   },

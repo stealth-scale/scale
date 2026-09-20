@@ -96,9 +96,31 @@ export const FOREGROUNDS = ["DEFAULT", "muted", "subtle", "inverted", "disabled"
 export const BORDERS = ["DEFAULT", "muted", "subtle", "emphasized", "inverted", "focus"] as const;
 
 /**
+ * Lists the kinds of token a passage of code is inked by, which are the members of the code
+ * family.
+ */
+export const CODE = [
+  "keyword",
+  "string",
+  "number",
+  "function",
+  "type",
+  "tag",
+  "attr",
+  "comment",
+  "inserted",
+  "deleted",
+] as const;
+
+/**
  * Selects one of the twelve roles.
  */
 export type Role = (typeof ROLES)[number];
+
+/**
+ * Selects one of the kinds of token a passage of code is inked by.
+ */
+export type Code = (typeof CODE)[number];
 
 /**
  * Selects one of the two color modes.
@@ -193,11 +215,26 @@ export type ThemeColors = {
   border: Family<(typeof BORDERS)[number]>;
 
   /**
+   * The inks a passage of code is set in, one per kind of token.
+   */
+  code: Record<Code, Filled>;
+
+  /**
    * The inks a page is written in.
    */
   fg: Family<(typeof FOREGROUNDS)[number]>;
 } & Record<Hue, HuePalette> &
   Record<Palette, SemanticPalette>;
+
+/**
+ * Describes the three families a page is built from: its surfaces, its lines and its inks.
+ */
+export type Families = Pick<ThemeColors, "bg" | "border" | "fg">;
+
+/**
+ * Describes the three families beside the code family, which one call draws from a page.
+ */
+export type Coded = Pick<ThemeColors, "bg" | "border" | "code" | "fg">;
 
 /**
  * Describes the semantic tokens a root theme states: every color the contract names, and whatever

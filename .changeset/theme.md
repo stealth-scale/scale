@@ -122,3 +122,20 @@ theme: set the headings, the surfaces and the highlight the way a page is read
 - `inked()` fades a muted ink two fifths of the way to the page and a subtle one nearly two thirds,
   and keeps every line closer to the page than before, so a theme drawn from a palette reads its
   secondary lines and hairlines the way the foundation does.
+
+theme: add the code family and draw it with coded()
+
+- `ThemeColors` gains `code`, ten inks a passage of code is set in: `keyword`, `string`, `number`,
+  `function`, `type`, `tag`, `attr`, `comment`, `inserted` and `deleted`. `CODE` lists them and
+  every theme states them.
+- `coded(modes, colors)` draws the family from one color per kind, or from the foundation's hues
+  where a theme names none, each pushed 0.58 in OKLab lightness from the page, and the comment from
+  the muted ink. Every default ink measures at least seven to one against the foundation's pages in
+  both modes.
+
+theme: state a shadow's mode in its ink as light-dark()
+
+- `shadows()` writes each shadow once, with `light-dark()` in the color position, so a shadow is
+  cast in the mode of the element it falls under the way every color is compiled.
+- `referenced()` is exported from the color scale, and the ink scale reads it rather than keeping a
+  copy.

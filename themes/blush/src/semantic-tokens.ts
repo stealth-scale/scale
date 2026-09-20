@@ -12,6 +12,7 @@
  */
 
 import {
+  coded,
   drawn,
   hues,
   type Inked,
@@ -59,6 +60,7 @@ const { _dark: dusk } = pink.muted.value;
 export const semanticTokens: ThemeTokens = {
   colors: {
     ...inked(MODES),
+    ...coded(MODES, { keyword: PINK, tag: PETAL }),
     ...palettes({ accent: "pink", primary: "pink", secondary: "gray" }),
     ...hues(MODES),
     pink: { ...pink, muted: stated(PETAL, dusk) },

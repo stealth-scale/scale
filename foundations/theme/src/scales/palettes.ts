@@ -1,6 +1,6 @@
 /**
- * Fills the color contract in two calls: the three families from the page, and every palette from
- * the ramps.
+ * Fills the color contract in two calls: the families from the page, and every palette from the
+ * ramps.
  *
  * @remarks
  *   A root theme states every hue palette and every semantic palette. Each hue palette reads its
@@ -10,13 +10,13 @@
  */
 
 import {
+  type Coded,
   type Hue,
   type HuePalette,
   HUES,
   type Palette,
   PALETTES,
   type SemanticPalette,
-  type ThemeColors,
 } from "#authoring/contract.ts";
 import { recordOf } from "#record.ts";
 import {
@@ -24,10 +24,14 @@ import {
   borders,
   foregrounds,
   neutralFills,
+  oklch,
   type PageLightness,
   paletteAlias,
   paletteRoles,
+  stepOf,
 } from "#scales/color.ts";
+import { coded } from "#scales/drawn.ts";
+import { type Inked } from "#scales/inked.ts";
 
 /**
  * Points each semantic palette at the hue the foundation fills it with.
@@ -48,10 +52,9 @@ const ALIASES: Readonly<Record<Palette, Hue>> = {
 };
 
 /**
- * Describes the three families: the surfaces a page is built from, the inks it is written in and
- * the lines between things.
+ * The steps of the grey ramp the page is written in, in each mode.
  */
-export type Families = Pick<ThemeColors, "bg" | "border" | "fg">;
+const INK_STEPS = { dark: 50, light: 950 };
 
 /**
  * Describes every palette: the eleven hue palettes, then the eight semantic ones.
@@ -64,15 +67,25 @@ export type Palettes = Record<Hue, HuePalette> & Record<Palette, SemanticPalette
 export type PaletteAliases = Readonly<Partial<Record<Palette, Hue>>>;
 
 /**
- * Draws the three families: the surfaces a fixed distance from the page, and the inks and lines
- * from the grey ramp.
+ * Draws the three families and the code family: the surfaces a fixed distance from the page, the
+ * inks and lines from the grey ramp, and the code inks from the foundation's hues over the page.
  *
  * @param pages - Where the page sits in each mode.
  * @param hue - The hue every surface is tinted with.
  * @param chroma - How far that tint goes.
  */
-export function families(pages: PageLightness, hue: number, chroma: number): Families {
-  return { bg: backgrounds(pages, hue, chroma), border: borders(), fg: foregrounds() };
+export function families(pages: PageLightness, hue: number, chroma: number): Coded {
+  const modes: Inked = {
+    dark: { ink: stepOf(hue, chroma, INK_STEPS.dark), page: oklch(pages.dark, chroma, hue) },
+    light: { ink: stepOf(hue, chroma, INK_STEPS.light), page: oklch(pages.light, chroma, hue) },
+  };
+
+  return {
+    bg: backgrounds(pages, hue, chroma),
+    border: borders(),
+    ...coded(modes),
+    fg: foregrounds(),
+  };
 }
 
 /**

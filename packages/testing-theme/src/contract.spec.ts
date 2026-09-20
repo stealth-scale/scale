@@ -67,6 +67,16 @@ describe("contract", () => {
     expect(roles(theme)[0]).toBe("audited fg.muted is not stated");
   });
 
+  it("reports a kind the code family leaves out", () => {
+    const theme = {
+      ...paletteTheme(),
+      variant: { semanticTokens: { colors: { code: { keyword: { value: "x" } } } } },
+    };
+
+    expect(roles(theme)).toHaveLength(9);
+    expect(roles(theme)[0]).toBe("audited code.string is not stated");
+  });
+
   it("reports a color stated in one mode and not the other", () => {
     expect(modes(paletteTheme({ solid: { value: { base: "x" } } }))).toStrictEqual([
       "audited primary.solid is not stated in _dark",

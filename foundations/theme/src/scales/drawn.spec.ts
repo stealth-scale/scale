@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { HUES, ROLES } from "#authoring/contract.ts";
+import { CODE, HUES, ROLES } from "#authoring/contract.ts";
 import { contrast, oklab } from "#authoring/contrast.ts";
-import { drawn, hues } from "#scales/drawn.ts";
+import { coded, drawn, hues } from "#scales/drawn.ts";
 import { type Inked, mixed } from "#scales/inked.ts";
 import { modedAt } from "#tokens.fixtures.ts";
 
@@ -132,5 +132,78 @@ describe("drawn", () => {
       base: "oklch(58.0% 0.1500 60.0)",
     });
     expect(every.yellow.solid.DEFAULT.value).toMatchObject({ base: "oklch(58.0% 0.1500 95.0)" });
+  });
+});
+
+describe("coded", () => {
+  it("inks every kind of token in both modes", () => {
+    const { code } = coded(MODES);
+
+    for (const kind of CODE) {
+      expect(modedAt(code, kind, "base")).not.toBe("undefined");
+      expect(modedAt(code, kind, "_dark")).not.toBe("undefined");
+    }
+  });
+
+  it("draws a kind from the color a theme names for it", () => {
+    const { code } = coded(MODES, { keyword: RED });
+    const kept = coded(MODES).code;
+
+    expect(modedAt(code, "keyword", "_dark")).not.toBe(modedAt(kept, "keyword", "_dark"));
+    expect(modedAt(code, "string", "_dark")).toBe(modedAt(kept, "string", "_dark"));
+  });
+
+  it("draws a kind from one color per mode where a theme names two", () => {
+    const { code } = coded(MODES, { string: { dark: YELLOW, light: RED } });
+
+    expect(oklab(modedAt(code, "string", "_dark"))?.b).toBeGreaterThan(0);
+    expect(oklab(modedAt(code, "string", "base"))?.a).toBeGreaterThan(0);
+  });
+
+  it("inks a comment from the muted ink where a theme names no color", () => {
+    expect(coded(MODES).code.comment).toStrictEqual({ value: "{colors.fg.muted}" });
+  });
+
+  it("draws a comment from the color a theme names for it", () => {
+    const { code } = coded(MODES, { comment: RED });
+
+    expect(modedAt(code, "comment", "base")).not.toBe("{colors.fg.muted}");
+    expect(oklab(modedAt(code, "comment", "_dark"))?.a).toBeGreaterThan(0);
+  });
+
+  it("holds every default ink at seven to one against the foundation's pages", () => {
+    const light = { ink: "oklch(18% 0.0076 262)", page: "oklch(97% 0.006 262)" };
+    const dark = { ink: "oklch(97% 0.0075 262)", page: "oklch(13% 0.006 262)" };
+    const { code } = coded({ dark, light });
+
+    for (const kind of CODE.filter((each) => each !== "comment")) {
+      expect(contrast(modedAt(code, kind, "base"), light.page)).toBeGreaterThanOrEqual(7);
+      expect(contrast(modedAt(code, kind, "_dark"), dark.page)).toBeGreaterThanOrEqual(7);
+    }
+  });
+
+  it("keeps the kinds apart from the ink and from each other on a page of middle lightness", () => {
+    const navy: Inked = {
+      dark: { ink: "#FFD460", page: "#2D4059" },
+      light: { ink: "#2D4059", page: "#FFF8EC" },
+    };
+    const { code } = coded(navy);
+    const inks = new Set(CODE.map((kind) => modedAt(code, kind, "_dark")));
+
+    expect(inks.has("#FFD460")).toBe(false);
+    expect(inks.size).toBeGreaterThanOrEqual(6);
+    expect(lightnessOf(modedAt(code, "keyword", "_dark"))).toBeLessThan(0.9);
+  });
+
+  it("keeps the hue of each kind", () => {
+    const { code } = coded(MODES);
+    const hueOf = (kind: string): number => {
+      const lab = oklab(modedAt(code, kind, "_dark"));
+
+      return lab === undefined ? Number.NaN : (Math.atan2(lab.b, lab.a) * 180) / Math.PI;
+    };
+
+    expect(hueOf("keyword")).not.toBeCloseTo(hueOf("string"), 0);
+    expect(hueOf("type")).toBeCloseTo(hueOf("tag"), 0);
   });
 });

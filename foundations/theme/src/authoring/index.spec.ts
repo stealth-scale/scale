@@ -17,6 +17,8 @@ const SURFACE = [
   "borders",
   "center",
   "cluster",
+  "CODE",
+  "coded",
   "COLOR_MODE_ATTRIBUTE",
   "colorScale",
   "columnCounts",

@@ -27,7 +27,7 @@ export {
   type SurfaceSteps,
 } from "#scales/color.ts";
 export { radii, shadows } from "#scales/depth.ts";
-export { drawn, hues, type Solid } from "#scales/drawn.ts";
+export { coded, drawn, hues, type Solid } from "#scales/drawn.ts";
 export {
   controls,
   type Corner,
@@ -44,11 +44,5 @@ export {
 } from "#scales/geometry.ts";
 export { type Inked, inked, mixed, scaleOf, stated, type Written } from "#scales/inked.ts";
 export { slides } from "#scales/motion.ts";
-export {
-  families,
-  type Families,
-  type PaletteAliases,
-  palettes,
-  type Palettes,
-} from "#scales/palettes.ts";
+export { families, type PaletteAliases, palettes, type Palettes } from "#scales/palettes.ts";
 export { fontSizes, ROLE_SIZES, type TextRole, typography } from "#scales/type.ts";

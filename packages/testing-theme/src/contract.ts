@@ -10,6 +10,7 @@ import { existsSync } from "node:fs";
 import {
   BACKGROUNDS,
   BORDERS,
+  CODE,
   compoundSelection,
   FOREGROUNDS,
   MODES,
@@ -25,11 +26,12 @@ import { colorsOf, extendedRecipes, palettesOf, resolved, type Resolving } from 
 import { leaves, nodeAt, stated } from "#tokens.ts";
 
 /**
- * Lists the three families against the members each states.
+ * Lists the four families against the members each states.
  */
 const FAMILIES: ReadonlyArray<readonly [family: string, members: readonly string[]]> = [
   ["bg", [...BACKGROUNDS, ...STATUSES]],
   ["border", [...BORDERS, ...STATUSES]],
+  ["code", CODE],
   ["fg", [...FOREGROUNDS, ...STATUSES]],
 ];
 

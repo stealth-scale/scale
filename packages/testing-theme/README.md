@@ -67,7 +67,7 @@ expect(recipeClasses(container, "button")).toContain(variantClass("button", "var
 | Check                 | Reports                                                                                                                                                                   |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `name.attribute`      | A name outside `[a-z][a-z0-9-]*`, which a page cannot write as the theme attribute                                                                                        |
-| `contract.roles`      | A palette that leaves one of the twelve roles out, and a family that leaves one of its members out                                                                        |
+| `contract.roles`      | A palette that leaves one of the twelve roles out, and a family, the code family included, that leaves one of its members out                                             |
 | `contract.modes`      | A color stated in one mode and not the other                                                                                                                              |
 | `contract.references` | A reference that points at a token nothing defines, or at itself                                                                                                          |
 | `contract.extensions` | An extension naming a recipe key the workspace does not publish, or naming `className` or `slots`                                                                         |

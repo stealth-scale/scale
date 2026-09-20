@@ -31,3 +31,8 @@ testing-theme: add the distinctness, status and ramp checks and the report
 - `colorAt`, `rampsOf`, `outsideGamut`, `gamut`, `statusPairs`, `distance`, `distanceFor`,
   `simulated`, `written` and `DEFICIENCIES` are readers a theme specification can build its own
   cases on.
+
+testing-theme: check the code family
+
+- `contract.roles` reports a `code` family that leaves one of its ten kinds out, beside the three
+  families it checked before.

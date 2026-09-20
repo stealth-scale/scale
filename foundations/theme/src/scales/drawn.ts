@@ -1,7 +1,8 @@
 /**
  * Draws a hue palette from one color and the page and the ink of each mode: the solid is the
  * color, every quiet fill is the page tinted towards it, and the ink, the line and the ring are
- * the color pushed towards the mode's ink until each stands far enough from the page.
+ * the color pushed towards the mode's ink until each stands far enough from the page. Draws the
+ * code family the same way, one ink per kind of token.
  *
  * @remarks
  *   The foundation places each role on a step of a ramp, which assumes a page near white and a
@@ -11,11 +12,20 @@
  *   distance from the page reads on it whatever the solid is.
  */
 
-import { type Hue, type HuePalette, HUES, type Moded, type Role } from "#authoring/contract.ts";
+import {
+  CODE,
+  type Code,
+  type Filled,
+  type Hue,
+  type HuePalette,
+  HUES,
+  type Moded,
+  type Role,
+} from "#authoring/contract.ts";
 import { contrast } from "#authoring/contrast.ts";
 import { RAMPS } from "#preset/tokens/colors.ts";
 import { recordOf } from "#record.ts";
-import { stepOf } from "#scales/color.ts";
+import { referenced, stepOf } from "#scales/color.ts";
 import { type Inked, mixed, read, type Side, stated, type Written } from "#scales/inked.ts";
 
 /**
@@ -65,6 +75,28 @@ const INK_APART = 0.42;
 const LINE_APART = 0.25;
 
 /**
+ * Fixes how far from the page the ink of a kind of code token has to stand.
+ *
+ * @remarks
+ *   Further than a palette's ink. A passage of code is read one token at a time in a monospaced
+ *   face, and a keyword drawn at the distance a button's label is drawn at reads as dim beside the
+ *   plain text around it. The distance holds every default ink at seven to one against the
+ *   foundation's pages, which the scale's own specification measures.
+ */
+const CODE_APART = 0.58;
+
+/**
+ * Fixes the share of the way from the page to the ink a code ink may be pushed at most.
+ *
+ * @remarks
+ *   A page drawn at a middle lightness, which a theme built from a navy or a slate has, leaves
+ *   less room between the page and the ink than the distance asks for, and a color pushed the
+ *   whole distance lands on the ink and loses its hue with every other kind. Held to a share of
+ *   the room, the inks stay apart from the ink and from each other on such a page.
+ */
+const CODE_SHARE = 0.75;
+
+/**
  * Fixes how far the muted ink fades from the ink towards the page.
  */
 const MUTED = 0.25;
@@ -94,6 +126,26 @@ const STEPS: Record<Side, number> = { dark: 400, light: 600 };
  *   hue at that lightness as earth rather than as the hue. A step lighter it reads as amber.
  */
 const WARM: ReadonlySet<Hue> = new Set<Hue>(["orange", "yellow"]);
+
+/**
+ * Fixes the hue each kind of code token is inked from where a theme names no color for it.
+ *
+ * @remarks
+ *   Six hues tell the kinds apart at a glance: a keyword purple, a string orange, a number green,
+ *   a function yellow, a type and a tag teal, an attribute cyan. A change is the red or the green
+ *   of the diff it is, and a comment is the muted ink, so it reads as an aside.
+ */
+const KINDS: Readonly<Record<Exclude<Code, "comment">, Hue>> = {
+  attr: "cyan",
+  deleted: "red",
+  function: "yellow",
+  inserted: "green",
+  keyword: "purple",
+  number: "green",
+  string: "orange",
+  tag: "teal",
+  type: "teal",
+};
 
 /**
  * Picks the ink or the page of one side, whichever reads better on a color.
@@ -218,4 +270,56 @@ export function hues(
   solids: Readonly<Partial<Record<Hue, Solid>>> = {},
 ): Record<Hue, HuePalette> {
   return recordOf(HUES, (hue) => drawn(solids[hue] ?? foundationOf(hue, modes), modes));
+}
+
+/**
+ * Finds how far from the page a code ink stands on one side: the fixed distance, or the share of
+ * the room between the page and the ink where the room is smaller.
+ */
+function codeApart(side: Written): number {
+  return Math.min(CODE_APART, CODE_SHARE * Math.abs(read(side.ink).l - read(side.page).l));
+}
+
+/**
+ * Draws the ink of one kind of code token from its color: the color pushed towards each mode's
+ * ink until it stands far enough from that mode's page.
+ */
+function inkOf(solid: Solid, modes: Inked): Moded {
+  const colors = typeof solid === "string" ? { dark: solid, light: solid } : solid;
+
+  return stated(
+    apart(colors.light, modes.light, codeApart(modes.light)),
+    apart(colors.dark, modes.dark, codeApart(modes.dark)),
+  );
+}
+
+/**
+ * Draws the code family: the ink of every kind of token a passage of code is set in, each from
+ * the color the theme names for it, or from the foundation's hue where it names none, and the
+ * comment from the muted ink.
+ *
+ * @remarks
+ *   A theme names a color per kind the way it names a hue's solid, in one color or one per mode,
+ *   and the ink is drawn from it at the distance a code ink stands from the page. A theme built
+ *   from four colors names the kinds it has colors for and takes the foundation's hues for the
+ *   rest, so a passage is told apart by kind on every theme and drawn in the theme's colors where
+ *   it has them.
+ * @param modes - The page and the ink of each mode.
+ * @param colors - The color each stated kind is drawn from.
+ * @returns The family, under `code`, to spread into a theme's colors.
+ */
+export function coded(
+  modes: Inked,
+  colors: Readonly<Partial<Record<Code, Solid>>> = {},
+): Record<"code", Record<Code, Filled>> {
+  return {
+    code: recordOf(CODE, (kind) => {
+      const named = colors[kind];
+
+      if (named !== undefined) return inkOf(named, modes);
+      if (kind === "comment") return referenced("fg.muted");
+
+      return inkOf(foundationOf(KINDS[kind], modes), modes);
+    }),
+  };
 }

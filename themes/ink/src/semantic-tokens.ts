@@ -14,6 +14,7 @@
  */
 
 import {
+  coded,
   drawn,
   hues,
   type Inked,
@@ -99,6 +100,7 @@ const gray = {
 export const semanticTokens: ThemeTokens = {
   colors: {
     ...inked(MODES),
+    ...coded(MODES, { keyword: BLUE }),
     ...palettes({ accent: "blue", primary: "gray", secondary: "blue" }),
     ...hues(MODES, { blue: BLUE }),
     gray,

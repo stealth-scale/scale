@@ -15,9 +15,9 @@ describe("semanticTokens", () => {
     ]);
   });
 
-  it("fills the three families and every palette", () => {
+  it("fills the four families and every palette", () => {
     expect(Object.keys(semanticTokens.colors).toSorted()).toStrictEqual(
-      ["bg", "border", "fg", ...HUES, ...PALETTES].toSorted(),
+      ["bg", "border", "code", "fg", ...HUES, ...PALETTES].toSorted(),
     );
   });
 });
