@@ -9,6 +9,16 @@
 import { type FC } from "react";
 
 /**
+ * Selects how a scene meets the card it is drawn on.
+ */
+export type Frame = "bare" | "bleed" | "inset";
+
+/**
+ * Lists the frames, quietest first.
+ */
+export const FRAMES: readonly Frame[] = ["inset", "bleed", "bare"];
+
+/**
  * Describes one thing on a page: what it is called, what it shows, and what draws it.
  */
 export interface Scene {
@@ -25,6 +35,19 @@ export interface Scene {
    *   render. Called as a function, those hooks would belong to whatever drew it.
    */
   draw: FC;
+
+  /**
+   * How the scene meets the card it is drawn on. Inset when absent.
+   *
+   * @remarks
+   *   `inset` leaves the card's own room round the scene, which is right for a component that
+   *   carries no surface of its own. `bleed` takes that room back, so a component that is already
+   *   a panel reaches the card's edges rather than sitting as a box inside a box. `bare` drops the
+   *   card's surface, for a scene that should stand on the page as it would in an application.
+   *   The source control keeps the card's room in every frame, because a control flush to the
+   *   page's edge reads as part of the scene rather than as part of the catalogue.
+   */
+  frame?: Frame;
 
   /**
    * The name the scene is headed with, which also keys its source in the catalogue.

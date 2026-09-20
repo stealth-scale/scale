@@ -1,5 +1,6 @@
 /**
- * Draws the line above one cell of a matrix.
+ * Draws the line above one drawing of a component: the prop it was set on, and the value it was
+ * set to.
  */
 
 import { type ReactElement } from "react";
@@ -32,6 +33,8 @@ export interface CaptionProps {
  *   moves the caption with them. The value states the same size as the prop, because a nested
  *   text would otherwise take the middle size and the two halves of one line would read at two
  *   sizes.
+ *   The matrix captions every cell it draws with this, and a sample captions the one thing it
+ *   holds, so the two read alike on a page that uses both.
  */
 export function Caption({ children, knob }: CaptionProps): ReactElement {
   return (

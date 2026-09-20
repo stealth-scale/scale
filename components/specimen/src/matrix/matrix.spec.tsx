@@ -2,7 +2,7 @@ import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { accessibilityViolations } from "@stealthscale/testing-react";
-import { recipeClasses, slotClasses, slotVariantClass } from "@stealthscale/testing-theme";
+import { slotClasses, slotVariantClass } from "@stealthscale/testing-theme";
 
 import { Matrix } from "#matrix/matrix.tsx";
 
@@ -65,20 +65,35 @@ describe("Matrix", () => {
     expect(container.textContent).toBe("");
   });
 
-  it("runs the cells across in a row that wraps until a caller asks for a column", () => {
-    expect(recipeClasses(drawn(), "stack")).toContain("stack--row");
-    expect(recipeClasses(drawn(), "stack")).toContain("stack--wrap");
-    expect(slotClasses(drawn(), "matrix", "item")).toContain("matrix__item");
+  it("lays the cells on equal columns of the smallest measure until a caller says otherwise", () => {
+    expect(slotClasses(drawn(), "grid", "root")).toContain(
+      slotVariantClass("grid", "root", "columns", "fill-xs"),
+    );
+    expect(slotClasses(drawn(), "sample", "root")).toContain("sample__root");
   });
 
-  it("runs the cells down when a caller asks for a column", () => {
+  it("runs the cells down one column when a caller asks for a column", () => {
     const { container } = render(
       <Matrix direction="column" of={SIZES}>
         {(size) => <span>{size}</span>}
       </Matrix>,
     );
 
-    expect(recipeClasses(container, "stack")).not.toContain("stack--row");
+    expect(slotClasses(container, "grid", "root")).toContain(
+      slotVariantClass("grid", "root", "columns", "1"),
+    );
+  });
+
+  it("takes the columns a caller asks for over either", () => {
+    const { container } = render(
+      <Matrix columns="2" direction="column" of={SIZES}>
+        {(size) => <span>{size}</span>}
+      </Matrix>,
+    );
+
+    expect(slotClasses(container, "grid", "root")).toContain(
+      slotVariantClass("grid", "root", "columns", "2"),
+    );
   });
 
   it("hands the grid the count of values running across", () => {
@@ -112,7 +127,9 @@ describe("Matrix", () => {
   });
 
   it("carries the top edge's caption in every cell, for the rows once folded", () => {
-    const cells = [...crossed().querySelectorAll("button")].map((held) => held.parentElement);
+    const cells = [...crossed().querySelectorAll("button")].map((held) =>
+      held.closest(".matrix__cell"),
+    );
 
     expect(cells.map((held) => held?.firstElementChild?.textContent)).toStrictEqual([
       "size = sm",

@@ -1,7 +1,10 @@
 /**
  * Draws the parts of a matrix: the container, the grid, its top edge, a row, the caption at a
- * row's side, a cell of the grid, a cell of one axis, and the caption a cell carries while the
- * grid is folded.
+ * row's side, a cell of the grid, and the caption a cell carries while the grid is folded.
+ *
+ * @remarks
+ *   What a cell holds is a sample, which carries its own caption and its own box, so the matrix
+ *   states no part for one.
  */
 
 import { type ComponentProps } from "react";
@@ -42,11 +45,6 @@ export const Side = withContext("div", "side");
  * Draws one cell of the grid.
  */
 export const Cell = withContext("div", "cell");
-
-/**
- * Draws one captioned cell of a single axis.
- */
-export const Item = withContext("div", "item");
 
 /**
  * Draws the caption a cell carries while the grid is folded.

@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { accessibilityViolations } from "@stealthscale/testing-react";
 import { recipeClasses } from "@stealthscale/testing-theme";
 
-import { Caption } from "#matrix/caption.tsx";
+import { Caption } from "#caption.tsx";
 
 describe("Caption", () => {
   it("draws the value it was given", () => {

@@ -72,11 +72,6 @@ export const recipe = defineSlotRecipe({
       },
     },
     head: { display: "none", [UNFOLDED]: { display: "contents" } },
-    item: {
-      "& > * + *": { marginBlockStart: dense("{spacing.gap.xs}") },
-      maxInlineSize: "full",
-      minInlineSize: "0",
-    },
     label: { marginBlockEnd: dense("{spacing.gap.xs}"), [UNFOLDED]: { display: "none" } },
     root: { containerType: "inline-size" },
     row: {
@@ -91,7 +86,7 @@ export const recipe = defineSlotRecipe({
   className: "matrix",
   defaultVariants: { across: "1" },
   jsx: [/^Matrix(\.\w+)?$/u],
-  slots: ["root", "grid", "head", "row", "side", "cell", "item", "label"],
+  slots: ["root", "grid", "head", "row", "side", "cell", "label"],
   variants: {
     /**
      * How many values run across, beside the column the side captions take.

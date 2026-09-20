@@ -9,19 +9,22 @@
  *   both the library's stack. Two axes crossed are the matrix recipe's grid: the second axis
  *   captioned once along the top, the first captioned once down the side, and one cell per pair
  *   between them, so neither caption repeats. Every cell also carries the caption the top edge
- *   holds, which the recipe shows only once the grid has folded. A cell is plain flow rather than
- *   a flex column, so what is drawn in it keeps its own nature: a button or a badge is inline and
- *   takes its own width, and a stack, a card or a field is a block and fills the cell. The count
- *   across is read off the axis and handed to the recipe, which offers one value per count.
+ *   holds, which the recipe shows only once the grid has folded. The count across is read off the
+ *   axis and handed to the recipe, which offers one value per count.
+ *   Each cell is a sample, so how it is drawn and where the drawing sits in it are the sample's
+ *   axes and a matrix states them once for every cell it draws. A board states the same two, so a
+ *   page that crosses an axis and a page laid out by hand read alike. A cell of the crossed grid
+ *   states no value of its own, because the edges of the grid caption it already.
  */
 
 import { type ReactElement, type ReactNode } from "react";
 
-import { Stack } from "@stealthscale/component-layout";
-
+import { Board, type BoardProps } from "#board/board.tsx";
+import { Caption } from "#caption.tsx";
 import { type Axis, captionOf, nameOf } from "#matrix/axis.ts";
-import { Caption } from "#matrix/caption.tsx";
-import { Cell, Grid, Head, Item, Label, Root, type RootProps, Row, Side } from "#matrix/parts.ts";
+import { Cell, Grid, Head, Label, Root, type RootProps, Row, Side } from "#matrix/parts.ts";
+import { type Display, DisplayProvider } from "#sample/display.ts";
+import { Sample } from "#sample/sample.tsx";
 
 /**
  * The counts of values across the recipe offers.
@@ -29,12 +32,17 @@ import { Cell, Grid, Head, Item, Label, Root, type RootProps, Row, Side } from "
 type Across = NonNullable<RootProps["across"]>;
 
 /**
+ * The columns a matrix running down the page draws: one, so each value takes a row of its own.
+ */
+const ONE = "1";
+
+/**
  * Describes what a matrix takes.
  *
  * @typeParam Value - What one cell is drawn for along the first axis.
  * @typeParam Other - What one cell is drawn for along the second, where a second axis crosses.
  */
-export interface MatrixProps<Value, Other = undefined> extends Axis<Value> {
+export interface MatrixProps<Value, Other = undefined> extends Axis<Value>, Display {
   /**
    * A second axis, whose values run across each row while the first runs down the rows.
    */
@@ -46,8 +54,14 @@ export interface MatrixProps<Value, Other = undefined> extends Axis<Value> {
   children: (value: Value, across: Other) => ReactNode;
 
   /**
-   * Which way the cells of one axis run. Across by default, wrapping where the row runs out of
-   * room.
+   * The columns the cells of one axis are laid on, which is the board's own axis. Read only where
+   * no second axis crosses, because a crossed grid draws one column per value across.
+   */
+  columns?: BoardProps["columns"];
+
+  /**
+   * Which way the cells of one axis run. Across by default, on as many columns of the smallest
+   * measure as the room holds. A column is one cell per row, which is `columns` at one.
    */
   direction?: "column" | "row";
 }
@@ -70,10 +84,9 @@ function counted(values: readonly unknown[]): Across {
  */
 function itemed<Value>(axis: Axis<Value>, value: Value, drawn: ReactNode): ReactElement {
   return (
-    <Item key={captionOf(axis, value)}>
-      <Caption knob={axis.knob}>{nameOf(axis, value)}</Caption>
+    <Sample key={captionOf(axis, value)} knob={axis.knob} of={nameOf(axis, value)}>
       {drawn}
-    </Item>
+    </Sample>
   );
 }
 
@@ -113,7 +126,7 @@ function rowed<Value, Other>(
           <Label>
             <Caption knob={across.knob}>{nameOf(across, other)}</Caption>
           </Label>
-          {drawn(value, other)}
+          <Sample>{drawn(value, other)}</Sample>
         </Cell>
       ))}
     </Row>
@@ -123,36 +136,35 @@ function rowed<Value, Other>(
 /**
  * Draws one captioned cell per value of an axis, or one per pair where a second axis crosses it.
  *
- * @param props - The axes and what to draw for each value.
+ * @param props - The axes, how each cell is drawn, and what to draw for each value.
  * @returns The cells, captioned and spaced.
  */
 export function Matrix<Value, Other = undefined>(props: MatrixProps<Value, Other>): ReactElement {
-  const { across, children, direction = "row", ...axis } = props;
+  const { across, children, columns, direction = "row", place, variant, ...axis } = props;
+  const display: Display = { place, variant };
 
   if (across !== undefined) {
     return (
       <Root across={counted(across.of)}>
-        <Grid>
-          {headed(across)}
-          {axis.of.map((value) => rowed(axis, across, value, children))}
-        </Grid>
+        <DisplayProvider value={display}>
+          <Grid>
+            {headed(across)}
+            {axis.of.map((value) => rowed(axis, across, value, children))}
+          </Grid>
+        </DisplayProvider>
       </Root>
     );
   }
 
   // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the second argument stands for the absent axis, which the type states as undefined
   const alone = undefined as Other;
-  const items = axis.of.map((value) => itemed(axis, value, children(value, alone)));
+  const laid = columns ?? (direction === "column" ? ONE : undefined);
 
   return (
     <Root>
-      {direction === "row" ? (
-        <Stack align="flex-start" direction="row" gap="2xl" wrap>
-          {items}
-        </Stack>
-      ) : (
-        <Stack gap="2xl">{items}</Stack>
-      )}
+      <Board {...display} {...(laid === undefined ? {} : { columns: laid })}>
+        {axis.of.map((value) => itemed(axis, value, children(value, alone)))}
+      </Board>
     </Root>
   );
 }

@@ -6,8 +6,8 @@ import { describe, expect, it } from "vitest";
 import { violations } from "@stealthscale/testing-react";
 import { boundViolations, slotElement } from "@stealthscale/testing-theme";
 
-import { Cell, Grid, Head, Label, Root, Row, Side } from "#matrix/parts.ts";
-import { recipe } from "#matrix/recipe.ts";
+import { Body, Head, Root } from "#sample/parts.ts";
+import { recipe } from "#sample/recipe.ts";
 
 /**
  * Puts a part where it belongs: under a root.
@@ -17,12 +17,8 @@ function rooted(children: ReactNode): ReactElement {
 }
 
 const PARTS = [
-  ["grid", Grid],
-  ["head", Head],
-  ["row", Row],
-  ["side", Side],
-  ["cell", Cell],
-  ["label", Label],
+  ["caption", Head],
+  ["body", Body],
 ] as const;
 
 describe("parts", () => {
@@ -32,7 +28,7 @@ describe("parts", () => {
         as: true,
         children: true,
         element: "DIV",
-        subject: (container) => slotElement(container, "matrix", "root"),
+        subject: (container) => slotElement(container, "sample", "root"),
       }),
     ).toStrictEqual([]);
   });
@@ -51,7 +47,7 @@ describe("parts", () => {
           as: true,
           children: true,
           element: "DIV",
-          subject: (container) => slotElement(container, "matrix", slot),
+          subject: (container) => slotElement(container, "sample", slot),
           wrapper: rooted,
         }),
       ).toStrictEqual([]);
