@@ -21,7 +21,7 @@ const PORT = 4100;
 /**
  * The viewport a 4K screen at 125% scaling shows, which is the one the catalogue is read on.
  */
-const VIEWPORT = { height: 1400, scale: 1.25, width: 3072 };
+const VIEWPORT = { height: 1080, scale: 1.0, width: 1920 };
 
 /**
  * The options both commands take.
@@ -35,6 +35,7 @@ export const SHARED = {
   open: { default: "", type: "string" },
   page: { default: "", short: "p", type: "string" },
   port: { default: String(PORT), type: "string" },
+  press: { default: "", type: "string" },
   "reduced-motion": { default: false, type: "boolean" },
   scale: { default: String(VIEWPORT.scale), type: "string" },
   scene: { default: "", short: "s", type: "string" },
@@ -50,10 +51,11 @@ export const SHARED_HELP = [
   "  -s, --scene <title>   a scene's title, part of it, or its number on the page",
   "  -t, --theme <name>    a theme, or several with commas; the page's own where left out",
   "  -m, --mode <mode>     light or dark, or both with commas; the page's own where left out",
-  "  -w, --width <px>      the viewport's width, 3072 by default; commas for several",
+  "  -w, --width <px>      the viewport's width, 1920 by default; commas for several",
   "      --height <px>     the viewport's height, 1400 by default",
   "      --scale <factor>  the device scale factor, 1.25 by default",
   "      --open <css>      press the first element the selector finds before reading anything",
+  "      --press <keys>    type these keys after --open, such as ArrowDown or ArrowDown*12",
   "      --reduced-motion  read the page as someone who asked for less motion",
   "      --forced-colors   read the page in a forced colours mode",
   "  -b, --browser <name>  chromium, firefox or webkit, firefox by default",
@@ -178,6 +180,7 @@ export function resolved(values: Values): Resolved {
  */
 function sharedOf(values: Values): Omit<Target, "mode" | "page" | "theme" | "width"> {
   const open = stringAt(values, "open");
+  const press = stringAt(values, "press");
 
   return {
     browser: named("browser", stringAt(values, "browser"), BROWSERS),
@@ -185,6 +188,7 @@ function sharedOf(values: Values): Omit<Target, "mode" | "page" | "theme" | "wid
     height: counted("height", stringAt(values, "height")),
     open: open === "" ? undefined : open,
     port: counted("port", stringAt(values, "port")),
+    press: press === "" ? undefined : press,
     reducedMotion: flagAt(values, "reduced-motion"),
     scale: counted("scale", stringAt(values, "scale")),
   };

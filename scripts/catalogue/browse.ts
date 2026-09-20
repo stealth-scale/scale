@@ -87,6 +87,12 @@ export interface Target {
   readonly port: number;
 
   /**
+   * Keys to type once the page is open, so a reading shows what the keyboard does. Commas separate
+   * them and a star repeats one, as in `ArrowDown*12`.
+   */
+  readonly press?: string | undefined;
+
+  /**
    * Whether the page is read by someone who asked for less motion.
    */
   readonly reducedMotion: boolean;
@@ -173,6 +179,27 @@ export async function present(page: Page, selector: string, within?: Locator): P
 }
 
 /**
+ * Types the keys a reading asked for, one after another.
+ *
+ * @remarks
+ *   A key may be repeated with a star, `ArrowDown*12`. One press says nothing about what the
+ *   twelfth does, and a reader crosses a long list by keeping the key down. Each press waits, so a
+ *   component that answers on a frame has answered before the next one.
+ * @param page - The open page.
+ * @param keys - The keys, separated by commas.
+ */
+async function typed(page: Page, keys: string): Promise<void> {
+  for (const each of keys.split(",")) {
+    const [key = "", times = "1"] = each.trim().split("*");
+
+    for (let at = 0; at < Number(times); at += 1) {
+      await page.keyboard.press(key);
+      await page.waitForTimeout(60);
+    }
+  }
+}
+
+/**
  * Opens a page in a browser already launched, wearing the theme and the colour mode the target
  * names, in a context of its own.
  *
@@ -218,6 +245,10 @@ export async function opened(browser: Browser, target: Target): Promise<Opened> 
   if (target.open !== undefined) {
     await (await present(page, target.open)).first().click();
     await page.waitForTimeout(400);
+  }
+
+  if (target.press !== undefined) {
+    await typed(page, target.press);
   }
 
   return {

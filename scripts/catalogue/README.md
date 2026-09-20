@@ -27,6 +27,7 @@ once with commas, and the command runs every combination.
 | `--height`         | The viewport's height, 1400 by default                                   |
 | `--scale`          | The device scale factor, 1.25 by default                                 |
 | `--open`           | A selector to press before anything is read, so a panel it opens is open |
+| `--press`          | Keys to type after `--open`, commas between them and `*` to repeat one   |
 | `--reduced-motion` | Read the page as someone who asked for less motion                       |
 | `--forced-colors`  | Read the page in a forced colours mode                                   |
 | `-b, --browser`    | `chromium`, `firefox` or `webkit`, `firefox` by default                  |
@@ -57,6 +58,14 @@ without a scene a selector reaches the whole document, which is how the chrome i
 pnpm shot -p actions/button -e "[data-recipe=button]" --state rest,hover,focus,active -b chromium
 pnpm shot -p disclosure/menu --open "[data-recipe=menu] button" -e "[role=menu]"
 pnpm shot -p layout/stack -s gaps -w 420,1024,3072
+```
+
+`--press` types once `--open` has pressed something. A component is then read part way through a
+keyboard journey rather than at rest. A star repeats a key. One press says nothing about what the
+twelfth does, and a reader crosses a long list by keeping the key down.
+
+```bash
+pnpm shot -p collections/listbox --open "#too-many-rows-to-draw [role=option]" --press "ArrowDown*14"
 ```
 
 ## Reading
