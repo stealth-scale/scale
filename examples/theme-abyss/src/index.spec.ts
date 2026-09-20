@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import actions from "@stealthscale/example-lib-actions/theme";
 import { fathom } from "@stealthscale/example-theme-fathom";
-import { extendedRecipes, publishedRecipes, violations } from "@stealthscale/testing-theme";
+import {
+  colorAt,
+  extendedRecipes,
+  publishedRecipes,
+  violations,
+} from "@stealthscale/testing-theme";
 import foundation from "@stealthscale/theme/theme";
 
 import { abyss } from "#index.ts";
@@ -27,17 +32,25 @@ describe("abyss", () => {
   });
 
   it("carries Fathom's values where it states none of its own", () => {
-    expect(abyss.variant.semanticTokens?.["colors"]).toMatchObject({
-      fg: fathom.variant.semanticTokens?.["colors"]?.["fg"],
-      teal: fathom.variant.semanticTokens?.["colors"]?.["teal"],
+    expect(abyss.variant.semanticTokens?.["shadows"]).toStrictEqual(
+      fathom.variant.semanticTokens?.["shadows"],
+    );
+    expect(colorAt(abyss, "fg", "base", {})).toBe(colorAt(fathom, "fg", "base", {}));
+  });
+
+  it("merges the pages it moves over Fathom's inks before the colors are drawn again", () => {
+    expect(abyss.axes.colors?.light).toStrictEqual({
+      ink: fathom.axes.colors?.light.ink,
+      page: "oklch(93.0% 0.0200 195.0)",
     });
-    expect(abyss.variant.tokens?.["colors"]).toStrictEqual(fathom.variant.tokens?.["colors"]);
+    expect(abyss.axes.colors?.secondary).toBe(fathom.axes.colors?.secondary);
   });
 
   it("states its own values over Fathom's", () => {
-    expect(abyss.variant.semanticTokens?.["colors"]).toMatchObject({
-      primary: { solid: { DEFAULT: { value: "{colors.indigo.solid}" } } },
-    });
+    expect(colorAt(abyss, "primary.solid", "base", {})).not.toBe(
+      colorAt(fathom, "primary.solid", "base", {}),
+    );
+    expect(colorAt(abyss, "bg", "base", {})).toBe("oklch(93.0% 0.0200 195.0)");
     expect(abyss.variant.semanticTokens?.["radii"]).toMatchObject({ l3: { value: "0.5rem" } });
   });
 

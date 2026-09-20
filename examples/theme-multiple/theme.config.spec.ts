@@ -59,16 +59,26 @@ describe("theme.config", () => {
     );
     expect(declared(css, "[data-theme=blush]", "--colors-bg")).toMatch(/^light-dark\(#F5F5F5, /u);
     expect(declared(css, "[data-theme=ink]", "--colors-bg")).toBe(
-      "light-dark(oklch(97.0% 0.0060 262.0), oklch(13.0% 0.0060 262.0))",
+      "light-dark(oklch(97.0% 0.0075 262.0), oklch(15.0% 0.0076 262.0))",
     );
   });
 
-  it("compiles a published theme's solid as the color it pins", () => {
-    expect(declared(css, "[data-theme=cinder]", "--colors-red-solid")).toBe("#D72323");
-    expect(declared(css, "[data-theme=cinder]", "--colors-primary-solid")).toBe(
-      "var(--colors-red-solid)",
+  it("compiles a published theme's primary as the color it states where that color carries its label", () => {
+    expect(declared(css, "[data-theme=neon]", "--colors-primary-solid")).toMatch(
+      /^light-dark\(#8C00FF, /u,
     );
-    expect(declared(css, "[data-theme=neon]", "--colors-purple-solid")).toBe("#8C00FF");
+    expect(declared(css, "[data-theme=neon]", "--colors-purple-solid")).toBe(
+      declared(css, "[data-theme=neon]", "--colors-primary-solid"),
+    );
+  });
+
+  it("compiles a published theme's primary as the brand stated it where it stands from the page", () => {
+    expect(declared(css, "[data-theme=cinder]", "--colors-primary-solid")).toBe(
+      "light-dark(#D72323, oklch(67.7% 0.1957 27.5))",
+    );
+    expect(declared(css, "[data-theme=cinder]", "--colors-red-solid")).toBe(
+      declared(css, "[data-theme=cinder]", "--colors-primary-solid"),
+    );
   });
 
   it("states the preset of the application's own recipes", () => {
@@ -79,13 +89,19 @@ describe("theme.config", () => {
 
   it("compiles the badge the application registers and abyss's extension of it", () => {
     expect(declared(css, ".badge", "border-radius")).toBe("var(--radii-l1)");
-    expect(declared(css, "[data-theme=abyss] .badge", "text-transform")).toBe("uppercase");
+    expect(
+      declared(
+        css,
+        "[data-theme=abyss] .badge:not([data-theme=abyss] [data-theme] *)",
+        "text-transform",
+      ),
+    ).toBe("uppercase");
     expect(declared(css, ".badge", "text-transform")).toBeUndefined();
   });
 
   it("compiles the default theme's page color where no attribute is set", () => {
     expect(declared(css, ":where(:root, :host)", "--colors-bg")).toBe(
-      "light-dark(oklch(96.0% 0.0160 195.0), oklch(11.0% 0.0160 195.0))",
+      "light-dark(oklch(96.0% 0.0160 195.0), oklch(15.0% 0.0160 195.0))",
     );
   });
 
@@ -94,7 +110,7 @@ describe("theme.config", () => {
       /^light-dark\(oklch\(96\.0% 0\.0160 195\.0\), /u,
     );
     expect(declared(css, "[data-theme=folio]", "--colors-bg")).toMatch(
-      /^light-dark\(oklch\(98\.0% 0\.0100 300\.0\), /u,
+      /^light-dark\(oklch\(97\.5% 0\.0100 300\.0\), /u,
     );
     expect(declared(css, "[data-theme=forge]", "--colors-bg")).toMatch(
       /^light-dark\(oklch\(96\.0% 0\.0200 75\.0\), /u,
@@ -109,12 +125,15 @@ describe("theme.config", () => {
     expect(declared(css, "[data-theme=folio]", "--fonts-body")).toContain("Georgia");
   });
 
-  it("compiles the derived theme with its parent's values under its own attribute", () => {
-    expect(declared(css, "[data-theme=abyss]", "--colors-teal-700")).toBe(
-      declared(css, "[data-theme=fathom]", "--colors-teal-700"),
+  it("compiles the derived theme with its parent's ink and its own primary under its own attribute", () => {
+    expect(declared(css, "[data-theme=abyss]", "--colors-fg")).toBe(
+      declared(css, "[data-theme=fathom]", "--colors-fg"),
     );
     expect(declared(css, "[data-theme=abyss]", "--colors-primary-solid")).toBe(
-      "var(--colors-indigo-solid)",
+      "light-dark(oklch(47.0% 0.1372 280.0), oklch(72.0% 0.1316 280.0))",
+    );
+    expect(declared(css, "[data-theme=abyss]", "--colors-primary-solid")).not.toBe(
+      declared(css, "[data-theme=fathom]", "--colors-primary-solid"),
     );
   });
 
@@ -125,9 +144,13 @@ describe("theme.config", () => {
 
   it("compiles the hero compound under the name the recipe gave it and forge's extension of it", () => {
     expect(declared(css, ".button--hero", "letter-spacing")).toBe("var(--letter-spacings-wide)");
-    expect(declared(css, "[data-theme=forge] .button--hero", "box-shadow")).toBe(
-      "var(--shadows-xl)",
-    );
+    expect(
+      declared(
+        css,
+        "[data-theme=forge] .button--hero:not([data-theme=forge] [data-theme] *)",
+        "box-shadow",
+      ),
+    ).toBe("var(--shadows-xl)");
     expect(css).not.toContain("compound__");
   });
 
@@ -144,18 +167,38 @@ describe("theme.config", () => {
   });
 
   it("compiles forge's card extension under its attribute alone on the band it names", () => {
-    expect(declared(css, "[data-theme=forge] .card__header", "text-transform")).toBe("uppercase");
-    expect(declared(css, "[data-theme=forge] .card__root--elevated", "box-shadow")).toBe(
-      "var(--shadows-xl)",
-    );
+    expect(
+      declared(
+        css,
+        "[data-theme=forge] .card__header:not([data-theme=forge] [data-theme] *)",
+        "text-transform",
+      ),
+    ).toBe("uppercase");
+    expect(
+      declared(
+        css,
+        "[data-theme=forge] .card__root--elevated:not([data-theme=forge] [data-theme] *)",
+        "box-shadow",
+      ),
+    ).toBe("var(--shadows-xl)");
     expect(declared(css, ".card__header", "text-transform")).toBeUndefined();
   });
 
   it("compiles each theme's button extension under its attribute alone", () => {
-    expect(declared(css, "[data-theme=forge] .button", "text-transform")).toBe("uppercase");
-    expect(declared(css, "[data-theme=abyss] .button", "letter-spacing")).toBe(
-      "var(--letter-spacings-wide)",
-    );
+    expect(
+      declared(
+        css,
+        "[data-theme=forge] .button:not([data-theme=forge] [data-theme] *)",
+        "text-transform",
+      ),
+    ).toBe("uppercase");
+    expect(
+      declared(
+        css,
+        "[data-theme=abyss] .button:not([data-theme=abyss] [data-theme] *)",
+        "letter-spacing",
+      ),
+    ).toBe("var(--letter-spacings-wide)");
     expect(declared(css, ".button", "text-transform")).toBeUndefined();
   });
 
@@ -172,7 +215,7 @@ describe("theme.config", () => {
 
   it("declares a switched theme's dark value inside the one declaration under its attribute", () => {
     expect(declared(css, "[data-theme=abyss]", "--colors-bg")).toBe(
-      "light-dark(oklch(93.0% 0.0200 195.0), oklch(6.0% 0.0200 195.0))",
+      "light-dark(oklch(93.0% 0.0200 195.0), oklch(13.0% 0.0200 195.0))",
     );
   });
 
