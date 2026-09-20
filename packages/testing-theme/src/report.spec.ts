@@ -9,27 +9,28 @@ describe("report", () => {
   it("measures the room each class of pair has above its ratio", () => {
     const { margins } = report(foundationTheme());
 
-    expect(margins.text.minimum).toBeGreaterThanOrEqual(7);
-    expect(margins.boundary.minimum).toBeGreaterThanOrEqual(3);
+    expect(margins.text.minimum).toBeGreaterThanOrEqual(4.5);
+    expect(margins.boundary.minimum).toBeGreaterThanOrEqual(1.45);
     expect(margins.focus.minimum).toBeGreaterThanOrEqual(3);
     expect(margins.text.median).toBeGreaterThan(margins.text.minimum);
   });
 
-  it("lists the ten tightest pairs of a class lowest first", () => {
+  it("lists the ten tightest pairs of a class lowest first with the ratio each is held to", () => {
     const { tightest } = report(foundationTheme()).margins.text;
     const ratios = tightest.map(({ ratio }) => ratio);
 
     expect(tightest).toHaveLength(10);
     expect(ratios).toStrictEqual(ratios.toSorted((one, other) => one - other));
-    expect(tightest[0]?.minimum).toBe(7);
+    expect(tightest[0]?.minimum).toBe(4.5);
   });
 
   it("reads the thresholds it was handed into the pairs", () => {
-    const numbers = report(paletteTheme(), { base: foundation, thresholds: { text: 4.5 } });
+    const numbers = report(paletteTheme(), { base: foundation, thresholds: { tertiary: 3 } });
 
     expect(numbers.name).toBe("audited");
-    expect(numbers.margins.text.tightest[0]?.minimum).toBe(4.5);
-    expect(numbers.margins.boundary.tightest[0]?.minimum).toBe(3);
+    expect(numbers.margins.text.tightest[0]?.front).toBe("fg.subtle");
+    expect(numbers.margins.text.tightest[0]?.minimum).toBe(3);
+    expect(numbers.margins.boundary.tightest[0]?.minimum).toBe(1.45);
   });
 
   it("measures the lightness between consecutive steps in each mode", () => {
@@ -45,7 +46,7 @@ describe("report", () => {
       [3, 2, 3],
       [3, 2, 3],
     ]);
-    expect(Math.min(...steps.base.surfaces, ...steps.base.inks)).toBeGreaterThan(0.01);
+    expect(Math.min(...steps.base.surfaces, ...steps.base.inks)).toBeGreaterThan(0.02);
   });
 
   it("measures every pair of statuses for every reader in each mode", () => {
@@ -111,8 +112,26 @@ describe("report", () => {
 
     expect(lines[4]).toBe("| boundary | - | - | border.emphasized on bg in base |");
     expect(lines[10]).toBe("| base | -, -, - | -, - | -, -, - |");
-    expect(lines.at(-2)).toBe(
-      "Outside sRGB: primary step 50, primary step 100, primary step 200, primary step 300.",
+  });
+
+  it("names every step a theme wrote outside sRGB", () => {
+    const outside = {
+      ...paletteTheme(),
+      variant: {
+        tokens: {
+          colors: {
+            acid: {
+              "100": { value: "oklch(60.0% 0.4000 140.0)" },
+              "200": { value: "oklch(50.0% 0.4000 140.0)" },
+              "300": { value: "oklch(40.0% 0.4000 140.0)" },
+            },
+          },
+        },
+      },
+    };
+
+    expect(formatReport(report(outside)).split("\n").at(-2)).toBe(
+      "Outside sRGB: acid step 100, acid step 200, acid step 300.",
     );
   });
 

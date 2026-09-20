@@ -64,36 +64,38 @@ expect(recipeClasses(container, "button")).toContain(variantClass("button", "var
 
 ### `violations(theme, options)`
 
-| Check                 | Reports                                                                                                                                                                   |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name.attribute`      | A name outside `[a-z][a-z0-9-]*`, which a page cannot write as the theme attribute                                                                                        |
-| `contract.roles`      | A palette that leaves one of the twelve roles out, and a family, the code family included, that leaves one of its members out                                             |
-| `contract.modes`      | A color stated in one mode and not the other                                                                                                                              |
-| `contract.references` | A reference that points at a token nothing defines, or at itself                                                                                                          |
-| `contract.extensions` | An extension naming a recipe key the workspace does not publish, or naming `className` or `slots`                                                                         |
-| `contract.variants`   | A variant on an axis the recipe does not offer, a value the axis does not offer, or a part the recipe's value does not style, where `recipes` maps each key to its recipe |
-| `contract.compounds`  | A compound for a selection the component's recipe declares no compound for, or styling a part the recipe's compound does not, where `recipes` maps each key to its recipe |
-| `contract.listed`     | A file under `recipes/` or `slot-recipes/` exporting `extension` that the theme does not list, where `at` is given                                                        |
-| `contract.styles`     | A text, layer or animation style that states nothing, and a text style without a `fontSize`                                                                               |
-| `contrast.text`       | A text pair below 7:1: every ink on every surface, and each palette's `contrast` on its solids and its inks on its fills                                                  |
-| `contrast.boundary`   | A boundary pair below 3:1: the emphasized line and the subtle ink on every surface, and each palette's solid and lines on the page                                        |
-| `contrast.focus`      | A palette's `focusRing` below 3:1 on any surface                                                                                                                          |
-| `distinct.surfaces`   | Two consecutive surfaces, from `bg` to `bg.emphasized`, closer than 0.01 in OKLab lightness in either mode                                                                |
-| `distinct.inks`       | Two consecutive inks, from `fg` to `fg.subtle`, closer than 0.01 in OKLab lightness                                                                                       |
-| `distinct.lines`      | Two consecutive lines, from `border.subtle` to `border.emphasized`, closer than 0.01 in OKLab lightness                                                                   |
-| `distinct.fills`      | Two steps of a palette closer than 0.01 in OKLab lightness: a quiet fill and the next, a solid and its hover, an ink and the muted one, or a line and its hover           |
-| `status.distinct`     | Two status solids closer than 0.05 in OKLab, in either mode                                                                                                               |
-| `ramp.monotonic`      | A ramp under `tokens.colors` whose lightness turns back between two steps, or a step that cannot be read                                                                  |
-| `ramp.hue`            | A step of a ramp whose hue drifts more than 45 degrees from the ramp's median hue, greys left out                                                                         |
-| `fonts.installed`     | A font package the theme names that does not resolve from `at`, and nothing where `at` is not given                                                                       |
+| Check                 | Reports                                                                                                                                                                                                                |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name.attribute`      | A name outside `[a-z][a-z0-9-]*`, which a page cannot write as the theme attribute                                                                                                                                     |
+| `contract.roles`      | A palette that leaves one of the ten roles out, and a family, the code family included, that leaves one of its members out                                                                                             |
+| `contract.modes`      | A color stated in one mode and not the other                                                                                                                                                                           |
+| `contract.references` | A reference that points at a token nothing defines, or at itself                                                                                                                                                       |
+| `contract.extensions` | An extension naming a recipe key the workspace does not publish, or naming `className` or `slots`                                                                                                                      |
+| `contract.variants`   | A variant on an axis the recipe does not offer, a value the axis does not offer, or a part the recipe's value does not style, where `recipes` maps each key to its recipe                                              |
+| `contract.compounds`  | A compound for a selection the component's recipe declares no compound for, or styling a part the recipe's compound does not, where `recipes` maps each key to its recipe                                              |
+| `contract.listed`     | A file under `recipes/` or `slot-recipes/` exporting `extension` that the theme does not list, where `at` is given                                                                                                     |
+| `contract.styles`     | A text, layer or animation style that states nothing, and a text style without a `fontSize`                                                                                                                            |
+| `contrast.text`       | Every ink on every surface and each palette's ink on the page, the raised surfaces and its fills below 7:1; `fg.subtle` on every surface below 4.5:1; each palette's `contrast` on its solid and its hover below 4.5:1 |
+| `contrast.boundary`   | `border.emphasized` below 3:1 on the page, the panel, the popover and the first well; `border` below 1.45:1 on the page and the panel; each palette's solid and lines below 3:1 on the page and the panel              |
+| `contrast.focus`      | A palette's `focusRing` below 3:1 on any surface                                                                                                                                                                       |
+| `distinct.surfaces`   | The page and the panel, the page and the first well, the raised surfaces and the first well, or two consecutive wells closer than 0.02 in OKLab lightness in either mode                                               |
+| `distinct.inks`       | Two consecutive inks, from `fg` to `fg.subtle`, closer than 0.02 in OKLab lightness                                                                                                                                    |
+| `distinct.lines`      | Two consecutive lines, from `border.subtle` to `border.emphasized`, closer than 0.02 in OKLab lightness                                                                                                                |
+| `distinct.fills`      | Two steps of a palette closer than 0.02 in OKLab lightness: a quiet fill and the next, a solid and its hover, a line and its hover, or the resting fill and the page, the panel or the popover                         |
+| `status.distinct`     | Two status solids, or a status solid and the primary's or the neutral's, closer than 0.05 in OKLab, in either mode                                                                                                     |
+| `status.identity`     | A status solid more than 30 degrees of hue from the canonical hue of its status, or a grey, in either mode                                                                                                             |
+| `ramp.monotonic`      | A ramp under `tokens.colors` whose lightness turns back between two steps, or a step that cannot be read                                                                                                               |
+| `ramp.hue`            | A step of a ramp whose hue drifts more than 45 degrees from the ramp's median hue, greys left out                                                                                                                      |
+| `fonts.installed`     | A font package the theme names that does not resolve from `at`, and nothing where `at` is not given                                                                                                                    |
 
 `options.recipes` lists the recipe keys the workspace publishes, or maps each key to its recipe,
 which adds the variants check and the compound check. `publishedRecipes(...presets)` builds that map
 out of the presets the component packages publish, so the list is the one an application installs
 rather than one written out by hand. `options.base` names the preset the theme is layered on, which
-the resolver follows a reference into. `options.thresholds` changes any of the three ratios and the
-three distances (`distinct`, `status`, `hue`). `options.skip` leaves a check out, each with a
-reason.
+the resolver follows a reference into. `options.thresholds` changes any of the five ratios (`text`,
+`tertiary`, `label`, `boundary`, `hairline`, `focus`) and the four distances (`distinct`, `status`,
+`identity`, `hue`). A theme whose stated ink cannot reach 7:1 on its stated page draws to the ratio
+it can reach and hands the same number here. `options.skip` leaves a check out, each with a reason.
 
 A ramp is a group under `tokens.colors` with at least three steps keyed by number. A dark ramp
 nested under the light one, as `blue.dark`, is read as a ramp of its own.
@@ -103,12 +105,12 @@ nested under the light one, as `blue.dark`, is read as a ramp of its own.
 Measures a theme and returns the numbers rather than a verdict. The options are the ones
 `violations` takes.
 
-| Field      | Holds                                                                                                                                                             |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `margins`  | Per class of pair (`text`, `boundary`, `focus`): the lowest ratio, the median, and the ten tightest pairs lowest first, with a pair that cannot be measured first |
-| `steps`    | Per mode: the OKLab lightness between consecutive surfaces, inks and lines                                                                                        |
-| `statuses` | Per mode and per pair of statuses, on the solid and on the ink: the OKLab distance for typical vision and under protanopia, deuteranopia and tritanopia           |
-| `outside`  | The steps of the theme's ramps outside sRGB, as `blue step 500`                                                                                                   |
+| Field      | Holds                                                                                                                                                                                                |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `margins`  | Per class of pair (`text`, `boundary`, `focus`): the lowest ratio, the median, and the ten tightest pairs lowest first, each with the ratio it is held to, with a pair that cannot be measured first |
+| `steps`    | Per mode: the OKLab lightness between consecutive surfaces, inks and lines                                                                                                                           |
+| `statuses` | Per mode and per pair of statuses, on the solid and on the ink: the OKLab distance for typical vision and under protanopia, deuteranopia and tritanopia                                              |
+| `outside`  | The steps of the theme's ramps outside sRGB, as `blue step 500`                                                                                                                                      |
 
 `formatReport(report)` writes the numbers as Markdown tables. A theme's specification can write it
 into a snapshot, or a script can print it for a person to read:
@@ -143,7 +145,6 @@ foundation's own ramps place 48 steps outside it on purpose. A theme drawn for s
 | `recipe.lengths`    | A length in `px`, `rem` or `pt` on a property outside `options.lengths`, the compiler's token function and a custom property's fallback left out                                                                          |
 | `recipe.modes`      | `_dark`, `_light`, `_osDark` or `_osLight` anywhere in the recipe                                                                                                                                                         |
 | `recipe.slots`      | A slot `options.parts` stamps no part for, and a part no slot styles                                                                                                                                                      |
-| `recipe.subtle`     | `fg.subtle` as a text color                                                                                                                                                                                               |
 
 The color properties and the category each property reads are taken from the compiler's base preset
 at run time. The tokens and conditions are read from `options.preset`, which is the foundation

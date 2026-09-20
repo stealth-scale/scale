@@ -1,9 +1,9 @@
 /**
  * Checks a recipe for the values it may not write and the classes it would write with no rule: a
  * color a theme cannot move, a token nothing defines, a condition nothing defines, a pixel length,
- * a color mode, a slot the anatomy does not stamp, the one ink that clears the boundary ratio and
- * not the text ratio, a value or a compound that states no styles, a default or a compound that
- * names a value no axis offers, and a tag pattern that misses the component's name.
+ * a color mode, a slot the anatomy does not stamp, a value or a compound that states no styles, a
+ * default or a compound that names a value no axis offers, and a tag pattern that misses the
+ * component's name.
  *
  * @remarks
  *   A recipe reads semantic tokens, compositions and scale steps, so a theme can move every value
@@ -46,7 +46,6 @@ export type RecipeCheck =
   | "recipe.modes"
   | "recipe.selections"
   | "recipe.slots"
-  | "recipe.subtle"
   | "recipe.tokens"
   | "recipe.values";
 
@@ -171,11 +170,6 @@ const TOKEN_CALL = /token\(([a-zA-Z]+)\.([^,)]+)/u;
  * Fixes the virtual palette a recipe reads roles through.
  */
 const VIRTUAL = "colorPalette";
-
-/**
- * Fixes the ink held to the boundary ratio, which no recipe writes as a text color.
- */
-const SUBTLE = "fg.subtle";
 
 /**
  * Strips the opacity modifier a color may carry, such as `fg/50`.
@@ -453,18 +447,6 @@ function slotViolations(recipe: Declared, parts: readonly string[]): readonly st
 }
 
 /**
- * Reports every place the subtle ink is written as a text color.
- */
-function subtleViolations(recipe: Declared, found: readonly Written[]): readonly string[] {
-  return found
-    .filter(({ property, value }) => property === "color" && bare(value) === SUBTLE)
-    .map(
-      ({ path }) =>
-        `${recipe.className} sets color to ${SUBTLE} at ${path}, which clears the boundary ratio and not the text ratio`,
-    );
-}
-
-/**
  * Runs one check and reports what it found.
  */
 type Runner = (
@@ -523,7 +505,6 @@ const RUNNERS: ReadonlyArray<readonly [RecipeCheck, Runner]> = [
     (recipe, _found, options) =>
       options.parts === undefined ? [] : slotViolations(recipe, options.parts),
   ],
-  ["recipe.subtle", (recipe, found) => subtleViolations(recipe, found.strings)],
 ];
 
 /**

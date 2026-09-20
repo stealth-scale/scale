@@ -3,7 +3,7 @@
  * theme of one palette whose colors a case can bend.
  */
 
-import { colorScale, paletteRoles, type Theme } from "@stealthscale/theme/authoring";
+import { colorScale, drawn, FOUNDATION, type Theme } from "@stealthscale/theme/authoring";
 import foundation from "@stealthscale/theme/theme";
 
 /**
@@ -13,6 +13,7 @@ export function foundationTheme(): Theme {
   const stated = foundation.theme?.extend;
 
   return {
+    axes: { colors: FOUNDATION },
     fonts: [],
     name: "foundation",
     preset: foundation,
@@ -24,16 +25,20 @@ export function foundationTheme(): Theme {
 }
 
 /**
- * Builds a theme of one palette drawn from its own ramp, with whatever is handed in put over the
- * palette's roles.
+ * Builds a theme of one palette drawn from the foundation's blue over the foundation's pages,
+ * with a ramp of the same blue a case may reference a step of, and whatever is handed in put over
+ * the palette's roles.
  */
 export function paletteTheme(over: Readonly<Record<string, unknown>> = {}): Theme {
   return {
+    axes: {},
     fonts: [],
     name: "audited",
     preset: { name: "@stealthscale/theme-audited" },
     variant: {
-      semanticTokens: { colors: { primary: { ...paletteRoles("primary"), ...over } } },
+      semanticTokens: {
+        colors: { primary: { ...drawn(FOUNDATION.primary, FOUNDATION), ...over } },
+      },
       tokens: { colors: { primary: colorScale(262, 0.14) } },
     },
   };

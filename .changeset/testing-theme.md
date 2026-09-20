@@ -2,13 +2,32 @@
 "@stealthscale/testing-theme": minor
 ---
 
+testing-theme: hold a theme to the ladders and the ratios it is drawn to
+
+- The thresholds gain `tertiary` at 4.5, `label` at 4.5, `hairline` at 1.45 and `identity` at 30
+  degrees, and `distinct` rises from 0.01 to 0.02.
+- `contrast.text` measures `fg.subtle` on every surface at the tertiary ratio, each palette's
+  `contrast` on its solid and its hover at the label ratio, and each palette's `fg` on the page, the
+  raised surfaces and its fills. `contrast.boundary` measures `border.emphasized` on the page, the
+  panel, the popover and the first well, `border` on the page and the panel at the hairline ratio,
+  and each palette's solid and lines on the page and the panel.
+- `distinct.surfaces` pairs the page with the panel and with the first well, the raised surfaces
+  with the first well, and each well with the next. `distinct.fills` drops the ink pair, whose role
+  left the palette, and adds the resting fill against the page, the panel and the popover.
+- `status.distinct` holds each status apart from the primary and the neutral as well as from the
+  other statuses. `status.identity` reports a status solid more than thirty degrees of hue from the
+  canonical hue of its status, or a grey.
+- `recipe.subtle` is gone. `fg.subtle` is tertiary text at AA.
+- The palette fixture is drawn from the foundation's blue over the foundation's pages, and a case
+  that follows a reference through a role states the reference itself.
+
 testing-theme: report a status the compiler emits no rule for
 
 - `recipe.emitted` reports a recipe that offers a `status` axis without listing it under
   `staticCss`. The compiler emits a rule for a value it reads from a literal in an application's
   source, and a status is the one axis an application usually does not write: it hands over what a
-  record, a validator or a server said. The class lands on the element with no rule behind it, and a
-  component reporting an error draws in its default palette.
+  record, a validator or a server said. The class is written on the element with no rule behind it,
+  and a component reporting an error draws in its default palette.
 - Measured on the single-theme example, which writes three of the four statuses nowhere: the
   stylesheet emitted no rule for `success`, `warning` or `info` before, and all four after, at a
   cost of 0.19 kB over the wire.

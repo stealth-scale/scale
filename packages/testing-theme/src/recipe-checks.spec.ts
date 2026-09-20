@@ -501,10 +501,8 @@ describe("recipeViolations", () => {
     );
   });
 
-  it("reports the subtle ink written as a text color", () => {
-    expect(recipeViolations({ base: { color: "fg.subtle" }, className: "x" })).toStrictEqual([
-      "recipe.subtle: x sets color to fg.subtle at base.color, which clears the boundary ratio and not the text ratio",
-    ]);
+  it("passes the tertiary ink as a text color", () => {
+    expect(recipeViolations({ base: { color: "fg.subtle" }, className: "x" })).toStrictEqual([]);
   });
 
   it("leaves out a check skipped with a reason", () => {

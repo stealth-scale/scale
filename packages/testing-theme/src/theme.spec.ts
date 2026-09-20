@@ -31,7 +31,12 @@ describe("theme", () => {
   });
 
   it("follows a reference through a role to a step", () => {
-    const theme = paletteTheme();
+    const theme = paletteTheme({
+      solid: {
+        DEFAULT: { value: "{colors.primary.700}" },
+        hover: { value: { _dark: "{colors.primary.300}", base: "{colors.primary.800}" } },
+      },
+    });
 
     expect(resolved(theme, { value: "{colors.primary.solid}" }, "base")).toBe(
       "oklch(37.0% 0.1260 262.0)",
@@ -95,9 +100,9 @@ describe("theme", () => {
   it("reads the color a path names through the theme and then the base", () => {
     const theme = paletteTheme();
 
-    expect(colorAt(theme, "primary.solid", "base", {})).toBe("oklch(37.0% 0.1260 262.0)");
-    expect(colorAt(theme, "primary.solid.hover", "_dark", {})).toBe("oklch(80.0% 0.1092 262.0)");
-    expect(colorAt(theme, "bg", "base", { base: foundation })).toBe("oklch(97.0% 0.0060 262.0)");
+    expect(colorAt(theme, "primary.solid", "base", {})).toBe("oklch(47.0% 0.1372 262.0)");
+    expect(colorAt(theme, "primary.solid.hover", "_dark", {})).toBe("oklch(78.0% 0.1114 262.0)");
+    expect(colorAt(theme, "bg", "base", { base: foundation })).toBe("oklch(97.0% 0.0075 262.0)");
     expect(colorAt(theme, "bg", "base", {})).toBeUndefined();
   });
 

@@ -6,7 +6,7 @@
  *   reports the whole set in a single run. Skipping a check costs a written reason.
  */
 
-import { type Preset, type Theme } from "@stealthscale/theme/authoring";
+import { FLOOR, type Preset, type Theme } from "@stealthscale/theme/authoring";
 
 import * as contract from "#contract.ts";
 import * as contrast from "#contrast.ts";
@@ -40,7 +40,8 @@ export type ThemeCheck =
   | "name.attribute"
   | "ramp.hue"
   | "ramp.monotonic"
-  | "status.distinct";
+  | "status.distinct"
+  | "status.identity";
 
 /**
  * Describes what a theme specification states beside the theme.
@@ -73,7 +74,9 @@ export interface ThemeChecks {
 
   /**
    * The ratio each class of pair is held to and the distance each class of step is held apart,
-   * over the defaults from WCAG 1.4.6 and 1.4.11 and the foundation's own steps.
+   * over the defaults from WCAG 1.4.3, 1.4.6 and 1.4.11 and the foundation's own ladders. A theme
+   * whose stated ink cannot reach the text ratio on its stated page states the ratio it draws
+   * to here, with the reason beside it.
    */
   thresholds?: Partial<contrast.Thresholds> | undefined;
 }
@@ -157,16 +160,34 @@ const RUNNERS: ReadonlyArray<readonly [ThemeCheck, Runner]> = [
   ["distinct.lines", (theme, options) => distinct.lines(theme, options, thresholdsOf(options))],
   ["distinct.fills", (theme, options) => distinct.fills(theme, options, thresholdsOf(options))],
   ["status.distinct", (theme, options) => status.distinct(theme, options, thresholdsOf(options))],
+  ["status.identity", (theme, options) => status.identity(theme, options, thresholdsOf(options))],
   ["ramp.monotonic", (theme) => ramp.monotonic(theme)],
   ["ramp.hue", (theme, options) => ramp.hue(theme, thresholdsOf(options))],
   ["fonts.installed", (theme, options) => installed(theme, options.at)],
 ];
 
 /**
- * Fills in every threshold the specification did not state.
+ * Fills in every threshold the specification did not state, and holds the four a reader depends
+ * on at the floor.
+ *
+ * @remarks
+ *   A specification states thresholds to say what its theme aims for, and the engine draws to the
+ *   same numbers. Neither may go below what WCAG asks of normal-size text and of the visual
+ *   information that identifies a control, so a theme whose colors cannot reach the floor is
+ *   reported rather than measured against a lower one. The distances, the hues and the hairline
+ *   are quality targets and a specification moves them freely.
  */
 function thresholdsOf(options: ThemeChecks): contrast.Thresholds {
-  return { ...contrast.THRESHOLDS, ...options.thresholds };
+  const stated = { ...contrast.THRESHOLDS, ...options.thresholds };
+
+  return {
+    ...stated,
+    boundary: Math.max(stated.boundary, FLOOR.boundary),
+    focus: Math.max(stated.focus, FLOOR.boundary),
+    label: Math.max(stated.label, FLOOR.label),
+    tertiary: Math.max(stated.tertiary, FLOOR.tertiary),
+    text: Math.max(stated.text, FLOOR.text),
+  };
 }
 
 /**
