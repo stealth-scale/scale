@@ -1,13 +1,35 @@
+import { isValidElement, type ReactElement } from "react";
+
 import { describe, expect, it } from "vitest";
 
+import { type RouteDeclaration } from "@stealthscale/provider-router";
 import { mountRoute } from "@stealthscale/testing-router";
 
 import { entry, treeOver, written } from "#catalogue/mounted.fixtures.tsx";
 import { declarations, indexId, routeId } from "#catalogue/routes.tsx";
+import { DEFAULTS, SettingsProvider, settled } from "#catalogue/settings.ts";
 
 const LISTED = [entry("actions/button", "Actions", "Button"), entry("portal", "", "Portal")];
 
 const PLACED = { id: "docs.components", layout: ["docs.frame"], path: "components" };
+
+/**
+ * Calls the button's page component the way React would, without mounting it, so a case reads
+ * the element the page is wrapped in.
+ */
+function pageOf(declared: readonly RouteDeclaration[]): ReactElement {
+  const page = declared.find((one) => one.id === routeId("actions/button"));
+
+  if (page === undefined || typeof page.component !== "function") {
+    throw new Error("the button's page was not declared as a component");
+  }
+
+  const drawn = page.component({});
+
+  if (!isValidElement(drawn)) throw new Error("the button's page drew no element");
+
+  return drawn;
+}
 
 describe("declarations", () => {
   it("names a page under the prefix with its slashes as dots", () => {
@@ -135,5 +157,18 @@ describe("declarations", () => {
 
   it("declares no framed page where the catalogue is placed without one", () => {
     expect(declarations(LISTED, PLACED).map((one) => one.id)).not.toContain("docs.framed");
+  });
+
+  it("draws each page under the audit rules and the heights the placing states", () => {
+    const audit = { runOnly: ["image-alt"] };
+    const heights = { phone: 400 };
+    const drawn = pageOf(declarations(LISTED, { ...PLACED, audit, heights }));
+
+    expect(drawn.type).toBe(SettingsProvider);
+    expect(drawn.props).toMatchObject({ value: settled({ audit, heights }) });
+  });
+
+  it("draws each page under the catalogue's own settings where the placing states none", () => {
+    expect(pageOf(declarations(LISTED, PLACED)).props).toMatchObject({ value: DEFAULTS });
   });
 });

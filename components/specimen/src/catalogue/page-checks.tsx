@@ -7,7 +7,8 @@ import { type ReactElement } from "react";
 import { AccessibilityIcon } from "lucide-react";
 
 import { Button } from "@stealthscale/component-actions";
-import { useTranslation } from "@stealthscale/provider-i18n";
+
+import { useWords } from "#words.ts";
 
 /**
  * Describes what the control takes.
@@ -52,7 +53,7 @@ export interface ChecksProps {
  * @returns The control.
  */
 export function Checks({ id, onPress, open, ran, running }: ChecksProps): ReactElement {
-  const { t } = useTranslation("specimen");
+  const { t } = useWords();
 
   return (
     <Button

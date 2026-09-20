@@ -6,7 +6,8 @@ import { Outlet, type RouteDeclaration } from "@stealthscale/provider-router";
 
 import { Index } from "#catalogue/index-page.tsx";
 import { Page } from "#catalogue/page.tsx";
-import { type Indexed } from "#catalogue/types.ts";
+import { SettingsProvider, settled } from "#catalogue/settings.ts";
+import { type Indexed, type RunOptions } from "#catalogue/types.ts";
 import { framedDeclaration, type Framing } from "#framed/route.tsx";
 
 /**
@@ -20,6 +21,13 @@ export const NAMED = "specimen";
  * drawn in, and what the application lists beside the pages the build found.
  */
 export interface Placing {
+  /**
+   * The run options the audit of a scene hands axe, merged over the catalogue's own: every rule
+   * axe runs by default, less the four about a page as a whole, plus `target-size` and
+   * `aria-roledescription`. A rule named here replaces the catalogue's word on it.
+   */
+  readonly audit?: RunOptions | undefined;
+
   /**
    * Pages the application wrote itself, which are compiled with the rest and listed by the rail and
    * the index where they carry an entry. One naming no parent nests under the catalogue's route.
@@ -36,6 +44,13 @@ export interface Placing {
    *   and has no layout, so the frame shows the sample and none of the chrome round the catalogue.
    */
   readonly framed?: Framing | undefined;
+
+  /**
+   * The height a device is given, in pixels, keyed by the name of its width: `phone`, or a
+   * breakpoint's. Merged over the catalogue's own, and a width named in neither is given a
+   * tablet's standing height.
+   */
+  readonly heights?: Readonly<Record<string, number>> | undefined;
 
   /**
    * The id of the route the catalogue hangs under, which the index is named after.
@@ -93,7 +108,8 @@ function under(one: RouteDeclaration, id: string): RouteDeclaration {
  *   is the same component against different data. The page's own module is still loaded only when
  *   somebody opens it, by the loader the index put on the entry. A page's path carries no leading
  *   slash, so a catalogue at `/components` serves `actions/button` at `/components/actions/button`
- *   without the package knowing.
+ *   without the package knowing. Every page is drawn under the settings the placing states, so the
+ *   audit rules and the device heights are stated once for the whole catalogue.
  * @param pages - The pages the index found, which is what `virtual:specimen-index` exports.
  * @param placing - Where the application puts the catalogue. `Placing` documents every member.
  * @returns The route, its index, then the pages in the order the index gave them, then whatever the
@@ -103,11 +119,16 @@ export function declarations(
   pages: readonly Indexed[],
   placing: Placing,
 ): readonly RouteDeclaration[] {
-  const { beside = [], framed, id, layout, path } = placing;
+  const { audit, beside = [], framed, heights, id, layout, path } = placing;
   const index = indexId(id);
+  const settings = settled({ audit, heights });
   const listed: readonly RouteDeclaration[] = [
     ...pages.map((page) => ({
-      component: () => <Page back={index} entry={page} framed={framed?.path} />,
+      component: () => (
+        <SettingsProvider value={settings}>
+          <Page back={index} entry={page} framed={framed?.path} />
+        </SettingsProvider>
+      ),
       id: routeId(page.id),
       navigation: {
         about: page.about,

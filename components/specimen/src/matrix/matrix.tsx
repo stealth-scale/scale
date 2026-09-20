@@ -17,11 +17,12 @@
  *   states no value of its own, because the edges of the grid caption it already.
  */
 
-import { createElement, Fragment, type ReactElement, type ReactNode } from "react";
+import { type ReactElement, type ReactNode } from "react";
 
 import { Board, type BoardProps } from "#board/board.tsx";
 import { Caption } from "#caption.tsx";
-import { type Axis, captionOf, nameOf } from "#matrix/axis.ts";
+import { bare } from "#framed/bare.ts";
+import { ABSENT, type Axis, captionOf, nameOf } from "#matrix/axis.ts";
 import { useFramedCell } from "#matrix/framed.ts";
 import { Cell, Grid, Head, Label, Root, type RootProps, Row, Side } from "#matrix/parts.ts";
 import { type Display, DisplayProvider } from "#sample/display.ts";
@@ -150,9 +151,7 @@ export function Matrix<Value, Other = undefined>(props: MatrixProps<Value, Other
   const display: Display = { place, variant };
   const cell = useFramedCell(axis, across, children);
 
-  // A fragment built by hand, because the cell is whatever the specimen draws and a matrix in a
-  // frame adds no element of its own round it.
-  if (cell !== undefined) return createElement(Fragment, null, cell);
+  if (cell !== undefined) return bare(cell);
 
   if (across !== undefined) {
     return (
@@ -167,14 +166,12 @@ export function Matrix<Value, Other = undefined>(props: MatrixProps<Value, Other
     );
   }
 
-  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the second argument stands for the absent axis, which the type states as undefined
-  const alone = undefined as Other;
   const laid = columns ?? (direction === "column" ? ONE : undefined);
 
   return (
     <Root>
       <Board {...display} {...(laid === undefined ? {} : { columns: laid })}>
-        {axis.of.map((value) => itemed(axis, value, children(value, alone)))}
+        {axis.of.map((value) => itemed(axis, value, children(value, ABSENT)))}
       </Board>
     </Root>
   );

@@ -33,6 +33,19 @@ export function nameOf<Value>(axis: Axis<Value>, value: Value): string {
 }
 
 /**
+ * The value a cell is drawn with along an axis that does not cross: nothing, typed so it passes
+ * for whatever the matrix types the second argument of its drawing function as.
+ *
+ * @remarks
+ *   A matrix of one axis calls the drawing function with `undefined` for the axis it has not got,
+ *   and the type of that argument is the matrix's second type parameter, which defaults to
+ *   `undefined` and is not narrowed by the axis being absent. One assertion here, rather than one
+ *   at each call.
+ */
+// eslint-disable-next-line typescript/no-unsafe-type-assertion -- stands for the absent axis, which the type parameter defaults to undefined for
+export const ABSENT = undefined as never;
+
+/**
  * Writes a cell's caption as one line, including the prop where the axis names one.
  *
  * @remarks

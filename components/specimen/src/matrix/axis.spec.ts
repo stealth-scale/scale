@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { captionOf, nameOf } from "#matrix/axis.ts";
+import { ABSENT, captionOf, nameOf } from "#matrix/axis.ts";
 
 const SIZES = ["sm", "md"] as const;
 
@@ -27,5 +27,11 @@ describe("axis", () => {
 
   it("captions a value through the label the axis states", () => {
     expect(captionOf({ knob: "size", label: () => "Small", of: SIZES }, "sm")).toBe("size = Small");
+  });
+});
+
+describe("ABSENT", () => {
+  it("stands for the axis that does not cross as nothing", () => {
+    expect(ABSENT).toBeUndefined();
   });
 });

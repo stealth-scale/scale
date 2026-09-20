@@ -8,9 +8,9 @@ import { CircleAlertIcon, CircleCheckIcon } from "lucide-react";
 
 import { Stack } from "@stealthscale/component-layout";
 import { Text } from "@stealthscale/component-typography";
-import { useTranslation } from "@stealthscale/provider-i18n";
 
 import { type Audit } from "#catalogue/audited.ts";
+import { useWords } from "#words.ts";
 
 /**
  * Describes what the line takes.
@@ -46,7 +46,7 @@ export interface RatedProps {
  * @returns The line, or nothing until an audit has run.
  */
 export function Rated({ audit }: RatedProps): null | ReactElement {
-  const { t } = useTranslation("specimen");
+  const { t } = useWords();
 
   if (audit === undefined) return null;
 

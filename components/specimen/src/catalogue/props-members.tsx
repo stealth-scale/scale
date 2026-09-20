@@ -6,9 +6,9 @@ import { type ReactElement } from "react";
 
 import { Table } from "@stealthscale/component-collections";
 import { Code, Text } from "@stealthscale/component-typography";
-import { useTranslation } from "@stealthscale/provider-i18n";
 
 import { type Member } from "#catalogue/types.ts";
+import { useWords } from "#words.ts";
 
 /**
  * Describes what the table takes.
@@ -64,7 +64,7 @@ function says(member: Member): ReactElement {
  * @returns One row per member.
  */
 export function PropsMembers({ label, members }: PropsMembersProps): ReactElement {
-  const { t } = useTranslation("specimen");
+  const { t } = useWords();
   const typed = members.some((member) => member.accepts !== "");
   const said = members.some((member) => member.says !== "");
 

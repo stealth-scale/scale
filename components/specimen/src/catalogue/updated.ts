@@ -11,9 +11,10 @@
  *   and the plugin in the bundler.
  */
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { type Fragments } from "#catalogue/types.ts";
+import { isRecord, isWorded } from "#guards.ts";
 
 /**
  * The event the index dispatches on the window when a page's module or its fragments were
@@ -43,24 +44,10 @@ export interface Update {
 }
 
 /**
- * Reports whether a value is an object whose fields can be read.
- */
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-/**
  * Reports whether a value is what the event carries.
  */
 function isUpdate(detail: unknown): detail is Update {
   return isRecord(detail) && typeof detail["id"] === "string";
-}
-
-/**
- * Reports whether a value is a list of words.
- */
-function isWorded(value: unknown): value is readonly string[] {
-  return Array.isArray(value) && value.every((word) => typeof word === "string");
 }
 
 /**
@@ -89,10 +76,19 @@ export function fragmentsOf(module: unknown): Fragments | undefined {
 /**
  * Tells the listener each update the index reports for a page.
  *
+ * @remarks
+ *   The listener is kept in a ref and read when an update arrives, so a caller writes it inline
+ *   and the window's listener is added once per page rather than once per render.
  * @param id - The page's identifier.
  * @param onUpdate - Told each update of that page.
  */
 export function useUpdated(id: string, onUpdate: (update: Update) => void): void {
+  const told = useRef(onUpdate);
+
+  useEffect(() => {
+    told.current = onUpdate;
+  }, [onUpdate]);
+
   useEffect(() => {
     /**
      * Passes an update of this page on, and leaves any other event alone.
@@ -100,7 +96,7 @@ export function useUpdated(id: string, onUpdate: (update: Update) => void): void
     const listen = (event: Event): void => {
       const detail: unknown = event instanceof CustomEvent ? event.detail : undefined;
 
-      if (isUpdate(detail) && detail.id === id) onUpdate(detail);
+      if (isUpdate(detail) && detail.id === id) told.current(detail);
     };
 
     window.addEventListener(UPDATED, listen);
@@ -108,5 +104,5 @@ export function useUpdated(id: string, onUpdate: (update: Update) => void): void
     return (): void => {
       window.removeEventListener(UPDATED, listen);
     };
-  }, [id, onUpdate]);
+  }, [id]);
 }

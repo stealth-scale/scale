@@ -8,9 +8,9 @@ import { type ReactElement } from "react";
 import { Badge } from "@stealthscale/component-data";
 import { Tabs } from "@stealthscale/component-disclosure";
 import { Page } from "@stealthscale/component-screen";
-import { useTranslation } from "@stealthscale/provider-i18n";
 
 import { BANDS } from "#catalogue/bands.ts";
+import { useWords } from "#words.ts";
 
 /**
  * Describes what the strip takes.
@@ -60,7 +60,7 @@ function counted(count: number | undefined): null | ReactElement {
  * @returns The navigation, holding the strip.
  */
 export function PageTabs({ parts, scenes }: PageTabsProps): ReactElement {
-  const { t } = useTranslation("specimen");
+  const { t } = useWords();
 
   return (
     <Page.Nav aria-label={t("tabs.label")} sticky>

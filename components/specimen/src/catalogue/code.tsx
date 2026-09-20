@@ -8,7 +8,8 @@ import { type ReactElement } from "react";
 import { CheckIcon, CopyIcon } from "lucide-react";
 
 import { CodeBlock } from "@stealthscale/component-content";
-import { useTranslation } from "@stealthscale/provider-i18n";
+
+import { useWords } from "#words.ts";
 
 /**
  * Describes what a passage takes.
@@ -39,7 +40,7 @@ export interface CodeProps {
  *   block's package ships no words.
  */
 export function Code({ code, language = "tsx", title }: CodeProps): ReactElement {
-  const { t } = useTranslation("specimen");
+  const { t } = useWords();
 
   return (
     <CodeBlock.Root code={code} language={language} size="sm">

@@ -7,10 +7,10 @@ import { type ReactElement } from "react";
 import { ChevronRightIcon } from "lucide-react";
 
 import { NavList } from "@stealthscale/component-navigation";
-import { useTranslation } from "@stealthscale/provider-i18n";
 
 import { type Group } from "#catalogue/grouped.ts";
 import { Row } from "#catalogue/rail-row.tsx";
+import { useGroupName } from "#catalogue/wording.ts";
 
 /**
  * Describes what one group takes.
@@ -36,14 +36,12 @@ export interface BranchProps {
  *   again. Draw it inside `NavList.Root`, which the rail does.
  */
 export function Branch({ group, holdsCurrent }: BranchProps): ReactElement {
-  const { t } = useTranslation("specimen");
+  const named = useGroupName();
 
   return (
     <NavList.Branch defaultOpen={holdsCurrent}>
       <NavList.Trigger>
-        {group.name === ""
-          ? t("rail.ungrouped")
-          : t(`groups.${group.name}`, { defaultValue: group.name })}
+        {named(group.name)}
         <NavList.Indicator>
           <ChevronRightIcon aria-hidden size="1em" />
         </NavList.Indicator>

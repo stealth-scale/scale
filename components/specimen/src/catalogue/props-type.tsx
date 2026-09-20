@@ -34,14 +34,18 @@ export interface PropsTypeProps {
  *
  * @remarks
  *   The names are escaped before they reach the expression, because a name is the compiler's own
- *   and a type printed with a bracket in it would otherwise be read as syntax.
+ *   and a type printed with a bracket in it would otherwise be read as syntax. A name matches a
+ *   whole identifier and nothing inside a longer one, so `Scale` is found in `Scale | Scaled` once,
+ *   and the longest name is tried first, so `Toned` is not read as `Tone` followed by `d`.
  */
 function split(accepts: string, names: readonly string[]): readonly string[] {
   if (names.length === 0) return [accepts];
 
-  const escaped = names.map((name) => name.replaceAll(SYNTAX, String.raw`\$&`));
+  const escaped = names
+    .toSorted((one, other) => other.length - one.length)
+    .map((name) => name.replaceAll(SYNTAX, String.raw`\$&`));
 
-  return accepts.split(new RegExp(`(${escaped.join("|")})`, "u"));
+  return accepts.split(new RegExp(`(?<![\\w$])(${escaped.join("|")})(?![\\w$])`, "u"));
 }
 
 /**

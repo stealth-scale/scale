@@ -9,9 +9,9 @@ import { Badge } from "@stealthscale/component-data";
 import { Stack } from "@stealthscale/component-layout";
 import { Link } from "@stealthscale/component-navigation";
 import { Code, Text } from "@stealthscale/component-typography";
-import { useTranslation } from "@stealthscale/provider-i18n";
 
 import { type Finding, type Impact } from "#catalogue/audited.ts";
+import { useWords } from "#words.ts";
 
 /**
  * Lists the palette each impact is drawn in.
@@ -50,7 +50,7 @@ export interface FindingProps {
  * @returns The finding, drawn.
  */
 export function Found({ finding }: FindingProps): ReactElement {
-  const { t } = useTranslation("specimen");
+  const { t } = useWords();
   const { impact, on, rule, says, url } = finding;
 
   return (

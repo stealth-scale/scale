@@ -8,10 +8,10 @@ import { Table } from "@stealthscale/component-collections";
 import { Badge } from "@stealthscale/component-data";
 import { Group } from "@stealthscale/component-layout";
 import { Code, Text } from "@stealthscale/component-typography";
-import { useTranslation } from "@stealthscale/provider-i18n";
 
 import { type Row } from "#catalogue/parted.ts";
 import { PropsType } from "#catalogue/props-type.tsx";
+import { useWords } from "#words.ts";
 
 /**
  * The widths the four columns are drawn at, which every table on the page shares.
@@ -130,7 +130,7 @@ function says(row: Row): ReactElement {
  * @returns One row per prop, under a band of four column names.
  */
 export function PropsTable({ label, rows }: PropsTableProps): ReactElement {
-  const { t } = useTranslation("specimen");
+  const { t } = useWords();
   const kinds = new Set(rows.map((row) => row.prop.kind));
   const mixed = kinds.size > 1;
   const falls = rows.some((row) => row.prop.fallback !== "");

@@ -17,7 +17,8 @@ The package peers on `@stealthscale/component-a11y`, `@stealthscale/component-ac
 `@stealthscale/component-typography`, `@stealthscale/provider-hotkeys`,
 `@stealthscale/provider-i18n`, `@stealthscale/provider-router`, `@stealthscale/provider-viewport`,
 `@stealthscale/vite-plugin-specimen` and `react`, and depends on `lucide-react` for the marks the
-catalogue's own controls carry. A package writing specimens does not declare it, the way a package
+catalogue's own controls carry and on `axe-core` for the audit a scene's card runs, loaded on the
+first audit and not before. A package writing specimens does not declare it, the way a package
 writing specifications does not declare the testing kits: a specimen runs in the catalogue and
 resolves through the workspace root.
 
@@ -50,13 +51,23 @@ identifier's slashes into dots: `specimen.actions.button`. The index is named `i
 
 `Placing` states where the catalogue goes:
 
-| Member   | What it states                                                                           |
-| -------- | ---------------------------------------------------------------------------------------- |
-| `id`     | The id of the route the catalogue hangs under                                            |
-| `path`   | The path that route is served at, relative to the compiler's parent                      |
-| `layout` | The layouts the catalogue is drawn in, outermost first. Drawn bare when absent           |
-| `beside` | Pages the application wrote, compiled with the rest and listed by the rail and the index |
-| `framed` | The id and the path of the page a device loads one sample at. No device when absent      |
+| Member    | What it states                                                                           |
+| --------- | ---------------------------------------------------------------------------------------- |
+| `id`      | The id of the route the catalogue hangs under                                            |
+| `path`    | The path that route is served at, relative to the compiler's parent                      |
+| `layout`  | The layouts the catalogue is drawn in, outermost first. Drawn bare when absent           |
+| `beside`  | Pages the application wrote, compiled with the rest and listed by the rail and the index |
+| `framed`  | The id and the path of the page a device loads one sample at. No device when absent      |
+| `audit`   | The run options the audit of a scene hands axe, merged over the catalogue's own          |
+| `heights` | The height a device is given per width name, in pixels, merged over the catalogue's own  |
+
+`audit` and `heights` reach every page through a context the declarations provide, so an application
+states them once, and each is merged over the catalogue's own: a rule or a height the application
+names replaces the catalogue's, and the rest are kept. The catalogue's own audit runs every rule axe
+runs by default, less the four about a page as a whole (`region`, `landmark-one-main`,
+`page-has-heading-one` and `bypass`), plus `target-size` and `aria-roledescription`. An application
+that wants one more rule off states `audit: { rules: { "color-contrast": { enabled: false } } }`,
+which is what axe's own `run` takes, and the four page-level rules stay off.
 
 The pages are passed in rather than imported, so this package draws a catalogue without the build
 plugin in its own graph and a specification renders one without a build at all.
@@ -102,8 +113,11 @@ const [query, setQuery] = useState("");
 
 A query keeps the pages whose words contain it, whatever the case, and opens every branch it leaves
 standing. A query no page matches leaves the sidebar's empty line in place of the list. The search
-reads the shell's `navbar` panel, so draw it inside `AppShell.Root`: where the shell has folded the
-panel over the page and closed it, the shortcut opens the panel first.
+reads the shell panel the rail is drawn in, `navbar` unless `panel` names another, so draw it inside
+`AppShell.Root`: where the shell has folded the panel over the page and closed it, the shortcut
+opens the panel first. The shortcut is `Mod+K` unless `shortcut` names another, written the way the
+hotkeys provider reads one, and the field announces it as both keys the platform's modifier stands
+for.
 
 A page the application writes carries an entry under `navigation`, and nests under the catalogue's
 route unless it names a parent of its own:
@@ -132,20 +146,32 @@ carries, and pages naming no group under a heading of their own, last.
 title is the link, and its description is the sentence the page opens with. The catalogue's route
 serves it, and an application drawing it elsewhere as well hands it the same declarations.
 
-`Page` loads a page's module and draws its scenes, each as a section under its title, which is the
-first time that component reaches the browser. The row above the page's title leads back to the
-index, and the group the page is filed under stands beside the title as a badge. The body opens with
-the statement that imports the page's components from their package, in the content package's code
-block with the clipboard's trigger beside it. The plugin lists the components from what the specimen
-imports under the package's own imports map. Each scene stands on a card whose footer holds a
-`Source` control at its right end, a disclosure that shows the scene's source under the scene in the
-same code block, cut by the plugin from the specimen's file. Each section is anchored by its worded
-title, `looks-and-sizes`, and a rail beside the page lists the sections, marks the ones on screen
-and scrolls the page to the one pressed. The rail is the navigation package's table of contents in
-the page's aside, which leaves a narrow page and sticks beside a wide one. `declared` and `parted`
-are the shaping behind it. `parted` splits what a page's parts accept into the variants a theme
-moves and the options a caller sets, each row carrying the members of every named type it refers to,
-with the dropped counts beside them.
+`Page` loads a page's module and draws it as two bands under a strip of tabs: the examples, and what
+the page's parts accept. The row above the page's title leads back to the index, and the group the
+page is filed under stands beside the title as a badge.
+
+The examples band opens with the statement that imports the page's components from their package, in
+the content package's code block with the clipboard's trigger beside it. The plugin lists the
+components from what the specimen imports under the package's own imports map. Each scene stands on
+a card, which is the first time that component reaches the browser. The card's footer holds two
+controls: `Source`, a disclosure that shows the scene's source under the scene in the same code
+block, cut by the plugin from the specimen's file, and `Check`, which runs axe over the element the
+scene was drawn into and reports what it came to at the start of the footer. A clean audit says how
+many rules it held the scene to. A broken one opens a panel listing each rule broken, worst first,
+with the elements it was broken on and a link to the rule. Axe is loaded on the first check and not
+before. Each section is anchored by its worded title, `looks-and-sizes`, and a rail beside the page
+lists the sections, marks the ones on screen and scrolls the page to the one pressed. The rail is
+the navigation package's table of contents in the page's aside, which leaves a narrow page and
+sticks beside a wide one.
+
+The props band is drawn where the index was asked to read props, and loaded when the band is opened.
+It holds one section per part, headed by the component and the interface, with one table of what the
+part accepts: the axes a theme moves first, then the options a caller sets, each with its type, what
+it falls back to and what it does. A named type in a printed type opens on the members it holds. The
+band closes with what the reader resolved and no table draws. `declared` and `parted` are the
+shaping behind the page. `parted` splits what a page's parts accept into the variants a theme moves
+and the options a caller sets, each row carrying the members of every named type it refers to, with
+the dropped counts beside them.
 
 ## The device
 
@@ -275,15 +301,47 @@ export default specimen({
 
 The scenes are listed rather than gathered from the file's exports, because a module returns its
 names in alphabetical order and a page written Variants, States, Anatomy would be read back Anatomy,
-States, Variants.
+States, Variants. `scene()` declares one the way `specimen()` declares a page, for a file that wants
+the shape checked where the scene is written.
 
-`draw` is a component rather than a node, so a scene that holds state declares its hooks in its own
-render. `viewport` says the scene fills a window, so a device shows it at the window's edges.
+A scene declares `title`, `draw`, and may declare `about`, `frame` and `viewport`. `draw` is a
+component rather than a node, so a scene that holds state declares its hooks in its own render.
+`frame` says how the scene meets the card it is drawn on: `inset` leaves the card's own room round
+it, `bleed` takes that room back so a component that is already a panel reaches the card's edges,
+and `bare` drops the card's surface as well. `viewport` says the scene fills a window, so a device
+shows it at the window's edges.
+
+## Sample and Board
+
+`Sample` is one drawing of a component: a caption naming the value it was drawn for, the component,
+and a box the specimen chooses the look of. `of` is the value and `knob` the prop it was set on.
+`variant` draws the box (`plain`, `outline`, `subtle` or `surface`) and `place` says how wide it is
+and where the drawing is placed in it (`fit`, `start`, `center`, `end` or `stretch`). `span` reaches
+a sample across a board's columns.
+
+`Board` lays the samples a specimen writes out on the library's grid, and states the look of every
+sample on it once. It takes everything `Grid.Root` takes, with equal columns of the smallest measure
+and the widest gap by default, and `place` and `variant` for the samples below it. A sample states
+either itself to differ from the board.
+
+```tsx
+<Board columns="fit-sm">
+  <Sample of="a row that wraps">
+    <Toolbar.Root>…</Toolbar.Root>
+  </Sample>
+  <Sample of="the same, held narrow" variant="outline">
+    <Room size="xs">
+      <Toolbar.Root>…</Toolbar.Root>
+    </Room>
+  </Sample>
+</Board>
+```
 
 ## Matrix
 
 `Matrix` draws one captioned cell per value of an axis, or one per pair of values where a second
-axis crosses the first.
+axis crosses the first. Each cell is a sample, so the matrix takes the two axes a board takes for
+its cells as well.
 
 | Prop        | What it does                                                             |
 | ----------- | ------------------------------------------------------------------------ |
@@ -292,6 +350,20 @@ axis crosses the first.
 | `label`     | Converts a value into the name its cell is captioned with                |
 | `across`    | A second axis, whose values run across each row of the first             |
 | `direction` | Which way the cells of one axis run, `row` or `column`. `row` by default |
+| `columns`   | The board's columns the cells of one axis are laid on                    |
+| `place`     | Where the drawing sits in each cell's box, as a sample takes it          |
+| `variant`   | How each cell's box is drawn, as a sample takes it                       |
+
+`valuesOf(recipe, axis)` reads the values an axis offers off a recipe, typed as the recipe's own
+literals, so a page draws every value the theme can move and misses none added later. The size axis
+comes back in the scale's order rather than the recipe's, because the lint sorts a recipe's keys
+alphabetically.
+
+```tsx
+<Matrix knob="variant" of={valuesOf(recipe, "variant")}>
+  {(variant) => <Button variant={variant}>Publish</Button>}
+</Matrix>
+```
 
 ```tsx
 <Matrix across={{ knob: "size", of: SIZES }} knob="variant" of={VARIANTS}>
@@ -333,9 +405,10 @@ every root in.
 ## Types
 
 `Axis<Value>` describes an axis: `of`, `knob` and `label`. `MatrixProps<Value>` extends it with
-`children` and `direction`. `Specimen` and `Scene` describe what a page declares. `Placing`
-describes where a catalogue goes and `Framing` where its framed page is served. `Device` is a width,
-a height and a name.
+`children`, `direction`, `columns` and the sample's two axes. `SampleProps` and `BoardProps`
+describe a sample and a board. `Specimen`, `Scene` and `Frame` describe what a page declares.
+`Placing` describes where a catalogue goes and `Framing` where its framed page is served. `Device`
+is a width, a height and a name.
 
 ## Licence
 

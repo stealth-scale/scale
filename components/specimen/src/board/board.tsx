@@ -5,8 +5,6 @@
 import {
   Children,
   type ComponentProps,
-  createElement,
-  Fragment,
   isValidElement,
   type ReactElement,
   type ReactNode,
@@ -14,6 +12,7 @@ import {
 
 import { Grid } from "@stealthscale/component-layout";
 
+import { bare } from "#framed/bare.ts";
 import { useFramed } from "#framed/context.ts";
 import { type Choice, useReportedChoices } from "#framed/report.ts";
 import { type Display, DisplayProvider } from "#sample/display.ts";
@@ -109,11 +108,7 @@ export function Board({
 
   useReportedChoices(pick === undefined ? undefined : [offered(children)]);
 
-  // A fragment built by hand, because the sample is whatever the specimen wrote and a board in a
-  // frame adds no element of its own round it.
-  if (pick !== undefined) {
-    return createElement(Fragment, null, Children.toArray(children)[pick.sample ?? 0] ?? null);
-  }
+  if (pick !== undefined) return bare(Children.toArray(children)[pick.sample ?? 0] ?? null);
 
   return (
     <Grid.Root align="flex-start" columns={columns} gap={gap} {...grid}>

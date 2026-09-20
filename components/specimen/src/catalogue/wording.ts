@@ -47,3 +47,25 @@ export function useWording(namespace: string | undefined): (key: string) => stri
 
   return (key) => word(namespace, key);
 }
+
+/**
+ * The prefix a group's heading is looked up under in the catalogue's namespace.
+ */
+const GROUPS = "groups";
+
+/**
+ * Returns the words a group is headed with.
+ *
+ * @remarks
+ *   A group is looked up as `groups.<name>` in the catalogue's namespace and shown as the name
+ *   where no entry exists, so an application translates its groups in one place and a group
+ *   nobody translated reads as written. The pages that name no group are headed by the
+ *   catalogue's own words for that.
+ * @returns A function from a group's name to its heading.
+ */
+export function useGroupName(): (name: string) => string {
+  const { t } = useTranslation(NAMESPACE);
+
+  return (name) =>
+    name === "" ? t("rail.ungrouped") : t(`${GROUPS}.${name}`, { defaultValue: name });
+}

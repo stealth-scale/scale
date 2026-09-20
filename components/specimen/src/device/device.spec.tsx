@@ -1,6 +1,14 @@
 import { act, render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import {
+  createAppRootRoute,
+  createMemoryHistory,
+  createRouter,
+  routeMap,
+  routerOptions,
+  RouterProvider,
+} from "@stealthscale/provider-router";
 import { drawn, pressed } from "@stealthscale/testing-react";
 import { slotElement } from "@stealthscale/testing-theme";
 
@@ -107,5 +115,23 @@ describe("Device", () => {
     await pressed(getByRole("menuitemradio", { name: "solid" }));
 
     expect(framed(container).getAttribute("src")).toBe("/framed#actions/button/2?v=2&x=1");
+  });
+
+  it("loads the framed page under the base the router serves the application at", async () => {
+    const root = createAppRootRoute()({
+      component: () => <Device device={PHONE} scene={SCENE} />,
+    });
+    const router = createRouter({
+      ...routerOptions({ routes: routeMap(root) }),
+      basepath: "/docs",
+      history: createMemoryHistory({ initialEntries: ["/docs/"] }),
+      routeTree: root,
+    });
+
+    await router.load();
+
+    const { container } = await drawn(<RouterProvider router={router} />);
+
+    expect(framed(container).getAttribute("src")).toBe("/docs/framed#actions/button/2");
   });
 });

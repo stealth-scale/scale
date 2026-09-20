@@ -3,6 +3,8 @@ import { type ReactElement } from "react";
 import { act, render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { UPDATED as DISPATCHED } from "@stealthscale/vite-plugin-specimen";
+
 import { fragmentsOf, type Update, UPDATED, useUpdated } from "#catalogue/updated.ts";
 
 function Listening({
@@ -28,7 +30,7 @@ function dispatched(name: string, detail: unknown): void {
 
 describe("UPDATED", () => {
   it("names the event the index dispatches", () => {
-    expect(UPDATED).toBe("specimen:updated");
+    expect(UPDATED).toBe(DISPATCHED);
   });
 });
 
@@ -64,6 +66,29 @@ describe("useUpdated", () => {
     dispatched(UPDATED, { id: "data/badge", module: {} });
 
     expect(onUpdate).not.toHaveBeenCalled();
+  });
+
+  it("listens once however often the page renders with a listener written afresh", () => {
+    const added = vi.spyOn(window, "addEventListener");
+    const { rerender } = render(<Listening id="data/badge" onUpdate={() => {}} />);
+
+    rerender(<Listening id="data/badge" onUpdate={() => {}} />);
+    rerender(<Listening id="data/badge" onUpdate={() => {}} />);
+
+    expect(added.mock.calls.filter(([name]) => name === UPDATED)).toHaveLength(1);
+    added.mockRestore();
+  });
+
+  it("tells the listener written last", () => {
+    const first = vi.fn<(update: Update) => void>();
+    const last = vi.fn<(update: Update) => void>();
+    const { rerender } = render(<Listening id="data/badge" onUpdate={first} />);
+
+    rerender(<Listening id="data/badge" onUpdate={last} />);
+    dispatched(UPDATED, { id: "data/badge", module: {} });
+
+    expect(first).not.toHaveBeenCalled();
+    expect(last).toHaveBeenCalledWith({ id: "data/badge", module: {} });
   });
 });
 
