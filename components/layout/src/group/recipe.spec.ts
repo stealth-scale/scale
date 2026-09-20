@@ -13,15 +13,20 @@ describe("recipe", () => {
     expect(recipe.className).toBe("group");
   });
 
-  it("offers the six axes a group takes", () => {
+  it("offers the seven axes a group takes", () => {
     expect(axesOf(recipe)).toStrictEqual([
       "align",
       "attached",
+      "dim",
       "gap",
       "grow",
       "justify",
       "orientation",
     ]);
+  });
+
+  it("recedes the children the pointer is not on where a caller asks", () => {
+    expect(recipe.variants?.["dim"]?.["true"]).toStrictEqual({ layerStyle: "dim.others" });
   });
 
   it("draws a row at the small gap when nothing is asked for", () => {

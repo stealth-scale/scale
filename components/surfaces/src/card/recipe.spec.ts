@@ -34,9 +34,11 @@ describe("recipe", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
   });
 
-  it("offers the nine axes a card takes", () => {
+  it("offers the eleven axes a card takes", () => {
     expect(axesOf(recipe)).toStrictEqual([
+      "backdrop",
       "divided",
+      "effect",
       "interactive",
       "justify",
       "motion",
@@ -137,6 +139,33 @@ describe("recipe", () => {
     expect(recipe.variants?.["divided"]?.["true"]?.["header"]).toMatchObject({
       borderBlockEndWidth: "hairline",
       paddingBlockEnd: "var(--card-inset)",
+    });
+  });
+
+  it("offers every pattern the theme draws as a backdrop", () => {
+    expect(valuesOf(recipe, "backdrop")).toStrictEqual([
+      "aurora",
+      "checker",
+      "dots",
+      "grid",
+      "noise",
+      "spotlight",
+      "stars",
+      "stripes",
+      "vignette",
+    ]);
+  });
+
+  it("drifts the one backdrop that is a gradient rather than a pattern", () => {
+    expect(recipe.variants?.["backdrop"]?.["aurora"]?.["root"]).toStrictEqual({
+      animationStyle: "aurora",
+      layerStyle: "backdrop.aurora",
+    });
+  });
+
+  it("draws the larger of the two glows the theme states", () => {
+    expect(recipe.variants?.["effect"]?.["glow"]).toStrictEqual({
+      root: { layerStyle: "glow.lg" },
     });
   });
 

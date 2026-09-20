@@ -13,8 +13,25 @@ describe("recipe", () => {
     expect(recipe.className).toBe("frame");
   });
 
-  it("offers a fit axis and a corner axis and a shape axis", () => {
-    expect(axesOf(recipe)).toStrictEqual(["fit", "radius", "ratio"]);
+  it("offers a blur axis and a fit axis and a corner axis and a shape axis", () => {
+    expect(axesOf(recipe)).toStrictEqual(["blur", "fit", "radius", "ratio"]);
+  });
+
+  it("offers every blur the theme draws", () => {
+    expect(valuesOf(recipe, "blur")).toStrictEqual(["lg", "md", "sm"]);
+  });
+
+  it("blurs what the frame holds rather than the frame itself", () => {
+    expect(recipe.variants?.["blur"]?.["md"]).toStrictEqual({
+      "& > *": { layerStyle: "blur.md", scale: "1.09" },
+    });
+  });
+
+  it("grows what it blurs by more at every step", () => {
+    const blur = recipe.variants?.blur;
+    const grown = [blur?.sm, blur?.md, blur?.lg].map((step) => Number(step?.["& > *"]?.scale));
+
+    expect(grown).toStrictEqual([1.06, 1.09, 1.12]);
   });
 
   it("draws a square that crops what it holds when nothing is asked for", () => {

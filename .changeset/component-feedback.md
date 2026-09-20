@@ -58,3 +58,8 @@ component-feedback: dismiss an alert in its own ink
   status: solid on a solid alert, where it reads in the contrast ink and its fill is the alert's
   own, and ghost on every other look, where it reads in the palette's ink beside the title. A
   neutral ghost control drew a dark cross on a solid fill.
+- `Alert` takes an `edge` axis with `top`, `bottom` and `end`, which paints a bar in the palette's
+  own colour along that edge. The three bars were drawn by the theme and reachable from nothing, and
+  the bar reads the palette's solid so an alert's status colours it.
+- `Alert` builds its `status` axis from `statusVariants()` with `neutral` beside it, the way the
+  button and the badge do. It listed the same five values in another order.

@@ -122,6 +122,49 @@ export const recipe = defineSlotRecipe({
   staticCss: [statusEmitted()],
   variants: {
     /**
+     * The pattern drawn behind what the card holds.
+     *
+     * @remarks
+     *   The nine the theme draws, each one a layer style, so a theme that restates a pattern moves
+     *   every card wearing it. They were drawn by the theme and reachable from no component at all
+     *   until this axis named them.
+     *   A pattern paints the root's background image and leaves its fill alone, so it composes with
+     *   every look: a grid behind a panel, dots behind a glass card, stars behind a plain one.
+     *   `aurora` carries the drift that moves it. A gradient that big standing still reads as a
+     *   smear rather than as light, and the animation style holds it back under a reader who asked
+     *   for less motion.
+     */
+    backdrop: onSlot("root", {
+      aurora: { animationStyle: "aurora", layerStyle: "backdrop.aurora" },
+
+      checker: { layerStyle: "backdrop.checker" },
+
+      dots: { layerStyle: "backdrop.dots" },
+
+      grid: { layerStyle: "backdrop.grid" },
+
+      noise: { layerStyle: "backdrop.noise" },
+
+      spotlight: { layerStyle: "backdrop.spotlight" },
+
+      stars: { layerStyle: "backdrop.stars" },
+
+      stripes: { layerStyle: "backdrop.stripes" },
+
+      vignette: { layerStyle: "backdrop.vignette" },
+    }),
+
+    /**
+     * The light a card is drawn under.
+     *
+     * @remarks
+     *   The glow reads the palette's solid at half strength, so a status or a theme moves it. It
+     *   is the larger of the two the theme draws: the button takes the smaller one, and a spread
+     *   measured against a control reads as a smudge round something the size of a card.
+     */
+    effect: onSlot("root", { glow: { layerStyle: "glow.lg" } }),
+
+    /**
      * Whether a rule separates the header and the footer from the band between them.
      */
     divided: {

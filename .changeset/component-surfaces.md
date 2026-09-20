@@ -59,3 +59,9 @@ component-surfaces: draw a card with no panel
   declared the ring colour twice.
 - `Card`'s `size` and `variant` list their values in the scale's and the looks' order rather than
   alphabetically. The styles each value draws are unchanged.
+- `Card` takes a `backdrop` axis: `aurora`, `checker`, `dots`, `grid`, `noise`, `spotlight`,
+  `stars`, `stripes` and `vignette`. Each is a layer style the theme already drew and no component
+  could reach. A pattern paints the root's background image and leaves its fill alone, so it
+  composes with every look. `aurora` carries the drift animation that moves it.
+- `Card` takes an `effect` axis with `glow`, which reads `glow.lg`. The button takes the smaller
+  glow; a spread measured against a control reads as a smudge round something the size of a card.
