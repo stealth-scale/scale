@@ -226,3 +226,6 @@ component-screen: inset a toolbar with an edge and show the switcher's words
   the mark alone. The indicator holds a pair of chevrons.
 - The sidebar's specimen gives every destination a mark and tells its lists when the column is
   collapsed, so the rail is a rail of marks rather than a column of clipped words.
+- A page holding an aside gives the height it has left over to the body's row alone. A grid shares
+  its spare height between every `auto` row, so a short page opened its empty bands as blank rows
+  and stretched the header until the trail, the title and the description stood a screen apart.
