@@ -347,7 +347,7 @@ export type SurfaceSteps = {
 /**
  * Writes a reference to a color token that carries both modes itself.
  */
-function referenced(path: string): Referenced {
+export function referenced(path: string): Referenced {
   return { value: `{colors.${path}}` };
 }
 

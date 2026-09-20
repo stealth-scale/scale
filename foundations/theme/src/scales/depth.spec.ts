@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { radii, shadows } from "#scales/depth.ts";
-import { modedAt, tokenAt } from "#tokens.fixtures.ts";
+import { tokenAt } from "#tokens.fixtures.ts";
 
 describe("depth", () => {
   it("draws three corners", () => {
@@ -35,25 +35,26 @@ describe("depth", () => {
   });
 
   it("casts further at each height", () => {
-    expect(modedAt(shadows(262), "xs", "base")).toContain("0 1px 2px");
-    expect(modedAt(shadows(262), "2xl", "base")).toContain("0 24px 48px");
+    expect(tokenAt(shadows(262), "xs")).toContain("0 1px 2px");
+    expect(tokenAt(shadows(262), "2xl")).toContain("0 24px 48px");
   });
 
   it("tints the shadow with the hue it was given", () => {
-    expect(modedAt(shadows(120), "md", "base")).toContain("120");
+    expect(tokenAt(shadows(120), "md")).toContain("120");
   });
 
   it("casts a black shadow three times as dark on a dark page", () => {
-    expect(modedAt(shadows(262), "md", "_dark")).toContain("oklch(0% 0.02 262 / 0.240)");
-    expect(modedAt(shadows(262), "md", "base")).toContain("oklch(20% 0.02 262 / 0.080)");
+    expect(tokenAt(shadows(262), "md")).toBe(
+      "0 4px 8px light-dark(oklch(20% 0.02 262 / 0.080), oklch(0% 0.02 262 / 0.240))",
+    );
   });
 
   it("scales every alpha by the depth a theme asked for", () => {
-    expect(modedAt(shadows(262, 2), "md", "base")).toContain("0.160");
+    expect(tokenAt(shadows(262, 2), "md")).toContain("0.160");
   });
 
   it("draws the inner shadows inset", () => {
-    expect(modedAt(shadows(262), "inner", "base")).toMatch(/^inset 0 2px 4px 0 /u);
-    expect(modedAt(shadows(262), "inset", "base")).toMatch(/^inset 0 0 0 1px /u);
+    expect(tokenAt(shadows(262), "inner")).toMatch(/^inset 0 2px 4px 0 /u);
+    expect(tokenAt(shadows(262), "inset")).toMatch(/^inset 0 0 0 1px /u);
   });
 });

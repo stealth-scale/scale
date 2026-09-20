@@ -89,13 +89,24 @@ the compiler's configuration as a literal, because the compiler's own loader res
 package to built output. The one import the rendered configuration keeps is the compiler's base
 preset, by absolute path.
 
-A contributor is a package on the application's dependency graph that publishes `./theme`. The
-system package is installed first, and each other package after the packages it depends on, so a
-package building on another can extend it. The first theme's values and preset are installed next,
-unscoped. Then every theme's recipe extensions and its text, layer and animation styles are nested
-under `[data-theme=<name>] &`, one preset per level of the theme's lineage, so the compiler emits a
-rule that wins while the attribute is set and matches nothing while it is not. A theme's global
-styles and keyframes have no rule to nest under the attribute, so only the first theme's apply.
+A contributor is a package on the application's dependency graph that publishes `./theme` and names
+the system package as a dependency or a peer. A package from outside the design system that
+publishes an export of that name is passed over. The system package is installed first, and each
+other package after the packages it depends on, so a package building on another can extend it. The
+first theme's values and preset are installed next, unscoped. Then every theme's recipe extensions
+and its text, layer and animation styles are nested under `[data-theme=<name>] &`, one preset per
+level of the theme's lineage, so the compiler emits a rule that applies while the attribute is set
+and matches nothing while it is not. A theme's global styles and keyframes have no rule to nest
+under the attribute, so only the first theme's apply.
+
+Every color stated in both modes, in the foundation, a preset or a theme, is rendered as one
+`light-dark(light, dark)` value before the compiler reads it. The browser evaluates the function
+where the color is used, against the `color-scheme` of that element, which the foundation's global
+styles set from the color mode attribute and the reader's preference. A custom property holding the
+function is inherited unevaluated, so an alias of one and a chain of aliases evaluate at the use
+site too, and a subtree switched to either mode inside the other reads every color from its own
+mode. A color stated once, or one naming a condition beside the two modes, is written as it is. The
+multi-theme example's stylesheet falls from 654 to 487 kB, and from 80 to 45 kB gzipped.
 
 The compiler emits the theme attribute under its own name and signs the root element. Both are
 rewritten before the rules reach the stylesheet, so nothing on the page names the compiler.

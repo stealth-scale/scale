@@ -49,10 +49,7 @@ describe("semanticTokens", () => {
 
   it("casts every shadow in the night's hue", () => {
     expect(semanticTokens.shadows?.["xs"]).toStrictEqual({
-      value: {
-        _dark: "0 1px 2px oklch(0% 0.02 212 / 0.150)",
-        base: "0 1px 2px oklch(20% 0.02 212 / 0.050)",
-      },
+      value: "0 1px 2px light-dark(oklch(20% 0.02 212 / 0.050), oklch(0% 0.02 212 / 0.150))",
     });
   });
 });

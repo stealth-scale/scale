@@ -116,9 +116,10 @@ element for a subtree. Five rules decide what a switch covers:
 - A component whose own rules must switch goes inside the element that carries the attribute.
 - Where neither attribute is written, the first theme draws the page and the reader's operating
   system decides the mode.
-- A subtree switched to light inside a page drawn dark keeps the dark values, because the
-  unconditioned values are declared on the root alone. Switching to dark inside a light page does
-  work.
+- Every color is compiled as one `light-dark(light, dark)` value and evaluated where it is used,
+  against the `color-scheme` the attribute sets, so a subtree switched to either mode inside the
+  other reads every color, alias and shadow from its own mode. A recipe's own `_dark` and `_light`
+  styles switch by the attribute above the element.
 
 ```html
 <html data-theme="fathom" data-color-mode="dark"></html>

@@ -50,11 +50,17 @@ describe("theme.config", () => {
     ]);
   });
 
-  it("compiles a published theme's page and ink as the colors it states", () => {
-    expect(declared(css, "[data-theme=cinder]", "--colors-bg")).toBe("#EEEEEE");
-    expect(declared(css, "[data-theme=cinder]", "--colors-fg")).toBe("#303841");
-    expect(declared(css, "[data-theme=blush]", "--colors-bg")).toBe("#F5F5F5");
-    expect(declared(css, "[data-theme=ink]", "--colors-bg")).toBe("oklch(97.0% 0.0060 262.0)");
+  it("compiles a published theme's page and ink as the colors it states in each mode", () => {
+    expect(declared(css, "[data-theme=cinder]", "--colors-bg")).toBe(
+      "light-dark(#EEEEEE, #303841)",
+    );
+    expect(declared(css, "[data-theme=cinder]", "--colors-fg")).toBe(
+      "light-dark(#303841, #EEEEEE)",
+    );
+    expect(declared(css, "[data-theme=blush]", "--colors-bg")).toMatch(/^light-dark\(#F5F5F5, /u);
+    expect(declared(css, "[data-theme=ink]", "--colors-bg")).toBe(
+      "light-dark(oklch(97.0% 0.0060 262.0), oklch(13.0% 0.0060 262.0))",
+    );
   });
 
   it("compiles a published theme's solid as the color it pins", () => {
@@ -78,14 +84,24 @@ describe("theme.config", () => {
   });
 
   it("compiles the default theme's page color where no attribute is set", () => {
-    expect(declared(css, ":where(:root, :host)", "--colors-bg")).toBe("oklch(96.0% 0.0160 195.0)");
+    expect(declared(css, ":where(:root, :host)", "--colors-bg")).toBe(
+      "light-dark(oklch(96.0% 0.0160 195.0), oklch(11.0% 0.0160 195.0))",
+    );
   });
 
   it("compiles every theme's page color under its attribute", () => {
-    expect(declared(css, "[data-theme=fathom]", "--colors-bg")).toBe("oklch(96.0% 0.0160 195.0)");
-    expect(declared(css, "[data-theme=folio]", "--colors-bg")).toBe("oklch(98.0% 0.0100 300.0)");
-    expect(declared(css, "[data-theme=forge]", "--colors-bg")).toBe("oklch(96.0% 0.0200 75.0)");
-    expect(declared(css, "[data-theme=abyss]", "--colors-bg")).toBe("oklch(93.0% 0.0200 195.0)");
+    expect(declared(css, "[data-theme=fathom]", "--colors-bg")).toMatch(
+      /^light-dark\(oklch\(96\.0% 0\.0160 195\.0\), /u,
+    );
+    expect(declared(css, "[data-theme=folio]", "--colors-bg")).toMatch(
+      /^light-dark\(oklch\(98\.0% 0\.0100 300\.0\), /u,
+    );
+    expect(declared(css, "[data-theme=forge]", "--colors-bg")).toMatch(
+      /^light-dark\(oklch\(96\.0% 0\.0200 75\.0\), /u,
+    );
+    expect(declared(css, "[data-theme=abyss]", "--colors-bg")).toMatch(
+      /^light-dark\(oklch\(93\.0% 0\.0200 195\.0\), /u,
+    );
   });
 
   it("restates the foundation's font under a theme that states none of its own", () => {
@@ -143,29 +159,21 @@ describe("theme.config", () => {
     expect(declared(css, ".button", "text-transform")).toBeUndefined();
   });
 
-  it("compiles the dark values under the attribute and under the preference", () => {
-    expect(css).toContain("[data-color-mode=dark]");
-    expect(css).toContain("@media (prefers-color-scheme: dark)");
-  });
-
-  it("declares the default theme's preferred dark values on the document root alone", () => {
+  it("declares no color under the dark attribute or the dark preference", () => {
+    expect(declared(css, "[data-color-mode=dark]", "--colors-bg")).toBeUndefined();
     expect(
       declared(
         css,
         ":where(:root, :host):not([data-color-mode=light], [data-color-mode=light] *)",
         "--colors-bg",
       ),
-    ).toBe("oklch(11.0% 0.0160 195.0)");
+    ).toBeUndefined();
   });
 
-  it("declares a switched theme's preferred dark values on the element that carries it", () => {
-    expect(
-      declared(
-        css,
-        "[data-theme=abyss]:where(:root, :host):not([data-color-mode=light], [data-color-mode=light] *)",
-        "--colors-bg",
-      ),
-    ).toBe("oklch(6.0% 0.0200 195.0)");
+  it("declares a switched theme's dark value inside the one declaration under its attribute", () => {
+    expect(declared(css, "[data-theme=abyss]", "--colors-bg")).toBe(
+      "light-dark(oklch(93.0% 0.0200 195.0), oklch(6.0% 0.0200 195.0))",
+    );
   });
 
   it("states the color scheme on either color mode attribute", () => {

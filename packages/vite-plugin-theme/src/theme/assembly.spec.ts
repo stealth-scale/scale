@@ -33,7 +33,12 @@ const DESIGN = packageFiles(
 
 const KIT = packageFiles(
   "node_modules/@acme/kit",
-  { exports: { ".": "./index.js", "./theme": "./theme.js" }, name: "@acme/kit", type: "module" },
+  {
+    exports: { ".": "./index.js", "./theme": "./theme.js" },
+    name: "@acme/kit",
+    peerDependencies: { "@acme/design": "*" },
+    type: "module",
+  },
   {
     "index.js": "export {};\n",
     "theme.js": [
@@ -91,7 +96,12 @@ const LINKED: ScratchFiles = {
   ...DESIGN,
   ...packageFiles(
     "packages/kit",
-    { exports: { ".": "./index.js", "./theme": "./theme.js" }, name: "@acme/kit", type: "module" },
+    {
+      exports: { ".": "./index.js", "./theme": "./theme.js" },
+      name: "@acme/kit",
+      peerDependencies: { "@acme/design": "*" },
+      type: "module",
+    },
     { "index.js": "export {};\n", "theme.js": 'export default { name: "@acme/kit" };\n' },
   ),
   "package.json": manifest({

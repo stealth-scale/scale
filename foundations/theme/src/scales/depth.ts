@@ -79,19 +79,18 @@ function ink(hue: number, lightness: number, alpha: number): string {
  *
  * @remarks
  *   A shadow on a dark page has to be darker than the page to be seen at all, which is why the
- *   weight differs by mode and not the alpha alone.
+ *   weight differs by mode and not the alpha alone. The mode is stated in the ink alone, as
+ *   `light-dark()`, so a shadow is declared once and cast in the mode of the element it falls
+ *   under, the same way every color is.
  * @param hue - The hue the shadow is tinted with.
  * @param depth - A multiplier on every alpha, for a theme that casts harder or softer.
  */
 export function shadows(hue: number, depth = 1): SemanticShadows {
   /**
-   * Writes one shadow in both modes from its geometry and its alpha.
+   * Writes one shadow from its geometry and its alpha, the ink of each mode inside it.
    */
   const cast = (geometry: string, alpha: number): SemanticShadows[string] => ({
-    value: {
-      _dark: `${geometry} ${ink(hue, 0, alpha * DARK_WEIGHT * depth)}`,
-      base: `${geometry} ${ink(hue, LIGHT_INK, alpha * depth)}`,
-    },
+    value: `${geometry} light-dark(${ink(hue, LIGHT_INK, alpha * depth)}, ${ink(hue, 0, alpha * DARK_WEIGHT * depth)})`,
   });
 
   return {

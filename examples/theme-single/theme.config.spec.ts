@@ -35,17 +35,20 @@ describe("theme.config", () => {
     expect(statement.themes.map((each) => each.name)).toStrictEqual(["fathom"]);
   });
 
-  it("compiles the theme's page color where no attribute is set", () => {
-    expect(declared(css, ":where(:root, :host)", "--colors-bg")).toBe("oklch(96.0% 0.0160 195.0)");
+  it("compiles the theme's page color in both modes where no attribute is set", () => {
+    expect(declared(css, ":where(:root, :host)", "--colors-bg")).toBe(
+      "light-dark(oklch(96.0% 0.0160 195.0), oklch(11.0% 0.0160 195.0))",
+    );
   });
 
   it("compiles the theme under its attribute as well", () => {
-    expect(declared(css, "[data-theme=fathom]", "--colors-bg")).toBe("oklch(96.0% 0.0160 195.0)");
+    expect(declared(css, "[data-theme=fathom]", "--colors-bg")).toBe(
+      "light-dark(oklch(96.0% 0.0160 195.0), oklch(11.0% 0.0160 195.0))",
+    );
   });
 
-  it("compiles the dark values under the color mode attribute", () => {
-    expect(css).toContain("[data-color-mode=dark]");
-    expect(css).toContain("oklch(11.0% 0.0160 195.0)");
+  it("declares no color under the color mode attribute", () => {
+    expect(declared(css, "[data-color-mode=dark]", "--colors-bg")).toBeUndefined();
   });
 
   it("states the color scheme on either color mode attribute", () => {

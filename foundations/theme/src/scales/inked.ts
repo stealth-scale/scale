@@ -9,12 +9,17 @@
  *   color the palette states. What is not a palette color is a tint of one.
  */
 
-import { type Filled, type Moded, type Status, STATUSES } from "#authoring/contract.ts";
+import {
+  type Families,
+  type Filled,
+  type Moded,
+  type Status,
+  STATUSES,
+} from "#authoring/contract.ts";
 import { oklab, type Oklab } from "#authoring/contrast.ts";
 import { type Tokens } from "#pandacss.ts";
 import { recordOf } from "#record.ts";
-import { backgrounds, colorScale, oklch } from "#scales/color.ts";
-import { type Families } from "#scales/palettes.ts";
+import { backgrounds, colorScale, oklch, referenced } from "#scales/color.ts";
 
 /**
  * Describes the colors a ramp carries.
@@ -171,13 +176,6 @@ export function scaleOf(color: string): Colors {
   const { chroma, hue } = polar(color);
 
   return colorScale(hue, chroma);
-}
-
-/**
- * Writes a reference to a color token that carries both modes itself.
- */
-function referenced(path: string): Filled {
-  return { value: `{colors.${path}}` };
 }
 
 /**

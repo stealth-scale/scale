@@ -12,9 +12,9 @@
  *   while its tokens said otherwise.
  *   The color scheme follows the attribute where one is written, and the operating system's
  *   preference where none is, the same way the color mode condition does. Either attribute states
- *   it, so a subtree switched to light inside a page drawn dark draws its form controls, its
- *   scrollbars and its selection in light, even though the colors a theme states do not follow it
- *   there.
+ *   it, and every color is rendered as `light-dark()` against it, so a subtree switched to light
+ *   inside a page drawn dark draws its colors, its form controls, its scrollbars and its selection
+ *   in light.
  *   The page scrolls smoothly to an anchor, and jumps for a reader who asked for less motion.
  *   The compiler's reset strips the size and the weight off every heading, so a heading with no
  *   text style of its own read as body text. A bare heading reads in the heading role of its
