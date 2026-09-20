@@ -51,6 +51,23 @@ function Shapes(): ReactElement {
 /**
  * Draws the wide picture in a tall frame, fitted both ways.
  */
+/**
+ * Draws the hillside at every blur the frame offers.
+ */
+function Blur(): ReactElement {
+  const { t } = useWords("frame");
+
+  return (
+    <Matrix knob="blur" of={valuesOf(recipe, "blur")}>
+      {(blur) => (
+        <Frame blur={blur} ratio="landscape">
+          <img alt={t("hillside")} src={HILLSIDE} />
+        </Frame>
+      )}
+    </Matrix>
+  );
+}
+
 function Fit(): ReactElement {
   const { t } = useWords("frame");
 
@@ -83,10 +100,19 @@ export const fit: Scene = {
   title: "frame.fit.title",
 };
 
+/**
+ * Every blur the frame throws what it holds out of focus by.
+ */
+export const blur: Scene = {
+  about: "frame.blur.about",
+  draw: Blur,
+  title: "frame.blur.title",
+};
+
 export default specimen({
   about: "frame.about",
   group: "Layout",
   id: "layout/frame",
-  scenes: [shapes, fit],
+  scenes: [shapes, fit, blur],
   title: "frame.title",
 });

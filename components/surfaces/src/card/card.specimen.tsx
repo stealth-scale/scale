@@ -199,9 +199,57 @@ function Motion(): ReactElement {
 }
 
 /**
+ * Draws the invoice behind every pattern the theme states, and under the glow.
+ */
+function Backdrop(): ReactElement {
+  return (
+    <Matrix knob="backdrop" of={valuesOf(recipe, "backdrop")}>
+      {(backdrop) => (
+        <Card.Root as="div" backdrop={backdrop}>
+          <Invoice />
+        </Card.Root>
+      )}
+    </Matrix>
+  );
+}
+
+/**
+ * Draws the invoice under the light the card offers.
+ */
+function Effect(): ReactElement {
+  return (
+    <Matrix knob="effect" of={valuesOf(recipe, "effect")}>
+      {(effect) => (
+        <Card.Root as="div" effect={effect} status="info">
+          <Invoice />
+        </Card.Root>
+      )}
+    </Matrix>
+  );
+}
+
+/**
  * Every look in every status.
  */
 export const looks: Scene = { about: "card.looks.about", draw: Looks, title: "card.looks.title" };
+
+/**
+ * Every pattern a card is drawn behind.
+ */
+export const backdrop: Scene = {
+  about: "card.backdrop.about",
+  draw: Backdrop,
+  title: "card.backdrop.title",
+};
+
+/**
+ * The light a card is drawn under.
+ */
+export const effect: Scene = {
+  about: "card.effect.about",
+  draw: Effect,
+  title: "card.effect.title",
+};
 
 /**
  * Every corner at every size.
@@ -261,6 +309,16 @@ export default specimen({
   about: "card.about",
   group: "Surfaces",
   id: "surfaces/card",
-  scenes: [looks, corners, orientation, distribution, divided, interactive, motion],
+  scenes: [
+    looks,
+    backdrop,
+    effect,
+    corners,
+    orientation,
+    distribution,
+    divided,
+    interactive,
+    motion,
+  ],
   title: "card.title",
 });

@@ -96,6 +96,28 @@ function Motion(): ReactElement {
  *   Each title stands in a room at the large measure, because the two read the same until the
  *   width runs out, and a cell of the catalogue gave a title of eighty characters the whole page.
  */
+/**
+ * The three steps the display role reaches, which are the loudest three of the size axis.
+ */
+const DISPLAYED = ["2xl", "3xl", "4xl"] as const;
+
+/**
+ * Draws the title in the display role at the three sizes the role reaches.
+ */
+function Display(): ReactElement {
+  const { t } = useWords("heading");
+
+  return (
+    <Matrix direction="column" knob="size" of={DISPLAYED}>
+      {(size) => (
+        <Heading as="h3" display size={size}>
+          {t("welcome")}
+        </Heading>
+      )}
+    </Matrix>
+  );
+}
+
 function Truncate(): ReactElement {
   const { t } = useWords("heading");
 
@@ -119,6 +141,15 @@ export const sizes: Scene = {
   about: "heading.sizes.about",
   draw: Sizes,
   title: "heading.sizes.title",
+};
+
+/**
+ * The display role at the three sizes it reaches.
+ */
+export const display: Scene = {
+  about: "heading.display.about",
+  draw: Display,
+  title: "heading.display.title",
 };
 
 /**
@@ -161,6 +192,6 @@ export default specimen({
   about: "heading.about",
   group: "Typography",
   id: "typography/heading",
-  scenes: [sizes, inks, effects, motion, truncate],
+  scenes: [sizes, display, inks, effects, motion, truncate],
   title: "heading.title",
 });

@@ -6,6 +6,10 @@
   },
   "declined": "The card was declined and nothing was charged.",
   "dismiss": "Dismiss this notice",
+  "edge": {
+    "about": "A bar in the status colour along each edge the theme draws one for.",
+    "title": "Edges"
+  },
   "failed": "Payment failed",
   "layouts": {
     "about": "The words stacked under their title, and the words inline with it.",

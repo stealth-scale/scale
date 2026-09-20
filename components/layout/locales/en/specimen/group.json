@@ -5,6 +5,10 @@
     "title": "Alignment"
   },
   "day": "Day",
+  "dim": {
+    "about": "Rest a pointer on one control: the others blur and quieten.",
+    "title": "Dim"
+  },
   "discard": "Discard",
   "distribution": {
     "about": "How the room left over along the flow is shared, in a group stretched to the width of a column.",

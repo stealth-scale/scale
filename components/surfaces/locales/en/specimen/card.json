@@ -1,5 +1,9 @@
 {
   "about": "Draws a panel a reader takes in on its own: a picture, a header, the substance, and whatever they act on.",
+  "backdrop": {
+    "about": "Every pattern the theme draws behind a card, at the medium size.",
+    "title": "Backdrops"
+  },
   "corners": {
     "about": "Every corner at every size.",
     "title": "Corners and sizes"
@@ -12,12 +16,16 @@
     "about": "The header and the footer ruled apart from the band between them, beside a card left whole.",
     "title": "Divided"
   },
+  "effect": {
+    "about": "The light a card is drawn under, in the informational palette.",
+    "title": "Effect"
+  },
   "interactive": {
     "about": "A card a reader presses, which follows the link in its title and shows its focus, beside one that only holds.",
     "title": "Interactive"
   },
-  "issued": "Issued on 2 September",
   "invoice": "Invoice 4821",
+  "issued": "Issued on 2 September",
   "lines": "Three lines, one unbilled.",
   "looks": {
     "about": "Every look in every status.",
