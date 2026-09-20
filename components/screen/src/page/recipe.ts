@@ -82,12 +82,15 @@ const SHELL_TOP = "--app-shell-sticky-top";
  *   all, which is what every band told to stick did: they were positioned and never moved.
  *   The edge is the shell's own, so a band keeps under whatever bars the shell has pinned rather
  *   than sliding behind them.
+ *   The layer is the `sticky` token rather than a number of its own, which is what the shell pins
+ *   its own bars at. A band and a bar that stick to the same edge are one order, and two scales
+ *   for it means a number here has to be read against a token there every time either moves.
  */
 const STUCK = {
   background: "bg",
   insetBlockStart: `var(${SHELL_TOP}, 0px)`,
   position: "sticky",
-  zIndex: "1",
+  zIndex: "sticky",
 };
 
 /**
