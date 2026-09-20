@@ -10,8 +10,14 @@
  *   measured again as it resizes, as its rows change and once the fonts have loaded, so the stop
  *   goes when a wider window makes the table fit. Name it. A focusable box with no name is
  *   announced as nothing at all, so point `aria-labelledby` at the caption's `id` or state
- *   `aria-label`. The scroller states the variants, not the table, because the look of the edge and
- *   the corner belong to the box that clips them.
+ *   `aria-label`.
+ *   The stop is drawn with `role="region"`, which is what the WAI-ARIA practices ask of a
+ *   scrollable region and what gives the stop something a screen reader can announce on arrival. A
+ *   focusable `div` with a name and no role is announced as the name and nothing else. The role
+ *   goes on and off with the stop rather than being stated once, because a landmark on every table
+ *   of a page is a landmark list nobody can move through.
+ *   The scroller states the variants, not the table, because the look of the edge and the corner
+ *   belong to the box that clips them.
  */
 
 import { type ComponentProps, type ReactElement, type Ref, useCallback, useRef } from "react";
@@ -56,5 +62,5 @@ export function Scroller({ ref, ...rest }: ScrollerProps): ReactElement {
     [ref],
   );
 
-  return <Box {...rest} ref={taken} {...(overflows ? { tabIndex: 0 } : {})} />;
+  return <Box {...rest} ref={taken} {...(overflows ? { role: "region", tabIndex: 0 } : {})} />;
 }

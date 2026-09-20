@@ -1,6 +1,6 @@
 import { createRef } from "react";
 
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { accessibilityViolations, violations } from "@stealthscale/testing-react";
@@ -61,6 +61,24 @@ describe("Scroller", () => {
       const { container } = render(composed());
 
       expect(slotElement(container, "table", "scroller").getAttribute("tabindex")).toBe("0");
+    } finally {
+      narrowed();
+    }
+  });
+
+  it("stands as no landmark while the whole table fits", () => {
+    const { container } = render(composed());
+
+    expect(slotElement(container, "table", "scroller").getAttribute("role")).toBeNull();
+  });
+
+  it("stands as a region once the table runs past it", () => {
+    const narrowed = widened();
+
+    try {
+      render(composed());
+
+      expect(screen.getByRole("region", { name: "Invoices this quarter" })).toBeTruthy();
     } finally {
       narrowed();
     }
