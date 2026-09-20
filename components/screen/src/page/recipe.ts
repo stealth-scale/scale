@@ -47,13 +47,23 @@ export const GUTTER = "--page-gutter";
 export const MEASURE = "--page-measure";
 
 /**
- * Writes what every band shares: edge to edge, starting at the gutter and stopping at the measure.
+ * The property a band reads the room it leaves before the measure from.
+ *
+ * @remarks
+ *   A band runs edge to edge so its surface is full bleed, and its padding is what holds the
+ *   content to the measure. The alignment axis writes this property and every band reads it, so
+ *   the header, the body and the footer stay in one column whichever way the page is aligned.
+ */
+const LEAD = "--page-lead";
+
+/**
+ * Writes what every band shares: edge to edge, with the content held to the measure by padding.
  */
 const BAND = {
   flexShrink: "0",
   minInlineSize: "0",
-  paddingInlineEnd: `max(var(${GUTTER}), calc(100% - var(${MEASURE}, 100%) - var(${GUTTER})))`,
-  paddingInlineStart: `var(${GUTTER})`,
+  paddingInlineEnd: `max(var(${GUTTER}), calc(100% - var(${MEASURE}, 100%) - var(${LEAD}, var(${GUTTER}))))`,
+  paddingInlineStart: `var(${LEAD}, var(${GUTTER}))`,
 };
 
 /**
@@ -99,6 +109,12 @@ const SHELL_TOP = "--app-shell-sticky-top";
 /**
  * Writes the rows and the columns of a page holding an aside: every band across, and the body
  * beside the aside.
+ *
+ * @remarks
+ *   The body's row takes the height the page has left over and every other row takes its content's.
+ *   The root is at least as tall as the shell's main, and a grid shares its spare height between
+ *   every `auto` row, so a short page opened its empty bands as blank rows and stretched the header
+ *   until the trail, the title and the description stood a screen apart.
  */
 const BESIDE = {
   columnGap: dense("{spacing.gap.xl}"),
@@ -106,6 +122,7 @@ const BESIDE = {
   gridTemplateAreas:
     '"banner banner" "header header" "nav nav" "toolbar toolbar" "body aside" "footer footer"',
   gridTemplateColumns: "minmax(0, 1fr) auto",
+  gridTemplateRows: "auto auto auto auto 1fr auto",
 };
 
 /**
@@ -247,10 +264,18 @@ export const recipe = defineSlotRecipe({
   variants: {
     /**
      * Where the column sits when the measure is narrower than the room it is given.
+     *
+     * @remarks
+     *   The alignment moves the room a band leaves before its content, not the root. The root runs
+     *   edge to edge so a band's surface is full bleed, and automatic margins on a full-width root
+     *   move nothing: a centred page and a start-aligned one measured the same 1,846-pixel root
+     *   with the content held at the start of both.
      */
     align: {
-      center: { root: { marginInline: "auto" } },
-      start: { root: { marginInline: "0" } },
+      center: {
+        root: { [LEAD]: `max(var(${GUTTER}), calc((100% - var(${MEASURE}, 100%)) / 2))` },
+      },
+      start: { root: { [LEAD]: `var(${GUTTER})` } },
     },
 
     /**

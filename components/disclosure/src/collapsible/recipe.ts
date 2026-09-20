@@ -35,7 +35,7 @@ export const recipe = defineSlotRecipe({
       flexShrink: "0",
       justifyContent: "center",
       transitionDuration: "press",
-      transitionProperty: "transform",
+      transitionProperty: "rotate",
       transitionTimingFunction: "press",
     },
     root: { width: "full" },

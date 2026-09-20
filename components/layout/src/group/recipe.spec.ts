@@ -62,9 +62,9 @@ describe("recipe", () => {
   });
 
   it("pulls a neighbour back by the control's stroke rather than by a length of its own", () => {
-    expect(
-      recipe.compoundVariants?.[0]?.css?.["& > *:not(:last-of-type)"]?.["marginInlineEnd"],
-    ).toBe("calc({borderWidths.control} * -1)");
+    expect(recipe.compoundVariants?.[0]?.css?.["& > *:not(:last-child)"]?.["marginInlineEnd"]).toBe(
+      "calc({borderWidths.control} * -1)",
+    );
   });
 
   it("tracks the tag a consumer writes it under", () => {

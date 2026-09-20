@@ -96,7 +96,12 @@ export const recipe = defineSlotRecipe({
     {
       css: {
         columnHeader: {
-          "&:first-of-type": { insetInlineStart: "0", position: "sticky", zIndex: "2" },
+          "&:first-child": {
+            background: "bg.panel",
+            insetInlineStart: "0",
+            position: "sticky",
+            zIndex: "2",
+          },
         },
       },
       name: "cornered",
@@ -204,11 +209,21 @@ export const recipe = defineSlotRecipe({
     /**
      * Whether the header stays put while the body scrolls under it.
      */
+    /**
+     * Whether the column names stay put while the table scrolls down.
+     *
+     * @remarks
+     *   The surface is painted on the cells rather than on the section. A `thead` does not move:
+     *   the rows inside it are what stick, so a fill on the section scrolled away and the body's
+     *   values showed through the header's labels. The corner cell sticks on both axes and carries
+     *   the same surface, so it occludes what passes under it rather than letting two scrolls meet
+     *   in it.
+     */
     stickyHeader: {
       true: {
+        columnHeader: { background: "bg.panel" },
         header: {
           "& > tr": { insetBlockStart: "0", position: "sticky", zIndex: "1" },
-          background: "bg.panel",
         },
       },
     },

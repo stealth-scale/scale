@@ -40,8 +40,8 @@ export const recipe = defineRecipe({
     {
       attached: true,
       css: {
-        "& > *:not(:first-of-type)": { borderEndStartRadius: "0", borderStartStartRadius: "0" },
-        "& > *:not(:last-of-type)": {
+        "& > *:not(:first-child)": { borderEndStartRadius: "0", borderStartStartRadius: "0" },
+        "& > *:not(:last-child)": {
           borderEndEndRadius: "0",
           borderStartEndRadius: "0",
           marginInlineEnd: OVERLAP,
@@ -54,8 +54,8 @@ export const recipe = defineRecipe({
     {
       attached: true,
       css: {
-        "& > *:not(:first-of-type)": { borderStartEndRadius: "0", borderStartStartRadius: "0" },
-        "& > *:not(:last-of-type)": {
+        "& > *:not(:first-child)": { borderStartEndRadius: "0", borderStartStartRadius: "0" },
+        "& > *:not(:last-child)": {
           borderEndEndRadius: "0",
           borderEndStartRadius: "0",
           marginBlockEnd: OVERLAP,

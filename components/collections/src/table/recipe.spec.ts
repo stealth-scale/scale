@@ -87,10 +87,13 @@ describe("recipe", () => {
     expect(NUMERIC).toBe("data-numeric");
   });
 
-  it("draws the sticky header on a surface so the rows do not read through it", () => {
-    expect(recipe.variants?.["stickyHeader"]?.["true"]?.["header"]).toMatchObject({
+  it("draws the sticky header's cells on a surface so the rows do not read through it", () => {
+    expect(recipe.variants?.["stickyHeader"]?.["true"]?.["columnHeader"]).toStrictEqual({
       background: "bg.panel",
     });
+    expect(recipe.variants?.["stickyHeader"]?.["true"]?.["header"]).not.toHaveProperty(
+      "background",
+    );
   });
 
   it("lights an interactive row from the keyboard as well as the pointer", () => {
@@ -118,7 +121,12 @@ describe("recipe", () => {
 
     expect(cornered?.css).toStrictEqual({
       columnHeader: {
-        "&:first-of-type": { insetInlineStart: "0", position: "sticky", zIndex: "2" },
+        "&:first-child": {
+          background: "bg.panel",
+          insetInlineStart: "0",
+          position: "sticky",
+          zIndex: "2",
+        },
       },
     });
   });

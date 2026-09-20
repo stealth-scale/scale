@@ -87,6 +87,10 @@ describe("recipe", () => {
     expect(recipe.base?.["content"]).toStrictEqual({ overflow: "hidden" });
   });
 
+  it("names the property the mark actually turns in", () => {
+    expect(recipe.base?.["indicator"]).toMatchObject({ transitionProperty: "rotate" });
+  });
+
   it("tracks the tag named Collapsible and every part under it", () => {
     expect(recipe.jsx).toStrictEqual([/^Collapsible(\.\w+)?$/u]);
   });

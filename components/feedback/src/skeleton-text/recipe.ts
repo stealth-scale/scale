@@ -19,11 +19,14 @@ import { defineRecipe } from "@stealthscale/theme/authoring";
  */
 export const recipe = defineRecipe({
   base: {
-    "& > *": { height: "1lh" },
+    "& > *": {
+      backgroundClip: "content-box",
+      blockSize: "1lh",
+      paddingBlock: "0.15lh",
+    },
     "& > *:last-child:not(:only-child)": { maxWidth: "80%" },
     display: "flex",
     flexDirection: "column",
-    gap: "0.5lh",
     width: "full",
   },
   className: "skeleton-text",

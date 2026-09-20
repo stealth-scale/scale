@@ -40,3 +40,11 @@ component-disclosure: draw no ring on a menu's panel
 
 - The machine moves focus onto the panel as it opens, and the ring drawn for that read as the panel
   being selected rather than as the highlighted row. The panel keeps `outline: 0` and no ring.
+
+component-disclosure: draw the indicator of every tab look
+
+- The enclosed and subtle indicators take the width and the height the machine measures. They
+  rendered at two by two and nothing at all, so the selected tab was unmarked in both looks. The
+  indicator sits behind the label and takes no pointer input.
+- The collapsible's mark names `rotate` as the property it turns in rather than `transform`, which
+  it never changed.

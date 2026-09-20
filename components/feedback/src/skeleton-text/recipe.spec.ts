@@ -17,8 +17,16 @@ describe("recipe", () => {
     expect(axesOf(recipe)).toStrictEqual([]);
   });
 
-  it("draws each bar one line tall", () => {
-    expect(recipe.base?.["& > *"]).toStrictEqual({ height: "1lh" });
+  it("gives each bar one line box and draws the bar inside it", () => {
+    expect(recipe.base?.["& > *"]).toStrictEqual({
+      backgroundClip: "content-box",
+      blockSize: "1lh",
+      paddingBlock: "0.15lh",
+    });
+  });
+
+  it("reserves exactly the height the text it stands in for will take", () => {
+    expect(recipe.base).not.toHaveProperty("gap");
   });
 
   it("shortens the last bar of several because a paragraph rarely fills its final line", () => {

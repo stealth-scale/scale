@@ -124,16 +124,25 @@ describe("recipe", () => {
   });
 
   it("runs every band edge to edge and insets what it holds", () => {
-    expect(recipe.base?.["header"]).toMatchObject({
-      paddingInlineStart: `var(${GUTTER})`,
-    });
-    expect(recipe.base?.["body"]).toMatchObject({ paddingInlineStart: `var(${GUTTER})` });
+    const lead = `var(--page-lead, var(${GUTTER}))`;
+
+    expect(recipe.base?.["header"]).toMatchObject({ paddingInlineStart: lead });
+    expect(recipe.base?.["body"]).toMatchObject({ paddingInlineStart: lead });
   });
 
-  it("leaves the spare room at the end rather than centring the column", () => {
+  it("stops every band at the measure whatever room it leaves before it", () => {
     expect(recipe.base?.["header"]?.["paddingInlineEnd"]).toBe(
-      `max(var(${GUTTER}), calc(100% - var(${MEASURE}, 100%) - var(${GUTTER})))`,
+      `max(var(${GUTTER}), calc(100% - var(${MEASURE}, 100%) - var(--page-lead, var(${GUTTER}))))`,
     );
+  });
+
+  it("shares the spare room between the two sides where the page is centred", () => {
+    expect(recipe.variants?.["align"]?.["center"]?.["root"]).toStrictEqual({
+      "--page-lead": `max(var(${GUTTER}), calc((100% - var(${MEASURE}, 100%)) / 2))`,
+    });
+    expect(recipe.variants?.["align"]?.["start"]?.["root"]).toStrictEqual({
+      "--page-lead": `var(${GUTTER})`,
+    });
   });
 
   it("places the header as a grid so its parts are written flat", () => {
@@ -165,6 +174,7 @@ describe("recipe", () => {
         gridTemplateAreas:
           '"banner banner" "header header" "nav nav" "toolbar toolbar" "body aside" "footer footer"',
         gridTemplateColumns: "minmax(0, 1fr) auto",
+        gridTemplateRows: "auto auto auto auto 1fr auto",
       },
     });
   });
