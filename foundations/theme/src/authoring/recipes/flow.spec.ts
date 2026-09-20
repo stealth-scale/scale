@@ -19,8 +19,8 @@ describe("flow", () => {
   it("offers the whole gap scale when a recipe names no steps", () => {
     expect(Object.keys(gapSizes())).toHaveLength(8);
     expect(gapSizes(["sm", "4xl"])).toStrictEqual({
-      "4xl": { gap: "gap.4xl" },
-      sm: { gap: "gap.sm" },
+      "4xl": { gap: "calc({spacing.gap.4xl} * var(--density, 1))" },
+      sm: { gap: "calc({spacing.gap.sm} * var(--density, 1))" },
     });
   });
 

@@ -7,15 +7,21 @@ describe("globalCss", () => {
     expect(SWITCHED).toBe(":root, [data-theme], [data-color-mode]");
   });
 
-  it("fills the six properties the reset and the focus ring read on every switched element", () => {
+  it("fills the eight properties the reset and the focus ring read on every switched element", () => {
     expect(globalCss[SWITCHED]).toMatchObject({
+      "--focus-ring-offset": "{spacing.ring}",
+      "--focus-ring-width": "{borderWidths.ring}",
       "--global-color-border": "colors.border",
       "--global-color-focus-ring": "colors.border.focus",
       "--global-color-placeholder": "colors.fg.muted",
-      "--global-color-selection": "colors.neutral.emphasized",
+      "--global-color-selection": "colors.accent.muted",
       "--global-font-body": "fonts.body",
       "--global-font-mono": "fonts.mono",
     });
+  });
+
+  it("draws a native control's own accent in the accent palette", () => {
+    expect(globalCss[SWITCHED]).toMatchObject({ accentColor: "accent.solid" });
   });
 
   it("declares the ink and the palette and the font again on every switched element", () => {
@@ -36,6 +42,11 @@ describe("globalCss", () => {
 
   it("follows the light mode attribute with the color scheme", () => {
     expect(globalCss["[data-color-mode=light]"]).toStrictEqual({ colorScheme: "light" });
+  });
+
+  it("sets the density property under the density attribute", () => {
+    expect(globalCss["[data-density=compact]"]).toStrictEqual({ "--density": "0.9" });
+    expect(globalCss["[data-density=comfortable]"]).toStrictEqual({ "--density": "1.1" });
   });
 
   it("scrolls smoothly and jumps for a reader who asked for less motion", () => {

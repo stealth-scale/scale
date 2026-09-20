@@ -59,16 +59,16 @@ describe("animationStyles", () => {
     });
   });
 
-  it("runs a fade in at the moderate pace and out at the fast pace", () => {
+  it("runs a fade in at the entering pace and curve and out at the leaving ones", () => {
     expect(tokenAt(animationStyles, "fade.in")).toMatchObject({
-      animationDuration: "moderate",
+      animationDuration: "enter",
       animationName: "fade-in",
-      animationTimingFunction: "out",
+      animationTimingFunction: "enter",
     });
     expect(tokenAt(animationStyles, "fade.out")).toMatchObject({
-      animationDuration: "fast",
+      animationDuration: "leave",
       animationName: "fade-out",
-      animationTimingFunction: "in",
+      animationTimingFunction: "leave",
     });
   });
 

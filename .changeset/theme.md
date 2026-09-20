@@ -2,6 +2,148 @@
 "@stealthscale/theme": minor
 ---
 
+theme: draw a theme from a statement
+
+- `defineTheme` takes a statement on nine axes: `colors`, `faces`, `type`, `metrics`, `motion`,
+  `shape`, `depth`, `looks` and the recipe extensions. A root theme states the page and the ink of
+  each mode and a `primary`. It may also state the other intents and the code inks, ask for the hue
+  palettes with `hues`, keep a solid as stated with `keep`, and restate the ratios it draws to with
+  `ratios`. Every surface, ink, line, palette role and status is drawn from that. Every other axis
+  is optional, and a token stated outright under `tokens` or `semanticTokens` is merged over what
+  the axes drew. A derived theme states what differs over its parent.
+- The engine is published for an application that draws a palette of its own: `drawColors`,
+  `drawAxes`, `inked`, `drawn`, `intents`, `hues`, `coded`, `canonical`, `ladderOf`, `typeScale`,
+  `metrics`, `shape`, `depth` and `faces`, with `FOUNDATION`, `PAGES`, `RATIOS`, `HAIRLINES`,
+  `STATUS_HUES` and `RAMPS` beside them, and `lightened`, `polar`, `lightnessOf`, `inGamut` and
+  `referenced` for a statement's own arithmetic. `drawAxes` typed over `RootAxes` returns
+  `DrawnRoot`, in which every color the contract names is present, and the foundation's own preset
+  is that statement drawn once.
+- `axis(values, write)` writes an axis helper from every value an axis can take and the styles one
+  value states: called with nothing it writes every value, called with a list it writes the values
+  named. Every helper that offers a list is written with it, so a recipe author writes a helper of
+  their own the same way.
+- A derived theme states any part of an axis, `colors` included. The part is merged over its
+  parent's statement and the axis is drawn again from the whole. A theme that restates one corner
+  keeps its parent's other corners, one that restates the primary keeps its parent's pages, and one
+  that restates the density scales its parent's bases. `Theme` carries the merged axes as `axes`,
+  and `DerivedAxes` and `DerivedColors` type what a derived theme states.
+- Every control, icon, tag, inset and gap a recipe reads is multiplied by the `--density` property,
+  which the foundation registers at one and the `data-density` attribute sets to 0.9 for `compact`
+  and 1.1 for `comfortable`. A subtree marked compact is drawn tighter inside any theme, over the
+  theme's own density, and `touchTarget()` holds its area at a medium control's box or 24 CSS
+  pixels, whichever is larger. `dense()` is published for a recipe reading a scaled length the
+  helpers do not cover.
+- A `motion` axis: `pace`, a multiplier on every pace, and the curves `press`, `enter`, `leave` and
+  `move`. `tempo()` draws them into `durations.press/enter/leave/move` and the easings of the same
+  names, `interactive()`, `row()` and `field()` transition at `press`, and every entering and
+  leaving animation style reads `enter` or `leave`, so a theme that is snappier or eases differently
+  restates one number or one curve.
+- The `type` axis takes the roles: the `heading` role's `weight`, `tracking` and `leading`, the
+  `label` role's `weight` and `tracking`, and the `body` role's `leading`, each over every step of
+  the role. `roles()` draws the six text roles, `typeScale()` draws them beside the sizes, and
+  `Type` extends `Roles`.
+- The `shape` axis takes the ring and the corners: `ring.width` and `ring.offset` draw
+  `borderWidths.ring` and `spacing.ring`, which the global styles write into the properties the
+  focus utility reads, and `l1`, `l2` or `l3` stated outright takes that corner off the concentric
+  ladder. The `metrics` axis takes `narrow`, `wide` and `prose`, the measures a page and a column of
+  text are read at.
+- `colors.keep` takes a list of intents beside `true`, so a theme keeps one solid as the brand drew
+  it and lets the rest move. `colors.ratios` takes `hairline`, the ratio the structural line stands
+  at. `colors.chroma` is the share of the page's chroma a raised surface and a well keep, for a
+  theme whose page is saturated enough that every surface in its tint reads as one wall of color.
+- A status a theme leaves unstated is drawn at the chroma of the brand's most saturated intent. That
+  is the primary, or a stated accent, floored at 0.1. A muted brand's statuses no longer shout over
+  it. A grey brand's still read as colors.
+- The statuses are drawn in turn rather than each alone. One lands too close where it sits within
+  0.05 of a solid already drawn, or within 0.12 of one of its own hue. Such a status moves in
+  lightness until it clears. It may not bleach past half its chroma to get there. A red brand's
+  error is now a different button from its primary. An error and a warning are no longer one badge.
+- WCAG AA is a floor `colors.ratios` may raise and never lower. `FLOOR` fixes 4.5:1 for text, labels
+  and the tertiary ink and 3:1 for a boundary, `ratiosOf()` holds a stated ratio at it, and the
+  gate's `thresholdsOf` holds a specification's thresholds at the same numbers. A theme whose colors
+  cannot reach the floor is reported rather than measured against a lower one.
+- A solid's label falls back to black or white where neither the theme's ink nor its page carries
+  it. The worse of those two clears 4.58:1 on any color there is, so a brand color no longer moves
+  in lightness to carry a label and moves only to stand from the page. Measured on Dusk, whose
+  primary label went from 3.01:1 to 5.32:1 with the coral untouched.
+- A ratio is measured on the color a display shows. A linear channel outside sRGB is clipped before
+  the luminance is weighted, the way a display clips it, so a pair can no longer clear a threshold
+  in the engine and fail it on the screen. The colors themselves are written as stated, so a wider
+  display still shows them.
+- A color is refused with the value in the message where its fields are not numbers, where its hex
+  is a length CSS never writes, or where it carries transparency. `oklch()` refuses a coordinate
+  that is not finite. `lightened()` bounds its search. A malformed color now reports itself rather
+  than hanging the build.
+- The code inks are drawn to the text ratio on the page and the panel as well as to their distance
+  from the page, and the gate measures every one of them. A keyword is text a reader reads, and a
+  distance in lightness is not a contrast ratio.
+- The `label` role takes `tracking`. A role is written into every size variant and the compiler
+  layers variants over base, so tracking a theme wrote in a recipe extension's `base` never reached
+  a control that has a size.
+- The density is applied where a length is consumed rather than inside the token. `dense(length)`
+  multiplies by `var(--density, 1)` and every size helper reads through it. A custom property
+  inherits the value it computed where it was declared, so a token carrying the multiplier was fixed
+  at the root's density and a subtree that set another density inherited the same length. Measured
+  in Chromium: a medium button is 36px, 32.39px inside a compact subtree and 39.59px inside a
+  comfortable one.
+- A theme's rules stop at the nearest theme boundary. The scope selector excludes anything under a
+  theme nested inside it, so a button inside Ink inside Regatta is drawn in Ink's weight, tracking
+  and corners rather than keeping Regatta's capitals.
+- A partial look is merged into what the axes drew rather than spread over it, at every level, so a
+  theme restating one heading step keeps the seven its role drew for the siblings.
+- `colors.keep` is honoured through the whole solver. A status the theme asked to keep is not moved
+  to clear a collision either, and the gate reports what it collides with.
+- The plain fill marks a press with a fill rather than by inking the text in the palette's solid,
+  which dropped a pressed plain button from 11.78:1 to 3.27:1. The subtle field carries the
+  control's boundary at its block end, because an empty one has no text and its fill stood at 1.39:1
+  from the panel around it.
+- `ladderOf(side, options)` takes the draw options rather than a ratio, `HAIRLINES` holds the two
+  quiet lines alone, and `atChroma` is published beside `lightened`.
+- The global styles draw a selection and a native control's own accent in the accent palette, so a
+  theme that states an accent moves the text a reader drags over and the tick inside a checkbox the
+  browser draws itself.
+- `statusVariants()`, `fieldStatusVariants()` and `statusEmitted()` take the statuses a recipe
+  offers, so a component that reports two of them emits rules for two. A theme's recipe extension
+  refuses `defaultVariants`, `jsx` and `staticCss`, which the build cannot scope to one theme.
+- Surfaces rise, wells sink and fills lift. `bg.panel` and `bg.popover` are lighter than the page in
+  both modes, `bg.subtle`, `bg.muted` and `bg.emphasized` are darker than the page in both modes,
+  and a palette's three fills step towards the ink and above the popover. Every palette's fills sit
+  at one lightness and differ by hue alone. Each step goes only as far as a secondary ink still
+  reads on it, and the three steps of a ladder compress together. The dark page of the foundation
+  moves from 13 to 15 so three wells fit under it.
+- The faded inks and the lines are drawn to ratios rather than to mix shares: `fg.muted` at 7:1 on
+  every surface, `fg.subtle` at 4.5:1, `border` at 1.45:1, `border.emphasized` at 3:1, a palette's
+  `fg` at 7:1 on the page and its fills, its `border` and `focusRing` at 3:1 on every surface, and
+  its `contrast` at 4.5:1 on its solid and on its hover. Consecutive lines keep a step apart. A
+  solid that fails to stand from the page or to carry its label moves in lightness with its hue and
+  chroma kept, unless the theme says `keep`. A theme whose stated ink cannot reach a ratio states
+  `ratios`.
+- A hovered solid moves a step in lightness away from its label and a hovered line a step towards
+  the ink, so a hover is seen on every solid and a label reads better under the pointer.
+- The intents draw from colors rather than from hue names. `secondary` defaults to the canonical
+  purple, `accent` to the primary by reference, `neutral` to the ink, and each status to the
+  canonical hue of its name. `fg.link` and `border.focus` read the accent. The foundation's own
+  `accent` is its primary and its `info` is cyan.
+- The contract has ten roles: `bg` and `fg.muted` leave a palette, `bg.disabled` and `fg.disabled`
+  leave the families, and the eleven hue palettes are optional. `ThemeColors` types them `Partial`
+  and a theme draws them with `colors.hues`.
+- Three semantic stroke widths and five layout sizes: `borderWidths.hairline`,
+  `borderWidths.control` and `borderWidths.indicator`, and `sizes.sidebar`, `sizes.aside`,
+  `sizes.rail`, `sizes.page.narrow` and `sizes.page.wide`. `field()` draws its edge in
+  `border.emphasized` at the control's width and darkens it to `fg.subtle` under a pointer. The
+  three field looks draw the same edge and restate the hover, invalid and read-only rules, because
+  the compiler layers a recipe's variants over its base and a look that wrote its edge alone left
+  the outlined input with the hairline, no hover and no red edge when invalid. `surface()`,
+  `floating()` and `divider()` draw hairlines, the outlined and surface looks draw at the control's
+  width, and the indicators at the indicator's. `toneVariants` offers `subtle`.
+- `scales/` is `draw/`, the contrast measurement is in the same directory, and `RATIOS` for the
+  aspect ratios is `ASPECT_RATIOS`. Leaving: `backgrounds`, `surfaces`, `foregrounds`, `borders`,
+  `stepped`, `ramp`, `neutralFills`, `paletteRoles`, `paletteAlias`, `palettes`, `families`,
+  `ROLE_STEPS`, `FOREGROUND_STEPS`, `BORDER_STEPS`, `PageLightness`, `Palettes`, `PaletteAliases`,
+  `Coded`, `deepMerge`, `contract`, `ContractedVariant`, `RootThemeConfig`, `DerivedThemeConfig` and
+  `ThemeConfig`. A theme transcribed from another system's steps states its tokens outright under
+  `tokens` and `semanticTokens`.
+
 theme: publish statusEmitted
 
 - `statusEmitted()` writes the `staticCss` entry a recipe with a `status` axis carries, so every
@@ -15,16 +157,16 @@ theme: publish statusEmitted
 theme: publish the safe-area spacing, the reading measure, and a condition for the highlight axis
 
 - `spacing.safe.{top,right,bottom,left}` is the room a device keeps for a home indicator, a notch or
-  a rounded corner. Only the browser knows how much, so these read `env()` and answer zero on every
-  device that reserves nothing. Anything a page fixes to an edge of the screen reads them, because a
-  recipe may not write `env()` itself.
+  a rounded corner. Only the browser knows how much. These read `env()` and answer zero on every
+  device that reserves nothing. A recipe may not write `env()` itself. Anything a page fixes to an
+  edge of the screen reads these tokens instead.
 - `sizes.prose` is the measure body text is read at, stated in characters rather than in rems. The
-  line a reader follows without losing their place is counted in characters, so a measure in `ch`
-  stays right at every type size a theme sets.
+  line a reader follows without losing their place is counted in characters. A measure in `ch` stays
+  right at every type size a theme sets.
 - `highlightVariants(highlights, when)` takes the condition to write the mark against. A listbox
-  marks `_highlighted`, which is the row the keys are on, and a navigation marks `_currentPage`,
-  which is the condition `aria-current="page"` sets. The helper wrote `_highlighted` alone before
-  this, so a navigation restated the whole axis to change one selector.
+  marks `_highlighted`: the row the keys are on. A navigation marks `_currentPage`: the condition
+  `aria-current="page"` sets. The helper wrote `_highlighted` alone before this. A navigation
+  restated the whole axis to change one selector.
 
 theme: publish the field looks as layer styles and open a control's insets
 
@@ -37,10 +179,10 @@ theme: publish the field looks as layer styles and open a control's insets
   edge in the line family's member of the same name. It draws `border.error` for the error status,
   which is the token `field()`'s `_invalid` already draws, so the axis and the attribute agree.
 - `field()` sets `minBlockSize` to `control.md` under `_touch`. A field is a replaced element and no
-  pseudo-element renders on one, so the coarse-pointer target is the height rather than the box
+  pseudo-element renders on one. The coarse-pointer target is the height rather than the box
   `touchTarget()` grows.
 - `field()` sets the same `transitionProperty`, `transitionDuration` and `transitionTimingFunction`
-  as `interactive()`, so a field and a button in one row settle together rather than one snapping.
+  as `interactive()`. A field and a button in one row settle together rather than one snapping.
 - `controlSizes()` writes each inline inset through a custom property with the step as the fallback:
   `paddingInlineStart: var(--control-inset-start, {spacing.inset.<size>})`, and the same for the
   end. `CONTROL_INSET_START` and `CONTROL_INSET_END` name the two.

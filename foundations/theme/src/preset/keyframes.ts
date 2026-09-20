@@ -9,8 +9,8 @@
  *   is a custom property the sky sets, over the viewport where a sky sets none.
  */
 
+import { slides } from "#draw/motion.ts";
 import { type CssKeyframes } from "#pandacss.ts";
-import { slides } from "#scales/motion.ts";
 
 /**
  * Lists the keyframes.

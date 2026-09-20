@@ -10,9 +10,11 @@
  *   is what a row of a mark and a word wants.
  */
 
+import { type Axis, axis } from "#authoring/recipes/axis.ts";
+import { dense } from "#authoring/recipes/density.ts";
+import { SCALE, type Width, WIDTHS } from "#draw/metrics.ts";
+import { type Scale } from "#draw/type.ts";
 import type { SystemStyleObject } from "#generated/types/system.d.mts";
-import { recordOf } from "#record.ts";
-import { SCALE, type Scale, type Width, WIDTHS } from "#scales/geometry.ts";
 
 /**
  * Selects where the children of a container are placed across the direction they run in.
@@ -56,71 +58,21 @@ export const DISTRIBUTIONS: readonly Justify[] = [
 /**
  * Writes the `gap` axis of a container, each value a step of the semantic gap scale.
  */
-export function gapSizes(): Record<Scale, SystemStyleObject>;
-
-/**
- * Writes the `gap` axis for the steps a recipe names.
- *
- * @typeParam Offered - The steps the recipe offers.
- */
-export function gapSizes<const Offered extends Scale>(
-  gaps: readonly Offered[],
-): Record<Offered, SystemStyleObject>;
-
-/**
- * Writes one entry per step, each reading the gap scale under that step's name.
- */
-export function gapSizes(gaps: readonly Scale[] = SCALE): Record<string, SystemStyleObject> {
-  return recordOf(gaps, (gap) => ({ gap: `gap.${gap}` }));
-}
+export const gapSizes: Axis<Scale> = axis(SCALE, (gap) => ({ gap: dense(`{spacing.gap.${gap}}`) }));
 
 /**
  * Writes the `align` axis of a container, which places its children across the direction they run
- * in.
+ * in, each value already what CSS calls it.
  */
-export function alignVariants(): Record<Align, SystemStyleObject>;
-
-/**
- * Writes the `align` axis for the places a recipe names.
- *
- * @typeParam Offered - The places the recipe offers.
- */
-export function alignVariants<const Offered extends Align>(
-  places: readonly Offered[],
-): Record<Offered, SystemStyleObject>;
-
-/**
- * Writes one entry per place, each already what CSS calls it.
- */
-export function alignVariants(
-  places: readonly Align[] = ALIGNMENTS,
-): Record<string, SystemStyleObject> {
-  return recordOf(places, (place) => ({ alignItems: place }));
-}
+export const alignVariants: Axis<Align> = axis(ALIGNMENTS, (place) => ({ alignItems: place }));
 
 /**
  * Writes the `justify` axis of a container, which shares the space out along the direction its
- * children run in.
+ * children run in, each value reading what CSS calls it.
  */
-export function justifyVariants(): Record<Justify, SystemStyleObject>;
-
-/**
- * Writes the `justify` axis for the distributions a recipe names.
- *
- * @typeParam Offered - The distributions the recipe offers.
- */
-export function justifyVariants<const Offered extends Justify>(
-  spacings: readonly Offered[],
-): Record<Offered, SystemStyleObject>;
-
-/**
- * Writes one entry per distribution, each reading what CSS calls it.
- */
-export function justifyVariants(
-  spacings: readonly Justify[] = DISTRIBUTIONS,
-): Record<string, SystemStyleObject> {
-  return recordOf(spacings, (spacing) => ({ justifyContent: SPACING[spacing] }));
-}
+export const justifyVariants: Axis<Justify> = axis(DISTRIBUTIONS, (spacing) => ({
+  justifyContent: SPACING[spacing],
+}));
 
 /**
  * Writes the `columns` axis of a grid that fits as many columns of one measure as it has room
@@ -221,64 +173,16 @@ export const COUNTS: readonly Count[] = [
  * @remarks
  *   A column is held to a minimum of nothing, so a long word in one entry widens no column.
  */
-export function columnCounts(): Record<Count, SystemStyleObject>;
-
-/**
- * Writes the counted `columns` axis for the counts a recipe names.
- *
- * @typeParam Offered - The counts the recipe offers.
- */
-export function columnCounts<const Offered extends Count>(
-  counts: readonly Offered[],
-): Record<Offered, SystemStyleObject>;
-
-/**
- * Writes one entry per count, each a template of that many equal columns.
- */
-export function columnCounts(counts: readonly Count[] = COUNTS): Record<string, SystemStyleObject> {
-  return recordOf(counts, (count) => ({
-    gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))`,
-  }));
-}
+export const columnCounts: Axis<Count> = axis(COUNTS, (count) => ({
+  gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))`,
+}));
 
 /**
  * Writes the `span` axis of a grid's entry, which reaches across a count of columns.
  */
-export function spanCounts(): Record<Count, SystemStyleObject>;
-
-/**
- * Writes the `span` axis for the counts a recipe names.
- *
- * @typeParam Offered - The counts the recipe offers.
- */
-export function spanCounts<const Offered extends Count>(
-  counts: readonly Offered[],
-): Record<Offered, SystemStyleObject>;
-
-/**
- * Writes one entry per count, each reaching across that many columns.
- */
-export function spanCounts(counts: readonly Count[] = COUNTS): Record<string, SystemStyleObject> {
-  return recordOf(counts, (count) => ({ gridColumn: `span ${count}` }));
-}
+export const spanCounts: Axis<Count> = axis(COUNTS, (count) => ({ gridColumn: `span ${count}` }));
 
 /**
  * Writes an axis that holds a box to one of the page's measures, keyed by the measure.
  */
-export function widthSizes(): Record<Width, SystemStyleObject>;
-
-/**
- * Writes the measure axis for the measures a recipe names.
- *
- * @typeParam Offered - The measures the recipe offers.
- */
-export function widthSizes<const Offered extends Width>(
-  widths: readonly Offered[],
-): Record<Offered, SystemStyleObject>;
-
-/**
- * Writes one entry per measure, each holding a box to the width of that name.
- */
-export function widthSizes(widths: readonly Width[] = WIDTHS): Record<string, SystemStyleObject> {
-  return recordOf(widths, (width) => ({ maxInlineSize: width }));
-}
+export const widthSizes: Axis<Width> = axis(WIDTHS, (width) => ({ maxInlineSize: width }));

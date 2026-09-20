@@ -2,7 +2,7 @@
  * Reads values out of a token tree for a specification, whichever way the tree nests them.
  */
 
-import { type Mode } from "#authoring/contract.ts";
+import { type Mode } from "#contract.ts";
 
 /**
  * Reads the value at a dotted path, unwrapping `value` where the node is a token.

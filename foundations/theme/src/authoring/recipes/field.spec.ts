@@ -6,13 +6,17 @@ import { defineRecipe } from "#authoring/recipe.ts";
 import { field } from "#authoring/recipes/field.ts";
 
 describe("field", () => {
-  it("draws the panel surface with a border and the page ink", () => {
+  it("draws the panel surface with the control's boundary at the control's width", () => {
     expect(field()).toMatchObject({
       background: "bg.panel",
-      borderColor: "border",
-      borderWidth: "sm",
+      borderColor: "border.emphasized",
+      borderWidth: "control",
       color: "fg",
     });
+  });
+
+  it("darkens the edge to the tertiary ink under a pointer", () => {
+    expect(field()).toMatchObject({ _hover: { borderColor: "fg.subtle" } });
   });
 
   it("draws the placeholder in the muted ink", () => {
@@ -43,11 +47,11 @@ describe("field", () => {
     expect(field()).toMatchObject({ _touch: { minBlockSize: "control.md" } });
   });
 
-  it("settles at the rate every pressed control settles at", () => {
+  it("settles at the pace and the curve every pressed control settles at", () => {
     expect(field()).toMatchObject({
-      transitionDuration: "fast",
+      transitionDuration: "press",
       transitionProperty: "common",
-      transitionTimingFunction: "out",
+      transitionTimingFunction: "press",
     });
   });
 

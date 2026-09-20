@@ -8,7 +8,8 @@
  *   no color mode.
  */
 
-export { dense } from "#authoring/recipes/dense.ts";
+export { type Axis, axis } from "#authoring/recipes/axis.ts";
+export { dense } from "#authoring/recipes/density.ts";
 export { field } from "#authoring/recipes/field.ts";
 export { floating, overlay } from "#authoring/recipes/floating.ts";
 export {

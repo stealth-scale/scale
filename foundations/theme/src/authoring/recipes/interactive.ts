@@ -6,8 +6,9 @@
 import type { SystemStyleObject } from "#generated/types/system.d.mts";
 
 /**
- * Writes the base of a control: the hand, a fast transition of the properties a state changes,
- * no text selection, the disabled look, and the focus ring in the palette's own color.
+ * Writes the base of a control: the hand, a transition of the properties a state changes at the
+ * pace and the curve a press is answered with, no text selection, the disabled look, and the
+ * focus ring in the palette's own color.
  *
  * @remarks
  *   The ring is the compiler's `focusVisibleRing` utility drawn outside the box, so a focused
@@ -22,9 +23,9 @@ export function interactive(): SystemStyleObject {
     cursor: "button",
     focusRingColor: "colorPalette.focusRing",
     focusVisibleRing: "outside",
-    transitionDuration: "fast",
+    transitionDuration: "press",
     transitionProperty: "common",
-    transitionTimingFunction: "out",
+    transitionTimingFunction: "press",
     userSelect: "none",
   };
 }
@@ -72,9 +73,9 @@ export function row(): SystemStyleObject {
     position: "relative",
     textAlign: "start",
     textDecoration: "none",
-    transitionDuration: "fast",
+    transitionDuration: "press",
     transitionProperty: "common",
-    transitionTimingFunction: "out",
+    transitionTimingFunction: "press",
     userSelect: "none",
   };
 }

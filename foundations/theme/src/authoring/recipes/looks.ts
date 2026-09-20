@@ -8,6 +8,7 @@
  *   changes it for every recipe that offers the look.
  */
 
+import { type Axis, axis } from "#authoring/recipes/axis.ts";
 import type { SystemStyleObject } from "#generated/types/system.d.mts";
 import { recordOf } from "#record.ts";
 
@@ -34,27 +35,9 @@ const LAYER_STYLES: Readonly<Record<Look, string>> = {
 };
 
 /**
- * Writes the `variant` axis for the looks given, each reading its layer style.
- *
- * @typeParam Offered - The looks the recipe offers, which is every one unless it names them.
+ * Writes the `variant` axis of a control, each look reading the layer style that draws it.
  */
-export function lookVariants(): Record<Look, SystemStyleObject>;
-
-/**
- * Writes the `variant` axis for the looks a recipe names.
- *
- * @typeParam Offered - The looks the recipe offers.
- */
-export function lookVariants<const Offered extends Look>(
-  looks: readonly Offered[],
-): Record<Offered, SystemStyleObject>;
-
-/**
- * Writes one entry per look, each reading the layer style that draws it.
- */
-export function lookVariants(looks: readonly Look[] = LOOKS): Record<string, SystemStyleObject> {
-  return recordOf(looks, (look) => ({ layerStyle: LAYER_STYLES[look] }));
-}
+export const lookVariants: Axis<Look> = axis(LOOKS, (look) => ({ layerStyle: LAYER_STYLES[look] }));
 
 /**
  * Selects one of the looks a thing that is read rather than pressed can be drawn in.
@@ -76,25 +59,8 @@ export const FLATS: readonly Flat[] = ["solid", "subtle", "surface", "outline", 
  * @remarks
  *   A badge, a tag or a chip reads as part of what it labels. Drawn in a fill it would repaint
  *   under a pointer, which reads as something to press, so it reads a flat look instead.
- * @typeParam Offered - The looks the recipe offers, which is every one unless it names them.
  */
-export function flatVariants(): Record<Flat, SystemStyleObject>;
-
-/**
- * Writes the `variant` axis for the flat looks a recipe names.
- *
- * @typeParam Offered - The looks the recipe offers.
- */
-export function flatVariants<const Offered extends Flat>(
-  looks: readonly Offered[],
-): Record<Offered, SystemStyleObject>;
-
-/**
- * Writes one entry per look, each reading the flat layer style of its name.
- */
-export function flatVariants(looks: readonly Flat[] = FLATS): Record<string, SystemStyleObject> {
-  return recordOf(looks, (look) => ({ layerStyle: `flat.${look}` }));
-}
+export const flatVariants: Axis<Flat> = axis(FLATS, (look) => ({ layerStyle: `flat.${look}` }));
 
 /**
  * Selects one of the ways the edge of a form field is drawn.
@@ -114,25 +80,8 @@ export const FIELDS: readonly Field[] = ["outline", "subtle", "flushed"];
  *   is the reader's own and a fill that repaints under a pointer reads as something to press. The
  *   flushed look keeps its bottom edge alone. It drops the inset with it, which the recipe states,
  *   because a layer style carries no padding.
- * @typeParam Offered - The looks the recipe offers, which is every one unless it names them.
  */
-export function fieldVariants(): Record<Field, SystemStyleObject>;
-
-/**
- * Writes the `variant` axis for the field looks a recipe names.
- *
- * @typeParam Offered - The looks the recipe offers.
- */
-export function fieldVariants<const Offered extends Field>(
-  looks: readonly Offered[],
-): Record<Offered, SystemStyleObject>;
-
-/**
- * Writes one entry per look, each reading the field layer style of its name.
- */
-export function fieldVariants(looks: readonly Field[] = FIELDS): Record<string, SystemStyleObject> {
-  return recordOf(looks, (look) => ({ layerStyle: `field.${look}` }));
-}
+export const fieldVariants: Axis<Field> = axis(FIELDS, (look) => ({ layerStyle: `field.${look}` }));
 
 /**
  * Selects how the row a list has moved its highlight onto is marked.

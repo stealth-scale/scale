@@ -6,9 +6,13 @@
  *   `className` decides what every class a recipe emits is called, and the classes are already in
  *   the markup when a theme is read, so renaming it orphans every one of them. `slots` is a list,
  *   and a list under `extend` is appended to rather than replaced, so a restated one names every
- *   slot twice. Both fail without a report, so both are refused by type. A compound is typed apart
- *   from the recipe's own, because a theme does not carry the component's variant types, and the
- *   compiler's selection over every axis is an index signature that admits no `css` key beside it.
+ *   slot twice. `defaultVariants`, `jsx` and `staticCss` decide what is emitted and what a tag
+ *   carries, which happens once for every theme rather than under the attribute one theme is
+ *   switched by: the build scopes a theme's base, variants and compounds and carries none of the
+ *   three. Each of them fails without a report, so each is refused by type. A compound is typed
+ *   apart from the recipe's own, because a theme does not carry the component's variant types, and
+ *   the compiler's selection over every axis is an index signature that admits no `css` key beside
+ *   it.
  */
 
 import { type Recipe, type SlotRecipe } from "#authoring/recipe.ts";
@@ -30,9 +34,26 @@ interface Owned {
   className?: never;
 
   /**
+   * Never stated. The value a caller gets where they pick none is the component's, and it is
+   * emitted once rather than under the attribute a theme is switched by.
+   */
+  defaultVariants?: never;
+
+  /**
+   * Never stated. The tags that carry a recipe's props are the component's.
+   */
+  jsx?: never;
+
+  /**
    * Never stated. The component's anatomy decides what its slots are.
    */
   slots?: never;
+
+  /**
+   * Never stated. What a recipe emits whether or not a source file reads it is the component's,
+   * and a theme's own list would reach every theme.
+   */
+  staticCss?: never;
 }
 
 /**

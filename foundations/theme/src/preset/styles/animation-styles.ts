@@ -3,10 +3,11 @@
  * run while nothing is pressed.
  *
  * @remarks
- *   Every motion names a keyframe, a pace from the duration tokens and a curve from the easing
- *   tokens, so a theme moves the whole set by moving three tokens. An entering motion eases out at
- *   the moderate pace and a leaving one eases in at the fast pace, because a thing arriving is
- *   watched and a thing going is not. Every motion is turned off for a reader who asked for less.
+ *   Every motion names a keyframe, a pace and a curve. An entering motion reads the `enter` pace
+ *   and curve and a leaving one the `leave` pace and curve, which the theme's tempo draws, so a
+ *   theme that is snappier or eases differently moves every entrance and exit at once. A loop
+ *   reads an ambient pace, because a pulse a reader watches is not a thing they wait for. Every
+ *   motion is turned off for a reader who asked for less.
  */
 
 import { type AnimationStyle, type AnimationStyles } from "#pandacss.ts";
@@ -95,12 +96,12 @@ function scrolled(name: string, timeline: string, more: AnimationStyle): Motion 
 export const animationStyles: AnimationStyles = {
   aurora: loop("bg-drift", "ambientSlower", "in-out"),
   collapse: {
-    in: motion("expand-height, fade-in", "moderate", "out"),
-    out: motion("collapse-height, fade-out", "fast", "in"),
+    in: motion("expand-height, fade-in", "enter", "enter"),
+    out: motion("collapse-height, fade-out", "leave", "leave"),
   },
   fade: {
-    in: motion("fade-in", "moderate", "out"),
-    out: motion("fade-out", "fast", "in"),
+    in: motion("fade-in", "enter", "enter"),
+    out: motion("fade-out", "leave", "leave"),
   },
   float: loop("float", "ambientSlow", "in-out"),
   marquee: loop("marquee", "ambientSlower", "linear"),
@@ -129,13 +130,13 @@ export const animationStyles: AnimationStyles = {
     },
   },
   "scale-fade": {
-    in: motion("scale-in, fade-in", "moderate", "out"),
-    out: motion("scale-out, fade-out", "fast", "in"),
+    in: motion("scale-in, fade-in", "enter", "enter"),
+    out: motion("scale-out, fade-out", "leave", "leave"),
   },
   shimmer: loop("bg-position", "ambientSlow", "linear"),
   "slide-fade": {
-    in: slide("from", "fade-in", "moderate", "out"),
-    out: slide("to", "fade-out", "fast", "in"),
+    in: slide("from", "fade-in", "enter", "enter"),
+    out: slide("to", "fade-out", "leave", "leave"),
   },
   spin: loop("spin", "ambient", "linear"),
   sweep: loop("rotate-angle", "ambientSlow", "linear"),

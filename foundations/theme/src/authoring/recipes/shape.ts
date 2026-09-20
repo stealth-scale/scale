@@ -8,52 +8,15 @@
  *   component through it.
  */
 
-import type { SystemStyleObject } from "#generated/types/system.d.mts";
-import { recordOf } from "#record.ts";
-import { type Corner, CORNERS, type Ratio, RATIOS } from "#scales/geometry.ts";
+import { type Axis, axis } from "#authoring/recipes/axis.ts";
+import { ASPECT_RATIOS, type Corner, CORNERS, type Ratio } from "#draw/shape.ts";
 
 /**
  * Writes the `ratio` axis of a box, each value one of the theme's aspect ratios.
  */
-export function ratioVariants(): Record<Ratio, SystemStyleObject>;
-
-/**
- * Writes the `ratio` axis for the shapes a recipe names.
- *
- * @typeParam Offered - The shapes the recipe offers.
- */
-export function ratioVariants<const Offered extends Ratio>(
-  ratios: readonly Offered[],
-): Record<Offered, SystemStyleObject>;
-
-/**
- * Writes one entry per shape, each reading the aspect ratio of that name.
- */
-export function ratioVariants(
-  ratios: readonly Ratio[] = RATIOS,
-): Record<string, SystemStyleObject> {
-  return recordOf(ratios, (ratio) => ({ aspectRatio: ratio }));
-}
+export const ratioVariants: Axis<Ratio> = axis(ASPECT_RATIOS, (ratio) => ({ aspectRatio: ratio }));
 
 /**
  * Writes the `radius` axis of a box, each value one of the theme's corners.
  */
-export function cornerVariants(): Record<Corner, SystemStyleObject>;
-
-/**
- * Writes the `radius` axis for the corners a recipe names.
- *
- * @typeParam Offered - The corners the recipe offers.
- */
-export function cornerVariants<const Offered extends Corner>(
-  corners: readonly Offered[],
-): Record<Offered, SystemStyleObject>;
-
-/**
- * Writes one entry per corner, each reading the radius of that name.
- */
-export function cornerVariants(
-  corners: readonly Corner[] = CORNERS,
-): Record<string, SystemStyleObject> {
-  return recordOf(corners, (corner) => ({ borderRadius: corner }));
-}
+export const cornerVariants: Axis<Corner> = axis(CORNERS, (corner) => ({ borderRadius: corner }));
