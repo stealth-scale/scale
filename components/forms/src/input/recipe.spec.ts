@@ -55,7 +55,9 @@ describe("recipe", () => {
   });
 
   it("reads the control scale so a field lines up with a button beside it", () => {
-    expect(recipe.variants?.["size"]?.["md"]).toMatchObject({ height: "control.md" });
+    expect(recipe.variants?.["size"]?.["md"]).toMatchObject({
+      height: "calc({sizes.control.md} * var(--density, 1))",
+    });
   });
 
   it("marks a field that is wrong off the attribute a screen reader reads too", () => {

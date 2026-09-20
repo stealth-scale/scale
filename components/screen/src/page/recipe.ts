@@ -27,6 +27,7 @@
 import {
   below,
   defineSlotRecipe,
+  dense,
   divider,
   onSlots,
   sizeVariants,
@@ -100,7 +101,7 @@ const SHELL_TOP = "--app-shell-sticky-top";
  * beside the aside.
  */
 const BESIDE = {
-  columnGap: "gap.xl",
+  columnGap: dense("{spacing.gap.xl}"),
   display: "grid",
   gridTemplateAreas:
     '"banner banner" "header header" "nav nav" "toolbar toolbar" "body aside" "footer footer"',
@@ -257,10 +258,10 @@ export const recipe = defineSlotRecipe({
      */
     divided: {
       true: {
-        footer: { ...divider("horizontal"), borderBlockStartWidth: "sm" },
-        header: { ...divider("horizontal"), borderBlockEndWidth: "sm" },
-        nav: { ...divider("horizontal"), borderBlockEndWidth: "sm" },
-        toolbar: { ...divider("horizontal"), borderBlockEndWidth: "sm" },
+        footer: { ...divider("horizontal"), borderBlockStartWidth: "hairline" },
+        header: { ...divider("horizontal"), borderBlockEndWidth: "hairline" },
+        nav: { ...divider("horizontal"), borderBlockEndWidth: "hairline" },
+        toolbar: { ...divider("horizontal"), borderBlockEndWidth: "hairline" },
       },
     },
 
@@ -280,11 +281,12 @@ export const recipe = defineSlotRecipe({
      * @remarks
      *   Named for the measure rather than for the width, because a styled element already takes
      *   `width` as a style prop and an axis of that name could never be stated per breakpoint.
+     *   The two measures are the theme's page sizes, so a theme moves them without a recipe.
      */
     measure: {
       full: { root: { [MEASURE]: "100%" } },
-      narrow: { root: { [MEASURE]: "{sizes.3xl}" } },
-      wide: { root: { [MEASURE]: "{sizes.7xl}" } },
+      narrow: { root: { [MEASURE]: "{sizes.page.narrow}" } },
+      wide: { root: { [MEASURE]: "{sizes.page.wide}" } },
     },
 
     /**
@@ -309,33 +311,51 @@ export const recipe = defineSlotRecipe({
      */
     size: onSlots({
       actions: sizeVariants(
-        (size) => ({ gap: `gap.${size}`, paddingInlineStart: `inset.${size}` }),
+        (size) => ({
+          gap: dense(`{spacing.gap.${size}}`),
+          paddingInlineStart: dense(`{spacing.inset.${size}}`),
+        }),
         STEPS,
       ),
-      aside: sizeVariants((size) => ({ paddingBlock: `inset.${size}` }), STEPS),
-      banner: sizeVariants((size) => ({ paddingBlock: `inset.${size}` }), STEPS),
-      body: sizeVariants((size) => ({ paddingBlock: `inset.${size}` }), STEPS),
+      aside: sizeVariants((size) => ({ paddingBlock: dense(`{spacing.inset.${size}}`) }), STEPS),
+      banner: sizeVariants((size) => ({ paddingBlock: dense(`{spacing.inset.${size}}`) }), STEPS),
+      body: sizeVariants((size) => ({ paddingBlock: dense(`{spacing.inset.${size}}`) }), STEPS),
       context: sizeVariants(
-        (size) => ({ gap: `gap.${size}`, textStyle: `body.${below(size)}` }),
+        (size) => ({ gap: dense(`{spacing.gap.${size}}`), textStyle: `body.${below(size)}` }),
         STEPS,
       ),
       description: sizeVariants((size) => ({ textStyle: `body.${size}` }), STEPS),
       footer: sizeVariants(
-        (size) => ({ gap: `gap.${size}`, paddingBlock: `inset.${size}` }),
+        (size) => ({
+          gap: dense(`{spacing.gap.${size}}`),
+          paddingBlock: dense(`{spacing.inset.${size}}`),
+        }),
         STEPS,
       ),
       header: sizeVariants(
-        (size) => ({ paddingBlockEnd: `gap.${size}`, paddingBlockStart: `inset.${size}` }),
+        (size) => ({
+          paddingBlockEnd: dense(`{spacing.gap.${size}}`),
+          paddingBlockStart: dense(`{spacing.inset.${size}}`),
+        }),
         STEPS,
       ),
-      leading: sizeVariants((size) => ({ marginInlineEnd: `gap.${size}` }), STEPS),
+      leading: sizeVariants((size) => ({ marginInlineEnd: dense(`{spacing.gap.${size}}`) }), STEPS),
       meta: sizeVariants(
-        (size) => ({ gap: `gap.${size}`, marginInlineStart: `gap.${size}` }),
+        (size) => ({
+          gap: dense(`{spacing.gap.${size}}`),
+          marginInlineStart: dense(`{spacing.gap.${size}}`),
+        }),
         STEPS,
       ),
-      nav: sizeVariants((size) => ({ gap: `gap.${size}` }), STEPS),
+      nav: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), STEPS),
       title: TITLES,
-      toolbar: sizeVariants((size) => ({ gap: `gap.${size}`, paddingBlock: `gap.${size}` }), STEPS),
+      toolbar: sizeVariants(
+        (size) => ({
+          gap: dense(`{spacing.gap.${size}}`),
+          paddingBlock: dense(`{spacing.gap.${size}}`),
+        }),
+        STEPS,
+      ),
     }),
   },
 });

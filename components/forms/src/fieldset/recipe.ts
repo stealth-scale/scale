@@ -15,6 +15,7 @@
 
 import {
   defineSlotRecipe,
+  dense,
   onSlot,
   onSlots,
   sizeVariants,
@@ -32,7 +33,12 @@ const SIZES = ["sm", "md", "lg"] as const;
  */
 export const recipe = defineSlotRecipe({
   base: {
-    errorText: { alignItems: "center", color: "colorPalette.fg", display: "flex", gap: "gap.xs" },
+    errorText: {
+      alignItems: "center",
+      color: "colorPalette.fg",
+      display: "flex",
+      gap: dense("{spacing.gap.xs}"),
+    },
     helperText: { color: "fg.muted" },
     legend: { fontWeight: "semibold" },
     root: {
@@ -64,7 +70,7 @@ export const recipe = defineSlotRecipe({
       errorText: sizeVariants((size) => ({ textStyle: `body.${size}` }), SIZES),
       helperText: sizeVariants((size) => ({ textStyle: `body.${size}` }), SIZES),
       legend: sizeVariants((size) => ({ textStyle: `label.${size}` }), SIZES),
-      root: sizeVariants((size) => ({ gap: `gap.${size}` }), SIZES),
+      root: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), SIZES),
     }),
 
     /**

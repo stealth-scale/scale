@@ -20,6 +20,7 @@
 import {
   below,
   defineSlotRecipe,
+  dense,
   onSlots,
   sizeVariants,
   type SystemStyleObject,
@@ -70,7 +71,7 @@ export const recipe = defineSlotRecipe({
       background: "bg",
       borderColor: "border",
       borderRadius: "l2",
-      borderWidth: "sm",
+      borderWidth: "hairline",
       color: "fg",
       colorPalette: "neutral",
       overflow: "hidden",
@@ -93,13 +94,13 @@ export const recipe = defineSlotRecipe({
      */
     size: onSlots({
       code: sizeVariants((size) => ({ textStyle: `code.${size}` }), STEPS),
-      content: sizeVariants((size) => ({ padding: `inset.${size}` }), STEPS),
+      content: sizeVariants((size) => ({ padding: dense(`{spacing.inset.${size}}`) }), STEPS),
       header: sizeVariants(
         (size) => ({
-          gap: `gap.${size}`,
-          paddingBlock: `gap.${size}`,
-          paddingInlineEnd: `gap.${size}`,
-          paddingInlineStart: `inset.${size}`,
+          gap: dense(`{spacing.gap.${size}}`),
+          paddingBlock: dense(`{spacing.gap.${size}}`),
+          paddingInlineEnd: dense(`{spacing.gap.${size}}`),
+          paddingInlineStart: dense(`{spacing.inset.${size}}`),
         }),
         STEPS,
       ),

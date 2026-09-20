@@ -2,6 +2,16 @@
 "@stealthscale/component-screen": minor
 ---
 
+component-screen: read the theme's layout sizes and stroke widths
+
+- The shell opens its navbar to `sizes.sidebar`, its aside to `sizes.aside` and closes a panel to
+  `sizes.rail`, rather than to three steps of the grid, so a theme that wants a wider sidebar states
+  one number. A panel over the page stops a rail short of the far edge for the same reason.
+- The page's `narrow` and `wide` measures read `sizes.page.narrow` and `sizes.page.wide`.
+- Every hairline the shell, the page, a section, a sidebar and a toolbar draw reads
+  `borderWidths.hairline`. The switcher's outline reads `border.emphasized` at
+  `borderWidths.control`, because it is a control.
+
 component-screen: publish AppShell, Page, Section, Sidebar, Switcher and Toolbar
 
 - A screen component folds on its own width and never on the window's. Each one measures the element

@@ -49,7 +49,7 @@ describe("recipe", () => {
     expect(recipe.compoundVariants).toStrictEqual([
       {
         className: "switcher__root--marked",
-        css: { root: { gap: "gap.lg" } },
+        css: { root: { gap: "calc({spacing.gap.lg} * var(--density, 1))" } },
         placement: "toolbar",
       },
       {
@@ -58,7 +58,7 @@ describe("recipe", () => {
           mark: {
             background: "bg.muted",
             borderRadius: "l1",
-            boxSize: "icon.md",
+            boxSize: "calc({sizes.icon.md} * var(--density, 1))",
             fontSize: "xs",
             fontWeight: "semibold",
             justifyContent: "center",
@@ -73,9 +73,9 @@ describe("recipe", () => {
   it("holds the control at its size's height and sets the name semibold", () => {
     expect(recipe.variants?.["size"]?.["sm"]?.["root"]).toStrictEqual({
       borderRadius: "l2",
-      gap: "gap.sm",
-      minBlockSize: "control.sm",
-      paddingInline: "gap.sm",
+      gap: "calc({spacing.gap.sm} * var(--density, 1))",
+      minBlockSize: "calc({sizes.control.sm} * var(--density, 1))",
+      paddingInline: "calc({spacing.gap.sm} * var(--density, 1))",
     });
     expect(recipe.variants?.["size"]?.["sm"]?.["name"]).toStrictEqual({
       fontSize: "sm",
@@ -117,8 +117,8 @@ describe("recipe", () => {
   it("puts the tick at the end of the row and keeps the row's end clear for it", () => {
     expect(recipe.base?.["check"]).not.toHaveProperty("insetInlineStart");
     expect(recipe.variants?.["size"]?.["md"]?.["check"]).toStrictEqual({
-      boxSize: "icon.md",
-      insetInlineEnd: "gap.md",
+      boxSize: "calc({sizes.icon.md} * var(--density, 1))",
+      insetInlineEnd: "calc({spacing.gap.md} * var(--density, 1))",
       insetInlineStart: "auto",
     });
     expect(recipe.variants?.["size"]?.["md"]?.["option"]).toMatchObject({

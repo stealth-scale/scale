@@ -40,6 +40,7 @@ describe("recipe", () => {
       "info",
       "inverted",
       "muted",
+      "subtle",
       "success",
       "warning",
     ]);

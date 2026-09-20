@@ -32,8 +32,14 @@ describe("recipe", () => {
   it("hides everything inside it while it stands in", () => {
     expect(recipe.variants?.["loading"]?.["true"]).toMatchObject({
       "&::before, &::after, *": { visibility: "hidden" },
-      background: "bg.emphasized",
       color: "transparent",
+    });
+  });
+
+  it("stands in on the neutral palette's muted fill", () => {
+    expect(recipe.variants?.["loading"]?.["true"]).toMatchObject({
+      background: "colorPalette.muted",
+      colorPalette: "neutral",
     });
   });
 
@@ -49,7 +55,8 @@ describe("recipe", () => {
       shimmer: {
         "&.skeleton--loading_true": {
           animationStyle: "shimmer",
-          backgroundImage: "linear-gradient(270deg, {colors.bg.muted}, {colors.bg.emphasized})",
+          backgroundImage:
+            "linear-gradient(270deg, var(--colors-color-palette-muted), var(--colors-color-palette-emphasized))",
           backgroundSize: "400% 100%",
         },
       },

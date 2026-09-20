@@ -39,9 +39,9 @@ describe("recipe", () => {
 
   it("sets the label's role and the gaps together at each size", () => {
     expect(recipe.variants?.["size"]?.["md"]).toStrictEqual({
-      control: { gap: "gap.md" },
+      control: { gap: "calc({spacing.gap.md} * var(--density, 1))" },
       label: { textStyle: "label.md" },
-      root: { gap: "gap.sm" },
+      root: { gap: "calc({spacing.gap.sm} * var(--density, 1))" },
     });
   });
 

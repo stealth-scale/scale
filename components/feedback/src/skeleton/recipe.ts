@@ -12,7 +12,9 @@
  *   loading state carries, so a skeleton that has loaded keeps neither the pulse nor the shimmer.
  *   Every motion is an animation style the theme owns, so a reader who asked for less motion is
  *   answered once in the theme rather than in every recipe. Nothing here states a colour, a length
- *   or a duration of its own.
+ *   or a duration of its own. The stand-in is drawn in the neutral palette's quiet fills, which
+ *   lift above a dark page rather than sinking below it, so a placeholder reads as something on
+ *   its way rather than as a hole in the page.
  */
 
 import { cornerVariants, defineRecipe } from "@stealthscale/theme/authoring";
@@ -41,10 +43,11 @@ export const recipe = defineRecipe({
     loading: {
       true: {
         "&::before, &::after, *": { visibility: "hidden" },
-        background: "bg.emphasized",
+        background: "colorPalette.muted",
         backgroundClip: "padding-box",
         boxShadow: "none",
         color: "transparent",
+        colorPalette: "neutral",
         flexShrink: "0",
         pointerEvents: "none",
         userSelect: "none",
@@ -60,7 +63,8 @@ export const recipe = defineRecipe({
       shimmer: {
         [WHILE_LOADING]: {
           animationStyle: "shimmer",
-          backgroundImage: "linear-gradient(270deg, {colors.bg.muted}, {colors.bg.emphasized})",
+          backgroundImage:
+            "linear-gradient(270deg, var(--colors-color-palette-muted), var(--colors-color-palette-emphasized))",
           backgroundSize: "400% 100%",
         },
       },

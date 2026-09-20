@@ -21,6 +21,7 @@
 import {
   below,
   defineSlotRecipe,
+  dense,
   onSlots,
   sizeVariants,
   truncate,
@@ -41,13 +42,13 @@ export const recipe = defineSlotRecipe({
       background: "colorPalette.solid",
       blockSize: "var(--height)",
       borderRadius: "full",
-      inlineSize: "{borderWidths.md}",
+      inlineSize: "{borderWidths.indicator}",
       insetBlockStart: "var(--top)",
       insetInlineStart: "0",
       position: "absolute",
-      transitionDuration: "moderate",
+      transitionDuration: "move",
       transitionProperty: "top, height",
-      transitionTimingFunction: "in-smooth",
+      transitionTimingFunction: "move",
     },
     item: { paddingInlineStart: "calc((var(--depth) - 2) * {spacing.gap.md})" },
     link: {
@@ -61,7 +62,7 @@ export const recipe = defineSlotRecipe({
       focusRingColor: "colorPalette.focusRing",
       focusVisibleRing: "outside",
       textDecoration: "none",
-      transitionDuration: "fast",
+      transitionDuration: "press",
       transitionProperty: "common",
     },
     list: {
@@ -96,17 +97,17 @@ export const recipe = defineSlotRecipe({
     size: onSlots({
       link: sizeVariants(
         (size) => ({
-          paddingBlock: `gap.${below(below(size))}`,
-          paddingInlineEnd: `inset.${below(size)}`,
-          paddingInlineStart: `inset.${size}`,
+          paddingBlock: dense(`{spacing.gap.${below(below(size))}}`),
+          paddingInlineEnd: dense(`{spacing.inset.${below(size)}}`),
+          paddingInlineStart: dense(`{spacing.inset.${size}}`),
           textStyle: `body.${below(size)}`,
         }),
         STEPS,
       ),
-      root: sizeVariants((size) => ({ gap: `gap.${below(size)}` }), STEPS),
+      root: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${below(size)}}`) }), STEPS),
       title: sizeVariants(
         (size) => ({
-          paddingInline: `inset.${below(size)}`,
+          paddingInline: dense(`{spacing.inset.${below(size)}}`),
           textStyle: `label.${below(below(size))}`,
         }),
         STEPS,

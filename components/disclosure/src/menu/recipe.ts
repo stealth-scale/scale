@@ -25,6 +25,7 @@
 import {
   below,
   defineSlotRecipe,
+  dense,
   divider,
   highlightVariants,
   interactive,
@@ -68,7 +69,7 @@ function gutter(size: Scale): string {
 export const recipe = defineSlotRecipe({
   base: {
     arrow: { "--arrow-background": SURFACE, "--arrow-size": "sizes.icon.sm" },
-    arrowTip: { borderInlineStartWidth: "sm", borderTopWidth: "sm" },
+    arrowTip: { borderInlineStartWidth: "hairline", borderTopWidth: "hairline" },
     content: {
       ...motion("slide-fade.in", "slide-fade.out"),
       display: "flex",
@@ -83,7 +84,7 @@ export const recipe = defineSlotRecipe({
     indicator: {
       _motionReduce: { transitionDuration: "0s" },
       _open: { rotate: "180deg" },
-      transitionDuration: "fast",
+      transitionDuration: "press",
     },
     item: {
       ...row(),
@@ -152,41 +153,47 @@ export const recipe = defineSlotRecipe({
      */
     size: onSlots({
       content: sizeVariants(
-        (size) => ({ padding: `gap.${below(size)}`, scrollPadding: `gap.${below(size)}` }),
+        (size) => ({
+          padding: dense(`{spacing.gap.${below(size)}}`),
+          scrollPadding: dense(`{spacing.gap.${below(size)}}`),
+        }),
         SIZES,
       ),
       item: sizeVariants(
         (size) => ({
-          gap: `gap.${below(size)}`,
+          gap: dense(`{spacing.gap.${below(size)}}`),
           [GUTTER]: gutter(below(size)),
-          minBlockSize: `control.${below(size)}`,
-          paddingInline: `inset.${below(size)}`,
+          minBlockSize: dense(`{sizes.control.${below(size)}}`),
+          paddingInline: dense(`{spacing.inset.${below(size)}}`),
           textStyle: `label.${below(size)}`,
         }),
         SIZES,
       ),
       itemGroupLabel: sizeVariants(
         (size) => ({
-          paddingBlock: `gap.${below(below(size))}`,
-          paddingInline: `inset.${below(size)}`,
+          paddingBlock: dense(`{spacing.gap.${below(below(size))}}`),
+          paddingInline: dense(`{spacing.inset.${below(size)}}`),
           textStyle: `label.${below(below(size))}`,
         }),
         SIZES,
       ),
       itemIndicator: sizeVariants(
         (size) => ({
-          boxSize: `icon.${below(size)}`,
-          insetInlineStart: `inset.${below(size)}`,
+          boxSize: dense(`{sizes.icon.${below(size)}}`),
+          insetInlineStart: dense(`{spacing.inset.${below(size)}}`),
         }),
         SIZES,
       ),
-      separator: sizeVariants((size) => ({ marginBlock: `gap.${below(size)}` }), SIZES),
+      separator: sizeVariants(
+        (size) => ({ marginBlock: dense(`{spacing.gap.${below(size)}}`) }),
+        SIZES,
+      ),
       triggerItem: sizeVariants(
         (size) => ({
-          gap: `gap.${below(size)}`,
+          gap: dense(`{spacing.gap.${below(size)}}`),
           [GUTTER]: gutter(below(size)),
-          minBlockSize: `control.${below(size)}`,
-          paddingInline: `inset.${below(size)}`,
+          minBlockSize: dense(`{sizes.control.${below(size)}}`),
+          paddingInline: dense(`{spacing.inset.${below(size)}}`),
           textStyle: `label.${below(size)}`,
         }),
         SIZES,
@@ -217,7 +224,7 @@ export const recipe = defineSlotRecipe({
           background: SURFACE,
           borderColor: "border",
           borderRadius: "l3",
-          borderWidth: "sm",
+          borderWidth: "hairline",
           boxShadow: "lg",
         },
       },

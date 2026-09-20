@@ -10,7 +10,7 @@
  *   hiding for as long as focus is there.
  */
 
-import { defineRecipe } from "@stealthscale/theme/authoring";
+import { defineRecipe, dense } from "@stealthscale/theme/authoring";
 
 /**
  * Hides what it holds from sight and leaves it to a screen reader.
@@ -24,11 +24,11 @@ export const recipe = defineRecipe({
       true: {
         _focusVisible: {
           borderRadius: "l1",
-          insetBlockStart: "inset.md",
-          insetInlineStart: "inset.md",
+          insetBlockStart: dense("{spacing.inset.md}"),
+          insetInlineStart: dense("{spacing.inset.md}"),
           layerStyle: "fill.surface",
-          paddingBlock: "inset.sm",
-          paddingInline: "inset.md",
+          paddingBlock: dense("{spacing.inset.sm}"),
+          paddingInline: dense("{spacing.inset.md}"),
           position: "fixed",
           srOnly: false,
           textStyle: "label.md",

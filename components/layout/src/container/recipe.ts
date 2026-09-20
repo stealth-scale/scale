@@ -10,13 +10,13 @@
  *   rem.
  */
 
-import { defineRecipe, widthSizes } from "@stealthscale/theme/authoring";
+import { defineRecipe, dense, widthSizes } from "@stealthscale/theme/authoring";
 
 /**
  * Draws a page at the wide measure with the large gutter until a caller says otherwise.
  */
 export const recipe = defineRecipe({
-  base: { inlineSize: "full", marginInline: "auto", paddingInline: "inset.lg" },
+  base: { inlineSize: "full", marginInline: "auto", paddingInline: dense("{spacing.inset.lg}") },
   className: "container",
   defaultVariants: { size: "3xl" },
   jsx: [/^Container$/u],

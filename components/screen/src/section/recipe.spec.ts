@@ -85,8 +85,12 @@ describe("recipe", () => {
   });
 
   it("parts the bands by the gap two steps above the size", () => {
-    expect(recipe.variants?.["size"]?.["md"]?.["root"]).toMatchObject({ gap: "gap.xl" });
-    expect(recipe.variants?.["size"]?.["sm"]?.["root"]).toMatchObject({ gap: "gap.lg" });
+    expect(recipe.variants?.["size"]?.["md"]?.["root"]).toMatchObject({
+      gap: "calc({spacing.gap.xl} * var(--density, 1))",
+    });
+    expect(recipe.variants?.["size"]?.["sm"]?.["root"]).toMatchObject({
+      gap: "calc({spacing.gap.lg} * var(--density, 1))",
+    });
   });
 
   it("sets the title a heading step and the description a text step below the size", () => {
@@ -112,10 +116,10 @@ describe("recipe", () => {
   it("parts one plain section from the one before it and from nothing else", () => {
     expect(recipe.variants?.["variant"]?.["plain"]?.["root"]).toStrictEqual({
       "& + &": {
-        borderBlockStartWidth: "sm",
+        borderBlockStartWidth: "hairline",
         borderColor: "border",
-        marginBlockStart: "gap.2xl",
-        paddingBlockStart: "gap.2xl",
+        marginBlockStart: "calc({spacing.gap.2xl} * var(--density, 1))",
+        paddingBlockStart: "calc({spacing.gap.2xl} * var(--density, 1))",
       },
     });
   });

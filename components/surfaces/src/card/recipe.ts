@@ -19,6 +19,7 @@
 import {
   cornerVariants,
   defineSlotRecipe,
+  dense,
   justifyVariants,
   motionVariants,
   onSlot,
@@ -48,12 +49,22 @@ const RULE = { borderColor: "border", borderStyle: "solid" };
 export const recipe = defineSlotRecipe({
   base: {
     aside: { alignItems: "center", display: "flex", flex: "0 0 auto", gridColumn: "3" },
-    content: { display: "flex", flex: "1", flexDirection: "column", gap: "gap.sm" },
+    content: {
+      display: "flex",
+      flex: "1",
+      flexDirection: "column",
+      gap: dense("{spacing.gap.sm}"),
+    },
     description: { color: "fg.muted", gridColumn: "2", textStyle: "body.sm" },
-    footer: { alignItems: "center", display: "flex", flexWrap: "wrap", gap: "gap.sm" },
+    footer: {
+      alignItems: "center",
+      display: "flex",
+      flexWrap: "wrap",
+      gap: dense("{spacing.gap.sm}"),
+    },
     header: {
       alignItems: "center",
-      columnGap: "gap.sm",
+      columnGap: dense("{spacing.gap.sm}"),
       display: "grid",
       gridTemplateColumns: "auto 1fr auto",
     },
@@ -103,8 +114,8 @@ export const recipe = defineSlotRecipe({
      */
     divided: {
       true: {
-        footer: { ...RULE, borderBlockStartWidth: "sm", paddingBlockStart: `var(${INSET})` },
-        header: { ...RULE, borderBlockEndWidth: "sm", paddingBlockEnd: `var(${INSET})` },
+        footer: { ...RULE, borderBlockStartWidth: "hairline", paddingBlockStart: `var(${INSET})` },
+        header: { ...RULE, borderBlockEndWidth: "hairline", paddingBlockEnd: `var(${INSET})` },
       },
     },
 
@@ -122,9 +133,9 @@ export const recipe = defineSlotRecipe({
           _focusWithin: { focusRingColor: "colorPalette.focusRing", focusVisibleRing: "outside" },
           _hover: { borderColor: "border.emphasized" },
           cursor: "button",
-          transitionDuration: "fast",
+          transitionDuration: "press",
           transitionProperty: "common",
-          transitionTimingFunction: "out",
+          transitionTimingFunction: "press",
         },
         title: { "& > a::after": { content: '""', inset: "0", position: "absolute" } },
       },
@@ -159,19 +170,35 @@ export const recipe = defineSlotRecipe({
      */
     size: {
       lg: {
-        root: { gap: "gap.lg", [INSET]: "{spacing.inset.lg}", padding: "inset.lg" },
+        root: {
+          gap: dense("{spacing.gap.lg}"),
+          [INSET]: "{spacing.inset.lg}",
+          padding: dense("{spacing.inset.lg}"),
+        },
         title: { textStyle: "heading.md" },
       },
       md: {
-        root: { gap: "gap.md", [INSET]: "{spacing.inset.md}", padding: "inset.md" },
+        root: {
+          gap: dense("{spacing.gap.md}"),
+          [INSET]: "{spacing.inset.md}",
+          padding: dense("{spacing.inset.md}"),
+        },
         title: { textStyle: "heading.sm" },
       },
       sm: {
-        root: { gap: "gap.sm", [INSET]: "{spacing.inset.sm}", padding: "inset.sm" },
+        root: {
+          gap: dense("{spacing.gap.sm}"),
+          [INSET]: "{spacing.inset.sm}",
+          padding: dense("{spacing.inset.sm}"),
+        },
         title: { textStyle: "label.lg" },
       },
       xl: {
-        root: { gap: "gap.xl", [INSET]: "{spacing.inset.xl}", padding: "inset.xl" },
+        root: {
+          gap: dense("{spacing.gap.xl}"),
+          [INSET]: "{spacing.inset.xl}",
+          padding: dense("{spacing.inset.xl}"),
+        },
         title: { textStyle: "heading.lg" },
       },
     },

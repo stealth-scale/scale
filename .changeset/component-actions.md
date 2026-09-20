@@ -2,6 +2,11 @@
 "@stealthscale/component-actions": minor
 ---
 
+component-actions: draw the button's edge at the control's stroke width
+
+- The button's border reads `borderWidths.control` rather than the reference width `sm`, so a theme
+  with a heavier hand moves every button's edge with every input's.
+
 component-actions: fill a pressed toggle button
 
 - The recipe fills a button while `aria-pressed` is true: `colorPalette.subtle` behind the palette's

@@ -20,9 +20,10 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * Pulls a child back over its neighbour's edge, so the two share one line rather than drawing two.
+ * Pulls a child back over its neighbour's edge by the control's stroke width, so the two share one
+ * line rather than drawing two.
  */
-const OVERLAP = "calc({borderWidths.sm} * -1)";
+const OVERLAP = "calc({borderWidths.control} * -1)";
 
 /**
  * Draws a horizontal row at the middle gap until a caller says otherwise.

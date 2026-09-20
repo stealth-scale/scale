@@ -57,14 +57,17 @@ describe("recipe", () => {
 
   it("steps the trigger the block and the mark together at one name", () => {
     expect(recipe.variants?.["size"]?.["md"]).toStrictEqual({
-      content: { padding: "inset.md" },
-      indicator: { boxSize: "icon.md" },
+      content: { padding: "calc({spacing.inset.md} * var(--density, 1))" },
+      indicator: { boxSize: "calc({sizes.icon.md} * var(--density, 1))" },
       trigger: {
-        "&:has(> svg:first-child)": { paddingInlineStart: "inset.sm" },
-        gap: "gap.md",
-        height: "control.md",
-        paddingInlineEnd: "var(--control-inset-end, {spacing.inset.md})",
-        paddingInlineStart: "var(--control-inset-start, {spacing.inset.md})",
+        "&:has(> svg:first-child)": {
+          paddingInlineStart: "calc({spacing.inset.sm} * var(--density, 1))",
+        },
+        gap: "calc({spacing.gap.md} * var(--density, 1))",
+        height: "calc({sizes.control.md} * var(--density, 1))",
+        paddingInlineEnd: "var(--control-inset-end, calc({spacing.inset.md} * var(--density, 1)))",
+        paddingInlineStart:
+          "var(--control-inset-start, calc({spacing.inset.md} * var(--density, 1)))",
         textStyle: "label.md",
       },
     });

@@ -17,13 +17,14 @@ describe("recipe", () => {
     expect(axesOf(recipe)).toStrictEqual(["motion", "tone"]);
   });
 
-  it("offers the seven inks", () => {
+  it("offers the eight inks", () => {
     expect(valuesOf(recipe, "tone")).toStrictEqual([
       "default",
       "error",
       "info",
       "inverted",
       "muted",
+      "subtle",
       "success",
       "warning",
     ]);

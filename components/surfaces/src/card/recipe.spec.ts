@@ -69,7 +69,7 @@ describe("recipe", () => {
   it("states the root's own inset as a property the media reads back", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["root"]).toMatchObject({
       "--card-inset": "{spacing.inset.md}",
-      padding: "inset.md",
+      padding: "calc({spacing.inset.md} * var(--density, 1))",
     });
     expect(recipe.variants?.["orientation"]?.["vertical"]?.["media"]).toStrictEqual({
       marginBlockStart: "calc(-1 * var(--card-inset))",
@@ -108,7 +108,7 @@ describe("recipe", () => {
 
   it("separates the bands with a rule and the root's own inset", () => {
     expect(recipe.variants?.["divided"]?.["true"]?.["header"]).toMatchObject({
-      borderBlockEndWidth: "sm",
+      borderBlockEndWidth: "hairline",
       paddingBlockEnd: "var(--card-inset)",
     });
   });

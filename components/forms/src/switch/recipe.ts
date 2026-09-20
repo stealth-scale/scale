@@ -21,6 +21,7 @@
 import {
   cornerVariants,
   defineSlotRecipe,
+  dense,
   field,
   fieldStatusVariants,
   onSlot,
@@ -48,7 +49,7 @@ export const recipe = defineSlotRecipe({
       display: "inline-flex",
       flexShrink: 0,
       focusVisibleRing: "outside",
-      padding: "gap.xs",
+      padding: dense("{spacing.gap.xs}"),
     },
     label: { _disabled: { layerStyle: "disabled" }, color: "fg", userSelect: "none" },
     root: {
@@ -65,9 +66,9 @@ export const recipe = defineSlotRecipe({
       blockSize: "full",
       borderRadius: "inherit",
       boxShadow: "sm",
-      transitionDuration: "fast",
+      transitionDuration: "press",
       transitionProperty: "common",
-      transitionTimingFunction: "out",
+      transitionTimingFunction: "press",
     },
   },
   className: "switch",
@@ -89,14 +90,14 @@ export const recipe = defineSlotRecipe({
     size: onSlots({
       control: sizeVariants(
         (size) => ({
-          blockSize: `tag.${size}`,
-          inlineSize: `control.${size}`,
+          blockSize: dense(`{sizes.tag.${size}}`),
+          inlineSize: dense(`{sizes.control.${size}}`),
           [TRAVEL]: `calc({sizes.control.${size}} - {sizes.tag.${size}})`,
         }),
         ["sm", "md", "lg"],
       ),
       label: sizeVariants((size) => ({ textStyle: `label.${size}` }), ["sm", "md", "lg"]),
-      root: sizeVariants((size) => ({ gap: `gap.${size}` }), ["sm", "md", "lg"]),
+      root: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), ["sm", "md", "lg"]),
     }),
 
     /**

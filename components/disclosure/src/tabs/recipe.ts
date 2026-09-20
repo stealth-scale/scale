@@ -14,12 +14,25 @@
 import {
   controlSizes,
   defineSlotRecipe,
+  dense,
   insetSizes,
   interactive,
   justifyVariants,
   onSlot,
   onSlots,
 } from "@stealthscale/theme/authoring";
+
+/**
+ * Fixes the box an indicator that fills the tab in force takes: the width and the height the
+ * machine measured the tab at.
+ *
+ * @remarks
+ *   The machine writes the measurements as properties on the indicator and leaves it to the
+ *   recipe to take them. A line indicator takes one of the two and its own stroke for the other.
+ *   A filled indicator takes both, because it stands behind the whole tab rather than along one
+ *   edge of it, and one that took neither collapsed to nothing and left the selected tab unmarked.
+ */
+const FILLED = { height: "var(--height)", width: "var(--width)" };
 
 /**
  * Draws a line of tabs at the middle size until a caller says otherwise.
@@ -75,8 +88,13 @@ export const recipe = defineSlotRecipe({
      */
     variant: {
       enclosed: {
-        indicator: { background: "bg.panel", borderColor: "border", borderWidth: "sm" },
-        list: { background: "bg.muted", borderRadius: "l2", padding: "inset.xs" },
+        indicator: {
+          ...FILLED,
+          background: "bg.panel",
+          borderColor: "border",
+          borderWidth: "hairline",
+        },
+        list: { background: "bg.muted", borderRadius: "l2", padding: dense("{spacing.inset.xs}") },
         trigger: {
           _selected: { color: "fg" },
           borderRadius: "l1",
@@ -85,13 +103,17 @@ export const recipe = defineSlotRecipe({
       },
       line: {
         indicator: {
-          _horizontal: { bottom: "0", height: "{borderWidths.md}", width: "var(--width)" },
-          _vertical: { height: "var(--height)", insetInlineStart: "0", width: "{borderWidths.md}" },
+          _horizontal: { bottom: "0", height: "{borderWidths.indicator}", width: "var(--width)" },
+          _vertical: {
+            height: "var(--height)",
+            insetInlineStart: "0",
+            width: "{borderWidths.indicator}",
+          },
           background: "colorPalette.solid",
         },
         list: {
-          _horizontal: { borderBlockEndColor: "border", borderBlockEndWidth: "sm" },
-          _vertical: { borderInlineEndColor: "border", borderInlineEndWidth: "sm" },
+          _horizontal: { borderBlockEndColor: "border", borderBlockEndWidth: "hairline" },
+          _vertical: { borderInlineEndColor: "border", borderInlineEndWidth: "hairline" },
         },
         trigger: {
           _hover: { color: "fg" },
@@ -104,7 +126,7 @@ export const recipe = defineSlotRecipe({
         trigger: { _selected: { color: "fg" }, color: "fg.muted" },
       },
       subtle: {
-        indicator: { background: "colorPalette.subtle", borderRadius: "l1" },
+        indicator: { ...FILLED, background: "colorPalette.subtle", borderRadius: "l1" },
         trigger: { _selected: { color: "colorPalette.fg" }, color: "fg.muted" },
       },
     },

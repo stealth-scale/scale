@@ -11,6 +11,7 @@
 
 import {
   defineRecipe,
+  dense,
   lookVariants,
   statusEmitted,
   statusVariants,
@@ -35,8 +36,8 @@ export const recipe = defineRecipe({
   staticCss: [statusEmitted()],
   variants: {
     size: {
-      md: { paddingInline: "inset.sm", textStyle: "code.md" },
-      sm: { paddingInline: "inset.xs", textStyle: "code.sm" },
+      md: { paddingInline: dense("{spacing.inset.sm}"), textStyle: "code.md" },
+      sm: { paddingInline: dense("{spacing.inset.xs}"), textStyle: "code.sm" },
     },
     status: statusVariants(),
     variant: lookVariants(["solid", "subtle", "surface", "outline", "plain"]),

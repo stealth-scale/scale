@@ -26,6 +26,7 @@
 
 import {
   defineSlotRecipe,
+  dense,
   interactive,
   onSlot,
   onSlots,
@@ -55,9 +56,9 @@ export const recipe = defineSlotRecipe({
       flexShrink: "0",
       justifyContent: "center",
       marginInlineStart: "auto",
-      transitionDuration: "fast",
+      transitionDuration: "press",
       transitionProperty: "common",
-      transitionTimingFunction: "out",
+      transitionTimingFunction: "press",
     },
     label: { display: "flex", flexDirection: "column", minInlineSize: "0", textAlign: "start" },
     mark: { alignItems: "center", display: "inline-flex", flexShrink: "0" },
@@ -79,13 +80,13 @@ export const recipe = defineSlotRecipe({
         mark: {
           background: "bg.muted",
           borderRadius: "l1",
-          boxSize: "icon.md",
+          boxSize: dense("{sizes.icon.md}"),
           fontSize: "xs",
           fontWeight: "semibold",
           justifyContent: "center",
           lineHeight: "tight",
         },
-        root: { gap: "gap.lg" },
+        root: { gap: dense("{spacing.gap.lg}") },
       },
       name: "marked",
       placement: "toolbar",
@@ -124,36 +125,45 @@ export const recipe = defineSlotRecipe({
     size: onSlots({
       action: sizeVariants(
         (size) => ({
-          blockSize: `tag.${size}`,
-          gap: `gap.${size}`,
-          paddingInline: `inset.${size}`,
+          blockSize: dense(`{sizes.tag.${size}}`),
+          gap: dense(`{spacing.gap.${size}}`),
+          paddingInline: dense(`{spacing.inset.${size}}`),
           textStyle: `label.${size}`,
         }),
         ["sm", "md", "lg"],
       ),
       check: sizeVariants(
         (size) => ({
-          boxSize: `icon.${size}`,
-          insetInlineEnd: `gap.${size}`,
+          boxSize: dense(`{sizes.icon.${size}}`),
+          insetInlineEnd: dense(`{spacing.gap.${size}}`),
           insetInlineStart: "auto",
         }),
         ["sm", "md", "lg"],
       ),
       content: sizeVariants(
-        (size) => ({ gap: `gap.${size}`, padding: `gap.${size}` }),
+        (size) => ({
+          gap: dense(`{spacing.gap.${size}}`),
+          padding: dense(`{spacing.gap.${size}}`),
+        }),
         ["sm", "md", "lg"],
       ),
-      indicator: sizeVariants((size) => ({ boxSize: `icon.${size}` }), ["sm", "md", "lg"]),
-      mark: sizeVariants((size) => ({ boxSize: `control.${size}` }), ["sm", "md", "lg"]),
+      indicator: sizeVariants(
+        (size) => ({ boxSize: dense(`{sizes.icon.${size}}`) }),
+        ["sm", "md", "lg"],
+      ),
+      mark: sizeVariants(
+        (size) => ({ boxSize: dense(`{sizes.control.${size}}`) }),
+        ["sm", "md", "lg"],
+      ),
       name: sizeVariants(
         (size) => ({ fontSize: size, fontWeight: "semibold", lineHeight: "tight" }),
         ["sm", "md", "lg"],
       ),
       option: sizeVariants(
         (size) => ({
-          gap: `gap.${size}`,
-          minBlockSize: `control.${size}`,
-          padding: `gap.${size}`,
+          gap: dense(`{spacing.gap.${size}}`),
+          minBlockSize: dense(`{sizes.control.${size}}`),
+          padding: dense(`{spacing.gap.${size}}`),
           paddingInlineEnd: `calc({sizes.icon.${size}} + 2 * {spacing.gap.${size}})`,
         }),
         ["sm", "md", "lg"],
@@ -161,9 +171,9 @@ export const recipe = defineSlotRecipe({
       root: sizeVariants(
         (size) => ({
           borderRadius: "l2",
-          gap: `gap.${size}`,
-          minBlockSize: `control.${size}`,
-          paddingInline: `gap.${size}`,
+          gap: dense(`{spacing.gap.${size}}`),
+          minBlockSize: dense(`{sizes.control.${size}}`),
+          paddingInline: dense(`{spacing.gap.${size}}`),
         }),
         ["sm", "md", "lg"],
       ),
@@ -178,7 +188,7 @@ export const recipe = defineSlotRecipe({
      *   the default.
      */
     variant: onSlot("root", {
-      outline: { borderColor: "border", borderWidth: "sm" },
+      outline: { borderColor: "border.emphasized", borderWidth: "control" },
       plain: { background: "transparent" },
       subtle: { background: "bg.muted" },
     }),

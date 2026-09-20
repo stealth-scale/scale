@@ -25,6 +25,7 @@
 import {
   below,
   defineSlotRecipe,
+  dense,
   divider,
   onSlots,
   sizeVariants,
@@ -83,7 +84,11 @@ export const recipe = defineSlotRecipe({
     {
       annotated: true,
       css: {
-        actions: { justifySelf: "start", marginBlockStart: "gap.md", paddingInlineStart: "0" },
+        actions: {
+          justifySelf: "start",
+          marginBlockStart: dense("{spacing.gap.md}"),
+          paddingInlineStart: "0",
+        },
         body: { gridArea: "body" },
         footer: { gridArea: "footer" },
         header: {
@@ -114,7 +119,7 @@ export const recipe = defineSlotRecipe({
         },
         footer: {
           ...divider("horizontal"),
-          borderBlockStartWidth: "sm",
+          borderBlockStartWidth: "hairline",
           padding: `var(${ROOM})`,
         },
         header: { padding: `var(${ROOM})`, paddingBlockEnd: "0" },
@@ -141,20 +146,26 @@ export const recipe = defineSlotRecipe({
     /**
      * Whether the header stands in a column beside the body rather than over it.
      */
-    annotated: { true: { root: { columnGap: "gap.2xl" } } },
+    annotated: { true: { root: { columnGap: dense("{spacing.gap.2xl}") } } },
 
     size: onSlots({
       actions: sizeVariants(
-        (size) => ({ gap: `gap.${size}`, paddingInlineStart: `gap.${size}` }),
+        (size) => ({
+          gap: dense(`{spacing.gap.${size}}`),
+          paddingInlineStart: dense(`{spacing.gap.${size}}`),
+        }),
         ["sm", "md", "lg"],
       ),
       description: sizeVariants(
         (size) => ({ textStyle: `body.${below(size)}` }),
         ["sm", "md", "lg"],
       ),
-      footer: sizeVariants((size) => ({ gap: `gap.${size}` }), ["sm", "md", "lg"]),
+      footer: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), ["sm", "md", "lg"]),
       root: sizeVariants(
-        (size) => ({ gap: `gap.${AIRED[size]}`, [ROOM]: `{spacing.inset.${size}}` }),
+        (size) => ({
+          gap: dense(`{spacing.gap.${AIRED[size]}}`),
+          [ROOM]: `{spacing.inset.${size}}`,
+        }),
         ["sm", "md", "lg"],
       ),
       title: sizeVariants((size) => ({ textStyle: `heading.${below(size)}` }), ["sm", "md", "lg"]),
@@ -175,10 +186,10 @@ export const recipe = defineSlotRecipe({
       plain: {
         root: {
           "& + &": {
-            borderBlockStartWidth: "sm",
+            borderBlockStartWidth: "hairline",
             borderColor: "border",
-            marginBlockStart: "gap.2xl",
-            paddingBlockStart: "gap.2xl",
+            marginBlockStart: dense("{spacing.gap.2xl}"),
+            paddingBlockStart: dense("{spacing.gap.2xl}"),
           },
         },
       },

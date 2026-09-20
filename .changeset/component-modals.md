@@ -2,6 +2,11 @@
 "@stealthscale/component-modals": minor
 ---
 
+component-modals: rule the palette with hairlines
+
+- The band under the field reads the hairline the `divider()` helper draws, without restating a
+  width, and a shortcut's box reads `borderWidths.hairline`.
+
 component-modals: publish Command
 
 - `Command` draws the palette a person opens with a keystroke, types into, and runs one thing from.

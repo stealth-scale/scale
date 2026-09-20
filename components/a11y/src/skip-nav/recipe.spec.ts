@@ -31,7 +31,9 @@ describe("recipe", () => {
   });
 
   it("leaves room above the target so the content is not under a sticky band", () => {
-    expect(recipe.base?.target).toStrictEqual({ scrollMarginBlockStart: "inset.lg" });
+    expect(recipe.base?.target).toStrictEqual({
+      scrollMarginBlockStart: "calc({spacing.inset.lg} * var(--density, 1))",
+    });
   });
 
   it("tracks the namespace and every tag whose name opens with SkipNav", () => {

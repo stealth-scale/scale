@@ -15,6 +15,7 @@
 import {
   cornerVariants,
   defineSlotRecipe,
+  dense,
   highlightVariants,
   iconSizes,
   onSlot,
@@ -71,24 +72,30 @@ export const recipe = defineSlotRecipe({
     radius: onSlot("item", cornerVariants(["l1", "l2", "l3"])),
 
     size: onSlots({
-      content: sizeVariants((size) => ({ gap: `gap.${size}` }), ["sm", "md", "lg"]),
+      content: sizeVariants(
+        (size) => ({ gap: dense(`{spacing.gap.${size}}`) }),
+        ["sm", "md", "lg"],
+      ),
       item: sizeVariants(
         (size) => ({
-          blockSize: `tag.${size}`,
-          gap: `gap.${size}`,
-          paddingInline: `inset.${size}`,
+          blockSize: dense(`{sizes.tag.${size}}`),
+          gap: dense(`{spacing.gap.${size}}`),
+          paddingInline: dense(`{spacing.inset.${size}}`),
           textStyle: `label.${size}`,
         }),
         ["sm", "md", "lg"],
       ),
-      itemGroup: sizeVariants((size) => ({ gap: `gap.${size}` }), ["sm", "md", "lg"]),
+      itemGroup: sizeVariants(
+        (size) => ({ gap: dense(`{spacing.gap.${size}}`) }),
+        ["sm", "md", "lg"],
+      ),
       itemGroupLabel: sizeVariants(
-        (size) => ({ paddingInline: `inset.${size}`, textStyle: `label.${size}` }),
+        (size) => ({ paddingInline: dense(`{spacing.inset.${size}}`), textStyle: `label.${size}` }),
         ["sm", "md", "lg"],
       ),
       itemIndicator: iconSizes(["sm", "md", "lg"]),
       label: sizeVariants((size) => ({ textStyle: `label.${size}` }), ["sm", "md", "lg"]),
-      root: sizeVariants((size) => ({ gap: `gap.${size}` }), ["sm", "md", "lg"]),
+      root: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), ["sm", "md", "lg"]),
     }),
 
     /**

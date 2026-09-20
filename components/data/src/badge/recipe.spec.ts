@@ -70,7 +70,9 @@ describe("recipe", () => {
   });
 
   it("reads the tag scale rather than the control scale at every size", () => {
-    expect(recipe.variants?.["size"]?.["md"]).toMatchObject({ height: "tag.md" });
+    expect(recipe.variants?.["size"]?.["md"]).toMatchObject({
+      height: "calc({sizes.tag.md} * var(--density, 1))",
+    });
   });
 
   it("tracks every tag whose name ends in Badge", () => {

@@ -2,6 +2,12 @@
 "@stealthscale/component-collections": minor
 ---
 
+component-collections: rule the table with hairlines and stripe it in the first well
+
+- Every rule of the table reads `borderWidths.hairline`, so a theme moves them with every other
+  hairline. The stripe is `bg.subtle`, the shallowest well, so a hovered row on the muted fill still
+  stands from it.
+
 component-collections: publish Listbox, useListCollection and useFilter
 
 - `Listbox` draws a list of rows a person picks from, with the keys the ARIA pattern calls for. Ten

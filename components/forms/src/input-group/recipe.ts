@@ -21,6 +21,7 @@ import {
   CONTROL_INSET_END,
   CONTROL_INSET_START,
   defineSlotRecipe,
+  dense,
   onSlots,
   sizeVariants,
 } from "@stealthscale/theme/authoring";
@@ -85,9 +86,9 @@ export const recipe = defineSlotRecipe({
     },
 
     size: onSlots({
-      end: sizeVariants((size) => ({ inlineSize: `control.${size}` })),
+      end: sizeVariants((size) => ({ inlineSize: dense(`{sizes.control.${size}}`) })),
       root: sizeVariants((size) => ({ [ROOM]: `{sizes.control.${size}}` })),
-      start: sizeVariants((size) => ({ inlineSize: `control.${size}` })),
+      start: sizeVariants((size) => ({ inlineSize: dense(`{sizes.control.${size}}`) })),
     }),
   },
 });

@@ -2,12 +2,17 @@
 "@stealthscale/component-navigation": minor
 ---
 
+component-navigation: read the theme's stroke widths
+
+- A nested list's rule reads `borderWidths.hairline`, and the table of contents' mark reads
+  `borderWidths.indicator`, rather than the reference widths `sm` and `md`.
+
 component-navigation: publish NavList
 
 - `NavList` draws the list of destinations a sidebar or a page is moved around by. Ten parts under
   one namespace, with a link, a nested list, a badge and the control that opens a branch.
 - It belongs here rather than in the screen package, because what it draws is a way of moving
-  between places. The screen package lays out the room it sits in.
+  between places. The screen package lays out the room around it.
 - `highlight` marks the destination a reader is on: `bar` draws a rule down its leading edge, `fill`
   fills it solidly, and `tint` fills it faintly. The mark is written against `_currentPage`, which
   is the condition `aria-current="page"` sets, so the mark and what a screen reader announces cannot

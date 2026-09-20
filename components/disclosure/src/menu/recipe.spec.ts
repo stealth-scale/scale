@@ -120,7 +120,7 @@ describe("recipe", () => {
 
   it("reads a row one step below the name the menu was asked for", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["item"]).toMatchObject({
-      minBlockSize: "control.sm",
+      minBlockSize: "calc({sizes.control.sm} * var(--density, 1))",
       textStyle: "label.sm",
     });
   });

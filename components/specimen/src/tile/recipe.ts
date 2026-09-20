@@ -9,7 +9,7 @@
  *   word in the middle, so what a layout does to it can be read off the page.
  */
 
-import { defineRecipe } from "@stealthscale/theme/authoring";
+import { defineRecipe, dense } from "@stealthscale/theme/authoring";
 
 /**
  * Draws a tile.
@@ -19,8 +19,8 @@ export const recipe = defineRecipe({
     borderRadius: "l1",
     colorPalette: "neutral",
     layerStyle: "flat.surface",
-    paddingBlock: "gap.sm",
-    paddingInline: "gap.md",
+    paddingBlock: dense("{spacing.gap.sm}"),
+    paddingInline: dense("{spacing.gap.md}"),
     textAlign: "center",
   },
   className: "tile",

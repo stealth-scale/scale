@@ -9,7 +9,7 @@
  *   whole job is to be somewhere focus can land.
  */
 
-import { defineSlotRecipe } from "@stealthscale/theme/authoring";
+import { defineSlotRecipe, dense } from "@stealthscale/theme/authoring";
 
 /**
  * Draws the link over the top of the page while focus is on it, and leaves the target alone.
@@ -19,11 +19,11 @@ export const recipe = defineSlotRecipe({
     link: {
       _focusVisible: {
         borderRadius: "l2",
-        insetBlockStart: "inset.md",
-        insetInlineStart: "inset.md",
+        insetBlockStart: dense("{spacing.inset.md}"),
+        insetInlineStart: dense("{spacing.inset.md}"),
         layerStyle: "fill.surface",
-        paddingBlock: "inset.sm",
-        paddingInline: "inset.md",
+        paddingBlock: dense("{spacing.inset.sm}"),
+        paddingInline: dense("{spacing.inset.md}"),
         position: "fixed",
         srOnly: false,
         textStyle: "label.md",
@@ -31,7 +31,7 @@ export const recipe = defineSlotRecipe({
       },
       srOnly: true,
     },
-    target: { scrollMarginBlockStart: "inset.lg" },
+    target: { scrollMarginBlockStart: dense("{spacing.inset.lg}") },
   },
   className: "skip-nav",
   jsx: [/^SkipNav(\.\w+)?$/u],

@@ -2,14 +2,20 @@
 "@stealthscale/component-disclosure": patch
 ---
 
+component-disclosure: read the theme's stroke widths
+
+- The collapsible's frame, the menu's, the popover's and the tooltip's panels and arrows, the
+  enclosed tab's segment and the tab strip's rule read `borderWidths.hairline`, and the line tabs'
+  indicator reads `borderWidths.indicator`, rather than the reference widths `sm` and `md`.
+
 component-disclosure: keep an indicator out of the name its control is announced by
 
 - `Menu.Indicator`, `Popover.Indicator` and `Collapsible.Indicator` sit inside the control they
   belong to. Everything inside a control is read as part of that control's accessible name, so a
   trigger named `Workspace Acme` announced as `Workspace Acme ▾`. Each now states `aria-hidden`.
   `Menu.ItemIndicator` already did.
-- `Tabs.Indicator` is the bar that slides under the control in force. It sits among the controls in
-  the strip and carries neither a role nor any words, so a reader stepping through the strip met one
+- `Tabs.Indicator` is the bar that slides under the control in force. It is one of the strip's
+  children and carries neither a role nor any words, so a reader stepping through the strip met one
   more thing to pass. It states `aria-hidden` once it has something to measure. Which control is in
   force is `aria-selected` on the control itself.
 - None of the machines writes the attribute, and `Collapsible.Indicator` documented that one did. A

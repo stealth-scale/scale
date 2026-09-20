@@ -10,7 +10,13 @@
  *   it, and the recipe here states only how the parts are placed.
  */
 
-import { below, defineSlotRecipe, onSlots, sizeVariants } from "@stealthscale/theme/authoring";
+import {
+  below,
+  defineSlotRecipe,
+  dense,
+  onSlots,
+  sizeVariants,
+} from "@stealthscale/theme/authoring";
 
 /**
  * The steps a label and a control row are set at.
@@ -41,9 +47,9 @@ export const recipe = defineSlotRecipe({
      * How much room the parts take, which the label and the gaps step together.
      */
     size: onSlots({
-      control: sizeVariants((size) => ({ gap: `gap.${size}` }), STEPS),
+      control: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), STEPS),
       label: sizeVariants((size) => ({ textStyle: `label.${size}` }), STEPS),
-      root: sizeVariants((size) => ({ gap: `gap.${below(size)}` }), STEPS),
+      root: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${below(size)}}`) }), STEPS),
     }),
   },
 });

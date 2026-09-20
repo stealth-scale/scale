@@ -43,13 +43,16 @@ describe("recipe", () => {
   it("reads the body role a step below the size and the label role two below", () => {
     expect(recipe.variants?.["size"]?.["md"]).toStrictEqual({
       link: {
-        paddingBlock: "gap.xs",
-        paddingInlineEnd: "inset.sm",
-        paddingInlineStart: "inset.md",
+        paddingBlock: "calc({spacing.gap.xs} * var(--density, 1))",
+        paddingInlineEnd: "calc({spacing.inset.sm} * var(--density, 1))",
+        paddingInlineStart: "calc({spacing.inset.md} * var(--density, 1))",
         textStyle: "body.sm",
       },
-      root: { gap: "gap.sm" },
-      title: { paddingInline: "inset.sm", textStyle: "label.xs" },
+      root: { gap: "calc({spacing.gap.sm} * var(--density, 1))" },
+      title: {
+        paddingInline: "calc({spacing.inset.sm} * var(--density, 1))",
+        textStyle: "label.xs",
+      },
     });
   });
 

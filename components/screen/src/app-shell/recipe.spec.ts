@@ -43,11 +43,16 @@ describe("recipe", () => {
 
   it("parts each bar and each panel from the page with one hairline on its inner edge", () => {
     expect(recipe.variants?.["divided"]?.["true"]).toStrictEqual({
-      aside: { borderColor: "border", borderInlineStartWidth: "sm" },
-      footer: { borderBlockStartWidth: "sm", borderColor: "border" },
-      header: { borderBlockEndWidth: "sm", borderColor: "border" },
-      navbar: { borderColor: "border", borderInlineEndWidth: "sm" },
+      aside: { borderColor: "border", borderInlineStartWidth: "hairline" },
+      footer: { borderBlockStartWidth: "hairline", borderColor: "border" },
+      header: { borderBlockEndWidth: "hairline", borderColor: "border" },
+      navbar: { borderColor: "border", borderInlineEndWidth: "hairline" },
     });
+  });
+
+  it("opens each panel to the theme's layout size for it", () => {
+    expect(recipe.base?.["navbar"]).toMatchObject({ [PANEL_SIZE]: "sizes.sidebar" });
+    expect(recipe.base?.["aside"]).toMatchObject({ [PANEL_SIZE]: "sizes.aside" });
   });
 
   it("fills a bar that pins to the window with the panel surface", () => {
@@ -94,7 +99,7 @@ describe("recipe", () => {
   it("brings a sheet into sight the moment it opens", () => {
     expect(recipe.base?.["navbar"]?.["&[data-overlaid]"]).toMatchObject({
       transitionDelay: "0s",
-      transitionDuration: "{durations.moderate}, 0s",
+      transitionDuration: "{durations.move}, 0s",
       transitionProperty: "translate, visibility",
     });
   });
@@ -113,7 +118,7 @@ describe("recipe", () => {
 
   it("closes a panel to the rail its collapse states", () => {
     expect(recipe.base?.["navbar"]?.["&[data-collapse=icons]"]).toStrictEqual({
-      [PANEL_RAIL]: "sizes.16",
+      [PANEL_RAIL]: "sizes.rail",
     });
     expect(recipe.base?.["navbar"]?.["&[data-state=closed]"]).toStrictEqual({
       inlineSize: `var(${PANEL_RAIL})`,

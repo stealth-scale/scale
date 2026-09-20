@@ -88,14 +88,14 @@ describe("recipe", () => {
 
   it("keeps the header closer to its body than to the bar above it", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["header"]).toStrictEqual({
-      paddingBlockEnd: "gap.md",
-      paddingBlockStart: "inset.md",
+      paddingBlockEnd: "calc({spacing.gap.md} * var(--density, 1))",
+      paddingBlockStart: "calc({spacing.inset.md} * var(--density, 1))",
     });
   });
 
   it("sets the context a text step below the page", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["context"]).toStrictEqual({
-      gap: "gap.md",
+      gap: "calc({spacing.gap.md} * var(--density, 1))",
       textStyle: "body.sm",
     });
   });
@@ -107,9 +107,11 @@ describe("recipe", () => {
   });
 
   it("insets the body and the banner on the block axis alone so the gutter holds", () => {
-    expect(recipe.variants?.["size"]?.["md"]?.["body"]).toStrictEqual({ paddingBlock: "inset.md" });
+    expect(recipe.variants?.["size"]?.["md"]?.["body"]).toStrictEqual({
+      paddingBlock: "calc({spacing.inset.md} * var(--density, 1))",
+    });
     expect(recipe.variants?.["size"]?.["md"]?.["banner"]).toStrictEqual({
-      paddingBlock: "inset.md",
+      paddingBlock: "calc({spacing.inset.md} * var(--density, 1))",
     });
   });
 
@@ -158,7 +160,7 @@ describe("recipe", () => {
   it("lays the body beside an aside from the large breakpoint up", () => {
     expect(recipe.base?.["root"]?.["&:has(> .page__aside)"]).toStrictEqual({
       lg: {
-        columnGap: "gap.xl",
+        columnGap: "calc({spacing.gap.xl} * var(--density, 1))",
         display: "grid",
         gridTemplateAreas:
           '"banner banner" "header header" "nav nav" "toolbar toolbar" "body aside" "footer footer"',

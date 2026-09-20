@@ -2,6 +2,13 @@
 "@stealthscale/component-typography": minor
 ---
 
+component-typography: offer the tertiary ink as a tone and draw a keycap at the theme's widths
+
+- `Text`, `Heading`, `Strong` and `Em` offer `tone="subtle"`, the tertiary ink at AA, for a caption,
+  a timestamp or a counter.
+- A raised `Kbd` draws its edge at `borderWidths.control` and its foot at `borderWidths.indicator`
+  rather than at the reference widths `sm` and `md`.
+
 component-typography: keep a mirrored icon mirrored while it spins
 
 - `Icon`'s `mirrored` axis wrote `transform: scaleX(-1)`, and the `spin` motion animates

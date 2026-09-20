@@ -29,13 +29,14 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "weight")).not.toContain("normal");
   });
 
-  it("offers the seven inks", () => {
+  it("offers the eight inks", () => {
     expect(valuesOf(recipe, "tone")).toStrictEqual([
       "default",
       "error",
       "info",
       "inverted",
       "muted",
+      "subtle",
       "success",
       "warning",
     ]);

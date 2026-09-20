@@ -14,6 +14,7 @@
 
 import {
   defineSlotRecipe,
+  dense,
   divider,
   onSlots,
   sizeVariants,
@@ -29,7 +30,6 @@ export const recipe = defineSlotRecipe({
     control: {
       ...divider("horizontal"),
       alignItems: "center",
-      borderBlockEndWidth: "sm",
       display: "flex",
       flexShrink: "0",
     },
@@ -49,7 +49,7 @@ export const recipe = defineSlotRecipe({
     shortcut: {
       ...truncate(),
       borderColor: "border",
-      borderWidth: "sm",
+      borderWidth: "hairline",
       color: "fg.muted",
       flexShrink: "0",
       marginInlineStart: "auto",
@@ -63,23 +63,29 @@ export const recipe = defineSlotRecipe({
     size: onSlots({
       control: sizeVariants(
         (size) => ({
-          blockSize: `control.${size}`,
-          gap: `gap.${size}`,
-          paddingInline: `inset.${size}`,
+          blockSize: dense(`{sizes.control.${size}}`),
+          gap: dense(`{spacing.gap.${size}}`),
+          paddingInline: dense(`{spacing.inset.${size}}`),
         }),
         ["sm", "md", "lg"],
       ),
       empty: sizeVariants(
-        (size) => ({ padding: `inset.${size}`, textStyle: `body.${size}` }),
+        (size) => ({ padding: dense(`{spacing.inset.${size}}`), textStyle: `body.${size}` }),
         ["sm", "md", "lg"],
       ),
-      indicator: sizeVariants((size) => ({ boxSize: `icon.${size}` }), ["sm", "md", "lg"]),
+      indicator: sizeVariants(
+        (size) => ({ boxSize: dense(`{sizes.icon.${size}}`) }),
+        ["sm", "md", "lg"],
+      ),
       input: sizeVariants((size) => ({ textStyle: `body.${size}` }), ["sm", "md", "lg"]),
-      list: sizeVariants((size) => ({ padding: `inset.${size}` }), ["sm", "md", "lg"]),
+      list: sizeVariants(
+        (size) => ({ padding: dense(`{spacing.inset.${size}}`) }),
+        ["sm", "md", "lg"],
+      ),
       shortcut: sizeVariants(
         (size) => ({
           borderRadius: "l1",
-          paddingInline: `gap.${size}`,
+          paddingInline: dense(`{spacing.gap.${size}}`),
           textStyle: `label.${size}`,
         }),
         ["sm", "md", "lg"],

@@ -16,6 +16,7 @@
 import {
   cornerVariants,
   defineSlotRecipe,
+  dense,
   interactive,
   onSlot,
   onSlots,
@@ -36,7 +37,7 @@ export const NUMERIC = "data-numeric";
 /**
  * Writes the rule between two rows.
  */
-const RULE = { borderBlockEndWidth: "sm", borderColor: "border" };
+const RULE = { borderBlockEndWidth: "hairline", borderColor: "border" };
 
 /**
  * Writes where a cell's words sit against the height of its row.
@@ -79,7 +80,7 @@ export const recipe = defineSlotRecipe({
       color: "inherit",
       display: "inline-flex",
       font: "inherit",
-      gap: "gap.xs",
+      gap: dense("{spacing.gap.xs}"),
       padding: "0",
       textAlign: "inherit",
     },
@@ -165,26 +166,37 @@ export const recipe = defineSlotRecipe({
      */
     ruled: {
       true: {
-        cell: { "&:not(:last-of-type)": { borderColor: "border", borderInlineEndWidth: "sm" } },
+        cell: {
+          "&:not(:last-of-type)": { borderColor: "border", borderInlineEndWidth: "hairline" },
+        },
         columnHeader: {
-          "&:not(:last-of-type)": { borderColor: "border", borderInlineEndWidth: "sm" },
+          "&:not(:last-of-type)": { borderColor: "border", borderInlineEndWidth: "hairline" },
         },
       },
     },
 
     size: onSlots({
-      caption: sizeVariants((size) => ({ paddingBlock: `inset.${size}` }), SIZES),
+      caption: sizeVariants((size) => ({ paddingBlock: dense(`{spacing.inset.${size}}`) }), SIZES),
       cell: sizeVariants(
-        (size) => ({ paddingBlock: `inset.${size}`, paddingInline: `inset.${size}` }),
+        (size) => ({
+          paddingBlock: dense(`{spacing.inset.${size}}`),
+          paddingInline: dense(`{spacing.inset.${size}}`),
+        }),
         SIZES,
       ),
       columnHeader: sizeVariants(
-        (size) => ({ paddingBlock: `inset.${size}`, paddingInline: `inset.${size}` }),
+        (size) => ({
+          paddingBlock: dense(`{spacing.inset.${size}}`),
+          paddingInline: dense(`{spacing.inset.${size}}`),
+        }),
         SIZES,
       ),
       root: sizeVariants((size) => ({ textStyle: `body.${size}` }), SIZES),
       rowHeader: sizeVariants(
-        (size) => ({ paddingBlock: `inset.${size}`, paddingInline: `inset.${size}` }),
+        (size) => ({
+          paddingBlock: dense(`{spacing.inset.${size}}`),
+          paddingInline: dense(`{spacing.inset.${size}}`),
+        }),
         SIZES,
       ),
     }),
@@ -217,9 +229,12 @@ export const recipe = defineSlotRecipe({
 
     /**
      * Whether every other row is tinted, which helps an eye track across a wide table.
+     *
+     * @remarks
+     *   A stripe is the shallowest well, so a hovered row on the muted fill still stands from it.
      */
     striped: {
-      true: { body: { "& > tr": { _odd: { background: "bg.muted" } } } },
+      true: { body: { "& > tr": { _odd: { background: "bg.subtle" } } } },
     },
 
     /**

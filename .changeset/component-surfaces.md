@@ -2,6 +2,11 @@
 "@stealthscale/component-surfaces": minor
 ---
 
+component-surfaces: rule a divided card with hairlines
+
+- The rules between a card's bands read `borderWidths.hairline` rather than the reference width
+  `sm`, and the card's own edge reads the hairline the `surface()` helper draws.
+
 component-surfaces: publish Card
 
 - `Card` draws a panel a reader takes in on its own. Nine parts under one namespace: `Root`,
@@ -18,9 +23,9 @@ component-surfaces: publish Card
 - The root states its own inset as `--card-inset`, which the media reads back as a negative margin
   and the divided bands read as the room between a rule and the words. Both would otherwise be a
   length per step, which is a compound for every pair of `size` and the axis beside it.
-- Nine axes: `variant` over `elevated`, `outline`, `subtle` and `glass`; `size` over four steps;
-  `orientation`; `radius`; `justify` for the footer's spread; `status`; `motion`; `divided`; and
-  `interactive`.
+- Nine axes. `variant` runs over `elevated`, `outline`, `subtle` and `glass`, and `size` over four
+  steps. `orientation`, `radius`, `justify` for the footer's spread, `status`, `motion`, `divided`
+  and `interactive` are the other seven.
 - `interactive` draws the root's focus ring from `:focus-within`, so the whole card shows the focus
   while the thing a keyboard reaches is the link in the title. A press handler on the root would
   leave the card reachable by pointer alone.

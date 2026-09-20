@@ -16,6 +16,7 @@
 import {
   cornerVariants,
   defineRecipe,
+  dense,
   flatVariants,
   motionVariants,
   sizeVariants,
@@ -52,7 +53,10 @@ export const recipe = defineRecipe({
     /**
      * How much room the fill leaves round the words, on the inline axis alone.
      */
-    inset: sizeVariants((size) => ({ paddingInline: `inset.${size}` }), ["xs", "sm", "md"]),
+    inset: sizeVariants(
+      (size) => ({ paddingInline: dense(`{spacing.inset.${size}}`) }),
+      ["xs", "sm", "md"],
+    ),
 
     motion: motionVariants(["fade", "rise", "reveal"]),
     radius: cornerVariants(),

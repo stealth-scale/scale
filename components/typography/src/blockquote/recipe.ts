@@ -12,6 +12,7 @@
 
 import {
   defineSlotRecipe,
+  dense,
   motionVariants,
   onSlot,
   statusEmitted,
@@ -49,30 +50,30 @@ export const recipe = defineSlotRecipe({
     size: {
       lg: {
         content: { textStyle: "body.lg" },
-        root: { gap: "gap.lg", paddingInlineStart: "inset.lg" },
+        root: { gap: dense("{spacing.gap.lg}"), paddingInlineStart: dense("{spacing.inset.lg}") },
       },
       md: {
         content: { textStyle: "body.md" },
-        root: { gap: "gap.md", paddingInlineStart: "inset.md" },
+        root: { gap: dense("{spacing.gap.md}"), paddingInlineStart: dense("{spacing.inset.md}") },
       },
       sm: {
         content: { textStyle: "body.sm" },
-        root: { gap: "gap.sm", paddingInlineStart: "inset.sm" },
+        root: { gap: dense("{spacing.gap.sm}"), paddingInlineStart: dense("{spacing.inset.sm}") },
       },
       xl: {
         content: { textStyle: "body.xl" },
-        root: { gap: "gap.xl", paddingInlineStart: "inset.xl" },
+        root: { gap: dense("{spacing.gap.xl}"), paddingInlineStart: dense("{spacing.inset.xl}") },
       },
       xs: {
         content: { textStyle: "body.xs" },
-        root: { gap: "gap.xs", paddingInlineStart: "inset.xs" },
+        root: { gap: dense("{spacing.gap.xs}"), paddingInlineStart: dense("{spacing.inset.xs}") },
       },
     },
     status: onSlot("root", statusVariants()),
     variant: {
       glass: {
         icon: { color: "colorPalette.solid" },
-        root: { borderRadius: "l2", layerStyle: "glass", padding: "inset.md" },
+        root: { borderRadius: "l2", layerStyle: "glass", padding: dense("{spacing.inset.md}") },
       },
       plain: {
         icon: { color: "colorPalette.solid" },

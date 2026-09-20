@@ -7,23 +7,23 @@
  *   palette, so a theme moves all of them. The interactive fragment gives the cursor, the focus
  *   ring, the disabled layer and the transitions every control shares, and the touch target widens
  *   the hit area on a coarse pointer without moving the box. The border is drawn transparent at the
- *   small width in every look, so the outline look changes its colour and not its size. A press is
- *   read from the look's own pressed fill, from the ripple every button carries, which spreads
+ *   control's width in every look, so the outline look changes its colour and not its size. A press
+ *   is read from the look's own pressed fill, from the ripple every button carries, which spreads
  *   from the middle of the box over the press and fades on the release, and from the elevation
- *   dropping under the pointer. The box holds still, because a control that shrinks or shifts
- *   under a press is one a reader can miss. The square is listed under `staticCss`, because the
- *   icon button fixes it through a default prop and no JSX literal writes it for the compiler to
+ *   dropping under the pointer. The box holds still, because a control that shrinks or shifts under
+ *   a press is one a reader can miss. The square is listed under `staticCss`, because the icon
+ *   button fixes it through a default prop and no JSX literal writes it for the compiler to
  *   extract. The `status` axis offers `neutral` beside the four statuses, for a control in a bar
  *   that reads in the ink of the words beside it, and it is listed under `staticCss` for the same
- *   reason as the square: a bar sets it through a provider.
- *   A button that stays on states `aria-pressed`, and a link drawn as a button in a bar of an
- *   application's sections states `aria-current="page"` on the section being read. The fill each
- *   keeps while on is written against those attributes, so the fill and what a screen reader
- *   announces cannot disagree. It is written in a compound over the looks rather than in the base,
- *   because the compiler emits a look's own fill in a later cascade layer than the base and the
- *   later layer wins whatever the selector's specificity. The quiet looks take the palette's
- *   subtle fill, and the two looks already drawn in it take the muted fill, so a control that is
- *   on stands one step off its rest in every look that has room to.
+ *   reason as the square: a bar sets it through a provider. A button that stays on states
+ *   `aria-pressed`, and a link drawn as a button in a bar of an application's sections states
+ *   `aria-current="page"` on the section being read. The fill each keeps while on is written
+ *   against those attributes, so the fill and what a screen reader announces cannot disagree. It is
+ *   written in a compound over the looks rather than in the base, because the compiler emits a
+ *   look's own fill in a later cascade layer than the base and the later layer wins whatever the
+ *   selector's specificity. The quiet looks take the palette's subtle fill, and the two looks
+ *   already drawn in it take the muted fill, so a control that is on stands one step off its rest
+ *   in every look that has room to.
  */
 
 import {
@@ -60,7 +60,7 @@ export const recipe = defineRecipe({
     appearance: "none",
     borderColor: "transparent",
     borderRadius: "l2",
-    borderWidth: "sm",
+    borderWidth: "control",
     colorPalette: "primary",
     display: "inline-flex",
     flexShrink: "0",

@@ -14,6 +14,7 @@
 
 import {
   defineSlotRecipe,
+  dense,
   onSlot,
   onSlots,
   sizeVariants,
@@ -37,7 +38,7 @@ export const recipe = defineSlotRecipe({
       alignItems: "center",
       color: "colorPalette.fg",
       display: "flex",
-      gap: "gap.xs",
+      gap: dense("{spacing.gap.xs}"),
     },
     helperText: { color: "fg.muted" },
     label: {
@@ -45,7 +46,7 @@ export const recipe = defineSlotRecipe({
       alignItems: "center",
       display: "inline-flex",
       fontWeight: "medium",
-      gap: "gap.xs",
+      gap: dense("{spacing.gap.xs}"),
     },
     requiredIndicator: { color: "colorPalette.fg", lineHeight: "1" },
     root: { colorPalette: "error", display: "flex", inlineSize: "full" },
@@ -61,7 +62,7 @@ export const recipe = defineSlotRecipe({
      */
     orientation: {
       horizontal: {
-        label: { flex: "0 0 auto", paddingBlockStart: "gap.xs" },
+        label: { flex: "0 0 auto", paddingBlockStart: dense("{spacing.gap.xs}") },
         root: { alignItems: "flex-start", flexDirection: "row" },
       },
       vertical: { root: { flexDirection: "column" } },
@@ -72,7 +73,7 @@ export const recipe = defineSlotRecipe({
       errorText: sizeVariants((size) => ({ textStyle: `body.${size}` }), SIZES),
       helperText: sizeVariants((size) => ({ textStyle: `body.${size}` }), SIZES),
       label: sizeVariants((size) => ({ textStyle: `label.${size}` }), SIZES),
-      root: sizeVariants((size) => ({ gap: `gap.${size}` }), SIZES),
+      root: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), SIZES),
     }),
 
     /**

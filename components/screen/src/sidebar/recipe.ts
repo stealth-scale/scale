@@ -15,6 +15,7 @@
 
 import {
   defineSlotRecipe,
+  dense,
   divider,
   onSlot,
   onSlots,
@@ -81,26 +82,41 @@ export const recipe = defineSlotRecipe({
   variants: {
     size: onSlots({
       content: sizeVariants(
-        (size) => ({ gap: `gap.${size}`, padding: `gap.${size}` }),
+        (size) => ({
+          gap: dense(`{spacing.gap.${size}}`),
+          padding: dense(`{spacing.gap.${size}}`),
+        }),
         ["sm", "md", "lg"],
       ),
       empty: sizeVariants(
-        (size) => ({ padding: `inset.${size}`, textStyle: `body.${size}` }),
+        (size) => ({ padding: dense(`{spacing.inset.${size}}`), textStyle: `body.${size}` }),
         ["sm", "md", "lg"],
       ),
-      footer: sizeVariants((size) => ({ padding: `gap.${size}` }), ["sm", "md", "lg"]),
-      header: sizeVariants((size) => ({ padding: `gap.${size}` }), ["sm", "md", "lg"]),
-      nav: sizeVariants((size) => ({ gap: `gap.${size}` }), ["sm", "md", "lg"]),
+      footer: sizeVariants(
+        (size) => ({ padding: dense(`{spacing.gap.${size}}`) }),
+        ["sm", "md", "lg"],
+      ),
+      header: sizeVariants(
+        (size) => ({ padding: dense(`{spacing.gap.${size}}`) }),
+        ["sm", "md", "lg"],
+      ),
+      nav: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), ["sm", "md", "lg"]),
       navLabel: sizeVariants(
         (size) => ({
-          blockSize: `tag.${size}`,
-          paddingInline: `inset.${size}`,
+          blockSize: dense(`{sizes.tag.${size}}`),
+          paddingInline: dense(`{spacing.inset.${size}}`),
           textStyle: `label.${size}`,
         }),
         ["sm", "md", "lg"],
       ),
-      search: sizeVariants((size) => ({ paddingInline: `gap.${size}` }), ["sm", "md", "lg"]),
-      separator: sizeVariants((size) => ({ marginBlock: `gap.${size}` }), ["sm", "md", "lg"]),
+      search: sizeVariants(
+        (size) => ({ paddingInline: dense(`{spacing.gap.${size}}`) }),
+        ["sm", "md", "lg"],
+      ),
+      separator: sizeVariants(
+        (size) => ({ marginBlock: dense(`{spacing.gap.${size}}`) }),
+        ["sm", "md", "lg"],
+      ),
     }),
 
     /**
@@ -111,7 +127,7 @@ export const recipe = defineSlotRecipe({
      *   draws the hairline between the panel and the page, so a line here would be a second one.
      */
     variant: onSlot("root", {
-      outline: { borderColor: "border", borderInlineEndWidth: "sm" },
+      outline: { borderColor: "border", borderInlineEndWidth: "hairline" },
       plain: { background: "transparent" },
       subtle: { background: "bg.subtle" },
       surface: { ...surface(), borderRadius: "0" },

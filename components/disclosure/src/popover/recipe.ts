@@ -16,6 +16,7 @@
 
 import {
   defineSlotRecipe,
+  dense,
   insetSizes,
   interactive,
   motion,
@@ -29,7 +30,7 @@ import {
 export const recipe = defineSlotRecipe({
   base: {
     arrow: { "--arrow-background": "var(--popover-surface)", "--arrow-size": "sizes.icon.sm" },
-    arrowTip: { borderInlineStartWidth: "sm", borderTopWidth: "sm" },
+    arrowTip: { borderInlineStartWidth: "hairline", borderTopWidth: "hairline" },
     closeTrigger: {
       ...interactive(),
       _hover: { color: "fg" },
@@ -47,7 +48,7 @@ export const recipe = defineSlotRecipe({
       _focusVisible: { focusVisibleRing: "outside" },
       display: "flex",
       flexDirection: "column",
-      gap: "gap.sm",
+      gap: dense("{spacing.gap.sm}"),
       position: "relative",
       transformOrigin: "var(--transform-origin)",
       zIndex: "popover",
@@ -56,7 +57,7 @@ export const recipe = defineSlotRecipe({
     indicator: {
       _motionReduce: { transitionDuration: "0s" },
       _open: { rotate: "180deg" },
-      transitionDuration: "fast",
+      transitionDuration: "press",
     },
     positioner: { position: "relative" },
     root: { display: "contents" },
@@ -116,7 +117,7 @@ export const recipe = defineSlotRecipe({
           background: "var(--popover-surface)",
           borderColor: "border",
           borderRadius: "l3",
-          borderWidth: "sm",
+          borderWidth: "hairline",
           boxShadow: "lg",
         },
       },

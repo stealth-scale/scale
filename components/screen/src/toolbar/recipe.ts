@@ -22,6 +22,7 @@ import {
   below,
   cornerVariants,
   defineSlotRecipe,
+  dense,
   onSlot,
   onSlots,
   sizeVariants,
@@ -81,14 +82,14 @@ export const recipe = defineSlotRecipe({
 
     size: onSlots({
       root: sizeVariants((size) => ({ [GAP]: `{spacing.gap.${below(below(size))}}` })),
-      separator: sizeVariants((size) => ({ marginBlock: `gap.${size}` })),
+      separator: sizeVariants((size) => ({ marginBlock: dense(`{spacing.gap.${size}}`) })),
     }),
 
     /**
      * Whether the row is raised on a surface of its own or drawn against what holds it.
      */
     variant: {
-      outline: { root: { borderColor: "border", borderWidth: "sm" } },
+      outline: { root: { borderColor: "border", borderWidth: "hairline" } },
       plain: { root: { background: "transparent" } },
       surface: { root: surface() },
     },

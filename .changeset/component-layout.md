@@ -2,6 +2,12 @@
 "@stealthscale/component-layout": minor
 ---
 
+component-layout: pull an attached group's neighbours back by the control's stroke
+
+- An attached group overlaps its children by `borderWidths.control`, which is the width every
+  control draws its edge at, rather than by the reference width `sm`. The divider reads the theme's
+  hairline through the `divider()` helper.
+
 component-layout: publish Group
 
 - `Group` lays controls along one direction, a semantic gap apart or attached into one control with

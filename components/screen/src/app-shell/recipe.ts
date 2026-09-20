@@ -12,10 +12,11 @@
  *   A panel in the body is a track whose width moves between the width it opens to and the width it
  *   closes to. What it holds keeps the open width, so the contents do not reflow while the track
  *   moves and the track clips them instead. A panel too wide for the window leaves the body, is
- *   fixed to the window and draws a backdrop behind it.
+ *   fixed to the window and draws a backdrop behind it. The widths a panel opens to and closes to
+ *   are the theme's layout sizes, so a theme that wants a wider sidebar states one number.
  */
 
-import { defineSlotRecipe, surface } from "@stealthscale/theme/authoring";
+import { defineSlotRecipe, dense, surface } from "@stealthscale/theme/authoring";
 
 /**
  * The class this recipe is compiled under, which a selector reaching across parts reads.
@@ -64,8 +65,8 @@ export const SETTLED = "data-settled";
  */
 const MOVING = {
   _motionReduce: { transitionDuration: "0s" },
-  transitionDuration: "moderate",
-  transitionTimingFunction: "in-smooth",
+  transitionDuration: "move",
+  transitionTimingFunction: "move",
 
   [`.${CLASS}__root:not([${SETTLED}]) &`]: { transitionDuration: "0s" },
 };
@@ -90,13 +91,13 @@ const MOVING = {
 const OVERLAID = {
   _motionReduce: { transitionDelay: "0s" },
   blockSize: "100dvh",
-  inlineSize: `min(var(${PANEL_SIZE}), calc(100dvw - {sizes.16}))`,
+  inlineSize: `min(var(${PANEL_SIZE}), calc(100dvw - {sizes.rail}))`,
   insetBlock: "0",
   paddingBlockEnd: "safe.bottom",
   paddingBlockStart: "safe.top",
   position: "fixed",
   transitionDelay: "0s",
-  transitionDuration: "{durations.moderate}, 0s",
+  transitionDuration: "{durations.move}, 0s",
   transitionProperty: "translate, visibility",
   zIndex: "modal",
 };
@@ -126,7 +127,7 @@ const PANEL = {
   transitionProperty: "inline-size, visibility",
 
   "&[data-collapse=hide][data-state=closed]": { visibility: "hidden" },
-  "&[data-collapse=icons]": { [PANEL_RAIL]: "sizes.16" },
+  "&[data-collapse=icons]": { [PANEL_RAIL]: "sizes.rail" },
   "&[data-stacked]": { flexBasis: "100%", inlineSize: "100%", order: "1", position: "static" },
   "&[data-state=closed]": { inlineSize: `var(${PANEL_RAIL})` },
 };
@@ -158,7 +159,7 @@ export const recipe = defineSlotRecipe({
   base: {
     aside: {
       ...PANEL,
-      [PANEL_SIZE]: "sizes.80",
+      [PANEL_SIZE]: "sizes.aside",
 
       "&[data-overlaid]": {
         ...OVERLAID,
@@ -214,7 +215,7 @@ export const recipe = defineSlotRecipe({
     main: { flex: "1", minInlineSize: "0" },
     navbar: {
       ...PANEL,
-      [PANEL_SIZE]: "sizes.64",
+      [PANEL_SIZE]: "sizes.sidebar",
 
       "&[data-overlaid]": {
         ...OVERLAID,
@@ -254,10 +255,10 @@ export const recipe = defineSlotRecipe({
      */
     divided: {
       true: {
-        aside: { borderColor: "border", borderInlineStartWidth: "sm" },
-        footer: { borderBlockStartWidth: "sm", borderColor: "border" },
-        header: { borderBlockEndWidth: "sm", borderColor: "border" },
-        navbar: { borderColor: "border", borderInlineEndWidth: "sm" },
+        aside: { borderColor: "border", borderInlineStartWidth: "hairline" },
+        footer: { borderBlockStartWidth: "hairline", borderColor: "border" },
+        header: { borderBlockEndWidth: "hairline", borderColor: "border" },
+        navbar: { borderColor: "border", borderInlineEndWidth: "hairline" },
       },
     },
 
@@ -280,13 +281,13 @@ export const recipe = defineSlotRecipe({
      */
     variant: {
       floating: {
-        aside: { padding: "gap.xs" },
+        aside: { padding: dense("{spacing.gap.xs}") },
         content: { ...surface(), inlineSize: `calc(var(${PANEL_SIZE}) - {spacing.gap.md})` },
-        navbar: { padding: "gap.xs" },
+        navbar: { padding: dense("{spacing.gap.xs}") },
         root: { background: "bg.subtle" },
       },
       inset: {
-        main: { ...surface(), margin: "gap.xs" },
+        main: { ...surface(), margin: dense("{spacing.gap.xs}") },
         root: { background: "bg.subtle" },
       },
       plain: { root: { background: "bg" } },

@@ -23,6 +23,7 @@ import {
   below,
   cornerVariants,
   defineSlotRecipe,
+  dense,
   HIGHLIGHTS,
   highlightVariants,
   interactive,
@@ -96,9 +97,9 @@ const PRESSABLE = {
 function rowed(size: Scale): SystemStyleObject {
   return {
     _currentPage: { color: "fg", fontWeight: "semibold" },
-    blockSize: `tag.${size}`,
-    gap: `gap.${below(below(size))}`,
-    paddingInline: `inset.${below(below(size))}`,
+    blockSize: dense(`{sizes.tag.${size}}`),
+    gap: dense(`{spacing.gap.${below(below(size))}}`),
+    paddingInline: dense(`{spacing.inset.${below(below(size))}}`),
     textStyle: `label.${below(below(size))}`,
   };
 }
@@ -126,7 +127,7 @@ export const recipe = defineSlotRecipe({
       _open: { animationStyle: "collapse.in" },
       "&[hidden]": { display: "none" },
       borderColor: "border",
-      borderInlineStartWidth: "sm",
+      borderInlineStartWidth: "hairline",
       color: "fg.muted",
       display: "flex",
       flexDirection: "column",
@@ -144,9 +145,9 @@ export const recipe = defineSlotRecipe({
       display: "flex",
       flexShrink: "0",
       marginInlineStart: "auto",
-      transitionDuration: "fast",
+      transitionDuration: "press",
       transitionProperty: "common",
-      transitionTimingFunction: "out",
+      transitionTimingFunction: "press",
     },
     item: { listStyle: "none", minInlineSize: "0", position: "relative" },
     link: PRESSABLE,
@@ -239,9 +240,9 @@ export const recipe = defineSlotRecipe({
         action: {
           _touch: { opacity: "1" },
           opacity: "0",
-          transitionDuration: "fast",
+          transitionDuration: "press",
           transitionProperty: "common",
-          transitionTimingFunction: "out",
+          transitionTimingFunction: "press",
         },
         item: {
           [`&:focus-within ${ACTION}, &:hover ${ACTION}`]: { opacity: "1" },
@@ -252,20 +253,23 @@ export const recipe = defineSlotRecipe({
     size: onSlots({
       content: sizeVariants(
         (size) => ({
-          gap: `gap.${below(size)}`,
-          marginInlineStart: `inset.${below(size)}`,
+          gap: dense(`{spacing.gap.${below(size)}}`),
+          marginInlineStart: dense(`{spacing.inset.${below(size)}}`),
           paddingBlock: "0.5",
-          paddingInlineStart: `inset.${below(size)}`,
+          paddingInlineStart: dense(`{spacing.inset.${below(size)}}`),
         }),
         ["sm", "md", "lg"],
       ),
       link: sizeVariants(rowed, ["sm", "md", "lg"]),
-      root: sizeVariants((size) => ({ gap: `gap.${below(below(size))}` }), ["sm", "md", "lg"]),
+      root: sizeVariants(
+        (size) => ({ gap: dense(`{spacing.gap.${below(below(size))}}`) }),
+        ["sm", "md", "lg"],
+      ),
       skeleton: sizeVariants(
         (size) => ({
-          blockSize: `tag.${size}`,
-          gap: `gap.${below(below(size))}`,
-          paddingInline: `inset.${below(below(size))}`,
+          blockSize: dense(`{sizes.tag.${size}}`),
+          gap: dense(`{spacing.gap.${below(below(size))}}`),
+          paddingInline: dense(`{spacing.inset.${below(below(size))}}`),
         }),
         ["sm", "md", "lg"],
       ),

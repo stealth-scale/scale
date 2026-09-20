@@ -17,6 +17,7 @@
 
 import {
   defineSlotRecipe,
+  dense,
   field,
   fieldStatusVariants,
   fieldVariants,
@@ -101,7 +102,7 @@ export const recipe = defineSlotRecipe({
 
     size: onSlots({
       root: sizeVariants(
-        (size) => ({ padding: `inset.${size}`, textStyle: `body.${size}` }),
+        (size) => ({ padding: dense(`{spacing.inset.${size}}`), textStyle: `body.${size}` }),
         ["sm", "md", "lg"],
       ),
     }),

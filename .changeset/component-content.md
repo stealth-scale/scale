@@ -2,6 +2,10 @@
 "@stealthscale/component-content": minor
 ---
 
+component-content: edge the code block with a hairline
+
+- The code block's edge reads `borderWidths.hairline` rather than the reference width `sm`.
+
 component-content: add the code block over the highlighter
 
 - `CodeBlock.Root` holds the code and its language and draws the panel in the dark mode whatever the

@@ -71,9 +71,9 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "align")).toStrictEqual(["bottom", "middle", "top"]);
   });
 
-  it("stripes the body's own rows rather than every row of the table", () => {
+  it("stripes the body's own rows in the shallowest well rather than every row of the table", () => {
     expect(recipe.variants?.["striped"]?.["true"]).toStrictEqual({
-      body: { "& > tr": { _odd: { background: "bg.muted" } } },
+      body: { "& > tr": { _odd: { background: "bg.subtle" } } },
     });
   });
 
