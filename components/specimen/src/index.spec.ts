@@ -5,14 +5,20 @@ import * as barrel from "#index.ts";
 describe("index", () => {
   it("names everything a specimen is written with and nothing beside it", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
+      "Board",
+      "DisplayProvider",
+      "FRAMES",
       "Index",
       "Matrix",
       "NAMED",
       "NAMESPACE",
+      "PHONE",
       "Page",
       "Rail",
       "RailSearch",
       "Room",
+      "Sample",
+      "Stage",
       "Tile",
       "captionOf",
       "declarations",
@@ -25,8 +31,10 @@ describe("index", () => {
       "routeId",
       "scene",
       "specimen",
+      "stageWidthOf",
       "useWords",
       "valuesOf",
+      "widthsOf",
     ]);
   });
 

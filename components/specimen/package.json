@@ -67,6 +67,7 @@
     "@stealthscale/provider-hotkeys": "workspace:^",
     "@stealthscale/provider-i18n": "workspace:^",
     "@stealthscale/provider-router": "workspace:^",
+    "@stealthscale/provider-viewport": "workspace:^",
     "@stealthscale/testing-react": "workspace:^",
     "@stealthscale/testing-router": "workspace:^",
     "@stealthscale/testing-theme": "workspace:^",
@@ -101,6 +102,7 @@
     "@stealthscale/provider-hotkeys": "workspace:^",
     "@stealthscale/provider-i18n": "workspace:^",
     "@stealthscale/provider-router": "workspace:^",
+    "@stealthscale/provider-viewport": "workspace:^",
     "@stealthscale/theme": "workspace:^",
     "@stealthscale/vite-plugin-specimen": "workspace:^",
     "react": "catalog:"

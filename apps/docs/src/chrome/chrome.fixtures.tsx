@@ -16,20 +16,29 @@ import { drawn, pressed } from "@stealthscale/testing-react";
 import { THEMES } from "#themes.ts";
 
 /**
+ * The locales a control is drawn with unless a case names others: English alone.
+ */
+const ENGLISH: readonly [string, ...string[]] = ["en"];
+
+/**
  * Draws a control inside the shell and the bar's row, with settings kept in memory so two cases
  * share nothing.
  *
  * @remarks
  *   The row is there because a control of the bar is an item of it and throws outside one.
  * @param control - The control under test.
+ * @param locales - The locales the shell offers, English alone where a case names none.
  * @returns The render, once the control's machine has committed.
  */
-export function shelled(control: ReactElement): Promise<RenderResult> {
+export function shelled(
+  control: ReactElement,
+  locales: readonly [string, ...string[]] = ENGLISH,
+): Promise<RenderResult> {
   return drawn(
     <Shell
       app="docs"
       catalogues={catalogues}
-      locales={["en"]}
+      locales={locales}
       store={memoryStore()}
       themes={THEMES}
     >

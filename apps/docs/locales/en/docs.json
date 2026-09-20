@@ -1,7 +1,11 @@
 {
   "chrome": {
     "darkMode": "Dark mode",
-    "theme": "Theme"
+    "language": "Language",
+    "phone": "Phone",
+    "theme": "Theme",
+    "width": "Width",
+    "window": "Window"
   },
   "frame": {
     "bar": "Docs",

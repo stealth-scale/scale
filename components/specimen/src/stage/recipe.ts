@@ -1,0 +1,38 @@
+/**
+ * States what a stage is: the box a scene is drawn in, the width of the card's content until a
+ * window's width is picked and held to that width from then on.
+ *
+ * @remarks
+ *   A reader picks a width to see a scene as a phone or a tablet sees it. The library's screen
+ *   components fold on their own width and never on the window's, and a matrix folds on the room
+ *   it is given, so holding the box a scene is drawn in to a width is what shows the folding. The
+ *   widths are where the theme's breakpoints start, read from the breakpoint tokens so a theme
+ *   that moves one moves the stage with it, and a phone below them all at the smallest measure.
+ *   Nothing here loads the page again in a frame: a media query in a scene's own style keeps
+ *   following the window, and the catalogue's components write none.
+ */
+
+import { defineRecipe } from "@stealthscale/theme/authoring";
+
+/**
+ * Draws a stage the width of the card's content until a caller holds it to a window's width.
+ */
+export const recipe = defineRecipe({
+  base: { inlineSize: "full" },
+  className: "stage",
+  jsx: [/^Stage$/u],
+  variants: {
+    /**
+     * The window's width the stage is held to: the smallest measure for a phone, and where each
+     * of the theme's breakpoints starts.
+     */
+    width: {
+      "2xl": { maxInlineSize: "{breakpoints.2xl}" },
+      lg: { maxInlineSize: "{breakpoints.lg}" },
+      md: { maxInlineSize: "{breakpoints.md}" },
+      phone: { maxInlineSize: "xs" },
+      sm: { maxInlineSize: "{breakpoints.sm}" },
+      xl: { maxInlineSize: "{breakpoints.xl}" },
+    },
+  },
+});

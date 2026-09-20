@@ -144,6 +144,23 @@ are the shaping behind it. `parted` splits what a page's parts accept into the v
 moves and the options a caller sets, each row carrying the members of every named type it refers to,
 with the dropped counts beside them.
 
+Each scene is drawn on a `Stage` inside the card's content. The stage is the width of the content
+until the viewport states a width, and held to that width from then on: a phone at the smallest
+measure, or where one of the theme's breakpoints starts. The card, the page and whatever an
+application draws around them keep their own width. A switcher in an application's bar sets the
+width through `useViewport().setWidth`, and offers `widthsOf(sizes)`, which is `PHONE` followed by
+the theme's breakpoints, so the rows it lists and the widths the stage knows agree:
+
+```tsx
+const { setWidth, sizes, width } = useViewport();
+
+widthsOf(sizes).map((size) => (
+  <Switcher.Option checked={size.min === width} onCheckedChange={() => setWidth(size.min)} …/>
+));
+```
+
+`stageWidthOf(width, sizes)` is what the page reads the stage's width off the viewport with.
+
 ## The words
 
 Every word the catalogue writes itself is a key under the `specimen` namespace, in

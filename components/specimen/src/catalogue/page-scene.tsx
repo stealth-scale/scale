@@ -7,11 +7,28 @@ import { type ReactElement } from "react";
 
 import { Section } from "@stealthscale/component-screen";
 import { Card } from "@stealthscale/component-surfaces";
+import { useViewport } from "@stealthscale/provider-viewport";
 
 import { marked } from "#catalogue/marked.tsx";
 import { Source } from "#catalogue/page-source.tsx";
 import { useWording } from "#catalogue/wording.ts";
-import { type Scene } from "#page.ts";
+import { type Frame, type Scene } from "#page.ts";
+import { Stage } from "#stage/stage.ts";
+import { stageWidthOf } from "#stage/width.ts";
+
+/**
+ * Lists the look the card is drawn in for each frame a scene can take.
+ *
+ * @remarks
+ *   A bared scene keeps the card and drops its surface, rather than dropping the card. The card is
+ *   what holds the source control and the room round it, so a scene that dropped it would take the
+ *   control with it or leave it flush against the page.
+ */
+const SURFACE: Readonly<Record<Frame, "elevated" | "plain">> = {
+  bare: "plain",
+  bleed: "elevated",
+  inset: "elevated",
+};
 
 /**
  * Describes what a scene's section takes.
@@ -48,9 +65,25 @@ export interface SceneSectionProps {
  *   anchor rather than its heading, so the contents mark it while any part of it is on screen and
  *   a jump to it lands on its title. The source sits at the foot of the card, behind a control at
  *   its right end, headed by the scene's worded title once shown.
+ *   An inset scene is drawn in the card's content, which leaves the card's own room round it. A
+ *   bled or bared scene is drawn in the card's media, which takes that room back through the
+ *   property the card states its inset in, so a component that is already a panel reaches the
+ *   card's edges. The two are written out rather than chosen into one element, because the
+ *   compiler reads the parts a page draws out of its source.
+ *   The scene is drawn on a stage, which is held to the width the viewport states where one is
+ *   stated, so a reader who picked a phone's width sees the scene fold as a phone folds it while
+ *   the card, the page and the chrome around them keep their own.
  */
 export function SceneSection({ id, namespace, scene, source }: SceneSectionProps): ReactElement {
   const word = useWording(namespace);
+  const { sizes, width } = useViewport();
+  const frame = scene.frame ?? "inset";
+  const held = stageWidthOf(width, sizes);
+  const stage = (
+    <Stage {...(held === undefined ? {} : { width: held })}>
+      <scene.draw />
+    </Stage>
+  );
 
   return (
     <Section.Root id={id}>
@@ -61,10 +94,12 @@ export function SceneSection({ id, namespace, scene, source }: SceneSectionProps
         )}
       </Section.Header>
       <Section.Body>
-        <Card.Root as="div" variant="elevated">
-          <Card.Content>
-            <scene.draw />
-          </Card.Content>
+        <Card.Root as="div" variant={SURFACE[frame]}>
+          {frame === "inset" ? (
+            <Card.Content>{stage}</Card.Content>
+          ) : (
+            <Card.Media>{stage}</Card.Media>
+          )}
           {source === undefined ? null : <Source code={source} title={word(scene.title)} />}
         </Card.Root>
       </Section.Body>

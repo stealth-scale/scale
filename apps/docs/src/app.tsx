@@ -20,8 +20,23 @@ const APP = "docs";
 
 /**
  * The locales the catalogue offers, the first being the one every key is defined in.
+ *
+ * @remarks
+ *   Every word is written in English, and a locale with no catalogue of its own reads the English
+ *   one. What the others switch is everything a locale decides beside the words: the direction the
+ *   page runs in, which Arabic turns round, and how a number, a date and a list are written.
  */
-const LOCALES: readonly [string, ...string[]] = ["en"];
+const LOCALES: readonly [string, ...string[]] = [
+  "en",
+  "nl",
+  "de",
+  "fr",
+  "es",
+  "it",
+  "ar",
+  "zh-CN",
+  "ja-JP",
+];
 
 /**
  * Draws the catalogue with the colour mode, theme, locale, viewport and shortcuts in scope.

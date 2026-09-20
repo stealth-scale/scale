@@ -547,12 +547,18 @@ importers:
       '@stealthscale/provider-i18n':
         specifier: workspace:^
         version: link:../../foundations/providers/i18n
+      '@stealthscale/provider-locale':
+        specifier: workspace:^
+        version: link:../../foundations/providers/locale
       '@stealthscale/provider-router':
         specifier: workspace:^
         version: link:../../foundations/providers/router
       '@stealthscale/provider-shell':
         specifier: workspace:^
         version: link:../../foundations/providers/shell
+      '@stealthscale/provider-viewport':
+        specifier: workspace:^
+        version: link:../../foundations/providers/viewport
       '@stealthscale/specimen':
         specifier: workspace:^
         version: link:../../components/specimen
@@ -1680,6 +1686,9 @@ importers:
       '@stealthscale/provider-router':
         specifier: workspace:^
         version: link:../../foundations/providers/router
+      '@stealthscale/provider-viewport':
+        specifier: workspace:^
+        version: link:../../foundations/providers/viewport
       '@stealthscale/testing-react':
         specifier: workspace:^
         version: link:../../packages/testing-react

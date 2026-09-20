@@ -3,11 +3,19 @@ import { type ReactElement } from "react";
 import { describe, expect, it } from "vitest";
 
 import { Page } from "@stealthscale/component-screen";
+import { ViewportProvider } from "@stealthscale/provider-viewport";
 import { drawn } from "@stealthscale/testing-react";
-import { slotElement } from "@stealthscale/testing-theme";
+import {
+  recipeClasses,
+  slotClasses,
+  slotElement,
+  slotVariantClass,
+  variantClass,
+} from "@stealthscale/testing-theme";
 
 import { SceneSection } from "#catalogue/page-scene.tsx";
 import { type Scene } from "#page.ts";
+import { PHONE } from "#stage/width.ts";
 
 function marked(): ReactElement {
   return <span>drawn</span>;
@@ -56,11 +64,51 @@ describe("SceneSection", () => {
     expect(slotElement(container, "card", "root").contains(getByText("drawn"))).toBe(true);
   });
 
+  it("leaves the card's own room round a scene that asks for none of it", async () => {
+    const { container, getByText } = await drawn(sectioned());
+
+    expect(slotElement(container, "card", "content").contains(getByText("drawn"))).toBe(true);
+    expect(container.querySelector(".card__media")).toBeNull();
+  });
+
+  it("takes the card's room back for a scene that bleeds", async () => {
+    const bled: Scene = { draw: marked, frame: "bleed", title: "Sizes" };
+    const { container, getByText } = await drawn(sectioned(bled));
+
+    expect(slotElement(container, "card", "media").contains(getByText("drawn"))).toBe(true);
+    expect(container.querySelector(".card__content")).toBeNull();
+  });
+
+  it("drops the card's surface for a bared scene", async () => {
+    const bare: Scene = { draw: marked, frame: "bare", title: "Sizes" };
+    const { container } = await drawn(sectioned(bare));
+
+    expect(slotClasses(container, "card", "root")).toContain(
+      slotVariantClass("card", "root", "variant", "plain"),
+    );
+  });
+
   it("resolves the scene's words through the namespace named", async () => {
     const keyed = { about: "rail.ungrouped", draw: marked, title: "rail.label" };
     const { getByRole, getByText } = await drawn(sectioned(keyed, "specimen"));
 
     expect(getByRole("heading", { level: 2 }).textContent).toBe("Components");
     expect(getByText("Other")).toBeDefined();
+  });
+
+  it("draws the scene on a stage the width of the card's content while the window decides", async () => {
+    const { container, getByText } = await drawn(sectioned());
+    const stage = container.querySelector("[data-recipe=stage]");
+
+    expect(stage?.contains(getByText("drawn"))).toBe(true);
+    expect(recipeClasses(container, "stage")).toStrictEqual(["stage"]);
+  });
+
+  it("holds the stage to the width the viewport states", async () => {
+    const { container } = await drawn(
+      <ViewportProvider width={PHONE.min}>{sectioned()}</ViewportProvider>,
+    );
+
+    expect(recipeClasses(container, "stage")).toContain(variantClass("stage", "width", "phone"));
   });
 });
