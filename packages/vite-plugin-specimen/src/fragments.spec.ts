@@ -126,6 +126,89 @@ describe("fragments", () => {
 
     expect(held["One"]).toMatch(/const DEEP/u);
   });
+
+  it("leaves out a scene a parameter of another scene happens to be named after", () => {
+    const held = cut(
+      [
+        "function Toolbar({ wrap = false, ...rest }) {",
+        "  return <Set wrap={wrap} {...rest} />;",
+        "}",
+        'export const one = { draw: () => <Toolbar />, title: "One" };',
+        'export const wrap = { draw: () => <Toolbar wrap />, title: "Two" };',
+        'export default specimen({ id: "a", scenes: [one, wrap] });',
+        "",
+      ].join("\n"),
+    );
+
+    expect(held["One"]).toMatch(/export const one/u);
+    expect(held["One"]).not.toMatch(/export const wrap/u);
+  });
+
+  it("leaves out a scene a rest parameter of another scene is named after", () => {
+    const held = cut(
+      [
+        "function Toolbar(...wrap) {",
+        "  return <Set of={wrap} />;",
+        "}",
+        'export const one = { draw: () => <Toolbar />, title: "One" };',
+        'export const wrap = { draw: () => <Set />, title: "Two" };',
+        'export default specimen({ id: "a", scenes: [one, wrap] });',
+        "",
+      ].join("\n"),
+    );
+
+    expect(held["One"]).not.toMatch(/export const wrap/u);
+  });
+
+  it("leaves out a scene a local variable of another scene is named after", () => {
+    const held = cut(
+      [
+        "function Toolbar() {",
+        "  const wrap = true;",
+        "  return <Set wrap={wrap} />;",
+        "}",
+        'export const one = { draw: () => <Toolbar />, title: "One" };',
+        'export const wrap = { draw: () => <Set />, title: "Two" };',
+        'export default specimen({ id: "a", scenes: [one, wrap] });',
+        "",
+      ].join("\n"),
+    );
+
+    expect(held["One"]).not.toMatch(/export const wrap/u);
+  });
+
+  it("leaves out a scene a destructured array entry is named after", () => {
+    const held = cut(
+      [
+        "function Toolbar() {",
+        "  const [wrap, , setWrap] = useToggle(false);",
+        "  return <Set onSet={setWrap} wrap={wrap} />;",
+        "}",
+        'export const one = { draw: () => <Toolbar />, title: "One" };',
+        'export const wrap = { draw: () => <Set />, title: "Two" };',
+        'export default specimen({ id: "a", scenes: [one, wrap] });',
+        "",
+      ].join("\n"),
+    );
+
+    expect(held["One"]).not.toMatch(/export const wrap/u);
+  });
+
+  it("keeps a declaration a scene reaches through a name it also binds elsewhere", () => {
+    const held = cut(
+      [
+        'const wrap = "held";',
+        "function Toolbar({ wrap = false }) {",
+        "  return <Set wrap={wrap} />;",
+        "}",
+        'export const one = { draw: () => <Toolbar>{wrap}</Toolbar>, title: "One" };',
+        'export default specimen({ id: "a", scenes: [one] });',
+        "",
+      ].join("\n"),
+    );
+
+    expect(held["One"]).toMatch(/const wrap = "held"/u);
+  });
 });
 
 describe("components", () => {

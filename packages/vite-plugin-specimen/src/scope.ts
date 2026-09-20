@@ -112,15 +112,98 @@ export function childrenOf(node: ESTree.Node): ESTree.Node[] {
 }
 
 /**
- * Collects every identifier a subtree references.
+ * The node types that open a scope of their own, each binding its parameters and its body.
+ */
+const FUNCTIONS = new Set(["ArrowFunctionExpression", "FunctionDeclaration", "FunctionExpression"]);
+
+/**
+ * Collects the names a binding pattern binds, and nothing the pattern merely mentions.
  *
+ * @remarks
+ *   A default value and a type annotation sit inside the pattern and reference what they like, so
+ *   only the positions that bind are descended into. `{ look = LOOK }` binds `look` and references
+ *   `LOOK`.
+ */
+function boundIn(pattern: ESTree.Node, names: Set<string>): void {
+  if (pattern.type === "Identifier") names.add(pattern.name);
+  if (pattern.type === "AssignmentPattern") boundIn(pattern.left, names);
+  if (pattern.type === "RestElement") boundIn(pattern.argument, names);
+
+  if (pattern.type === "ObjectPattern") {
+    for (const property of pattern.properties) {
+      boundIn(property.type === "RestElement" ? property.argument : property.value, names);
+    }
+  }
+
+  if (pattern.type === "ArrayPattern") {
+    for (const element of pattern.elements) if (isNode(element)) boundIn(element, names);
+  }
+}
+
+/**
+ * Reports whether a node opens a scope of its own.
+ */
+function isFunction(node: ESTree.Node): node is ESTree.Function {
+  return FUNCTIONS.has(node.type);
+}
+
+/**
+ * Collects the names the statements of a function's body declare directly.
+ *
+ * @remarks
+ *   A block nested inside the body is left to the walk, which enters it as part of the function's
+ *   own subtree. What matters here is that a variable of the body shadows a declaration of the
+ *   file under the same name. An arrow written as one expression declares nothing.
+ */
+function localsIn(body: ESTree.Function["body"], names: Set<string>): void {
+  if (body?.type !== "BlockStatement") return;
+
+  for (const statement of body.body) {
+    if (statement.type !== "VariableDeclaration") continue;
+
+    for (const declarator of statement.declarations) boundIn(declarator.id, names);
+  }
+}
+
+/**
+ * Collects the names a function binds: its own, its parameters, and the variables its body
+ * declares.
+ */
+function bindingsOf(node: ESTree.Function): Set<string> {
+  const names = new Set<string>();
+
+  if (isNode(node.id)) boundIn(node.id, names);
+
+  for (const parameter of node.params) boundIn(parameter, names);
+
+  localsIn(node.body, names);
+
+  return names;
+}
+
+/**
+ * Collects every identifier a subtree references, leaving out the ones a scope inside it binds.
+ *
+ * @remarks
+ *   A name bound by a function is that function's own and reaches no declaration of the file. A
+ *   parameter called `wrap` beside a scene declared as `wrap` closed the whole of that scene into
+ *   the snippet, so a page of two scenes showed both of them under either one.
  * @param node - The root of the subtree.
  * @param names - The set to add to, which is returned.
+ * @param shadowed - The names an enclosing scope has bound, which reference nothing outside it.
  */
-export function referred(node: ESTree.Node, names = new Set<string>()): Set<string> {
-  if (node.type === "Identifier" || node.type === "JSXIdentifier") names.add(node.name);
+export function referred(
+  node: ESTree.Node,
+  names = new Set<string>(),
+  shadowed: ReadonlySet<string> = new Set<string>(),
+): Set<string> {
+  if ((node.type === "Identifier" || node.type === "JSXIdentifier") && !shadowed.has(node.name)) {
+    names.add(node.name);
+  }
 
-  for (const child of childrenOf(node)) referred(child, names);
+  const inner = isFunction(node) ? new Set([...shadowed, ...bindingsOf(node)]) : shadowed;
+
+  for (const child of childrenOf(node)) referred(child, names, inner);
 
   return names;
 }

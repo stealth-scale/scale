@@ -24,3 +24,12 @@ vite-plugin-specimen: list the components a page imports from its own package
   specifier under the package's imports map whose name starts with a capital letter, sorted. A
   namespace import is listed under its local name, and a type specifier, a type-only declaration and
   a lowercase binding such as `recipe` are left out.
+
+vite-plugin-specimen: read a name a scope binds as that scope's own
+
+- The slicer collected every identifier of a subtree as a reference, binding positions among them. A
+  parameter named after another scene closed that whole scene into the snippet, so a page of two
+  scenes showed both of them under either one.
+- The walk now tracks what each function binds: its own name, its parameters and the variables its
+  body declares. A name bound inside a scope resolves to no declaration of the file, and a name the
+  scope only mentions still does.
