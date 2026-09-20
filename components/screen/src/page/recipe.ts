@@ -67,13 +67,28 @@ const BAND = {
 };
 
 /**
- * Writes what a band told to stick shares: it stays put, over the page and filled.
+ * The property the shell states the height of its pinned bars in, which anything that sticks
+ * keeps under.
+ */
+const SHELL_TOP = "--app-shell-sticky-top";
+
+/**
+ * Writes what a band told to stick shares: it stays put at the top, over the page and filled.
  *
  * @remarks
  *   The fill is not optional. A band the page scrolls through is not sticking to anything a reader
  *   can see, so a band that sticks takes the page's own surface.
+ *   The edge is not optional either. A sticky element whose inset is `auto` sticks to nothing at
+ *   all, which is what every band told to stick did: they were positioned and never moved.
+ *   The edge is the shell's own, so a band keeps under whatever bars the shell has pinned rather
+ *   than sliding behind them.
  */
-const STUCK = { background: "bg", position: "sticky", zIndex: "1" };
+const STUCK = {
+  background: "bg",
+  insetBlockStart: `var(${SHELL_TOP}, 0px)`,
+  position: "sticky",
+  zIndex: "1",
+};
 
 /**
  * Writes a row that wraps: laid across, centred on the middle, and able to shrink.
@@ -99,12 +114,6 @@ const BEFORE_NAV = `&:has(+ .${CLASS}__nav)`;
  * Selects a root holding an aside, which lays its bands out as a grid from the large breakpoint.
  */
 const WITH_ASIDE = `&:has(> .${CLASS}__aside)`;
-
-/**
- * The property the shell states the height of its pinned bars in, which an aside that sticks
- * keeps under.
- */
-const SHELL_TOP = "--app-shell-sticky-top";
 
 /**
  * Writes the rows and the columns of a page holding an aside: every band across, and the body
@@ -183,7 +192,8 @@ export const recipe = defineSlotRecipe({
     footer: {
       ...BAND,
       ...ROW,
-      "&[data-sticky]": { ...STUCK, insetBlockEnd: "0" },
+      // The one band that sticks to the foot, so it takes the edge back off the shared rule.
+      "&[data-sticky]": { ...STUCK, insetBlockEnd: "0", insetBlockStart: "auto" },
       gridArea: "footer",
     },
     header: {
@@ -218,7 +228,10 @@ export const recipe = defineSlotRecipe({
       minInlineSize: "0",
       [WITH_ASIDE]: { lg: BESIDE },
     },
-    tabs: { borderBlockEndWidth: "0" },
+    // Written against the element rather than bare, so it beats the line a strip's own variant
+    // draws. A slot's base and a recipe's variants are separate layers and the variant is the later
+    // of the two, so a bare rule here lost to it and the band drew one line under the strip's.
+    tabs: { "&": { borderBlockEndWidth: "0" } },
     title: { gridArea: "title", minInlineSize: "0", overflowWrap: "anywhere" },
     toolbar: { ...BAND, ...ROW, "&[data-sticky]": STUCK, gridArea: "toolbar" },
     trail: { color: "fg.muted" },
