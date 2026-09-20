@@ -39,6 +39,7 @@ const STEPS = ["sm", "md", "lg"] as const;
 export const recipe = defineSlotRecipe({
   base: {
     indicator: {
+      _motionReduce: { transitionDuration: "0s" },
       background: "colorPalette.solid",
       blockSize: "var(--height)",
       borderRadius: "full",

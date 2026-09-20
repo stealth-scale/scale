@@ -24,8 +24,8 @@ describe("recipe", () => {
     });
   });
 
-  it("draws no underline at rest when nothing is asked for", () => {
-    expect(defaultsOf(recipe)).toStrictEqual({ variant: "plain" });
+  it("underlines a link at rest when nothing is asked for", () => {
+    expect(defaultsOf(recipe)).toStrictEqual({ variant: "underline" });
   });
 
   it("offers the two looks a link is drawn in", () => {

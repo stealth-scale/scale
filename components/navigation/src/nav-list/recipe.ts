@@ -93,11 +93,15 @@ const PRESSABLE = {
  *   sidebar keeps its whole tree in view. The current page's weight is written here beside the
  *   label rather than on the row's base, because the label states a weight of its own and the
  *   compiler lets a variant's value beat the base's, whichever was written later.
+ *   The row is never shorter than the grid step at twenty-four CSS pixels, whatever the theme's
+ *   density and whatever step it is drawn at. A row is a target a reader points at, and a small
+ *   list under a theme drawn tighter measured 20.5 pixels with 2.9 between rows, which is under
+ *   both what 2.5.8 asks of a target and what its spacing exception allows.
  */
 function rowed(size: Scale): SystemStyleObject {
   return {
     _currentPage: { color: "fg", fontWeight: "semibold" },
-    blockSize: dense(`{sizes.tag.${size}}`),
+    blockSize: `max({sizes.6}, ${dense(`{sizes.tag.${size}}`)})`,
     gap: dense(`{spacing.gap.${below(below(size))}}`),
     paddingInline: dense(`{spacing.inset.${below(below(size))}}`),
     textStyle: `label.${below(below(size))}`,
@@ -146,7 +150,7 @@ export const recipe = defineSlotRecipe({
       flexShrink: "0",
       marginInlineStart: "auto",
       transitionDuration: "press",
-      transitionProperty: "common",
+      transitionProperty: "rotate",
       transitionTimingFunction: "press",
     },
     item: { listStyle: "none", minInlineSize: "0", position: "relative" },

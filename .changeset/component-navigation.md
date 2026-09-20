@@ -72,3 +72,12 @@ component-navigation: publish Toc
   size and the title reads the label role two steps smaller.
 - The rail is at least eleven rems wide, so a page of short titles draws the same rail as a page of
   long ones.
+
+component-navigation: underline a link in running text
+
+- A link is underlined at rest unless a caller asks for the plain look. A link identified by its ink
+  alone stood at 1.6:1 from body text and 1:1 where it took the ink around it.
+- A row is never shorter than twenty-four CSS pixels whatever the theme's density. A small list
+  under a tighter theme measured 20.5 pixels with 2.9 between rows.
+- The branch's mark names `rotate` as the property it turns in, and the contents indicator holds
+  still for a reader who asked for less motion.

@@ -26,7 +26,7 @@ export const recipe = defineRecipe({
     gap: dense("{spacing.gap.xs}"),
   },
   className: "link",
-  defaultVariants: { variant: "plain" },
+  defaultVariants: { variant: "underline" },
   jsx: [/^Link$/u],
   variants: {
     /**
@@ -41,6 +41,13 @@ export const recipe = defineRecipe({
 
     /**
      * Whether the underline is drawn at rest or only under a pointer.
+     *
+     * @remarks
+     *   Underlined unless a caller says otherwise. A link in running text is told from the words
+     *   around it by its ink alone without one, and an ink drawn to the theme's accent stands at
+     *   1.6:1 from body text on Ink's page, 1:1 where the link takes the ink around it. The plain
+     *   look is for a link whose surroundings already say it is one: the title of a card, a row of
+     *   a navigation list, the brand in a bar.
      */
     variant: {
       plain: { textDecoration: "none" },

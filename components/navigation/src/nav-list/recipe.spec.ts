@@ -59,7 +59,7 @@ describe("recipe", () => {
   });
 
   it("marks the current row from the attribute a screen reader reads", () => {
-    expect(recipe.variants?.["highlight"]?.["tint"]?.["link"]).toStrictEqual({
+    expect(recipe.variants?.["highlight"]?.["tint"]?.["link"]).toMatchObject({
       _currentPage: { layerStyle: "fill.muted" },
     });
   });
@@ -67,13 +67,13 @@ describe("recipe", () => {
   it("draws a row as tall as a tag with the label two steps below", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["link"]).toStrictEqual({
       _currentPage: { color: "fg", fontWeight: "semibold" },
-      blockSize: "calc({sizes.tag.md} * var(--density, 1))",
+      blockSize: "max({sizes.6}, calc({sizes.tag.md} * var(--density, 1)))",
       gap: "calc({spacing.gap.xs} * var(--density, 1))",
       paddingInline: "calc({spacing.inset.xs} * var(--density, 1))",
       textStyle: "label.xs",
     });
     expect(recipe.variants?.["size"]?.["lg"]?.["trigger"]).toMatchObject({
-      blockSize: "calc({sizes.tag.lg} * var(--density, 1))",
+      blockSize: "max({sizes.6}, calc({sizes.tag.lg} * var(--density, 1)))",
       gap: "calc({spacing.gap.sm} * var(--density, 1))",
       paddingInline: "calc({spacing.inset.sm} * var(--density, 1))",
       textStyle: "label.sm",

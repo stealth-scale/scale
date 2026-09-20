@@ -77,6 +77,12 @@ describe("recipe", () => {
     });
   });
 
+  it("holds the mark still for a reader who asks for less motion", () => {
+    expect(recipe.base?.["indicator"]).toMatchObject({
+      _motionReduce: { transitionDuration: "0s" },
+    });
+  });
+
   it("tracks the tag named Toc and every part under it", () => {
     expect(recipe.jsx).toStrictEqual([/^Toc(\.\w+)?$/u]);
   });
