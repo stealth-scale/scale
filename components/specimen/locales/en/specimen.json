@@ -1,4 +1,11 @@
 {
+  "code": {
+    "copied": "Copied the code",
+    "copy": "Copy the code",
+    "import": "Import",
+    "none": "No source for this scene",
+    "source": "Source"
+  },
   "contents": {
     "title": "On this page"
   },

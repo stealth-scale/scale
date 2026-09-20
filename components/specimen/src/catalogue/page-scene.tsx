@@ -1,6 +1,6 @@
 /**
- * Draws one scene as a section of the page: its title, its opening and the component on a stage
- * of its own.
+ * Draws one scene as a section of the page: its title, its opening, the component on a stage of
+ * its own, and its source folded under the stage.
  */
 
 import { type ReactElement } from "react";
@@ -9,6 +9,7 @@ import { Section } from "@stealthscale/component-screen";
 import { Card } from "@stealthscale/component-surfaces";
 
 import { marked } from "#catalogue/marked.tsx";
+import { Source } from "#catalogue/page-source.tsx";
 import { useWording } from "#catalogue/wording.ts";
 import { type Scene } from "#page.ts";
 
@@ -30,6 +31,12 @@ export interface SceneSectionProps {
    * The scene.
    */
   readonly scene: Scene;
+
+  /**
+   * The scene's source: the text, `null` where the index cut none for the scene, or undefined
+   * until the sources have loaded.
+   */
+  readonly source?: null | string | undefined;
 }
 
 /**
@@ -39,9 +46,10 @@ export interface SceneSectionProps {
  *   The scene's component stands on a card, so it stands on a surface with an edge rather than
  *   loose on the page, and a sentence's backticks are drawn as code. The section carries the
  *   anchor rather than its heading, so the contents mark it while any part of it is on screen and
- *   a jump to it lands on its title.
+ *   a jump to it lands on its title. The source sits at the foot of the card, behind a control at
+ *   its right end, headed by the scene's worded title once shown.
  */
-export function SceneSection({ id, namespace, scene }: SceneSectionProps): ReactElement {
+export function SceneSection({ id, namespace, scene, source }: SceneSectionProps): ReactElement {
   const word = useWording(namespace);
 
   return (
@@ -57,6 +65,7 @@ export function SceneSection({ id, namespace, scene }: SceneSectionProps): React
           <Card.Content>
             <scene.draw />
           </Card.Content>
+          {source === undefined ? null : <Source code={source} title={word(scene.title)} />}
         </Card.Root>
       </Section.Body>
     </Section.Root>

@@ -9,7 +9,8 @@ what draws the pages an application indexed.
 pnpm add -D @stealthscale/specimen
 ```
 
-The package peers on `@stealthscale/component-data`, `@stealthscale/component-forms`,
+The package peers on `@stealthscale/component-a11y`, `@stealthscale/component-actions`,
+`@stealthscale/component-content`, `@stealthscale/component-data`, `@stealthscale/component-forms`,
 `@stealthscale/component-layout`, `@stealthscale/component-navigation`,
 `@stealthscale/component-screen`, `@stealthscale/component-surfaces`,
 `@stealthscale/component-typography`, `@stealthscale/provider-hotkeys`,
@@ -130,13 +131,18 @@ serves it, and an application drawing it elsewhere as well hands it the same dec
 
 `Page` loads a page's module and draws its scenes, each as a section under its title, which is the
 first time that component reaches the browser. The row above the page's title leads back to the
-index, and the group the page is filed under stands beside the title as a badge. Each section is
-anchored by its worded title, `looks-and-sizes`, and a rail beside the page lists the sections,
-marks the ones on screen and scrolls the page to the one pressed. The rail is the navigation
-package's table of contents in the page's aside, which leaves a narrow page and sticks beside a wide
-one. `declared` and `parted` are the shaping behind it. `parted` splits what a page's parts accept
-into the variants a theme moves and the options a caller sets, each row carrying the members of
-every named type it refers to, with the dropped counts beside them.
+index, and the group the page is filed under stands beside the title as a badge. The body opens with
+the statement that imports the page's components from their package, in the content package's code
+block with the clipboard's trigger beside it. The plugin lists the components from what the specimen
+imports under the package's own imports map. Each scene stands on a card whose footer holds a
+`Source` control at its right end, a disclosure that shows the scene's source under the stage in the
+same code block, cut by the plugin from the specimen's file. Each section is anchored by its worded
+title, `looks-and-sizes`, and a rail beside the page lists the sections, marks the ones on screen
+and scrolls the page to the one pressed. The rail is the navigation package's table of contents in
+the page's aside, which leaves a narrow page and sticks beside a wide one. `declared` and `parted`
+are the shaping behind it. `parted` splits what a page's parts accept into the variants a theme
+moves and the options a caller sets, each row carrying the members of every named type it refers to,
+with the dropped counts beside them.
 
 ## The words
 

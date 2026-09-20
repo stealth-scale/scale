@@ -8,4 +8,11 @@
  *   compiles to nothing.
  */
 
-export type { Anatomy, Dropped, Indexed, Member, Prop } from "@stealthscale/vite-plugin-specimen";
+export type {
+  Anatomy,
+  Dropped,
+  Fragments,
+  Indexed,
+  Member,
+  Prop,
+} from "@stealthscale/vite-plugin-specimen";

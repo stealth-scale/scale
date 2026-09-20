@@ -75,3 +75,18 @@ specimen: file each page under its group and list its sections beside it
   is marked and the last one is marked once the page reaches its end. The machine's own band leaves
   out the foot of the viewport, and a short last section was never marked.
 - The package peers on `@stealthscale/component-data`.
+
+specimen: open a page with its import line and fold each scene's source under its stage
+
+- `Page` loads the page's fragments beside its module. `Import` writes the statement that imports
+  the components the plugin lists under `imported`, from `entry.package`, in the content package's
+  code block, as the first section of the page under a title the eye does not see.
+- `Source` holds a `Source` control at the right end of each stage's card footer, a disclosure with
+  `aria-expanded` and `aria-controls`, and draws the scene's fragment under the stage in the same
+  code block while it is on. A scene the plugin cut no source for says so in the footer.
+- `Code` draws a passage in `CodeBlock` at the small size with the clipboard's trigger in its
+  control, drawn as the ghost icon button on the neutral palette and named `Copy the code` and
+  `Copied the code`.
+- `CodeGlyph`, `Copy` and `Check` are the marks the new controls hold.
+- The package peers on `@stealthscale/component-a11y`, `@stealthscale/component-actions` and
+  `@stealthscale/component-content`.

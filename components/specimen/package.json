@@ -54,6 +54,9 @@
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
     "@rolldown/plugin-babel": "catalog:",
+    "@stealthscale/component-a11y": "workspace:^",
+    "@stealthscale/component-actions": "workspace:^",
+    "@stealthscale/component-content": "workspace:^",
     "@stealthscale/component-data": "workspace:^",
     "@stealthscale/component-forms": "workspace:^",
     "@stealthscale/component-layout": "workspace:^",
@@ -85,6 +88,9 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
+    "@stealthscale/component-a11y": "workspace:^",
+    "@stealthscale/component-actions": "workspace:^",
+    "@stealthscale/component-content": "workspace:^",
     "@stealthscale/component-data": "workspace:^",
     "@stealthscale/component-forms": "workspace:^",
     "@stealthscale/component-layout": "workspace:^",

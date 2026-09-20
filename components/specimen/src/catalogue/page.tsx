@@ -1,6 +1,7 @@
 /**
- * Draws one page: its head, each scene as a section with the component on a stage of its own,
- * and the rail beside them listing the sections.
+ * Draws one page: its head, the line that imports its components, each scene as a section with
+ * the component on a stage of its own and its source under it, and the rail beside them listing
+ * the sections.
  */
 
 import { type ReactElement, useEffect, useState } from "react";
@@ -8,11 +9,11 @@ import { type ReactElement, useEffect, useState } from "react";
 import * as Screen from "@stealthscale/component-screen";
 
 import { declared } from "#catalogue/declared.ts";
+import { Body } from "#catalogue/page-body.tsx";
 import { Contents } from "#catalogue/page-contents.tsx";
 import { Header } from "#catalogue/page-header.tsx";
-import { SceneSection } from "#catalogue/page-scene.tsx";
 import { slugOf } from "#catalogue/slug.ts";
-import { type Indexed } from "#catalogue/types.ts";
+import { type Fragments, type Indexed } from "#catalogue/types.ts";
 import { useWording } from "#catalogue/wording.ts";
 import { type Specimen } from "#page.ts";
 
@@ -32,17 +33,19 @@ export interface PageProps {
 }
 
 /**
- * Loads the page's scenes and draws them.
+ * Loads the page's scenes and their sources, and draws them.
  *
  * @remarks
  *   The module is loaded rather than imported, because the index reaches every page through a
  *   dynamic import and the bundler emits one chunk for each. Opening a page is the first time its
- *   components are fetched.
+ *   components are fetched. The sources are loaded beside it and drawn once they arrive; a page
+ *   whose sources fail to load draws its scenes without them.
  *   Each scene is anchored by its worded title, so the rail beside the page points at it and the
  *   address of a section reads as its title does. A page with no scenes draws no rail.
  */
 export function Page({ back, entry }: PageProps): ReactElement {
   const [page, setPage] = useState<Specimen | undefined>();
+  const [fragments, setFragments] = useState<Fragments | undefined>();
   const word = useWording(entry.namespace);
   const scenes = (page?.scenes ?? []).map((scene) => ({
     id: slugOf(word(scene.title)),
@@ -66,7 +69,21 @@ export function Page({ back, entry }: PageProps): ReactElement {
       }
     }
 
+    /**
+     * Loads the sources and keeps them, unless the page has left the screen or they fail.
+     */
+    async function cut(): Promise<void> {
+      try {
+        const loaded = await entry.fragments?.();
+
+        if (watching) setFragments(loaded);
+      } catch {
+        if (watching) setFragments(undefined);
+      }
+    }
+
     void open();
+    void cut();
 
     return (): void => {
       watching = false;
@@ -76,11 +93,7 @@ export function Page({ back, entry }: PageProps): ReactElement {
   return (
     <Screen.Page.Root>
       <Header back={back} entry={entry} />
-      <Screen.Page.Body>
-        {scenes.map(({ id, scene }) => (
-          <SceneSection id={id} key={id} namespace={entry.namespace} scene={scene} />
-        ))}
-      </Screen.Page.Body>
+      <Body entry={entry} fragments={fragments} scenes={scenes} />
       {scenes.length === 0 ? null : <Contents of={scenes} />}
     </Screen.Page.Root>
   );

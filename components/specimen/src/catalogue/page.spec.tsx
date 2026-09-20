@@ -163,4 +163,57 @@ describe("Page", () => {
 
     await expect(broken.load()).rejects.toThrow("gone");
   });
+
+  it("opens with the import line once the fragments have loaded", async () => {
+    const cut: Indexed = {
+      ...entry(page([SIZES])),
+      fragments: () => Promise.resolve({ fragments: {}, imported: ["Badge"] }),
+    };
+    const { container } = await drawn(<Page entry={cut} />);
+
+    expect(slotElement(container, "code-block", "code").textContent).toBe(
+      'import { Badge } from "@stealthscale/component-data";',
+    );
+  });
+
+  it("folds a scene's source under its stage once the fragments have loaded", async () => {
+    const cut: Indexed = {
+      ...entry(page([SIZES])),
+      fragments: () =>
+        Promise.resolve({ fragments: { Sizes: "export const sizes = {};" }, imported: [] }),
+    };
+    const { getByRole } = await drawn(<Page entry={cut} />);
+
+    expect(getByRole("button", { name: "Source" })).toBeDefined();
+  });
+
+  it("draws the scenes without their sources where the fragments fail to load", async () => {
+    const broken: Indexed = {
+      ...entry(page([SIZES])),
+      fragments: () => Promise.reject(new Error("gone")),
+    };
+    const { getByText, queryByRole } = await drawn(<Page entry={broken} />);
+
+    expect(getByText("drawn")).toBeDefined();
+    expect(queryByRole("button", { name: "Source" })).toBeNull();
+  });
+
+  it("keeps quiet when the fragments fail after the page has left the screen", async () => {
+    const broken: Indexed = {
+      ...entry(page([SIZES])),
+      fragments: () => Promise.reject(new Error("gone")),
+    };
+    const { unmount } = render(<Page entry={broken} />);
+
+    unmount();
+
+    await expect(broken.fragments?.()).rejects.toThrow("gone");
+  });
+
+  it("draws the scenes without their sources where the index cut none for the page", async () => {
+    const { getByText, queryByRole } = await drawn(<Page entry={entry(page([SIZES]))} />);
+
+    expect(getByText("drawn")).toBeDefined();
+    expect(queryByRole("button", { name: "Source" })).toBeNull();
+  });
 });
