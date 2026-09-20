@@ -32,10 +32,43 @@ function kindOf(value: unknown): string {
 }
 
 /**
+ * The code points of the line separator and the paragraph separator, which JSON leaves bare in a
+ * string.
+ */
+const SEPARATORS = [0x2028, 0x2029];
+
+/**
+ * The opening of a unicode escape in a string literal, which the separators are written as.
+ */
+const ESCAPE = String.raw`\u`;
+
+/**
+ * Writes a string as a JavaScript string literal.
+ *
+ * @remarks
+ *   JSON escapes everything a string literal needs escaped except the line and paragraph
+ *   separators, which it leaves bare. A source file holding either bare inside a literal was a
+ *   syntax error before ES2019 and is what a code scanner reads as unsanitised code, so the two are
+ *   escaped after. A string a plugin writes into generated code goes through this and nothing else.
+ * @param text - The string to write.
+ * @returns The literal, with its quotes.
+ */
+export function quoted(text: string): string {
+  let written = JSON.stringify(text);
+
+  for (const point of SEPARATORS) {
+    written = written.replaceAll(String.fromCodePoint(point), `${ESCAPE}${point.toString(16)}`);
+  }
+
+  return written;
+}
+
+/**
  * Writes a value that needs no descent, and returns undefined for one that does or that is refused.
  */
 function scalar(value: unknown): string | undefined {
-  if (typeof value === "string" || typeof value === "boolean") return JSON.stringify(value);
+  if (typeof value === "string") return quoted(value);
+  if (typeof value === "boolean") return String(value);
   if (typeof value === "number" && Number.isFinite(value)) return String(value);
   if (value === null) return "null";
   if (value === undefined) return "undefined";
@@ -54,7 +87,7 @@ function scalar(value: unknown): string | undefined {
 function entries(value: Readonly<Record<string, unknown>>, path: string): string {
   return Object.entries(value)
     .filter(([, held]) => held !== undefined)
-    .map(([key, held]) => `${JSON.stringify(key)}: ${literal(held, `${path}.${key}`)}`)
+    .map(([key, held]) => `${quoted(key)}: ${literal(held, `${path}.${key}`)}`)
     .join(", ");
 }
 
