@@ -49,3 +49,8 @@ component-surfaces: ring an interactive card from the link in its title
 - The card draws its ring when the link in its title takes focus. The compiler's focus utility
   nested under a descendant condition asks the card itself to be focus-visible, which a div never
   is, so the card drew no ring. A supplementary control still rings itself alone.
+
+component-surfaces: draw a card with no panel
+
+- `variant="plain"` draws no fill, no edge and no shadow, so a card lays its bands out and states
+  its inset while what it holds stands on whatever is behind it.

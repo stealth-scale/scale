@@ -216,11 +216,20 @@ export const recipe = defineSlotRecipe({
 
     /**
      * How the panel is drawn.
+     *
+     * @remarks
+     *   The plain look draws no panel at all: no fill, no edge and no shadow, so what the card
+     *   holds stands on whatever is behind it. The card still lays its bands out and still states
+     *   its inset, so a plain card is the anatomy without the surface, which is what a band of
+     *   content that needs a header and a footer but no panel asks for.
      */
     variant: {
       elevated: { root: { borderColor: "transparent", boxShadow: "md" } },
       glass: { root: { boxShadow: "none", layerStyle: "glass" } },
       outline: { root: { boxShadow: "none" } },
+      plain: {
+        root: { background: "transparent", borderColor: "transparent", boxShadow: "none" },
+      },
       subtle: { root: { background: "bg.subtle", borderColor: "transparent", boxShadow: "none" } },
     },
   },

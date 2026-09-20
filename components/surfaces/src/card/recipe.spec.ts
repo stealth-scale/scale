@@ -58,8 +58,20 @@ describe("recipe", () => {
     });
   });
 
-  it("offers the four looks a panel is drawn in", () => {
-    expect(valuesOf(recipe, "variant")).toStrictEqual(["elevated", "glass", "outline", "subtle"]);
+  it("offers the five looks a panel is drawn in", () => {
+    expect(valuesOf(recipe, "variant")).toStrictEqual([
+      "elevated",
+      "glass",
+      "outline",
+      "plain",
+      "subtle",
+    ]);
+  });
+
+  it("draws no panel at all in the plain look", () => {
+    expect(recipe.variants?.variant?.plain).toStrictEqual({
+      root: { background: "transparent", borderColor: "transparent", boxShadow: "none" },
+    });
   });
 
   it("offers four sizes", () => {
