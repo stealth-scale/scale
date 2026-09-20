@@ -6,9 +6,12 @@
  *   The orientations are read off the recipe, so an orientation added to the theme reaches the
  *   page without this file changing. The ends are written out on a board instead, because a
  *   boolean prop is not an axis of the recipe and a board says where each of the two sits.
- *   Every toolbar stands in a box of its own. A set of controls carries no surface, so three sets
- *   loose on one card read as one ragged row of words rather than as three toolbars, and the
- *   vertical set stretched that row to the height of its tallest member.
+ *   The controls sit in an attached `Group`, so three of them read as one toolbar rather than as
+ *   three buttons that happen to be near each other. The group is drawn inside the root rather
+ *   than as it: the root carries the role, the label and the arrows, and both of them state a
+ *   direction, so one element bound to both recipes would take two rules for the same property.
+ *   An item finds its place in the set through the root's context and not through the document,
+ *   so the group between them changes nothing a keyboard does.
  *   What the set does is only seen from the keyboard, so each scene says what to press. The words
  *   are keys under `roving-focus` in the catalogue's namespace, kept beside this file in
  *   `locales/en/specimen/roving-focus.json`.
@@ -17,6 +20,7 @@
 import { type ReactElement } from "react";
 
 import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
+import { Group } from "@stealthscale/component-layout";
 import {
   Board,
   Matrix,
@@ -27,13 +31,25 @@ import {
   valuesOf,
 } from "@stealthscale/specimen";
 
-import { Item, Root } from "#roving-focus/index.ts";
+import { Item, type Orientation, Root, type RootProps } from "#roving-focus/index.ts";
 import { recipe } from "#roving-focus/recipe.ts";
 
 /**
  * The look every control of the toolbar takes, set once above them.
  */
 const LOOK = { variant: "outline" } as const;
+
+/**
+ * Says which way the attached group runs for a set the arrows move through.
+ *
+ * @remarks
+ *   A group runs one way or the other, and the arrows run on one axis or both. A set the arrows
+ *   move through on both axes still reads along a row, because three controls reach no second
+ *   line.
+ */
+function running(orientation: Orientation): "horizontal" | "vertical" {
+  return orientation === "vertical" ? "vertical" : "horizontal";
+}
 
 /**
  * Draws the three controls of an editing toolbar.
@@ -53,12 +69,17 @@ function Controls(): ReactElement {
 /**
  * Draws one toolbar, named by whatever the page is showing.
  */
-function Toolbar({ wrap = false, ...rest }: Parameters<typeof Root>[0]): ReactElement {
+function Toolbar({
+  orientation = "horizontal",
+  wrap = false,
+}: Pick<RootProps, "orientation" | "wrap">): ReactElement {
   const { t } = useWords("roving-focus");
 
   return (
-    <Root aria-label={t("editing")} role="toolbar" wrap={wrap} {...rest}>
-      <Controls />
+    <Root aria-label={t("editing")} orientation={orientation} role="toolbar" wrap={wrap}>
+      <Group attached orientation={running(orientation)}>
+        <Controls />
+      </Group>
     </Root>
   );
 }

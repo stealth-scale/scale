@@ -23,3 +23,13 @@ component-a11y: show every component
 
 - One specimen per component, each scene drawing every value of every axis the recipe offers, with
   the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.
+
+component-a11y: draw the roving focus specimen's controls as one toolbar
+
+- An attached `Group` holds the controls, which share their edges and read as one toolbar rather
+  than as separate buttons near each other. The group runs the way the arrows do, and along a row
+  where the arrows move on both axes.
+- The group is drawn inside the root rather than as it. Both recipes state a direction, so one
+  element bound to both would take two rules for the same property. An item finds its place through
+  the root's context and not through the document, so the group between them changes nothing a
+  keyboard does.
