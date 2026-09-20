@@ -25,6 +25,13 @@ describe("runtime", () => {
     expect(runtime.breakpointKeys).toStrictEqual(["base", "sm", "md", "lg", "xl", "2xl"]);
   });
 
+  it("publishes the width each breakpoint starts at as the foundation states it", () => {
+    expect(runtime.breakpoints["sm"]).toBe("40rem");
+    expect(Object.keys(runtime.breakpoints).toSorted()).toStrictEqual(
+      runtime.breakpointKeys.filter((key) => key !== "base").toSorted(),
+    );
+  });
+
   it("names the two attributes a page is switched with", () => {
     expect(runtime.THEME_ATTRIBUTE).toBe("data-theme");
     expect(runtime.COLOR_MODE_ATTRIBUTE).toBe("data-color-mode");

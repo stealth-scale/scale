@@ -304,3 +304,11 @@ theme: light the rim of every raised surface after dark
   and white at twelve percent after dark. A shadow cannot fall on a dark page, so a raised card, a
   menu and a popover had no edge to be told from the page by. The rim lights the edge from inside.
   The two inner shadows carry none.
+
+theme: publish the breakpoints as the foundation states them
+
+- `breakpoints` maps each breakpoint above `base` to the length it starts at, `sm` to `40rem`, from
+  the same statement the compiler builds its conditions from. A reader of the widths went through
+  `token` before, and `token` keeps the whole token map in the bundle, 32 kB of values for the five
+  a page reads. The catalogue's library chunk is 163 kB rather than 195, 50 kB rather than 57
+  gzipped.

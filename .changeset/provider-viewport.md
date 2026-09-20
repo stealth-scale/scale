@@ -19,3 +19,9 @@ provider-viewport: measure before the first paint
   folding on the answer was painted folded and unfolded a frame later.
 - An element that measures no width has no box to compare, and the answer it had stands. A document
   with no layout engine reports every width as 0.
+
+provider-viewport: read the breakpoints from the statement rather than the token map
+
+- `sizesOf` and `widthOf` read `breakpoints` from `@stealthscale/theme` and sort the widths
+  themselves, so the provider no longer keeps the token map in the bundle. The widths are the same
+  numbers.

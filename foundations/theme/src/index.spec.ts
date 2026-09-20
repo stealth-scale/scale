@@ -4,6 +4,7 @@ import * as published from "#index.ts";
 
 const SURFACE = [
   "breakpointKeys",
+  "breakpoints",
   "COLOR_MODE_ATTRIBUTE",
   "createRecipeContext",
   "createSlotRecipeContext",

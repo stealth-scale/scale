@@ -2,7 +2,7 @@
  * Reads the widths the design system's breakpoints start at.
  */
 
-import { breakpointKeys, type BreakpointToken, token } from "@stealthscale/theme";
+import { breakpoints, type BreakpointToken } from "@stealthscale/theme";
 
 /**
  * The root font size the styling engine converts a length against.
@@ -76,18 +76,20 @@ let known: readonly Size[] | undefined;
  * Reads the widths the design system's breakpoints start at.
  *
  * @remarks
- *   Read from the compiled vocabulary rather than from a theme, because a breakpoint is physics. A
- *   theme that moved one would move it for every component written against the foundation, so the
- *   compiler's own preset states them and a theme leaves them alone. The list is built once,
- *   because the vocabulary does not change while a page runs and a hook reads it on every render.
- *   `base` is left out. It starts at nothing and has no token, and every reader here puts it back
+ *   Read from the foundation's own statement rather than from a theme, because a breakpoint is
+ *   physics. A theme that moved one would move it for every component written against the
+ *   foundation, so the foundation states them and a theme leaves them alone. Read as the statement
+ *   rather than through `token`, because the token map is 32 kB of values this reads five of, and
+ *   a reader of `token` keeps the whole map in the bundle. The list is built once, because the
+ *   statement does not change while a page runs and a hook reads it on every render. `base` is
+ *   left out. It starts at nothing and is stated nowhere, and every reader here puts it back
  *   itself. What this answers is the widths a page can be previewed at.
  * @returns One size per breakpoint above `base`, narrowest first.
  */
 export function sizesOf(): readonly Size[] {
-  known ??= breakpointKeys
-    .filter((name): name is BreakpointToken => name !== BASE)
-    .map((name) => ({ min: pixelsOf(token(`breakpoints.${name}`)), name }));
+  known ??= Object.entries(breakpoints)
+    .map(([name, length]) => ({ min: pixelsOf(length), name }))
+    .toSorted((one, other) => one.min - other.min);
 
   return known;
 }
