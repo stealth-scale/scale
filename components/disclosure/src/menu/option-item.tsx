@@ -33,7 +33,11 @@ export interface OptionItemProps extends Omit<ComponentProps<typeof Chosen>, "on
   readonly checked: boolean;
 
   /**
-   * Whether choosing the row closes the menu, which it does unless the row says otherwise.
+   * Whether choosing the row closes the menu.
+   *
+   * @remarks
+   *   One of a set closes it, because that choice is finished. A tick leaves it open, because a
+   *   reader turning one often turns another. Either is overridden here.
    */
   readonly closeOnSelect?: boolean | undefined;
 
@@ -87,7 +91,7 @@ export function OptionItem({
 }: OptionItemProps): ReactElement {
   const { api } = useMenu();
   const state = {
-    ...(closeOnSelect === undefined ? {} : { closeOnSelect }),
+    closeOnSelect: closeOnSelect ?? type === "radio",
     ...(disabled === undefined ? {} : { disabled }),
     ...(onCheckedChange === undefined ? {} : { onCheckedChange }),
     ...(valueText === undefined ? {} : { valueText }),

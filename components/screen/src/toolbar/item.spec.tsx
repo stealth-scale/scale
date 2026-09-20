@@ -1,8 +1,14 @@
+import { type ComponentProps, type ReactElement } from "react";
+
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { Item } from "#toolbar/item.tsx";
 import { ranged } from "#toolbar/toolbar.fixtures.tsx";
+
+function Owned(props: ComponentProps<"button">): ReactElement {
+  return <button {...props} id="owned" />;
+}
 
 describe("Item", () => {
   it("draws a button where nothing says it goes anywhere", () => {
@@ -27,6 +33,14 @@ describe("Item", () => {
     render(ranged(<Item>Filter</Item>));
 
     expect(screen.getByRole("button").tabIndex).toBe(0);
+  });
+
+  it("draws the component a caller names with the stop on what it renders", () => {
+    render(ranged(<Item as={Owned}>Filter</Item>));
+
+    expect(screen.getByRole("button", { name: "Filter" }).getAttribute("id")).toBe("owned");
+    expect(screen.getByRole("button", { name: "Filter" }).tabIndex).toBe(0);
+    expect(screen.getByRole("button", { name: "Filter" }).getAttribute("type")).toBeNull();
   });
 
   it("leaves one stop where a row holds several controls", () => {

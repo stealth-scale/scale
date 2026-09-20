@@ -46,9 +46,9 @@ describe("recipe", () => {
 
   it("steps the panel the content the mark and the title together at one name", () => {
     expect(recipe.variants?.["size"]?.["md"]).toStrictEqual({
-      content: { gap: "gap.md" },
-      indicator: { boxSize: "icon.md" },
-      root: { padding: "inset.md" },
+      content: { gap: "calc({spacing.gap.md} * var(--density, 1))" },
+      indicator: { boxSize: "calc({sizes.icon.md} * var(--density, 1))" },
+      root: { padding: "calc({spacing.inset.md} * var(--density, 1))" },
       title: { textStyle: "heading.md" },
     });
   });

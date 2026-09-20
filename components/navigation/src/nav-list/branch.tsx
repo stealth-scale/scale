@@ -1,18 +1,23 @@
 /**
- * Draws a row that opens onto a list of its own, and holds whether that list is shown.
+ * Draws a row that opens onto a list of its own, and runs the machine that shows and hides it.
  *
  * @remarks
- *   The element is `li`, because a branch is a row of the list around it. It takes `open` and
- *   `defaultOpen`, so a caller that opens the branch holding the current page drives it and a
- *   caller that does not is served by the same component.
+ *   The element is `li`, because a branch is a row of the list around it. It takes the machine's
+ *   own settings, `open`, `defaultOpen` and `onOpenChange` among them, so a caller that opens the
+ *   branch holding the current page drives it and a caller that does not is served by the same
+ *   component. The element's own `id` and `dir` are left out, because the machine states both: it
+ *   builds every ARIA reference from the id, and it reads the direction to place the mark.
  */
 
-import { type ComponentProps, type ReactElement, useId } from "react";
-
-import { useControllableState } from "@stealthscale/hooks";
+import { type ComponentProps, type ReactElement } from "react";
 
 import { withContext } from "#nav-list/context.ts";
-import { BranchProvider } from "#nav-list/state.ts";
+import {
+  type BranchOptions,
+  BranchProvider,
+  splitBranchProps,
+  useBranchMachine,
+} from "#nav-list/state.ts";
 
 /**
  * Draws the branch at the size the list states.
@@ -20,61 +25,24 @@ import { BranchProvider } from "#nav-list/state.ts";
 const Held = withContext("li", "branch");
 
 /**
- * Describes what a branch takes.
+ * Describes what a branch takes: the machine's settings and everything a styled list item takes.
  */
-export interface BranchProps extends Omit<ComponentProps<typeof Held>, "id"> {
-  /**
-   * Whether the list is shown before a caller drives it.
-   */
-  readonly defaultOpen?: boolean | undefined;
-
-  /**
-   * The identifier the trigger points at the list with, which is generated where you state none.
-   */
-  readonly id?: string | undefined;
-
-  /**
-   * Hears the branch open and close.
-   */
-  readonly onOpenChange?: ((open: boolean) => void) | undefined;
-
-  /**
-   * Whether the list is shown, where a caller drives it.
-   */
-  readonly open?: boolean | undefined;
-}
+export interface BranchProps
+  extends BranchOptions, Omit<ComponentProps<typeof Held>, "dir" | "id"> {}
 
 /**
  * Shows and hides the list beneath its row.
  *
- * @param props - Whether the branch is open, and everything a styled list item takes.
- * @returns The branch, holding the trigger and the list under its state.
+ * @param props - The machine's settings and the element's props together.
+ * @returns The branch, holding the trigger and the list under the running machine.
  */
-export function Branch({
-  defaultOpen = false,
-  id,
-  onOpenChange,
-  open,
-  ...rest
-}: BranchProps): ReactElement {
-  const generated = useId();
-  const [shown, setShown] = useControllableState<boolean>({
-    defaultValue: defaultOpen,
-    onChange: onOpenChange,
-    value: open,
-  });
+export function Branch(props: BranchProps): ReactElement {
+  const [options, rest] = splitBranchProps(props);
+  const api = useBranchMachine(options);
 
   return (
-    <BranchProvider
-      value={{
-        id: id ?? generated,
-        open: shown,
-        toggle: () => {
-          setShown(!shown);
-        },
-      }}
-    >
-      <Held {...rest} />
+    <BranchProvider value={api}>
+      <Held {...rest} {...api.getRootProps()} />
     </BranchProvider>
   );
 }

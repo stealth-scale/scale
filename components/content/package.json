@@ -51,12 +51,19 @@
     "prepublishOnly": "vp pack",
     "test": "vp test"
   },
+  "dependencies": {
+    "@stealthscale/component-actions": "workspace:^",
+    "@tanstack/highlight": "catalog:"
+  },
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
     "@rolldown/plugin-babel": "catalog:",
+    "@stealthscale/hooks": "workspace:^",
     "@stealthscale/theme": "workspace:^",
     "@stealthscale/vite-config": "workspace:^",
+    "@stealthscale/vite-config-i18n": "workspace:^",
     "@stealthscale/vite-config-react": "workspace:^",
+    "@stealthscale/vite-config-specimen": "workspace:^",
     "@stealthscale/vite-config-theme": "workspace:^",
     "@stealthscale/vite-config-typescript": "workspace:^",
     "@testing-library/react": "catalog:",
@@ -64,6 +71,7 @@
     "@types/react-dom": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
     "happy-dom": "catalog:",
+    "lucide-react": "catalog:",
     "oxc-transform-react": "catalog:",
     "publint": "catalog:",
     "react": "catalog:",
@@ -72,6 +80,7 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
+    "@stealthscale/hooks": "workspace:^",
     "@stealthscale/theme": "workspace:^",
     "react": "catalog:"
   },

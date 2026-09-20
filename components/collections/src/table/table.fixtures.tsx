@@ -5,7 +5,7 @@
 import { type ReactElement, type ReactNode } from "react";
 
 import * as Table from "#table/index.ts";
-import { type ScrollerProps } from "#table/scroller.ts";
+import { type ScrollerProps } from "#table/scroller.tsx";
 
 /**
  * Draws whatever a case wants measured inside the scroller that states the variants.

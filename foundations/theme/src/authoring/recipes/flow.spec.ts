@@ -7,6 +7,7 @@ import {
   alignVariants,
   columnCounts,
   DISTRIBUTIONS,
+  filledColumns,
   fittedColumns,
   gapSizes,
   justifyVariants,
@@ -18,8 +19,8 @@ describe("flow", () => {
   it("offers the whole gap scale when a recipe names no steps", () => {
     expect(Object.keys(gapSizes())).toHaveLength(8);
     expect(gapSizes(["sm", "4xl"])).toStrictEqual({
-      "4xl": { gap: "gap.4xl" },
-      sm: { gap: "gap.sm" },
+      "4xl": { gap: "calc({spacing.gap.4xl} * var(--density, 1))" },
+      sm: { gap: "calc({spacing.gap.sm} * var(--density, 1))" },
     });
   });
 
@@ -54,6 +55,15 @@ describe("flow", () => {
       },
     });
     expect(Object.keys(fittedColumns())).toHaveLength(12);
+  });
+
+  it("fills a row with columns of a measure whether or not every column has an entry", () => {
+    expect(filledColumns(["sm"])).toStrictEqual({
+      "fill-sm": {
+        gridTemplateColumns: "repeat(auto-fill, minmax(min({sizes.sm}, 100%), 1fr))",
+      },
+    });
+    expect(Object.keys(filledColumns())).toHaveLength(12);
   });
 
   it("draws a count of equal columns", () => {

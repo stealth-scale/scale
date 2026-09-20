@@ -14,7 +14,13 @@
  *   root's list style with the shorthand and a type on the root would lose to it.
  */
 
-import { defineSlotRecipe, gapSizes, motionVariants, onSlot } from "@stealthscale/theme/authoring";
+import {
+  defineSlotRecipe,
+  dense,
+  gapSizes,
+  motionVariants,
+  onSlot,
+} from "@stealthscale/theme/authoring";
 
 /**
  * Draws a list with the browser's markers at the middle gap until a caller says otherwise, with
@@ -25,7 +31,7 @@ export const recipe = defineSlotRecipe({
     indicator: {
       display: "inline-block",
       flexShrink: "0",
-      marginInlineEnd: "gap.xs",
+      marginInlineEnd: dense("{spacing.gap.xs}"),
       verticalAlign: "middle",
     },
     item: { display: "list-item", whiteSpace: "normal" },

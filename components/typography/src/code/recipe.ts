@@ -11,7 +11,8 @@
 
 import {
   defineRecipe,
-  lookVariants,
+  dense,
+  flatVariants,
   statusEmitted,
   statusVariants,
 } from "@stealthscale/theme/authoring";
@@ -35,10 +36,23 @@ export const recipe = defineRecipe({
   staticCss: [statusEmitted()],
   variants: {
     size: {
-      md: { paddingInline: "inset.sm", textStyle: "code.md" },
-      sm: { paddingInline: "inset.xs", textStyle: "code.sm" },
+      md: { paddingInline: dense("{spacing.inset.sm}"), textStyle: "code.md" },
+      sm: { paddingInline: dense("{spacing.inset.xs}"), textStyle: "code.sm" },
     },
     status: statusVariants(),
-    variant: lookVariants(["solid", "subtle", "surface", "outline", "plain"]),
+
+    /**
+     * How the snippet is set off from the line it sits in.
+     *
+     * @remarks
+     *   The plain look drops the room the size gives, because that room is there to hold a fill off
+     *   the words and the plain look paints none. Kept, it pushes the snippet a step to the right
+     *   of whatever sits above and below it, which a column of types in a table reads as one row
+     *   indented.
+     */
+    variant: {
+      ...flatVariants(["solid", "subtle", "surface", "outline", "plain"]),
+      plain: { layerStyle: "flat.plain", paddingInline: "0" },
+    },
   },
 });

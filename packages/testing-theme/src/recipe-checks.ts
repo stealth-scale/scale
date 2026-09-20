@@ -1,9 +1,9 @@
 /**
  * Checks a recipe for the values it may not write and the classes it would write with no rule: a
  * color a theme cannot move, a token nothing defines, a condition nothing defines, a pixel length,
- * a color mode, a slot the anatomy does not stamp, the one ink that clears the boundary ratio and
- * not the text ratio, a value or a compound that states no styles, a default or a compound that
- * names a value no axis offers, and a tag pattern that misses the component's name.
+ * a color mode, a slot the anatomy does not stamp, a value or a compound that states no styles, a
+ * default or a compound that names a value no axis offers, and a tag pattern that misses the
+ * component's name.
  *
  * @remarks
  *   A recipe reads semantic tokens, compositions and scale steps, so a theme can move every value
@@ -28,6 +28,7 @@ import {
   selectionViolations,
 } from "#reachable.ts";
 import { type Declared } from "#recipe.ts";
+import { isSystemColor } from "#system-colors.ts";
 import { walked, type Walked, type Written } from "#walk.ts";
 
 /**
@@ -46,7 +47,6 @@ export type RecipeCheck =
   | "recipe.modes"
   | "recipe.selections"
   | "recipe.slots"
-  | "recipe.subtle"
   | "recipe.tokens"
   | "recipe.values";
 
@@ -171,11 +171,6 @@ const TOKEN_CALL = /token\(([a-zA-Z]+)\.([^,)]+)/u;
  * Fixes the virtual palette a recipe reads roles through.
  */
 const VIRTUAL = "colorPalette";
-
-/**
- * Fixes the ink held to the boundary ratio, which no recipe writes as a text color.
- */
-const SUBTLE = "fg.subtle";
 
 /**
  * Strips the opacity modifier a color may carry, such as `fg/50`.
@@ -303,13 +298,21 @@ function compoundViolations(recipe: Declared): readonly string[] {
 }
 
 /**
+ * Reports whether a value is one no theme owns: a keyword every property takes, a custom property
+ * a runtime value is written into, or a color the display chooses for itself.
+ */
+function passes(named: string): boolean {
+  return PASSES.test(named) || isSystemColor(named);
+}
+
+/**
  * Says what is wrong with a color value, or nothing where a theme can move it.
  */
 function colorFault(value: string, preset: Preset): string | undefined {
   const named = bare(value);
   const [first = "", ...rest] = named.split(".");
 
-  if (PASSES.test(named)) return undefined;
+  if (passes(named)) return undefined;
   if (LITERAL.test(named)) return `writes the color ${value}`;
   if (named.startsWith("{")) return `references ${value}`;
   if (STEP.test(named)) return `names the ramp step ${value}`;
@@ -453,18 +456,6 @@ function slotViolations(recipe: Declared, parts: readonly string[]): readonly st
 }
 
 /**
- * Reports every place the subtle ink is written as a text color.
- */
-function subtleViolations(recipe: Declared, found: readonly Written[]): readonly string[] {
-  return found
-    .filter(({ property, value }) => property === "color" && bare(value) === SUBTLE)
-    .map(
-      ({ path }) =>
-        `${recipe.className} sets color to ${SUBTLE} at ${path}, which clears the boundary ratio and not the text ratio`,
-    );
-}
-
-/**
  * Runs one check and reports what it found.
  */
 type Runner = (
@@ -523,7 +514,6 @@ const RUNNERS: ReadonlyArray<readonly [RecipeCheck, Runner]> = [
     (recipe, _found, options) =>
       options.parts === undefined ? [] : slotViolations(recipe, options.parts),
   ],
-  ["recipe.subtle", (recipe, found) => subtleViolations(recipe, found.strings)],
 ];
 
 /**

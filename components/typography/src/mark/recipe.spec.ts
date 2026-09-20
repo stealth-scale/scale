@@ -52,7 +52,9 @@ describe("recipe", () => {
   });
 
   it("writes paddingInline alone so the inset never overflows the line above", () => {
-    expect(recipe.variants?.["inset"]?.["md"]).toStrictEqual({ paddingInline: "inset.md" });
+    expect(recipe.variants?.["inset"]?.["md"]).toStrictEqual({
+      paddingInline: "calc({spacing.inset.md} * var(--density, 1))",
+    });
   });
 
   it("clones the box decoration so a fill runs onto a second line whole", () => {

@@ -1,0 +1,66 @@
+{
+  "about": "Opens a list of things a reader chooses from: plain rows, rows that stay on, one of a set, and submenus, all sharing one gutter so they line up whatever is in them. The same list opens over a region on a right click, a long press or Shift+F10.",
+  "actions": "Actions",
+  "archive": "Archive",
+  "copy": "Copy",
+  "csv": "CSV",
+  "cut": "Cut",
+  "delete": "Delete",
+  "downloadAs": "Download as",
+  "drafts": "Drafts",
+  "edit": "Edit",
+  "everything": {
+    "about": "Everything a menu can hold, reached by right click: groups under labels, marks, a row that stays on, a set to pick one of, a submenu, and a row that destroys something. Turning the row that stays on leaves the menu up, because a reader turning one often turns another; picking out of the set closes it, because that choice is finished. The destroying row keeps the error ink under the highlight, so the warning does not go under the pointer.",
+    "title": "Everything a region's menu holds"
+  },
+  "export": "Export",
+  "highlights": {
+    "about": "Every highlight at every size, on the row the reader is on. Open a menu and move down it.",
+    "title": "Highlights and sizes"
+  },
+  "hold": "Hold",
+  "json": "JSON",
+  "keepTop": "Keep at the top",
+  "ledger": "Ledger",
+  "long": {
+    "about": "A list longer than the room under its control. The panel is held to the height the engine measured, so it scrolls rather than running off the page, and the highlighted row is scrolled into view, so holding an arrow key walks past the fold.",
+    "title": "A list too long for the screen"
+  },
+  "looks": {
+    "about": "Every look. Press a control and the rows open beneath it: a group with keystrokes, a row that undoes something, a row that stays on, a set to pick one of, and a submenu.",
+    "title": "Looks"
+  },
+  "moveTo": "Move to",
+  "notify": "Notify the account",
+  "one": "One",
+  "opens": "Opens {{side}}",
+  "over": {
+    "about": "The same menu, opened over something rather than from a control: right click it, press and hold it on a touch screen, or press Shift+F10 on it. The region keeps whatever it already was.",
+    "title": "Opened over a region"
+  },
+  "payout": "Payout",
+  "pdf": "PDF",
+  "pickLedger": "Pick a ledger",
+  "placements": {
+    "about": "Where the menu is asked to open against its control. An ask rather than an order: the engine flips a menu that would open off the edge of the window, so a menu placed at the bottom of a control near the foot of the page opens upwards instead.",
+    "title": "Where the menu opens"
+  },
+  "release": "Release",
+  "rightClickCard": "Right click this card",
+  "rightClickRow": "Right click this row",
+  "rightClickRtl": "انقر بزر الماوس الأيمن هنا",
+  "rtl": {
+    "about": "A page that runs the other way. Right click and long press are unchanged, the keystroke moves to the other end of its row, and a submenu opens towards the start of the line rather than away from it. The engine reads the direction off the page.",
+    "title": "Right to left"
+  },
+  "submenus": {
+    "about": "Where a submenu opens is its own root's to say. The sides are named left and right rather than start and end, and the engine turns them round on a page that runs the other way, and flips any of them back where there is no room on the side asked for.",
+    "title": "Where a submenu opens"
+  },
+  "thisMonth": "This month",
+  "thisWeek": "This week",
+  "title": "Menu",
+  "two": "Two",
+  "void": "Void",
+  "window": "Window"
+}

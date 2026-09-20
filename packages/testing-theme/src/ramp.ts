@@ -63,11 +63,23 @@ function stringValue(node: unknown): string | undefined {
 }
 
 /**
+ * Reports whether a color carries transparency, which every step of an alpha ramp does.
+ */
+function transparent(color: string): boolean {
+  return (
+    color.includes("/") || /^#(?:[\da-f]{4}|[\da-f]{8})$/iu.test(color) || color.includes("rgba(")
+  );
+}
+
+/**
  * Reads every ramp under a block of color tokens, the nested ones included.
  *
  * @remarks
  *   A node that is not a token with a string value is walked as a group. A token whose value is
- *   an object is walked the same way and yields no step, because none of its keys is a number.
+ *   an object is walked the same way and yields no step, because none of its keys is a number. An
+ *   alpha ramp is left out: its steps differ in transparency rather than in lightness, so the
+ *   lightness, hue and gamut checks say nothing about it, and what a reader sees through it is
+ *   whatever it was painted over.
  */
 function rampsIn(block: unknown, prefix: string): readonly Ramp[] {
   if (typeof block !== "object" || block === null) return [];
@@ -87,7 +99,7 @@ function rampsIn(block: unknown, prefix: string): readonly Ramp[] {
   }
 
   const own: Ramp[] =
-    steps.length >= FEWEST && prefix !== ""
+    steps.length >= FEWEST && prefix !== "" && !steps.some(([, color]) => transparent(color))
       ? [{ path: prefix, steps: steps.toSorted(([one], [other]) => one - other) }]
       : [];
 

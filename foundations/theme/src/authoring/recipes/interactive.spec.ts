@@ -6,12 +6,12 @@ import { defineRecipe } from "#authoring/recipe.ts";
 import { interactive, link, row } from "#authoring/recipes/interactive.ts";
 
 describe("interactive", () => {
-  it("draws the hand and a fast transition of the common properties", () => {
+  it("draws the hand and a transition of the common properties at the pace of a press", () => {
     expect(interactive()).toMatchObject({
       cursor: "button",
-      transitionDuration: "fast",
+      transitionDuration: "press",
       transitionProperty: "common",
-      transitionTimingFunction: "out",
+      transitionTimingFunction: "press",
       userSelect: "none",
     });
   });
@@ -25,6 +25,11 @@ describe("interactive", () => {
 
   it("reads the disabled look when disabled", () => {
     expect(interactive()).toMatchObject({ _disabled: { layerStyle: "disabled" } });
+  });
+
+  it("holds the box still under a press", () => {
+    expect(interactive()).not.toHaveProperty("_active");
+    expect(JSON.stringify(interactive())).not.toContain("scale");
   });
 
   it("draws a link in the link ink with an underline on hover", () => {

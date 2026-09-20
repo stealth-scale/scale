@@ -90,7 +90,7 @@ system supplies the last part of the directory name, so two calls never collide.
 | `Configured`  | `{ root: string; [field: string]: unknown }`                                                       | The resolved configuration a driven plugin reads. `root` is the one field every house plugin reads, and any further field is passed through as given |
 | `Graphed`     | `{ id: string }`                                                                                   | A module as the graph returns one, cut down to the id a plugin invalidates it by                                                                     |
 | `HookContext` | `interface`                                                                                        | What a hook reads off `this`: `addWatchFile`, `environment.moduleGraph`, `warn`, and the `invalidated`, `warned` and `watched` records               |
-| `hookContext` | `(graphed?: readonly string[]) => HookContext`                                                     | Builds the context a hook reads `this` from. Its module graph resolves the ids in `graphed` and no others                                            |
+| `hookContext` | `(graphed?: readonly string[], command?: Command, bundled?: boolean) => HookContext`               | Builds the context a hook reads `this` from. Its module graph resolves the ids in `graphed` and no others, under `serve` unless told `build`         |
 | `configured`  | `(plugin: Plugin, config: Configured) => Promise<void>`                                            | Calls `configResolved` with `config`                                                                                                                 |
 | `started`     | `(plugin: Plugin, context: HookContext) => Promise<void>`                                          | Calls `buildStart` with `context` bound as `this`                                                                                                    |
 | `resolved`    | `(plugin: Plugin, id: string, importer?: string) => Promise<string \| undefined>`                  | Calls `resolveId` and returns the id the plugin returned, read from a string or from an object, or undefined where it declined                       |
@@ -114,8 +114,8 @@ system supplies the last part of the directory name, so two calls never collide.
 | ---------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `declared` | `(css: string, selector: string, property: string) => string \| undefined` | Returns what one selector declares a property as, or undefined where it declares it nowhere. The selector is matched literally, wherever it sits in a selector list |
 
-A specification that drives a style compiler gets one string back, and what it wants to know is what
-a named selector declares. `declared` matches the rule the selector opens rather than parsing the
+A specification that runs a style compiler gets one string back, and what it wants to know is what a
+named selector declares. `declared` matches the rule the selector opens rather than parsing the
 sheet, so no CSS parser is needed in the test tier.
 
 ## Cleanup
@@ -164,7 +164,8 @@ plugin whose `load` hook was removed fails on that call, and never passes becaus
 nothing. A hook written in the object form, `{ handler, order }`, is called through its handler.
 `hookContext` records what a hook asked the bundler for. `watched` lists each file it asked to
 watch. `warned` lists each message it reported. `invalidated` lists each module it asked the graph
-to drop.
+to drop. Its environment states `isBundled` the way Vite's does: true under a build, false under a
+server, and whatever `bundled` says, which is how a specification stands for a server that bundles.
 
 ## Measuring in a document
 

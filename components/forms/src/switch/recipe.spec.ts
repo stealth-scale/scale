@@ -85,7 +85,22 @@ describe("recipe", () => {
 
   it("moves the thumb by the distance the track states", () => {
     expect(recipe.base?.["thumb"]?.["_checked"]).toStrictEqual({
+      _rtl: { translate: "calc(var(--switch-travel) * -1)" },
       translate: "var(--switch-travel)",
+    });
+  });
+
+  it("marks the thumb's edge where the display replaces every fill", () => {
+    expect(recipe.base?.["thumb"]?.["_highContrast"]).toStrictEqual({
+      borderColor: "ButtonText",
+      borderStyle: "solid",
+      borderWidth: "control",
+    });
+  });
+
+  it("names the property the thumb actually moves in", () => {
+    expect(recipe.base?.["thumb"]).toMatchObject({
+      transitionProperty: "translate, background, box-shadow",
     });
   });
 

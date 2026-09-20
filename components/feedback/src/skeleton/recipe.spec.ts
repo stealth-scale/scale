@@ -36,8 +36,31 @@ describe("recipe", () => {
     });
   });
 
-  it("fades the content in once it has arrived", () => {
-    expect(recipe.variants?.["loading"]?.["false"]).toStrictEqual({ animationStyle: "fade.in" });
+  it("stands in on the neutral palette's muted fill", () => {
+    expect(recipe.variants?.["loading"]?.["true"]).toMatchObject({
+      background: "colorPalette.muted",
+      colorPalette: "neutral",
+    });
+  });
+
+  it("fades the content in from the base once it has arrived", () => {
+    expect(recipe.base).toStrictEqual({ animationStyle: "fade.in" });
+    expect(recipe.variants?.["loading"]).not.toHaveProperty("false");
+  });
+
+  it("moves only while it stands in", () => {
+    expect(recipe.variants?.["motion"]).toStrictEqual({
+      none: { "&.skeleton--loading_true": { animation: "none" } },
+      pulse: { "&.skeleton--loading_true": { animationStyle: "pulse" } },
+      shimmer: {
+        "&.skeleton--loading_true": {
+          animationStyle: "shimmer",
+          backgroundImage:
+            "linear-gradient(270deg, var(--colors-color-palette-muted), var(--colors-color-palette-emphasized))",
+          backgroundSize: "400% 100%",
+        },
+      },
+    });
   });
 
   it("tracks the tag named Skeleton and not the paragraph of them", () => {

@@ -23,11 +23,23 @@ describe("textStyles", () => {
     ]);
   });
 
-  it("sets a heading in the heading face at a tight leading", () => {
+  it("sets a page heading in the heading face a little closer than the text", () => {
     expect(tokenAt(textStyles, "heading.md")).toStrictEqual({
       fontFamily: "heading",
       fontSize: "xl",
       fontWeight: "semibold",
+      letterSpacing: "normal",
+      lineHeight: "snug",
+    });
+  });
+
+  it("keeps a section heading at the text's own leading and a hero heading tight and tracked in", () => {
+    expect(tokenAt(textStyles, "heading.sm")).toMatchObject({
+      letterSpacing: "normal",
+      lineHeight: "normal",
+    });
+    expect(tokenAt(textStyles, "heading.xl")).toMatchObject({
+      fontWeight: "bold",
       letterSpacing: "tight",
       lineHeight: "tight",
     });

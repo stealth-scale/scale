@@ -14,10 +14,6 @@ publish the routes a catalogue is built from, and list the rail from them
 - `grouped` takes declarations and returns the tree the rail draws: groups sorted by name, pages
   sorted by the words their entry carries, and pages naming no group under a heading of their own,
   last.
-- `Catalogue` is the simple frame and takes `declarations` in place of `listed`. An application
-  wanting a top bar, a search or a switcher passes its own frame under `FRAME` and places `Rail`
-  inside it.
-- `layouts`, `FRAME` and `routeId` are the wiring. The package builds no router and states no
-  address of its own.
+- `routeId` names a page's route. The package builds no router and states no address of its own.
 
 111 tests, 100% on all four metrics.

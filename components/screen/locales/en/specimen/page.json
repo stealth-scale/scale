@@ -1,0 +1,32 @@
+{
+  "about": "Lays a page out: a banner, a header with everything that names the page, a navigation, a body and a footer.",
+  "alignment": {
+    "about": "The bands starting at the gutter, and the bands centred in the measure.",
+    "title": "Alignment"
+  },
+  "april": "April invoices",
+  "archive": "Archive",
+  "body": "The invoices, one under another.",
+  "divided": {
+    "about": "The header ruled off from the body, beside a page left whole.",
+    "title": "Divided"
+  },
+  "everything": "Everything raised this month.",
+  "export": "Export",
+  "gutters": {
+    "about": "Every gutter, which every band reads.",
+    "title": "Gutters"
+  },
+  "home": "Home",
+  "invoices": "Invoices",
+  "measures": {
+    "about": "Every measure the bands hold their contents to.",
+    "title": "Measures"
+  },
+  "more": "More",
+  "sizes": {
+    "about": "Every size, which sets the title one heading step above a section's at the same size.",
+    "title": "Sizes"
+  },
+  "title": "Page"
+}

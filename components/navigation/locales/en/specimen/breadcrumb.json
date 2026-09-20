@@ -1,0 +1,11 @@
+{
+  "about": "Draws the path from the front of a site to the page a person is on.",
+  "april": "April",
+  "home": "Home",
+  "invoices": "Invoices",
+  "looks": {
+    "about": "Both looks at every size. The last crumb is not a link and is the one at full strength.",
+    "title": "Looks and sizes"
+  },
+  "title": "Breadcrumb"
+}

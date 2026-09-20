@@ -2,14 +2,17 @@
  * Draws the row that opens a branch.
  *
  * @remarks
- *   The element is `button`, because it acts on the page rather than going anywhere. It says
- *   whether the list is expanded and which list it controls, both from the branch's own state, so
- *   a caller states neither and the two cannot drift apart.
+ *   The element is `button`, because it acts on the page rather than going anywhere. The machine
+ *   writes what tells a screen reader what it does: whether the list is expanded, and which list
+ *   it controls. Neither is this component's to state, because the machine holds the id both sides
+ *   are named by.
  *   A branch whose own page is the one being read states `aria-current="page"` here, the same as a
  *   link does, and the `highlight` axis marks it the same way.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
+
+import { mergeProps } from "@zag-js/react";
 
 import { withContext } from "#nav-list/context.ts";
 import { useBranch } from "#nav-list/state.ts";
@@ -30,23 +33,11 @@ export type TriggerProps = Omit<
 /**
  * Shows the list beneath the row where it is hidden, and hides it where it is shown.
  *
- * @param props - Everything a styled button takes, less what the branch states.
+ * @param props - Everything a styled button takes, less what the machine states.
  * @returns The row, saying what it controls and whether that list is open.
  */
-export function Trigger({ onClick, ...rest }: TriggerProps): ReactElement {
-  const branch = useBranch();
+export function Trigger(props: TriggerProps): ReactElement {
+  const api = useBranch();
 
-  return (
-    <Opened
-      {...rest}
-      aria-controls={branch.id}
-      aria-expanded={branch.open}
-      data-state={branch.open ? "open" : "closed"}
-      onClick={(event) => {
-        onClick?.(event);
-        branch.toggle();
-      }}
-      type="button"
-    />
-  );
+  return <Opened {...mergeProps(api.getTriggerProps(), props)} />;
 }

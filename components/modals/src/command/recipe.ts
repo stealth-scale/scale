@@ -14,6 +14,7 @@
 
 import {
   defineSlotRecipe,
+  dense,
   divider,
   onSlots,
   sizeVariants,
@@ -28,10 +29,17 @@ export const recipe = defineSlotRecipe({
   base: {
     control: {
       ...divider("horizontal"),
+      "--focus-ring-color": `var(--focus-ring-color-prop, var(--global-color-focus-ring, #005FCC))`,
+      "&:has(:focus-visible)": {
+        outlineColor: "var(--focus-ring-color)",
+        outlineOffset: "0",
+        outlineStyle: "var(--focus-ring-style, solid)",
+        outlineWidth: "ring",
+      },
       alignItems: "center",
-      borderBlockEndWidth: "sm",
       display: "flex",
       flexShrink: "0",
+      focusRingColor: "colorPalette.focusRing",
     },
     empty: { color: "fg.muted", textAlign: "center" },
     indicator: { alignItems: "center", color: "fg.muted", display: "inline-flex", flexShrink: "0" },
@@ -49,7 +57,7 @@ export const recipe = defineSlotRecipe({
     shortcut: {
       ...truncate(),
       borderColor: "border",
-      borderWidth: "sm",
+      borderWidth: "hairline",
       color: "fg.muted",
       flexShrink: "0",
       marginInlineStart: "auto",
@@ -63,23 +71,29 @@ export const recipe = defineSlotRecipe({
     size: onSlots({
       control: sizeVariants(
         (size) => ({
-          blockSize: `control.${size}`,
-          gap: `gap.${size}`,
-          paddingInline: `inset.${size}`,
+          blockSize: dense(`{sizes.control.${size}}`),
+          gap: dense(`{spacing.gap.${size}}`),
+          paddingInline: dense(`{spacing.inset.${size}}`),
         }),
         ["sm", "md", "lg"],
       ),
       empty: sizeVariants(
-        (size) => ({ padding: `inset.${size}`, textStyle: `body.${size}` }),
+        (size) => ({ padding: dense(`{spacing.inset.${size}}`), textStyle: `body.${size}` }),
         ["sm", "md", "lg"],
       ),
-      indicator: sizeVariants((size) => ({ boxSize: `icon.${size}` }), ["sm", "md", "lg"]),
+      indicator: sizeVariants(
+        (size) => ({ boxSize: dense(`{sizes.icon.${size}}`) }),
+        ["sm", "md", "lg"],
+      ),
       input: sizeVariants((size) => ({ textStyle: `body.${size}` }), ["sm", "md", "lg"]),
-      list: sizeVariants((size) => ({ padding: `inset.${size}` }), ["sm", "md", "lg"]),
+      list: sizeVariants(
+        (size) => ({ padding: dense(`{spacing.inset.${size}}`) }),
+        ["sm", "md", "lg"],
+      ),
       shortcut: sizeVariants(
         (size) => ({
           borderRadius: "l1",
-          paddingInline: `gap.${size}`,
+          paddingInline: dense(`{spacing.gap.${size}}`),
           textStyle: `label.${size}`,
         }),
         ["sm", "md", "lg"],

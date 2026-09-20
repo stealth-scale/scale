@@ -5,23 +5,36 @@ import * as barrel from "#index.ts";
 describe("index", () => {
   it("names everything a specimen is written with and nothing beside it", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
-      "Catalogue",
-      "FRAME",
+      "Board",
+      "DisplayProvider",
+      "FRAMES",
+      "Index",
       "Matrix",
       "NAMED",
+      "NAMESPACE",
+      "PHONE",
       "Page",
       "Rail",
+      "RailSearch",
+      "Room",
+      "Sample",
+      "Tile",
       "captionOf",
       "declarations",
       "declared",
+      "deviceOf",
       "entryOf",
+      "framedDeclaration",
       "grouped",
-      "layouts",
+      "indexId",
       "nameOf",
       "parted",
       "routeId",
       "scene",
       "specimen",
+      "useWords",
+      "valuesOf",
+      "widthsOf",
     ]);
   });
 
@@ -29,7 +42,7 @@ describe("index", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {
-      expect(name).not.toMatch(/^(?:recipe|with|use|PropsProvider)/u);
+      expect(name).not.toMatch(/^(?:recipe|with|PropsProvider)/u);
     }
   });
 });

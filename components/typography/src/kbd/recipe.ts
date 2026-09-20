@@ -5,13 +5,15 @@
  * @remarks
  *   Every value is a label role, a semantic control height, a semantic inset, a layer style or a
  *   palette, so a theme moves all of them. The raised look is written from tokens by hand, because
- *   no layer style draws a keycap: a fill with a heavier bottom edge is what reads as a key rather
- *   than as a word. The other looks come from the foundation's layer styles.
+ *   no layer style draws a keycap: a fill edged at the control's width with a foot at the
+ *   indicator's is what reads as a key rather than as a word. The other looks come from the
+ *   foundation's layer styles.
  */
 
 import {
   defineRecipe,
-  lookVariants,
+  dense,
+  flatVariants,
   statusEmitted,
   statusVariants,
 } from "@stealthscale/theme/authoring";
@@ -37,18 +39,30 @@ export const recipe = defineRecipe({
   staticCss: [statusEmitted()],
   variants: {
     size: {
-      lg: { height: "control.md", paddingInline: "inset.sm", textStyle: "label.md" },
-      md: { height: "control.sm", paddingInline: "inset.xs", textStyle: "label.sm" },
-      sm: { height: "control.xs", paddingInline: "inset.xs", textStyle: "label.xs" },
+      lg: {
+        height: dense("{sizes.control.md}"),
+        paddingInline: dense("{spacing.inset.sm}"),
+        textStyle: "label.md",
+      },
+      md: {
+        height: dense("{sizes.control.sm}"),
+        paddingInline: dense("{spacing.inset.xs}"),
+        textStyle: "label.sm",
+      },
+      sm: {
+        height: dense("{sizes.control.xs}"),
+        paddingInline: dense("{spacing.inset.xs}"),
+        textStyle: "label.xs",
+      },
     },
     status: statusVariants(),
     variant: {
-      ...lookVariants(["outline", "subtle", "plain"]),
+      ...flatVariants(["outline", "subtle", "plain"]),
       raised: {
         background: "colorPalette.subtle",
-        borderBlockEndWidth: "md",
+        borderBlockEndWidth: "indicator",
         borderColor: "colorPalette.muted",
-        borderWidth: "sm",
+        borderWidth: "control",
         color: "colorPalette.fg",
       },
     },

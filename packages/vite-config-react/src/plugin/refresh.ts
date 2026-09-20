@@ -22,6 +22,19 @@ const COMPILED = [/\.[tj]sx?$/u, /\.mdx$/u];
 const UNTOUCHED = /\/node_modules\//u;
 
 /**
+ * A specimen file, left out of the refresh transform.
+ *
+ * @remarks
+ *   The JSX in it still compiles, because the plugin sets the JSX transform for every file in its
+ *   configuration and reads `exclude` for the refresh transform alone. What it is spared is the
+ *   refresh runtime's judgement: a specimen exports scenes and constants beside its components,
+ *   which the runtime reads as a module it cannot refresh, so it invalidates the module on every
+ *   edit and the update climbs to the application's own modules. The specimen plugin gives the
+ *   file a hot update boundary of its own, and the runtime's invalidation would undo it.
+ */
+const SPECIMEN = /\.specimen\.[tj]sx$/u;
+
+/**
  * The package the JSX factory is imported from unless a caller names another one.
  */
 export const FACTORY = "react";
@@ -40,7 +53,7 @@ export interface Refreshed {
   also?: readonly RegExp[];
 
   /**
-   * Extra paths to leave alone, added after the dependency directory.
+   * Extra paths to leave alone, added after the dependency directory and the specimen files.
    */
   except?: readonly RegExp[];
 
@@ -63,7 +76,7 @@ export interface Refreshed {
  */
 export function options(stated: Refreshed): Options {
   return {
-    exclude: [UNTOUCHED, ...(stated.except ?? [])],
+    exclude: [UNTOUCHED, SPECIMEN, ...(stated.except ?? [])],
     include: [...COMPILED, ...(stated.also ?? [])],
     jsxImportSource: stated.from ?? FACTORY,
     jsxRuntime: "automatic",

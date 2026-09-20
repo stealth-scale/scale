@@ -21,6 +21,7 @@ import {
   CONTROL_INSET_END,
   CONTROL_INSET_START,
   defineSlotRecipe,
+  dense,
   onSlots,
   sizeVariants,
 } from "@stealthscale/theme/authoring";
@@ -84,10 +85,21 @@ export const recipe = defineSlotRecipe({
       start: { root: { [CONTROL_INSET_START]: `var(${ROOM})` } },
     },
 
+    /**
+     * The room a mark takes, which is a square on the control scale, and the label a mark's word is
+     * set in, which is the step's own. A mark set in the body size overran a small square: `EUR`
+     * ran past the end of an extra small field.
+     */
     size: onSlots({
-      end: sizeVariants((size) => ({ inlineSize: `control.${size}` })),
+      end: sizeVariants((size) => ({
+        inlineSize: dense(`{sizes.control.${size}}`),
+        textStyle: `label.${size}`,
+      })),
       root: sizeVariants((size) => ({ [ROOM]: `{sizes.control.${size}}` })),
-      start: sizeVariants((size) => ({ inlineSize: `control.${size}` })),
+      start: sizeVariants((size) => ({
+        inlineSize: dense(`{sizes.control.${size}}`),
+        textStyle: `label.${size}`,
+      })),
     }),
   },
 });

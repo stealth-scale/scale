@@ -16,14 +16,20 @@
  *   a reader needs, because the one crumb that is not a link is the one naming where they are.
  */
 
-import { defineSlotRecipe, gapSizes, onSlots, textSizes } from "@stealthscale/theme/authoring";
+import {
+  defineSlotRecipe,
+  dense,
+  gapSizes,
+  onSlots,
+  textSizes,
+} from "@stealthscale/theme/authoring";
 
 /**
  * Draws a muted trail at the middle size until a caller says otherwise.
  */
 export const recipe = defineSlotRecipe({
   base: {
-    currentLink: { alignItems: "center", display: "inline-flex", gap: "gap.xs" },
+    currentLink: { alignItems: "center", display: "inline-flex", gap: dense("{spacing.gap.xs}") },
     item: { alignItems: "center", display: "inline-flex" },
     link: {
       alignItems: "center",
@@ -32,7 +38,7 @@ export const recipe = defineSlotRecipe({
       display: "inline-flex",
       focusRingColor: "colorPalette.focusRing",
       focusVisibleRing: "outside",
-      gap: "gap.xs",
+      gap: dense("{spacing.gap.xs}"),
       textDecoration: "none",
     },
     list: {

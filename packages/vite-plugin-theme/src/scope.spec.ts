@@ -9,7 +9,7 @@ import {
   type SwitchablePreset,
 } from "#scope.ts";
 
-const ABYSS = "[data-theme=abyss] &";
+const ABYSS = "[data-theme=abyss] &:not([data-theme=abyss] [data-theme] *)";
 
 const PUBLISHED: Compounds = {
   recipes: {

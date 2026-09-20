@@ -59,8 +59,40 @@ describe("recipe", () => {
   });
 
   it("marks the current row from the attribute a screen reader reads", () => {
-    expect(recipe.variants?.["highlight"]?.["tint"]?.["link"]).toStrictEqual({
-      _currentPage: { layerStyle: "fill.subtle" },
+    expect(recipe.variants?.["highlight"]?.["tint"]?.["link"]).toMatchObject({
+      _currentPage: { layerStyle: "fill.muted" },
+    });
+  });
+
+  it("draws a row as tall as a tag with the label two steps below", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["link"]).toStrictEqual({
+      _currentPage: { color: "fg", fontWeight: "semibold" },
+      blockSize: "max({sizes.6}, calc({sizes.tag.md} * var(--density, 1)))",
+      gap: "calc({spacing.gap.xs} * var(--density, 1))",
+      paddingInline: "calc({spacing.inset.xs} * var(--density, 1))",
+      textStyle: "label.xs",
+    });
+    expect(recipe.variants?.["size"]?.["lg"]?.["trigger"]).toMatchObject({
+      blockSize: "max({sizes.6}, calc({sizes.tag.lg} * var(--density, 1)))",
+      gap: "calc({spacing.gap.sm} * var(--density, 1))",
+      paddingInline: "calc({spacing.inset.sm} * var(--density, 1))",
+      textStyle: "label.sm",
+    });
+  });
+
+  it("sets a group's row in the palette's own ink and leaves a hover to the surface", () => {
+    expect(recipe.base?.["trigger"]).toMatchObject({ color: "colorPalette.fg" });
+    expect(recipe.base?.["link"]).toMatchObject({
+      _hover: { background: "colorPalette.subtle" },
+    });
+  });
+
+  it("indents a nested list by the inset a step below and airs its rows a little more", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["content"]).toStrictEqual({
+      gap: "calc({spacing.gap.sm} * var(--density, 1))",
+      marginInlineStart: "calc({spacing.inset.sm} * var(--density, 1))",
+      paddingBlock: "0.5",
+      paddingInlineStart: "calc({spacing.inset.sm} * var(--density, 1))",
     });
   });
 

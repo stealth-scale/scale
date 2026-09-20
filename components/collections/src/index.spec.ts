@@ -6,8 +6,11 @@ describe("index", () => {
   it("names every component the package publishes and what narrows their rows", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Listbox",
+      "StatusMatrix",
       "Table",
+      "Transfer",
       "useFilter",
+      "useGridCollection",
       "useListCollection",
     ]);
   });
@@ -15,15 +18,23 @@ describe("index", () => {
   it("publishes a component with parts as a namespace of its short names", () => {
     expect(Object.keys(barrel.Listbox).toSorted()).toStrictEqual([
       "Content",
+      "Empty",
       "Input",
       "Item",
+      "ItemCheckbox",
+      "ItemDescription",
       "ItemGroup",
       "ItemGroupLabel",
       "ItemIndicator",
+      "ItemLines",
       "ItemText",
       "Label",
       "Root",
+      "Row",
+      "SelectAll",
+      "Simple",
       "ValueText",
+      "Window",
     ]);
   });
 

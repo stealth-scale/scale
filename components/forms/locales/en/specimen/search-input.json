@@ -1,0 +1,11 @@
+{
+  "about": "Draws a field a person searches from, with a control at its end that empties it.",
+  "clear": "Clear the search",
+  "query": "unpaid invoices",
+  "search": "Search invoices",
+  "sizes": {
+    "about": "Every size, each holding a query so the control that empties it shows.",
+    "title": "Sizes"
+  },
+  "title": "Search input"
+}

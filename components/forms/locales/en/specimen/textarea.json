@@ -1,0 +1,22 @@
+{
+  "about": "Draws a box a person types several lines into.",
+  "grip": {
+    "about": "Where a reader can drag the box: nowhere, down, or either way.",
+    "title": "Grip"
+  },
+  "grows": {
+    "about": "A box of three rows beside one that takes its height from the text.",
+    "title": "Grows"
+  },
+  "looks": {
+    "about": "Every look at every size.",
+    "title": "Looks and sizes"
+  },
+  "notes": "Notes",
+  "statuses": {
+    "about": "Every status in every look.",
+    "title": "Statuses"
+  },
+  "title": "Textarea",
+  "written": "The delivery was left with a neighbour on Thursday.\nThe neighbour was out on Friday.\nSaturday it was on the step.\nSunday it was gone."
+}

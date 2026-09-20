@@ -1,0 +1,22 @@
+{
+  "about": "Gathers what a person moves around an application by: a fixed head, blocks of destinations that scroll, and a fixed foot.",
+  "account": "Account",
+  "acme": "Acme",
+  "add": "Add a project",
+  "billing": "Billing",
+  "iconic": {
+    "about": "The column as it is, and collapsed to a rail of marks. The headings and the search leave the rail, and the destinations keep their words out of sight for a screen reader.",
+    "title": "Iconic"
+  },
+  "invoices": "Invoices",
+  "looks": {
+    "about": "Every look at every size.",
+    "title": "Looks and sizes"
+  },
+  "overview": "Overview",
+  "profile": "Profile",
+  "search": "Search",
+  "signedIn": "Signed in as Ada",
+  "title": "Sidebar",
+  "workspace": "Workspace"
+}

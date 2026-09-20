@@ -1,0 +1,76 @@
+{
+  "about": "Draws a table of records.",
+  "account": "Account",
+  "alignment": {
+    "about": "Where a cell's words sit against a row taller than one line. It tells nothing apart on a table of single lines, so this one carries a note that wraps.",
+    "title": "Alignment"
+  },
+  "bridge": "Bridge Ledger",
+  "bridgeNote": "Held for a customs count, released on the second of the month",
+  "caption": "Payouts raised this quarter",
+  "corners": {
+    "about": "Every corner of the surface a table sits on.",
+    "title": "Corners"
+  },
+  "due": "Due",
+  "gathered": {
+    "about": "Rows gathered into a section per heading, and a table holding nothing at all. A section is a `tbody` of its own and its heading states `rowgroup` as its scope, so the rows under it answer to it rather than the columns.",
+    "none": "holding nothing",
+    "of": "gathered into sections",
+    "title": "Sections and an empty table"
+  },
+  "halden": "Halden & Co",
+  "haldenNote": "Settles nightly",
+  "layouts": {
+    "about": "Columns sized to their contents, and columns sharing the width evenly. A fixed layout is what a table needs before its columns can be held still while it scrolls.",
+    "title": "Layouts"
+  },
+  "looks": {
+    "about": "Both looks at every size. A table is read rather than looked at, so the size is the decision that matters most.",
+    "title": "Looks and sizes"
+  },
+  "month": "Month",
+  "nothing": "No payouts to show",
+  "note": "Note",
+  "perrin": "Perrin Freight",
+  "perrinNote": "Queued behind a failed run",
+  "quarters": {
+    "about": "A name that spans the columns under it, over a second row naming each one. A spanning name states `colgroup` as its scope rather than `col`, which is what tells a screen reader that every column beneath answers to it.",
+    "title": "Names that span columns"
+  },
+  "ruled": {
+    "about": "The rules a table is drawn with: between the rows, between the columns as well, or none at all. The rule under the column names is drawn whichever way the rest are.",
+    "title": "Rules"
+  },
+  "settled": "Settled",
+  "held": "Held",
+  "queued": "Queued",
+  "rows": {
+    "about": "Rows as they are, striped, and responding to a pointer. A stripe helps an eye track across a wide table and fights the hover on a narrow one.",
+    "title": "Rows"
+  },
+  "runs": {
+    "about": "A name that spans the rows under it, for a table of several records per account. A spanning name states `rowgroup` as its scope, and the rule between the groups is what a reader counts by.",
+    "title": "Names that span rows"
+  },
+  "sortAmount": "Sort by amount",
+  "state": "State",
+  "stickyBoth": {
+    "about": "Both held at once. The corner cell sits at the crossing of the two and is held in each direction, so it covers whatever passes under it rather than letting the two scrolls meet in it.",
+    "title": "Both held at once"
+  },
+  "stickyColumn": {
+    "about": "A table wider than its box, with each week's own name held as the figures scroll sideways. A reader who has scrolled to September still knows which week they are reading.",
+    "title": "The first column held"
+  },
+  "stickyHeader": {
+    "about": "A table longer than its box, with the column names held as the figures scroll under them. The box is held to a height and the table is laid out fixed: a header sticks within the box that scrolls, so there has to be a height before there is anything to stick to.",
+    "title": "The column names held"
+  },
+  "amount": "Amount",
+  "title": "Table",
+  "week": "Week",
+  "weekAt": "Week {{at}}",
+  "total": "Total",
+  "totals": "Total"
+}

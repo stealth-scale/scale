@@ -27,6 +27,16 @@ export interface CollectionOptions<Row> {
   filter?: ((words: string, typed: string, row: Row) => boolean) | undefined;
 
   /**
+   * Reads whether a row can be picked.
+   *
+   * @remarks
+   *   A row that cannot be picked is still drawn and still read out, because a reader who cannot
+   *   see it has no way to learn the option exists. The arrows pass over it and a press does
+   *   nothing. Left out, every row can be picked.
+   */
+  isItemDisabled?: ((row: Row) => boolean) | undefined;
+
+  /**
    * Reads the words a row is drawn and announced by.
    */
   itemToString: (row: Row) => string;
@@ -67,7 +77,7 @@ export interface Collection<Row> {
  * @returns The rows left and how to narrow them.
  */
 export function useListCollection<Row>(options: CollectionOptions<Row>): Collection<Row> {
-  const { filter, itemToString, itemToValue, rows } = options;
+  const { filter, isItemDisabled, itemToString, itemToValue, rows } = options;
   const [typed, setTyped] = useState("");
 
   const collection = useMemo(() => {
@@ -80,8 +90,13 @@ export function useListCollection<Row>(options: CollectionOptions<Row>): Collect
               : filter(itemToString(row), typed, row),
           );
 
-    return new ListCollection({ items: [...matching], itemToString, itemToValue });
-  }, [filter, itemToString, itemToValue, rows, typed]);
+    return new ListCollection({
+      items: [...matching],
+      ...(isItemDisabled === undefined ? {} : { isItemDisabled }),
+      itemToString,
+      itemToValue,
+    });
+  }, [filter, isItemDisabled, itemToString, itemToValue, rows, typed]);
 
   const narrow = useCallback((next: string): void => {
     setTyped(next);

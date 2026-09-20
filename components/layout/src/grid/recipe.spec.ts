@@ -35,9 +35,10 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "columns")).toContain("12");
   });
 
-  it("offers a fitted column at every measure the page is read at", () => {
+  it("offers a fitted and a filled column at every measure the page is read at", () => {
     expect(valuesOf(recipe, "columns")).toContain("fit-sm");
-    expect(valuesOf(recipe, "columns")).toHaveLength(24);
+    expect(valuesOf(recipe, "columns")).toContain("fill-sm");
+    expect(valuesOf(recipe, "columns")).toHaveLength(36);
   });
 
   it("reaches an entry across a count of columns or the whole row", () => {

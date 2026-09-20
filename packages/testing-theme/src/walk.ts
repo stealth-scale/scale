@@ -89,9 +89,13 @@ interface Site {
 
 /**
  * Joins one more key onto a path.
+ *
+ * @remarks
+ *   Every walk starts at a named path: `base`, one compound's `css`, or one value of one axis. No
+ *   key is ever joined onto nothing.
  */
 function under(path: string, key: string): string {
-  return path === "" ? key : `${path}.${key}`;
+  return `${path}.${key}`;
 }
 
 /**
@@ -135,19 +139,38 @@ function cssOf(compound: unknown): unknown {
 /**
  * Walks everything a recipe writes: its base, its variants, and the styles of its compound
  * variants.
+ *
+ * @remarks
+ *   The axis and the value of a variant are walked by name rather than as styles, because a value
+ *   is free to be called anything and some of the names a recipe reaches for are also properties
+ *   the compiler resolves. A highlight called `fill` read as the SVG property of that name, and
+ *   every value under it that the compiler has no category for was then measured as a color:
+ *   `outlineStyle: "solid"` was reported as a color token that no theme defines.
  */
 export function walked(recipe: Declared): Walked {
-  const base: unknown = recipe.base;
-  const compounds = (recipe.compoundVariants ?? []).map((compound) => ({ css: cssOf(compound) }));
   const strings: Written[] = [];
   const conditions: Nested[] = [];
 
-  walk(
-    { base, compoundVariants: compounds, variants: recipe.variants },
-    { category: undefined, path: "", property: undefined },
-    strings,
-    conditions,
-  );
+  /**
+   * Walks one style object from a path, with no property carried in from above it.
+   */
+  const styles = (node: unknown, path: string): void => {
+    walk(node, { category: undefined, path, property: undefined }, strings, conditions);
+  };
+
+  styles(recipe.base, "base");
+
+  (recipe.compoundVariants ?? []).forEach((compound, index) => {
+    styles(cssOf(compound), `compoundVariants.${String(index)}.css`);
+  });
+
+  for (const [axis, values] of Object.entries(recipe.variants ?? {})) {
+    if (typeof values !== "object" || values === null) continue;
+
+    for (const [value, written] of Object.entries(values)) {
+      styles(written, `variants.${axis}.${value}`);
+    }
+  }
 
   return { conditions, strings };
 }

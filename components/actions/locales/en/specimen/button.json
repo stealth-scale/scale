@@ -1,0 +1,39 @@
+{
+  "about": "The element a person presses, and the square that holds one glyph.",
+  "approve": "Approve",
+  "archive": "Archive",
+  "bold": "Bold",
+  "celebrate": "Celebrate",
+  "disabled": {
+    "about": "A disabled button keeps its box in every look and stops taking a press.",
+    "title": "Disabled"
+  },
+  "effects": {
+    "about": "The candy a page can ask for: a glow round the box, and the same glow breathing between nothing and its full spread. Both read the palette's solid at half strength, so a status or a theme moves them. The ripple that spreads from a press is on every button and needs no asking.",
+    "title": "Effects"
+  },
+  "elevation": {
+    "about": "A lifted button rises under a pointer and drops towards the page under a press.",
+    "title": "Elevation"
+  },
+  "looks": {
+    "about": "Every look the vocabulary offers, and the `glass` layer style the button adds beside them, crossed with every size. A look reads the palette rather than a colour, so a status or a theme moves all of them at once.",
+    "title": "Looks and sizes"
+  },
+  "pressed": {
+    "about": "A button that stays pressed states `aria-pressed`, and the recipe fills it while it is on. That is what a toggle is here.",
+    "title": "Pressed"
+  },
+  "publish": "Publish",
+  "retry": "Retry",
+  "square": {
+    "about": "A button holding one glyph fixes the square shape and requires an accessible name, because the glyph names nothing.",
+    "title": "One glyph"
+  },
+  "statuses": {
+    "about": "A status points the palette at the semantic palette of its name and sets nothing else, so the look decides how that palette is drawn.",
+    "title": "Statuses"
+  },
+  "title": "Button",
+  "upload": "Upload"
+}

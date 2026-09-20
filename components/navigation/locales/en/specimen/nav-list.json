@@ -1,0 +1,31 @@
+{
+  "about": "Draws the destinations a page is reached from: rows one under another, and branches that open onto rows of their own.",
+  "billing": "Billing",
+  "corners": {
+    "about": "Every corner, on the row naming the page being read.",
+    "title": "Corners"
+  },
+  "highlights": {
+    "about": "Every highlight at every size, drawn on the row carrying `aria-current`.",
+    "title": "Highlights and sizes"
+  },
+  "iconic": {
+    "about": "The list as it is, and collapsed to a rail: the rows become squares, the counts and the chevrons go, and the words stay in the document for a screen reader.",
+    "title": "Iconic"
+  },
+  "invoices": "Invoices",
+  "looks": {
+    "about": "A list of rows, and a dock of destinations across the foot of a screen.",
+    "title": "Looks"
+  },
+  "main": "Main",
+  "open": "Open settings",
+  "overview": "Overview",
+  "reveal": {
+    "about": "An action always drawn, and one that appears with the pointer and stays under a coarse pointer or while the row holds focus.",
+    "title": "Reveal"
+  },
+  "settings": "Settings",
+  "team": "Team",
+  "title": "Nav list"
+}

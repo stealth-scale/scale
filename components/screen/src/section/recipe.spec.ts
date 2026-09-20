@@ -84,13 +84,43 @@ describe("recipe", () => {
     });
   });
 
+  it("parts the bands by the gap two steps above the size", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["root"]).toMatchObject({
+      gap: "calc({spacing.gap.xl} * var(--density, 1))",
+    });
+    expect(recipe.variants?.["size"]?.["sm"]?.["root"]).toMatchObject({
+      gap: "calc({spacing.gap.lg} * var(--density, 1))",
+    });
+  });
+
+  it("sets the title a heading step and the description a text step below the size", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["title"]).toStrictEqual({
+      textStyle: "heading.sm",
+    });
+    expect(recipe.variants?.["size"]?.["md"]?.["description"]).toStrictEqual({
+      textStyle: "body.sm",
+    });
+    expect(recipe.base?.["description"]).not.toHaveProperty("color");
+  });
+
   it("clips a card so a bleeding body keeps its corners", () => {
     expect(recipe.variants?.["variant"]?.["surface"]?.["root"]).toStrictEqual({ overflow: "clip" });
   });
 
+  it("stops a gap under the shell's pinned bars when scrolled to", () => {
+    expect(recipe.base?.["root"]).toMatchObject({
+      scrollMarginBlockStart: "calc(var(--app-shell-sticky-top, 0px) + {spacing.gap.lg})",
+    });
+  });
+
   it("parts one plain section from the one before it and from nothing else", () => {
     expect(recipe.variants?.["variant"]?.["plain"]?.["root"]).toStrictEqual({
-      "& + &": { borderBlockStartWidth: "sm", borderColor: "border" },
+      "& + &": {
+        borderBlockStartWidth: "hairline",
+        borderColor: "border",
+        marginBlockStart: "calc({spacing.gap.2xl} * var(--density, 1))",
+        paddingBlockStart: "calc({spacing.gap.2xl} * var(--density, 1))",
+      },
     });
   });
 

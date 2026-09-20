@@ -1,12 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { HUES, PALETTES } from "#authoring/contract.ts";
+import { HUES, PALETTES } from "#contract.ts";
 import { semanticTokens } from "#preset/semantic-tokens/index.ts";
 
 describe("semanticTokens", () => {
-  it("fills the six categories", () => {
+  it("fills the nine categories", () => {
     expect(Object.keys(semanticTokens).toSorted()).toStrictEqual([
+      "borderWidths",
       "colors",
+      "durations",
+      "easings",
       "gradients",
       "radii",
       "shadows",
@@ -15,9 +18,9 @@ describe("semanticTokens", () => {
     ]);
   });
 
-  it("fills the three families and every palette", () => {
+  it("fills the four families and every intent and every hue palette", () => {
     expect(Object.keys(semanticTokens.colors).toSorted()).toStrictEqual(
-      ["bg", "border", "fg", ...HUES, ...PALETTES].toSorted(),
+      ["bg", "border", "code", "fg", ...HUES, ...PALETTES].toSorted(),
     );
   });
 });

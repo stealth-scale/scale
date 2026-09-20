@@ -1,0 +1,23 @@
+{
+  "about": "Picks a run of words out of the text around it, for a search hit or a term a page wants noticed.",
+  "after": " and stopped there.",
+  "before": "The search found",
+  "chassis": "chassis",
+  "corners": {
+    "about": "Every corner at every inset.",
+    "title": "Corners and insets"
+  },
+  "effects": {
+    "about": "The two effects a highlight can carry: a glow round it, and a shine that passes over it.",
+    "title": "Effects"
+  },
+  "looks": {
+    "about": "Every look in every status. The text look carries the highlight in weight, for a distinction that must survive without colour.",
+    "title": "Looks and statuses"
+  },
+  "motion": {
+    "about": "How the highlight enters the line.",
+    "title": "Motion"
+  },
+  "title": "Mark"
+}

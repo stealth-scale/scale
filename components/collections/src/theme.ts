@@ -10,9 +10,11 @@
 import { definePreset } from "@stealthscale/theme/authoring";
 
 import { recipe as listbox } from "#listbox/recipe.ts";
+import { recipe as statusMatrix } from "#status-matrix/recipe.ts";
 import { recipe as table } from "#table/recipe.ts";
+import { recipe as transfer } from "#transfer/recipe.ts";
 
 export default definePreset({
   name: "@stealthscale/component-collections",
-  theme: { extend: { slotRecipes: { listbox, table } } },
+  theme: { extend: { slotRecipes: { listbox, statusMatrix, table, transfer } } },
 });

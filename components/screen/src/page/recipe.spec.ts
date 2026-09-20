@@ -76,12 +76,42 @@ describe("recipe", () => {
     expect(axesOf(recipe)).not.toContain("narrow");
   });
 
-  it("draws a full-width page at the middle size when nothing is asked for", () => {
+  it("draws a full-width page at the middle size with a wide gutter when nothing is asked for", () => {
     expect(defaultsOf(recipe)).toStrictEqual({
       align: "start",
       divided: true,
+      gutter: "xl",
       measure: "full",
       size: "md",
+    });
+  });
+
+  it("keeps the header closer to its body than to the bar above it", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["header"]).toStrictEqual({
+      paddingBlockEnd: "calc({spacing.gap.md} * var(--density, 1))",
+      paddingBlockStart: "calc({spacing.inset.md} * var(--density, 1))",
+    });
+  });
+
+  it("sets the context a text step below the page", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["context"]).toStrictEqual({
+      gap: "calc({spacing.gap.md} * var(--density, 1))",
+      textStyle: "body.sm",
+    });
+  });
+
+  it("sets the title one heading step above a section's at the same size", () => {
+    expect(recipe.variants?.["size"]?.["sm"]?.["title"]).toStrictEqual({ textStyle: "heading.md" });
+    expect(recipe.variants?.["size"]?.["md"]?.["title"]).toStrictEqual({ textStyle: "heading.lg" });
+    expect(recipe.variants?.["size"]?.["lg"]?.["title"]).toStrictEqual({ textStyle: "heading.xl" });
+  });
+
+  it("insets the body and the banner on the block axis alone so the gutter holds", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["body"]).toStrictEqual({
+      paddingBlock: "calc({spacing.inset.md} * var(--density, 1))",
+    });
+    expect(recipe.variants?.["size"]?.["md"]?.["banner"]).toStrictEqual({
+      paddingBlock: "calc({spacing.inset.md} * var(--density, 1))",
     });
   });
 
@@ -94,16 +124,25 @@ describe("recipe", () => {
   });
 
   it("runs every band edge to edge and insets what it holds", () => {
-    expect(recipe.base?.["header"]).toMatchObject({
-      paddingInlineStart: `var(${GUTTER})`,
-    });
-    expect(recipe.base?.["body"]).toMatchObject({ paddingInlineStart: `var(${GUTTER})` });
+    const lead = `var(--page-lead, var(${GUTTER}))`;
+
+    expect(recipe.base?.["header"]).toMatchObject({ paddingInlineStart: lead });
+    expect(recipe.base?.["body"]).toMatchObject({ paddingInlineStart: lead });
   });
 
-  it("leaves the spare room at the end rather than centring the column", () => {
+  it("stops every band at the measure whatever room it leaves before it", () => {
     expect(recipe.base?.["header"]?.["paddingInlineEnd"]).toBe(
-      `max(var(${GUTTER}), calc(100% - var(${MEASURE}, 100%) - var(${GUTTER})))`,
+      `max(var(${GUTTER}), calc(100% - var(${MEASURE}, 100%) - var(--page-lead, var(${GUTTER}))))`,
     );
+  });
+
+  it("shares the spare room between the two sides where the page is centred", () => {
+    expect(recipe.variants?.["align"]?.["center"]?.["root"]).toStrictEqual({
+      "--page-lead": `max(var(${GUTTER}), calc((100% - var(${MEASURE}, 100%)) / 2))`,
+    });
+    expect(recipe.variants?.["align"]?.["start"]?.["root"]).toStrictEqual({
+      "--page-lead": `var(${GUTTER})`,
+    });
   });
 
   it("places the header as a grid so its parts are written flat", () => {
@@ -125,6 +164,52 @@ describe("recipe", () => {
 
   it("reaches another band by the class its binding writes rather than by a part attribute", () => {
     expect(JSON.stringify(recipe)).not.toContain("data-part");
+  });
+
+  it("lays the body beside an aside from the large breakpoint up", () => {
+    expect(recipe.base?.["root"]?.["&:has(> .page__aside)"]).toStrictEqual({
+      lg: {
+        columnGap: "calc({spacing.gap.xl} * var(--density, 1))",
+        display: "grid",
+        gridTemplateAreas:
+          '"banner banner" "header header" "nav nav" "toolbar toolbar" "body aside" "footer footer"',
+        gridTemplateColumns: "minmax(0, 1fr) auto",
+        gridTemplateRows: "auto auto auto auto 1fr auto",
+      },
+    });
+  });
+
+  it("names the area each band takes in that grid", () => {
+    const areas = ["banner", "header", "nav", "toolbar", "body", "aside", "footer"] as const;
+
+    expect(areas.map((band) => recipe.base?.[band]?.["gridArea"])).toStrictEqual([...areas]);
+  });
+
+  it("drops an aside that folds to nothing below the large breakpoint", () => {
+    expect(recipe.base?.["aside"]?.["&[data-folds=hide]"]).toStrictEqual({
+      lgDown: { display: "none" },
+    });
+  });
+
+  it("keeps a sticking aside at the top of its row under the shell's pinned bars", () => {
+    expect(recipe.base?.["aside"]?.["&[data-sticky]"]).toStrictEqual({
+      alignSelf: "start",
+      insetBlockStart: "calc(var(--app-shell-sticky-top, 0px) + {spacing.gap.xl})",
+      position: "sticky",
+    });
+  });
+
+  it("insets an aside beside the body on its end alone", () => {
+    expect(recipe.base?.["aside"]).toMatchObject({
+      lg: { paddingInlineStart: "0" },
+      paddingInline: `var(${GUTTER})`,
+    });
+  });
+
+  it("insets an aside on the block axis as the body is so the two start on one line", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["aside"]).toStrictEqual(
+      recipe.variants?.["size"]?.["md"]?.["body"],
+    );
   });
 
   it("stacks the marks under the title on a narrow page", () => {

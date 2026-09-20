@@ -8,7 +8,7 @@ import { Header } from "#table/header.ts";
 import { recipe } from "#table/recipe.ts";
 import { Root } from "#table/root.ts";
 import { Row } from "#table/row.ts";
-import { type ScrollerProps } from "#table/scroller.ts";
+import { type ScrollerProps } from "#table/scroller.tsx";
 import { composed, scrolled } from "#table/table.fixtures.tsx";
 
 describe("Header", () => {

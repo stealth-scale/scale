@@ -15,11 +15,16 @@ describe("routerDefaults", () => {
     expect(routerDefaults.scrollRestoration).toBe(true);
   });
 
+  it("moves the window in one step rather than with the page's scroll behaviour", () => {
+    expect(routerDefaults.scrollRestorationBehavior).toBe("instant");
+  });
+
   it("states no other option", () => {
     expect(Object.keys(routerDefaults)).toStrictEqual([
       "defaultPreload",
       "defaultPreloadStaleTime",
       "scrollRestoration",
+      "scrollRestorationBehavior",
     ]);
   });
 });

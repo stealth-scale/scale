@@ -1,5 +1,5 @@
 /**
- * Calls a plugin's hooks the way a bundler would, so a specification drives a plugin without a
+ * Calls a plugin's hooks the way a bundler would, so a specification runs a plugin without a
  * build.
  *
  * @remarks
@@ -51,13 +51,20 @@ export interface HookContext {
    */
   environment: {
     /**
-     * The part of the environment's configuration a plugin reads to tell a build from a server.
+     * The part of the environment's configuration a plugin reads to tell a build from a server,
+     * and a server that bundles from one that serves a module per file.
      */
     config: {
       /**
        * The command the context was built for.
        */
       command: Command;
+
+      /**
+       * Whether the environment produces a bundled output, which a build does and a dev server
+       * that bundles does.
+       */
+      isBundled: boolean;
     };
 
     /**
@@ -122,12 +129,16 @@ export interface Configured {
  * @remarks
  *   The module graph answers for the ids in `graphed` and for nothing else, which is what a real
  *   graph answers for a file nothing has requested yet. The command is `serve` unless a
- *   specification drives a build.
+ *   specification states `build`, and the environment bundles under a build unless a
+ *   specification says otherwise, as Vite's own does.
  * @param graphed - The module ids the graph holds.
+ * @param command - The command the context is built for.
+ * @param bundled - Whether the environment produces a bundled output.
  */
 export function hookContext(
   graphed: readonly string[] = [],
   command: Command = "serve",
+  bundled: boolean = command === "build",
 ): HookContext {
   const invalidated: string[] = [];
   const warned: string[] = [];
@@ -136,7 +147,7 @@ export function hookContext(
   return {
     addWatchFile: (file) => void watched.push(file),
     environment: {
-      config: { command },
+      config: { command, isBundled: bundled },
       moduleGraph: {
         getModuleById: (id) => (graphed.includes(id) ? { id } : undefined),
         invalidateModule: (module) => void invalidated.push(module.id),
@@ -232,11 +243,19 @@ export async function resolved(
 /**
  * Asks the plugin to load a module, the way a bundler would at `load`.
  *
+ * @param plugin - The plugin under test.
+ * @param id - The resolved identifier of the module.
+ * @param context - The context the hook reads `this` from, for a plugin that watches a file
+ *   while loading. Nothing is bound where it is absent.
  * @returns The module's code, or undefined where the plugin declined.
  * @throws {@link Error} When the plugin has no `load` hook.
  */
-export async function loaded(plugin: Plugin, id: string): Promise<string | undefined> {
-  const result: unknown = await Reflect.apply(handlerOf(plugin, "load"), undefined, [id, {}]);
+export async function loaded(
+  plugin: Plugin,
+  id: string,
+  context?: HookContext,
+): Promise<string | undefined> {
+  const result: unknown = await Reflect.apply(handlerOf(plugin, "load"), context, [id, {}]);
 
   return textOf(result, "code");
 }

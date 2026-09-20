@@ -12,7 +12,7 @@
  *   nothing else to go on, which is why colour alone is not enough to mark a link.
  */
 
-import { defineRecipe, link } from "@stealthscale/theme/authoring";
+import { defineRecipe, dense, link } from "@stealthscale/theme/authoring";
 
 /**
  * Draws a link underlined under a pointer until a caller asks for one that always is.
@@ -23,14 +23,31 @@ export const recipe = defineRecipe({
     alignItems: "center",
     borderRadius: "l1",
     display: "inline-flex",
-    gap: "gap.xs",
+    gap: dense("{spacing.gap.xs}"),
   },
   className: "link",
-  defaultVariants: { variant: "plain" },
+  defaultVariants: { variant: "underline" },
   jsx: [/^Link$/u],
   variants: {
     /**
+     * Whether the link takes the ink of the words around it rather than the theme's link ink.
+     *
+     * @remarks
+     *   For a link that is the title of a card or the brand in a bar, where the surface it sits on
+     *   already says it is pressed and the link ink would read as a second colour on the page. The
+     *   underline under a pointer and the focus ring stay, so the link is still found.
+     */
+    inherit: { true: { _visited: { color: "inherit" }, color: "inherit" } },
+
+    /**
      * Whether the underline is drawn at rest or only under a pointer.
+     *
+     * @remarks
+     *   Underlined unless a caller says otherwise. A link in running text is told from the words
+     *   around it by its ink alone without one, and an ink drawn to the theme's accent stands at
+     *   1.6:1 from body text on Ink's page, 1:1 where the link takes the ink around it. The plain
+     *   look is for a link whose surroundings already say it is one: the title of a card, a row of
+     *   a navigation list, the brand in a bar.
      */
     variant: {
       plain: { textDecoration: "none" },

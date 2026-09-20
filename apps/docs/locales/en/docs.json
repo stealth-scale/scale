@@ -1,0 +1,17 @@
+{
+  "chrome": {
+    "darkMode": "Dark mode",
+    "language": "Language",
+    "phone": "Phone",
+    "theme": "Theme",
+    "width": "Width",
+    "window": "Window"
+  },
+  "frame": {
+    "bar": "Docs",
+    "brand": "Stealth Scale",
+    "components": "Components",
+    "navigation": "Toggle navigation",
+    "skip": "Skip to content"
+  }
+}

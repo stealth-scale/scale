@@ -9,15 +9,21 @@
  *   shell reaches a panel it was never handed.
  *   The root is also what every panel measures itself against. It is as wide as the shell whatever
  *   the panels do, so a panel opening never changes the measurement that let it open.
+ *   The root marks itself settled in an effect after its first paint, and the recipe lets nothing
+ *   in the shell move before that. A panel's first render answers for a narrow shell until it has
+ *   measured the root, so a panel beside the page on a wide screen is first drawn closed and then
+ *   opened, and the page beside it slid into place on every load. The mark is written on the
+ *   element rather than held as state, because it changes once and nothing reads it but the
+ *   stylesheet.
  */
 
-import { type ComponentProps, type ReactElement, useMemo, useRef } from "react";
+import { type ComponentProps, type ReactElement, useEffect, useMemo, useRef } from "react";
 
 import { useConst, useStickyOffsets } from "@stealthscale/hooks";
 
 import { withProvider } from "#app-shell/context.ts";
 import { panelStore } from "#app-shell/panels.ts";
-import { STICKY_OFFSET, STICKY_TOP } from "#app-shell/recipe.ts";
+import { SETTLED, STICKY_OFFSET, STICKY_TOP } from "#app-shell/recipe.ts";
 import { ShellProvider } from "#app-shell/state.ts";
 
 /**
@@ -57,6 +63,10 @@ export function Root({ scroll = "page", ...rest }: RootProps): ReactElement {
   const state = useMemo(() => ({ panels, root: measured }), [panels]);
 
   useStickyOffsets(measured, scroll === "window", PINNED);
+
+  useEffect(() => {
+    measured.current?.setAttribute(SETTLED, "");
+  }, []);
 
   return (
     <ShellProvider value={state}>

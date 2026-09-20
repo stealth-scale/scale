@@ -1,0 +1,12 @@
+{
+  "about": "Draws a placeholder for a paragraph, one bar per line and a short last bar.",
+  "lines": {
+    "about": "One line, three, and six. Each bar is one line tall and the space between two is half a line, both read off the surrounding text.",
+    "title": "Lines"
+  },
+  "motion": {
+    "about": "Every motion the bars take.",
+    "title": "Motion"
+  },
+  "title": "Skeleton text"
+}

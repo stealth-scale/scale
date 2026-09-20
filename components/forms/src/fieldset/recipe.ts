@@ -15,6 +15,7 @@
 
 import {
   defineSlotRecipe,
+  dense,
   onSlot,
   onSlots,
   sizeVariants,
@@ -32,7 +33,12 @@ const SIZES = ["sm", "md", "lg"] as const;
  */
 export const recipe = defineSlotRecipe({
   base: {
-    errorText: { alignItems: "center", color: "colorPalette.fg", display: "flex", gap: "gap.xs" },
+    errorText: {
+      alignItems: "center",
+      color: "colorPalette.fg",
+      display: "flex",
+      gap: dense("{spacing.gap.xs}"),
+    },
     helperText: { color: "fg.muted" },
     legend: { fontWeight: "semibold" },
     root: {
@@ -54,9 +60,20 @@ export const recipe = defineSlotRecipe({
   variants: {
     /**
      * Which way the fields inside the group run.
+     *
+     * @remarks
+     *   Across the group, every child starts from twelve rem and grows into the row, so two fields
+     *   share it and a fifth wraps. A field fills the width it is given, and a row of fields at
+     *   their own width put each on a line of its own, so the group across read the same as the
+     *   group down. The two texts are held to the full width rather than given a basis, so they
+     *   take a row each without a rule on the root and a rule on the part meeting on one property.
      */
     orientation: {
-      horizontal: { root: { flexFlow: "row wrap" } },
+      horizontal: {
+        errorText: { minInlineSize: "full" },
+        helperText: { minInlineSize: "full" },
+        root: { "& > *": { flexBasis: "48", flexGrow: "1" }, flexFlow: "row wrap" },
+      },
       vertical: { root: { flexDirection: "column" } },
     },
 
@@ -64,7 +81,7 @@ export const recipe = defineSlotRecipe({
       errorText: sizeVariants((size) => ({ textStyle: `body.${size}` }), SIZES),
       helperText: sizeVariants((size) => ({ textStyle: `body.${size}` }), SIZES),
       legend: sizeVariants((size) => ({ textStyle: `label.${size}` }), SIZES),
-      root: sizeVariants((size) => ({ gap: `gap.${size}` }), SIZES),
+      root: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), SIZES),
     }),
 
     /**

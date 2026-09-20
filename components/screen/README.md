@@ -69,12 +69,17 @@ import { AppShell, Sidebar } from "@stealthscale/component-screen";
 
 | Axis      | Values                       | Default |
 | --------- | ---------------------------- | ------- |
+| `divided` | `true`, `false`              | `true`  |
 | `scroll`  | `page`, `window`             | `page`  |
 | `variant` | `floating`, `inset`, `plain` | `plain` |
 
+`divided` draws a hairline on the inner edge of each bar and each panel. The lines are the shell's,
+so a sidebar inside a panel draws its ground and no line of its own.
+
 `scroll` decides what moves under the bars. `page` makes the shell the height of the window and
 scrolls the page inside it, which is how an application reads. `window` lets the document grow, pins
-every bar that asks to stick under the ones before it, and sticks the panels under all of them.
+every bar that asks to stick under the ones before it, and sticks the panels under all of them. A
+bar that sticks takes the page's surface as its fill, because the page scrolls under it.
 
 `variant` decides how the page and the panels are set against the ground behind them. `inset` raises
 the page as a card on a muted ground. `floating` raises the contents of each panel as a card
@@ -166,13 +171,14 @@ import { Page } from "@stealthscale/component-screen";
 | --------- | ------------------------ | ------- |
 | `align`   | `center`, `start`        | `start` |
 | `divided` | `true`, `false`          | `true`  |
-| `gutter`  | `sm`, `md`, `lg`         | none    |
+| `gutter`  | `sm`, `md`, `lg`         | `md`    |
 | `measure` | `full`, `narrow`, `wide` | `full`  |
 | `size`    | `sm`, `md`, `lg`         | `md`    |
 
 Every band runs edge to edge, so a band that sticks draws its fill and its hairline across the whole
 width, and what each band holds starts at the gutter. The gutter and the measure are properties the
-root states and every band reads, so one value moves all of them.
+root states and every band reads, so one value moves all of them. `size` sets the title one heading
+step above a section's at the same size, so the outline the headings draw keeps its levels.
 
 The root carries no landmark. `AppShell.Main` draws `main`, and a page that claimed one as well
 would give a reader two to choose between on the same screen. The header names itself from
@@ -182,6 +188,26 @@ Write `<Page.When width="narrow">` around what a folded page shows, and `width="
 it drops. `Page.Picker` is the control a folded page offers in place of a strip of tabs. Draw it as
 a disclosure's trigger, `<Menu.Trigger as={Page.Picker} />`, which gives it `aria-expanded` and
 `aria-controls` against the list the disclosure draws.
+
+`Page.Aside` stands beside the body: an activity trail, a panel of metadata, a list of the headings
+on the page. Draw it after the body and name it, because it is a complementary landmark. From the
+`lg` breakpoint up the page becomes a grid, every band across and the body beside the aside, which
+is as wide as what it holds. Below that the aside stacks under the body, or leaves the page with
+`folds="hide"`, for a rail a phone has no room for. Set `sticky` to keep it in view under the
+shell's pinned bars while the body scrolls past.
+
+```tsx
+<Page.Root>
+  <Page.Header>…</Page.Header>
+  <Page.Body>…</Page.Body>
+  <Page.Aside aria-label="On this page" folds="hide" sticky>
+    <Toc.Root items={items}>…</Toc.Root>
+  </Page.Aside>
+</Page.Root>
+```
+
+A section scrolled to by its id stops a gap under the shell's pinned bars, so a title reached from a
+table of contents is read rather than covered.
 
 ## Section
 
@@ -211,7 +237,8 @@ import { Section } from "@stealthscale/component-screen";
 
 The element is `section` and it names itself from `Section.Title`, so a reader jumping by landmark
 hears the heading rather than an unnamed region. A section states no size of its own takes the
-page's, so one value on `Page.Root` sets every section under it.
+page's, so one value on `Page.Root` sets every section under it. A plain section after another draws
+one hairline above itself with a large gap on either side.
 
 `annotated` lays the heading and the body out as two columns on a wide screen, which is how a
 settings page reads. The heading column explains what the block is. The body column holds the
@@ -244,10 +271,13 @@ import { NavList } from "@stealthscale/component-navigation";
 </Sidebar.Root>;
 ```
 
-| Axis      | Values                        | Default |
-| --------- | ----------------------------- | ------- |
-| `size`    | `sm`, `md`, `lg`              | `md`    |
-| `variant` | `outline`, `plain`, `surface` | `plain` |
+| Axis      | Values                                  | Default |
+| --------- | --------------------------------------- | ------- |
+| `size`    | `sm`, `md`, `lg`                        | `md`    |
+| `variant` | `outline`, `plain`, `subtle`, `surface` | `plain` |
+
+`subtle` is the muted ground and no line, for a sidebar inside a shell panel. The shell draws the
+hairline between the panel and the page.
 
 The content scrolls rather than the column, so a switcher at the head and an account at the foot
 stay where a reader left them however long the list of destinations grows.
@@ -265,31 +295,69 @@ still names each one.
 ## Switcher
 
 Draws the control at the head of a sidebar that names what is being worked in and opens the rest.
-Composed as `Switcher.Root`, which draws nothing itself and carries the variants.
+Composed as `Switcher.Root`, which is the disclosure package's menu, draws nothing itself and
+carries the variants. The control is the switcher's. The list is the menu's, with the menu's own
+mark, lines and description in each row.
 
 ```tsx
+import { Menu } from "@stealthscale/component-disclosure";
 import { Switcher } from "@stealthscale/component-screen";
 
 <Switcher.Root>
   <Switcher.Trigger label="Workspace">
     <Switcher.Mark>A</Switcher.Mark>
-    <Switcher.Content>
+    <Switcher.Label>
       <Switcher.Name>Acme</Switcher.Name>
       <Switcher.Detail>Pro plan</Switcher.Detail>
-    </Switcher.Content>
-    <Switcher.Indicator />
+    </Switcher.Label>
+    <Switcher.Indicator>
+      <ChevronsUpDownIcon />
+    </Switcher.Indicator>
   </Switcher.Trigger>
+  <Menu.Positioner>
+    <Menu.Content>
+      <Menu.OptionItem checked type="radio" value="acme" onCheckedChange={…}>
+        <Menu.ItemIndicator>
+          <CheckIcon />
+        </Menu.ItemIndicator>
+        <Menu.ItemMark>A</Menu.ItemMark>
+        <Menu.ItemLines>
+          <Menu.ItemText>Acme</Menu.ItemText>
+          <Menu.ItemDescription>Pro plan</Menu.ItemDescription>
+        </Menu.ItemLines>
+      </Menu.OptionItem>
+      <Menu.Separator />
+      <Menu.Item value="new">New workspace</Menu.Item>
+    </Menu.Content>
+  </Menu.Positioner>
 </Switcher.Root>;
 ```
 
-| Axis      | Values                       | Default |
-| --------- | ---------------------------- | ------- |
-| `size`    | `sm`, `md`, `lg`             | `md`    |
-| `variant` | `outline`, `plain`, `subtle` | `plain` |
+| Axis        | Values                       | Default   |
+| ----------- | ---------------------------- | --------- |
+| `placement` | `sidebar`, `toolbar`         | `sidebar` |
+| `size`      | `sm`, `md`, `lg`             | `md`      |
+| `variant`   | `outline`, `plain`, `subtle` | `plain`   |
 
-The root carries the variants without drawing anything. A disclosure places the list outside the
-trigger, and the list still has to read the variants. `Switcher.Trigger` states a `label`. A screen
-reader reads that before the name, so `Workspace Acme` says what pressing the control changes.
+The root carries the variants without drawing anything, and hands `size` to the menu as well, so the
+rows are drawn at the control's step. `Switcher.Trigger` states a `label`. A screen reader reads
+that before the name, so `Workspace Acme` says what pressing the control changes. The list opens at
+least as wide as the control, which is the menu's own rule.
+
+`placement` says where the control sits. At the head of a sidebar it is a row the width of the
+column. In a toolbar it takes the width of its words and drops the detail, and the trigger is drawn
+through `Toolbar.Item` so it takes the row's tab stop:
+
+```tsx
+<Switcher.Root placement="toolbar">
+  <Toolbar.Item as={Switcher.Trigger} label="Theme">
+    <Switcher.Label>
+      <Switcher.Name>Graphite</Switcher.Name>
+    </Switcher.Label>
+  </Toolbar.Item>
+  <Menu.Positioner>…</Menu.Positioner>
+</Switcher.Root>
+```
 
 ## Toolbar
 
@@ -323,7 +391,14 @@ import { Toolbar } from "@stealthscale/component-screen";
 The row carries `role="toolbar"` and moves focus with the arrow keys, so the whole row is one stop
 in the tab order rather than one stop per control. Name it with `aria-label`. `Toolbar.Item` picks
 its own element from whether it was given an `href`, so a link in the row is a link and a control is
-a button, and both stay in the roving focus group.
+a button, and both stay in the roving focus group. Give it `as` to draw another component as the
+item, with the stop on the element that component renders: `as={Button}` for the library's button,
+`as={Switcher.Trigger}` for a switcher's control. The item takes that component's props beside its
+own.
+
+The row measures its own width and writes `data-narrow` below the small breakpoint, which is what
+folds a `Toolbar.Action` by its priority and shows `Toolbar.Folded`. A row beside an open sidebar
+folds on its own room, and a consumer writes no breakpoint.
 
 `Toolbar.Search` is laid over the row while `opened`. Opening it puts the reader in the field and
 closing it puts them back on the control they pressed, because the control is under the field while

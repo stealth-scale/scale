@@ -1,79 +1,60 @@
 /**
- * Draws one page: its opening, then each scene under its title.
+ * Draws one page: its head, and the strip that switches between its examples and what its parts
+ * accept.
  */
 
-import { type ReactElement, useEffect, useState } from "react";
+import { type ReactElement } from "react";
 
-import { Stack } from "@stealthscale/component-layout";
-import { Heading, Text } from "@stealthscale/component-typography";
-
-import { declared } from "#catalogue/declared.ts";
+import { useLoadedPage } from "#catalogue/loaded.ts";
+import { Bands } from "#catalogue/page-bands.tsx";
+import { Header } from "#catalogue/page-header.tsx";
+import { slugOf } from "#catalogue/slug.ts";
 import { type Indexed } from "#catalogue/types.ts";
-import { type Specimen } from "#page.ts";
+import { useWording } from "#catalogue/wording.ts";
 
 /**
  * Describes what a page takes.
  */
 export interface PageProps {
   /**
+   * The id of the route the trail at the head of the page leads to. No trail where it is absent.
+   */
+  readonly back?: string | undefined;
+
+  /**
    * The entry the index holds for it.
    */
-  entry: Indexed;
+  readonly entry: Indexed;
+
+  /**
+   * The path the application serves the framed page at, which is where a scene is shown in a
+   * device. No device where it is absent.
+   */
+  readonly framed?: string | undefined;
 }
 
 /**
- * Loads the page's scenes and draws them.
+ * Loads the page's scenes and their sources, and draws them.
  *
  * @remarks
- *   The module is loaded rather than imported, because the index reaches every page through a
- *   dynamic import and the bundler emits one chunk for each. Opening a page is the first time its
- *   components are fetched.
+ *   The module and the sources are loaded through `useLoadedPage`, which also keeps what a hot
+ *   update replaces, and the scenes are drawn once the module arrives; a page whose sources fail
+ *   to load draws its scenes without them.
+ *   Each scene is anchored by its worded title, so the rail beside the page points at it and the
+ *   address of a section reads as its title does.
  */
-export function Page({ entry }: PageProps): ReactElement {
-  const [page, setPage] = useState<Specimen | undefined>();
-
-  useEffect(() => {
-    let watching = true;
-
-    /**
-     * Loads the module and keeps what it declares, unless the page has left the screen.
-     */
-    async function open(): Promise<void> {
-      try {
-        const module = await entry.load();
-
-        if (watching) setPage(declared(module));
-      } catch {
-        if (watching) setPage(undefined);
-      }
-    }
-
-    void open();
-
-    return (): void => {
-      watching = false;
-    };
-  }, [entry]);
+export function Page({ back, entry, framed }: PageProps): ReactElement {
+  const { fragments, page } = useLoadedPage(entry);
+  const word = useWording(entry.namespace);
+  const scenes = (page?.scenes ?? []).map((scene) => ({
+    id: slugOf(word(scene.title)),
+    scene,
+    title: word(scene.title),
+  }));
 
   return (
-    <Stack as="article" gap="2xl">
-      <Stack gap="xs">
-        <Heading size="xl">{entry.title}</Heading>
-        {entry.about === "" ? undefined : <Text tone="muted">{entry.about}</Text>}
-      </Stack>
-      {(page?.scenes ?? []).map((scene) => (
-        <Stack gap="sm" key={scene.title}>
-          <Heading as="h2" size="sm">
-            {scene.title}
-          </Heading>
-          {scene.about === undefined ? undefined : (
-            <Text size="sm" tone="muted">
-              {scene.about}
-            </Text>
-          )}
-          <scene.draw />
-        </Stack>
-      ))}
-    </Stack>
+    <Bands entry={entry} fragments={fragments} framed={framed} scenes={scenes}>
+      <Header back={back} entry={entry} />
+    </Bands>
   );
 }

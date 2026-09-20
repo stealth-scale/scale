@@ -45,9 +45,16 @@ describe("recipe", () => {
     ]);
   });
 
-  it("centres a row across the flow so a mark beside a word needs no alignment", () => {
-    expect(valuesOf(recipe, "direction")).toContain("row");
-    expect(recipe.variants?.["direction"]).toMatchObject({ row: { alignItems: "center" } });
+  it("centres a row across the flow from the base", () => {
+    const across = "&.stack--direction_row, &.stack--direction_row-reverse";
+
+    expect(recipe.base).toMatchObject({ [across]: { alignItems: "center" } });
+    expect(recipe.variants?.["direction"]).toStrictEqual({
+      column: { flexDirection: "column" },
+      "column-reverse": { flexDirection: "column-reverse" },
+      row: { flexDirection: "row" },
+      "row-reverse": { flexDirection: "row-reverse" },
+    });
   });
 
   it("tracks the tag a consumer writes it under", () => {

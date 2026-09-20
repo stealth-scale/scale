@@ -48,8 +48,21 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "variant")).not.toContain("ghost");
   });
 
-  it("offers the four statuses", () => {
-    expect(valuesOf(recipe, "status")).toStrictEqual(["error", "info", "success", "warning"]);
+  it("offers the four statuses and the neutral palette", () => {
+    expect(valuesOf(recipe, "status")).toStrictEqual([
+      "error",
+      "info",
+      "neutral",
+      "success",
+      "warning",
+    ]);
+  });
+
+  it("emits every status whether or not a page writes it", () => {
+    expect(recipe.staticCss).toStrictEqual([
+      { status: ["info", "success", "warning", "error"] },
+      { status: ["neutral"] },
+    ]);
   });
 
   it("offers the four corners the theme draws", () => {
@@ -57,7 +70,9 @@ describe("recipe", () => {
   });
 
   it("reads the tag scale rather than the control scale at every size", () => {
-    expect(recipe.variants?.["size"]?.["md"]).toMatchObject({ height: "tag.md" });
+    expect(recipe.variants?.["size"]?.["md"]).toMatchObject({
+      height: "calc({sizes.tag.md} * var(--density, 1))",
+    });
   });
 
   it("tracks every tag whose name ends in Badge", () => {

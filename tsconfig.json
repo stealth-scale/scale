@@ -1,6 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "_comment": "The root's own files. Each package has its own tsconfig extending the same environment config directly; there is no repository-wide base, because the condition that used to live in one is now shared by every stealth repository and ships with the settings.",
+  "_comment": "The root's own files. Each package has its own tsconfig extending the same environment config directly; there is no repository-wide base, because the condition that used to live in one is now shared by every stealth repository and ships with the settings. The DOM library is added for the catalogue scripts, which hand functions to a browser to run.",
   "extends": "@stealthscale/vite-config-typescript/node.json",
-  "include": ["commitlint.config.ts", "vite.config.ts"]
+  "compilerOptions": {
+    "lib": ["es2023", "dom", "dom.iterable"]
+  },
+  "include": ["commitlint.config.ts", "scripts/**/*.ts", "vite.config.ts"]
 }

@@ -1,0 +1,22 @@
+{
+  "about": "Draws the artwork a caller passes in, at a size, in an ink and with a motion, and ships no artwork of its own.",
+  "arrow": "Arrow pointing right",
+  "inks": {
+    "about": "Every ink. The current one takes the ink of the text around it.",
+    "title": "Inks"
+  },
+  "mirrored": {
+    "about": "A mark that points is mirrored, so it flips in a right-to-left page.",
+    "title": "Mirrored"
+  },
+  "motion": {
+    "about": "Every motion: a spin for something loading, a float for something waiting, a twinkle for something new.",
+    "title": "Motion"
+  },
+  "sizes": {
+    "about": "Every size, from the line's own to the largest box.",
+    "title": "Sizes"
+  },
+  "star": "Star",
+  "title": "Icon"
+}

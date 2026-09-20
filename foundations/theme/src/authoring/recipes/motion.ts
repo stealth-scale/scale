@@ -3,8 +3,8 @@
  * animation styles the theme owns.
  */
 
+import { type Axis, axis } from "#authoring/recipes/axis.ts";
 import type { SystemStyleObject } from "#generated/types/system.d.mts";
-import { recordOf } from "#record.ts";
 
 /**
  * Selects one of the motions a component offers: the three a thing enters with, and the four that
@@ -55,25 +55,9 @@ export const MOTIONS: readonly Motion[] = [
 /**
  * Writes the `motion` axis of a component, each value reading the animation style that draws it.
  */
-export function motionVariants(): Record<Motion, SystemStyleObject>;
-
-/**
- * Writes the `motion` axis for the motions a recipe names.
- *
- * @typeParam Offered - The motions the recipe offers.
- */
-export function motionVariants<const Offered extends Motion>(
-  motions: readonly Offered[],
-): Record<Offered, SystemStyleObject>;
-
-/**
- * Writes one entry per motion, each reading the animation style that draws it.
- */
-export function motionVariants(
-  motions: readonly Motion[] = MOTIONS,
-): Record<string, SystemStyleObject> {
-  return recordOf(motions, (name) => ({ animationStyle: STYLES[name] }));
-}
+export const motionVariants: Axis<Motion> = axis(MOTIONS, (name) => ({
+  animationStyle: STYLES[name],
+}));
 
 /**
  * Writes the open and closed states of a thing that animates, each reading an animation style.

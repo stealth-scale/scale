@@ -19,7 +19,7 @@ The package peers on the six providers it composes, on `@stealthscale/theme`,
 import { Shell } from "@stealthscale/provider-shell";
 import { catalogues } from "virtual:i18n";
 
-<Shell app="orders" catalogues={catalogues} locales={["en-US", "nl"]} theme="forge">
+<Shell app="orders" catalogues={catalogues} locales={["en-US", "nl"]} themes={["forge", "fathom"]}>
   <RouterProvider router={router} />
 </Shell>;
 ```
@@ -52,16 +52,27 @@ the machine is passed nothing, which is how both providers represent that choice
 `Themed` is exported for an application that composes the providers itself and wants the same
 bridge.
 
+## The theme choice
+
+`themes` lists the themes the application offers, the first drawn until a person chooses another.
+The choice is a setting named `theme` under the application's name, like the colour mode, in the
+store every setting shares, so a switch survives a reload and reaches every open tab. A remembered
+name the application no longer offers falls back to the first theme.
+
+`useThemeChoice()` returns `{ theme, themes, setTheme }` for whatever draws the switch.
+`themeSetting` and `THEME_SETTING` build the same key for a script that reads the choice without
+React. An application that offers no themes draws its first and `theme` reads undefined.
+
 ## The props
 
-| Prop                 | Goes to               |
-| -------------------- | --------------------- |
-| `catalogues`, `i18n` | `I18nProvider`        |
-| `locales`            | `LocaleProvider`      |
-| `theme`              | `ThemeProvider`       |
-| `sizes`              | `ViewportProvider`    |
-| `hotkeys`            | `HotkeysProvider`     |
-| `rootNode`           | `EnvironmentProvider` |
-| `store`              | Every setting         |
+| Prop                 | Goes to                        |
+| -------------------- | ------------------------------ |
+| `catalogues`, `i18n` | `I18nProvider`                 |
+| `locales`            | `LocaleProvider`               |
+| `themes`             | `Themed`, then `ThemeProvider` |
+| `sizes`              | `ViewportProvider`             |
+| `hotkeys`            | `HotkeysProvider`              |
+| `rootNode`           | `EnvironmentProvider`          |
+| `store`              | Every setting                  |
 
 A specification passes one memory store through `store`, and the page's local storage is left alone.

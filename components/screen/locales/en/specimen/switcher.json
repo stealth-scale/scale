@@ -1,0 +1,35 @@
+{
+  "about": "Draws the control that names what is being worked in and opens the list of what else could be.",
+  "account": "Account",
+  "acme": "Acme",
+  "alone": {
+    "about": "Anywhere else, a control the width of its words: the mark, the name and the sign, with the detail dropped. The catalogue's own bar draws three of these in a toolbar.",
+    "title": "On its own"
+  },
+  "billing": "Billing",
+  "enterprise": "Enterprise",
+  "fathom": "Fathom",
+  "globex": "Globex",
+  "head": {
+    "about": "At the head of a sidebar, the row the width of the column. Press it and the list opens as wide as the row: the workspaces, one of them suspended, then a rule and what else there is to do.",
+    "title": "At the head of a sidebar"
+  },
+  "invoices": "Invoices",
+  "looks": {
+    "about": "Every look at every size. Press a control and the list opens beneath it.",
+    "title": "Looks and sizes"
+  },
+  "members": "Members",
+  "new": "New workspace",
+  "oldBooks": "Old Books",
+  "overview": "Overview",
+  "platform": "Platform",
+  "pro": "Pro plan",
+  "profile": "Profile",
+  "settings": "Workspace settings",
+  "signedIn": "Signed in as Ada",
+  "suspended": "Suspended",
+  "title": "Switcher",
+  "trial": "Trial, 12 days left",
+  "workspace": "Workspace"
+}

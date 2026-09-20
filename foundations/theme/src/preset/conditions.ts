@@ -14,12 +14,11 @@
  *   compiles to a bare negation that matches every element, which declares the default theme's
  *   values over every switched subtree. Anchored, the preference declares them where the
  *   unconditioned values are declared, and a switched element declares over them.
- *   One case is not covered. A subtree switched to light inside a page drawn dark keeps the dark
- *   values, because the unconditioned values are declared on the root alone and nothing declares
- *   them again on the subtree. Dark inside light works, because the dark values are declared under
- *   the attribute. Closing it means declaring every color a second time under the light attribute,
- *   which costs about a fifth of the stylesheet for each theme, or writing every color as
- *   `light-dark()`, which is the smaller output and the larger change.
+ *   A color reads neither block. The stylesheet plugin renders every color stated in both modes
+ *   as one `light-dark()` value, which the browser evaluates where the color is used against the
+ *   `color-scheme` the global styles set from the attribute and the preference, so a subtree
+ *   switched to either mode inside the other reads every color from its own mode. The two blocks
+ *   here switch the styles a recipe states under `_dark` and `_light`.
  */
 
 import { COLOR_MODE_ATTRIBUTE } from "#attributes.ts";

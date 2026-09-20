@@ -76,8 +76,8 @@ async function reloaded(preset: unknown, react = "19"): Promise<Loaded> {
 /**
  * Takes one of the pair the layer returns, having checked it is an override.
  */
-function layer(index: number): Override {
-  const held = compiler()[index];
+function layer(index: number, stated?: Parameters<typeof compiler>[0]): Override {
+  const held = compiler(stated)[index];
 
   if (held?.kind !== "override") throw new Error("the compiler layer is not an override");
 
@@ -138,6 +138,15 @@ describe("compiler", () => {
   it("leaves a specification reading what its author wrote", () => {
     expect(layer(0).refine(TESTING, { plugins: [] }).plugins).toStrictEqual([]);
     expect(layer(1).refine(TESTING, { pack: {} }).pack).toStrictEqual({});
+  });
+
+  it("leaves a dev server's transforms alone where the caller compiles under a build alone", () => {
+    const serving: Refining = { ...BUILDING, command: "serve", mode: "development" };
+    const building = layer(0, { only: "build" });
+
+    expect(building.refine(serving, { plugins: [] }).plugins).toStrictEqual([]);
+    expect(building.refine(BUILDING, { plugins: [] }).plugins).toHaveLength(1);
+    expect(layer(0).refine(serving, { plugins: [] }).plugins).toHaveLength(1);
   });
 
   it("writes the memo cache against the installed React", async () => {

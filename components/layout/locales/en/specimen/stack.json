@@ -1,0 +1,41 @@
+{
+  "about": "Lays its children out along one direction, a semantic gap apart.",
+  "alignment": {
+    "about": "Where the children sit across the flow. A column stretches them until a caller picks a place, so `align` is what stops a short child filling the width.",
+    "title": "Alignment"
+  },
+  "directions": {
+    "about": "Which way the children run. A row centres its children across the flow and a column stretches them, so a row of a mark and a word states no alignment.",
+    "title": "Directions"
+  },
+  "distribution": {
+    "about": "How the room left over along the flow is shared, in a row that fills its cell.",
+    "title": "Distribution"
+  },
+  "draft": "Draft",
+  "email": "Email",
+  "friday": "Friday",
+  "gaps": {
+    "about": "Every gap of the scale, from the tightest a stack offers to the widest.",
+    "title": "Gaps"
+  },
+  "message": "Message",
+  "monday": "Monday",
+  "name": "Name",
+  "next": "Next",
+  "publish": "Publish",
+  "review": "Review",
+  "saturday": "Saturday",
+  "skip": "Skip",
+  "sun": "Sun",
+  "sunday": "Sunday",
+  "sunrise": "Sunrise",
+  "thursday": "Thursday",
+  "title": "Stack",
+  "tuesday": "Tuesday",
+  "wednesday": "Wednesday",
+  "wrap": {
+    "about": "A row that wraps folds what will not fit onto the next line. One that does not overflows its cell.",
+    "title": "Wrap"
+  }
+}

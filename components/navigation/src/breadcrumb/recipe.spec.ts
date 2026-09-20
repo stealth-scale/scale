@@ -38,7 +38,7 @@ describe("recipe", () => {
 
   it("sets the text on the root so every part reads at one size", () => {
     expect(recipe.variants?.["size"]?.["md"]).toStrictEqual({
-      list: { gap: "gap.md" },
+      list: { gap: "calc({spacing.gap.md} * var(--density, 1))" },
       root: { textStyle: "body.md" },
     });
   });

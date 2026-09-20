@@ -12,6 +12,7 @@ import { literal } from "@stealthscale/vite-plugin-base";
 
 import { SEPARATOR } from "#options.ts";
 import { type StaticCssOptions, type StylesheetLayers, type ThemeVariant } from "#pandacss.ts";
+import { lightDarked } from "#theme/light-dark.ts";
 
 /**
  * Fixes the values both configurations share.
@@ -165,42 +166,40 @@ export function renderRuntimeConfig(source: RuntimeSource): string {
  *   foundation declares a whole vocabulary so a recipe has one to write against, so most of an
  *   unoptimised stylesheet is dead weight the browser parses. What `staticCss` names is exempt.
  *   The reset is on, because without it a browser's own defaults stand and none of them is
- *   anything a recipe can reach.
+ *   anything a recipe can reach. Every color stated in both modes, in the foundation, a preset or
+ *   a theme, is rendered as one `light-dark()` value, so a subtree switched to either mode reads
+ *   every color from that mode.
  * @throws {@link Error} When a preset or a theme carries a value that cannot be written as source.
  */
 export function renderStylesheetConfig(source: StylesheetSource): string {
   const names = Object.keys(source.themes);
   const staticCss = names.length === 0 ? source.staticCss : { ...source.staticCss, themes: names };
 
-  return rendered(
-    source.base,
-    [source.foundation, ...source.presets],
-    [
-      ...field("exclude", EXCLUDED),
-      ...field("forceImportExtension", SHARED.forceImportExtension),
-      ...field("importMap", [
-        {
-          css: source.system,
-          jsx: source.system,
-          patterns: source.system,
-          recipes: source.system,
-          tokens: source.system,
-        },
-      ]),
-      ...field("include", source.include),
-      ...field("jsxFramework", SHARED.jsxFramework),
-      ...field("layers", source.layers),
-      ...field("optimize", {
-        removeUnusedKeyframes: true,
-        removeUnusedTokens: true,
-        smartCompoundVariants: true,
-      }),
-      ...field("outExtension", SHARED.outExtension),
-      ...field("patterns", SHARED.patterns),
-      ...field("separator", SHARED.separator),
-      ...field("preflight", true),
-      ...field("staticCss", staticCss),
-      ...field("themes", names.length === 0 ? undefined : source.themes),
-    ],
-  );
+  return rendered(source.base, lightDarked([source.foundation, ...source.presets]), [
+    ...field("exclude", EXCLUDED),
+    ...field("forceImportExtension", SHARED.forceImportExtension),
+    ...field("importMap", [
+      {
+        css: source.system,
+        jsx: source.system,
+        patterns: source.system,
+        recipes: source.system,
+        tokens: source.system,
+      },
+    ]),
+    ...field("include", source.include),
+    ...field("jsxFramework", SHARED.jsxFramework),
+    ...field("layers", source.layers),
+    ...field("optimize", {
+      removeUnusedKeyframes: true,
+      removeUnusedTokens: true,
+      smartCompoundVariants: true,
+    }),
+    ...field("outExtension", SHARED.outExtension),
+    ...field("patterns", SHARED.patterns),
+    ...field("separator", SHARED.separator),
+    ...field("preflight", true),
+    ...field("staticCss", staticCss),
+    ...field("themes", names.length === 0 ? undefined : lightDarked(source.themes)),
+  ]);
 }

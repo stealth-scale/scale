@@ -79,8 +79,12 @@ describe("recipe", () => {
 
   it("steps the root's room and the mark's box at one name", () => {
     expect(recipe.variants?.["size"]?.["md"]).toStrictEqual({
-      indicator: { boxSize: "icon.md" },
-      root: { gap: "gap.md", padding: "inset.md", textStyle: "body.md" },
+      indicator: { boxSize: "calc({sizes.icon.md} * var(--density, 1))" },
+      root: {
+        gap: "calc({spacing.gap.md} * var(--density, 1))",
+        padding: "calc({spacing.inset.md} * var(--density, 1))",
+        textStyle: "body.md",
+      },
     });
   });
 

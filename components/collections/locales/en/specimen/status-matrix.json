@@ -1,0 +1,44 @@
+{
+  "about": "Draws one set against another, a mark at every crossing.",
+  "caption": "Service health by region",
+  "corner": "Service",
+  "crossing": "{{row}} in {{column}}: {{state}}",
+  "discovery": "Discovery",
+  "down": "Down",
+  "fine": "Healthy",
+  "gap": {
+    "about": "The same grid twice, the second with APAC never run. A crossing nobody measured draws its own mark rather than a blank, and it counts as unknown in the rollup, which outranks both a pass and a crossing that does not apply. Left blank, a region nobody checked would read as a region with nothing wrong.",
+    "every": "every crossing measured",
+    "short": "APAC never run",
+    "title": "A gap outranks a pass"
+  },
+  "legend": "States",
+  "looks": {
+    "about": "Every step the grid is read at. A matrix is scanned rather than read, so the step decides how many rows fit on one screen.",
+    "title": "Sizes"
+  },
+  "measured": {
+    "about": "Every crossing measured, gathered into a section per team, closing on the worst state along each row. Nothing in the grid is pressable and nothing in it is a tab stop, because no caller is listening for a crossing. Hover a crossing to light its row and its column.",
+    "title": "Every crossing measured"
+  },
+  "nothing": "No services measured yet",
+  "nothingYet": "Nothing picked yet",
+  "payments": "Payments",
+  "picked": "Picked {{row}} in {{column}}: {{state}}",
+  "picking": {
+    "about": "Given a handler, every crossing becomes a button and the grid takes a tab stop per crossing. A crossing nobody measured is a button as well, because that is the pair somebody wants to go and measure. The hover stays a quiet neutral rather than the accent: the mark's own colour is the data, and a strong fill under it destroys what the crossing is saying.",
+    "title": "Picking a crossing"
+  },
+  "plain": {
+    "about": "The rows drawn straight through rather than gathered, and a grid with no rows at all. Sections are drawn where every row states one, so a list where only some do is drawn as one body rather than under a heading half of it does not belong to.",
+    "none": "holding nothing",
+    "through": "no sections",
+    "title": "Without sections"
+  },
+  "rolling": "Rolling out",
+  "skipped": "Not applicable",
+  "slow": "Degraded",
+  "title": "Status matrix",
+  "unmeasured": "Not measured",
+  "worst": "Worst"
+}

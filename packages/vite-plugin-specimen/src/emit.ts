@@ -2,10 +2,12 @@
  * Generates the modules a catalogue imports: the page index, and one page's scenes as source.
  */
 
+import { relative } from "node:path";
+
 import { manifestAt, owning, text } from "@stealthscale/vite-plugin-base";
 
 import { type Anatomy, type Read, type Source } from "#contract.ts";
-import { FRAGMENTS, PROPS } from "#options.ts";
+import { FRAGMENTS, PROPS, UPDATED } from "#options.ts";
 import { isRefused, read } from "#read.ts";
 
 /**
@@ -45,12 +47,14 @@ export interface Listed {
 /**
  * Converts an absolute path into the path a catalogue displays.
  *
+ * @remarks
+ *   Relative to the root whether or not the file sits under it, because a catalogue shows the
+ *   components of the packages beside it, and the listing is shipped: an absolute path would put
+ *   the machine the catalogue was built on into what a reader downloads.
  * @returns The path relative to the root, with forward slashes.
  */
 function shown(path: string, root: string): string {
-  const relative = path.startsWith(`${root}/`) ? path.slice(root.length + 1) : path;
-
-  return relative.replaceAll("\\", "/");
+  return relative(root, path).replaceAll("\\", "/");
 }
 
 /**
@@ -108,17 +112,14 @@ export function ownerOf(path: string, owners: Owners = new Map()): string {
  *   props loader. `propped` states whether the index was asked to read props at all.
  */
 function loaders(result: Read, propped: boolean): readonly string[] {
-  const source = `    source: () => import(${JSON.stringify(`${result.path}?raw`)}),`;
-
   if (isRefused(result)) {
-    return [`    load: () => Promise.reject(new Error(${JSON.stringify(result.wrong)})),`, source];
+    return [`    load: () => Promise.reject(new Error(${JSON.stringify(result.wrong)})),`];
   }
 
   return [
     `    fragments: () => import(${JSON.stringify(`${FRAGMENTS}${result.id}`)}),`,
     `    load: () => import(${JSON.stringify(result.path)}),`,
     ...(propped ? [`    props: () => import(${JSON.stringify(`${PROPS}${result.id}`)}),`] : []),
-    source,
   ];
 }
 
@@ -132,6 +133,7 @@ function metadata(result: Read, root: string, owners: Owners): readonly string[]
         about: result.wrong,
         group: "",
         id: path,
+        namespace: "",
         package: "",
         path,
         title: path.slice(path.lastIndexOf("/") + 1),
@@ -140,6 +142,7 @@ function metadata(result: Read, root: string, owners: Owners): readonly string[]
         about: result.about,
         group: result.group,
         id: result.id,
+        namespace: result.namespace,
         package: ownerOf(result.path, owners),
         path,
         title: result.title,
@@ -200,19 +203,56 @@ export function listings(
 /**
  * Generates the module a catalogue imports the pages from.
  *
- * @param listed - Every listing, in the order the pages are shown.
+ * @param listed - Every listing under its file's path, in the order the pages are shown.
  */
-export function written(listed: Iterable<string>): string {
-  return `export const pages = [\n${[...listed].join(",\n")},\n];\n`;
+export function written(listed: ReadonlyMap<string, Listed>): string {
+  const pages = [...listed.values()].map((held) => held.listing);
+
+  return `export const pages = [\n${pages.join(",\n")},\n];\n`;
 }
 
 /**
- * Generates the module a catalogue imports one page's scenes as source from.
+ * Generates the statement that makes a module accept its own hot update and tell the catalogue
+ * what replaced it.
+ *
+ * @remarks
+ *   A specimen file exports scenes and constants beside its components, so the refresh runtime
+ *   cannot accept an edit to it, and the index that imports it is reached through a dynamic
+ *   import, which a server that bundles registers under another identifier than the one an
+ *   accepting importer would name. Each module therefore accepts itself: the bundler runs the
+ *   new module and hands it to the callback, and the callback dispatches {@link UPDATED} on the
+ *   window with the page's identifier and the module, under the key the catalogue reads it by.
+ * @param page - The page's identifier.
+ * @param key - The key the module is reported under: `module` for the page's own, `fragments`
+ *   for its sources.
+ * @returns The statement, on one line, ending in a newline.
+ */
+export function accepting(page: string, key: "fragments" | "module"): string {
+  const detail = `{ ${key}: replaced, id: ${JSON.stringify(page)} }`;
+
+  return (
+    "if (import.meta.hot) import.meta.hot.accept((replaced) => { if (replaced !== undefined) " +
+    `window.dispatchEvent(new CustomEvent(${JSON.stringify(UPDATED)}, { detail: ${detail} })); });\n`
+  );
+}
+
+/**
+ * Generates the module a catalogue imports one page's scenes as source from, beside the names the
+ * page imports from its own package, accepting its own hot update.
  *
  * @param snippets - Each scene's source, keyed by title.
+ * @param names - The components the page imports from its own package.
+ * @param page - The page's identifier, which the module reports its replacement under.
  */
-export function fragmented(snippets: Readonly<Record<string, string>>): string {
-  return `export const fragments = ${JSON.stringify(snippets)};\n`;
+export function fragmented(
+  snippets: Readonly<Record<string, string>>,
+  names: readonly string[],
+  page: string,
+): string {
+  return (
+    `export const fragments = ${JSON.stringify(snippets)};\nexport const imported = ${JSON.stringify(names)};\n` +
+    accepting(page, "fragments")
+  );
 }
 
 /**

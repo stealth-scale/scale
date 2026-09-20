@@ -2,8 +2,8 @@
 
 `@stealthscale/example-theme-folio` states Folio, an editorial product set to be read. It puts a
 violet brand on greys tinted to match, sets body text a step larger than the foundation's, climbs
-the scale by a major third, and reads in a serif. It is a root theme, like Fathom, that also changes
-the type.
+the scale by a major third, and reads in a serif. It is a root theme, like Fathom, that also moves
+the type, the faces and the depth.
 
 ## Run it
 
@@ -13,22 +13,21 @@ pnpm --filter @stealthscale/example-theme-folio build
 ```
 
 `vp test` runs the theme through `violations` from `@stealthscale/testing-theme`, which measures
-every text pair at 7:1 and every line and ring at 3:1 against the page this theme draws. The other
-specifications pin the scale, the faces, the palette and the shadows.
+every text pair at 7:1, the tertiary ink and every label at 4.5:1, and every line and ring at 3:1
+against the pages this theme draws. The other specifications pin the scale, the faces, the colors
+and the shadows.
 
 ## The values
 
-- `src/tokens.ts` redraws the grey with a trace of the violet and the violet itself, sets the type
-  scale with `fontSizes(1.0625, 1.25)`, and sets the body and the headings in the system serif
-  stack.
-- `src/text-styles.ts` draws the text styles from the same two numbers with `typography`, so the
-  leading and the tracking climb with the sizes. A text style is read at build time alone, so it
-  goes into the preset and not into the switchable values.
-- `src/semantic-tokens.ts` fills the contract. The page is at 98% lightness in light mode and 9% in
-  dark mode, the primary palette points at the violet, and every shadow is cast with half again the
-  default ink, because an editorial page shows few surfaces and each one is meant to lift off the
-  paper. The corners are the foundation's.
-- `src/index.ts` defines the theme from the three.
+- `src/colors.ts` states the colors. The page is at 97.5% lightness in light mode, half a point
+  short of 98 so a panel still rises before it reaches white, and at 13% in dark mode. Each page is
+  written in a grey with a trace of the violet, and the primary is the violet.
+- `src/index.ts` defines the theme from the colors and three more axes. `type` sets the scale from a
+  body size of 1.0625rem and a ratio of 1.25, so the sizes and the size styles climb together and
+  the styles go into the preset alone. `faces` sets the body in the system serif stack, which the
+  headings follow. `depth` casts every shadow with half again the default ink in the violet's hue,
+  because an editorial page shows few surfaces and each one is meant to lift off the paper. The
+  corners are the foundation's.
 
 ## The configuration
 

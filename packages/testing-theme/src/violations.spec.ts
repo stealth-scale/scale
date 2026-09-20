@@ -35,7 +35,8 @@ describe("violations", () => {
     expect(violations(theme, { base: foundation })).toStrictEqual(
       expect.arrayContaining([
         "contract.modes: audited primary.solid is not stated in _dark",
-        "contrast.text: audited primary.contrast on primary.solid cannot be measured in _dark, below 7",
+        "contrast.text: audited primary.contrast on primary.solid cannot be measured in _dark, below 4.5",
+        "status.distinct: audited error.solid and primary.solid cannot be measured in _dark",
       ]),
     );
   });

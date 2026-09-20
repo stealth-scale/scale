@@ -8,8 +8,9 @@
  *   no color mode.
  */
 
-export { dense } from "#authoring/recipes/dense.ts";
-export { field } from "#authoring/recipes/field.ts";
+export { type Axis, axis } from "#authoring/recipes/axis.ts";
+export { dense } from "#authoring/recipes/density.ts";
+export { field, wrappedField } from "#authoring/recipes/field.ts";
 export { floating, overlay } from "#authoring/recipes/floating.ts";
 export {
   type Align,
@@ -19,6 +20,7 @@ export {
   type Count,
   COUNTS,
   DISTRIBUTIONS,
+  filledColumns,
   fittedColumns,
   gapSizes,
   type Justify,
@@ -41,6 +43,7 @@ export {
   LOOKS,
   lookVariants,
   type Marked,
+  wrappedFieldVariants,
 } from "#authoring/recipes/looks.ts";
 export { motion, type Motion, MOTIONS, motionVariants } from "#authoring/recipes/motion.ts";
 export { cornerVariants, ratioVariants } from "#authoring/recipes/shape.ts";

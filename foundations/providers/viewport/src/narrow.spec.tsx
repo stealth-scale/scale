@@ -68,6 +68,19 @@ function observing(): Observers {
 }
 
 /**
+ * Puts a resize observer in place that reports nothing on its own, so a case can tell a
+ * measurement the hook took itself from one the observer reported.
+ */
+function silent(): void {
+  vi.stubGlobal(
+    "ResizeObserver",
+    vi.fn(function Observer() {
+      return { disconnect: vi.fn(), observe: vi.fn() };
+    }),
+  );
+}
+
+/**
  * Holds an element reporting the width a case gives it.
  */
 function measuring(width: number): Measured {
@@ -116,6 +129,19 @@ describe("useNarrow", () => {
     observing();
 
     expect(under(measuring(900).ref, 320).result.current).toBe(false);
+  });
+
+  it("measures the element itself before the observer reports", () => {
+    silent();
+
+    expect(under(measuring(900).ref, 320).result.current).toBe(false);
+  });
+
+  it("keeps the viewport's word for an element that has no box", () => {
+    observing();
+
+    expect(under(measuring(0).ref, 4000).result.current).toBe(false);
+    expect(under(measuring(0).ref, 320).result.current).toBe(true);
   });
 
   it("measures again when the element changes size", () => {

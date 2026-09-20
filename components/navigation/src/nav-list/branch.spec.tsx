@@ -59,7 +59,7 @@ describe("Branch", () => {
   });
 
   it("reports the state it moved to", async () => {
-    const heard = vi.fn<(open: boolean) => void>();
+    const heard = vi.fn<(details: { readonly open: boolean }) => void>();
 
     render(
       branched(
@@ -72,7 +72,7 @@ describe("Branch", () => {
     );
     await pressed(screen.getByRole("button"));
 
-    expect(heard).toHaveBeenCalledWith(true);
+    expect(heard).toHaveBeenLastCalledWith(expect.objectContaining({ open: true }));
   });
 
   it("stays where a caller holding the state puts it", async () => {
@@ -89,17 +89,33 @@ describe("Branch", () => {
     expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("false");
   });
 
-  it("names its list by the identifier a caller states", () => {
+  it("builds the reference between the row and its list from the id a caller names", () => {
     render(
       branched(
         <>
           <Trigger>Settings</Trigger>
           <Content>rows</Content>
         </>,
-        { id: "settings-rows" },
+        { defaultOpen: true, id: "settings-rows" },
       ),
     );
 
-    expect(screen.getByRole("button").getAttribute("aria-controls")).toBe("settings-rows");
+    const named = screen.getByRole("button").getAttribute("aria-controls");
+
+    expect(named).toContain("settings-rows");
+    expect(screen.getAllByRole("list").map((list) => list.id)).toContain(named);
+  });
+
+  it("generates an id where a caller names none", () => {
+    render(
+      branched(
+        <>
+          <Trigger>Settings</Trigger>
+          <Content>rows</Content>
+        </>,
+      ),
+    );
+
+    expect(screen.getByRole("button").getAttribute("aria-controls")).toBeTruthy();
   });
 });

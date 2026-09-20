@@ -9,7 +9,9 @@
  *   short rather than wrapping the row, because a toolbar that grows to two lines moves everything
  *   under it.
  *   The gap is stated once on the root as a property every band reads, so one value moves all of
- *   them and a band drawn by a caller reads the same number.
+ *   them and a band drawn by a caller reads the same number. It is the gap two steps below the
+ *   toolbar's own size, because the controls in a bar sit close: a bar of icon buttons at the
+ *   gap of a form reads as a row of separate things rather than as one bar.
  *   Neither a group of controls nor a rule between them is a part here. The layout package draws a
  *   `Group`, which joins controls into one and knows how to square the corners between them, and
  *   this restyles only the rule, which has to stretch to the row's height rather than sit at a
@@ -17,8 +19,10 @@
  */
 
 import {
+  below,
   cornerVariants,
   defineSlotRecipe,
+  dense,
   onSlot,
   onSlots,
   sizeVariants,
@@ -77,17 +81,22 @@ export const recipe = defineSlotRecipe({
     radius: onSlot("root", cornerVariants(["l1", "l2", "l3"])),
 
     size: onSlots({
-      root: sizeVariants((size) => ({ [GAP]: `{spacing.gap.${size}}` })),
-      separator: sizeVariants((size) => ({ marginBlock: `gap.${size}` })),
+      root: sizeVariants((size) => ({ [GAP]: `{spacing.gap.${below(below(size))}}` })),
+      separator: sizeVariants((size) => ({ marginBlock: dense(`{spacing.gap.${size}}`) })),
     }),
 
     /**
      * Whether the row is raised on a surface of its own or drawn against what holds it.
+     *
+     * @remarks
+     *   A row with an edge is inset by its own gap, so the controls stand off the edge. Without
+     *   it a filled control sat against the edge and a field at the end drew its border over the
+     *   row's. The plain row has no edge and keeps its controls flush with what holds it.
      */
     variant: {
-      outline: { root: { borderColor: "border", borderWidth: "sm" } },
+      outline: { root: { borderColor: "border", borderWidth: "hairline", padding: `var(${GAP})` } },
       plain: { root: { background: "transparent" } },
-      surface: { root: surface() },
+      surface: { root: { ...surface(), padding: `var(${GAP})` } },
     },
   },
 });

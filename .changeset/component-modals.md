@@ -2,6 +2,11 @@
 "@stealthscale/component-modals": minor
 ---
 
+component-modals: rule the palette with hairlines
+
+- The band under the field reads the hairline the `divider()` helper draws, without restating a
+  width, and a shortcut's box reads `borderWidths.hairline`.
+
 component-modals: publish Command
 
 - `Command` draws the palette a person opens with a keystroke, types into, and runs one thing from.
@@ -22,3 +27,13 @@ component-modals: publish Command
   identifier that crashed `document.querySelector`, which the machine calls to find the row the keys
   are on.
 - One axis: `size`. The field draws no edge of its own, because the palette is the edge round it.
+
+component-modals: show every component
+
+- One specimen per component, each scene drawing every value of every axis the recipe offers, with
+  the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.
+
+component-modals: mark the command palette's focused input
+
+- The control band draws a ring when the input inside it takes focus. The input's own outline is
+  removed and nothing replaced it, so an inline palette showed no focused surface.

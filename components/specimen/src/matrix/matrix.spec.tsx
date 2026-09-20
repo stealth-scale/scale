@@ -1,17 +1,33 @@
 import { render } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { accessibilityViolations } from "@stealthscale/testing-react";
-import { recipeClasses } from "@stealthscale/testing-theme";
+import { slotClasses, slotVariantClass } from "@stealthscale/testing-theme";
 
+import { FramedProvider } from "#framed/context.ts";
+import { REPORTED } from "#framed/report.ts";
 import { Matrix } from "#matrix/matrix.tsx";
 
 const SIZES = ["sm", "md", "lg"] as const;
+
+const LOOKS = ["solid", "ghost"] as const;
 
 function drawn(knob?: string): HTMLElement {
   return render(
     <Matrix knob={knob} of={SIZES}>
       {(size) => <button type="button">{size}</button>}
+    </Matrix>,
+  ).container;
+}
+
+function crossed(): HTMLElement {
+  return render(
+    <Matrix across={{ knob: "size", of: SIZES }} knob="variant" of={LOOKS}>
+      {(look, size) => (
+        <button type="button">
+          {look} {size}
+        </button>
+      )}
     </Matrix>,
   ).container;
 }
@@ -51,18 +67,81 @@ describe("Matrix", () => {
     expect(container.textContent).toBe("");
   });
 
-  it("runs the cells down until a caller asks for a row", () => {
-    expect(recipeClasses(drawn(), "stack")).not.toContain("stack--row");
+  it("lays the cells on equal columns of the smallest measure until a caller says otherwise", () => {
+    expect(slotClasses(drawn(), "grid", "root")).toContain(
+      slotVariantClass("grid", "root", "columns", "fit-xs"),
+    );
+    expect(slotClasses(drawn(), "sample", "root")).toContain("sample__root");
   });
 
-  it("runs the cells across when a caller asks for a row", () => {
+  it("runs the cells down one column when a caller asks for a column", () => {
     const { container } = render(
-      <Matrix direction="row" of={SIZES}>
+      <Matrix direction="column" of={SIZES}>
         {(size) => <span>{size}</span>}
       </Matrix>,
     );
 
-    expect(recipeClasses(container, "stack")).toContain("stack--row");
+    expect(slotClasses(container, "grid", "root")).toContain(
+      slotVariantClass("grid", "root", "columns", "1"),
+    );
+  });
+
+  it("takes the columns a caller asks for over either", () => {
+    const { container } = render(
+      <Matrix columns="2" direction="column" of={SIZES}>
+        {(size) => <span>{size}</span>}
+      </Matrix>,
+    );
+
+    expect(slotClasses(container, "grid", "root")).toContain(
+      slotVariantClass("grid", "root", "columns", "2"),
+    );
+  });
+
+  it("hands the grid the count of values running across", () => {
+    expect(slotClasses(crossed(), "matrix", "grid")).toContain(
+      slotVariantClass("matrix", "grid", "across", "3"),
+    );
+  });
+
+  it("crosses two axes into one cell per pair", () => {
+    const labels = [...crossed().querySelectorAll("button")].map((held) => held.textContent);
+
+    expect(labels).toStrictEqual([
+      "solid sm",
+      "solid md",
+      "solid lg",
+      "ghost sm",
+      "ghost md",
+      "ghost lg",
+    ]);
+  });
+
+  it("captions the second axis along the top and the first down the side", () => {
+    const container = crossed();
+    const [top, ...rows] = [...(container.querySelector(".matrix__grid")?.children ?? [])];
+
+    expect(top?.textContent).toBe("size = smsize = mdsize = lg");
+    expect(rows.map((one) => one.firstElementChild?.textContent)).toStrictEqual([
+      "variant = solid",
+      "variant = ghost",
+    ]);
+  });
+
+  it("carries the top edge's caption in every cell, for the rows once folded", () => {
+    const cells = [...crossed().querySelectorAll("button")].map((held) =>
+      held.closest(".matrix__cell"),
+    );
+
+    expect(cells.map((held) => held?.firstElementChild?.textContent)).toStrictEqual([
+      "size = sm",
+      "size = md",
+      "size = lg",
+      "size = sm",
+      "size = md",
+      "size = lg",
+    ]);
+    expect(slotClasses(crossed(), "matrix", "label")).toContain("matrix__label");
   });
 
   it("breaks no accessibility rule", async () => {
@@ -71,5 +150,56 @@ describe("Matrix", () => {
         props: { children: (size: string) => <span>{size}</span>, of: SIZES },
       }),
     ).resolves.toStrictEqual([]);
+  });
+
+  it("draws the one cell a framed document was asked for and nothing round it", () => {
+    const { container } = render(
+      <FramedProvider value={{ across: 2, value: 1 }}>
+        <Matrix across={{ knob: "size", of: SIZES }} knob="variant" of={LOOKS}>
+          {(look, size) => (
+            <button type="button">
+              {look} {size}
+            </button>
+          )}
+        </Matrix>
+      </FramedProvider>,
+    );
+
+    expect(container.textContent).toBe("ghost lg");
+    expect(container.querySelector("[data-recipe]")).toBeNull();
+  });
+
+  it("tells the page holding a framed document which cells it offers", () => {
+    const posted = vi.fn();
+    const parent = new Proxy(window, {
+      get: (target, key): unknown => (key === "postMessage" ? posted : Reflect.get(target, key)),
+    });
+    const held = vi.spyOn(window, "parent", "get").mockReturnValue(parent);
+
+    render(
+      <FramedProvider value={{}}>
+        <Matrix across={{ knob: "size", of: SIZES }} of={LOOKS}>
+          {(look, size) => (
+            <button type="button">
+              {look} {size}
+            </button>
+          )}
+        </Matrix>
+      </FramedProvider>,
+    );
+
+    expect(posted).toHaveBeenCalledWith(
+      {
+        address: window.location.hash,
+        choices: [
+          { knob: undefined, names: ["solid", "ghost"], part: "value" },
+          { knob: "size", names: ["sm", "md", "lg"], part: "across" },
+        ],
+        type: REPORTED,
+      },
+      window.location.origin,
+    );
+
+    held.mockRestore();
   });
 });

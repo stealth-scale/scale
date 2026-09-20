@@ -11,16 +11,17 @@
 import { fathom } from "@stealthscale/example-theme-fathom";
 import { defineTheme, type Theme } from "@stealthscale/theme/authoring";
 
+import { COLORS } from "#colors.ts";
 import { extension as badge } from "#recipes/badge.ts";
 import { extension as button } from "#recipes/button.ts";
-import { semanticTokens } from "#semantic-tokens.ts";
 
 /**
  * Draws Fathom in deep water, derived from it.
  */
 export const abyss: Theme = defineTheme({
+  colors: COLORS,
   extends: fathom,
   name: "abyss",
   recipes: { badge, button },
-  semanticTokens,
+  shape: { corner: "0.5rem" },
 });

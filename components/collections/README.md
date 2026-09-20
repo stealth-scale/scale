@@ -115,20 +115,20 @@ const { collection, narrow } = useListCollection({
   <Listbox.Content>
     {collection.items.map((client) => (
       <Listbox.Item item={client} key={client.id}>
-        <Listbox.ItemText>{client.name}</Listbox.ItemText>
-        <Listbox.ItemIndicator />
+        <Listbox.ItemText item={client}>{client.name}</Listbox.ItemText>
+        <Listbox.ItemIndicator item={client} />
       </Listbox.Item>
     ))}
   </Listbox.Content>
 </Listbox.Root>;
 ```
 
-| Axis        | Values                        | Default |
-| ----------- | ----------------------------- | ------- |
-| `highlight` | `bar`, `fill`, `tint`         | `tint`  |
-| `radius`    | `l1`, `l2`, `l3`              | `l1`    |
-| `size`      | `sm`, `md`, `lg`              | `md`    |
-| `variant`   | `outline`, `plain`, `surface` | `plain` |
+| Axis        | Values                | Default |
+| ----------- | --------------------- | ------- |
+| `highlight` | `bar`, `fill`, `tint` | `tint`  |
+| `radius`    | `l1`, `l2`, `l3`      | `l1`    |
+| `size`      | `sm`, `md`, `lg`      | `md`    |
+| `variant`   | `plain`, `surface`    | `plain` |
 
 `highlight` marks the row the keys are on rather than the row that has focus, because a listbox
 driven from a field never moves focus off the field. `tint` fills the row faintly, `fill` fills it

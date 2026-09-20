@@ -1,20 +1,31 @@
 import { describe, expect, it } from "vitest";
 
-import { defineTheme, paletteAlias } from "@stealthscale/theme/authoring";
+import { canonical, defineTheme, drawn, FOUNDATION } from "@stealthscale/theme/authoring";
 import foundation from "@stealthscale/theme/theme";
 
 import { THRESHOLDS } from "#contrast.ts";
-import { distinct, statusDistance, statusPairs } from "#status.ts";
+import { distinct, identity, statusDistance, statusPairs } from "#status.ts";
 import { foundationTheme, paletteTheme } from "#theme.fixtures.ts";
 
 /**
- * Draws the error palette from the same hue as the success palette.
+ * Draws the error palette from the same green as the success palette.
  */
 function alike(): ReturnType<typeof defineTheme> {
   return defineTheme({
     extends: foundationTheme(),
     name: "alike",
-    semanticTokens: { colors: { error: paletteAlias("green") } },
+    semanticTokens: { colors: { error: drawn(canonical("green"), FOUNDATION) } },
+  });
+}
+
+/**
+ * Draws the error palette from the primary's own blue.
+ */
+function branded(): ReturnType<typeof defineTheme> {
+  return defineTheme({
+    extends: foundationTheme(),
+    name: "branded",
+    semanticTokens: { colors: { error: drawn(FOUNDATION.primary, FOUNDATION) } },
   });
 }
 
@@ -40,14 +51,22 @@ describe("status", () => {
     expect(statusDistance(paletteTheme(), pair, "base", {})).toBeNaN();
   });
 
-  it("passes the foundation on every pair of solids", () => {
+  it("passes the foundation on every pair of solids and every hue", () => {
     expect(distinct(foundationTheme(), {}, THRESHOLDS)).toStrictEqual([]);
+    expect(identity(foundationTheme(), {}, THRESHOLDS)).toStrictEqual([]);
   });
 
   it("reports two statuses drawn from one hue in both modes", () => {
     expect(distinct(alike(), {}, THRESHOLDS)).toStrictEqual([
       "alike success.solid and error.solid differ by 0.000 in base, below 0.05",
       "alike success.solid and error.solid differ by 0.000 in _dark, below 0.05",
+    ]);
+  });
+
+  it("reports a status drawn from the primary's color", () => {
+    expect(distinct(branded(), {}, THRESHOLDS)).toStrictEqual([
+      "branded error.solid and primary.solid differ by 0.000 in base, below 0.05",
+      "branded error.solid and primary.solid differ by 0.000 in _dark, below 0.05",
     ]);
   });
 
@@ -59,6 +78,37 @@ describe("status", () => {
     expect(distinct(paletteTheme(), { base: foundation }, THRESHOLDS)).toStrictEqual([]);
     expect(distinct(paletteTheme(), {}, THRESHOLDS)[0]).toBe(
       "audited info.solid and success.solid cannot be measured in base",
+    );
+  });
+
+  it("reports a status whose solid sits far from the hue of its name", () => {
+    expect(identity(alike(), {}, THRESHOLDS)).toStrictEqual([
+      "alike error.solid sits 125 degrees from 25 in base, above 30",
+      "alike error.solid sits 125 degrees from 25 in _dark, above 30",
+    ]);
+  });
+
+  it("holds a status to the drift it was handed", () => {
+    expect(identity(alike(), {}, { ...THRESHOLDS, identity: 180 })).toStrictEqual([]);
+  });
+
+  it("reports a status drawn as a grey with no hue", () => {
+    const grey = defineTheme({
+      extends: foundationTheme(),
+      name: "grey",
+      semanticTokens: { colors: { info: { solid: { DEFAULT: { value: "#808080" } } } } },
+    });
+
+    expect(identity(grey, {}, THRESHOLDS)).toStrictEqual([
+      "grey info.solid has no hue in base",
+      "grey info.solid has no hue in _dark",
+    ]);
+  });
+
+  it("reports a status whose hue it cannot measure", () => {
+    expect(identity(paletteTheme(), { base: foundation }, THRESHOLDS)).toStrictEqual([]);
+    expect(identity(paletteTheme(), {}, THRESHOLDS)[0]).toBe(
+      "audited info.solid cannot be measured in base",
     );
   });
 });

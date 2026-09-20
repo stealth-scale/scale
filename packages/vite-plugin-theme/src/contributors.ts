@@ -50,7 +50,35 @@ function publishes(one: Dependency): boolean {
 }
 
 /**
- * Lists every package on the graph that publishes a preset, the system package first and each
+ * Reports whether a manifest names a package under one of its dependency fields.
+ */
+function names(one: Dependency, field: string, name: string): boolean {
+  const held = one.manifest[field];
+
+  return typeof held === "object" && held !== null && name in held;
+}
+
+/**
+ * Reports whether a package contributes a preset: it publishes the subpath, and it is the system
+ * package or names the system package as a dependency or a peer.
+ *
+ * @remarks
+ *   The subpath alone is not enough. `./theme` is an ordinary name for an export, and a package
+ *   from outside the design system that publishes one has nothing the compiler can install. A
+ *   preset is written against the foundation's vocabulary, so the package that publishes one
+ *   names the foundation.
+ */
+function contributes(one: Dependency, systemPackage: string): boolean {
+  return (
+    publishes(one) &&
+    (one.named === systemPackage ||
+      names(one, "dependencies", systemPackage) ||
+      names(one, "peerDependencies", systemPackage))
+  );
+}
+
+/**
+ * Lists every package on the graph that contributes a preset, the system package first and each
  * other package after the packages it depends on.
  *
  * @remarks
@@ -66,7 +94,7 @@ export function contributors(
   systemPackage: string,
 ): readonly Contributor[] {
   const found = graph
-    .filter((one) => publishes(one))
+    .filter((one) => contributes(one, systemPackage))
     .map((one) => ({ at: one.at, name: one.named }));
 
   return [

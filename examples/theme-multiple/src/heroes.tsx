@@ -1,6 +1,6 @@
 /**
  * Draws the buttons of a hero: a call to action at 2xl, 3xl and 4xl, a button holding an icon
- * beside its words, two raised off the page and one that ripples under a press.
+ * beside its words, two raised off the page and one that glows.
  *
  * @remarks
  *   Every size is written as a literal, which is what the compiler extracts the rules for. The
@@ -42,8 +42,8 @@ export function Heroes(): ReactElement {
           Raised
         </Button>
         <Button elevation="floating">Floating</Button>
-        <Button effect="ripple" variant="subtle">
-          Ripple
+        <Button effect="glow" variant="subtle">
+          Glow
         </Button>
       </p>
     </>

@@ -71,6 +71,18 @@ const RAISED = "critical_errors";
  */
 export interface Compiled {
   /**
+   * Whether the compiler runs under a build alone, leaving a dev server's transforms to the JSX
+   * plugin. Everywhere but a specification run where a caller states nothing.
+   *
+   * @remarks
+   *   The compiler is most of what a cold dev transform costs, so a package that wants the faster
+   *   loop states `build` and keeps the memoised form for what it ships. What it gives up is the
+   *   compiler's reading of its components while it edits them, which is where the compiler
+   *   reports a memoisation it could not keep.
+   */
+  only?: "build";
+
+  /**
    * Which React the memo cache is written for. The installed one where a caller states none. React
    * 19 carries the runtime itself, and an earlier one takes it from `react-compiler-runtime`.
    */
@@ -164,22 +176,30 @@ function also(bundle: Bundle, plugin: ReturnType<typeof babel>): Bundle {
 }
 
 /**
- * Adds the compiler to the plugins a tier already built, for everything but a specification run.
+ * The command a dev server composes its configuration under.
+ */
+const SERVING = "serve";
+
+/**
+ * Adds the compiler to the plugins a tier already built, for everything but a specification run,
+ * and but a dev server where the caller asked for the compiler under a build alone.
  *
  * @remarks
- *   An override rather than a contribution, because only an override is handed the mode the
- *   configuration is being composed under.
+ *   An override rather than a contribution, because only an override is handed the mode and the
+ *   command the configuration is being composed under.
  */
-function built(target: Compiled["target"]): Override {
+function built(stated: Compiled, target: Compiled["target"]): Override {
   const plugin = bridge(target);
 
   return override({
     because: "a memoised component renders again only when what it reads has changed",
     name: "react.plugin.compiler",
-    refine: (context, config) =>
-      context.mode === TESTING
-        ? config
-        : { ...config, plugins: [...(config.plugins ?? []), plugin] },
+    refine: (context, config) => {
+      const skipped =
+        context.mode === TESTING || (stated.only === "build" && context.command === SERVING);
+
+      return skipped ? config : { ...config, plugins: [...(config.plugins ?? []), plugin] };
+    },
   });
 }
 
@@ -223,11 +243,12 @@ function packed(target: Compiled["target"]): Override {
  *   one of them does.
  *   Both plugin instances are constructed when this call runs, not when the configuration
  *   resolves, so two calls produce two independent pairs.
- * @param stated - Which React to write the memo cache for. React 19 where a caller states none.
+ * @param stated - Which React to write the memo cache for, React 19 where a caller states none,
+ *   and whether to compile under a build alone.
  * @returns Each layer under the name of the call that produced it.
  */
 export function compiler(stated: Compiled = {}): readonly Layer[] {
   const target = targeted(stated.target);
 
-  return [built(target), packed(target)];
+  return [built(stated, target), packed(target)];
 }

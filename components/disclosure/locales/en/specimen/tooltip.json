@@ -1,0 +1,14 @@
+{
+  "about": "Shows a short label beside whatever a pointer rests on.",
+  "looks": {
+    "about": "Both looks at every size. Rest the pointer on a control, or reach it from the keyboard, and the box opens.",
+    "title": "Looks and sizes"
+  },
+  "placement": {
+    "about": "The box on each side of the control, which the machine's positioning decides.",
+    "title": "Placement"
+  },
+  "save": "Save",
+  "saves": "Saves without closing",
+  "title": "Tooltip"
+}

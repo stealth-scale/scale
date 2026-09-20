@@ -8,9 +8,12 @@
  *   scale out, and a scale that gains a step reaches every component that reads it.
  */
 
+import { type Axis, axis } from "#authoring/recipes/axis.ts";
+import { dense } from "#authoring/recipes/density.ts";
+import { SCALE } from "#draw/metrics.ts";
+import { type Scale } from "#draw/type.ts";
 import type { SystemStyleObject } from "#generated/types/system.d.mts";
 import { recordOf } from "#record.ts";
-import { SCALE, type Scale } from "#scales/geometry.ts";
 
 /**
  * The property a control reads the room at its inline start from, its own step as the fallback.
@@ -37,45 +40,6 @@ const BELOW: Readonly<Record<Scale, Scale>> = {
 };
 
 /**
- * Writes the `size` axis of a control: its height, its inset, its gap and its label, each a step
- * of the semantic scale of the same name.
- *
- * @remarks
- *   A control that opens with a mark leads with one step less inset, because a mark is lighter
- *   than a word and the same inset on both sides reads as a gap before the mark. A control that
- *   holds a mark and nothing else states its own inset, which this one does not reach, because
- *   the two rules are equally specific and a recipe's compound is written after its variants.
- *   Each inset is written through {@link CONTROL_INSET_START} or {@link CONTROL_INSET_END} with
- *   the step as the fallback, so a component that places something inside a control opens the
- *   side it needs by setting a property rather than by writing padding of its own. One rule then
- *   writes the padding, and the two never race for it.
- */
-export function controlSizes(): Record<Scale, SystemStyleObject>;
-
-/**
- * Writes the `size` axis of a control for the steps it names.
- *
- * @typeParam Offered - The steps the recipe offers.
- */
-export function controlSizes<const Offered extends Scale>(
-  sizes: readonly Offered[],
-): Record<Offered, SystemStyleObject>;
-
-/**
- * Writes one entry per step, each reading the four scales under that step's name.
- */
-export function controlSizes(sizes: readonly Scale[] = SCALE): Record<string, SystemStyleObject> {
-  return recordOf(sizes, (size) => ({
-    "&:has(> svg:first-child)": { paddingInlineStart: `inset.${below(size)}` },
-    gap: `gap.${size}`,
-    height: `control.${size}`,
-    paddingInlineEnd: `var(${CONTROL_INSET_END}, {spacing.inset.${size}})`,
-    paddingInlineStart: `var(${CONTROL_INSET_START}, {spacing.inset.${size}})`,
-    textStyle: `label.${size}`,
-  }));
-}
-
-/**
  * Reads the step below the one named, the smallest step reading itself.
  *
  * @remarks
@@ -89,21 +53,31 @@ export function below(size: Scale): Scale {
 }
 
 /**
- * Writes the `size` axis of a tag: its height, its inset, its gap and its label.
- */
-export function tagSizes(): Record<Scale, SystemStyleObject>;
-
-/**
- * Writes the `size` axis of a tag for the steps it names.
+ * Writes the `size` axis of a control: its height, its inset, its gap and its label, each a step
+ * of the semantic scale of the same name.
  *
- * @typeParam Offered - The steps the recipe offers.
+ * @remarks
+ *   A control that opens with a mark leads with one step less inset, because a mark is lighter
+ *   than a word and the same inset on both sides reads as a gap before the mark. A control that
+ *   holds a mark and nothing else states its own inset, which this one does not reach, because
+ *   the two rules are equally specific and a recipe's compound is written after its variants.
+ *   Each inset is written through {@link CONTROL_INSET_START} or {@link CONTROL_INSET_END} with
+ *   the step as the fallback, so a component that places something inside a control opens the
+ *   side it needs by setting a property rather than by writing padding of its own. One rule then
+ *   writes the padding, and the two never race for it.
  */
-export function tagSizes<const Offered extends Scale>(
-  sizes: readonly Offered[],
-): Record<Offered, SystemStyleObject>;
+export const controlSizes: Axis<Scale> = axis(SCALE, (size) => ({
+  "&:has(> svg:first-child)": { paddingInlineStart: dense(`{spacing.inset.${below(size)}}`) },
+  gap: dense(`{spacing.gap.${size}}`),
+  height: dense(`{sizes.control.${size}}`),
+  paddingInlineEnd: `var(${CONTROL_INSET_END}, ${dense(`{spacing.inset.${size}}`)})`,
+  paddingInlineStart: `var(${CONTROL_INSET_START}, ${dense(`{spacing.inset.${size}}`)})`,
+  textStyle: `label.${size}`,
+}));
 
 /**
- * Writes one entry per step, the height on the tag scale and the rest one step below.
+ * Writes the `size` axis of a tag: its height on the tag scale, and its inset, its gap and its
+ * label one step below.
  *
  * @remarks
  *   A tag is read beside a control of its own name, so it is shorter than one and its inset, its
@@ -111,14 +85,12 @@ export function tagSizes<const Offered extends Scale>(
  *   its height and carries the small label, which is the proportion a badge in a row of controls
  *   needs to read as a label on something rather than as a control of its own.
  */
-export function tagSizes(sizes: readonly Scale[] = SCALE): Record<string, SystemStyleObject> {
-  return recordOf(sizes, (size) => ({
-    gap: `gap.${below(size)}`,
-    height: `tag.${size}`,
-    paddingInline: `inset.${below(size)}`,
-    textStyle: `label.${below(size)}`,
-  }));
-}
+export const tagSizes: Axis<Scale> = axis(SCALE, (size) => ({
+  gap: dense(`{spacing.gap.${below(size)}}`),
+  height: dense(`{sizes.tag.${size}}`),
+  paddingInline: dense(`{spacing.inset.${below(size)}}`),
+  textStyle: `label.${below(size)}`,
+}));
 
 /**
  * Writes one entry per step of the scale, each holding whatever the recipe states for that step.
@@ -159,71 +131,36 @@ export function sizeVariants(
 
 /**
  * Writes the `size` axis of a padded box: the room inside it on the inset scale.
- */
-export function insetSizes(): Record<Scale, SystemStyleObject>;
-
-/**
- * Writes the `size` axis of a padded box for the steps it names.
- *
- * @typeParam Offered - The steps the recipe offers.
- */
-export function insetSizes<const Offered extends Scale>(
-  sizes: readonly Offered[],
-): Record<Offered, SystemStyleObject>;
-
-/**
- * Writes one entry per step, each the room inside the box on the inset scale.
  *
  * @remarks
  *   A control reads `controlSizes`, which sets a height and pads the sides alone. This pads every
  *   side and sets no height, which is what a panel, a well or an empty state needs.
  */
-export function insetSizes(sizes: readonly Scale[] = SCALE): Record<string, SystemStyleObject> {
-  return recordOf(sizes, (size) => ({ padding: `inset.${size}` }));
-}
+export const insetSizes: Axis<Scale> = axis(SCALE, (size) => ({
+  padding: dense(`{spacing.inset.${size}}`),
+}));
 
 /**
  * Writes the `size` axis of an icon: a square box on the icon scale.
  */
-export function iconSizes(): Record<Scale, SystemStyleObject>;
-
-/**
- * Writes the `size` axis of an icon for the steps it names.
- *
- * @typeParam Offered - The steps the recipe offers.
- */
-export function iconSizes<const Offered extends Scale>(
-  sizes: readonly Offered[],
-): Record<Offered, SystemStyleObject>;
-
-/**
- * Writes one entry per step, each a square box on the icon scale.
- */
-export function iconSizes(sizes: readonly Scale[] = SCALE): Record<string, SystemStyleObject> {
-  return recordOf(sizes, (size) => ({ boxSize: `icon.${size}` }));
-}
+export const iconSizes: Axis<Scale> = axis(SCALE, (size) => ({
+  boxSize: dense(`{sizes.icon.${size}}`),
+}));
 
 /**
  * Writes the `size` axis of a square control that holds one icon and no label: a box on the
  * control scale with no inset.
  */
-export function iconOnly(): Record<Scale, SystemStyleObject>;
+export const iconOnly: Axis<Scale> = axis(SCALE, (size) => ({
+  boxSize: dense(`{sizes.control.${size}}`),
+  padding: "0",
+}));
 
 /**
- * Writes the `size` axis of such a control for the steps it names.
- *
- * @typeParam Offered - The steps the recipe offers.
+ * Fixes the least a hit area may shrink to under any density: the grid step at twenty-four CSS
+ * pixels, which is what WCAG 2.5.8 asks of a target.
  */
-export function iconOnly<const Offered extends Scale>(
-  sizes: readonly Offered[],
-): Record<Offered, SystemStyleObject>;
-
-/**
- * Writes one entry per step, each a box on the control scale with no inset.
- */
-export function iconOnly(sizes: readonly Scale[] = SCALE): Record<string, SystemStyleObject> {
-  return recordOf(sizes, (size) => ({ boxSize: `control.${size}`, padding: "0" }));
-}
+const TARGET_FLOOR = "{sizes.6}";
 
 /**
  * Widens the hit area of a control to a medium control's box under a coarse pointer, without
@@ -233,7 +170,9 @@ export function iconOnly(sizes: readonly Scale[] = SCALE): Record<string, System
  *   The area is a pseudo-element centred on the control, which a pointer hits as part of it. The
  *   control is positioned under the coarse pointer alone, so a control that positions itself is
  *   left alone everywhere else. The area is drawn before the control's content rather than after
- *   it, which leaves the other pseudo-element to a look that draws one, the ripple among them.
+ *   it, which leaves the other pseudo-element to a look that draws one, the ripple among them. It
+ *   is the medium control's box or the target floor, whichever is larger, so a compact density
+ *   shrinks the control and not the target below what a finger needs.
  */
 export function touchTarget(): SystemStyleObject {
   return {
@@ -242,8 +181,8 @@ export function touchTarget(): SystemStyleObject {
         content: '""',
         insetBlockStart: "50%",
         insetInlineStart: "50%",
-        minBlockSize: "control.md",
-        minInlineSize: "control.md",
+        minBlockSize: `max(${TARGET_FLOOR}, ${dense("{sizes.control.md}")})`,
+        minInlineSize: `max(${TARGET_FLOOR}, ${dense("{sizes.control.md}")})`,
         position: "absolute",
         translate: "-50% -50%",
       },

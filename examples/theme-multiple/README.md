@@ -1,9 +1,9 @@
 # @stealthscale/example-theme-multiple
 
 `@stealthscale/example-theme-multiple` renders a page drawn by the button of
-`@stealthscale/example-lib-actions` and switches it between sixteen themes and two color modes: the
-four example themes and the eight published ones with the variants derived from them. An application
-with more than one theme adds a statement, a stylesheet import and two attributes:
+`@stealthscale/example-lib-actions` and switches it between fourteen themes and two color modes: the
+four example themes and the ten published ones. An application with more than one theme adds a
+statement, a stylesheet import and two attributes:
 
 - `theme.config.ts` lists the themes.
 - The build plugin fills a stylesheet import.
@@ -37,8 +37,9 @@ export default {
 The first theme is the default. Each theme is compiled under `[data-theme=<name>]` as well, so a
 subtree can take any of them. Abyss is derived from Fathom, and the compiler composes the lineage,
 so Fathom's values and Abyss's own both compile under Abyss's attribute. One panel uses Forge while
-the page uses whatever the reader picked. `src/published-themes.ts` lists the eight published themes
-with their variants, each root before the variants derived from it.
+the page uses whatever the reader picked. `src/published-themes.ts` lists the ten published themes:
+Ink, the look the components were drawn against, then nine each drawn from four colors stated
+outright.
 
 `own` is the preset of the application's own recipes, `src/theme.ts`, written and checked exactly as
 a component package writes and checks its `./theme`. It registers the badge under
@@ -99,6 +100,6 @@ export default defineConfig(import.meta.dirname, {
 
 `theme.stylesheet()` adds the compiler. It reads `theme.config.ts`, walks the dependency graph for
 every package publishing `./theme`, and compiles one stylesheet from the foundation, the presets of
-the two component packages and the sixteen themes. The statement is a default export, which the
+the two component packages and the fourteen themes. The statement is a default export, which the
 house lint excuses for every `*.config.ts` file, and the shared `tsconfig.json` compiles it and its
 specification beside `src`, so the application states nothing of its own for either.

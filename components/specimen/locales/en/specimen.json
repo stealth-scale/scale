@@ -1,6 +1,55 @@
 {
+  "audit": {
+    "broken": "Broken {{count}} rule",
+    "broken_other": "Broken {{count}} rules",
+    "check": "Audit",
+    "clean": "Nothing found, against {{count}} rule",
+    "clean_other": "Nothing found, against {{count}} rules",
+    "rule": "Read the {{rule}} rule",
+    "running": "Auditing",
+    "unrated": "unrated"
+  },
+  "code": {
+    "copied": "Copied the code",
+    "copy": "Copy the code",
+    "import": "Import",
+    "none": "No source for this scene",
+    "source": "Source"
+  },
+  "contents": {
+    "title": "On this page"
+  },
+  "device": {
+    "sample": "sample",
+    "size": "{{width}} × {{height}}"
+  },
+  "index": {
+    "title": "Components"
+  },
+  "page": {
+    "back": "Components"
+  },
+  "props": {
+    "accepts": "Accepts",
+    "axes": "The axes a theme moves on {{part}}",
+    "dropped": "{{conditions}} styling conditions and {{foreign}} properties from elsewhere are not listed.",
+    "fallback": "Falls back to",
+    "loading": "Reading what the parts accept.",
+    "name": "Prop",
+    "none": "Nothing was read for this page.",
+    "says": "What it does",
+    "set": "The props a page sets on {{part}}"
+  },
   "rail": {
-    "label": "Pages",
+    "clear": "Clear the filter",
+    "empty": "No pages match",
+    "filter": "Filter pages",
+    "label": "Components",
     "ungrouped": "Other"
+  },
+  "tabs": {
+    "examples": "Examples",
+    "label": "Bands of this page",
+    "props": "Props"
   }
 }

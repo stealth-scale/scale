@@ -5,7 +5,7 @@ import surfaces from "@stealthscale/example-lib-surfaces/theme";
 import { extendedRecipes, publishedRecipes, violations } from "@stealthscale/testing-theme";
 import foundation from "@stealthscale/theme/theme";
 
-import { forge } from "#index.ts";
+import { DEPTH, forge } from "#index.ts";
 
 const published = publishedRecipes(actions, surfaces);
 
@@ -22,6 +22,14 @@ describe("forge", () => {
 
   it("names itself as a page writes the attribute", () => {
     expect(forge.name).toBe("forge");
+  });
+
+  it("casts every shadow with half the default ink in the neutral hue", () => {
+    expect(DEPTH).toBe(0.5);
+    expect(forge.variant.semanticTokens?.shadows?.["md"]).toStrictEqual({
+      value:
+        "0 4px 8px light-dark(oklch(20% 0.02 70 / 0.040), oklch(0% 0.02 70 / 0.120)), inset 0 0 0 1px light-dark(transparent, oklch(100% 0 0 / 0.12))",
+    });
   });
 
   it("extends the button and the card and nothing else", () => {

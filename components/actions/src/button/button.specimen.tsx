@@ -1,99 +1,224 @@
-import { Icon } from "@stealthscale/component-typography";
-import { Matrix, type Scene, specimen } from "@stealthscale/specimen";
-import { LIFTED, LOOKS, SCALE, STATUSES } from "@stealthscale/theme/authoring";
+/**
+ * Shows the button: every axis of its recipe crossed with every look, the square that holds one
+ * glyph, and the two states a page puts it in.
+ *
+ * @remarks
+ *   Every axis is read off the recipe, so a value added to the theme or to the recipe reaches the
+ *   page without this file changing. Each scene names a different action, so a reader sees the
+ *   words vary rather than one label repeated. The words are keys under `button` in the catalogue's
+ *   namespace, kept beside this file in `locales/en/specimen/button.json`.
+ */
+
+import { type ReactElement } from "react";
+
+import { CheckIcon } from "lucide-react";
+
+import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
 
 import { Button } from "#button/button.ts";
 import { IconButton } from "#button/icon-button.ts";
+import { recipe } from "#button/recipe.ts";
 
-const VARIANTS = [...LOOKS, "glass"] as const;
+/**
+ * Every look the recipe draws, which every other scene crosses with its own axis.
+ */
+const LOOKS = valuesOf(recipe, "variant");
 
-const SHOWN = ["solid", "subtle", "outline"] as const;
+/**
+ * The two answers to a boolean prop.
+ */
+const EITHER = [false, true] as const;
 
-const PRESSED = [false, true] as const;
+/**
+ * Draws every look at every size.
+ */
+function Looks(): ReactElement {
+  const { t } = useWords("button");
 
-const CHECK = "M20 6 9 17l-5-5";
-
-export const looks: Scene = {
-  about:
-    "Every look the vocabulary offers, and the `glass` layer style the button adds beside them. A look reads the palette rather than a colour, so a status or a theme moves all of them at once.",
-  draw: () => (
-    <Matrix direction="row" knob="variant" of={VARIANTS}>
-      {(variant) => <Button variant={variant}>Publish</Button>}
-    </Matrix>
-  ),
-  title: "Looks",
-};
-
-export const sizes: Scene = {
-  about:
-    "The control steps every other control in the library shares, so a button in a row of fields lines up with them.",
-  draw: () => (
-    <Matrix direction="row" knob="size" of={SCALE}>
-      {(size) => <Button size={size}>Publish</Button>}
-    </Matrix>
-  ),
-  title: "Sizes",
-};
-
-export const statuses: Scene = {
-  about:
-    "A status points the palette at the semantic palette of its name and sets nothing else, so the look decides how that palette is drawn.",
-  draw: () => (
-    <Matrix knob="status" of={STATUSES}>
-      {(status) => (
-        <Matrix direction="row" knob="variant" of={SHOWN}>
-          {(variant) => (
-            <Button status={status} variant={variant}>
-              Retry
-            </Button>
-          )}
-        </Matrix>
+  return (
+    <Matrix across={{ knob: "size", of: valuesOf(recipe, "size") }} knob="variant" of={LOOKS}>
+      {(variant, size) => (
+        <Button size={size} variant={variant}>
+          {t("publish")}
+        </Button>
       )}
     </Matrix>
-  ),
-  title: "Statuses",
-};
+  );
+}
 
-export const elevation: Scene = {
-  about: "A lifted button rises under a pointer and drops towards the page under a press.",
-  draw: () => (
-    <Matrix direction="row" knob="elevation" of={LIFTED}>
-      {(lift) => <Button elevation={lift}>Publish</Button>}
+/**
+ * Draws every status in every look.
+ */
+function Statuses(): ReactElement {
+  const { t } = useWords("button");
+
+  return (
+    <Matrix across={{ knob: "variant", of: LOOKS }} knob="status" of={valuesOf(recipe, "status")}>
+      {(status, variant) => (
+        <Button status={status} variant={variant}>
+          {t("retry")}
+        </Button>
+      )}
     </Matrix>
-  ),
-  title: "Elevation",
-};
+  );
+}
 
-export const square: Scene = {
-  about:
-    "A button holding one glyph fixes the square shape and requires an accessible name, because the glyph names nothing.",
-  draw: () => (
-    <Matrix direction="row" knob="size" of={SCALE}>
-      {(size) => (
-        <IconButton aria-label="Approve" size={size}>
-          <Icon viewBox="0 0 24 24">
-            <path d={CHECK} fill="none" stroke="currentColor" strokeWidth="2" />
-          </Icon>
+/**
+ * Draws both elevations in every look.
+ */
+function Elevation(): ReactElement {
+  const { t } = useWords("button");
+
+  return (
+    <Matrix
+      across={{ knob: "variant", of: LOOKS }}
+      knob="elevation"
+      of={valuesOf(recipe, "elevation")}
+    >
+      {(elevation, variant) => (
+        <Button elevation={elevation} variant={variant}>
+          {t("upload")}
+        </Button>
+      )}
+    </Matrix>
+  );
+}
+
+/**
+ * Draws the glow in every look.
+ */
+function Effects(): ReactElement {
+  const { t } = useWords("button");
+
+  return (
+    <Matrix across={{ knob: "variant", of: LOOKS }} knob="effect" of={valuesOf(recipe, "effect")}>
+      {(effect, variant) => (
+        <Button effect={effect} variant={variant}>
+          {t("celebrate")}
+        </Button>
+      )}
+    </Matrix>
+  );
+}
+
+/**
+ * Draws the square that holds one glyph, at every size in every look.
+ */
+function Square(): ReactElement {
+  const { t } = useWords("button");
+
+  return (
+    <Matrix across={{ knob: "variant", of: LOOKS }} knob="size" of={valuesOf(recipe, "size")}>
+      {(size, variant) => (
+        <IconButton aria-label={t("approve")} size={size} variant={variant}>
+          <CheckIcon size="1em" />
         </IconButton>
       )}
     </Matrix>
-  ),
-  title: "One glyph",
+  );
+}
+
+/**
+ * Draws a button beside its pressed self, in every look.
+ */
+function Pressed(): ReactElement {
+  const { t } = useWords("button");
+
+  return (
+    <Matrix across={{ knob: "variant", of: LOOKS }} knob="aria-pressed" of={EITHER}>
+      {(pressed, variant) => (
+        <Button aria-pressed={pressed} variant={variant}>
+          {t("bold")}
+        </Button>
+      )}
+    </Matrix>
+  );
+}
+
+/**
+ * Draws a button beside its disabled self, in every look.
+ */
+function Disabled(): ReactElement {
+  const { t } = useWords("button");
+
+  return (
+    <Matrix across={{ knob: "variant", of: LOOKS }} knob="disabled" of={EITHER}>
+      {(disabled, variant) => (
+        <Button disabled={disabled} variant={variant}>
+          {t("archive")}
+        </Button>
+      )}
+    </Matrix>
+  );
+}
+
+/**
+ * Every look at every size.
+ */
+export const looks: Scene = {
+  about: "button.looks.about",
+  draw: Looks,
+  title: "button.looks.title",
 };
 
-export const states: Scene = {
-  about: "A disabled button keeps its box and stops taking a press.",
-  draw: () => (
-    <Matrix direction="row" knob="disabled" of={PRESSED}>
-      {(disabled) => <Button disabled={disabled}>Publish</Button>}
-    </Matrix>
-  ),
-  title: "States",
+/**
+ * Every status in every look.
+ */
+export const statuses: Scene = {
+  about: "button.statuses.about",
+  draw: Statuses,
+  title: "button.statuses.title",
+};
+
+/**
+ * Both elevations in every look.
+ */
+export const elevation: Scene = {
+  about: "button.elevation.about",
+  draw: Elevation,
+  title: "button.elevation.title",
+};
+
+/**
+ * The glow in every look.
+ */
+export const effects: Scene = {
+  about: "button.effects.about",
+  draw: Effects,
+  title: "button.effects.title",
+};
+
+/**
+ * The square that holds one glyph.
+ */
+export const square: Scene = {
+  about: "button.square.about",
+  draw: Square,
+  title: "button.square.title",
+};
+
+/**
+ * The pressed state.
+ */
+export const pressed: Scene = {
+  about: "button.pressed.about",
+  draw: Pressed,
+  title: "button.pressed.title",
+};
+
+/**
+ * The disabled state.
+ */
+export const disabled: Scene = {
+  about: "button.disabled.about",
+  draw: Disabled,
+  title: "button.disabled.title",
 };
 
 export default specimen({
-  about: "The element a person presses, and the square that holds one glyph.",
+  about: "button.about",
   group: "Actions",
   id: "actions/button",
-  scenes: [looks, sizes, statuses, elevation, square, states],
+  scenes: [looks, statuses, elevation, effects, square, pressed, disabled],
+  title: "button.title",
 });

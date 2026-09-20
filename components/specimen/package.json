@@ -31,11 +31,16 @@
       "stealth-source": "./src/index.ts",
       "default": "./dist/index.js"
     },
+    "./theme": {
+      "stealth-source": "./src/theme.ts",
+      "default": "./dist/theme.js"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
     "exports": {
       ".": "./dist/index.js",
+      "./theme": "./dist/theme.js",
       "./package.json": "./package.json"
     },
     "access": "public"
@@ -46,15 +51,32 @@
     "prepublishOnly": "vp pack",
     "test": "vp test"
   },
+  "dependencies": {
+    "axe-core": "catalog:",
+    "lucide-react": "catalog:"
+  },
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
     "@rolldown/plugin-babel": "catalog:",
+    "@stealthscale/component-a11y": "workspace:^",
     "@stealthscale/component-actions": "workspace:^",
+    "@stealthscale/component-collections": "workspace:^",
+    "@stealthscale/component-content": "workspace:^",
+    "@stealthscale/component-data": "workspace:^",
+    "@stealthscale/component-disclosure": "workspace:^",
+    "@stealthscale/component-forms": "workspace:^",
     "@stealthscale/component-layout": "workspace:^",
+    "@stealthscale/component-navigation": "workspace:^",
+    "@stealthscale/component-screen": "workspace:^",
+    "@stealthscale/component-surfaces": "workspace:^",
     "@stealthscale/component-typography": "workspace:^",
+    "@stealthscale/provider-hotkeys": "workspace:^",
     "@stealthscale/provider-i18n": "workspace:^",
     "@stealthscale/provider-router": "workspace:^",
+    "@stealthscale/provider-viewport": "workspace:^",
+    "@stealthscale/testing-react": "workspace:^",
     "@stealthscale/testing-router": "workspace:^",
+    "@stealthscale/testing-theme": "workspace:^",
     "@stealthscale/vite-config": "workspace:^",
     "@stealthscale/vite-config-i18n": "workspace:^",
     "@stealthscale/vite-config-react": "workspace:^",
@@ -73,11 +95,23 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
+    "@stealthscale/component-a11y": "workspace:^",
     "@stealthscale/component-actions": "workspace:^",
+    "@stealthscale/component-collections": "workspace:^",
+    "@stealthscale/component-content": "workspace:^",
+    "@stealthscale/component-data": "workspace:^",
+    "@stealthscale/component-disclosure": "workspace:^",
+    "@stealthscale/component-forms": "workspace:^",
     "@stealthscale/component-layout": "workspace:^",
+    "@stealthscale/component-navigation": "workspace:^",
+    "@stealthscale/component-screen": "workspace:^",
+    "@stealthscale/component-surfaces": "workspace:^",
     "@stealthscale/component-typography": "workspace:^",
+    "@stealthscale/provider-hotkeys": "workspace:^",
     "@stealthscale/provider-i18n": "workspace:^",
     "@stealthscale/provider-router": "workspace:^",
+    "@stealthscale/provider-viewport": "workspace:^",
+    "@stealthscale/theme": "workspace:^",
     "@stealthscale/vite-plugin-specimen": "workspace:^",
     "react": "catalog:"
   },

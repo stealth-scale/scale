@@ -6,12 +6,12 @@ import { defineRecipe } from "#authoring/recipe.ts";
 import { divider, liftVariants, surface } from "#authoring/recipes/surface.ts";
 
 describe("surface", () => {
-  it("draws a panel lifted a little when nothing is stated", () => {
+  it("draws a panel with a hairline edge lifted a little when nothing is stated", () => {
     expect(surface()).toStrictEqual({
       background: "bg.panel",
       borderColor: "border",
       borderRadius: "l2",
-      borderWidth: "sm",
+      borderWidth: "hairline",
       boxShadow: "sm",
       color: "fg",
     });
@@ -37,7 +37,7 @@ describe("surface", () => {
 
   it("draws a hairline across the page when nothing is stated", () => {
     expect(divider()).toStrictEqual({
-      borderBlockEndWidth: "sm",
+      borderBlockEndWidth: "hairline",
       borderColor: "border",
       inlineSize: "100%",
     });
@@ -47,7 +47,7 @@ describe("surface", () => {
     expect(divider("vertical")).toStrictEqual({
       alignSelf: "stretch",
       borderColor: "border",
-      borderInlineEndWidth: "sm",
+      borderInlineEndWidth: "hairline",
     });
   });
 

@@ -17,7 +17,13 @@
  *   page.
  */
 
-import { defineSlotRecipe, motion, onSlot, sizeVariants } from "@stealthscale/theme/authoring";
+import {
+  defineSlotRecipe,
+  dense,
+  motion,
+  onSlot,
+  sizeVariants,
+} from "@stealthscale/theme/authoring";
 
 /**
  * Draws an inverted tooltip at the middle size until a caller says otherwise.
@@ -25,7 +31,7 @@ import { defineSlotRecipe, motion, onSlot, sizeVariants } from "@stealthscale/th
 export const recipe = defineSlotRecipe({
   base: {
     arrow: { "--arrow-background": "var(--tooltip-surface)", "--arrow-size": "sizes.icon.xs" },
-    arrowTip: { borderInlineStartWidth: "sm", borderTopWidth: "sm" },
+    arrowTip: { borderInlineStartWidth: "hairline", borderTopWidth: "hairline" },
     content: {
       ...motion("scale-fade.in", "scale-fade.out"),
       background: "var(--tooltip-surface)",
@@ -49,7 +55,10 @@ export const recipe = defineSlotRecipe({
      */
     size: onSlot(
       "content",
-      sizeVariants((size) => ({ padding: `inset.${size}`, textStyle: `label.${size}` })),
+      sizeVariants((size) => ({
+        padding: dense(`{spacing.inset.${size}}`),
+        textStyle: `label.${size}`,
+      })),
     ),
 
     /**
@@ -65,7 +74,7 @@ export const recipe = defineSlotRecipe({
         content: {
           "--tooltip-surface": "colors.bg.popover",
           borderColor: "border",
-          borderWidth: "sm",
+          borderWidth: "hairline",
           color: "fg",
         },
       },

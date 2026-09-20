@@ -1,0 +1,23 @@
+{
+  "about": "Lists the headings on a page and marks the ones on screen, so a reader sees where they are and jumps to where they want to be.",
+  "following": {
+    "about": "A rail over three passages on this page. Scroll, and the mark moves to the heading on screen. Press a row, and the page scrolls to it.",
+    "title": "Following the reader"
+  },
+  "headings": {
+    "toc-first": "The first passage",
+    "toc-install": "Install",
+    "toc-overview": "Overview",
+    "toc-peers": "Peers",
+    "toc-second": "The second passage",
+    "toc-third": "The third passage",
+    "toc-usage": "Usage"
+  },
+  "onThisPage": "On this page",
+  "passage": "A short passage under the heading, long enough to give the page something to scroll past.",
+  "sizes": {
+    "about": "Every size, with the mark on the second heading and a heading one level in indented under the one above it.",
+    "title": "Sizes"
+  },
+  "title": "Table of contents"
+}

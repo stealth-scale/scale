@@ -45,4 +45,10 @@ describe("Root", () => {
 
     expect(slotElement(container, "toolbar", "root")).toBeTruthy();
   });
+
+  it("reports no narrowness in a document that measures nothing", () => {
+    const { container } = render(composed());
+
+    expect(slotElement(container, "toolbar", "root").dataset["narrow"]).toBeUndefined();
+  });
 });

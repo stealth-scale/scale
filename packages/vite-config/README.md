@@ -113,7 +113,7 @@ Sixteen namespaces sit at the package root, one for each part of a configuration
 | `preview`    | The preview server: port, interface, hostnames, shared origins and headers       |
 | `resolve`    | What makes a workspace import reach source rather than built output              |
 | `run`        | What a workspace root tells the task runner: the result cache and the task table |
-| `server`     | The development server: port, interface, hostnames and proxied paths             |
+| `server`     | The development server: port, interface, hostnames, proxied paths and bundling   |
 | `serving`    | The hosts and origins a machine states in `STEALTH_HOSTS` and `STEALTH_ORIGINS`  |
 | `ssr`        | A server-side render build: which dependencies it bundles, and which runtime     |
 | `staged`     | The work a commit does over the files it stages                                  |

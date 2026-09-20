@@ -21,15 +21,20 @@ const SIZES = ["xs", "sm", "md", "lg", "xl"] as const;
 describe("sizes", () => {
   it("reads the four semantic scales for each control size", () => {
     expect(controlSizes(["md"])).toMatchObject({
-      md: { gap: "gap.md", height: "control.md", textStyle: "label.md" },
+      md: {
+        gap: "calc({spacing.gap.md} * var(--density, 1))",
+        height: "calc({sizes.control.md} * var(--density, 1))",
+        textStyle: "label.md",
+      },
     });
   });
 
   it("reads each inset through a property with the step as the fallback", () => {
     expect(controlSizes(["md"])).toMatchObject({
       md: {
-        paddingInlineEnd: "var(--control-inset-end, {spacing.inset.md})",
-        paddingInlineStart: "var(--control-inset-start, {spacing.inset.md})",
+        paddingInlineEnd: "var(--control-inset-end, calc({spacing.inset.md} * var(--density, 1)))",
+        paddingInlineStart:
+          "var(--control-inset-start, calc({spacing.inset.md} * var(--density, 1)))",
       },
     });
   });
@@ -43,33 +48,51 @@ describe("sizes", () => {
 
   it("leads with one step less inset where a mark opens the control", () => {
     expect(controlSizes(["md", "4xl"])).toMatchObject({
-      "4xl": { "&:has(> svg:first-child)": { paddingInlineStart: "inset.3xl" } },
-      md: { "&:has(> svg:first-child)": { paddingInlineStart: "inset.sm" } },
+      "4xl": {
+        "&:has(> svg:first-child)": {
+          paddingInlineStart: "calc({spacing.inset.3xl} * var(--density, 1))",
+        },
+      },
+      md: {
+        "&:has(> svg:first-child)": {
+          paddingInlineStart: "calc({spacing.inset.sm} * var(--density, 1))",
+        },
+      },
     });
   });
 
   it("leads with its own inset at the smallest size", () => {
     expect(controlSizes(["xs"])).toMatchObject({
-      xs: { "&:has(> svg:first-child)": { paddingInlineStart: "inset.xs" } },
+      xs: {
+        "&:has(> svg:first-child)": {
+          paddingInlineStart: "calc({spacing.inset.xs} * var(--density, 1))",
+        },
+      },
     });
   });
 
   it("reads the icon scale for each icon size", () => {
     expect(iconSizes(["xs", "xl"])).toStrictEqual({
-      xl: { boxSize: "icon.xl" },
-      xs: { boxSize: "icon.xs" },
+      xl: { boxSize: "calc({sizes.icon.xl} * var(--density, 1))" },
+      xs: { boxSize: "calc({sizes.icon.xs} * var(--density, 1))" },
     });
   });
 
   it("draws a square control with no inset for each icon-only size", () => {
-    expect(iconOnly(["md"])).toStrictEqual({ md: { boxSize: "control.md", padding: "0" } });
+    expect(iconOnly(["md"])).toStrictEqual({
+      md: { boxSize: "calc({sizes.control.md} * var(--density, 1))", padding: "0" },
+    });
   });
 
-  it("widens the hit area to a medium control under a coarse pointer alone", () => {
+  it("widens the hit area to a medium control or the target floor under a coarse pointer alone", () => {
     expect(Object.keys(touchTarget())).toStrictEqual(["_touch"]);
     expect(touchTarget()).toMatchObject({
       _touch: {
-        _before: { minBlockSize: "control.md", minInlineSize: "control.md", position: "absolute" },
+        _before: {
+          minBlockSize: "max({sizes.6}, calc({sizes.control.md} * var(--density, 1)))",
+          minInlineSize: "max({sizes.6}, calc({sizes.control.md} * var(--density, 1)))",
+          position: "absolute",
+        },
         position: "relative",
       },
     });
@@ -89,7 +112,9 @@ describe("sizes", () => {
   });
 
   it("pads every side of a box on the inset scale", () => {
-    expect(insetSizes(["md"])).toStrictEqual({ md: { padding: "inset.md" } });
+    expect(insetSizes(["md"])).toStrictEqual({
+      md: { padding: "calc({spacing.inset.md} * var(--density, 1))" },
+    });
   });
 
   it("offers every step of the inset scale where a recipe names none", () => {
@@ -107,7 +132,12 @@ describe("sizes", () => {
 
   it("reads the tag scale for a tag's height and the step below for the rest", () => {
     expect(tagSizes(["md"])).toStrictEqual({
-      md: { gap: "gap.sm", height: "tag.md", paddingInline: "inset.sm", textStyle: "label.sm" },
+      md: {
+        gap: "calc({spacing.gap.sm} * var(--density, 1))",
+        height: "calc({sizes.tag.md} * var(--density, 1))",
+        paddingInline: "calc({spacing.inset.sm} * var(--density, 1))",
+        textStyle: "label.sm",
+      },
     });
   });
 

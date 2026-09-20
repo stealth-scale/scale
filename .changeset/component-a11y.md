@@ -8,3 +8,28 @@ component-a11y: let a roving focus item hold a ref to any element
   else is asked for. An item drawn as a button or a link could not be given a ref of its own
   element, so a caller who needed one wrote an assertion or dropped the ref.
 - The type is now `Ref<HTMLElement>`, which every element the item can draw satisfies.
+
+component-a11y: write no id on a roving focus item unless a caller names one
+
+- `RovingFocus.Item` stamped the id it tracks the item by onto the element, so a control drawn as an
+  item lost its own id: a menu's trigger, which its panel's `aria-labelledby` points at. The group
+  tracks an item by its registration and moves focus through the element, so the element now carries
+  an id only where a caller states one.
+- The item holding the tab stop is stamped `data-stop` rather than `data-active`. The theme reads
+  `[data-active]` as a control being pressed, so a button drawn as an item was filled for holding
+  the stop.
+
+component-a11y: show every component
+
+- One specimen per component, each scene drawing every value of every axis the recipe offers, with
+  the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.
+
+component-a11y: draw the roving focus specimen's controls as one toolbar
+
+- An attached `Group` holds the controls, which share their edges and read as one toolbar rather
+  than as separate buttons near each other. The group runs the way the arrows do, and along a row
+  where the arrows move on both axes.
+- The group is drawn inside the root rather than as it. Both recipes state a direction, so one
+  element bound to both would take two rules for the same property. An item finds its place through
+  the root's context and not through the document, so the group between them changes nothing a
+  keyboard does.

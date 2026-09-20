@@ -34,9 +34,9 @@ export const recipe = defineSlotRecipe({
       display: "inline-flex",
       flexShrink: "0",
       justifyContent: "center",
-      transitionDuration: "fast",
-      transitionProperty: "transform",
-      transitionTimingFunction: "out",
+      transitionDuration: "press",
+      transitionProperty: "rotate",
+      transitionTimingFunction: "press",
     },
     root: { width: "full" },
     trigger: {
@@ -83,8 +83,8 @@ export const recipe = defineSlotRecipe({
      */
     variant: {
       outline: {
-        root: { borderColor: "border", borderRadius: "l2", borderWidth: "sm" },
-        trigger: { _open: { borderBlockEndColor: "border", borderBlockEndWidth: "sm" } },
+        root: { borderColor: "border", borderRadius: "l2", borderWidth: "hairline" },
+        trigger: { _open: { borderBlockEndColor: "border", borderBlockEndWidth: "hairline" } },
       },
       plain: { root: { borderWidth: "0" } },
       subtle: {
@@ -96,9 +96,9 @@ export const recipe = defineSlotRecipe({
           background: "bg.panel",
           borderColor: "border",
           borderRadius: "l2",
-          borderWidth: "sm",
+          borderWidth: "hairline",
         },
-        trigger: { _open: { borderBlockEndColor: "border", borderBlockEndWidth: "sm" } },
+        trigger: { _open: { borderBlockEndColor: "border", borderBlockEndWidth: "hairline" } },
       },
     },
   },

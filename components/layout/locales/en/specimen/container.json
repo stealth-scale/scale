@@ -1,0 +1,15 @@
+{
+  "about": "Holds a page to one measure and centres it in whatever holds it, with a gutter down each side.",
+  "gutter": {
+    "about": "The gutter down each side, and a flush container that takes it away. The outer tile stands for the page, so the gutter is the room between it and the content.",
+    "title": "Gutter"
+  },
+  "measures": {
+    "about": "Every measure, from the narrowest to the whole of the room, the measure a column of text is read at among them. A measure wider than the room fills it.",
+    "title": "Measures"
+  },
+  "page": "Page",
+  "prose": "Running text at the measure it is read at.",
+  "settings": "Settings",
+  "title": "Container"
+}

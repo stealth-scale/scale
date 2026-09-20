@@ -16,14 +16,17 @@
  */
 
 import {
+  CONTROL_INSET_END,
+  CONTROL_INSET_START,
   defineSlotRecipe,
-  field,
+  dense,
   fieldStatusVariants,
-  fieldVariants,
   onSlot,
   onSlots,
   sizeVariants,
   statusEmitted,
+  wrappedField,
+  wrappedFieldVariants,
 } from "@stealthscale/theme/authoring";
 
 /**
@@ -61,7 +64,7 @@ export const recipe = defineSlotRecipe({
     },
     root: {
       "&::after": { ...MEASURED, content: `attr(${VALUE}) " "`, visibility: "hidden" },
-      ...field(),
+      ...wrappedField(),
       borderRadius: "l2",
       display: "grid",
       inlineSize: "full",
@@ -101,7 +104,12 @@ export const recipe = defineSlotRecipe({
 
     size: onSlots({
       root: sizeVariants(
-        (size) => ({ padding: `inset.${size}`, textStyle: `body.${size}` }),
+        (size) => ({
+          paddingBlock: dense(`{spacing.inset.${size}}`),
+          paddingInlineEnd: `var(${CONTROL_INSET_END}, ${dense(`{spacing.inset.${size}}`)})`,
+          paddingInlineStart: `var(${CONTROL_INSET_START}, ${dense(`{spacing.inset.${size}}`)})`,
+          textStyle: `body.${size}`,
+        }),
         ["sm", "md", "lg"],
       ),
     }),
@@ -112,8 +120,12 @@ export const recipe = defineSlotRecipe({
      * How the edge of the field is drawn.
      */
     variant: onSlot("root", {
-      ...fieldVariants(),
-      flushed: { layerStyle: "field.flushed", paddingInline: "0" },
+      ...wrappedFieldVariants(),
+      flushed: {
+        layerStyle: "field.wrapped.flushed",
+        paddingInlineEnd: `var(${CONTROL_INSET_END}, {spacing.0})`,
+        paddingInlineStart: `var(${CONTROL_INSET_START}, {spacing.0})`,
+      },
     }),
   },
 });

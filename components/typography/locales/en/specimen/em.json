@@ -1,0 +1,15 @@
+{
+  "about": "Marks a run of words the writer stressed, in the emphasis role.",
+  "after": " press the red one.",
+  "before": "Whatever happens,",
+  "inks": {
+    "about": "The stressed run in every ink, inside a line of ordinary words.",
+    "title": "Inks"
+  },
+  "motion": {
+    "about": "How the run enters the line.",
+    "title": "Motion"
+  },
+  "never": "never",
+  "title": "Em"
+}

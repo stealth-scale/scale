@@ -120,6 +120,16 @@ describe("hook", () => {
     await expect(loaded(driven().plugin, "/pkg/a.css")).resolves.toBeUndefined();
   });
 
+  it("binds the context as this in load where one is given and nothing where none is", async () => {
+    const one = driven();
+    const context = hookContext();
+
+    await loaded(one.plugin, "/pkg/a.css", context);
+    await loaded(one.plugin, "/pkg/a.css");
+
+    expect(one.bound).toStrictEqual([context, undefined]);
+  });
+
   it("returns the code transform wrote back", async () => {
     const one = driven({ code: "@layer a;\n.x{}", map: null });
 
@@ -253,5 +263,14 @@ describe("hookContext", () => {
 
   it("answers the command it was built for", () => {
     expect(hookContext([], "build").environment.config.command).toBe("build");
+  });
+
+  it("bundles under a build and serves a module per file otherwise", () => {
+    expect(hookContext([], "build").environment.config.isBundled).toBe(true);
+    expect(hookContext().environment.config.isBundled).toBe(false);
+  });
+
+  it("bundles under a server where the specification says so", () => {
+    expect(hookContext([], "serve", true).environment.config.isBundled).toBe(true);
   });
 });

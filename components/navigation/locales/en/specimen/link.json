@@ -1,0 +1,15 @@
+{
+  "about": "Draws words a person follows to somewhere else, in the ink and the underline the theme decides.",
+  "after": " before the end of the month.",
+  "before": "Read the",
+  "inherit": {
+    "about": "A link in its own ink beside one taking the ink of the words around it, for a title or a brand where the surface already says it is pressed.",
+    "title": "Inherit"
+  },
+  "looks": {
+    "about": "Both looks, inside a line of ordinary words. Both underline under a pointer; the axis decides whether the underline is there at rest as well.",
+    "title": "Looks"
+  },
+  "terms": "terms of service",
+  "title": "Link"
+}

@@ -49,8 +49,11 @@
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
     "@rolldown/plugin-babel": "catalog:",
+    "@stealthscale/component-layout": "workspace:^",
     "@stealthscale/vite-config": "workspace:^",
+    "@stealthscale/vite-config-i18n": "workspace:^",
     "@stealthscale/vite-config-react": "workspace:^",
+    "@stealthscale/vite-config-specimen": "workspace:^",
     "@stealthscale/vite-config-typescript": "workspace:^",
     "@testing-library/react": "catalog:",
     "@types/react": "catalog:",

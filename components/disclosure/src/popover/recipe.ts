@@ -10,12 +10,17 @@
  *   position as inline styles, so this recipe states nothing about where the panel goes. It grows
  *   from whichever corner the machine placed it against, which is a custom property the machine
  *   sets.
+ *   The panel is never narrower than the control that opened it. The machine measures that control
+ *   already and writes the width as a custom property, and a panel narrower than its trigger reads
+ *   as belonging to something else on the page. It is a minimum, so a panel whose contents need
+ *   more room still takes it.
  *   A popover is louder than a tooltip. It holds a heading, a paragraph and often a control, so it
  *   reads at body text and takes the room a panel needs.
  */
 
 import {
   defineSlotRecipe,
+  dense,
   insetSizes,
   interactive,
   motion,
@@ -29,7 +34,7 @@ import {
 export const recipe = defineSlotRecipe({
   base: {
     arrow: { "--arrow-background": "var(--popover-surface)", "--arrow-size": "sizes.icon.sm" },
-    arrowTip: { borderInlineStartWidth: "sm", borderTopWidth: "sm" },
+    arrowTip: { borderInlineStartWidth: "hairline", borderTopWidth: "hairline" },
     closeTrigger: {
       ...interactive(),
       _hover: { color: "fg" },
@@ -47,7 +52,8 @@ export const recipe = defineSlotRecipe({
       _focusVisible: { focusVisibleRing: "outside" },
       display: "flex",
       flexDirection: "column",
-      gap: "gap.sm",
+      gap: dense("{spacing.gap.sm}"),
+      minInlineSize: "var(--reference-width)",
       position: "relative",
       transformOrigin: "var(--transform-origin)",
       zIndex: "popover",
@@ -56,7 +62,7 @@ export const recipe = defineSlotRecipe({
     indicator: {
       _motionReduce: { transitionDuration: "0s" },
       _open: { rotate: "180deg" },
-      transitionDuration: "fast",
+      transitionDuration: "press",
     },
     positioner: { position: "relative" },
     root: { display: "contents" },
@@ -116,7 +122,7 @@ export const recipe = defineSlotRecipe({
           background: "var(--popover-surface)",
           borderColor: "border",
           borderRadius: "l3",
-          borderWidth: "sm",
+          borderWidth: "hairline",
           boxShadow: "lg",
         },
       },

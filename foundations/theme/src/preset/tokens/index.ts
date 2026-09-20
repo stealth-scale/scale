@@ -1,6 +1,6 @@
 /**
  * Assembles the reference tokens: the values the vocabulary states outright, which do not change
- * with the color mode.
+ * with the color mode, and the faces and font sizes the foundation's statement draws.
  *
  * @remarks
  *   One file per category, and every category the compiler reads is filled here rather than
@@ -9,6 +9,7 @@
  */
 
 import { type Tokens } from "#pandacss.ts";
+import { drawn } from "#preset/statement.ts";
 import { animations } from "#preset/tokens/animations.ts";
 import { aspectRatios } from "#preset/tokens/aspect-ratios.ts";
 import { blurs } from "#preset/tokens/blurs.ts";
@@ -17,9 +18,7 @@ import { colors } from "#preset/tokens/colors.ts";
 import { cursor } from "#preset/tokens/cursor.ts";
 import { durations } from "#preset/tokens/durations.ts";
 import { easings } from "#preset/tokens/easings.ts";
-import { fontSizes } from "#preset/tokens/font-sizes.ts";
 import { fontWeights } from "#preset/tokens/font-weights.ts";
-import { fonts } from "#preset/tokens/fonts.ts";
 import { letterSpacings } from "#preset/tokens/letter-spacings.ts";
 import { lineHeights } from "#preset/tokens/line-heights.ts";
 import { opacity } from "#preset/tokens/opacity.ts";
@@ -32,6 +31,7 @@ import { zIndex } from "#preset/tokens/z-index.ts";
  * Lists every reference token, by category.
  */
 export const tokens: Tokens = {
+  ...drawn.tokens,
   animations,
   aspectRatios,
   blurs,
@@ -41,8 +41,6 @@ export const tokens: Tokens = {
   cursor,
   durations,
   easings,
-  fonts,
-  fontSizes,
   fontWeights,
   letterSpacings,
   lineHeights,

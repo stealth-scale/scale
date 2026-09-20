@@ -156,6 +156,12 @@ export interface Entry {
   id: string;
 
   /**
+   * The catalogue namespace the page's words are keys in. Empty when the file declares none, and
+   * the words are then keys in the catalogue's own namespace.
+   */
+  namespace: string;
+
+  /**
    * The absolute path of the file, which the emitted loader imports.
    */
   path: string;
@@ -187,16 +193,6 @@ export interface Refused {
 export type Read = Entry | Refused;
 
 /**
- * Describes the module a bundler returns for a file imported as text.
- */
-export interface Raw {
-  /**
-   * The text of the file.
-   */
-  default: string;
-}
-
-/**
  * Describes the module the plugin returns for one page's scenes as source.
  */
 export interface Fragments {
@@ -205,6 +201,12 @@ export interface Fragments {
    * as a string literal has no entry.
    */
   fragments: Record<string, string>;
+
+  /**
+   * The components the file imports from its own package, sorted. A name is a value the file
+   * binds from a specifier under the package's imports map, and it starts with a capital letter.
+   */
+  imported: string[];
 }
 
 /**
@@ -247,6 +249,12 @@ export interface Indexed {
   load: () => Promise<unknown>;
 
   /**
+   * The catalogue namespace the page's words are keys in. Empty when the file declares none, and
+   * the words are then keys in the catalogue's own namespace.
+   */
+  namespace: string;
+
+  /**
    * The name of the package the page's components are imported from. Empty when no manifest above
    * the file declares a name, and on a file that declares no page.
    */
@@ -265,11 +273,6 @@ export interface Indexed {
    *   Split like the scenes, so a catalogue pays for a page's props only where somebody opens them.
    */
   props?: (() => Promise<Anatomy>) | undefined;
-
-  /**
-   * Loads the text of the file.
-   */
-  source: () => Promise<Raw>;
 
   /**
    * The page title. Derived from the last segment of the identifier when the file declares none.

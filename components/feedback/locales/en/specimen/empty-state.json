@@ -1,0 +1,10 @@
+{
+  "about": "Draws the panel a page shows where there is nothing to show: a mark, a heading and a line saying what would be here.",
+  "description": "Send your first one to get started.",
+  "none": "No invoices yet",
+  "sizes": {
+    "about": "Every size. One size moves the room inside the panel, the gap in the content, the box of the mark and the size of the title, and the description holds its size at every step.",
+    "title": "Sizes"
+  },
+  "title": "Empty state"
+}

@@ -13,9 +13,13 @@
  *   already replaced.
  *   Scroll position is restored on the way back, because a person returning to a list expects to be
  *   where they left it rather than at the top.
+ *   The window is moved in one step, on the way back and to the top of a new page alike. The
+ *   library moves it with the page's own scroll behaviour by default, and the foundation sets that
+ *   to smooth for a link into the page, so a page opened from a scrolled one glided in from above.
  */
 export const routerDefaults = {
   defaultPreload: "intent",
   defaultPreloadStaleTime: 0,
   scrollRestoration: true,
+  scrollRestorationBehavior: "instant",
 } as const;

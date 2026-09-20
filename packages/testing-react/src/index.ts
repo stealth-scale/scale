@@ -12,5 +12,5 @@
 export { accessibilityViolations } from "#accessibility.ts";
 export { type ConformanceOptions, violations } from "#conformance.ts";
 export { aria, attr, holds, renderedAs } from "#dom.ts";
-export { drawn, pressed, rootedViolations, settled } from "#machine.ts";
+export { drawn, hovered, pressed, rootedViolations, settled, unhovered } from "#machine.ts";
 export { only, part, parts, type Rendered } from "#part.ts";

@@ -6,15 +6,23 @@ describe("index", () => {
   it("names every part a caller composes", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Content",
+      "Empty",
       "Input",
       "Item",
+      "ItemCheckbox",
+      "ItemDescription",
       "ItemGroup",
       "ItemGroupLabel",
       "ItemIndicator",
+      "ItemLines",
       "ItemText",
       "Label",
       "Root",
+      "Row",
+      "SelectAll",
+      "Simple",
       "ValueText",
+      "Window",
     ]);
   });
 

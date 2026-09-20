@@ -13,9 +13,10 @@ import * as test from "#test/index.ts";
 export interface Rendering {
   /**
    * Whether the React Compiler memoises what the package renders, and what to write the memo cache
-   * against. It runs against the installed React unless this states a target, and `false` drops it.
+   * against. It runs against the installed React unless this states a target, `build` runs it
+   * under a build alone for a faster dev loop, and `false` drops it.
    */
-  compiler?: boolean | plugin.Compiled;
+  compiler?: "build" | boolean | plugin.Compiled;
 
   /**
    * Whether the package writes documents in MDX, which adds the plugin that compiles them.
@@ -28,13 +29,14 @@ export interface Rendering {
  */
 function compiling(stated: Rendering["compiler"]): readonly Layer[] {
   if (stated === false) return [];
+  if (stated === "build") return plugin.compiler({ only: "build" });
 
   return plugin.compiler(typeof stated === "object" ? stated : {});
 }
 
 /**
- * Composes the JSX transform, the document its tests render into, and the MDX compiler where a
- * package asks for one.
+ * Composes the JSX transform, the icon import rewrite, the document its tests render into, and
+ * the MDX compiler where a package asks for one.
  *
  * @remarks
  *   No rule and no format appears here. A linter and a formatter read the root configuration only,
@@ -47,6 +49,7 @@ function compiling(stated: Rendering["compiler"]): readonly Layer[] {
 export function layers(stated: Rendering = {}): readonly Layer[] {
   return [
     plugin.refresh(),
+    plugin.icons(),
     ...compiling(stated.compiler),
     test.cleanup(),
     test.document(),

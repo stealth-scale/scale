@@ -141,6 +141,7 @@ function entryOf(file: Source): Read {
     about: fields["about"] ?? "",
     group: fields["group"] ?? "",
     id,
+    namespace: fields["namespace"] ?? "",
     path: file.path,
     title: fields["title"] ?? headingOf(id.slice(id.lastIndexOf("/") + 1)),
   };

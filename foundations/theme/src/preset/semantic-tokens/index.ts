@@ -1,29 +1,17 @@
 /**
- * Assembles the semantic tokens: the values that change with the color mode, the gradients drawn
- * from them, and the sizes and spacing a recipe reads by use.
+ * Assembles the semantic tokens: the colors, shadows, sizes, spacing, corners and stroke widths
+ * the foundation's statement draws, and the gradients drawn from the colors.
  *
  * @remarks
  *   Typed as the tokens a root theme states, so the foundation is held to the same contract as
  *   every theme: a role left out of a palette here fails to compile.
  */
 
-import { type ThemeTokens } from "#authoring/contract.ts";
-import { families } from "#preset/semantic-tokens/colors.ts";
+import { type ThemeTokens } from "#contract.ts";
 import { gradients } from "#preset/semantic-tokens/gradients.ts";
-import { palettes } from "#preset/semantic-tokens/palettes.ts";
-import { radii } from "#preset/semantic-tokens/radii.ts";
-import { shadows } from "#preset/semantic-tokens/shadows.ts";
-import { sizes } from "#preset/semantic-tokens/sizes.ts";
-import { spacing } from "#preset/semantic-tokens/spacing.ts";
+import { drawn } from "#preset/statement.ts";
 
 /**
  * Lists every semantic token, by category.
  */
-export const semanticTokens: ThemeTokens = {
-  colors: { ...families, ...palettes },
-  gradients,
-  radii,
-  shadows,
-  sizes,
-  spacing,
-};
+export const semanticTokens: ThemeTokens = { ...drawn.semanticTokens, gradients };

@@ -5,9 +5,11 @@ import { violations } from "@stealthscale/testing-theme";
 import { type Theme } from "#authoring/theme.ts";
 import { foundation } from "#preset/index.ts";
 import { semanticTokens } from "#preset/semantic-tokens/index.ts";
+import { statement } from "#preset/statement.ts";
 import { tokens } from "#preset/tokens/index.ts";
 
 const THEME: Theme = {
+  axes: statement,
   fonts: [],
   name: "foundation",
   preset: foundation,

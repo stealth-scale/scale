@@ -12,6 +12,7 @@ import {
   highlightVariants,
   LOOKS,
   lookVariants,
+  wrappedFieldVariants,
 } from "#authoring/recipes/looks.ts";
 
 describe("lookVariants", () => {
@@ -102,6 +103,36 @@ describe("fieldVariants", () => {
   });
 });
 
+const FOUND = {
+  _highContrast: {
+    outlineColor: "Highlight",
+    outlineOffset: "calc({borderWidths.indicator} * -1)",
+    outlineStyle: "solid",
+    outlineWidth: "indicator",
+  },
+};
+
+describe("wrappedFieldVariants", () => {
+  it("reads the wrapped layer style of each look", () => {
+    expect(wrappedFieldVariants(["outline"])).toStrictEqual({
+      outline: { layerStyle: "field.wrapped.outline" },
+    });
+  });
+
+  it("offers the same three looks a field offers", () => {
+    expect(Object.keys(wrappedFieldVariants()).toSorted()).toStrictEqual([...FIELDS].toSorted());
+  });
+
+  it("reads a layer style the foundation defines for every wrapped look", () => {
+    const recipe = defineRecipe({
+      className: "x",
+      variants: { variant: wrappedFieldVariants(FIELDS) },
+    });
+
+    expect(recipeViolations(recipe)).toStrictEqual([]);
+  });
+});
+
 describe("highlightVariants", () => {
   it("lists three marks", () => {
     expect(HIGHLIGHTS).toHaveLength(3);
@@ -109,14 +140,33 @@ describe("highlightVariants", () => {
 
   it("puts every mark under the highlighted condition", () => {
     expect(highlightVariants(["tint", "fill"])).toStrictEqual({
-      fill: { _highlighted: { layerStyle: "fill.solid" } },
-      tint: { _highlighted: { layerStyle: "fill.subtle" } },
+      fill: { _highlighted: { ...FOUND, layerStyle: "fill.solid" } },
+      tint: { _highlighted: { ...FOUND, layerStyle: "fill.muted" } },
     });
   });
 
   it("tints the row behind the bar so the mark is carried twice over", () => {
     expect(highlightVariants(["bar"])).toStrictEqual({
-      bar: { _highlighted: { background: "colorPalette.subtle", layerStyle: "indicator.start" } },
+      bar: {
+        _highlighted: {
+          ...FOUND,
+          background: "colorPalette.muted",
+          layerStyle: "indicator.start",
+        },
+      },
+    });
+  });
+
+  it("finds the marked row with a line where the display replaces every fill", () => {
+    expect(highlightVariants(["tint"])["tint"]).toMatchObject({
+      _highlighted: {
+        _highContrast: {
+          outlineColor: "Highlight",
+          outlineOffset: "calc({borderWidths.indicator} * -1)",
+          outlineStyle: "solid",
+          outlineWidth: "indicator",
+        },
+      },
     });
   });
 
@@ -126,14 +176,20 @@ describe("highlightVariants", () => {
 
   it("puts every mark under the current page where a recipe asks for it", () => {
     expect(highlightVariants(["tint", "bar"], "_currentPage")).toStrictEqual({
-      bar: { _currentPage: { background: "colorPalette.subtle", layerStyle: "indicator.start" } },
-      tint: { _currentPage: { layerStyle: "fill.subtle" } },
+      bar: {
+        _currentPage: {
+          ...FOUND,
+          background: "colorPalette.muted",
+          layerStyle: "indicator.start",
+        },
+      },
+      tint: { _currentPage: { ...FOUND, layerStyle: "fill.muted" } },
     });
   });
 
   it("draws the fill mark the same way under the current page", () => {
     expect(highlightVariants(["fill"], "_currentPage")).toStrictEqual({
-      fill: { _currentPage: { layerStyle: "fill.solid" } },
+      fill: { _currentPage: { ...FOUND, layerStyle: "fill.solid" } },
     });
   });
 

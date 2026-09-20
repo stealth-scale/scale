@@ -1,5 +1,6 @@
 /**
- * Slices a specimen's source into one self-contained snippet per scene.
+ * Slices a specimen's source into one self-contained snippet per scene, and lists the components
+ * the specimen imports from its own package.
  *
  * @remarks
  *   A snippet holds the scene's own declaration, every top-level declaration it references, and the
@@ -107,4 +108,37 @@ export function fragments(file: Source): Record<string, string> {
   }
 
   return snippets;
+}
+
+/**
+ * Returns true when a specifier binds a value rather than a type.
+ */
+function bindsValue(specifier: ESTree.ImportDeclarationSpecifier): boolean {
+  return specifier.type !== "ImportSpecifier" || specifier.importKind !== "type";
+}
+
+/**
+ * Lists the components a specimen imports from its own package.
+ *
+ * @remarks
+ *   A specifier under the package's imports map starts with `#`, which Node requires of every
+ *   entry in that map, so the prefix alone tells an own import from a dependency's. A binding
+ *   that starts with a capital letter is a component or a namespace of parts. A recipe, a
+ *   constant or a type imported beside them is left out.
+ * @returns The names, sorted, and an empty array for a file that does not parse.
+ */
+export function components(file: Source): string[] {
+  const parsed = parseSync(file.path, file.text);
+
+  if (parsed.errors.length > 0) return [];
+
+  return scoped(parsed.program, file.text)
+    .imports.filter(
+      (own) =>
+        own.declaration.importKind !== "type" && own.declaration.source.value.startsWith("#"),
+    )
+    .flatMap((own) => [...own.specifiers.values()].filter((specifier) => bindsValue(specifier)))
+    .map((specifier) => specifier.local.name)
+    .filter((name) => /^[A-Z]/u.test(name))
+    .toSorted((one, other) => one.localeCompare(other));
 }

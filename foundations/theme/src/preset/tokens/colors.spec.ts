@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { HUES } from "#authoring/contract.ts";
+import { HUES } from "#contract.ts";
 import { colors } from "#preset/tokens/colors.ts";
 import { tokenAt } from "#tokens.fixtures.ts";
 

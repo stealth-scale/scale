@@ -8,17 +8,32 @@ import { describe, expect, it } from "vitest";
 import { FOREIGN } from "#ignore/foreign.ts";
 import { GENERATED } from "#ignore/generated.ts";
 import { coverage } from "#test/coverage.ts";
+import { answered } from "#vite.fixtures.ts";
 
 /**
- * Digs out the coverage block the layer states.
+ * Digs out the coverage block the layer states for the fixture's root.
  */
-function settings(): Record<string, unknown> {
-  const held = (coverage().config as UserConfig).test?.coverage;
+function settings(root = "/repository"): Record<string, unknown> {
+  const held = (answered(coverage(), { root }) as UserConfig).test?.coverage;
 
   return held as Record<string, unknown>;
 }
 
 describe("coverage", () => {
+  it("leaves the agent worktrees below the workspace root out by an absolute glob", () => {
+    const held = settings()["exclude"] as string[];
+
+    expect(held).toContain("/repository/.claude/**");
+    expect(held).not.toContain("**/.claude/**");
+  });
+
+  it("anchors the worktree glob at the root it is configured for", () => {
+    const held = settings("/repository/.claude/worktrees/one")["exclude"] as string[];
+
+    expect(held).toContain("/repository/.claude/worktrees/one/.claude/**");
+    expect(held).not.toContain("/repository/.claude/**");
+  });
+
   it("counts with the engine's own coverage rather than an instrumented build", () => {
     expect(settings()["provider"]).toBe("v8");
   });
@@ -79,7 +94,7 @@ describe("coverage", () => {
   });
 
   it("keeps the development server from watching the reports it writes", () => {
-    expect((coverage().config as UserConfig).server?.watch?.ignored).toStrictEqual([
+    expect((answered(coverage()) as UserConfig).server?.watch?.ignored).toStrictEqual([
       "**/coverage/**",
     ]);
   });

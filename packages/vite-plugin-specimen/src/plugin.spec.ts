@@ -1,12 +1,14 @@
-import { type Plugin } from "vite";
+import { type Plugin, type UserConfig } from "vite";
 import { describe, expect, it } from "vitest";
 
 import {
+  changed,
   configured,
   hookContext,
   loaded,
   resolved,
   type ScratchWorkspace,
+  transformed,
   withScratchWorkspaceAsync,
 } from "@stealthscale/testing";
 
@@ -14,7 +16,7 @@ import { kit } from "#anatomy/kit.fixtures.ts";
 import { FRAGMENTS, ID, PROPS } from "#options.ts";
 import { specimens } from "#plugin.ts";
 
-const RESOLVED = `\0${ID}`;
+const RESOLVED = ID;
 
 const PATTERNS = ["src/**/*.specimen.tsx"];
 
@@ -52,6 +54,13 @@ function reading(scratch: ScratchWorkspace): Promise<Plugin> {
   const plugin = specimens({ patterns: PATTERNS, props: {} });
 
   return configured(plugin, { command: "serve", root: scratch.root }).then(() => plugin);
+}
+
+function probed(badge: string): string {
+  return badge.replace(
+    "export interface Own",
+    "export interface Own {\n  probe?: string;\n}\n\nexport interface Own",
+  );
 }
 
 function hookOf(
@@ -96,7 +105,31 @@ describe("plugin", () => {
       { command: "serve", mode: "test" },
     ]);
 
-    expect(held).toStrictEqual({ server: { watch: { ignored: ["**/coverage/**"] } } });
+    expect(held).toMatchObject({ server: { watch: { ignored: ["**/coverage/**"] } } });
+  });
+
+  it("names the chunk a page's module and its fragments land in after the page", async () => {
+    const named = await serving(TREE, async (plugin, scratch) => {
+      await loaded(plugin, RESOLVED);
+
+      const config: unknown = Reflect.apply(hookOf(plugin, "config"), undefined, [
+        {},
+        { command: "build", mode: "production" },
+      ]);
+      const group: unknown = (config as UserConfig).build?.rolldownOptions?.output;
+      const name = (
+        group as { codeSplitting: { groups: [{ name: (id: string) => null | string }] } }
+      ).codeSplitting.groups[0].name;
+
+      return [
+        name(scratch.path("src/badge.specimen.tsx")),
+        name(`${scratch.path("src/badge.specimen.tsx")}?rolldown-lazy=1`),
+        name(`${FRAGMENTS}data/badge`),
+        name(scratch.path("src/other.ts")),
+      ];
+    });
+
+    expect(named).toStrictEqual(["data-badge", "data-badge", "data-badge", null]);
   });
 
   it("resolves the index specifier to an identifier of its own", async () => {
@@ -106,7 +139,7 @@ describe("plugin", () => {
   it("resolves a fragments specifier to an identifier of its own", async () => {
     await expect(
       resolved(specimens({ patterns: PATTERNS }), `${FRAGMENTS}data/badge`),
-    ).resolves.toBe(`\0${FRAGMENTS}data/badge`);
+    ).resolves.toBe(`${FRAGMENTS}data/badge`);
   });
 
   it("declines any other specifier", async () => {
@@ -115,6 +148,35 @@ describe("plugin", () => {
 
   it("serves the index as an exported list of pages", async () => {
     await expect(index()).resolves.toMatch(/export const pages/u);
+  });
+
+  it("makes a listed specimen accept its own hot update and report the page it declares", async () => {
+    const held = await serving(TREE, async (plugin, scratch) => {
+      await loaded(plugin, RESOLVED);
+
+      return [
+        await transformed(plugin, hookContext(), BADGE, scratch.path("src/badge.specimen.tsx")),
+        await transformed(plugin, hookContext(), BADGE, scratch.path("src/badge.specimen.tsx?raw")),
+        await transformed(plugin, hookContext(), "export const a = 1;\n", scratch.path("src/a.ts")),
+      ];
+    });
+
+    expect(held[0]).toBe(
+      `${BADGE}if (import.meta.hot) import.meta.hot.accept((replaced) => { if (replaced !== undefined) ` +
+        'window.dispatchEvent(new CustomEvent("specimen:updated", ' +
+        '{ detail: { module: replaced, id: "data/badge" } })); });\n',
+    );
+    expect(held.slice(1)).toStrictEqual([undefined, undefined]);
+  });
+
+  it("makes a page's fragments accept their own hot update", async () => {
+    const held = await serving(TREE, async (plugin) => {
+      await loaded(plugin, RESOLVED);
+
+      return (await loaded(plugin, `${FRAGMENTS}data/badge`, hookContext())) ?? "";
+    });
+
+    expect(held).toContain('{ detail: { fragments: replaced, id: "data/badge" } }');
   });
 
   it("lists the page a specimen declares", async () => {
@@ -133,7 +195,7 @@ describe("plugin", () => {
     const held = await serving(TREE, async (plugin) => {
       await loaded(plugin, RESOLVED);
 
-      return (await loaded(plugin, `\0${FRAGMENTS}data/badge`)) ?? "";
+      return (await loaded(plugin, `${FRAGMENTS}data/badge`, hookContext())) ?? "";
     });
 
     expect(held).toMatch(/export const fragments/u);
@@ -143,14 +205,80 @@ describe("plugin", () => {
     const held = await serving(TREE, async (plugin) => {
       await loaded(plugin, RESOLVED);
 
-      return (await loaded(plugin, `\0${FRAGMENTS}data/badge`)) ?? "";
+      return (await loaded(plugin, `${FRAGMENTS}data/badge`, hookContext())) ?? "";
     });
 
     expect(held).toMatch(/Sizes/u);
   });
 
+  it("watches the page's file from its fragments", async () => {
+    const held = await serving(TREE, async (plugin, scratch) => {
+      const context = hookContext();
+
+      await loaded(plugin, RESOLVED);
+      await loaded(plugin, `${FRAGMENTS}data/badge`, context);
+
+      return context.watched.map((file) => file.slice(scratch.root.length + 1));
+    });
+
+    expect(held).toStrictEqual(["src/badge.specimen.tsx"]);
+  });
+
+  it("answers a bundler that hands the update no environment nothing", async () => {
+    const held = await withScratchWorkspaceAsync(kit(), async (scratch) => {
+      const plugin = await reading(scratch);
+
+      await loaded(plugin, RESOLVED);
+      await loaded(plugin, `${PROPS}badge`);
+
+      return Reflect.apply(hookOf(plugin, "hotUpdate"), { environment: undefined }, [
+        {
+          file: scratch.path("src/badge/badge.ts"),
+          modules: [],
+          read: (): string => "",
+          timestamp: Date.now(),
+          type: "update",
+        },
+      ]);
+    });
+
+    expect(held).toBeUndefined();
+  });
+
+  it("reads a typed file afresh after a bundling server reports it changed", async () => {
+    const held = await withScratchWorkspaceAsync(kit(), async (scratch) => {
+      const plugin = await reading(scratch);
+      const file = scratch.path("src/badge/badge.ts");
+
+      await loaded(plugin, RESOLVED);
+      await loaded(plugin, `${PROPS}badge`);
+      scratch.write({ "src/badge/badge.ts": probed(scratch.read("src/badge/badge.ts")) });
+      await changed(plugin, hookContext([], "serve", true), file, "update");
+
+      return (await loaded(plugin, `${PROPS}badge`)) ?? "";
+    });
+
+    expect(held).toContain('"probe"');
+  });
+
+  it("leaves a typed file to the hot update where the server serves a module per file", async () => {
+    const held = await withScratchWorkspaceAsync(kit(), async (scratch) => {
+      const plugin = await reading(scratch);
+      const file = scratch.path("src/badge/badge.ts");
+
+      await loaded(plugin, RESOLVED);
+      await loaded(plugin, `${PROPS}badge`);
+      scratch.write({ "src/badge/badge.ts": probed(scratch.read("src/badge/badge.ts")) });
+      await changed(plugin, hookContext(), file, "update");
+
+      return (await loaded(plugin, `${PROPS}badge`)) ?? "";
+    });
+
+    expect(held).not.toContain('"probe"');
+  });
+
   it("returns nothing for a module it does not own", async () => {
-    const held = await serving(TREE, (plugin) => loaded(plugin, "\0virtual:other"));
+    const held = await serving(TREE, (plugin) => loaded(plugin, "virtual:other"));
 
     expect(held).toBeUndefined();
   });
@@ -204,7 +332,7 @@ describe("plugin", () => {
       await loaded(plugin, RESOLVED);
 
       return updating(plugin, scratch.path("src/badge.specimen.tsx"), BADGE, [
-        `\0${FRAGMENTS}data/badge`,
+        `${FRAGMENTS}data/badge`,
       ]);
     });
 
@@ -241,7 +369,7 @@ describe("plugin", () => {
 
       await loaded(plugin, RESOLVED);
 
-      return (await loaded(plugin, `\0${PROPS}badge`)) ?? "";
+      return (await loaded(plugin, `${PROPS}badge`)) ?? "";
     });
 
     expect(held).toMatch(/export const parts = \{"BadgeProps"/u);
@@ -253,7 +381,7 @@ describe("plugin", () => {
 
       await loaded(plugin, RESOLVED);
 
-      return (await loaded(plugin, `\0${PROPS}badge`)) ?? "";
+      return (await loaded(plugin, `${PROPS}badge`)) ?? "";
     });
 
     expect(held).toMatch(/export const dropped = \{"BadgeProps":\{"conditions":2/u);
@@ -262,7 +390,7 @@ describe("plugin", () => {
   it("resolves a props specifier to an identifier of its own", async () => {
     await expect(
       resolved(specimens({ patterns: PATTERNS, props: {} }), `${PROPS}badge`),
-    ).resolves.toBe(`\0${PROPS}badge`);
+    ).resolves.toBe(`${PROPS}badge`);
   });
 
   it("declines a props module when the repository reads no props", async () => {
@@ -272,7 +400,7 @@ describe("plugin", () => {
       await configured(plugin, { command: "serve", root: scratch.root });
       await loaded(plugin, RESOLVED);
 
-      return loaded(plugin, `\0${PROPS}badge`);
+      return loaded(plugin, `${PROPS}badge`);
     });
 
     expect(held).toBeUndefined();
@@ -283,9 +411,9 @@ describe("plugin", () => {
       const plugin = await reading(scratch);
 
       await loaded(plugin, RESOLVED);
-      await loaded(plugin, `\0${PROPS}badge`);
+      await loaded(plugin, `${PROPS}badge`);
 
-      return updating(plugin, scratch.path("src/badge/badge.ts"), "", [`\0${PROPS}badge`]);
+      return updating(plugin, scratch.path("src/badge/badge.ts"), "", [`${PROPS}badge`]);
     });
 
     expect(held).toHaveLength(1);
@@ -297,9 +425,9 @@ describe("plugin", () => {
       const plugin = await reading(scratch);
 
       await loaded(plugin, RESOLVED);
-      await loaded(plugin, `\0${PROPS}badge`);
+      await loaded(plugin, `${PROPS}badge`);
 
-      return updating(plugin, scratch.path("src/badge/badge.ts"), "", [`\0${PROPS}badge`]);
+      return updating(plugin, scratch.path("src/badge/badge.ts"), "", [`${PROPS}badge`]);
     });
 
     expect(held).toHaveLength(1);
@@ -310,7 +438,7 @@ describe("plugin", () => {
       const plugin = await reading(scratch);
 
       await loaded(plugin, RESOLVED);
-      await loaded(plugin, `\0${PROPS}badge`);
+      await loaded(plugin, `${PROPS}badge`);
 
       return Reflect.apply(hookOf(plugin, "closeBundle"), undefined, []);
     });

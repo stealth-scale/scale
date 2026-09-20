@@ -1,0 +1,17 @@
+{
+  "about": "Draws a placeholder while content loads, taking the size of what it wraps.",
+  "corners": {
+    "about": "Every corner, each round a tile the placeholder hides.",
+    "title": "Corners"
+  },
+  "loading": {
+    "about": "The placeholder over the content, and the content once it has arrived. Wrap the content rather than replacing it, so the page does not jump.",
+    "title": "Loading"
+  },
+  "motion": {
+    "about": "Every motion: still, pulsing, or shimmering.",
+    "title": "Motion"
+  },
+  "profile": "Ada Lovelace, analyst",
+  "title": "Skeleton"
+}

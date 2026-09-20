@@ -36,6 +36,17 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "orientation")).toStrictEqual(["horizontal", "vertical"]);
   });
 
+  it("shares a row between the fields across a group and gives each text a row of its own", () => {
+    const horizontal = recipe.variants?.["orientation"]?.["horizontal"];
+
+    expect(horizontal?.["root"]).toStrictEqual({
+      "& > *": { flexBasis: "48", flexGrow: "1" },
+      flexFlow: "row wrap",
+    });
+    expect(horizontal?.["helperText"]).toStrictEqual({ minInlineSize: "full" });
+    expect(horizontal?.["errorText"]).toStrictEqual({ minInlineSize: "full" });
+  });
+
   it("clears the browser's own border and inset from the element", () => {
     expect(recipe.base?.["root"]).toMatchObject({
       borderStyle: "none",

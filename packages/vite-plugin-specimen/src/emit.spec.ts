@@ -3,7 +3,15 @@ import { describe, expect, it } from "vitest";
 import { withScratchWorkspace } from "@stealthscale/testing";
 
 import { type Source } from "#contract.ts";
-import { anatomised, fragmented, listings, ownerOf, type Resolved, written } from "#emit.ts";
+import {
+  accepting,
+  anatomised,
+  fragmented,
+  listings,
+  ownerOf,
+  type Resolved,
+  written,
+} from "#emit.ts";
 
 const SERVING: Resolved = { command: "serve", root: "/work" };
 
@@ -34,10 +42,10 @@ describe("emit", () => {
     );
   });
 
-  it("imports a page's own text under the raw query", () => {
+  it("imports nothing a catalogue does not read", () => {
     const held = listings(SERVING, [file("feedback/badge")]);
 
-    expect(listed(held, "/work/src/badge/badge.specimen.tsx")).toMatch(/\?raw"\)/u);
+    expect(listed(held, "/work/src/badge/badge.specimen.tsx")).not.toMatch(/\?raw|source:/u);
   });
 
   it("imports a page's fragments under its identifier", () => {
@@ -100,7 +108,20 @@ describe("emit", () => {
   });
 
   it("writes the pages as one exported list", () => {
-    expect(written(["  { id: 1 }"])).toBe("export const pages = [\n  { id: 1 },\n];\n");
+    const refused = new Map([["/work/src/a.specimen.tsx", { id: undefined, listing: "  { a }" }]]);
+
+    expect(written(refused)).toBe("export const pages = [\n  { a },\n];\n");
+  });
+
+  it("writes the statement that makes a module accept its own hot update and tell the window", () => {
+    expect(accepting("data/badge", "module")).toBe(
+      "if (import.meta.hot) import.meta.hot.accept((replaced) => { if (replaced !== undefined) " +
+        'window.dispatchEvent(new CustomEvent("specimen:updated", ' +
+        '{ detail: { module: replaced, id: "data/badge" } })); });\n',
+    );
+    expect(accepting("data/badge", "fragments")).toContain(
+      '{ fragments: replaced, id: "data/badge" }',
+    );
   });
 
   it("carries a props loader when the index was asked to read props", () => {
@@ -123,9 +144,10 @@ describe("emit", () => {
     );
   });
 
-  it("writes the fragments as one exported record", () => {
-    expect(fragmented({ Sizes: "const a = 1;" })).toBe(
-      'export const fragments = {"Sizes":"const a = 1;"};\n',
+  it("writes the fragments as one exported record beside the imported names that accepts its own update", () => {
+    expect(fragmented({ Sizes: "const a = 1;" }, ["Badge"], "data/badge")).toBe(
+      'export const fragments = {"Sizes":"const a = 1;"};\nexport const imported = ["Badge"];\n' +
+        accepting("data/badge", "fragments"),
     );
   });
 
@@ -223,11 +245,11 @@ describe("emit", () => {
     expect(held).toBe("@kit/actions");
   });
 
-  it("keeps a path that does not sit under the root as it was given", () => {
+  it("says a path that does not sit under the root against the root as well", () => {
     const held = listings(SERVING, [file("feedback/badge", "/elsewhere/badge.specimen.tsx")]);
 
     expect(listed(held, "/elsewhere/badge.specimen.tsx")).toMatch(
-      /path: "\/elsewhere\/badge\.specimen\.tsx"/u,
+      /path: "\.\.\/elsewhere\/badge\.specimen\.tsx"/u,
     );
   });
 
@@ -244,5 +266,22 @@ describe("emit", () => {
     );
 
     expect([...held.values()][0]?.listing).toMatch(/package: "@kit\/actions"/u);
+  });
+
+  it("carries the namespace a page names its catalogue by", () => {
+    const held = listings(SERVING, [
+      {
+        path: "/work/src/badge/badge.specimen.tsx",
+        text: `export default specimen({ id: "data/badge", namespace: "data", scenes: [] });\n`,
+      },
+    ]);
+
+    expect(listed(held, "/work/src/badge/badge.specimen.tsx")).toMatch(/namespace: "data"/u);
+  });
+
+  it("carries an empty namespace for a page that names none", () => {
+    const held = listings(SERVING, [file("feedback/badge")]);
+
+    expect(listed(held, "/work/src/badge/badge.specimen.tsx")).toMatch(/namespace: ""/u);
   });
 });

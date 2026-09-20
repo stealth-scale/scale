@@ -7,7 +7,7 @@ import { ColumnGroup } from "#table/column-group.ts";
 import { Column } from "#table/column.ts";
 import { recipe } from "#table/recipe.ts";
 import { Root } from "#table/root.ts";
-import { type ScrollerProps } from "#table/scroller.ts";
+import { type ScrollerProps } from "#table/scroller.tsx";
 import { composed, scrolled } from "#table/table.fixtures.tsx";
 
 describe("Column", () => {

@@ -4,7 +4,7 @@
 
 import { createElement } from "react";
 
-import { render, type RenderResult } from "@testing-library/react";
+import { act, render, type RenderResult } from "@testing-library/react";
 
 import {
   type AnyRoute,
@@ -67,6 +67,10 @@ export function mountRoute(tree: AnyRoute, at = "/"): Promise<Mounted> {
  * @remarks
  *   Use this where the application already builds its own router, such as one that takes a session.
  *   `mountRoute` covers the case where a specification has a tree and nothing else.
+ *   The render is settled before it is handed back, the way `drawn` settles one. A page holding a
+ *   component built on a state machine writes its first state on a microtask after the render
+ *   returns, and React reports that write as an update outside `act`. A page is free to hold one,
+ *   so every mount waits rather than every specification of a page that does.
  * @param router - The router to render.
  * @param at - A path to navigate to first, or nothing to render where the router already is.
  * @returns The render, and the router the page was drawn from.
@@ -76,5 +80,13 @@ export async function mountRouter(router: AnyRouter, at?: string): Promise<Mount
 
   await router.load();
 
-  return { result: render(createElement(RouterProvider, { router })), router };
+  const result = await act(async () => {
+    const drawn = render(createElement(RouterProvider, { router }));
+
+    await Promise.resolve();
+
+    return drawn;
+  });
+
+  return { result, router };
 }

@@ -2,6 +2,13 @@
 "@stealthscale/component-typography": minor
 ---
 
+component-typography: offer the tertiary ink as a tone and draw a keycap at the theme's widths
+
+- `Text`, `Heading`, `Strong` and `Em` offer `tone="subtle"`, the tertiary ink at AA, for a caption,
+  a timestamp or a counter.
+- A raised `Kbd` draws its edge at `borderWidths.control` and its foot at `borderWidths.indicator`
+  rather than at the reference widths `sm` and `md`.
+
 component-typography: keep a mirrored icon mirrored while it spins
 
 - `Icon`'s `mirrored` axis wrote `transform: scaleX(-1)`, and the `spin` motion animates
@@ -46,3 +53,20 @@ component-typography: publish Em, Strong, Mark, Quote and Span
 - The span's `truncate` sets `display: inline-block` beside the properties the `truncate` helper
   writes. `overflow` has no effect on a non-replaced inline box, so the README's former
   `<Text as="span" truncate>` example cut nothing. The example is replaced.
+
+component-typography: show every component
+
+- One specimen per component, each scene drawing every value of every axis the recipe offers, with
+  the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.
+
+component-typography: hold passive typography still under a pointer
+
+- Code and the unraised keycaps read the flat looks. They read the interactive looks, so a subtle
+  code chip repainted from the subtle fill to the muted one under a pointer without being anything
+  to press.
+
+component-typography: give a scene that reads once the width runs out a room
+
+- The heading's and the span's truncate scenes and the list's alignment scene stand in a room at a
+  measure their words pass, so the cut line, the wrapped line and the three places of a mark differ.
+  Each read the same in every value before.

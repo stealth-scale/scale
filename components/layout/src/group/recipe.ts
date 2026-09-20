@@ -20,9 +20,10 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * Pulls a child back over its neighbour's edge, so the two share one line rather than drawing two.
+ * Pulls a child back over its neighbour's edge by the control's stroke width, so the two share one
+ * line rather than drawing two.
  */
-const OVERLAP = "calc({borderWidths.sm} * -1)";
+const OVERLAP = "calc({borderWidths.control} * -1)";
 
 /**
  * Draws a horizontal row at the middle gap until a caller says otherwise.
@@ -39,8 +40,8 @@ export const recipe = defineRecipe({
     {
       attached: true,
       css: {
-        "& > *:not(:first-of-type)": { borderEndStartRadius: "0", borderStartStartRadius: "0" },
-        "& > *:not(:last-of-type)": {
+        "& > *:not(:first-child)": { borderEndStartRadius: "0", borderStartStartRadius: "0" },
+        "& > *:not(:last-child)": {
           borderEndEndRadius: "0",
           borderStartEndRadius: "0",
           marginInlineEnd: OVERLAP,
@@ -53,8 +54,8 @@ export const recipe = defineRecipe({
     {
       attached: true,
       css: {
-        "& > *:not(:first-of-type)": { borderStartEndRadius: "0", borderStartStartRadius: "0" },
-        "& > *:not(:last-of-type)": {
+        "& > *:not(:first-child)": { borderStartEndRadius: "0", borderStartStartRadius: "0" },
+        "& > *:not(:last-child)": {
           borderEndEndRadius: "0",
           borderEndStartRadius: "0",
           marginBlockEnd: OVERLAP,

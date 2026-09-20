@@ -22,6 +22,7 @@
 import {
   cornerVariants,
   defineSlotRecipe,
+  dense,
   field,
   fieldStatusVariants,
   justifyVariants,
@@ -88,9 +89,12 @@ export const recipe = defineSlotRecipe({
     radius: onSlot("control", cornerVariants(["l1", "l2", "full"])),
 
     size: onSlots({
-      control: sizeVariants((size) => ({ boxSize: `icon.${size}` }), ["sm", "md", "lg"]),
+      control: sizeVariants(
+        (size) => ({ boxSize: dense(`{sizes.icon.${size}}`) }),
+        ["sm", "md", "lg"],
+      ),
       label: sizeVariants((size) => ({ textStyle: `label.${size}` }), ["sm", "md", "lg"]),
-      root: sizeVariants((size) => ({ gap: `gap.${size}` }), ["sm", "md", "lg"]),
+      root: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), ["sm", "md", "lg"]),
     }),
 
     /**

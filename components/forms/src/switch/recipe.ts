@@ -21,6 +21,7 @@
 import {
   cornerVariants,
   defineSlotRecipe,
+  dense,
   field,
   fieldStatusVariants,
   onSlot,
@@ -32,6 +33,12 @@ import {
 
 /**
  * The property the track states the distance the thumb crosses in, which the thumb reads.
+ *
+ * @remarks
+ *   The distance is positive and the thumb crosses it the way the page runs. `translate` is a
+ *   physical property with no logical form, so the direction is reversed where the page runs
+ *   right to left: a checked thumb travelling the same way there left the track's far edge by
+ *   nine pixels.
  */
 const TRAVEL = "--switch-travel";
 
@@ -48,7 +55,7 @@ export const recipe = defineSlotRecipe({
       display: "inline-flex",
       flexShrink: 0,
       focusVisibleRing: "outside",
-      padding: "gap.xs",
+      padding: dense("{spacing.gap.xs}"),
     },
     label: { _disabled: { layerStyle: "disabled" }, color: "fg", userSelect: "none" },
     root: {
@@ -58,16 +65,21 @@ export const recipe = defineSlotRecipe({
       userSelect: "none",
     },
     thumb: {
-      _checked: { translate: `var(${TRAVEL})` },
+      _checked: { _rtl: { translate: `calc(var(${TRAVEL}) * -1)` }, translate: `var(${TRAVEL})` },
+      _highContrast: {
+        borderColor: "ButtonText",
+        borderStyle: "solid",
+        borderWidth: "control",
+      },
       _motionReduce: { transitionDuration: "0s" },
       aspectRatio: "square",
       background: "bg.panel",
       blockSize: "full",
       borderRadius: "inherit",
       boxShadow: "sm",
-      transitionDuration: "fast",
-      transitionProperty: "common",
-      transitionTimingFunction: "out",
+      transitionDuration: "press",
+      transitionProperty: "translate, background, box-shadow",
+      transitionTimingFunction: "press",
     },
   },
   className: "switch",
@@ -89,14 +101,14 @@ export const recipe = defineSlotRecipe({
     size: onSlots({
       control: sizeVariants(
         (size) => ({
-          blockSize: `tag.${size}`,
-          inlineSize: `control.${size}`,
+          blockSize: dense(`{sizes.tag.${size}}`),
+          inlineSize: dense(`{sizes.control.${size}}`),
           [TRAVEL]: `calc({sizes.control.${size}} - {sizes.tag.${size}})`,
         }),
         ["sm", "md", "lg"],
       ),
       label: sizeVariants((size) => ({ textStyle: `label.${size}` }), ["sm", "md", "lg"]),
-      root: sizeVariants((size) => ({ gap: `gap.${size}` }), ["sm", "md", "lg"]),
+      root: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), ["sm", "md", "lg"]),
     }),
 
     /**

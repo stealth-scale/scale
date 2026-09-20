@@ -22,10 +22,10 @@ describe("recipe", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ orientation: "horizontal" });
   });
 
-  it("reads the foundation's line for each direction", () => {
+  it("reads the foundation's hairline for each direction", () => {
     expect(recipe.variants?.["orientation"]).toMatchObject({
-      horizontal: { borderBlockEndWidth: "sm", borderColor: "border" },
-      vertical: { borderColor: "border", borderInlineEndWidth: "sm" },
+      horizontal: { borderBlockEndWidth: "hairline", borderColor: "border" },
+      vertical: { borderColor: "border", borderInlineEndWidth: "hairline" },
     });
   });
 

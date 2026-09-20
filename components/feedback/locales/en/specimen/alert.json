@@ -1,0 +1,25 @@
+{
+  "about": "Draws a notice about something a reader needs to know: a mark, the words, and whatever they do about it.",
+  "corners": {
+    "about": "Every corner at every size.",
+    "title": "Corners and sizes"
+  },
+  "declined": "The card was declined and nothing was charged.",
+  "dismiss": "Dismiss this notice",
+  "failed": "Payment failed",
+  "layouts": {
+    "about": "The words stacked under their title, and the words inline with it.",
+    "title": "Layouts"
+  },
+  "looks": {
+    "about": "Every look in every status. The status is said in the title's words, because the mark is hidden from a screen reader.",
+    "title": "Looks and statuses"
+  },
+  "motion": {
+    "about": "How the notice enters the page.",
+    "title": "Motion"
+  },
+  "restored": "Your draft was restored from Tuesday.",
+  "saved": "Changes saved",
+  "title": "Alert"
+}

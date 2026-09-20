@@ -1,0 +1,26 @@
+{
+  "about": "Shows one panel at a time, chosen from a strip of controls.",
+  "activity": "Activity",
+  "distribution": {
+    "about": "Where the controls sit in a strip they do not fill.",
+    "title": "Distribution"
+  },
+  "fitted": {
+    "about": "Controls taking what they need, and controls sharing the strip's width between them.",
+    "title": "Fitted"
+  },
+  "holds": "What the account holds.",
+  "lately": "What has happened lately.",
+  "looks": {
+    "about": "Every look at every size.",
+    "title": "Looks and sizes"
+  },
+  "orientation": {
+    "about": "The strip across the top, and down the side. Which way it runs is the machine's setting, not an axis, and the bar follows it.",
+    "title": "Orientation"
+  },
+  "overview": "Overview",
+  "settings": "Settings",
+  "title": "Tabs",
+  "tuned": "What can be changed."
+}

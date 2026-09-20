@@ -1,0 +1,67 @@
+{
+  "name": "@stealthscale/theme-harbour",
+  "version": "0.0.0",
+  "description": "States Harbour: a steel blue product on navy and mist.",
+  "keywords": [
+    "design-system",
+    "harbour",
+    "theme"
+  ],
+  "homepage": "https://github.com/stealth-scale/config/tree/main/themes/harbour#readme",
+  "bugs": "https://github.com/stealth-scale/config/issues",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stealth-scale/config.git",
+    "directory": "themes/harbour"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#*": "./src/*"
+  },
+  "exports": {
+    ".": {
+      "stealth-source": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.js",
+      "./package.json": "./package.json"
+    },
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "check": "vp check",
+    "prepublishOnly": "vp pack",
+    "test": "vp test"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/core": "catalog:",
+    "@stealthscale/theme": "workspace:^",
+    "@stealthscale/vite-config": "workspace:^",
+    "@stealthscale/vite-config-theme": "workspace:^",
+    "@stealthscale/vite-config-typescript": "workspace:^",
+    "@stealthscale/vite-plugin-theme": "workspace:^",
+    "@types/node": "catalog:",
+    "happy-dom": "catalog:",
+    "publint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "@stealthscale/theme": "workspace:^"
+  },
+  "engines": {
+    "node": ">=26.0.0"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "about": "Copies a value and says so for a moment. The trigger draws no look of its own, so a page draws it as a button.",
+  "alone": {
+    "about": "Press it. The indicator holds both marks and swaps on the state the machine publishes, then swaps back after a timeout, so the button says it worked without anything else on the page having to.",
+    "title": "On its own"
+  },
+  "beside": {
+    "about": "Beside the value it copies, so a reader sees what they are about to take. The field is read-only rather than disabled: it can still be focused and selected, which is the fallback where the browser refuses the copy.",
+    "title": "Beside a field"
+  },
+  "copied": "Copied",
+  "copy": "Copy the link",
+  "held": {
+    "about": "How long the mark stays before the button goes back to offering the copy. Press both. The default three seconds is long enough that a reader who looked away still catches it, and a quarter of a second is over before the eye returns.",
+    "title": "How long it says so"
+  },
+  "label": "Link to the payout",
+  "own": {
+    "about": "A control the page draws itself, reading the state and the copy method off the machine. Reach for this where the trigger is not a plain button, or where the words change with the state.",
+    "title": "Your own control"
+  },
+  "sizes": {
+    "about": "The labelled row at every size. The size steps the label and the gaps, and the field and the button read their own size beside it.",
+    "title": "Sizes"
+  },
+  "title": "Clipboard",
+  "value": {
+    "about": "The value itself as the thing pressed. Reach for this where the copy is a convenience rather than the point of the row.",
+    "title": "The value itself"
+  }
+}

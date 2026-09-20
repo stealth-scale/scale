@@ -35,6 +35,13 @@ describe("recipe", () => {
     ]);
   });
 
+  it("gives a plain snippet no room on either side of it", () => {
+    expect(recipe.variants?.["variant"]?.["plain"]).toStrictEqual({
+      layerStyle: "flat.plain",
+      paddingInline: "0",
+    });
+  });
+
   it("offers the four statuses", () => {
     expect(valuesOf(recipe, "status")).toStrictEqual(["error", "info", "success", "warning"]);
   });

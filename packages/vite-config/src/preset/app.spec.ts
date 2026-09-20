@@ -43,6 +43,10 @@ describe("app", () => {
     expect(names(layers())).toContain("worker.format");
   });
 
+  it("serves the application from one bundle", () => {
+    expect(names(layers())).toContain("server.bundled");
+  });
+
   it("applies the browser rules and the browser environment", () => {
     const held = names(layers());
 
@@ -56,7 +60,11 @@ describe("app", () => {
     const onlyHere = [...held].filter((one) => !other.has(one));
     const onlyThere = [...other].filter((one) => !held.has(one));
 
-    expect(onlyHere.every((one) => one.startsWith("build.") || one === "worker.format")).toBe(true);
+    expect(
+      onlyHere.every(
+        (one) => one.startsWith("build.") || one === "worker.format" || one === "server.bundled",
+      ),
+    ).toBe(true);
     expect(onlyThere.every((one) => one.startsWith("pack."))).toBe(true);
   });
 

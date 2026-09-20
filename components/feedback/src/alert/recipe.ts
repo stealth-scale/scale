@@ -17,6 +17,7 @@
 import {
   cornerVariants,
   defineSlotRecipe,
+  dense,
   flatVariants,
   iconSizes,
   motionVariants,
@@ -54,14 +55,16 @@ export const recipe = defineSlotRecipe({
   },
   jsx: [/^Alert(\.\w+)?$/u],
   slots: ["root", "indicator", "content", "title", "description", "aside"],
-  staticCss: [statusEmitted()],
+  staticCss: [statusEmitted(), { status: ["neutral"] }],
   variants: {
     /**
      * Whether the title and the description stack or run together on one line.
      */
     layout: {
-      inline: { content: { alignItems: "baseline", columnGap: "gap.xs", flexWrap: "wrap" } },
-      stacked: { content: { flexDirection: "column", rowGap: "gap.xs" } },
+      inline: {
+        content: { alignItems: "baseline", columnGap: dense("{spacing.gap.xs}"), flexWrap: "wrap" },
+      },
+      stacked: { content: { flexDirection: "column", rowGap: dense("{spacing.gap.xs}") } },
     },
 
     motion: onSlot("root", motionVariants(["fade", "rise", "reveal"])),
@@ -70,7 +73,11 @@ export const recipe = defineSlotRecipe({
     size: onSlots({
       indicator: iconSizes(SIZES),
       root: sizeVariants(
-        (size) => ({ gap: `gap.${size}`, padding: `inset.${size}`, textStyle: `body.${size}` }),
+        (size) => ({
+          gap: dense(`{spacing.gap.${size}}`),
+          padding: dense(`{spacing.inset.${size}}`),
+          textStyle: `body.${size}`,
+        }),
         SIZES,
       ),
     }),

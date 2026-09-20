@@ -1,0 +1,11 @@
+{
+  "about": "Draws what it holds somewhere else in the document rather than where it is written.",
+  "here": "Drawn where it is written",
+  "placing": {
+    "about": "A tile drawn into the panel beside it, and one left where it is written. The first is a child of the panel in the document, whatever the tree says.",
+    "title": "Placing"
+  },
+  "sent": "Sent into the panel",
+  "target": "The panel",
+  "title": "Portal"
+}

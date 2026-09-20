@@ -19,8 +19,28 @@ describe("entryOf", () => {
     expect(entryOf(declaring({ group: "Actions", label: "Button" }))?.group).toBe("Actions");
   });
 
+  it("reads the namespace a declaration carries", () => {
+    expect(entryOf(declaring({ label: "button.title", namespace: "actions" }))?.namespace).toBe(
+      "actions",
+    );
+  });
+
+  it("reads no namespace where the declaration carries an empty one", () => {
+    expect(entryOf(declaring({ label: "Button", namespace: "" }))).toStrictEqual({
+      label: "Button",
+    });
+  });
+
   it("reads no group where the declaration names none", () => {
     expect(entryOf(declaring({ label: "Button" }))?.group).toBeUndefined();
+  });
+
+  it("reads the opening a declaration carries", () => {
+    expect(entryOf(declaring({ about: "Presses.", label: "Button" }))?.about).toBe("Presses.");
+  });
+
+  it("reads no opening where the declaration carries none", () => {
+    expect(entryOf(declaring({ label: "Button" }))?.about).toBeUndefined();
   });
 
   it("reads no group where the declaration names one that is not words", () => {

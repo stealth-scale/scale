@@ -4,6 +4,10 @@
  * @remarks
  *   The mark says nothing a screen reader needs. The row already carries `aria-selected`, so a
  *   reader is told once rather than twice, and a caller hands over a glyph without naming it.
+ *   The machine hides the mark with the `hidden` attribute, which takes it out of the layout. The
+ *   attribute is dropped here and the recipe hides the mark by visibility instead, so every row
+ *   keeps the room the mark takes. A list that gave the room back changed width as the picked row
+ *   moved, and a list beside a summary jumped every time a reader chose something.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -36,6 +40,7 @@ export interface ItemIndicatorProps extends ComponentProps<typeof Marked> {
  */
 export function ItemIndicator({ item, ...rest }: ItemIndicatorProps): ReactElement {
   const api = useListbox();
+  const { hidden: _hidden, ...shown } = api.getItemIndicatorProps({ item });
 
-  return <Marked {...mergeProps(api.getItemIndicatorProps({ item }), rest)} />;
+  return <Marked {...mergeProps(shown, rest)} />;
 }

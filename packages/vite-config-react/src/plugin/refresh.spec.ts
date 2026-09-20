@@ -38,9 +38,13 @@ describe("refresh", () => {
     expect(options({ also: [extra] }).include).toStrictEqual([/\.[tj]sx?$/u, MDX, extra]);
   });
 
-  it("leaves the dependencies alone and keeps doing so when more are added", () => {
-    expect(options({}).exclude).toStrictEqual([/\/node_modules\//u]);
-    expect(options({ except: [MDX] }).exclude).toStrictEqual([/\/node_modules\//u, MDX]);
+  it("leaves the dependencies and the specimens alone and keeps doing so when more are added", () => {
+    expect(options({}).exclude).toStrictEqual([/\/node_modules\//u, /\.specimen\.[tj]sx$/u]);
+    expect(options({ except: [MDX] }).exclude).toStrictEqual([
+      /\/node_modules\//u,
+      /\.specimen\.[tj]sx$/u,
+      MDX,
+    ]);
   });
 
   it("imports the factory from React unless the repository renders through something else", () => {

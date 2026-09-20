@@ -63,8 +63,18 @@ describe("contract", () => {
       variant: { semanticTokens: { colors: { fg: { DEFAULT: { value: "x" } } } } },
     };
 
-    expect(roles(theme)).toHaveLength(9);
+    expect(roles(theme)).toHaveLength(8);
     expect(roles(theme)[0]).toBe("audited fg.muted is not stated");
+  });
+
+  it("reports a kind the code family leaves out", () => {
+    const theme = {
+      ...paletteTheme(),
+      variant: { semanticTokens: { colors: { code: { keyword: { value: "x" } } } } },
+    };
+
+    expect(roles(theme)).toHaveLength(9);
+    expect(roles(theme)[0]).toBe("audited code.string is not stated");
   });
 
   it("reports a color stated in one mode and not the other", () => {
@@ -308,9 +318,11 @@ describe("contract", () => {
   it("reports a style that states nothing and a text style without a size", () => {
     const theme = defineTheme({
       extends: foundationTheme(),
-      layerStyles: { card: { value: {} } },
+      looks: {
+        layerStyles: { card: { value: {} } },
+        textStyles: { hero: { value: { fontWeight: "bold" } } },
+      },
       name: "abyss",
-      textStyles: { hero: { value: { fontWeight: "bold" } } },
     });
 
     expect(styles(theme)).toStrictEqual([

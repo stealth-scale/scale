@@ -1,8 +1,9 @@
 # @stealthscale/component-actions
 
-Draws what a person presses: the button, and the square button that holds one glyph. Every component
-binds a recipe and draws nothing of its own, so a theme restyles all of them by extending the
-recipe. The preset under `./theme` registers the recipes with an application's compiler.
+Draws what a person presses: the button, the square button that holds one glyph, and the clipboard
+whose trigger copies a value. Every component binds a recipe and draws nothing of its own, so a
+theme restyles all of them by extending the recipe. The preset under `./theme` registers the recipes
+with an application's compiler.
 
 Every value a theme can change on a component is an axis of its recipe, so a caller sets it as a
 prop and writes no style. A caller changes the element a component draws with `as`.
@@ -13,17 +14,17 @@ prop and writes no style. A caller changes the element a component draws with `a
 pnpm add @stealthscale/component-actions
 ```
 
-The package peers on `react` and `@stealthscale/theme`. An application lists the preset under
-`./theme` among the presets its compiler installs.
+The package peers on `react`, `@stealthscale/theme` and `@stealthscale/hooks`. An application lists
+the preset under `./theme` among the presets its compiler installs.
 
 ## Button
 
 Draws the element a person presses, in a look, a size and a status, raised off the page and glowing
-or rippling where a page sets that effect. Under a press the look fills to its pressed colour, the
-box scales to 98 percent, and an elevated button drops towards the page. A button that opens with a
-mark leads with one step less inset, so the room before the mark is the width of the gap after it
-rather than a word's worth. The element is `button`, and `type` defaults to `button` so one inside a
-form does not send it.
+where a page sets that effect. Under a press the look fills to its pressed colour, a ripple spreads
+from the middle of the box and fades on the release, and an elevated button drops towards the page.
+The box holds still. A button that opens with a mark leads with one step less inset, so the room
+before the mark is the width of the gap after it rather than a word's worth. The element is
+`button`, and `type` defaults to `button` so one inside a form does not send it.
 
 ```tsx
 import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
@@ -49,9 +50,9 @@ it has checked.
 | ----------- | ------------------------------------------------------------------ | ------- |
 | `variant`   | `solid`, `subtle`, `surface`, `outline`, `ghost`, `plain`, `glass` | `solid` |
 | `size`      | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl`                  | `md`    |
-| `status`    | `info`, `success`, `warning`, `error`                              | primary |
+| `status`    | `info`, `success`, `warning`, `error`, `neutral`                   | primary |
 | `shape`     | `square`                                                           | none    |
-| `effect`    | `glow`, `ripple`                                                   | none    |
+| `effect`    | `glow`                                                             | none    |
 | `elevation` | `raised`, `floating`                                               | flat    |
 
 ## IconButton
@@ -72,6 +73,88 @@ import { Icon } from "@stealthscale/component-typography";
   </Icon>
 </IconButton>;
 ```
+
+A toggle is a button with `aria-pressed`. The recipe fills it while it is on, against that
+attribute, so the fill and what a screen reader announces cannot disagree:
+
+```tsx
+<IconButton aria-label="Dark mode" aria-pressed={dark} onClick={toggle} variant="ghost">
+  {dark ? <Moon /> : <Sun />}
+</IconButton>
+```
+
+A link drawn as a button in a bar of an application's sections states `aria-current="page"` on the
+section being read, and the recipe fills it the same way, set semibold. The ghost, glass, outline
+and plain looks take the palette's subtle fill while on, the subtle and surface looks the muted
+fill, and the solid look stays as it is.
+
+A control in a bar reads in the ink of the words beside it. Set `status="neutral"`, which points the
+palette at the neutral one, the way the four statuses point it at theirs.
+
+## Clipboard
+
+Copies a value when its trigger is pressed and says so for a while. The root runs the machine and
+holds the value. The trigger copies it, the indicator swaps its glyph while the copy is fresh, the
+label names the value, the input shows it read-only, and the value text writes it in a run of text.
+The machine names the trigger for a screen reader, "Copy to clipboard" before a press and "Copied to
+clipboard" after, and `translations` on the root replaces both.
+
+The trigger draws no control look of its own. Draw it as the library's button with `as`, and set the
+button's variants through `ButtonPropsProvider`, because `as` retypes nothing.
+
+```tsx
+import { Button, ButtonPropsProvider, Clipboard } from "@stealthscale/component-actions";
+
+<Clipboard.Root value="https://stealthscale.io/payouts/4109">
+  <ButtonPropsProvider value={{ size: "sm", variant: "outline" }}>
+    <Clipboard.Trigger as={Button}>
+      <Clipboard.Indicator copied={<Check />}>
+        <Copy />
+      </Clipboard.Indicator>
+      Copy the link
+    </Clipboard.Trigger>
+  </ButtonPropsProvider>
+</Clipboard.Root>;
+```
+
+Beside a field, the label names the input and the input can still be focused and selected, which is
+what a person falls back on where the browser refuses the copy:
+
+```tsx
+<Clipboard.Root value={link}>
+  <Clipboard.Label>Link to the payout</Clipboard.Label>
+  <Clipboard.Control>
+    <Clipboard.Input as={Input} />
+    <Clipboard.Trigger as={IconButton}>
+      <Clipboard.Indicator copied={<Check />}>
+        <Copy />
+      </Clipboard.Indicator>
+    </Clipboard.Trigger>
+  </Clipboard.Control>
+</Clipboard.Root>
+```
+
+`Clipboard.Consumer` hands the machine to a function, for a control of the page's own or for words
+that change with the state:
+
+```tsx
+<Clipboard.Root value={link}>
+  <Clipboard.Consumer>
+    {(api) => (
+      <Button onClick={api.copy} status={api.copied ? "success" : "neutral"}>
+        {api.copied ? "Copied" : "Copy the link"}
+      </Button>
+    )}
+  </Clipboard.Consumer>
+</Clipboard.Root>
+```
+
+The root takes the machine's options: `value` or `defaultValue`, `timeout` in milliseconds (3000 by
+default), `onStatusChange`, `onValueChange`, `translations` and `ids`.
+
+| Axis   | Values           | Default |
+| ------ | ---------------- | ------- |
+| `size` | `sm`, `md`, `lg` | `md`    |
 
 ## Licence
 

@@ -1,0 +1,15 @@
+{
+  "about": "Marks a run of words as more important than the words around it, in the strong role.",
+  "after": " once it has been run.",
+  "before": "The migration",
+  "cannot": "cannot be undone",
+  "motion": {
+    "about": "How the run enters the line.",
+    "title": "Motion"
+  },
+  "title": "Strong",
+  "weights": {
+    "about": "Every weight in every ink, inside a line of ordinary words.",
+    "title": "Weights and inks"
+  }
+}

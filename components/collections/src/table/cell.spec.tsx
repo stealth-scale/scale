@@ -5,7 +5,7 @@ import { boundViolations, slotElement } from "@stealthscale/testing-theme";
 
 import { Cell } from "#table/cell.ts";
 import { recipe } from "#table/recipe.ts";
-import { type ScrollerProps } from "#table/scroller.ts";
+import { type ScrollerProps } from "#table/scroller.tsx";
 import { composed, rowed } from "#table/table.fixtures.tsx";
 
 describe("Cell", () => {

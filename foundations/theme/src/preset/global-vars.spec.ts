@@ -14,4 +14,12 @@ describe("globalVars", () => {
       syntax: "<angle>",
     });
   });
+
+  it("registers the density as an inherited number that starts at one", () => {
+    expect(globalVars.extend?.["--density"]).toStrictEqual({
+      inherits: true,
+      initialValue: "1",
+      syntax: "<number>",
+    });
+  });
 });

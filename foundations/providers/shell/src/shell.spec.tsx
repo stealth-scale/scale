@@ -8,6 +8,7 @@ import { memoryStore } from "@stealthscale/settings";
 import { CATALOGUES } from "#catalogues.fixtures.ts";
 import {
   Chosen,
+  Picked,
   Rooted,
   ShortcutDefaults,
   Sized,
@@ -72,10 +73,16 @@ describe("Shell", () => {
     expect(screen.getByText("commands")).toBeTruthy();
   });
 
-  it("switches the document to the theme it is given", () => {
-    shell(<Switched />, { theme: "forge" });
+  it("switches the document to the first theme it offers", () => {
+    shell(<Switched />, { themes: ["forge", "fathom"] });
 
     expect(screen.getByText("forge/none")).toBeTruthy();
+  });
+
+  it("offers the themes it is given for a person to pick from", () => {
+    shell(<Picked />, { themes: ["forge", "fathom"] });
+
+    expect(screen.getByText("forge of forge,fathom")).toBeTruthy();
   });
 
   it("follows the machine's colour mode until a person chooses", () => {
@@ -85,9 +92,9 @@ describe("Shell", () => {
   });
 
   it("leaves the colour mode attribute off while a person follows the machine", () => {
-    shell(<Switched />, { theme: "forge" });
+    shell(<Switched />, { themes: ["forge"] });
 
-    expect(Object.hasOwn(document.documentElement.dataset, "colorMode")).toBe(false);
+    expect(document.documentElement.dataset["colorMode"]).toBeUndefined();
   });
 
   it("roots the tree in the page's document when it is given no node", () => {

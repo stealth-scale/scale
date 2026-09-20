@@ -14,6 +14,7 @@
 
 import {
   defineSlotRecipe,
+  dense,
   onSlot,
   onSlots,
   sizeVariants,
@@ -37,7 +38,7 @@ export const recipe = defineSlotRecipe({
       alignItems: "center",
       color: "colorPalette.fg",
       display: "flex",
-      gap: "gap.xs",
+      gap: dense("{spacing.gap.xs}"),
     },
     helperText: { color: "fg.muted" },
     label: {
@@ -45,7 +46,7 @@ export const recipe = defineSlotRecipe({
       alignItems: "center",
       display: "inline-flex",
       fontWeight: "medium",
-      gap: "gap.xs",
+      gap: dense("{spacing.gap.xs}"),
     },
     requiredIndicator: { color: "colorPalette.fg", lineHeight: "1" },
     root: { colorPalette: "error", display: "flex", inlineSize: "full" },
@@ -58,11 +59,22 @@ export const recipe = defineSlotRecipe({
   variants: {
     /**
      * Where the label sits against the control.
+     *
+     * @remarks
+     *   Beside the control, the root is a grid of two columns: the label takes the first and every
+     *   other part takes the second, so the helper text, the counter and the message stack under
+     *   the control rather than queueing beside it. A row of every part put the helper text and the
+     *   counter in the room left after the control, where the text wrapped word by word and the
+     *   counter broke over two lines.
      */
     orientation: {
       horizontal: {
-        label: { flex: "0 0 auto", paddingBlockStart: "gap.xs" },
-        root: { alignItems: "flex-start", flexDirection: "row" },
+        control: { gridColumn: "2" },
+        counter: { gridColumn: "2" },
+        errorText: { gridColumn: "2" },
+        helperText: { gridColumn: "2" },
+        label: { paddingBlockStart: dense("{spacing.gap.xs}") },
+        root: { alignItems: "start", display: "grid", gridTemplateColumns: "auto minmax(0, 1fr)" },
       },
       vertical: { root: { flexDirection: "column" } },
     },
@@ -72,7 +84,7 @@ export const recipe = defineSlotRecipe({
       errorText: sizeVariants((size) => ({ textStyle: `body.${size}` }), SIZES),
       helperText: sizeVariants((size) => ({ textStyle: `body.${size}` }), SIZES),
       label: sizeVariants((size) => ({ textStyle: `label.${size}` }), SIZES),
-      root: sizeVariants((size) => ({ gap: `gap.${size}` }), SIZES),
+      root: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), SIZES),
     }),
 
     /**

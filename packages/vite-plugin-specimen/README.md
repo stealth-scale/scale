@@ -50,9 +50,11 @@ import { pages } from "virtual:specimen-index";
 ```
 
 `pages` carries one entry per file, sorted by path. Each entry has the metadata the file declares,
-the name of the package the file belongs to, and three loaders: `load` for the scenes, `source` for
-the file's text, and `fragments` for the scenes as source. Every loader is a dynamic import, so the
-bundler emits one chunk per specimen.
+the name of the package the file belongs to, and two loaders: `load` for the scenes and `fragments`
+for the scenes as source. Every loader is a dynamic import, and the plugin merges both of a page's
+into one chunk named after the page, `actions-button-[hash].js`, so a page opens with one request
+and a rail that lists 100 pages loads no component. A page's props are a third loader where the
+index was asked to read them, in a chunk of their own, loaded where somebody opens them.
 
 Add the types with a triple-slash directive from a file the project already compiles.
 
@@ -63,12 +65,16 @@ Add the types with a triple-slash directive from a file the project already comp
 ## virtual:specimen-fragments
 
 ```ts
-const { fragments } = await import("virtual:specimen-fragments/data/badge");
+const { fragments, imported } = await import("virtual:specimen-fragments/data/badge");
 ```
 
 `fragments` gives one snippet per scene, keyed by the scene's title. A snippet is the scene's
 declaration, every top-level declaration it references, and the import specifiers those use. An
 import nothing in the snippet reaches is cut, so the snippet compiles on its own.
+
+`imported` lists the components the page imports from its own package, sorted: every value the file
+binds from a specifier under the package's imports map, which starts with `#`, whose name starts
+with a capital letter. A catalogue writes the page's import statement from it.
 
 ## virtual:specimen-props
 
@@ -135,8 +141,23 @@ One identifier declared by two files is the same fault. The second is refused an
 A page appearing, disappearing, or changing the metadata it declares reloads the index. An edit that
 changes only a scene reloads that page and leaves the index alone.
 
+A listed specimen and its fragments accept their own hot update. A specimen file exports scenes and
+constants beside its components, so the refresh runtime cannot accept an edit to it, and without a
+boundary the edit climbs through the index to the application's own modules, which run again on
+every save. The plugin appends the boundary to each specimen it transforms and writes it into each
+fragments module, and the boundary dispatches `UPDATED` (`specimen:updated`) on the window with the
+page's identifier and the module that replaced the old one as the event's detail. The catalogue kit
+listens for the event and redraws the page. The module accepts itself rather than the index
+accepting it, because a server that bundles registers a module reached through a dynamic import
+under an identifier of its own, which an accepting importer cannot name.
+
 The directories the patterns start in are added to the watcher, including those outside the project
 root, because a dev server watches its own root and nothing above it.
+
+A server that bundles runs no hot update hook. A fragments module watches the page's file, so the
+bundler generates it again on a save, and a change to a typed file restarts the compiler from
+`watchChange`. The index is generated when the server starts, so a page appearing or disappearing
+under that server needs a restart.
 
 ## Licence
 

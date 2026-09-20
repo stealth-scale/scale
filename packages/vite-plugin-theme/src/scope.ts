@@ -485,6 +485,25 @@ function lineage(preset: SwitchablePreset | undefined, inherited = false): reado
 }
 
 /**
+ * Writes the selector one theme's rules are nested under: inside that theme, and not inside
+ * another theme nested within it.
+ *
+ * @remarks
+ *   The attribute alone would carry a theme's rules through a subtree switched to another theme.
+ *   A theme's tokens stop at such a boundary, because the inner element redeclares them, but its
+ *   rules do not: a button inside Ink inside Regatta was drawn in Ink's colors and Regatta's
+ *   capitals. The exclusion names the same attribute twice, so it reads as "under this theme, with
+ *   no theme in between", which is what a reader means by the theme a thing is in. A theme nested
+ *   in itself is excluded as well, which is right: the inner element is the one that owns it.
+ * @param name - The theme's name, as a page writes it in the attribute.
+ */
+function scopeFor(name: string): string {
+  const own = `[${THEME_ATTRIBUTE}=${name}]`;
+
+  return `${own} &:not(${own} [${THEME_ATTRIBUTE}] *)`;
+}
+
+/**
  * Builds the presets that make one theme's extensions apply while a page is switched to it.
  *
  * @remarks
@@ -500,7 +519,7 @@ export function scopedPreset(
   theme: Switchable,
   compounds: Compounds = NONE,
 ): readonly ScopedPreset[] {
-  const selector = `[${THEME_ATTRIBUTE}=${theme.name}] &`;
+  const selector = scopeFor(theme.name);
   const own = `theme:${theme.name}:switched`;
 
   return lineage(theme.preset).flatMap(({ extensions, inherited, name }) => {

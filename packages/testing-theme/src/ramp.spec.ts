@@ -23,13 +23,20 @@ function three(first: string, second: string, third: string): Colors {
 }
 
 describe("ramp", () => {
-  it("lists every ramp of the foundation with its steps ascending", () => {
+  it("lists every hue ramp of the foundation with its steps ascending", () => {
     const ramps = rampsOf(foundationTheme());
 
-    expect(ramps.map(({ path }) => path)).toStrictEqual([...HUES, "blackAlpha", "whiteAlpha"]);
+    expect(ramps.map(({ path }) => path)).toStrictEqual([...HUES]);
     expect(ramps[0]?.steps.map(([step]) => step)).toStrictEqual([
       50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950,
     ]);
+  });
+
+  it("passes over a ramp whose steps carry transparency", () => {
+    const ramps = rampsOf(foundationTheme());
+
+    expect(ramps.map(({ path }) => path)).not.toContain("blackAlpha");
+    expect(ramps.map(({ path }) => path)).not.toContain("whiteAlpha");
   });
 
   it("lists a dark ramp nested under the light one by its own path", () => {

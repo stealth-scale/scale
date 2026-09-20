@@ -19,20 +19,16 @@ import { defaultClientConditions, defaultServerConditions, type UserConfig } fro
 const SOURCE = "stealth-source";
 
 /**
- * Lists the directories the specification glob never descends into.
+ * Lists the directories the specification glob never descends into, the agent worktrees below the
+ * root last.
  *
  * @remarks
  *   Written out rather than imported, because this package configures itself without extending a
  *   tier and so reaches for nothing the tier publishes. Its own specification compares the two
- *   lists, which is what keeps this copy honest.
+ *   lists, which is what keeps this copy honest. The worktree glob is anchored at the root, so a
+ *   run inside a worktree collects its own specifications.
  */
-const FOREIGN = [
-  "**/node_modules/**",
-  "**/.git/**",
-  "**/.claude/**",
-  "**/dist/**",
-  "**/coverage/**",
-];
+const FOREIGN = ["**/node_modules/**", "**/.git/**", "**/dist/**", "**/coverage/**", ".claude/**"];
 
 /**
  * Configures a package that packs and tests without extending a tier.

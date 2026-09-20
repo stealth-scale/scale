@@ -99,7 +99,7 @@ export default {
     "body-max-line-length": [2, "always", 80],
     "footer-leading-blank": [2, "always"],
     "header-max-length": [2, "always", 100],
-    "scope-enum": [2, "always", SCOPES.concat(["rfc", "adr", "examples"])],
+    "scope-enum": [2, "always", SCOPES.concat(["rfc", "adr", "examples", "scripts"])],
     "subject-case": [2, "never", ["sentence-case", "start-case", "pascal-case", "upper-case"]],
     "subject-empty": [2, "never"],
     "subject-full-stop": [2, "never", "."],

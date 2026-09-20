@@ -1,67 +1,36 @@
 import { describe, expect, it } from "vitest";
 
-import { type Indexed } from "@stealthscale/specimen";
-import { mountRoute, routerOver } from "@stealthscale/testing-router";
+import { routerOver } from "@stealthscale/testing-router";
 
+import { opened } from "#app.fixtures.tsx";
 import { buildTree } from "#routes.tsx";
 
-function entry(id: string, group: string, title: string): Indexed {
-  return {
-    about: "",
-    group,
-    id,
-    load: () => Promise.resolve({}),
-    package: "@stealthscale/component-actions",
-    path: `src/${id}.specimen.tsx`,
-    source: () => Promise.resolve({ default: "" }),
-    title,
-  };
-}
-
-const LISTED = [entry("actions/button", "Actions", "Button"), entry("data/badge", "Data", "Badge")];
-
 describe("buildTree", () => {
-  it("draws every indexed page beneath this application's own route", () => {
-    const router = routerOver(buildTree(LISTED));
-    const found = Object.keys(router.routesById).filter((id) => id.startsWith("/pages"));
+  it("serves the catalogue under its own path inside the frame", () => {
+    const router = routerOver(buildTree());
+    const found = Object.keys(router.routesById).filter((id) => id.startsWith("/_docs"));
 
-    expect(found).toStrictEqual([
-      "/pages",
-      "/pages/_specimen.catalogue",
-      "/pages/_specimen.catalogue/actions/button",
-      "/pages/_specimen.catalogue/data/badge",
-    ]);
+    expect(found).toContain("/_docs.frame/components/actions/button");
   });
 
-  it("sends the site root to the first page the index holds", async () => {
-    const router = routerOver(buildTree(LISTED));
+  it("sends the site root to the catalogue", async () => {
+    const router = routerOver(buildTree());
 
     await router.navigate({ to: "/" });
     await router.load();
 
-    expect(router.state.location.pathname).toBe("/pages/actions/button");
+    expect(router.state.location.pathname).toBe("/components");
   });
 
-  it("sends the site root to the mount where the index found no page", async () => {
-    const router = routerOver(buildTree([]));
+  it("opens the index at the catalogue's path", async () => {
+    const result = await opened("/components");
 
-    await router.navigate({ to: "/" });
-    await router.load();
-
-    expect(router.state.location.pathname).toBe("/pages");
+    expect(result.getByRole("heading", { level: 1 }).textContent).toBe("Components");
   });
 
-  it("draws the rail above the page the address names", async () => {
-    const { result } = await mountRoute(buildTree(LISTED), "/pages/actions/button");
+  it("opens a page the build indexed at its path under the catalogue's", async () => {
+    const result = await opened("/components/actions/button");
 
-    expect(result.getByRole("navigation", { name: "Pages" })).toBeDefined();
-  });
-
-  it("addresses a page under the mount", async () => {
-    const { result } = await mountRoute(buildTree(LISTED), "/pages/actions/button");
-
-    expect(result.getByRole("link", { name: "Badge" }).getAttribute("href")).toBe(
-      "/pages/data/badge",
-    );
+    expect(result.getByRole("heading", { level: 1 }).textContent).toBe("Button");
   });
 });

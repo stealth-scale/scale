@@ -1,0 +1,12 @@
+{
+  "about": "Draws a snippet of code inside a line, in a look, a size and the palette of its status.",
+  "looks": {
+    "about": "Every look at both sizes.",
+    "title": "Looks and sizes"
+  },
+  "statuses": {
+    "about": "Every status in every look. A status points the palette at the semantic palette of its name.",
+    "title": "Statuses"
+  },
+  "title": "Code"
+}

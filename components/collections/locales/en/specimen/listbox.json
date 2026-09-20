@@ -1,0 +1,98 @@
+{
+  "about": "Draws a list of rows a person picks from, with the keys the ARIA pattern calls for.",
+  "across": {
+    "about": "The rows run along a line rather than down one, and the arrows follow them. A row takes the width of its own words, and the list scrolls sideways where the words outrun the room.",
+    "title": "Across rather than down"
+  },
+  "all": "All clients",
+  "available": "Available",
+  "chosen": "Chosen",
+  "clear": "Clear the filter",
+  "clients": "Clients",
+  "closed": "Closed",
+  "corners": {
+    "about": "Every corner of the list.",
+    "title": "Corners"
+  },
+  "fathom": "Fathom",
+  "fathomOf": "Settles nightly, in euro",
+  "filter": "Filter clients",
+  "giveBack": "Give back what is picked",
+  "grouped": {
+    "about": "Rows gathered under headings. A heading names its group to a screen reader as well as on the screen, and the arrows run through the rows and pass the headings by.",
+    "title": "Grouped"
+  },
+  "held": "Held",
+  "highlights": {
+    "about": "Every highlight, on the row the keys are on. Move down a list with the arrows.",
+    "title": "Highlights"
+  },
+  "lantern": "Lantern",
+  "lanternOf": "Held pending a customs count",
+  "locked": {
+    "about": "A row that cannot be picked. It is still drawn and still read out, because a reader who cannot see it has no way to learn the option exists, and the arrows pass over it.",
+    "title": "A row that cannot be picked"
+  },
+  "looks": {
+    "about": "Every look at every size.",
+    "title": "Looks and sizes"
+  },
+  "consignment": "Consignment {{at}}",
+  "consignments": "Consignments ({{count}})",
+  "many": {
+    "about": "Ten thousand rows, of which about twenty are in the document. Hold an arrow key down: the highlight keeps going past what is drawn, because the list is told how to scroll to a row before that row exists. The scrollbar is the length every row would come to, so the list is as long as it says it is.",
+    "title": "Too many rows to draw"
+  },
+  "modes": {
+    "about": "One row at a time, several, or several the way a file manager does it. Extended is the one that behaves differently rather than merely looking different: a plain press replaces the whole set and a held modifier adds to it, which is powerful and invisible, so reach for it only where a reader already expects it.",
+    "title": "Selection modes"
+  },
+  "moving": {
+    "about": "Two lists, and what moves between them. Each side is an ordinary list of several; what makes it a transfer is the pair of controls, which are off while nothing on their side is picked so neither ever does nothing.",
+    "title": "Moving rows between two lists"
+  },
+  "narrowing": {
+    "about": "A field above the list narrows the rows as a reader types. The arrows still move the highlight and Enter still takes a row without leaving the field. Type three letters that are in none of the names to draw the empty part, which otherwise never appears.",
+    "title": "Narrowing"
+  },
+  "nothing": "Nothing picked yet",
+  "nothingHere": "Nothing here.",
+  "outside": {
+    "about": "The picked set is held outside the list, which is what two controls sharing one selection need: a list beside a summary, or a set a URL carries. The controls write to that state rather than reaching into the list, and the list follows.",
+    "title": "Held from outside"
+  },
+  "pebble": "Pebble",
+  "pebbleOf": "Settles weekly, in sterling",
+  "picked": {
+    "about": "How a picked row is marked. Plain leans on the mark at the row's end alone, which is the one to check a long list against: a row that is on but drawn like the rest is a row nobody finds again.",
+    "title": "Picked rows"
+  },
+  "quartz": "Quartz",
+  "quartzOf": "Closed, kept for the record",
+  "rows": {
+    "about": "A row holds whatever is written in it. A mark before the name says what kind of thing each one is, and a second line under it carries what the name does not. The check at the end sits across both lines, so a column of marks reads straight down however tall the rows become.",
+    "title": "What a row holds"
+  },
+  "summarised": {
+    "about": "What the list holds, written outside it. The value text follows the picked rows, so a summary beside a long list says what a reader has chosen without them scrolling back to look.",
+    "title": "What is picked"
+  },
+  "pick": "Pick a client",
+  "ports": "Ports",
+  "take": "Take what is picked",
+  "tiles": {
+    "about": "Rows in columns rather than one after another. A grid collection is what changes the keys: all four arrows move the highlight, so a reader crosses the tiles the way they see them rather than walking a whole row to reach the one below.",
+    "title": "A grid of tiles"
+  },
+  "triggered": {
+    "about": "The same list inside a popover, for a page with no room to hold it open. A listbox is worth reaching for where the options are worth showing; put behind a trigger it is doing a select's job, and a select is the better answer unless the rows need this much room.",
+    "title": "Behind a trigger"
+  },
+  "takeAll": "Take all",
+  "takeNone": "Take none",
+  "title": "Listbox",
+  "whole": {
+    "about": "Press the row above the list to turn the whole list on, and again to clear it. Part of the way through it draws a part-checked mark rather than an empty one, so the row says how much of the list is on rather than only whether it was pressed. It counts off the list it is in, so a narrowed list is counted as narrowed.",
+    "title": "Select all"
+  }
+}

@@ -5,21 +5,19 @@
  * @remarks
  *   An alert with four statuses and six looks is one recipe: the status sets the palette, the
  *   look reads the palette's roles, and no value in the recipe is a color. A theme decides what
- *   hue an error is.
+ *   hue an error is. Each helper offers every status where a recipe names none, so a component
+ *   that reports two of them states two and the compiler emits no rule for the others.
  */
 
-import { type Status, STATUSES } from "#authoring/contract.ts";
-import type { SystemStyleObject } from "#generated/types/system.d.mts";
+import { type Axis, axis } from "#authoring/recipes/axis.ts";
+import { type Status, STATUSES } from "#contract.ts";
 import { type RecipeRule } from "#pandacss.ts";
-import { recordOf } from "#record.ts";
 
 /**
  * Writes the `status` axis, each status pointing the palette at the semantic palette of its
  * name.
  */
-export function statusVariants(): Record<Status, SystemStyleObject> {
-  return recordOf(STATUSES, (status) => ({ colorPalette: status }));
-}
+export const statusVariants: Axis<Status> = axis(STATUSES, (status) => ({ colorPalette: status }));
 
 /**
  * Writes the `status` axis of a form field, each status pointing the palette at the semantic
@@ -31,12 +29,10 @@ export function statusVariants(): Record<Status, SystemStyleObject> {
  *   own border role sits two steps darker, so a field that read the palette for its edge would be
  *   drawn heavier than the invalid state the same field already has.
  */
-export function fieldStatusVariants(): Record<Status, SystemStyleObject> {
-  return recordOf(STATUSES, (status) => ({
-    borderColor: `border.${status}`,
-    colorPalette: status,
-  }));
-}
+export const fieldStatusVariants: Axis<Status> = axis(STATUSES, (status) => ({
+  borderColor: `border.${status}`,
+  colorPalette: status,
+}));
 
 /**
  * Writes the `staticCss` entry a recipe with a `status` axis carries.
@@ -47,9 +43,9 @@ export function fieldStatusVariants(): Record<Status, SystemStyleObject> {
  *   validator or a server said, and the compiler sees a name it cannot follow. Without this the
  *   class lands on the element with no rule behind it, and a component reporting an error draws in
  *   its default palette. The values are listed rather than asked for with `true`, which the
- *   compiler's own types offer for an axis and its compiler ignores. Reading them from the
- *   vocabulary's own array is what keeps the list from going stale when a status is added.
+ *   compiler's own types offer for an axis and its compiler ignores.
+ * @param statuses - The statuses the recipe offers, which is every one unless it names fewer.
  */
-export function statusEmitted(): RecipeRule {
-  return { status: [...STATUSES] };
+export function statusEmitted(statuses: readonly Status[] = STATUSES): RecipeRule {
+  return { status: [...statuses] };
 }

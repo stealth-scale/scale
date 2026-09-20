@@ -58,8 +58,20 @@ describe("recipe", () => {
     });
   });
 
-  it("offers the four looks a panel is drawn in", () => {
-    expect(valuesOf(recipe, "variant")).toStrictEqual(["elevated", "glass", "outline", "subtle"]);
+  it("offers the five looks a panel is drawn in", () => {
+    expect(valuesOf(recipe, "variant")).toStrictEqual([
+      "elevated",
+      "glass",
+      "outline",
+      "plain",
+      "subtle",
+    ]);
+  });
+
+  it("draws no panel at all in the plain look", () => {
+    expect(recipe.variants?.variant?.plain).toStrictEqual({
+      root: { background: "transparent", borderColor: "transparent", boxShadow: "none" },
+    });
   });
 
   it("offers four sizes", () => {
@@ -69,7 +81,7 @@ describe("recipe", () => {
   it("states the root's own inset as a property the media reads back", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["root"]).toMatchObject({
       "--card-inset": "{spacing.inset.md}",
-      padding: "inset.md",
+      padding: "calc({spacing.inset.md} * var(--density, 1))",
     });
     expect(recipe.variants?.["orientation"]?.["vertical"]?.["media"]).toStrictEqual({
       marginBlockStart: "calc(-1 * var(--card-inset))",
@@ -93,15 +105,31 @@ describe("recipe", () => {
     expect(recipe.base?.["aside"]).toMatchObject({ gridColumn: "3" });
   });
 
-  it("draws the focus ring from inside an interactive card", () => {
+  it("draws the ring when the link in the title takes focus", () => {
     expect(recipe.variants?.["interactive"]?.["true"]?.["root"]).toMatchObject({
-      _focusWithin: { focusVisibleRing: "outside" },
+      "&:has(.card__title a:focus-visible)": {
+        outlineColor: "var(--focus-ring-color)",
+        outlineOffset: "ring",
+        outlineStyle: "var(--focus-ring-style, solid)",
+        outlineWidth: "ring",
+      },
     });
+  });
+
+  it("leaves a supplementary control to ring itself", () => {
+    expect(recipe.variants?.["interactive"]?.["true"]?.["root"]).not.toHaveProperty("_focusWithin");
+  });
+
+  it("stretches the title's link over the whole interactive card", () => {
+    expect(recipe.variants?.["interactive"]?.["true"]?.["title"]).toStrictEqual({
+      "& > a::after": { content: '""', inset: "0", position: "absolute" },
+    });
+    expect(recipe.base?.["root"]).toMatchObject({ position: "relative" });
   });
 
   it("separates the bands with a rule and the root's own inset", () => {
     expect(recipe.variants?.["divided"]?.["true"]?.["header"]).toMatchObject({
-      borderBlockEndWidth: "sm",
+      borderBlockEndWidth: "hairline",
       paddingBlockEnd: "var(--card-inset)",
     });
   });
