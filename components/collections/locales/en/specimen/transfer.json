@@ -1,0 +1,30 @@
+{
+  "about": "Moves rows between two lists, for a set a person builds out of a longer one.",
+  "available": "Available",
+  "chosen": "Chosen",
+  "explained": {
+    "about": "The same pair, with a line under each name. A transfer is often the place a name alone does not settle which row a reader wants, because the rows that are left carry no column headings to read them against.",
+    "title": "A line under each name"
+  },
+  "fathom": "Fathom",
+  "fathomOf": "Settles nightly, in euro",
+  "giveBack": "Give back what is picked",
+  "held": {
+    "about": "The set is held outside the pair, which is what a form needs: the page owns what has crossed over and the pair follows. The two sides still hold what a reader has picked on each of them, because nobody outside cares about that.",
+    "title": "Held from outside"
+  },
+  "lantern": "Lantern",
+  "lanternOf": "Held pending a customs count",
+  "moving": {
+    "about": "Two lists, and what moves between them. Each side is an ordinary list of several; what makes it a transfer is the pair of controls, which are off while nothing on their side is picked so neither ever does nothing. Both sides keep room for every row there is, so the pair stays still as rows cross between them.",
+    "title": "Moving rows between two lists"
+  },
+  "nothing": "Nothing has crossed over yet",
+  "nothingHere": "Nothing here.",
+  "pebble": "Pebble",
+  "pebbleOf": "Settles weekly, in sterling",
+  "quartz": "Quartz",
+  "quartzOf": "Closed, kept for the record",
+  "take": "Take what is picked",
+  "title": "Transfer"
+}

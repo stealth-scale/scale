@@ -59,6 +59,12 @@ function Reader(
         Narrow
       </button>
       <span data-testid="left">{collection.items.map((row) => row.label).join(",")}</span>
+      <span data-testid="off">
+        {collection.items
+          .filter((row) => collection.getItemDisabled(row))
+          .map((row) => row.label)
+          .join(",")}
+      </span>
     </>
   );
 }
@@ -89,6 +95,18 @@ describe("useListCollection", () => {
     await pressed(screen.getByRole("button"));
 
     expect(screen.getByTestId("left").textContent).toBe("Invoices,New document,Settings");
+  });
+
+  it("holds no row off until a caller says which", () => {
+    render(<Reader to="" />);
+
+    expect(screen.getByTestId("off").textContent).toBe("");
+  });
+
+  it("carries the rows a caller holds off through to the collection", () => {
+    render(<Reader isItemDisabled={(row) => row.label === "Settings"} to="" />);
+
+    expect(screen.getByTestId("off").textContent).toBe("Settings");
   });
 
   it("matches on more than a row's own words where a caller says how", async () => {

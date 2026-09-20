@@ -71,10 +71,61 @@ component-collections: paint a sticky header on the cells that move
   `thead` does not move, so its fill scrolled away and the body's values showed through the header's
   labels.
 
-component-collections: draw the listbox's narrowing input as a field
+component-collections: draw the listbox's narrowing field as a band across the list
 
-- The listbox's input reads the theme's `field` fragment at the control scale, so the box a person
-  narrows the rows in has the surface, the edge, the ring and the states every field has. It was a
-  bare `input` the width of the list.
-- The label keeps the inset the rows keep, so its words line up with the rows' words, and a list on
-  a surface keeps a small gap between its frame and its rows, the way a menu's panel does.
+- The field stands in a `control` band that carries the rule under it, the room round it and the
+  focus within it. A boxed field there drew a second border inside the list's and the ring a field
+  carries drew a third on focus, so the band takes the flushed treatment instead: one rule
+  underneath, which changes colour while anything inside the band has focus.
+- `Listbox.Input` takes `clearIndicator` and `clearLabel` and draws a `clearTrigger` that empties
+  the field. The control belongs to this recipe rather than coming from the search field in
+  `component-forms`, which keeps this package off every other component package. A field from
+  elsewhere brings a box of its own, and the box and the band both want the width the rule reaches.
+- The label above the list, the summary below it and the group labels within it keep the inset a row
+  keeps, so every word on the list starts on one line.
+
+component-collections: publish the listbox parts a list is actually built from
+
+- `Listbox.Empty` says a list holds nothing and draws nothing while it holds something.
+  `Listbox.SelectAll` turns the whole list on from a row above it and reports how much of it is on
+  through `aria-pressed`, `mixed` included. `Listbox.ItemCheckbox`, `Listbox.ItemDescription` and
+  `Listbox.ItemLines` draw a row's box, the line under its name, and the column holding the two
+  lines together.
+- Three axes join the four: `columns` lays the rows out as tiles, `orientation` runs them along a
+  line, and `selected` marks a picked row. `selected="none"` draws nothing at all, for a list whose
+  rows each carry a box that says the same thing.
+- `useGridCollection` holds the rows a list draws in columns. A grid collection is what changes the
+  keys: all four arrows move the highlight, so a reader crosses the tiles the way they see them.
+- `useListCollection` takes `isItemDisabled`, so a caller says which rows cannot be picked.
+- The list publishes one row's height as `--listbox-row`, written from the same two values a row is
+  written from, for whatever counts rows into a measure.
+
+component-collections: draw a whole listbox from props
+
+- `Listbox.Simple` draws the list almost every caller wants. It takes `label`, `empty`, `summary`,
+  `selectAll`, `narrowing`, `description`, `icon`, `groupBy`, `groupLabel` and `tall` beside
+  everything the root takes. A list that wants something else composes the parts it is built from.
+- `Listbox.Row` draws a row out of those parts. The root states the row's shape once, through
+  `boxed` and the two marks. A list therefore cannot end up with a box on some rows and a check on
+  others. A boxed list leaves its picked rows unfilled unless a caller says otherwise, because the
+  box already says the row is in the set.
+- `Listbox.Window` draws only the rows near enough to be seen and holds the room the rest would
+  take. It measures one row rather than being told a height. It scrolls to the nearest edge the way
+  a browser does. The machine is told how to scroll only while a window says how. Left alone it
+  scrolls the highlighted row into view itself, which is right for every list that draws all its
+  rows.
+- `tall` on `Listbox.Simple` does both jobs. A list told how many rows it stands draws only those
+  and holds itself to their height.
+
+component-collections: publish Transfer
+
+- `Transfer` moves rows between two lists, for a set a person builds out of a longer one. One
+  component rather than a namespace: what it draws is fixed, and a caller who wants something else
+  composes two listboxes.
+- Both sides keep the same width and the same height. Neither moves as rows cross between them. The
+  floor under that height is the room every row would take, counted off the row height each list
+  publishes.
+- The two controls are off while nothing on their side is picked, so neither ever does nothing. They
+  are the one element a transfer adds, drawn from this recipe rather than from the button package.
+- Picking is cleared on the side a row leaves. A row that crossed over while still counted as picked
+  would be taken straight back by the next press of the other control.

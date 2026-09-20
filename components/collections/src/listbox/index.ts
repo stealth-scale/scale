@@ -1,16 +1,13 @@
 /**
- * Publishes the listbox's ten parts, which a caller composes as `Listbox.Root` holding a list of
- * rows a person picks from.
+ * Publishes the listbox's parts, which a caller composes as `Listbox.Root` holding a list of rows a
+ * person picks from.
+ *
+ * @remarks
+ *   `Listbox.Simple` draws a whole list from props and is what most callers want. `Listbox.Row`
+ *   draws the row almost every list wants. Both are built from the parts published beside them,
+ *   which a list that wants something else composes itself.
  */
 
-export { Content, type ContentProps } from "#listbox/content.tsx";
-export { Input, type InputProps } from "#listbox/input.tsx";
-export { ItemGroupLabel, type ItemGroupLabelProps } from "#listbox/item-group-label.tsx";
-export { ItemGroup, type ItemGroupProps } from "#listbox/item-group.tsx";
-export { ItemIndicator, type ItemIndicatorProps } from "#listbox/item-indicator.tsx";
-export { ItemText, type ItemTextProps } from "#listbox/item-text.tsx";
-export { Item, type ItemProps } from "#listbox/item.tsx";
-export { Label, type LabelProps } from "#listbox/label.tsx";
-export { type ListboxItem } from "#listbox/machine.ts";
-export { Root, type RootProps } from "#listbox/root.tsx";
-export { ValueText, type ValueTextProps } from "#listbox/value-text.tsx";
+export * from "#listbox/parts.ts";
+export { Row, type RowProps } from "#listbox/row.tsx";
+export { type Narrowing, Simple, type SimpleProps } from "#listbox/simple.tsx";

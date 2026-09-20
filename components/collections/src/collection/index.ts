@@ -6,10 +6,11 @@
  *   naming it in a declaration file resolves it without declaring the engine themselves.
  */
 
-export { type ListCollection } from "@zag-js/collection";
+export { type GridCollection, type ListCollection } from "@zag-js/collection";
 export {
   type Collection,
   type CollectionOptions,
   useListCollection,
 } from "#collection/collection.ts";
 export { type Filter, type FilterOptions, useFilter } from "#collection/filter.ts";
+export { type Grid, type GridOptions, useGridCollection } from "#collection/grid.ts";

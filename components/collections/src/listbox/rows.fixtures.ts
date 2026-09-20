@@ -36,3 +36,13 @@ export const COLLECTION = new ListCollection<Row>({
   itemToString: (row): string => row.label,
   itemToValue: (row): string => row.value,
 });
+
+/**
+ * A collection holding no rows at all, for the cases that measure what a list says when it is
+ * empty.
+ */
+export const NOTHING = new ListCollection<Row>({
+  items: [],
+  itemToString: (row): string => row.label,
+  itemToValue: (row): string => row.value,
+});
