@@ -79,6 +79,23 @@ export async function pressed(element: Element): Promise<void> {
 }
 
 /**
+ * Moves a pointer onto an element, and waits for whatever that started to finish.
+ *
+ * @remarks
+ *   A pointer that arrives is dispatched as `pointerover` rather than as `pointerenter`. React
+ *   listens for the bubbling event on the root it mounted and works out from it which elements the
+ *   pointer entered, so a handler set with `onPointerEnter` never runs for a `pointerenter` event
+ *   fired at the element itself.
+ * @param element - The element the pointer arrives on.
+ * @returns Nothing. The caller reads the screen.
+ */
+export async function hovered(element: Element): Promise<void> {
+  fireEvent.pointerOver(element);
+
+  await settled();
+}
+
+/**
  * Tells whether a throw said what it was expected to.
  */
 function matches(thrown: unknown, expected: RegExp | string): boolean {

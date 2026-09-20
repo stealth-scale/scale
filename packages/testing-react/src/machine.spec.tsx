@@ -3,7 +3,7 @@ import { createContext, type ReactElement, use, useEffect, useState } from "reac
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { drawn, pressed, rootedViolations, settled } from "#machine.ts";
+import { drawn, hovered, pressed, rootedViolations, settled } from "#machine.ts";
 
 const Held = createContext<string | undefined>(undefined);
 
@@ -69,6 +69,26 @@ function Sequenced(): ReactElement {
     >
       {held}
     </button>
+  );
+}
+
+/**
+ * Draws a box that reports a pointer arriving on the control inside it, the way a panel opened by
+ * a pointer does.
+ *
+ * @returns The box, saying what it heard.
+ */
+function Entered(): ReactElement {
+  const [held, setHeld] = useState("away");
+
+  return (
+    <div
+      onPointerEnter={() => {
+        setHeld("over");
+      }}
+    >
+      <button type="button">{held}</button>
+    </div>
   );
 }
 
@@ -168,6 +188,15 @@ describe("pressed", () => {
     await pressed(screen.getByRole("button"));
 
     expect(screen.getByRole("button").textContent).toBe("open");
+  });
+});
+
+describe("hovered", () => {
+  it("reaches a handler set on an element above the one the pointer arrives on", async () => {
+    await drawn(<Entered />);
+    await hovered(screen.getByRole("button"));
+
+    expect(screen.getByRole("button").textContent).toBe("over");
   });
 });
 
