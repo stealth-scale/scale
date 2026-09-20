@@ -380,6 +380,28 @@ export const recipe = defineSlotRecipe({
     },
 
     /**
+     * Whether the column names sit on a fill of their own.
+     *
+     * @remarks
+     *   Off by default, and worth turning on for a reference rather than for a table of figures. A
+     *   table read on its own says which row is the names through weight, ink and a heavier rule,
+     *   and a fill behind them says the same thing louder. A page of a dozen tables one under
+     *   another is the case it earns: the fill is what tells a reader where one table ends and the
+     *   next begins, which no amount of weight does from the corner of an eye.
+     *   The fill is the shallowest well, the same one a stripe takes, so a table that is both
+     *   banded and striped draws its names in the tone its odd rows take rather than in a third.
+     */
+    banded: {
+      true: {
+        columnHeader: {
+          background: "bg.subtle",
+          letterSpacing: "wide",
+          textTransform: "uppercase",
+        },
+      },
+    },
+
+    /**
      * Whether every other row is tinted, which helps an eye track across a wide table.
      *
      * @remarks
@@ -391,11 +413,16 @@ export const recipe = defineSlotRecipe({
 
     /**
      * Whether the table is raised on a surface of its own or drawn against what holds it.
+     *
+     * @remarks
+     *   A raised table takes the panel fill and the shadow a panel rests at, so it reads as a thing
+     *   on the page rather than a grid ruled onto it. The shadow is what separates two tables that
+     *   sit one under another on the same fill.
      */
     variant: {
       plain: { scroller: { background: "transparent" } },
       surface: {
-        scroller: { ...surface(), boxShadow: "none", overflow: "hidden", overflowX: "auto" },
+        scroller: { ...surface(), overflow: "hidden", overflowX: "auto" },
       },
     },
   },

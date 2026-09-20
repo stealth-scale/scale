@@ -38,9 +38,10 @@ describe("recipe", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
   });
 
-  it("offers the ten axes a table takes", () => {
+  it("offers the eleven axes a table takes", () => {
     expect(axesOf(recipe)).toStrictEqual([
       "align",
+      "banded",
       "interactive",
       "layout",
       "radius",
@@ -64,8 +65,25 @@ describe("recipe", () => {
     });
   });
 
+  it("sets the column names on a fill of their own where a table asks", () => {
+    expect(recipe.variants?.["banded"]?.["true"]).toStrictEqual({
+      columnHeader: {
+        background: "bg.subtle",
+        letterSpacing: "wide",
+        textTransform: "uppercase",
+      },
+    });
+  });
+
   it("offers the two ways a table is set off", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual(["plain", "surface"]);
+  });
+
+  it("lifts a table raised on a panel off the page it sits on", () => {
+    expect(recipe.variants?.["variant"]?.["surface"]?.["scroller"]).toMatchObject({
+      background: "bg.panel",
+      boxShadow: "sm",
+    });
   });
 
   it("offers the three sets of rules a table is drawn with", () => {
