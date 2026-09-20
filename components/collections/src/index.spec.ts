@@ -6,6 +6,7 @@ describe("index", () => {
   it("names every component the package publishes and what narrows their rows", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Listbox",
+      "StatusMatrix",
       "Table",
       "Transfer",
       "useFilter",

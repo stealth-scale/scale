@@ -212,3 +212,29 @@ component-collections: publish Transfer
   are the one element a transfer adds, drawn from this recipe rather than from the button package.
 - Picking is cleared on the side a row leaves. A row that crossed over while still counted as picked
   would be taken straight back by the next press of the other control.
+
+component-collections: add StatusMatrix
+
+- `StatusMatrix` renders a grid of status marks for one set of rows against one set of columns, such
+  as services by region or controls by environment. It is built from the table's parts, so the
+  bands, rules, scopes and scroll behaviour are the table's. It is one component rather than a
+  namespace, because the layout is fixed.
+- Required props are `rows`, `columns`, `cells`, `states` and `unmeasured`. Words are separate props
+  (`caption`, `corner`, `rollup`, `legend`, `empty`, `cellLabel`) rather than a labels object,
+  matching the rest of the package.
+- Cells are sparse and indexed by row then column. A missing pair renders the `unmeasured` state
+  instead of a blank cell, so an unrun check is not shown as a pass. Duplicate pairs resolve to the
+  last entry, which is what an append-only export produces.
+- The optional rollup column reduces each row to its worst state. Severity is derived from the
+  state's tone, with a missing cell ranked above success and neutral and below warning.
+- Every cell carries a screen-reader label from the state, or from `cellLabel` when the caller
+  supplies one.
+- Setting `onSelectCell` renders each cell as a button, including missing pairs. Without it the grid
+  contains no focusable elements and adds no tab stops.
+- Setting `legend` renders a labelled list of the states plus `unmeasured`.
+- Hovering highlights the row and column under the pointer, including the rollup column, using
+  `bg.subtle`. The highlight uses no palette, because the tone belongs to the mark.
+- A state with no `mark` falls back to a filled dot, so two states sharing a tone are still
+  rendered.
+- The grid is sized to its content rather than the container and overflows the scroll box when it
+  does not fit. Rows with `group` set are rendered as one `tbody` per heading.
