@@ -5,21 +5,10 @@ import foundation from "@stealthscale/theme/theme";
 
 import { ink } from "#index.ts";
 
-const AS_STATED = "the theme keeps its colors as stated rather than moving one to clear a ratio";
-
 describe("ink", () => {
-  it("keeps the theme contract and tells every step apart in both modes", () => {
+  it("keeps the theme contract and clears every pair in both modes", () => {
     expect(
-      violations(ink, {
-        at: import.meta.dirname,
-        base: foundation,
-        recipes: {},
-        skip: {
-          "contrast.boundary": AS_STATED,
-          "contrast.focus": AS_STATED,
-          "contrast.text": AS_STATED,
-        },
-      }),
+      violations(ink, { at: import.meta.dirname, base: foundation, recipes: {} }),
     ).toStrictEqual([]);
   });
 
@@ -35,8 +24,18 @@ describe("ink", () => {
     expect(ink.preset.theme?.extend?.recipes).toBeUndefined();
   });
 
-  it("leaves every ramp to the foundation", () => {
-    expect(ink.variant.tokens).toStrictEqual({});
-    expect(ink.variant.semanticTokens).toBeDefined();
+  it("keeps the foundation's corners and shadows", () => {
+    expect(ink.variant.semanticTokens?.radii).toBeUndefined();
+    expect(ink.variant.semanticTokens?.shadows).toBeUndefined();
+  });
+
+  it("states no axis beside its colors", () => {
+    expect(Object.keys(ink.axes)).toStrictEqual(["colors"]);
+  });
+
+  it("draws the accent from the blue rather than from the grey primary", () => {
+    expect(ink.variant.semanticTokens?.colors?.["accent"]).toMatchObject({
+      solid: { DEFAULT: { value: { base: "#2563EB" } } },
+    });
   });
 });

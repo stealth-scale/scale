@@ -1,8 +1,9 @@
 # @stealthscale/theme-neon
 
 `@stealthscale/theme-neon` states Neon: a violet product with hot pink and yellow beside it, on
-grape after dark and on the palest violet by day, with soft corners. It states four colors outright,
-and every other value is a tint or a mix of them.
+grape after dark and on the palest violet by day, drawn loud. Calm surfaces under loud fills, heavy
+shadows, a thick indicator, a wide ring, black geometric headings, a snappy tempo and a deeper
+glass. It states four colors outright, and the engine draws every other value from them.
 
 ## Install
 
@@ -13,26 +14,33 @@ pnpm add @stealthscale/theme-neon
 The theme peers on `@stealthscale/theme`. An application lists it in `theme.config.ts` and a page
 switches to it with `data-theme="neon"`.
 
-## The values
+## The statement
 
-- The grape `#450693` is the dark page and the ink on the light one. The violet `#8C00FF` is the
-  product and the pink `#FF3F7F` stands beside it. The yellow `#FFC400` is the accent. The light
-  page is the palest tint of the violet, and the dark page is written in a pale yellow.
-- `src/tokens.ts` draws the grey ramp in the grape's hue, held to a low chroma so a grey control
-  reads as grey beside the violet, and redraws the purple, the pink and the yellow ramps from the
-  three colors with `scaleOf`. Every other ramp is the foundation's.
-- `src/semantic-tokens.ts` draws the three families from the pages and the inks with `inked`. Every
-  surface is a fixed distance from the page in the page's own tint. Every line is the page mixed
-  towards the ink and every faded ink is the ink mixed towards the page. `hues` draws every hue
-  palette over the same pages: the purple, the pink and the yellow palettes from the violet, the
-  pink and the yellow for the primary, the secondary and the accent, and every other from the
-  foundation's hue. `radii` draws the corners from three quarters of a rem and `shadows` casts the
-  shadows in the grape's hue.
-- The faces are the foundation's system stacks, so the manifest depends on nothing for them.
+- The violet `#8C00FF` is the primary and the keyword ink. The pink `#FF3F7F` is the secondary and
+  the string ink. The yellow `#FFC400` is the accent and the number ink. The grape `#450693` is the
+  dark page and the ink on the light one. The light page is the palest tint of the violet, and the
+  dark page is written in a pale yellow.
+- `src/colors.ts` fixes the four colors and states the theme's colors from them. `defineTheme` draws
+  every surface, ink, line and palette from the statement. The surfaces keep half the grape's
+  chroma, so the panels and the wells step in a quieter violet and the fills and the solids carry
+  the color. The three colors beside the grape are drawn as the hue palettes of their own names for
+  an application that names one.
+- All four statuses are stated rather than left to their canonical colors: a rose `#FF1053` error,
+  an acid `#00FF9C` success, an amber `#FFAE00` warning and an electric `#00D9FF` cyan for
+  information. A theme this loud reads a canonical status as a color from another product. Each sits
+  within the thirty degrees of its canonical hue that the gate holds a status to, so it is still
+  read from its color before its word.
+- `src/index.ts` defines the theme from the statement. The corners are drawn from three quarters of
+  a rem, an indicator is three pixels wide, and the focus ring is three pixels wide two pixels off
+  the control. The shadows are cast at twice the default ink in the grape's hue. Every pace is six
+  tenths of the foundation's. Every heading is set black and tracked tight in the geometric stack,
+  and every label semibold. The glass look blurs further and saturates what shows through it, at six
+  tenths of the panel's opacity.
+- The faces are system stacks, so the manifest depends on nothing for them.
 
 ## The gate
 
-`vp test` runs the theme through `violations` from `@stealthscale/testing-theme` for the contract:
-every role of every palette in both modes, every reference, and the steps a reader has to tell
-apart. The contrast checks are left out, with the reason written beside the skip: the theme keeps
-its colors as stated rather than moving one to clear a ratio.
+`vp test` runs the theme through `violations` from `@stealthscale/testing-theme`: every role of
+every palette in both modes, every reference, every text pair at 7:1, the tertiary ink and every
+label at 4.5:1, every boundary and ring at 3:1, the statuses apart from each other and from the
+brand, and the steps a reader has to tell apart. Nothing is skipped.

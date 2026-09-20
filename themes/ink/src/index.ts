@@ -8,9 +8,9 @@
 
 import { defineTheme, type Theme } from "@stealthscale/theme/authoring";
 
-import { semanticTokens } from "#semantic-tokens.ts";
+import { COLORS } from "#colors.ts";
 
 /**
  * Draws charcoal on paper by day and paper on charcoal after dark, with a blue accent.
  */
-export const ink: Theme = defineTheme({ name: "ink", semanticTokens });
+export const ink: Theme = defineTheme({ colors: COLORS, name: "ink" });

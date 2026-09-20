@@ -1,8 +1,10 @@
 # @stealthscale/theme-pine
 
 `@stealthscale/theme-pine` states Pine: a green product with teal and sage beside it, on the night
-after dark and on the palest sage by day. It states four colors outright, and every other value is a
-tint or a mix of them.
+after dark and on the palest sage by day, drawn quiet. Calm surfaces, light shadows, a looser
+density, a longer measure, a scale that climbs by a minor third, more air in the text, medium
+humanist headings and a slow tempo. It states four colors outright, and the engine draws every other
+value from them.
 
 ## Install
 
@@ -13,26 +15,28 @@ pnpm add @stealthscale/theme-pine
 The theme peers on `@stealthscale/theme`. An application lists it in `theme.config.ts` and a page
 switches to it with `data-theme="pine"`.
 
-## The values
+## The statement
 
-- The night `#092328` is the dark page and the ink on the light one. The teal `#12544F` stands
-  beside the product. The green `#2A835F` is the product. The sage `#8BBB92` is the ink on the dark
-  page and the accent. The light page is the palest tint of the sage.
-- `src/tokens.ts` draws the grey ramp in the night's hue and gives the three greens the three ramps
-  nearest them, the sage as the green, the green as the teal and the teal as the cyan, each with
-  `scaleOf`. Every other ramp is the foundation's.
-- `src/semantic-tokens.ts` draws the three families from the pages and the inks with `inked`. Every
-  surface is a fixed distance from the page in the page's own tint. Every line is the page mixed
-  towards the ink and every faded ink is the ink mixed towards the page. `hues` draws every hue
-  palette over the same pages: the teal, the cyan and the green palettes from the green, the teal
-  and the sage for the primary, the secondary and the accent, with the successes on the sage, and
-  every other from the foundation's hue. `radii` draws the corners from half a rem and `shadows`
-  casts the shadows in the night's hue.
-- The faces are the foundation's system stacks, so the manifest depends on nothing for them.
+- The night `#092328` is the dark page and the ink on the light one. The teal `#12544F` is the
+  secondary and the type ink. The green `#2A835F` is the primary and the keyword ink. The sage
+  `#8BBB92` is the ink on the dark page, the accent and the string ink. The light page is the palest
+  tint of the sage.
+- `src/colors.ts` fixes the four colors and states the theme's colors from them. `defineTheme` draws
+  every surface, ink, line and palette from the statement. Each status keeps its canonical hue at
+  the chroma of the green, so a success is told from the primary and no status shouts over a quiet
+  brand. The surfaces keep seven tenths of the page's chroma. The three greens are drawn as the hue
+  palettes nearest them for an application that names one.
+- `src/index.ts` defines the theme from the statement. The corners are drawn from five eighths of a
+  rem. The shadows are cast at three quarters of the default ink in the night's hue. Every control,
+  icon, tag, inset and gap is drawn at 105% of the foundation's density, and a column of text is
+  read at 68 characters. Every pace is three tenths longer than the foundation's, and everything
+  that arrives, goes or moves eases in and out. The scale climbs by a minor third, body text is set
+  with relaxed leading, and every heading at a medium weight in the humanist stack.
+- The faces are system stacks, so the manifest depends on nothing for them.
 
 ## The gate
 
-`vp test` runs the theme through `violations` from `@stealthscale/testing-theme` for the contract:
-every role of every palette in both modes, every reference, and the steps a reader has to tell
-apart. The contrast checks are left out, with the reason written beside the skip: the theme keeps
-its colors as stated rather than moving one to clear a ratio.
+`vp test` runs the theme through `violations` from `@stealthscale/testing-theme`: every role of
+every palette in both modes, every reference, every text pair at 7:1, the tertiary ink and every
+label at 4.5:1, every boundary and ring at 3:1, the statuses apart from each other and from the
+brand, and the steps a reader has to tell apart. Nothing is skipped.
