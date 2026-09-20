@@ -42,7 +42,7 @@ export function useAnatomy(entry: Indexed, wanted: boolean): Anatomised {
 
     if (held) {
       void (async (): Promise<void> => {
-        const read = load === undefined ? undefined : await load().catch(() => {});
+        const read = await load?.().catch(() => {});
 
         if (held) setParts(read === undefined ? [] : parted(read, title));
       })();

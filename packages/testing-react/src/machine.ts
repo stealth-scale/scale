@@ -96,6 +96,22 @@ export async function hovered(element: Element): Promise<void> {
 }
 
 /**
+ * Moves a pointer off an element, and waits for whatever that started to finish.
+ *
+ * @remarks
+ *   A pointer that leaves is dispatched as `pointerout` with no element it moved to, which React
+ *   reads as the pointer leaving the document. Every handler set with `onPointerLeave` above the
+ *   element runs for it, the way `hovered` runs every `onPointerEnter`.
+ * @param element - The element the pointer leaves.
+ * @returns Nothing. The caller reads the screen.
+ */
+export async function unhovered(element: Element): Promise<void> {
+  fireEvent.pointerOut(element);
+
+  await settled();
+}
+
+/**
  * Tells whether a throw said what it was expected to.
  */
 function matches(thrown: unknown, expected: RegExp | string): boolean {

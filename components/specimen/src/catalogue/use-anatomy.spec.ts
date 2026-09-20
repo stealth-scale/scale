@@ -39,7 +39,8 @@ function indexed(props?: Indexed["props"]): Indexed {
 describe("useAnatomy", () => {
   it("reads nothing while nobody is looking at the props", () => {
     const load = vi.fn(() => Promise.resolve(ANATOMY));
-    const { result } = renderHook(() => useAnatomy(indexed(load), false));
+    const page = indexed(load);
+    const { result } = renderHook(() => useAnatomy(page, false));
 
     expect(load).not.toHaveBeenCalled();
     expect(result.current.parts).toBeUndefined();
@@ -48,27 +49,34 @@ describe("useAnatomy", () => {
   it("reads the props once a reader looks at them", async () => {
     expect.hasAssertions();
 
-    const { result } = renderHook(() =>
-      useAnatomy(
-        indexed(() => Promise.resolve(ANATOMY)),
-        true,
-      ),
-    );
+    const page = indexed(() => Promise.resolve(ANATOMY));
+    const { result } = renderHook(() => useAnatomy(page, true));
 
     await waitFor(() => {
       expect(result.current.parts).toHaveLength(1);
     });
   });
 
+  it("reads the props once and not on every render", async () => {
+    expect.hasAssertions();
+
+    const load = vi.fn(() => Promise.resolve(ANATOMY));
+    const page = indexed(load);
+    const { rerender, result } = renderHook(() => useAnatomy(page, true));
+
+    await waitFor(() => {
+      expect(result.current.parts).toHaveLength(1);
+    });
+    rerender();
+
+    expect(load).toHaveBeenCalledTimes(1);
+  });
+
   it("splits each part's props by kind", async () => {
     expect.hasAssertions();
 
-    const { result } = renderHook(() =>
-      useAnatomy(
-        indexed(() => Promise.resolve(ANATOMY)),
-        true,
-      ),
-    );
+    const page = indexed(() => Promise.resolve(ANATOMY));
+    const { result } = renderHook(() => useAnatomy(page, true));
 
     await waitFor(() => {
       expect(result.current.parts?.[0]?.options).toHaveLength(1);
@@ -78,7 +86,8 @@ describe("useAnatomy", () => {
   it("answers with no parts at all for a page the index holds no props for", async () => {
     expect.hasAssertions();
 
-    const { result } = renderHook(() => useAnatomy(indexed(), true));
+    const page = indexed();
+    const { result } = renderHook(() => useAnatomy(page, true));
 
     await waitFor(() => {
       expect(result.current.parts).toStrictEqual([]);
@@ -90,16 +99,13 @@ describe("useAnatomy", () => {
     const pending = new Promise<Anatomy>((resolve) => {
       held.resolve = resolve;
     });
-    const { result, unmount } = renderHook(() =>
-      useAnatomy(
-        indexed(() => pending),
-        true,
-      ),
-    );
+    const page = indexed(() => pending);
+    const { result, unmount } = renderHook(() => useAnatomy(page, true));
 
     unmount();
     held.resolve?.(ANATOMY);
     await pending;
+    await Promise.resolve();
     await Promise.resolve();
 
     expect(result.current.parts).toBeUndefined();
@@ -108,12 +114,8 @@ describe("useAnatomy", () => {
   it("draws no parts at all where the props fail to load", async () => {
     expect.hasAssertions();
 
-    const { result } = renderHook(() =>
-      useAnatomy(
-        indexed(() => Promise.reject(new Error("no props"))),
-        true,
-      ),
-    );
+    const page = indexed(() => Promise.reject(new Error("no props")));
+    const { result } = renderHook(() => useAnatomy(page, true));
 
     await waitFor(() => {
       expect(result.current.parts).toStrictEqual([]);

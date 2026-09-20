@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { drawn, hovered, pressed } from "@stealthscale/testing-react";
+import { drawn, hovered, pressed, unhovered } from "@stealthscale/testing-react";
 
 import { type Shown } from "#catalogue/parted.ts";
 import { PropsShown } from "#catalogue/props-shown.tsx";
@@ -67,6 +67,15 @@ describe("PropsShown", () => {
     await hovered(getByRole("button", { name: "Scale" }));
 
     expect(getByRole("button", { name: "Scale" }).getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("closes the panel once the pointer has left the name", async () => {
+    const { getByRole } = await drawn(<PropsShown shown={SCALE} />);
+
+    await hovered(getByRole("button", { name: "Scale" }));
+    await unhovered(getByRole("button", { name: "Scale" }));
+
+    expect(getByRole("button", { name: "Scale" }).getAttribute("aria-expanded")).toBe("false");
   });
 
   it("lists every member once the control is pressed", async () => {
