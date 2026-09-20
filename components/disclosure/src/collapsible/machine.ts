@@ -15,7 +15,7 @@ import { useId } from "react";
 import * as collapsible from "@zag-js/collapsible";
 import { normalizeProps, useMachine } from "@zag-js/react";
 
-import { createRequiredContext } from "@stealthscale/hooks";
+import { createRequiredContext, splitEnumerable } from "@stealthscale/hooks";
 
 import { stated } from "#stated.ts";
 
@@ -61,4 +61,4 @@ export function useCollapsibleMachine(options: CollapsibleOptions): CollapsibleA
  *   The machine states which props are its own, so the root never lists them and never drifts from
  *   the version it is built against.
  */
-export const splitCollapsibleProps = collapsible.splitProps;
+export const splitCollapsibleProps = splitEnumerable(collapsible.splitProps);

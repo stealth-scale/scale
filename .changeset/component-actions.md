@@ -78,3 +78,9 @@ component-actions: add a breathing glow to the button's effect axis
   painted and leaves a solid button drawing its contrast ink on a panel. Drawing the ring without
   touching the fill needs a pseudo-element, and a button has neither left: the ripple holds
   `::after` and the touch target holds `::before`. The reason is recorded on the axis.
+
+component-actions: split the clipboard root's props over a copy
+
+- `Clipboard.Root` splits its props through `splitEnumerable` from `@stealthscale/hooks`. Rendered
+  with a `key`, it logged React's `key is not a prop` warning and spread `key` onto its element in
+  development.

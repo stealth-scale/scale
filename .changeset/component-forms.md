@@ -134,3 +134,9 @@ component-forms: stack a field's texts under the control beside its label
   is its own height.
 - The checkbox's and the switch's alignment scenes stand in a room at the smallest measure, so the
   label runs to a second line and the two places differ.
+
+component-forms: split a root's props over a copy
+
+- `Checkbox.Root` and `Switch.Root` split their props through `splitEnumerable` from
+  `@stealthscale/hooks`. Rendered with a `key`, each logged React's `key is not a prop` warning and
+  spread `key` onto its element in development.
