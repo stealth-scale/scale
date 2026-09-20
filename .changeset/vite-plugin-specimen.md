@@ -17,3 +17,10 @@ vite-plugin-specimen: carry the namespace a page names its catalogue by
 - A page that states `namespace` as a literal in its `specimen()` call carries it into the index as
   `Indexed.namespace`, empty where it states none, so a catalogue resolves the page's words in the
   namespace they are keys in.
+
+vite-plugin-specimen: list the components a page imports from its own package
+
+- The fragments module exports `imported` beside `fragments`: every value the file binds from a
+  specifier under the package's imports map whose name starts with a capital letter, sorted. A
+  namespace import is listed under its local name, and a type specifier, a type-only declaration and
+  a lowercase binding such as `recipe` are left out.

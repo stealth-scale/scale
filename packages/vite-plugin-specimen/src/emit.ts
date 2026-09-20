@@ -209,12 +209,17 @@ export function written(listed: Iterable<string>): string {
 }
 
 /**
- * Generates the module a catalogue imports one page's scenes as source from.
+ * Generates the module a catalogue imports one page's scenes as source from, beside the names the
+ * page imports from its own package.
  *
  * @param snippets - Each scene's source, keyed by title.
+ * @param names - The components the page imports from its own package.
  */
-export function fragmented(snippets: Readonly<Record<string, string>>): string {
-  return `export const fragments = ${JSON.stringify(snippets)};\n`;
+export function fragmented(
+  snippets: Readonly<Record<string, string>>,
+  names: readonly string[],
+): string {
+  return `export const fragments = ${JSON.stringify(snippets)};\nexport const imported = ${JSON.stringify(names)};\n`;
 }
 
 /**

@@ -123,9 +123,9 @@ describe("emit", () => {
     );
   });
 
-  it("writes the fragments as one exported record", () => {
-    expect(fragmented({ Sizes: "const a = 1;" })).toBe(
-      'export const fragments = {"Sizes":"const a = 1;"};\n',
+  it("writes the fragments as one exported record beside the imported names", () => {
+    expect(fragmented({ Sizes: "const a = 1;" }, ["Badge"])).toBe(
+      'export const fragments = {"Sizes":"const a = 1;"};\nexport const imported = ["Badge"];\n',
     );
   });
 

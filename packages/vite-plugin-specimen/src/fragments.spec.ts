@@ -1,10 +1,28 @@
 import { describe, expect, it } from "vitest";
 
-import { fragments } from "#fragments.ts";
+import { components, fragments } from "#fragments.ts";
 
 function cut(text: string): Record<string, string> {
   return fragments({ path: "/src/badge/badge.specimen.tsx", text });
 }
+
+function named(text: string): string[] {
+  return components({ path: "/src/badge/badge.specimen.tsx", text });
+}
+
+const IMPORTS = [
+  'import { type ReactElement } from "react";',
+  'import { Matrix, specimen } from "@stealthscale/specimen";',
+  'import { Icon } from "@stealthscale/component-typography";',
+  'import * as Tooltip from "#tooltip/index.ts";',
+  'import { Badge, type BadgeProps } from "#badge/index.ts";',
+  'import { Badge as Tag } from "#badge/badge.ts";',
+  'import { recipe } from "#badge/recipe.ts";',
+  'import type { Named } from "#badge/named.ts";',
+  "",
+  'export default specimen({ id: "data/badge", scenes: [] });',
+  "",
+].join("\n");
 
 const SCENE = [
   'import { Matrix, specimen } from "@stealthscale/specimen";',
@@ -107,5 +125,46 @@ describe("fragments", () => {
     );
 
     expect(held["One"]).toMatch(/const DEEP/u);
+  });
+});
+
+describe("components", () => {
+  it("lists a namespace and a component bound from the package's own imports map", () => {
+    expect(named(IMPORTS)).toContain("Tooltip");
+    expect(named(IMPORTS)).toContain("Badge");
+  });
+
+  it("lists a component under the name the file binds it to", () => {
+    expect(named(IMPORTS)).toContain("Tag");
+  });
+
+  it("omits a binding from another package", () => {
+    expect(named(IMPORTS)).not.toContain("Icon");
+    expect(named(IMPORTS)).not.toContain("Matrix");
+  });
+
+  it("omits a binding that starts with a lowercase letter", () => {
+    expect(named(IMPORTS)).not.toContain("recipe");
+  });
+
+  it("omits a type specifier", () => {
+    expect(named(IMPORTS)).not.toContain("BadgeProps");
+  });
+
+  it("omits a type-only declaration", () => {
+    expect(named(IMPORTS)).not.toContain("Named");
+  });
+
+  it("sorts the names", () => {
+    expect(named(`${IMPORTS}\nimport { Badge as Again } from "#badge/badge.ts";\n`)).toStrictEqual([
+      "Again",
+      "Badge",
+      "Tag",
+      "Tooltip",
+    ]);
+  });
+
+  it("returns an empty array when the file does not parse", () => {
+    expect(named("import {")).toStrictEqual([]);
   });
 });

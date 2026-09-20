@@ -63,12 +63,16 @@ Add the types with a triple-slash directive from a file the project already comp
 ## virtual:specimen-fragments
 
 ```ts
-const { fragments } = await import("virtual:specimen-fragments/data/badge");
+const { fragments, imported } = await import("virtual:specimen-fragments/data/badge");
 ```
 
 `fragments` gives one snippet per scene, keyed by the scene's title. A snippet is the scene's
 declaration, every top-level declaration it references, and the import specifiers those use. An
 import nothing in the snippet reaches is cut, so the snippet compiles on its own.
+
+`imported` lists the components the page imports from its own package, sorted: every value the file
+binds from a specifier under the package's imports map, which starts with `#`, whose name starts
+with a capital letter. A catalogue writes the page's import statement from it.
 
 ## virtual:specimen-props
 

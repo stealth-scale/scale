@@ -16,7 +16,7 @@ import { type Settled, settled } from "#anatomy/reading.ts";
 import { type Changed, type Indexing, pageOf, pathOf, reindexes, retyped } from "#changed.ts";
 import { anatomised, fragmented, type Listed, listings, type Resolved, written } from "#emit.ts";
 import { found, roots } from "#found.ts";
-import { fragments } from "#fragments.ts";
+import { components, fragments } from "#fragments.ts";
 import { FRAGMENTS, ID, type Options, PROPS } from "#options.ts";
 
 /**
@@ -158,7 +158,9 @@ async function generated(
   if (id.startsWith(RESOLVED_FRAGMENTS)) {
     const path = pathOf(state, id.slice(RESOLVED_FRAGMENTS.length));
 
-    return fragmented(fragments({ path, text: readFileSync(path, "utf8") }));
+    const file = { path, text: readFileSync(path, "utf8") };
+
+    return fragmented(fragments(file), components(file));
   }
 
   if (!id.startsWith(RESOLVED_PROPS) || state.reading === undefined) return undefined;

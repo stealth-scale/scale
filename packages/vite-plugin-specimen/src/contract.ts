@@ -211,6 +211,12 @@ export interface Fragments {
    * as a string literal has no entry.
    */
   fragments: Record<string, string>;
+
+  /**
+   * The components the file imports from its own package, sorted. A name is a value the file
+   * binds from a specifier under the package's imports map, and it starts with a capital letter.
+   */
+  imported: string[];
 }
 
 /**
