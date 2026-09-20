@@ -28,6 +28,7 @@ import {
   selectionViolations,
 } from "#reachable.ts";
 import { type Declared } from "#recipe.ts";
+import { isSystemColor } from "#system-colors.ts";
 import { walked, type Walked, type Written } from "#walk.ts";
 
 /**
@@ -297,13 +298,21 @@ function compoundViolations(recipe: Declared): readonly string[] {
 }
 
 /**
+ * Reports whether a value is one no theme owns: a keyword every property takes, a custom property
+ * a runtime value is written into, or a color the display chooses for itself.
+ */
+function passes(named: string): boolean {
+  return PASSES.test(named) || isSystemColor(named);
+}
+
+/**
  * Says what is wrong with a color value, or nothing where a theme can move it.
  */
 function colorFault(value: string, preset: Preset): string | undefined {
   const named = bare(value);
   const [first = "", ...rest] = named.split(".");
 
-  if (PASSES.test(named)) return undefined;
+  if (passes(named)) return undefined;
   if (LITERAL.test(named)) return `writes the color ${value}`;
   if (named.startsWith("{")) return `references ${value}`;
   if (STEP.test(named)) return `names the ramp step ${value}`;

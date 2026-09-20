@@ -55,3 +55,12 @@ testing-theme: check the code family
 
 - `contract.roles` reports a `code` family that leaves one of its ten kinds out, beside the three
   families it checked before.
+
+testing-theme: read a recipe's styles from the styles rather than from every key
+
+- The walker descends a variant's axis and value by name rather than as styles. A value is free to
+  be called anything, and some of those names are also properties the compiler resolves. A highlight
+  called `fill` read as the SVG property of that name, so `outlineStyle: "solid"` under it was
+  reported as a color token no theme defines.
+- A recipe may name a CSS system color. A forced-color mode replaces every color an author writes,
+  so a recipe naming one is the only way a marked row or a switch's thumb is still seen there.
