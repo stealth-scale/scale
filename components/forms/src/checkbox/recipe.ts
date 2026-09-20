@@ -80,8 +80,9 @@ export const recipe = defineSlotRecipe({
      * Where the box sits against a label that runs to more than one line.
      */
     align: {
-      center: { root: { alignItems: "center" } },
       start: { root: { alignItems: "flex-start" } },
+
+      center: { root: { alignItems: "center" } },
     },
 
     motion: onSlot("indicator", motionVariants(["fade", "rise", "reveal"])),

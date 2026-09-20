@@ -49,9 +49,11 @@ export const recipe = defineSlotRecipe({
   staticCss: [statusEmitted()],
   variants: {
     justify: {
-      center: { root: { alignItems: "center", textAlign: "center" } },
-      end: { root: { alignItems: "flex-end", textAlign: "end" } },
       start: { root: { alignItems: "flex-start", textAlign: "start" } },
+
+      center: { root: { alignItems: "center", textAlign: "center" } },
+
+      end: { root: { alignItems: "flex-end", textAlign: "end" } },
     },
     motion: onSlot("root", motionVariants(["rise", "reveal"])),
     /**

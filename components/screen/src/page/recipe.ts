@@ -288,10 +288,11 @@ export const recipe = defineSlotRecipe({
      *   with the content held at the start of both.
      */
     align: {
+      start: { root: { [LEAD]: `var(${GUTTER})` } },
+
       center: {
         root: { [LEAD]: `max(var(${GUTTER}), calc((100% - var(${MEASURE}, 100%)) / 2))` },
       },
-      start: { root: { [LEAD]: `var(${GUTTER})` } },
     },
 
     /**

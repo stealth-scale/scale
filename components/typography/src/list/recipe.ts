@@ -43,9 +43,11 @@ export const recipe = defineSlotRecipe({
   slots: ["root", "item", "indicator"],
   variants: {
     align: {
-      center: { item: { alignItems: "center" } },
-      end: { item: { alignItems: "flex-end" } },
       start: { item: { alignItems: "flex-start" } },
+
+      center: { item: { alignItems: "center" } },
+
+      end: { item: { alignItems: "flex-end" } },
     },
     gap: onSlot("root", gapSizes()),
     marker: {

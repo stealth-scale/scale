@@ -222,6 +222,12 @@ component-collections: split the listbox root's props over a copy
   every other root built on a state machine does, so a `key` React defines on its props in
   development never reaches the machine's splitter. =======
 - `Table` and `Listbox` list `surface` before `plain`, which is the order every other set of looks
-  is read in. The styles each look draws are unchanged.
+  is read in. The styles each look draws are unchanged. <<<<<<< HEAD
 
 > > > > > > > 2b6da67f (refactor: order every axis by its vocabulary rather than alphabetically)
+> > > > > > > =======
+
+- `Table`'s `align` axis takes `start`, `center` and `end` rather than `top`, `middle` and `bottom`,
+  which is what every other `align` axis in the library takes.
+
+> > > > > > > c25f54ef (refactor: spell and order the cross axis one way across the library)

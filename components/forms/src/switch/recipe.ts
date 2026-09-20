@@ -92,8 +92,9 @@ export const recipe = defineSlotRecipe({
      * Where the track sits against a label that runs to more than one line.
      */
     align: {
-      center: { root: { alignItems: "center" } },
       start: { root: { alignItems: "flex-start" } },
+
+      center: { root: { alignItems: "center" } },
     },
 
     radius: onSlot("control", cornerVariants(["l1", "l2", "full"])),

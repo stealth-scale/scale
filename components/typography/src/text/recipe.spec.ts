@@ -58,8 +58,13 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "motion")).toStrictEqual(["fade", "reveal", "rise"]);
   });
 
-  it("offers the mask that fades the bottom edge out", () => {
-    expect(valuesOf(recipe, "mask")).toStrictEqual(["bottom"]);
+  it("offers every fade the theme draws", () => {
+    expect(valuesOf(recipe, "mask")).toStrictEqual(["bottom", "edges", "radial"]);
+  });
+
+  it("reads each fade off the layer style of the same name", () => {
+    expect(recipe.variants?.["mask"]?.["edges"]).toStrictEqual({ layerStyle: "mask.edges" });
+    expect(recipe.variants?.["mask"]?.["radial"]).toStrictEqual({ layerStyle: "mask.radial" });
   });
 
   it("tracks every tag whose name ends in Text", () => {

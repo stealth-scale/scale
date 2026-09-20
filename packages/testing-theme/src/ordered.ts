@@ -11,20 +11,60 @@
  *   covers is written through the helper rather than by hand.
  */
 
-import { CORNERS, FLATS, SCALE, STATUSES, TONES, WEIGHTS } from "@stealthscale/theme/authoring";
+import {
+  ALIGNMENTS,
+  CORNERS,
+  DISTRIBUTIONS,
+  FLATS,
+  MOTIONS,
+  SCALE,
+  STATUSES,
+  TONES,
+  WEIGHTS,
+} from "@stealthscale/theme/authoring";
 
 import { type Declared } from "#recipe.ts";
 
 /**
+ * The places a child takes across the flow, spelled the way the axes that do not collide with a
+ * `justify` axis spell them.
+ *
+ * @remarks
+ *   A class carries the value a caller picked and not the axis it was picked on, so a recipe
+ *   offering both `align` and `justify` cannot offer one value on both. The three layout primitives
+ *   that offer both spell the cross axis the way CSS does, `flex-start` against `start`, and every
+ *   other recipe is free to take the short words. Both spellings run in the same order.
+ */
+const PLACES: readonly string[] = ["start", "center", "end", "stretch", "baseline"];
+
+/**
+ * The statuses, with the one a component of no status takes after them.
+ *
+ * @remarks
+ *   A button, a badge and an alert each offer `neutral` beside the four statuses, because a voice
+ *   with nothing to report is a voice those three still have to speak in. A form field offers no
+ *   such value: a field with nothing to report states no status at all.
+ */
+const VOICES: readonly string[] = [...STATUSES, "neutral"];
+
+/**
+ * The inks, with the one a mark takes from the words around it after them.
+ */
+const INKS: readonly string[] = [...TONES, "current"];
+
+/**
  * The order each shared vocabulary is read in, against the axis that offers it.
  */
-const ORDERS: ReadonlyArray<readonly [axis: string, order: readonly string[]]> = [
-  ["size", SCALE],
-  ["radius", CORNERS],
-  ["status", STATUSES],
-  ["tone", TONES],
-  ["variant", FLATS],
-  ["weight", WEIGHTS],
+const ORDERS: ReadonlyArray<readonly [axis: string, orders: ReadonlyArray<readonly string[]>]> = [
+  ["align", [ALIGNMENTS, PLACES]],
+  ["justify", [DISTRIBUTIONS]],
+  ["motion", [MOTIONS]],
+  ["radius", [CORNERS]],
+  ["size", [SCALE]],
+  ["status", [STATUSES, VOICES]],
+  ["tone", [TONES, INKS]],
+  ["variant", [FLATS]],
+  ["weight", [WEIGHTS]],
 ];
 
 /**
@@ -35,14 +75,17 @@ const ORDERS: ReadonlyArray<readonly [axis: string, order: readonly string[]]> =
  *   looks or steps of its own, and there is no order to hold it to once it does: the tabs offer
  *   `enclosed` and `line`, which no set of looks names.
  *   An axis of one value is left alone as well, because one value is in every order there is.
+ *   An axis offered in more than one spelling is read against whichever of them covers its values,
+ *   which is how the cross axis is held to one order under both of its spellings.
  * @param recipe - The recipe to read.
  * @returns Each axis out of order, or an empty array for a recipe whose axes are all in order.
  */
 export function orderViolations(recipe: Declared): readonly string[] {
-  return ORDERS.flatMap(([axis, order]) => {
+  return ORDERS.flatMap(([axis, orders]) => {
     const offered = Object.keys(recipe.variants?.[axis] ?? {});
+    const order = orders.find((one) => offered.every((value) => one.includes(value)));
 
-    if (offered.length < 2 || offered.some((value) => !order.includes(value))) return [];
+    if (offered.length < 2 || order === undefined) return [];
 
     const wanted = order.filter((value) => offered.includes(value));
 
