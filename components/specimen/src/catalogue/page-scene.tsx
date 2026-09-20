@@ -3,14 +3,14 @@
  * its own, and its source folded under the card.
  */
 
-import { type ReactElement } from "react";
+import { type ReactElement, useRef } from "react";
 
 import { Section } from "@stealthscale/component-screen";
 import { Card } from "@stealthscale/component-surfaces";
 
 import { marked } from "#catalogue/marked.tsx";
-import { Source } from "#catalogue/page-source.tsx";
 import { Staged } from "#catalogue/page-staged.tsx";
+import { Tools } from "#catalogue/page-tools.tsx";
 import { useWording } from "#catalogue/wording.ts";
 import { type SceneAddress, SceneProvider } from "#device/scene.ts";
 import { type Frame, type Scene } from "#page.ts";
@@ -99,6 +99,7 @@ export function SceneSection({
   const frame = scene.frame ?? "inset";
   const title = word(scene.title);
   const address: SceneAddress = { page, path: framed, scene: position, title };
+  const stage = useRef<HTMLDivElement>(null);
 
   return (
     <SceneProvider value={address}>
@@ -111,10 +112,10 @@ export function SceneSection({
         </Section.Header>
         <Section.Body>
           <Card.Root as="div" variant={SURFACE[frame]}>
-            <Staged frame={frame}>
+            <Staged frame={frame} ref={stage}>
               <scene.draw />
             </Staged>
-            {source === undefined ? null : <Source code={source} title={title} />}
+            {source === undefined ? null : <Tools code={source} stage={stage} title={title} />}
           </Card.Root>
         </Section.Body>
       </Section.Root>

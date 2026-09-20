@@ -18,7 +18,7 @@ describe("Rail", () => {
   it("draws one navigation landmark for the whole catalogue", async () => {
     const { result } = await mountRoute(treeOver(GROUPED), "/docs/actions/button");
 
-    expect(result.getAllByRole("navigation")).toHaveLength(1);
+    expect(result.getAllByRole("navigation", { name: "Components" })).toHaveLength(1);
   });
 
   it("names the landmark out of the catalogue rather than the key", async () => {

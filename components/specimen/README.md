@@ -200,7 +200,7 @@ the devices the page knows agree:
 const { setWidth, sizes, width } = useViewport();
 
 widthsOf(sizes).map((size) => (
-  <Switcher.Option checked={size.min === width} onCheckedChange={() => setWidth(size.min)} …/>
+  <Menu.OptionItem checked={size.min === width} onCheckedChange={() => setWidth(size.min)} …/>
 ));
 ```
 

@@ -1,16 +1,12 @@
 /**
- * Draws one page: its head, the line that imports its components, each scene as a section with
- * the component on a stage of its own and its source under it, and the rail beside them listing
- * the sections.
+ * Draws one page: its head, and the strip that switches between its examples and what its parts
+ * accept.
  */
 
 import { type ReactElement } from "react";
 
-import * as Screen from "@stealthscale/component-screen";
-
 import { useLoadedPage } from "#catalogue/loaded.ts";
-import { Body } from "#catalogue/page-body.tsx";
-import { Contents } from "#catalogue/page-contents.tsx";
+import { Bands } from "#catalogue/page-bands.tsx";
 import { Header } from "#catalogue/page-header.tsx";
 import { slugOf } from "#catalogue/slug.ts";
 import { type Indexed } from "#catalogue/types.ts";
@@ -45,7 +41,7 @@ export interface PageProps {
  *   update replaces, and the scenes are drawn once the module arrives; a page whose sources fail
  *   to load draws its scenes without them.
  *   Each scene is anchored by its worded title, so the rail beside the page points at it and the
- *   address of a section reads as its title does. A page with no scenes draws no rail.
+ *   address of a section reads as its title does.
  */
 export function Page({ back, entry, framed }: PageProps): ReactElement {
   const { fragments, page } = useLoadedPage(entry);
@@ -57,10 +53,8 @@ export function Page({ back, entry, framed }: PageProps): ReactElement {
   }));
 
   return (
-    <Screen.Page.Root>
+    <Bands entry={entry} fragments={fragments} framed={framed} scenes={scenes}>
       <Header back={back} entry={entry} />
-      <Body entry={entry} fragments={fragments} framed={framed} scenes={scenes} />
-      {scenes.length === 0 ? null : <Contents of={scenes} />}
-    </Screen.Page.Root>
+    </Bands>
   );
 }

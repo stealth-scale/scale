@@ -5,11 +5,10 @@
 
 import { type ReactElement } from "react";
 
+import { CheckIcon, CopyIcon } from "lucide-react";
+
 import { CodeBlock } from "@stealthscale/component-content";
 import { useTranslation } from "@stealthscale/provider-i18n";
-
-import { Check } from "#catalogue/check.tsx";
-import { Copy } from "#catalogue/copy.tsx";
 
 /**
  * Describes what a passage takes.
@@ -48,10 +47,10 @@ export function Code({ code, language = "tsx", title }: CodeProps): ReactElement
         <CodeBlock.Title>{title}</CodeBlock.Title>
         <CodeBlock.Control>
           <CodeBlock.Copy
-            copied={<Check />}
+            copied={<CheckIcon aria-hidden size="1em" />}
             translations={{ triggerLabel: (copied) => t(copied ? "code.copied" : "code.copy") }}
           >
-            <Copy />
+            <CopyIcon aria-hidden size="1em" />
           </CodeBlock.Copy>
         </CodeBlock.Control>
       </CodeBlock.Header>

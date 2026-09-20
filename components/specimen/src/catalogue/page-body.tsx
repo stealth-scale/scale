@@ -5,8 +5,6 @@
 
 import { type ReactElement } from "react";
 
-import { Page } from "@stealthscale/component-screen";
-
 import { Import } from "#catalogue/page-import.tsx";
 import { SceneSection } from "#catalogue/page-scene.tsx";
 import { type Fragments, type Indexed } from "#catalogue/types.ts";
@@ -72,11 +70,11 @@ function sourceOf(fragments: Fragments | undefined, scene: Scene): null | string
 }
 
 /**
- * Draws the import line and the scenes inside the screen package's page body.
+ * Draws the import line and the scenes, for the page body its caller draws round them.
  */
 export function Body({ entry, fragments, framed, scenes }: BodyProps): ReactElement {
   return (
-    <Page.Body>
+    <>
       <Import names={fragments?.imported ?? []} package={entry.package} />
       {scenes.map(({ id, scene }, position) => (
         <SceneSection
@@ -90,6 +88,6 @@ export function Body({ entry, fragments, framed, scenes }: BodyProps): ReactElem
           source={sourceOf(fragments, scene)}
         />
       ))}
-    </Page.Body>
+    </>
   );
 }

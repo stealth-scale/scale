@@ -3,7 +3,7 @@
  * showing the scene where a reader picked one.
  */
 
-import { type ReactElement } from "react";
+import { type ReactElement, type Ref } from "react";
 
 import { Card } from "@stealthscale/component-surfaces";
 
@@ -24,6 +24,11 @@ export interface StagedProps {
    * How the scene meets the card.
    */
   readonly frame: Frame;
+
+  /**
+   * Filled with whichever part the scene was drawn into, for an audit to read.
+   */
+  readonly ref?: Ref<HTMLDivElement> | undefined;
 }
 
 /**
@@ -38,17 +43,17 @@ export interface StagedProps {
  * @param props - The scene and its frame.
  * @returns The card's content or its media, holding the scene or the device.
  */
-export function Staged({ children, frame }: StagedProps): ReactElement {
+export function Staged({ children, frame, ref }: StagedProps): ReactElement {
   const held = useDevice();
 
   if (held !== undefined) {
     return (
-      <Card.Content>
+      <Card.Content ref={ref}>
         <Device device={held.device} scene={held.scene} />
       </Card.Content>
     );
   }
-  if (frame === "inset") return <Card.Content>{children}</Card.Content>;
+  if (frame === "inset") return <Card.Content ref={ref}>{children}</Card.Content>;
 
-  return <Card.Media>{children}</Card.Media>;
+  return <Card.Media ref={ref}>{children}</Card.Media>;
 }

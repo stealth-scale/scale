@@ -98,7 +98,7 @@ describe("declarations", () => {
   it("draws every page inside the frame the catalogue was placed in", async () => {
     const { result } = await mountRoute(treeOver(LISTED), "/docs/actions/button");
 
-    expect(result.getByRole("navigation")).toBeDefined();
+    expect(result.getByRole("navigation", { name: "Components" })).toBeDefined();
   });
 
   it("leads a page back to the index", async () => {

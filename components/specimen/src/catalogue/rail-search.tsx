@@ -4,12 +4,12 @@
 
 import { type ReactElement, useEffect, useRef } from "react";
 
+import { XIcon } from "lucide-react";
+
 import { SearchInput } from "@stealthscale/component-forms";
 import { AppShell, Sidebar } from "@stealthscale/component-screen";
 import { useHotkey } from "@stealthscale/provider-hotkeys";
 import { useTranslation } from "@stealthscale/provider-i18n";
-
-import { Cross } from "#catalogue/cross.tsx";
 
 /**
  * The name the shell panel holding the rail is drawn under.
@@ -80,7 +80,7 @@ export function RailSearch({ onValueChange, value }: RailSearchProps): ReactElem
       <SearchInput
         aria-keyshortcuts="Control+K Meta+K"
         aria-label={t("rail.filter")}
-        clearIndicator={<Cross />}
+        clearIndicator={<XIcon aria-hidden size="1em" />}
         clearLabel={t("rail.clear")}
         onValueChange={onValueChange}
         placeholder={t("rail.filter")}

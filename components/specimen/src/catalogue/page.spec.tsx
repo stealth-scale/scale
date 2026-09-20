@@ -49,7 +49,7 @@ describe("Page", () => {
   it("writes no opening where the page declares none", async () => {
     const { container } = await drawn(<Page entry={entry(page([]))} />);
 
-    expect(container.textContent).toBe("BadgeData");
+    expect(container.textContent).toBe("BadgeDataExamples0Props");
   });
 
   it("states no trail where the page was placed under nothing", async () => {
@@ -93,7 +93,7 @@ describe("Page", () => {
   it("draws no rail beside a page with no scenes", async () => {
     const { queryByRole } = await drawn(<Page entry={entry(page([]))} />);
 
-    expect(queryByRole("navigation")).toBeNull();
+    expect(queryByRole("navigation", { name: "On this page" })).toBeNull();
   });
 
   it("resolves the title, the opening and a scene's words through the namespace named", async () => {
@@ -137,14 +137,14 @@ describe("Page", () => {
   it("draws no scene for a module that declares no page", async () => {
     const { container } = await drawn(<Page entry={entry({})} />);
 
-    expect(container.textContent).toBe("BadgeData");
+    expect(container.textContent).toBe("BadgeDataExamples0Props");
   });
 
   it("draws no scene where the module failed to load", async () => {
     const broken: Indexed = { ...entry({}), load: () => Promise.reject(new Error("gone")) };
     const { container } = await drawn(<Page entry={broken} />);
 
-    expect(container.textContent).toBe("BadgeData");
+    expect(container.textContent).toBe("BadgeDataExamples0Props");
   });
 
   it("leaves the page alone when it is taken off the screen before the module arrives", () => {

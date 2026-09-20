@@ -73,6 +73,7 @@
     "@types/react-dom": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
     "happy-dom": "catalog:",
+    "lucide-react": "catalog:",
     "oxc-transform-react": "catalog:",
     "publint": "catalog:",
     "react": "catalog:",

@@ -4,10 +4,11 @@
 
 import { type ReactElement } from "react";
 
+import { ChevronRightIcon } from "lucide-react";
+
 import { NavList } from "@stealthscale/component-navigation";
 import { useTranslation } from "@stealthscale/provider-i18n";
 
-import { Chevron } from "#catalogue/chevron.tsx";
 import { type Group } from "#catalogue/grouped.ts";
 import { Row } from "#catalogue/rail-row.tsx";
 
@@ -44,7 +45,7 @@ export function Branch({ group, holdsCurrent }: BranchProps): ReactElement {
           ? t("rail.ungrouped")
           : t(`groups.${group.name}`, { defaultValue: group.name })}
         <NavList.Indicator>
-          <Chevron />
+          <ChevronRightIcon aria-hidden size="1em" />
         </NavList.Indicator>
       </NavList.Trigger>
       <NavList.Content>
