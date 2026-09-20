@@ -14,4 +14,10 @@ describe("layers", () => {
   it("stops counting the specimens towards the package's coverage", () => {
     expect(layers()[0]?.name).toBe("specimen.uncounted(**/*.specimen.tsx)");
   });
+
+  it("stops counting the files a package names instead", () => {
+    expect(layers(["src/pages/**/*.specimen.tsx"]).map((layer) => layer.name)).toStrictEqual([
+      "specimen.uncounted(src/pages/**/*.specimen.tsx)",
+    ]);
+  });
 });

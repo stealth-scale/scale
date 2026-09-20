@@ -10,12 +10,8 @@
 import { lint } from "@stealthscale/vite-config";
 import { type Layer, named } from "@stealthscale/vite-config-core";
 
+import { SPECIMENS } from "#specimens.ts";
 import { uncounted } from "#uncounted.ts";
-
-/**
- * The files the linter treats as specimens.
- */
-const SPECIMENS = ["**/*.specimen.tsx"];
 
 /**
  * Returns the layers a workspace root states for the specimens below it.

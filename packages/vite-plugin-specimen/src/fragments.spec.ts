@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { components, fragments } from "#fragments.ts";
+import { sliced } from "#fragments.ts";
 
 function cut(text: string): Record<string, string> {
-  return fragments({ path: "/src/badge/badge.specimen.tsx", text });
+  return sliced({ path: "/src/badge/badge.specimen.tsx", text }).fragments;
 }
 
 function named(text: string): string[] {
-  return components({ path: "/src/badge/badge.specimen.tsx", text });
+  return sliced({ path: "/src/badge/badge.specimen.tsx", text }).imported;
 }
 
 const IMPORTS = [

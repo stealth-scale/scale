@@ -78,25 +78,30 @@ function listedAs(
 }
 
 /**
- * Slices a specimen into one snippet per scene, keyed by the scene's title.
+ * Parses a specimen and indexes it by what it declares and imports.
+ *
+ * @returns The scope, or undefined for a file that does not parse.
+ */
+function scopeOf(file: Source): Scoped | undefined {
+  const parsed = parseSync(file.path, file.text);
+
+  return parsed.errors.length > 0 ? undefined : scoped(parsed.program, file.text);
+}
+
+/**
+ * Slices a parsed specimen into one snippet per scene, keyed by the scene's title.
  *
  * @remarks
  *   A scene is an element of the `scenes` array in the object the default export is called with:
  *   either a name the file declares or an object written inline. A scene whose title is not a
  *   string literal is skipped, because there is no key for it.
- * @returns Each scene's snippet, and an empty record for a file that declares no page or does not
- *   parse.
+ * @returns Each scene's snippet, and an empty record for a file that declares no page.
  */
-export function fragments(file: Source): Record<string, string> {
-  const parsed = parseSync(file.path, file.text);
-
-  if (parsed.errors.length > 0) return {};
-
-  const page = declaredIn(parsed.program);
+function snippetsOf(scope: Scoped): Record<string, string> {
+  const page = declaredIn(scope.program);
 
   if (typeof page === "string") return {};
 
-  const scope = scoped(parsed.program, file.text);
   const snippets: Record<string, string> = {};
 
   for (const element of scenesOf(page)) {
@@ -118,22 +123,18 @@ function bindsValue(specifier: ESTree.ImportDeclarationSpecifier): boolean {
 }
 
 /**
- * Lists the components a specimen imports from its own package.
+ * Lists the components a parsed specimen imports from its own package.
  *
  * @remarks
  *   A specifier under the package's imports map starts with `#`, which Node requires of every
  *   entry in that map, so the prefix alone tells an own import from a dependency's. A binding
  *   that starts with a capital letter is a component or a namespace of parts. A recipe, a
  *   constant or a type imported beside them is left out.
- * @returns The names, sorted, and an empty array for a file that does not parse.
+ * @returns The names, sorted.
  */
-export function components(file: Source): string[] {
-  const parsed = parseSync(file.path, file.text);
-
-  if (parsed.errors.length > 0) return [];
-
-  return scoped(parsed.program, file.text)
-    .imports.filter(
+function importedBy(scope: Scoped): string[] {
+  return scope.imports
+    .filter(
       (own) =>
         own.declaration.importKind !== "type" && own.declaration.source.value.startsWith("#"),
     )
@@ -141,4 +142,34 @@ export function components(file: Source): string[] {
     .map((specifier) => specifier.local.name)
     .filter((name) => /^[A-Z]/u.test(name))
     .toSorted((one, other) => one.localeCompare(other));
+}
+
+/**
+ * Describes what one page's fragments module carries: each scene's source, and the components
+ * the page imports from its own package.
+ */
+export interface Sliced {
+  /**
+   * Each scene's snippet, keyed by the scene's title.
+   */
+  readonly fragments: Record<string, string>;
+
+  /**
+   * The components the page imports from its own package, sorted.
+   */
+  readonly imported: string[];
+}
+
+/**
+ * Slices a specimen into one snippet per scene and lists the components it imports, from one
+ * parse.
+ *
+ * @returns The snippets and the names, both empty for a file that does not parse.
+ */
+export function sliced(file: Source): Sliced {
+  const scope = scopeOf(file);
+
+  if (scope === undefined) return { fragments: {}, imported: [] };
+
+  return { fragments: snippetsOf(scope), imported: importedBy(scope) };
 }

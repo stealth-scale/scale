@@ -3,23 +3,9 @@
  */
 
 import { test } from "@stealthscale/vite-config";
-import { type Contribution, named } from "@stealthscale/vite-config-core";
+import { type Contribution } from "@stealthscale/vite-config-core";
 
-/**
- * The files the runner stops counting.
- */
-const SPECIMENS = ["**/*.specimen.tsx"];
-
-/**
- * Renames one omission so its layer name identifies this package.
- *
- * @remarks
- *   A layer is named for the call a consumer wrote, and a consumer writes `layers` rather than
- *   `test.omit`.
- */
-function renamed(contribution: Contribution): Contribution {
-  return named(contribution.name.replace("test.omit", "specimen.uncounted"), contribution);
-}
+import { renamed, SPECIMENS } from "#specimens.ts";
 
 /**
  * Stops counting each specimen towards the coverage its package is held to.
@@ -38,5 +24,5 @@ export function uncounted(files: readonly string[] = SPECIMENS): readonly Contri
         "so it is an entry point in the way an application's main is",
       files,
     })
-    .map((contribution) => renamed(contribution));
+    .map((contribution) => renamed(contribution, "test.omit", "specimen.uncounted"));
 }

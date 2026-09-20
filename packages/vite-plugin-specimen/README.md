@@ -24,7 +24,8 @@ shows a catalogue of a workspace's components sits beside those components rathe
 ## Declaring a page
 
 A specimen's default export is a call taking one object literal. The plugin reads `id`, `group`,
-`title` and `about` out of the source text, so nothing in the file is evaluated at build time.
+`title`, `about` and `namespace` out of the source text, so nothing in the file is evaluated at
+build time.
 
 ```tsx
 export const sizes = { draw: () => <Badge size="sm" />, title: "Sizes" };
@@ -38,7 +39,8 @@ export default specimen({
 ```
 
 `id` is required and unique. `title` defaults to the last segment of the identifier, with hyphens
-read as spaces. `group` and `about` default to empty.
+read as spaces. `group`, `about` and `namespace` default to empty. `namespace` names the catalogue
+namespace the page's words are keys in, for a page whose words live outside the catalogue's own.
 
 Neither the callee's name nor the module it came from is checked, so a repository supplies its own
 `specimen` function.
@@ -54,7 +56,8 @@ the name of the package the file belongs to, and two loaders: `load` for the sce
 for the scenes as source. Every loader is a dynamic import, and the plugin merges both of a page's
 into one chunk named after the page, `actions-button-[hash].js`, so a page opens with one request
 and a rail that lists 100 pages loads no component. A page's props are a third loader where the
-index was asked to read them, in a chunk of their own, loaded where somebody opens them.
+index was asked to read them, in a chunk of their own named `actions-button-props-[hash].js`, loaded
+where somebody opens them.
 
 Add the types with a triple-slash directive from a file the project already compiles.
 

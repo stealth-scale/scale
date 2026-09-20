@@ -30,8 +30,8 @@ export default defineConfig(import.meta.dirname, {
 
 It stops counting `**/*.specimen.tsx` towards the package's coverage. A specimen declares a page for
 the catalogue to draw rather than behaviour to assert, so it is an entry point in the way an
-application's `main` is. A package that keeps its specimens elsewhere calls `uncounted()` with its
-own globs.
+application's `main` is. A package that keeps its specimens elsewhere names its own globs:
+`specimen.layers(["src/pages/**/*.specimen.tsx"])`.
 
 ## An application that shows a catalogue
 

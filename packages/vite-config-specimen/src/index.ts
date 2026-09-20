@@ -16,5 +16,4 @@ export { catalogue } from "#catalogue.ts";
 export { crawled } from "#crawled.ts";
 export { indexed } from "#indexed.ts";
 export { layers } from "#layers.ts";
-export { uncounted } from "#uncounted.ts";
 export { workspace } from "#workspace.ts";
