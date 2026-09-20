@@ -3,7 +3,7 @@
   "copied": "Copied the code",
   "copy": "Copy the code",
   "file": {
-    "about": "A component file under its name, with the clipboard's trigger in the header's control drawn as the library's icon button. The panel is dark whatever the page is, so the same block reads the same on every page.",
+    "about": "A component file under its name, with `CodeBlock.Copy` in the header's control. The control reads the code off the root, so the passage is written once, and takes its two marks from the page. The panel is dark whatever the page is, so the same block reads the same on every page.",
     "title": "A file"
   },
   "languages": {

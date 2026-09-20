@@ -12,6 +12,7 @@ describe("index", () => {
       "Code",
       "Content",
       "Control",
+      "Copy",
       "Header",
       "Root",
       "Title",

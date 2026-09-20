@@ -5,7 +5,6 @@
 
 import { type ReactElement } from "react";
 
-import { ButtonPropsProvider, Clipboard, IconButton } from "@stealthscale/component-actions";
 import { CodeBlock } from "@stealthscale/component-content";
 import { useTranslation } from "@stealthscale/provider-i18n";
 
@@ -33,12 +32,12 @@ export interface CodeProps {
 }
 
 /**
- * Draws the code block at the small size, with the clipboard's trigger in its control.
+ * Draws the code block at the small size, with the block's own copy control in its header.
  *
  * @remarks
- *   The trigger is the library's icon button on the neutral palette, so it reads in the ink of the
- *   title beside it, and the clipboard names it with the catalogue's words. The block sets the
- *   copied value from the same text the passage shows.
+ *   The control reads the code off the root, so the passage is written once. The catalogue hands
+ *   it the two marks and the words it is named with, because the library ships no icon set and the
+ *   block's package ships no words.
  */
 export function Code({ code, language = "tsx", title }: CodeProps): ReactElement {
   const { t } = useTranslation("specimen");
@@ -48,18 +47,12 @@ export function Code({ code, language = "tsx", title }: CodeProps): ReactElement
       <CodeBlock.Header>
         <CodeBlock.Title>{title}</CodeBlock.Title>
         <CodeBlock.Control>
-          <Clipboard.Root
+          <CodeBlock.Copy
+            copied={<Check />}
             translations={{ triggerLabel: (copied) => t(copied ? "code.copied" : "code.copy") }}
-            value={code}
           >
-            <ButtonPropsProvider value={{ size: "xs", status: "neutral", variant: "ghost" }}>
-              <Clipboard.Trigger as={IconButton}>
-                <Clipboard.Indicator copied={<Check />}>
-                  <Copy />
-                </Clipboard.Indicator>
-              </Clipboard.Trigger>
-            </ButtonPropsProvider>
-          </Clipboard.Root>
+            <Copy />
+          </CodeBlock.Copy>
         </CodeBlock.Control>
       </CodeBlock.Header>
       <CodeBlock.Content>

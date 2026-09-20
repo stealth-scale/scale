@@ -2,30 +2,22 @@
  * Shows the code block: a file with a copy control, every size, three languages, and plain text.
  *
  * @remarks
- *   The copy control is the clipboard's trigger drawn as the library's icon button, placed in the
- *   header's control by the page, so the block itself draws no button. The words are keys under
- *   `code-block` in the catalogue's namespace, kept beside this file in
+ *   The copy control is `CodeBlock.Copy`, which reads the code off the root and wires the
+ *   clipboard itself. The page hands it the two marks and the words, because the library ships no
+ *   icon set and this package ships no words. The marks come from Lucide, which this package takes
+ *   for its specimens alone: a published component still takes its glyph from whoever draws it.
+ *   The words are keys under `code-block` in the catalogue's namespace, kept beside this file in
  *   `locales/en/specimen/code-block.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { ButtonPropsProvider, Clipboard, IconButton } from "@stealthscale/component-actions";
-import { Icon } from "@stealthscale/component-typography";
+import { CheckIcon, CopyIcon } from "lucide-react";
+
 import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
 
 import * as CodeBlock from "#code-block/index.ts";
 import { recipe } from "#code-block/recipe.ts";
-
-/**
- * The path of the check mark, in a 24 unit box.
- */
-const CHECK = "M20 6 9 17l-5-5";
-
-/**
- * The path of the sheet behind the copy glyph's front square, in a 24 unit box.
- */
-const SHEET = "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2";
 
 /**
  * A component file, the passage the first two scenes set.
@@ -73,42 +65,18 @@ const LANGUAGES = ["json", "shell", "yaml"] as const;
 const MODES = ["dark", "light", "inherit"] as const;
 
 /**
- * Draws the clipboard trigger that copies the passage, as an icon button in the header.
+ * Draws the control that copies the passage, named in the catalogue's words.
  */
-function CopyControl({ code }: { readonly code: string }): ReactElement {
+function CopyControl(): ReactElement {
   const { t } = useWords("code-block");
 
   return (
-    <Clipboard.Root
+    <CodeBlock.Copy
+      copied={<CheckIcon size="1em" />}
       translations={{ triggerLabel: (copied) => t(copied ? "copied" : "copy") }}
-      value={code}
     >
-      <ButtonPropsProvider value={{ size: "xs", status: "neutral", variant: "ghost" }}>
-        <Clipboard.Trigger as={IconButton}>
-          <Clipboard.Indicator
-            copied={
-              <Icon viewBox="0 0 24 24">
-                <path d={CHECK} fill="none" stroke="currentColor" strokeWidth="2" />
-              </Icon>
-            }
-          >
-            <Icon viewBox="0 0 24 24">
-              <rect
-                fill="none"
-                height="14"
-                rx="2"
-                stroke="currentColor"
-                strokeWidth="2"
-                width="14"
-                x="8"
-                y="8"
-              />
-              <path d={SHEET} fill="none" stroke="currentColor" strokeWidth="2" />
-            </Icon>
-          </Clipboard.Indicator>
-        </Clipboard.Trigger>
-      </ButtonPropsProvider>
-    </Clipboard.Root>
+      <CopyIcon size="1em" />
+    </CodeBlock.Copy>
   );
 }
 
@@ -121,7 +89,7 @@ function File(): ReactElement {
       <CodeBlock.Header>
         <CodeBlock.Title>send.tsx</CodeBlock.Title>
         <CodeBlock.Control>
-          <CopyControl code={FILE} />
+          <CopyControl />
         </CodeBlock.Control>
       </CodeBlock.Header>
       <CodeBlock.Content>
@@ -204,6 +172,7 @@ function Modes(): ReactElement {
 export const file: Scene = {
   about: "code-block.file.about",
   draw: File,
+  frame: "bleed",
   title: "code-block.file.title",
 };
 
@@ -231,6 +200,7 @@ export const languages: Scene = {
 export const plain: Scene = {
   about: "code-block.plain.about",
   draw: Plain,
+  frame: "bleed",
   title: "code-block.plain.title",
 };
 

@@ -71,6 +71,9 @@ catalog:
   i18next-resources-to-backend: ^1.2.3
   json-schema-library: ^11.6.2
   lefthook: ^2.1.12
+  # Marks for the specimens alone. A published component takes its glyph from the page, so no
+  # package depends on this at run time.
+  lucide-react: ^1.47.0
   oxc-transform-react: ^0.149.0
   packageurl-js: ^2.0.1
   playwright: ^1.63.0
