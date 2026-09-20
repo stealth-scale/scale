@@ -111,6 +111,8 @@ export {
   WEIGHTS,
   weightVariants,
   widthSizes,
+  wrappedField,
+  wrappedFieldVariants,
 } from "#authoring/recipes/index.ts";
 export {
   defineTheme,

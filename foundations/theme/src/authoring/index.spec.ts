@@ -81,6 +81,8 @@ const RECIPE = [
   "WEIGHTS",
   "weightVariants",
   "widthSizes",
+  "wrappedField",
+  "wrappedFieldVariants",
 ];
 
 const PATTERN = [

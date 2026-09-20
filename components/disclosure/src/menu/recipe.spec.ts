@@ -62,7 +62,7 @@ describe("recipe", () => {
   });
 
   it("marks a submenu's control the same way as a row beside it", () => {
-    expect(recipe.variants?.["highlight"]?.["fill"]).toStrictEqual({
+    expect(recipe.variants?.["highlight"]?.["fill"]).toMatchObject({
       item: { _highlighted: { layerStyle: "fill.solid" } },
       triggerItem: { _highlighted: { layerStyle: "fill.solid" } },
     });

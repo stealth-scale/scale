@@ -10,7 +10,7 @@
 
 export { type Axis, axis } from "#authoring/recipes/axis.ts";
 export { dense } from "#authoring/recipes/density.ts";
-export { field } from "#authoring/recipes/field.ts";
+export { field, wrappedField } from "#authoring/recipes/field.ts";
 export { floating, overlay } from "#authoring/recipes/floating.ts";
 export {
   type Align,
@@ -43,6 +43,7 @@ export {
   LOOKS,
   lookVariants,
   type Marked,
+  wrappedFieldVariants,
 } from "#authoring/recipes/looks.ts";
 export { motion, type Motion, MOTIONS, motionVariants } from "#authoring/recipes/motion.ts";
 export { cornerVariants, ratioVariants } from "#authoring/recipes/shape.ts";

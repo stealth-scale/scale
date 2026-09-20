@@ -84,6 +84,18 @@ export const FIELDS: readonly Field[] = ["outline", "subtle", "flushed"];
 export const fieldVariants: Axis<Field> = axis(FIELDS, (look) => ({ layerStyle: `field.${look}` }));
 
 /**
+ * Writes the `variant` axis of a field whose surface is a box around the control.
+ *
+ * @remarks
+ *   The same three looks, read through the control the box holds. A look written for the control
+ *   itself carries `_readOnly`, and `:read-only` matches every element that is not editable, so an
+ *   outlined textarea rested on the read-only fill whatever its control was doing.
+ */
+export const wrappedFieldVariants: Axis<Field> = axis(FIELDS, (look) => ({
+  layerStyle: `field.wrapped.${look}`,
+}));
+
+/**
  * Selects how the row a list has moved its highlight onto is marked.
  */
 export type Highlight = "bar" | "fill" | "tint";
@@ -111,6 +123,25 @@ const MARKS: Readonly<Record<Highlight, string>> = {
  * naming the page a reader is on.
  */
 export type Marked = "_currentPage" | "_highlighted";
+
+/**
+ * Writes the line that finds the marked row where the display has replaced every fill.
+ *
+ * @remarks
+ *   A forced-color mode paints every background from one system palette, so a tint and a solid
+ *   both land on the same colour as the rows around them and the marked row disappears. The line
+ *   is geometry rather than color, which such a mode keeps, and it is drawn inside the row's own
+ *   box so it does not move the list. `Highlight` is the system color a chosen thing is marked in,
+ *   which is what a reader of that mode already reads a selection by.
+ */
+const FOUND: SystemStyleObject = {
+  _highContrast: {
+    outlineColor: "Highlight",
+    outlineOffset: "calc({borderWidths.indicator} * -1)",
+    outlineStyle: "solid",
+    outlineWidth: "indicator",
+  },
+};
 
 /**
  * Writes the `highlight` axis of a list: how the one row the reader is on is marked.
@@ -158,10 +189,11 @@ export function highlightVariants(
   when: Marked = "_highlighted",
 ): Record<string, SystemStyleObject> {
   return recordOf(highlights, (highlight): SystemStyleObject => {
-    const marked =
-      highlight === "bar"
-        ? { background: "colorPalette.muted", layerStyle: MARKS[highlight] }
-        : { layerStyle: MARKS[highlight] };
+    const marked = {
+      ...FOUND,
+      ...(highlight === "bar" ? { background: "colorPalette.muted" } : {}),
+      layerStyle: MARKS[highlight],
+    };
 
     return when === "_currentPage" ? { _currentPage: marked } : { _highlighted: marked };
   });

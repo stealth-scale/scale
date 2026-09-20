@@ -18,12 +18,16 @@
  *   corner of a square one at 2.83, so three covers a control of any shape that is not taller
  *   than it is wide. CSS reads no element's own aspect ratio, so a tall surface states its own.
  *   `--ripple-pace` scales every duration at once, and a reader who asked for less motion sets it
- *   to zero, which holds the ripple still without a rule that has to outrank the press.
+ *   to zero, which holds the ripple still without a rule that has to outrank the press. The
+ *   ripple is clipped to its own box rather than by hiding the control's overflow, because
+ *   hiding it also clipped the pseudo-element a coarse pointer's target is drawn with: an xs
+ *   button declared a forty-pixel area around its thirty-two-pixel box and a press two pixels
+ *   above the box reached nothing.
  */
 
 import { type LayerStyle, type LayerStyles } from "#pandacss.ts";
 import { effects } from "#preset/styles/effects.ts";
-import { fieldLooks } from "#preset/styles/field-looks.ts";
+import { fieldLooks, wrappedFieldLooks } from "#preset/styles/field-looks.ts";
 import { type Look } from "#preset/styles/look.ts";
 
 /**
@@ -101,7 +105,7 @@ function indicator(edge: LayerStyle): Look {
 export const layerStyles: LayerStyles = {
   ...effects,
   disabled: { value: { cursor: "disabled", opacity: "disabled" } },
-  field: fieldLooks,
+  field: { ...fieldLooks, wrapped: wrappedFieldLooks },
   fill: {
     ghost: fill("transparent", "colorPalette.fg", "colorPalette.muted", "colorPalette.emphasized"),
     muted: fill("colorPalette.muted", "colorPalette.fg", "colorPalette.emphasized"),
@@ -186,6 +190,7 @@ export const layerStyles: LayerStyles = {
       _after: {
         aspectRatio: "1",
         background: "radial-gradient(closest-side, currentColor 75%, transparent 100%)",
+        clipPath: "inset(0 round inherit)",
         content: '""',
         left: "var(--ripple-x, 50%)",
         opacity: "0",
@@ -199,7 +204,6 @@ export const layerStyles: LayerStyles = {
       },
       _motionReduce: { "--ripple-pace": "0" },
       "--ripple-pace": "1",
-      overflow: "hidden",
       position: "relative",
     },
   },

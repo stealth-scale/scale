@@ -51,15 +51,20 @@ describe("layerStyles", () => {
       _after: {
         aspectRatio: "1",
         background: "radial-gradient(closest-side, currentColor 75%, transparent 100%)",
+        clipPath: "inset(0 round inherit)",
         left: "var(--ripple-x, 50%)",
         opacity: "0",
         top: "var(--ripple-y, 50%)",
         transform: "translate(-50%, -50%) scale(0.3)",
         width: "100%",
       },
-      overflow: "hidden",
       position: "relative",
     });
+  });
+
+  it("clips the ripple to its own box rather than hiding the control's overflow", () => {
+    expect(tokenAt(layerStyles, "ripple")).not.toHaveProperty("overflow");
+    expect(JSON.stringify(tokenAt(layerStyles, "ripple"))).toContain("inset(0 round inherit)");
   });
 
   it("draws a solid fill in the palette with its hover inside it", () => {
@@ -89,12 +94,25 @@ describe("layerStyles", () => {
     });
   });
 
-  it("names three field looks", () => {
+  it("names three field looks and the same three for a box around a control", () => {
     expect(Object.keys(tokenAt(layerStyles, "field") ?? {}).toSorted()).toStrictEqual([
       "flushed",
       "outline",
       "subtle",
+      "wrapped",
     ]);
+    expect(Object.keys(tokenAt(layerStyles, "field.wrapped") ?? {}).toSorted()).toStrictEqual([
+      "flushed",
+      "outline",
+      "subtle",
+    ]);
+  });
+
+  it("reads a wrapped look's read-only state from the control rather than from the box", () => {
+    const look = JSON.stringify(tokenAt(layerStyles, "field.wrapped.outline"));
+
+    expect(look).toContain(":has(> :read-only:not(:disabled))");
+    expect(look).not.toContain("_readOnly");
   });
 
   it("reads the field looks from their own module", () => {

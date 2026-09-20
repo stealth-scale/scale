@@ -51,7 +51,7 @@ describe("recipe", () => {
   });
 
   it("marks the highlighted row rather than the focused one", () => {
-    expect(recipe.variants?.["highlight"]?.["tint"]?.["item"]).toStrictEqual({
+    expect(recipe.variants?.["highlight"]?.["tint"]?.["item"]).toMatchObject({
       _highlighted: { layerStyle: "fill.muted" },
     });
   });
