@@ -203,6 +203,9 @@ catalogs:
     '@standard-schema/spec':
       specifier: ^1.1.0
       version: 1.1.0
+    '@tanstack/highlight':
+      specifier: 0.1.0
+      version: 0.1.0
     '@tanstack/react-form':
       specifier: ^1.33.5
       version: 1.33.5
@@ -248,6 +251,9 @@ catalogs:
     '@zag-js/checkbox':
       specifier: 1.44.0
       version: 1.44.0
+    '@zag-js/clipboard':
+      specifier: 1.44.0
+      version: 1.44.0
     '@zag-js/collapsible':
       specifier: 1.44.0
       version: 1.44.0
@@ -285,6 +291,9 @@ catalogs:
       specifier: 1.44.0
       version: 1.44.0
     '@zag-js/types':
+      specifier: 1.44.0
+      version: 1.44.0
+    '@zag-js/utils':
       specifier: 1.44.0
       version: 1.44.0
     axe-core:
@@ -400,6 +409,12 @@ importers:
       '@commitlint/cli':
         specifier: 'catalog:'
         version: 21.2.2(@types/node@26.5.1)(conventional-commits-parser@7.1.2)(typescript@7.0.2)
+      '@stealthscale/component-actions':
+        specifier: workspace:^
+        version: link:components/actions
+      '@stealthscale/component-forms':
+        specifier: workspace:^
+        version: link:components/forms
       '@stealthscale/component-typography':
         specifier: workspace:^
         version: link:components/typography
@@ -490,6 +505,9 @@ importers:
       '@stealthscale/component-collections':
         specifier: workspace:^
         version: link:../../components/collections
+      '@stealthscale/component-content':
+        specifier: workspace:^
+        version: link:../../components/content
       '@stealthscale/component-data':
         specifier: workspace:^
         version: link:../../components/data
@@ -715,6 +733,19 @@ importers:
         version: 4.1.11(@types/node@26.5.1)(@vitest/browser-playwright@4.1.11)(@vitest/browser-preview@4.1.11)(@vitest/coverage-v8@4.1.11)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
 
   components/actions:
+    dependencies:
+      '@zag-js/clipboard':
+        specifier: 'catalog:'
+        version: 1.44.0
+      '@zag-js/react':
+        specifier: 'catalog:'
+        version: 1.44.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@zag-js/types':
+        specifier: 'catalog:'
+        version: 1.44.0
+      '@zag-js/utils':
+        specifier: 'catalog:'
+        version: 1.44.0
     devDependencies:
       '@arethetypeswrong/core':
         specifier: 'catalog:'
@@ -722,6 +753,9 @@ importers:
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
         version: 0.2.4(@babel/core@7.29.7(supports-color@10.2.2))(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.7)
+      '@stealthscale/hooks':
+        specifier: workspace:^
+        version: link:../../foundations/hooks
       '@stealthscale/theme':
         specifier: workspace:^
         version: link:../../foundations/theme
@@ -860,6 +894,10 @@ importers:
         version: 4.1.11(@types/node@26.5.1)(@vitest/browser-playwright@4.1.11)(@vitest/browser-preview@4.1.11)(@vitest/coverage-v8@4.1.11)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
 
   components/content:
+    dependencies:
+      '@tanstack/highlight':
+        specifier: 'catalog:'
+        version: 0.1.0
     devDependencies:
       '@arethetypeswrong/core':
         specifier: 'catalog:'
@@ -867,15 +905,24 @@ importers:
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
         version: 0.2.4(@babel/core@7.29.7(supports-color@10.2.2))(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.7)
+      '@stealthscale/hooks':
+        specifier: workspace:^
+        version: link:../../foundations/hooks
       '@stealthscale/theme':
         specifier: workspace:^
         version: link:../../foundations/theme
       '@stealthscale/vite-config':
         specifier: workspace:^
         version: link:../../packages/vite-config
+      '@stealthscale/vite-config-i18n':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-i18n
       '@stealthscale/vite-config-react':
         specifier: workspace:^
         version: link:../../packages/vite-config-react
+      '@stealthscale/vite-config-specimen':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-specimen
       '@stealthscale/vite-config-theme':
         specifier: workspace:^
         version: link:../../packages/vite-config-theme
@@ -1594,6 +1641,15 @@ importers:
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
         version: 0.2.4(@babel/core@7.29.7(supports-color@10.2.2))(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@0.3.1(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.7)
+      '@stealthscale/component-a11y':
+        specifier: workspace:^
+        version: link:../a11y
+      '@stealthscale/component-actions':
+        specifier: workspace:^
+        version: link:../actions
+      '@stealthscale/component-content':
+        specifier: workspace:^
+        version: link:../content
       '@stealthscale/component-data':
         specifier: workspace:^
         version: link:../data
@@ -6239,6 +6295,10 @@ packages:
   '@tanstack/form-core@1.33.5':
     resolution: {integrity: sha512-3dfx9MBP0aq5sXKteikG629X9oviptrQj0IFRk9YGcb+lB7Kv5x8S17oOSk1wUWgjQZ4xVJEMbKwOAODymocgA==}
 
+  '@tanstack/highlight@0.1.0':
+    resolution: {integrity: sha512-B/NdJETsgoQ7ludUbflIiYQk74bE6VSgP3kLR99P1OsRX1Gepr3EVg6oVLRZ+duKWs+P4lrhWC4vVJsrRSnV2g==}
+    engines: {node: '>=18'}
+
   '@tanstack/history@1.162.3':
     resolution: {integrity: sha512-zZTDxZxdDxZudHXGp42d221R/sEKoQPbZsW2ezpdWknHpOmJVLyiljW21pdWtKXfMnLq+Kg5VJpVBwOe18+ZzQ==}
     engines: {node: '>=20.19'}
@@ -6933,6 +6993,9 @@ packages:
 
   '@zag-js/checkbox@1.44.0':
     resolution: {integrity: sha512-2Tz2CroVmb8hT7nGknVbf4eW3UmDNZUrA2JoGYlAIQ8jJG3+lmxyFbO83o5RTh4oVeQiTsyn/V+jgLMS6V9z/g==}
+
+  '@zag-js/clipboard@1.44.0':
+    resolution: {integrity: sha512-bGNVGx9JKbFGqRT44H+coCGjRly87tXdF3dsFO9rHy0H1wz7lDJ+QfSGVcozubmDJRdBKrfj13/2BwKcNsdpBA==}
 
   '@zag-js/collapsible@1.44.0':
     resolution: {integrity: sha512-VPSW2MgFtXSH85GSpfo61LKpW66Rp4v9LsMggp/ITKNj7+HQ5Q8CaWQRhe3FYQdZ9OefaCkC6IFVnIFilE8feQ==}
@@ -9931,6 +9994,8 @@ snapshots:
       '@tanstack/pacer-lite': 0.1.1
       '@tanstack/store': 0.11.1
 
+  '@tanstack/highlight@0.1.0': {}
+
   '@tanstack/history@1.162.3': {}
 
   '@tanstack/hotkeys@0.8.0':
@@ -10515,6 +10580,14 @@ snapshots:
       '@zag-js/core': 1.44.0
       '@zag-js/dom-query': 1.44.0
       '@zag-js/focus-visible': 1.44.0
+      '@zag-js/types': 1.44.0
+      '@zag-js/utils': 1.44.0
+
+  '@zag-js/clipboard@1.44.0':
+    dependencies:
+      '@zag-js/anatomy': 1.44.0
+      '@zag-js/core': 1.44.0
+      '@zag-js/dom-query': 1.44.0
       '@zag-js/types': 1.44.0
       '@zag-js/utils': 1.44.0
 

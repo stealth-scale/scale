@@ -14,7 +14,7 @@ component-actions: fill a pressed toggle button
 
 component-actions: ripple under every press and hold the box still
 
-- Every button carries the ripple layer style: a press spreads a ripple from the middle of the box
+- Every button carries the ripple layer style. A press spreads a ripple from the middle of the box
   and the release fades it. The `effect` axis keeps the glow alone, so `effect="ripple"` is gone.
 - The box no longer scales to 98 percent under a press. The press is read from the look's pressed
   fill, the ripple and the elevation dropping, and a box that shrinks under the pointer read as
@@ -35,3 +35,17 @@ component-actions: add the neutral value to the button's status axis
 - `Button status="neutral"` points the palette at the neutral one, for a control in a bar that reads
   in the ink of the words beside it. The value is emitted whether or not a page writes it, beside
   the four statuses, because a bar sets it through a provider.
+
+component-actions: add the clipboard over the clipboard machine
+
+- `Clipboard.Root` runs `@zag-js/clipboard` and holds the value. `Trigger` copies it, `Indicator`
+  swaps its glyph while the copy is fresh, `Label` names the value, `Input` shows it read-only,
+  `ValueText` writes it, and `Consumer` hands the machine's `copied`, `value` and `copy` to a
+  function of the page's own.
+- The machine names the trigger for a screen reader and `translations` on the root replaces the
+  words. `timeout` defaults to 3000 milliseconds.
+- The trigger draws no control look. A page draws it as `Button` or `IconButton` through `as` and
+  sets their variants through `ButtonPropsProvider`. The recipe offers `size` at `sm`, `md` and
+  `lg`, which steps the label and the gaps.
+- The package peers on `@stealthscale/hooks` and depends on `@zag-js/clipboard`, `@zag-js/react`,
+  `@zag-js/types` and `@zag-js/utils`.
