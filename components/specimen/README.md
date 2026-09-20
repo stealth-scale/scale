@@ -10,14 +10,16 @@ pnpm add -D @stealthscale/specimen
 ```
 
 The package peers on `@stealthscale/component-a11y`, `@stealthscale/component-actions`,
-`@stealthscale/component-content`, `@stealthscale/component-data`, `@stealthscale/component-forms`,
+`@stealthscale/component-content`, `@stealthscale/component-data`,
+`@stealthscale/component-disclosure`, `@stealthscale/component-forms`,
 `@stealthscale/component-layout`, `@stealthscale/component-navigation`,
 `@stealthscale/component-screen`, `@stealthscale/component-surfaces`,
 `@stealthscale/component-typography`, `@stealthscale/provider-hotkeys`,
-`@stealthscale/provider-i18n`, `@stealthscale/provider-router`, `@stealthscale/vite-plugin-specimen`
-and `react`. A package writing specimens does not declare it, the way a package writing
-specifications does not declare the testing kits: a specimen runs in the catalogue and resolves
-through the workspace root.
+`@stealthscale/provider-i18n`, `@stealthscale/provider-router`, `@stealthscale/provider-viewport`,
+`@stealthscale/vite-plugin-specimen` and `react`, and depends on `lucide-react` for the marks the
+catalogue's own controls carry. A package writing specimens does not declare it, the way a package
+writing specifications does not declare the testing kits: a specimen runs in the catalogue and
+resolves through the workspace root.
 
 ## The catalogue
 
@@ -54,6 +56,7 @@ identifier's slashes into dots: `specimen.actions.button`. The index is named `i
 | `path`   | The path that route is served at, relative to the compiler's parent                      |
 | `layout` | The layouts the catalogue is drawn in, outermost first. Drawn bare when absent           |
 | `beside` | Pages the application wrote, compiled with the rest and listed by the rail and the index |
+| `framed` | The id and the path of the page a device loads one sample at. No device when absent      |
 
 The pages are passed in rather than imported, so this package draws a catalogue without the build
 plugin in its own graph and a specification renders one without a build at all.
@@ -135,7 +138,7 @@ index, and the group the page is filed under stands beside the title as a badge.
 the statement that imports the page's components from their package, in the content package's code
 block with the clipboard's trigger beside it. The plugin lists the components from what the specimen
 imports under the package's own imports map. Each scene stands on a card whose footer holds a
-`Source` control at its right end, a disclosure that shows the scene's source under the stage in the
+`Source` control at its right end, a disclosure that shows the scene's source under the scene in the
 same code block, cut by the plugin from the specimen's file. Each section is anchored by its worded
 title, `looks-and-sizes`, and a rail beside the page lists the sections, marks the ones on screen
 and scrolls the page to the one pressed. The rail is the navigation package's table of contents in
@@ -144,12 +147,54 @@ are the shaping behind it. `parted` splits what a page's parts accept into the v
 moves and the options a caller sets, each row carrying the members of every named type it refers to,
 with the dropped counts beside them.
 
-Each scene is drawn on a `Stage` inside the card's content. The stage is the width of the content
-until the viewport states a width, and held to that width from then on: a phone at the smallest
-measure, or where one of the theme's breakpoints starts. The card, the page and whatever an
-application draws around them keep their own width. A switcher in an application's bar sets the
-width through `useViewport().setWidth`, and offers `widthsOf(sizes)`, which is `PHONE` followed by
-the theme's breakpoints, so the rows it lists and the widths the stage knows agree:
+## The device
+
+Each scene is drawn in its card until the viewport states a width, and in a device from then on: a
+window of that size, which is a frame loading the application at its framed page with the scene's
+address in the fragment. Everything the scene draws sees a window of the device's size, the styling
+engine's media queries and the parts that portal to the body included, and the card, the page and
+whatever an application draws around them keep their own width. The devices are a phone at the
+smallest measure, `PHONE`, and the theme's breakpoints, each with a height: 320 × 568, 640 × 960,
+768 × 1024, 1024 × 768, 1280 × 800 and 1536 × 864. The frame is the device's size and nothing else,
+the way a phone is. A sample shorter than the window is drawn at its top and one taller scrolls
+inside it. The frame is see-through and edged with a dashed hairline, so the sample is drawn on the
+card the way it is on the page and the window's bounds can be seen against it.
+
+Inside the window the scene is drawn in a `Pane` that meets the window the way the scene meets its
+card: an inset scene keeps the card's room from the edges, the way a page on a phone keeps its
+gutters, and a bled or bared one fills the window. A scene declaring `viewport: true` fills the
+window whatever its frame, because a shell is the height of its window and room round it would push
+it past the window's foot.
+
+A device shows one sample at a time. Over a matrix it draws a picker per axis and over a board one
+picker over the samples, each starting at the first value and forgotten with the page, because which
+sample is in the window is a test setting rather than a preference. A scene of one sample draws no
+picker. The scene's axes are known only where the scene is drawn, which is inside the frame, so the
+framed document reports them to the page holding it. A pick moves the frame's fragment, which the
+document follows without loading again. The frame loads again when the page changes its theme, its
+mode or its language, because the document inside reads them out of the same settings.
+
+The application serves the framed page by naming it in `Placing.framed`. Without it no scene is
+shown in a device, whatever the viewport states:
+
+```tsx
+declarations(pages, {
+  framed: { id: "docs.framed", path: "framed" },
+  id: "docs.components",
+  layout: ["docs.frame"],
+  path: "components",
+});
+```
+
+The framed page is declared at the root and in no layout, so the frame holds the sample and nothing
+else. The address is the fragment: `#actions/button/1?v=0&x=2` names the page, the position of the
+scene on it, and the position picked on each axis, `v` down the first and `x` across the second, or
+`s` for a board's sample. `framedDeclaration(pages, framing)` is the declaration `declarations` adds
+for it.
+
+A switcher in an application's bar sets the width through `useViewport().setWidth`, and offers
+`widthsOf(sizes)`, which is `PHONE` followed by the theme's breakpoints, so the rows it lists and
+the devices the page knows agree:
 
 ```tsx
 const { setWidth, sizes, width } = useViewport();
@@ -159,7 +204,7 @@ widthsOf(sizes).map((size) => (
 ));
 ```
 
-`stageWidthOf(width, sizes)` is what the page reads the stage's width off the viewport with.
+`deviceOf(width, sizes)` is what the page reads the device off the viewport with.
 
 ## The words
 
@@ -233,7 +278,7 @@ names in alphabetical order and a page written Variants, States, Anatomy would b
 States, Variants.
 
 `draw` is a component rather than a node, so a scene that holds state declares its hooks in its own
-render.
+render. `viewport` says the scene fills a window, so a device shows it at the window's edges.
 
 ## Matrix
 
@@ -279,15 +324,18 @@ its control.
 ## The recipes it states
 
 Every part the catalogue draws is a component of the library: the caption is `Text`, the page is
-`Page`, the rail is `Sidebar.Nav` over `NavList`. The matrix, the tile and the room state a recipe
-each, published as a preset from `@stealthscale/specimen/theme`, and every value in them is a
-semantic token, so a theme that moves the library moves the catalogue with it.
+`Page`, the rail is `Sidebar.Nav` over `NavList`. The device, the pane, the matrix, the tile and the
+room state a recipe each, published as a preset from `@stealthscale/specimen/theme`, and every value
+in them is a semantic token, so a theme that moves the library moves the catalogue with it. The
+preset also makes the root of a framed document see-through, over the background the theme paints
+every root in.
 
 ## Types
 
 `Axis<Value>` describes an axis: `of`, `knob` and `label`. `MatrixProps<Value>` extends it with
 `children` and `direction`. `Specimen` and `Scene` describe what a page declares. `Placing`
-describes where a catalogue goes.
+describes where a catalogue goes and `Framing` where its framed page is served. `Device` is a width,
+a height and a name.
 
 ## Licence
 

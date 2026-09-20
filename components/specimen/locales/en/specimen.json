@@ -9,6 +9,10 @@
   "contents": {
     "title": "On this page"
   },
+  "device": {
+    "sample": "sample",
+    "size": "{{width}} × {{height}}"
+  },
   "index": {
     "title": "Components"
   },

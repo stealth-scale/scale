@@ -7,6 +7,7 @@ import { Outlet, type RouteDeclaration } from "@stealthscale/provider-router";
 import { Index } from "#catalogue/index-page.tsx";
 import { Page } from "#catalogue/page.tsx";
 import { type Indexed } from "#catalogue/types.ts";
+import { framedDeclaration, type Framing } from "#framed/route.tsx";
 
 /**
  * The prefix every page of a catalogue is named under, so an application's own routes and these
@@ -24,6 +25,17 @@ export interface Placing {
    * the index where they carry an entry. One naming no parent nests under the catalogue's route.
    */
   readonly beside?: readonly RouteDeclaration[] | undefined;
+
+  /**
+   * Where the framed page goes: the route a frame loads one sample at when a reader shows a scene
+   * in a device. No device is offered where this is absent.
+   *
+   * @remarks
+   *   Declared here beside the pages rather than by the application on its own, so the path the
+   *   frames load and the route that serves them are stated once. The route hangs under no parent
+   *   and has no layout, so the frame shows the sample and none of the chrome round the catalogue.
+   */
+  readonly framed?: Framing | undefined;
 
   /**
    * The id of the route the catalogue hangs under, which the index is named after.
@@ -91,11 +103,11 @@ export function declarations(
   pages: readonly Indexed[],
   placing: Placing,
 ): readonly RouteDeclaration[] {
-  const { beside = [], id, layout, path } = placing;
+  const { beside = [], framed, id, layout, path } = placing;
   const index = indexId(id);
   const listed: readonly RouteDeclaration[] = [
     ...pages.map((page) => ({
-      component: () => <Page back={index} entry={page} />,
+      component: () => <Page back={index} entry={page} framed={framed?.path} />,
       id: routeId(page.id),
       navigation: {
         about: page.about,
@@ -113,5 +125,6 @@ export function declarations(
     { component: Outlet, id, ...(layout === undefined ? {} : { layout }), path },
     { component: () => <Index declarations={listed} />, id: index, parent: id, path: "/" },
     ...listed,
+    ...(framed === undefined ? [] : [framedDeclaration(pages, framed)]),
   ];
 }

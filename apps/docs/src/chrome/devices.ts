@@ -1,21 +1,11 @@
 /**
- * The devices a window of some width is, and the mark of each.
+ * The devices a window of some width is.
  */
 
 /**
  * Selects one of the devices a window is drawn as.
  */
 export type Device = "laptop" | "monitor" | "phone" | "tablet";
-
-/**
- * The path of each device's mark, in a 24 unit box.
- */
-export const PATHS: Readonly<Record<Device, string>> = {
-  laptop: "M4 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v10H4zM2 18h20",
-  monitor: "M3 4h18v12H3zM8 20h8M12 16v4",
-  phone: "M7 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2zM11 18h2",
-  tablet: "M5 4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2zM11 19h2",
-};
 
 /**
  * The width a tablet, a laptop and a monitor start at, in pixels.

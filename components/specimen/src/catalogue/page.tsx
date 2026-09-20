@@ -4,18 +4,17 @@
  * the sections.
  */
 
-import { type ReactElement, useEffect, useState } from "react";
+import { type ReactElement } from "react";
 
 import * as Screen from "@stealthscale/component-screen";
 
-import { declared } from "#catalogue/declared.ts";
+import { useLoadedPage } from "#catalogue/loaded.ts";
 import { Body } from "#catalogue/page-body.tsx";
 import { Contents } from "#catalogue/page-contents.tsx";
 import { Header } from "#catalogue/page-header.tsx";
 import { slugOf } from "#catalogue/slug.ts";
-import { type Fragments, type Indexed } from "#catalogue/types.ts";
+import { type Indexed } from "#catalogue/types.ts";
 import { useWording } from "#catalogue/wording.ts";
-import { type Specimen } from "#page.ts";
 
 /**
  * Describes what a page takes.
@@ -30,22 +29,26 @@ export interface PageProps {
    * The entry the index holds for it.
    */
   readonly entry: Indexed;
+
+  /**
+   * The path the application serves the framed page at, which is where a scene is shown in a
+   * device. No device where it is absent.
+   */
+  readonly framed?: string | undefined;
 }
 
 /**
  * Loads the page's scenes and their sources, and draws them.
  *
  * @remarks
- *   The module is loaded rather than imported, because the index reaches every page through a
- *   dynamic import and the bundler emits one chunk for each. Opening a page is the first time its
- *   components are fetched. The sources are loaded beside it and drawn once they arrive; a page
- *   whose sources fail to load draws its scenes without them.
+ *   The module and the sources are loaded through `useLoadedPage`, which also keeps what a hot
+ *   update replaces, and the scenes are drawn once the module arrives; a page whose sources fail
+ *   to load draws its scenes without them.
  *   Each scene is anchored by its worded title, so the rail beside the page points at it and the
  *   address of a section reads as its title does. A page with no scenes draws no rail.
  */
-export function Page({ back, entry }: PageProps): ReactElement {
-  const [page, setPage] = useState<Specimen | undefined>();
-  const [fragments, setFragments] = useState<Fragments | undefined>();
+export function Page({ back, entry, framed }: PageProps): ReactElement {
+  const { fragments, page } = useLoadedPage(entry);
   const word = useWording(entry.namespace);
   const scenes = (page?.scenes ?? []).map((scene) => ({
     id: slugOf(word(scene.title)),
@@ -53,47 +56,10 @@ export function Page({ back, entry }: PageProps): ReactElement {
     title: word(scene.title),
   }));
 
-  useEffect(() => {
-    let watching = true;
-
-    /**
-     * Loads the module and keeps what it declares, unless the page has left the screen.
-     */
-    async function open(): Promise<void> {
-      try {
-        const module = await entry.load();
-
-        if (watching) setPage(declared(module));
-      } catch {
-        if (watching) setPage(undefined);
-      }
-    }
-
-    /**
-     * Loads the sources and keeps them, unless the page has left the screen or they fail.
-     */
-    async function cut(): Promise<void> {
-      try {
-        const loaded = await entry.fragments?.();
-
-        if (watching) setFragments(loaded);
-      } catch {
-        if (watching) setFragments(undefined);
-      }
-    }
-
-    void open();
-    void cut();
-
-    return (): void => {
-      watching = false;
-    };
-  }, [entry]);
-
   return (
     <Screen.Page.Root>
       <Header back={back} entry={entry} />
-      <Body entry={entry} fragments={fragments} scenes={scenes} />
+      <Body entry={entry} fragments={fragments} framed={framed} scenes={scenes} />
       {scenes.length === 0 ? null : <Contents of={scenes} />}
     </Screen.Page.Root>
   );

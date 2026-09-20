@@ -17,10 +17,11 @@
 
 export * from "#board/index.ts";
 export * from "#catalogue/index.ts";
+export * from "#device/index.ts";
+export * from "#framed/index.ts";
 export * from "#matrix/index.ts";
 export { type Frame, FRAMES, scene, type Scene, specimen, type Specimen } from "#page.ts";
 export * from "#room/index.ts";
 export * from "#sample/index.ts";
-export * from "#stage/index.ts";
 export * from "#tile/index.ts";
 export { NAMESPACE, type Namespace, type Prefix, useWords } from "#words.ts";

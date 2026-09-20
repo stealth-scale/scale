@@ -17,11 +17,12 @@
  *   states no value of its own, because the edges of the grid caption it already.
  */
 
-import { type ReactElement, type ReactNode } from "react";
+import { createElement, Fragment, type ReactElement, type ReactNode } from "react";
 
 import { Board, type BoardProps } from "#board/board.tsx";
 import { Caption } from "#caption.tsx";
 import { type Axis, captionOf, nameOf } from "#matrix/axis.ts";
+import { useFramedCell } from "#matrix/framed.ts";
 import { Cell, Grid, Head, Label, Root, type RootProps, Row, Side } from "#matrix/parts.ts";
 import { type Display, DisplayProvider } from "#sample/display.ts";
 import { Sample } from "#sample/sample.tsx";
@@ -136,12 +137,22 @@ function rowed<Value, Other>(
 /**
  * Draws one captioned cell per value of an axis, or one per pair where a second axis crosses it.
  *
+ * @remarks
+ *   In a framed document the matrix draws the one cell the frame was asked for and nothing round
+ *   it, and tells the page holding the frame which cells it offers, so the page draws a picker
+ *   per axis over the frame and a reader sees each cell as a window of a device's size shows it
+ *   rather than the grid squeezed into one.
  * @param props - The axes, how each cell is drawn, and what to draw for each value.
  * @returns The cells, captioned and spaced.
  */
 export function Matrix<Value, Other = undefined>(props: MatrixProps<Value, Other>): ReactElement {
   const { across, children, columns, direction = "row", place, variant, ...axis } = props;
   const display: Display = { place, variant };
+  const cell = useFramedCell(axis, across, children);
+
+  // A fragment built by hand, because the cell is whatever the specimen draws and a matrix in a
+  // frame adds no element of its own round it.
+  if (cell !== undefined) return createElement(Fragment, null, cell);
 
   if (across !== undefined) {
     return (

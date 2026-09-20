@@ -5,29 +5,40 @@ import { describe, expect, it } from "vitest";
 import { Page } from "@stealthscale/component-screen";
 import { ViewportProvider } from "@stealthscale/provider-viewport";
 import { drawn } from "@stealthscale/testing-react";
-import {
-  recipeClasses,
-  slotClasses,
-  slotElement,
-  slotVariantClass,
-  variantClass,
-} from "@stealthscale/testing-theme";
+import { slotClasses, slotElement, slotVariantClass } from "@stealthscale/testing-theme";
 
 import { SceneSection } from "#catalogue/page-scene.tsx";
+import { PHONE } from "#device/devices.ts";
+import { useScene } from "#device/scene.ts";
 import { type Scene } from "#page.ts";
-import { PHONE } from "#stage/width.ts";
 
 function marked(): ReactElement {
   return <span>drawn</span>;
 }
 
+/**
+ * Draws the scene's address as the scene reads it.
+ */
+function Addressed(): ReactElement {
+  return <output>{JSON.stringify(useScene())}</output>;
+}
+
 const SIZES: Scene = { about: "Every `size`.", draw: marked, title: "Sizes" };
 
-function sectioned(scene: Scene = SIZES, namespace = ""): ReactElement {
+const ADDRESSED: Scene = { draw: Addressed, title: "Sizes" };
+
+function sectioned(scene: Scene = SIZES, namespace = "", framed?: string): ReactElement {
   return (
     <Page.Root>
       <Page.Body>
-        <SceneSection id="sizes" namespace={namespace} scene={scene} />
+        <SceneSection
+          framed={framed}
+          id="sizes"
+          namespace={namespace}
+          page="actions/button"
+          position={2}
+          scene={scene}
+        />
       </Page.Body>
     </Page.Root>
   );
@@ -96,29 +107,37 @@ describe("SceneSection", () => {
     expect(getByText("Other")).toBeDefined();
   });
 
-  it("draws the scene on a stage the width of the card's content while the window decides", async () => {
-    const { container, getByText } = await drawn(sectioned());
-    const stage = container.querySelector("[data-recipe=stage]");
+  it("puts the scene's address in scope for a device to frame", async () => {
+    const { container } = await drawn(sectioned(ADDRESSED, "", "framed"));
 
-    expect(stage?.contains(getByText("drawn"))).toBe(true);
-    expect(recipeClasses(container, "stage")).toStrictEqual(["stage"]);
+    expect(container.textContent).toContain(
+      '{"page":"actions/button","path":"framed","scene":2,"title":"Sizes"}',
+    );
   });
 
-  it("holds the stage to the width the viewport states", async () => {
-    const { container } = await drawn(
-      <ViewportProvider width={PHONE.min}>{sectioned()}</ViewportProvider>,
+  it("leaves the frame's path out of the address where the application serves none", async () => {
+    const { container } = await drawn(sectioned(ADDRESSED));
+
+    expect(container.textContent).toContain('{"page":"actions/button","scene":2,"title":"Sizes"');
+  });
+
+  it("draws a device in the card's content instead of a bled scene while a reader shows the scene in one", async () => {
+    const bled: Scene = { draw: marked, frame: "bleed", title: "Sizes" };
+    const { container, queryByText } = await drawn(
+      <ViewportProvider width={PHONE.min}>{sectioned(bled, "", "framed")}</ViewportProvider>,
     );
 
-    expect(recipeClasses(container, "stage")).toContain(variantClass("stage", "width", "phone"));
+    expect(slotElement(container, "card", "content").querySelector("iframe")?.title).toBe("Sizes");
+    expect(queryByText("drawn")).toBeNull();
+    expect(container.querySelector(".card__media")).toBeNull();
   });
 
-  it("draws a bled scene inset while the stage is held to a width the card is wider than", async () => {
+  it("keeps a bled scene in the card's media where no framed page is served", async () => {
     const bled: Scene = { draw: marked, frame: "bleed", title: "Sizes" };
     const { container, getByText } = await drawn(
       <ViewportProvider width={PHONE.min}>{sectioned(bled)}</ViewportProvider>,
     );
 
-    expect(slotElement(container, "card", "content").contains(getByText("drawn"))).toBe(true);
-    expect(container.querySelector(".card__media")).toBeNull();
+    expect(slotElement(container, "card", "media").contains(getByText("drawn"))).toBe(true);
   });
 });

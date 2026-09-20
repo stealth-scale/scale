@@ -2,10 +2,20 @@
  * Draws a board: samples a specimen writes and arranges itself, on the library's grid.
  */
 
-import { type ComponentProps, type ReactElement } from "react";
+import {
+  Children,
+  type ComponentProps,
+  createElement,
+  Fragment,
+  isValidElement,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 
 import { Grid } from "@stealthscale/component-layout";
 
+import { useFramed } from "#framed/context.ts";
+import { type Choice, useReportedChoices } from "#framed/report.ts";
 import { type Display, DisplayProvider } from "#sample/display.ts";
 
 /**
@@ -38,6 +48,34 @@ const COLUMNS = "fill-xs";
 export interface BoardProps extends ComponentProps<typeof Grid.Root>, Display {}
 
 /**
+ * Reads a word a sample was given, or nothing where it was given none or something else.
+ */
+function worded(props: unknown, name: string): string | undefined {
+  const value: unknown =
+    typeof props === "object" && props !== null ? Reflect.get(props, name) : undefined;
+
+  return typeof value === "string" ? value : undefined;
+}
+
+/**
+ * Lists each sample the way its caption reads: the knob and the value, the value alone, or its
+ * position where it carries no caption, as the choice a picker over the board offers.
+ */
+function offered(children: ReactNode): Choice {
+  const names = Children.toArray(children).map((child, position) => {
+    const props = isValidElement(child) ? child.props : undefined;
+    const of = worded(props, "of");
+    const knob = worded(props, "knob");
+
+    if (of === undefined) return String(position + 1);
+
+    return knob === undefined ? of : `${knob} = ${of}`;
+  });
+
+  return { names, part: "sample" };
+}
+
+/**
  * Lays out the samples a specimen writes, and states how each of them is drawn.
  *
  * @remarks
@@ -48,6 +86,10 @@ export interface BoardProps extends ComponentProps<typeof Grid.Root>, Display {}
  *   Use it where a matrix cannot say what a page should look like: where the drawings are not one
  *   per value of an axis, where two of them belong side by side and a third below, or where one of
  *   them needs the whole width.
+ *   In a framed document the board draws the one sample the frame was asked for and nothing round
+ *   it, and tells the page holding the frame which samples it offers, each named by the caption
+ *   its sample carries or by its position where it carries none, so the page draws a picker over
+ *   them.
  * @param props - The grid's axes, the look of every sample, and the samples.
  * @returns The samples, arranged.
  */
@@ -59,6 +101,16 @@ export function Board({
   variant,
   ...grid
 }: BoardProps): ReactElement {
+  const pick = useFramed();
+
+  useReportedChoices(pick === undefined ? undefined : [offered(children)]);
+
+  // A fragment built by hand, because the sample is whatever the specimen wrote and a board in a
+  // frame adds no element of its own round it.
+  if (pick !== undefined) {
+    return createElement(Fragment, null, Children.toArray(children)[pick.sample ?? 0] ?? null);
+  }
+
   return (
     <Grid.Root align="flex-start" columns={columns} gap={gap} {...grid}>
       <DisplayProvider value={{ place, variant }}>{children}</DisplayProvider>

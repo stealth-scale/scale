@@ -53,6 +53,16 @@ export interface Scene {
    * The name the scene is headed with, which also keys its source in the catalogue.
    */
   title: string;
+
+  /**
+   * Whether the scene fills the window it is drawn in. False when absent.
+   *
+   * @remarks
+   *   A shell is the height of its window, so a device shows one at the window's edges, whatever
+   *   frame the scene meets its card with, because room round it would push it past the window's
+   *   foot. Everything else is drawn in the device the way it meets its card.
+   */
+  viewport?: boolean;
 }
 
 /**

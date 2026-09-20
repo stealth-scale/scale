@@ -3,9 +3,10 @@
  * sits in.
  */
 
-import { type ReactElement } from "react";
+import { createElement, Fragment, type ReactElement } from "react";
 
 import { Caption } from "#caption.tsx";
+import { useFramed } from "#framed/context.ts";
 import { type Display, useDisplay } from "#sample/display.ts";
 import { Body, Head, Root, type RootProps } from "#sample/parts.ts";
 
@@ -46,6 +47,8 @@ export interface SampleProps extends Display, Omit<RootProps, "place" | "span" |
  *   Each axis is written onto the root only where it has a value. A prop written as undefined is a
  *   selection to the compiler's runtime, which would take the axis away from the sample rather
  *   than leave the recipe's own default in place.
+ *   In a framed document the sample draws what it holds and nothing round it, because the frame
+ *   is the window and a caption or a box would be something the window does not show.
  * @param props - The words that name the sample, its axes, and what to draw in it.
  * @returns The caption and the drawing, in a box.
  */
@@ -59,6 +62,11 @@ export function Sample({
   ...rest
 }: SampleProps): ReactElement {
   const shown: Display = useDisplay({ place, variant });
+  const framed = useFramed() !== undefined;
+
+  // A fragment built by hand, because what is drawn is the specimen's own and a sample in a frame
+  // adds no element round it.
+  if (framed) return createElement(Fragment, null, children);
 
   return (
     <Root

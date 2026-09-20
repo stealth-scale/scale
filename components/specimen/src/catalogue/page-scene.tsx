@@ -1,20 +1,19 @@
 /**
- * Draws one scene as a section of the page: its title, its opening, the component on a stage of
- * its own, and its source folded under the stage.
+ * Draws one scene as a section of the page: its title, its opening, the component on a card of
+ * its own, and its source folded under the card.
  */
 
-import { type ReactElement, useRef } from "react";
+import { type ReactElement } from "react";
 
 import { Section } from "@stealthscale/component-screen";
 import { Card } from "@stealthscale/component-surfaces";
-import { useNarrow, useViewport } from "@stealthscale/provider-viewport";
 
 import { marked } from "#catalogue/marked.tsx";
 import { Source } from "#catalogue/page-source.tsx";
+import { Staged } from "#catalogue/page-staged.tsx";
 import { useWording } from "#catalogue/wording.ts";
+import { type SceneAddress, SceneProvider } from "#device/scene.ts";
 import { type Frame, type Scene } from "#page.ts";
-import { Stage } from "#stage/stage.ts";
-import { stageWidthOf, widthsOf } from "#stage/width.ts";
 
 /**
  * Lists the look the card is drawn in for each frame a scene can take.
@@ -35,6 +34,11 @@ const SURFACE: Readonly<Record<Frame, "elevated" | "plain">> = {
  */
 export interface SceneSectionProps {
   /**
+   * The path the application serves the framed page at, or nothing where it serves none.
+   */
+  readonly framed?: string | undefined;
+
+  /**
    * The anchor the section is reached by, which the page's contents point at.
    */
   readonly id: string;
@@ -43,6 +47,16 @@ export interface SceneSectionProps {
    * The namespace the scene's words are keys in, or empty for the catalogue's own.
    */
   readonly namespace: string;
+
+  /**
+   * The identifier of the page the scene is on.
+   */
+  readonly page: string;
+
+  /**
+   * The position of the scene on the page.
+   */
+  readonly position: number;
 
   /**
    * The scene.
@@ -68,45 +82,42 @@ export interface SceneSectionProps {
  *   An inset scene is drawn in the card's content, which leaves the card's own room round it. A
  *   bled or bared scene is drawn in the card's media, which takes that room back through the
  *   property the card states its inset in, so a component that is already a panel reaches the
- *   card's edges. The two are written out rather than chosen into one element, because the
- *   compiler reads the parts a page draws out of its source.
- *   The scene is drawn on a stage, which is held to the width the viewport states where one is
- *   stated, so a reader who picked a phone's width sees the scene fold as a phone folds it while
- *   the card, the page and the chrome around them keep their own. A scene that bleeds keeps its
- *   bleed only while the stage fills the card: held to a width the card is wider than, it is
- *   drawn in the card's content instead, because a stage bled to one edge and short of the other
- *   read as a panel cut off. The card is measured for that, the way every screen component
- *   measures itself, and until it has a box the stage is taken to fit inside it.
+ *   card's edges.
+ *   The scene's address is put in scope, so the staging can show the scene in a device when a
+ *   reader picks one, at the address a frame loads it at.
  */
-export function SceneSection({ id, namespace, scene, source }: SceneSectionProps): ReactElement {
+export function SceneSection({
+  framed,
+  id,
+  namespace,
+  page,
+  position,
+  scene,
+  source,
+}: SceneSectionProps): ReactElement {
   const word = useWording(namespace);
-  const { sizes, width } = useViewport();
-  const card = useRef<HTMLDivElement>(null);
   const frame = scene.frame ?? "inset";
-  const held = stageWidthOf(width, sizes);
-  const pixels = widthsOf(sizes).find((size) => size.name === held)?.min ?? 0;
-  const overflowing = useNarrow(card, pixels, "base");
-  const bleeds = frame !== "inset" && (held === undefined || overflowing);
-  const stage = (
-    <Stage {...(held === undefined ? {} : { width: held })}>
-      <scene.draw />
-    </Stage>
-  );
+  const title = word(scene.title);
+  const address: SceneAddress = { page, path: framed, scene: position, title };
 
   return (
-    <Section.Root id={id}>
-      <Section.Header>
-        <Section.Title>{word(scene.title)}</Section.Title>
-        {scene.about === undefined ? null : (
-          <Section.Description>{marked(word(scene.about))}</Section.Description>
-        )}
-      </Section.Header>
-      <Section.Body>
-        <Card.Root as="div" ref={card} variant={SURFACE[frame]}>
-          {bleeds ? <Card.Media>{stage}</Card.Media> : <Card.Content>{stage}</Card.Content>}
-          {source === undefined ? null : <Source code={source} title={word(scene.title)} />}
-        </Card.Root>
-      </Section.Body>
-    </Section.Root>
+    <SceneProvider value={address}>
+      <Section.Root id={id}>
+        <Section.Header>
+          <Section.Title>{title}</Section.Title>
+          {scene.about === undefined ? null : (
+            <Section.Description>{marked(word(scene.about))}</Section.Description>
+          )}
+        </Section.Header>
+        <Section.Body>
+          <Card.Root as="div" variant={SURFACE[frame]}>
+            <Staged frame={frame}>
+              <scene.draw />
+            </Staged>
+            {source === undefined ? null : <Source code={source} title={title} />}
+          </Card.Root>
+        </Section.Body>
+      </Section.Root>
+    </SceneProvider>
   );
 }

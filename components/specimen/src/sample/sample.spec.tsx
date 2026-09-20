@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { accessibilityViolations } from "@stealthscale/testing-react";
 import { slotClasses, slotElement, slotVariantClass } from "@stealthscale/testing-theme";
 
+import { FramedProvider } from "#framed/context.ts";
 import { DisplayProvider } from "#sample/display.ts";
 import { Sample } from "#sample/sample.tsx";
 
@@ -90,5 +91,18 @@ describe("Sample", () => {
     await expect(
       accessibilityViolations(Sample, { props: { children: "Publish", knob: "size", of: "sm" } }),
     ).resolves.toStrictEqual([]);
+  });
+
+  it("draws what it holds and nothing round it in a framed document", () => {
+    const { container } = render(
+      <FramedProvider value={{}}>
+        <Sample knob="size" of="sm">
+          Publish
+        </Sample>
+      </FramedProvider>,
+    );
+
+    expect(container.textContent).toBe("Publish");
+    expect(container.querySelector("[data-recipe]")).toBeNull();
   });
 });

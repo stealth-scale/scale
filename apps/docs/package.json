@@ -49,6 +49,7 @@
     "@stealthscale/theme-neon": "workspace:^",
     "@stealthscale/theme-pine": "workspace:^",
     "@stealthscale/theme-regatta": "workspace:^",
+    "lucide-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"
   },

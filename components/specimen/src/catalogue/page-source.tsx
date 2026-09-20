@@ -1,5 +1,5 @@
 /**
- * Draws a scene's source at the foot of its stage: a control at the right end of the card's footer
+ * Draws a scene's source at the foot of its card: a control at the right end of the card's footer
  * that shows and hides the source under it.
  */
 

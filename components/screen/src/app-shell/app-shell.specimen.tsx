@@ -5,7 +5,8 @@
  *   Every axis is read off the recipe, so a value added to the theme reaches the page without
  *   this file changing. Every shell holds the same parts: a header with the navigation's trigger,
  *   a navbar holding a sidebar, the page, an aside, and a footer. A shell is the height of the
- *   window, so each cell is a screen and the cells run down the page. The words are keys under
+ *   window, so each cell is a screen and the cells run down the page, and every scene says it
+ *   fills the window, so a device shows a shell at the window's edges. The words are keys under
  *   `app-shell` in the catalogue's namespace, kept beside this file in
  *   `locales/en/specimen/app-shell.json`.
  */
@@ -121,6 +122,7 @@ export const looks: Scene = {
   about: "app-shell.looks.about",
   draw: Looks,
   title: "app-shell.looks.title",
+  viewport: true,
 };
 
 /**
@@ -130,6 +132,7 @@ export const scroll: Scene = {
   about: "app-shell.scroll.about",
   draw: Scroll,
   title: "app-shell.scroll.title",
+  viewport: true,
 };
 
 /**
@@ -139,6 +142,7 @@ export const divided: Scene = {
   about: "app-shell.divided.about",
   draw: Divided,
   title: "app-shell.divided.title",
+  viewport: true,
 };
 
 export default specimen({

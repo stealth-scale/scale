@@ -47,6 +47,11 @@ export interface BodyProps {
   readonly fragments: Fragments | undefined;
 
   /**
+   * The path the application serves the framed page at, or nothing where it serves none.
+   */
+  readonly framed?: string | undefined;
+
+  /**
    * The scenes, in the order they are on the page.
    */
   readonly scenes: readonly Listed[];
@@ -69,15 +74,18 @@ function sourceOf(fragments: Fragments | undefined, scene: Scene): null | string
 /**
  * Draws the import line and the scenes inside the screen package's page body.
  */
-export function Body({ entry, fragments, scenes }: BodyProps): ReactElement {
+export function Body({ entry, fragments, framed, scenes }: BodyProps): ReactElement {
   return (
     <Page.Body>
       <Import names={fragments?.imported ?? []} package={entry.package} />
-      {scenes.map(({ id, scene }) => (
+      {scenes.map(({ id, scene }, position) => (
         <SceneSection
+          framed={framed}
           id={id}
           key={id}
           namespace={entry.namespace}
+          page={entry.id}
+          position={position}
           scene={scene}
           source={sourceOf(fragments, scene)}
         />

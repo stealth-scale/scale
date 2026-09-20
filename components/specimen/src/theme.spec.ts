@@ -12,4 +12,8 @@ describe("theme", () => {
   it("names the package that publishes it", () => {
     expect(preset.name).toBe("@stealthscale/specimen");
   });
+
+  it("makes the root of a framed document see-through", () => {
+    expect(preset.globalCss).toStrictEqual({ "html[data-framed]": { background: "transparent" } });
+  });
 });

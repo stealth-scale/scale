@@ -123,4 +123,17 @@ describe("declarations", () => {
       "page",
     );
   });
+
+  it("declares the framed page beside the rest where the catalogue is placed with one", () => {
+    const framed = { id: "docs.framed", path: "framed" };
+    const declared = declarations(LISTED, { ...PLACED, framed });
+
+    expect(declared.at(-1)).toMatchObject(framed);
+    expect(declared.at(-1)).not.toHaveProperty("parent");
+    expect(declared.at(-1)).not.toHaveProperty("layout");
+  });
+
+  it("declares no framed page where the catalogue is placed without one", () => {
+    expect(declarations(LISTED, PLACED).map((one) => one.id)).not.toContain("docs.framed");
+  });
 });

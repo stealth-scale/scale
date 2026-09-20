@@ -1,9 +1,11 @@
 import { render } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { accessibilityViolations } from "@stealthscale/testing-react";
 import { slotClasses, slotVariantClass } from "@stealthscale/testing-theme";
 
+import { FramedProvider } from "#framed/context.ts";
+import { REPORTED } from "#framed/report.ts";
 import { Matrix } from "#matrix/matrix.tsx";
 
 const SIZES = ["sm", "md", "lg"] as const;
@@ -148,5 +150,56 @@ describe("Matrix", () => {
         props: { children: (size: string) => <span>{size}</span>, of: SIZES },
       }),
     ).resolves.toStrictEqual([]);
+  });
+
+  it("draws the one cell a framed document was asked for and nothing round it", () => {
+    const { container } = render(
+      <FramedProvider value={{ across: 2, value: 1 }}>
+        <Matrix across={{ knob: "size", of: SIZES }} knob="variant" of={LOOKS}>
+          {(look, size) => (
+            <button type="button">
+              {look} {size}
+            </button>
+          )}
+        </Matrix>
+      </FramedProvider>,
+    );
+
+    expect(container.textContent).toBe("ghost lg");
+    expect(container.querySelector("[data-recipe]")).toBeNull();
+  });
+
+  it("tells the page holding a framed document which cells it offers", () => {
+    const posted = vi.fn();
+    const parent = new Proxy(window, {
+      get: (target, key): unknown => (key === "postMessage" ? posted : Reflect.get(target, key)),
+    });
+    const held = vi.spyOn(window, "parent", "get").mockReturnValue(parent);
+
+    render(
+      <FramedProvider value={{}}>
+        <Matrix across={{ knob: "size", of: SIZES }} of={LOOKS}>
+          {(look, size) => (
+            <button type="button">
+              {look} {size}
+            </button>
+          )}
+        </Matrix>
+      </FramedProvider>,
+    );
+
+    expect(posted).toHaveBeenCalledWith(
+      {
+        address: window.location.hash,
+        choices: [
+          { knob: undefined, names: ["solid", "ghost"], part: "value" },
+          { knob: "size", names: ["sm", "md", "lg"], part: "across" },
+        ],
+        type: REPORTED,
+      },
+      window.location.origin,
+    );
+
+    held.mockRestore();
   });
 });

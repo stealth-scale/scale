@@ -32,9 +32,15 @@ export const INDEX = indexId(CATALOGUE);
 export const MOUNTED = "components";
 
 /**
+ * The path a device loads one sample at: a page with no frame round it, at the root.
+ */
+export const FRAMED = "framed";
+
+/**
  * Every route compiled into the catalogue, which the tree is built from and the rail lists.
  */
 export const COMPILED: readonly RouteDeclaration[] = declarations(pages, {
+  framed: { id: "docs.framed", path: FRAMED },
   id: CATALOGUE,
   layout: [FRAME],
   path: MOUNTED,

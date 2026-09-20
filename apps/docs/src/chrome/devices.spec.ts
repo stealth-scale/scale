@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { deviceOf, PATHS } from "#chrome/devices.ts";
+import { deviceOf } from "#chrome/devices.ts";
 
 describe("deviceOf", () => {
   it("says the window is a monitor", () => {
@@ -15,11 +15,5 @@ describe("deviceOf", () => {
       "monitor",
       "monitor",
     ]);
-  });
-});
-
-describe("PATHS", () => {
-  it("draws a mark for every device", () => {
-    expect(Object.keys(PATHS).toSorted()).toStrictEqual(["laptop", "monitor", "phone", "tablet"]);
   });
 });

@@ -1,6 +1,6 @@
 import { type ReactElement } from "react";
 
-import { render } from "@testing-library/react";
+import { act, render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { drawn } from "@stealthscale/testing-react";
@@ -8,6 +8,7 @@ import { slotElement } from "@stealthscale/testing-theme";
 
 import { Page } from "#catalogue/page.tsx";
 import { type Indexed } from "#catalogue/types.ts";
+import { UPDATED } from "#catalogue/updated.ts";
 
 function entry(module: unknown, about = "", namespace = ""): Indexed {
   return {
@@ -162,6 +163,33 @@ describe("Page", () => {
     unmount();
 
     await expect(broken.load()).rejects.toThrow("gone");
+  });
+
+  it("redraws the page with the module a hot update replaced its own with", async () => {
+    const { container, queryAllByText } = await drawn(<Page entry={entry(page([]))} />);
+    const added = { ...SIZES, title: "Added" };
+
+    expect(queryAllByText("Added")).toHaveLength(0);
+
+    act(() => {
+      window.dispatchEvent(
+        new CustomEvent(UPDATED, { detail: { id: "data/badge", module: page([added]) } }),
+      );
+    });
+
+    expect(queryAllByText("Added")).not.toHaveLength(0);
+
+    act(() => {
+      window.dispatchEvent(
+        new CustomEvent(UPDATED, {
+          detail: { fragments: { fragments: {}, imported: ["Chip"] }, id: "data/badge" },
+        }),
+      );
+    });
+
+    expect(slotElement(container, "code-block", "code").textContent).toBe(
+      'import { Chip } from "@stealthscale/component-data";',
+    );
   });
 
   it("opens with the import line once the fragments have loaded", async () => {
