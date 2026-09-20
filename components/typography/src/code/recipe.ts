@@ -12,7 +12,7 @@
 import {
   defineRecipe,
   dense,
-  lookVariants,
+  flatVariants,
   statusEmitted,
   statusVariants,
 } from "@stealthscale/theme/authoring";
@@ -40,6 +40,6 @@ export const recipe = defineRecipe({
       sm: { paddingInline: dense("{spacing.inset.xs}"), textStyle: "code.sm" },
     },
     status: statusVariants(),
-    variant: lookVariants(["solid", "subtle", "surface", "outline", "plain"]),
+    variant: flatVariants(["solid", "subtle", "surface", "outline", "plain"]),
   },
 });

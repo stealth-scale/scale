@@ -55,7 +55,7 @@ export const recipe = defineSlotRecipe({
   },
   jsx: [/^Alert(\.\w+)?$/u],
   slots: ["root", "indicator", "content", "title", "description", "aside"],
-  staticCss: [statusEmitted()],
+  staticCss: [statusEmitted(), { status: ["neutral"] }],
   variants: {
     /**
      * Whether the title and the description stack or run together on one line.

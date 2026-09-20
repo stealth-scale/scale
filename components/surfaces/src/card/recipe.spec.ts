@@ -93,10 +93,19 @@ describe("recipe", () => {
     expect(recipe.base?.["aside"]).toMatchObject({ gridColumn: "3" });
   });
 
-  it("draws the focus ring from inside an interactive card", () => {
+  it("draws the ring when the link in the title takes focus", () => {
     expect(recipe.variants?.["interactive"]?.["true"]?.["root"]).toMatchObject({
-      _focusWithin: { focusVisibleRing: "outside" },
+      "&:has(.card__title a:focus-visible)": {
+        outlineColor: "var(--focus-ring-color)",
+        outlineOffset: "ring",
+        outlineStyle: "var(--focus-ring-style, solid)",
+        outlineWidth: "ring",
+      },
     });
+  });
+
+  it("leaves a supplementary control to ring itself", () => {
+    expect(recipe.variants?.["interactive"]?.["true"]?.["root"]).not.toHaveProperty("_focusWithin");
   });
 
   it("stretches the title's link over the whole interactive card", () => {

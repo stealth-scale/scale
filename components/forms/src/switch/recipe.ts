@@ -33,6 +33,12 @@ import {
 
 /**
  * The property the track states the distance the thumb crosses in, which the thumb reads.
+ *
+ * @remarks
+ *   The distance is positive and the thumb crosses it the way the page runs. `translate` is a
+ *   physical property with no logical form, so the direction is reversed where the page runs
+ *   right to left: a checked thumb travelling the same way there left the track's far edge by
+ *   nine pixels.
  */
 const TRAVEL = "--switch-travel";
 
@@ -59,7 +65,12 @@ export const recipe = defineSlotRecipe({
       userSelect: "none",
     },
     thumb: {
-      _checked: { translate: `var(${TRAVEL})` },
+      _checked: { _rtl: { translate: `calc(var(${TRAVEL}) * -1)` }, translate: `var(${TRAVEL})` },
+      _highContrast: {
+        borderColor: "ButtonText",
+        borderStyle: "solid",
+        borderWidth: "control",
+      },
       _motionReduce: { transitionDuration: "0s" },
       aspectRatio: "square",
       background: "bg.panel",
@@ -67,7 +78,7 @@ export const recipe = defineSlotRecipe({
       borderRadius: "inherit",
       boxShadow: "sm",
       transitionDuration: "press",
-      transitionProperty: "common",
+      transitionProperty: "translate, background, box-shadow",
       transitionTimingFunction: "press",
     },
   },

@@ -147,9 +147,17 @@ describe("recipe", () => {
     });
   });
 
-  it("writes no fill for a solid button that is on", () => {
-    expect(recipe.compoundVariants).toHaveLength(3);
+  it("marks a solid button that is on with a line inside its own edge", () => {
+    expect(recipe.compoundVariants).toHaveLength(4);
     expect(recipe.base?.["_pressed"]).toBeUndefined();
+    expect(recipe.compoundVariants?.at(-1)).toStrictEqual({
+      className: "button--on-marked",
+      css: {
+        _currentPage: { boxShadow: "inset", fontWeight: "semibold" },
+        _pressed: { boxShadow: "inset", fontWeight: "semibold" },
+      },
+      variant: ["solid"],
+    });
   });
 
   it("tracks every tag whose name ends in Button", () => {

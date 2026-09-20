@@ -29,9 +29,17 @@ export const recipe = defineSlotRecipe({
   base: {
     control: {
       ...divider("horizontal"),
+      "--focus-ring-color": `var(--focus-ring-color-prop, var(--global-color-focus-ring, #005FCC))`,
+      "&:has(:focus-visible)": {
+        outlineColor: "var(--focus-ring-color)",
+        outlineOffset: "0",
+        outlineStyle: "var(--focus-ring-style, solid)",
+        outlineWidth: "ring",
+      },
       alignItems: "center",
       display: "flex",
       flexShrink: "0",
+      focusRingColor: "colorPalette.focusRing",
     },
     empty: { color: "fg.muted", textAlign: "center" },
     indicator: { alignItems: "center", color: "fg.muted", display: "inline-flex", flexShrink: "0" },

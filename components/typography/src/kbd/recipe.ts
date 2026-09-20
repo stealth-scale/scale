@@ -13,7 +13,7 @@
 import {
   defineRecipe,
   dense,
-  lookVariants,
+  flatVariants,
   statusEmitted,
   statusVariants,
 } from "@stealthscale/theme/authoring";
@@ -57,7 +57,7 @@ export const recipe = defineRecipe({
     },
     status: statusVariants(),
     variant: {
-      ...lookVariants(["outline", "subtle", "plain"]),
+      ...flatVariants(["outline", "subtle", "plain"]),
       raised: {
         background: "colorPalette.subtle",
         borderBlockEndWidth: "indicator",

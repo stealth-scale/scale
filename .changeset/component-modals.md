@@ -32,3 +32,8 @@ component-modals: show every component
 
 - One specimen per component, each scene drawing every value of every axis the recipe offers, with
   the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.
+
+component-modals: mark the command palette's focused input
+
+- The control band draws a ring when the input inside it takes focus. The input's own outline is
+  removed and nothing replaced it, so an inline palette showed no focused surface.

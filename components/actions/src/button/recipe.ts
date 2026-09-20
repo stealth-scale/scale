@@ -49,6 +49,23 @@ function on(background: "colorPalette.muted" | "colorPalette.subtle"): SystemSty
 }
 
 /**
+ * Writes the mark a button keeps while it is on, for a look already drawn on a fill at rest.
+ *
+ * @remarks
+ *   A solid or a fill look has nowhere left to go in background: the pressed fill would be the
+ *   hover fill, which a pointer takes away again. The mark is a line drawn inside the button's own
+ *   edge in the color its label is written in, so it survives a hover, a focus ring outside the
+ *   button, and a forced-color mode that replaces every fill. `:active` stays the momentary press
+ *   and this is the state that lasts.
+ */
+function marked(): SystemStyleObject {
+  return {
+    _currentPage: { boxShadow: "inset", fontWeight: "semibold" },
+    _pressed: { boxShadow: "inset", fontWeight: "semibold" },
+  };
+}
+
+/**
  * Draws a button on the primary palette in the solid look and the middle size until a caller says
  * otherwise, set inline so it sits in a line of controls, with a ripple under every press.
  */
@@ -86,6 +103,11 @@ export const recipe = defineRecipe({
       css: on("colorPalette.muted"),
       name: "on-deeper",
       variant: ["subtle", "surface"],
+    },
+    {
+      css: marked(),
+      name: "on-marked",
+      variant: ["solid"],
     },
   ],
   defaultVariants: { size: "md", variant: "solid" },

@@ -3,15 +3,19 @@
  *
  * @remarks
  *   Nine parts. The root is the panel, the media bleeds to its edges, and the header lays an
- *   indicator, a title, a description and an aside out on one grid. The content is the band
- *   between the header and the footer, and the footer holds whatever a reader acts on.
- *   The root states its own inset as a property, which the media reads back as a negative margin
- *   and the divided bands read as the room between a rule and the words. Both would otherwise be
- *   a length per step, which is a compound for every pair of the size axis and the axis beside it.
- *   The header is a grid rather than a row of stacks, so an indicator spans both lines of the
- *   title block and an aside sits against the end of the header whatever the block holds. A stack
- *   inside a row would need a wrapper the anatomy does not name.
- *   An interactive card draws its focus ring from `_focusWithin`, because the thing a keyboard
+ *   indicator, a title, a description and an aside out on one grid. The content is the band between
+ *   the header and the footer, and the footer holds whatever a reader acts on. The root states its
+ *   own inset as a property, which the media reads back as a negative margin and the divided bands
+ *   read as the room between a rule and the words. Both would otherwise be a length per step, which
+ *   is a compound for every pair of the size axis and the axis beside it. The header is a grid
+ *   rather than a row of stacks, so an indicator spans both lines of the title block and an aside
+ *   sits against the end of the header whatever the block holds. A stack inside a row would need a
+ *   wrapper the anatomy does not name. An interactive card draws its ring when the link in its
+ *   title takes focus, selecting that link from the root. The compiler's focus utility nested under
+ *   a descendant condition asks the card itself to be focus-visible, which a div never is, so the
+ *   card drew no ring at all. Selecting the title's link rather than any focus inside keeps a
+ *   supplementary control's own ring its own: a button in the footer rings itself and leaves the
+ *   card alone. The card once drew its focus ring from `_focusWithin`, because the thing a keyboard
  *   reaches is the link inside the card and not the card. A press handler on the root would leave
  *   the card reachable by pointer alone.
  */
@@ -130,9 +134,16 @@ export const recipe = defineSlotRecipe({
     interactive: {
       true: {
         root: {
-          _focusWithin: { focusRingColor: "colorPalette.focusRing", focusVisibleRing: "outside" },
           _hover: { borderColor: "border.emphasized" },
+          "--focus-ring-color": `var(--focus-ring-color-prop, var(--global-color-focus-ring, #005FCC))`,
+          "&:has(.card__title a:focus-visible)": {
+            outlineColor: "var(--focus-ring-color)",
+            outlineOffset: "ring",
+            outlineStyle: "var(--focus-ring-style, solid)",
+            outlineWidth: "ring",
+          },
           cursor: "button",
+          focusRingColor: "colorPalette.focusRing",
           transitionDuration: "press",
           transitionProperty: "common",
           transitionTimingFunction: "press",
