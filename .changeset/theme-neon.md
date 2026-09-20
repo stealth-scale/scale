@@ -12,7 +12,7 @@ theme-neon: add the theme
   ratios the gate measures. The specification runs every check with nothing skipped.
 - All four statuses are stated rather than left to their canonical colors: a rose error, an acid
   green success, an amber warning and an electric cyan for information. A theme this loud reads a
-  canonical status as a color from another product. Each sits inside the thirty degrees of its
+  canonical status as a color from another product. Each stays within the thirty degrees of its
   canonical hue that the gate holds a status to.
 - Neon draws loud on every axis it states. The surfaces keep half the grape's chroma, so the panels
   and the wells step in a quieter violet and the fills and the solids carry the color. The shadows
