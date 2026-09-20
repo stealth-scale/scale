@@ -54,7 +54,7 @@ export const SHARED_HELP = [
   "  -w, --width <px>      the viewport's width, 1920 by default; commas for several",
   "      --height <px>     the viewport's height, 1400 by default",
   "      --scale <factor>  the device scale factor, 1.25 by default",
-  "      --open <css>      press the first element the selector finds before reading anything",
+  "      --open <css>      press the first element each selector finds, semicolons between them",
   "      --press <keys>    type these keys after --open, such as ArrowDown or ArrowDown*12",
   "      --reduced-motion  read the page as someone who asked for less motion",
   "      --forced-colors   read the page in a forced colours mode",

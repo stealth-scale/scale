@@ -72,7 +72,10 @@ export interface Target {
   readonly mode?: (typeof MODES)[number] | undefined;
 
   /**
-   * A control to press before anything is read, so a panel it opens is open.
+   * A control to press before anything is read, so a panel it opens is open. Semicolons separate
+   * several, pressed in the order they are written, because a panel two presses deep needs the
+   * first press to draw the control the second names. A comma cannot separate them: a comma is
+   * already how one selector names a list of elements.
    */
   readonly open?: string | undefined;
 
@@ -242,8 +245,8 @@ export async function opened(browser: Browser, target: Target): Promise<Opened> 
     throw new Error(`no page at ${addressOf(target)}; the catalogue draws nothing there`);
   }
 
-  if (target.open !== undefined) {
-    await (await present(page, target.open)).first().click();
+  for (const selector of target.open === undefined ? [] : target.open.split(";")) {
+    await (await present(page, selector.trim())).first().click();
     await page.waitForTimeout(400);
   }
 

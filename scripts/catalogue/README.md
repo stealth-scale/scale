@@ -17,21 +17,21 @@ pnpm dom -p actions/button -s looks --tree --depth 4
 Both commands share the targeting. A theme, a colour mode, a width or a page can be named more than
 once with commas, and the command runs every combination.
 
-| Option             | What it does                                                             |
-| ------------------ | ------------------------------------------------------------------------ |
-| `-p, --page`       | The page under `/components`, such as `actions/button`                   |
-| `-s, --scene`      | A scene's title, part of it, or its number on the page                   |
-| `-t, --theme`      | A theme, written into the page's settings before it loads                |
-| `-m, --mode`       | `light` or `dark`, written the same way and set on the browser           |
-| `-w, --width`      | The viewport's width, 3072 by default                                    |
-| `--height`         | The viewport's height, 1400 by default                                   |
-| `--scale`          | The device scale factor, 1.25 by default                                 |
-| `--open`           | A selector to press before anything is read, so a panel it opens is open |
-| `--press`          | Keys to type after `--open`, commas between them and `*` to repeat one   |
-| `--reduced-motion` | Read the page as someone who asked for less motion                       |
-| `--forced-colors`  | Read the page in a forced colours mode                                   |
-| `-b, --browser`    | `chromium`, `firefox` or `webkit`, `firefox` by default                  |
-| `--port`           | The catalogue's port, 4100 by default                                    |
+| Option             | What it does                                                           |
+| ------------------ | ---------------------------------------------------------------------- |
+| `-p, --page`       | The page under `/components`, such as `actions/button`                 |
+| `-s, --scene`      | A scene's title, part of it, or its number on the page                 |
+| `-t, --theme`      | A theme, written into the page's settings before it loads              |
+| `-m, --mode`       | `light` or `dark`, written the same way and set on the browser         |
+| `-w, --width`      | The viewport's width, 3072 by default                                  |
+| `--height`         | The viewport's height, 1400 by default                                 |
+| `--scale`          | The device scale factor, 1.25 by default                               |
+| `--open`           | Selectors to press before anything is read, semicolons between them    |
+| `--press`          | Keys to type after `--open`, commas between them and `*` to repeat one |
+| `--reduced-motion` | Read the page as someone who asked for less motion                     |
+| `--forced-colors`  | Read the page in a forced colours mode                                 |
+| `-b, --browser`    | `chromium`, `firefox` or `webkit`, `firefox` by default                |
+| `--port`           | The catalogue's port, 4100 by default                                  |
 
 The defaults are the catalogue as it is read: a 4K screen at 125% scaling, in Firefox.
 
@@ -58,6 +58,13 @@ without a scene a selector reaches the whole document, which is how the chrome i
 pnpm shot -p actions/button -e "[data-recipe=button]" --state rest,hover,focus,active -b chromium
 pnpm shot -p disclosure/menu --open "[data-recipe=menu] button" -e "[role=menu]"
 pnpm shot -p layout/stack -s gaps -w 420,1024,3072
+```
+
+A semicolon between two selectors presses both, the first before the second is looked for. A control
+inside a panel is reached that way, and so is a band of a page that another tab draws.
+
+```bash
+pnpm shot -p disclosure/menu --open '[role=tab]:last-of-type; [data-scope=popover][data-part=trigger]'
 ```
 
 `--press` types once `--open` has pressed something. A component is then read part way through a
