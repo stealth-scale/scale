@@ -206,3 +206,23 @@ component-screen: lay a page's body beside its aside
   title reached from a table of contents is read rather than covered.
 - The aside keeps the same inset on the block axis as the body, so what it holds starts on the line
   the body's first section starts on.
+
+component-screen: centre a page's measure rather than its root
+
+- The alignment moves the room each band leaves before its content. The root runs edge to edge so a
+  band's surface is full bleed, and automatic margins on a full-width root moved nothing: a centred
+  page and a start-aligned one measured the same 1,846-pixel root with the content held at the start
+  of both.
+
+component-screen: inset a toolbar with an edge and show the switcher's words
+
+- A toolbar in the outline or the surface look is inset by its own gap, so a filled control stands
+  off the edge and a field at the end draws its border inside the row's rather than over it. The
+  plain row keeps its controls flush with what holds it. In the specimen the controls take the row's
+  size, where eight rows at the middle size differed by a few pixels of gap.
+- The switcher's mark centres whatever it holds in its square. The specimen draws the name and the
+  detail in `Switcher.Label`, and the README's example does too: both wrote them in
+  `Switcher.Content`, which is the menu's own panel, so the trigger held a hidden menu and showed
+  the mark alone. The indicator holds a pair of chevrons.
+- The sidebar's specimen gives every destination a mark and tells its lists when the column is
+  collapsed, so the rail is a rail of marks rather than a column of clipped words.

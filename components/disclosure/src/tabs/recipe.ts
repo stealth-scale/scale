@@ -8,7 +8,9 @@
  *   every part, and the compiler ships a condition that reads it, so the strip turns into a column
  *   and the indicator moves to its inline edge without a caller stating anything twice.
  *   The indicator is positioned from custom properties the machine measures, so the recipe states
- *   its thickness and its colour and never its place.
+ *   its thickness and its colour and never its place. Every tab is painted over the indicator,
+ *   because a filled indicator stands behind the whole tab in force and would otherwise cover its
+ *   words.
  */
 
 import {
@@ -40,7 +42,7 @@ const FILLED = { height: "var(--height)", width: "var(--width)" };
 export const recipe = defineSlotRecipe({
   base: {
     content: { _focusVisible: { focusVisibleRing: "outside" }, outline: "none" },
-    indicator: { borderRadius: "l1", zIndex: "1" },
+    indicator: { borderRadius: "l1", pointerEvents: "none", zIndex: "0" },
     list: {
       _horizontal: { flexDirection: "row" },
       _vertical: { flexDirection: "column" },
@@ -61,6 +63,7 @@ export const recipe = defineSlotRecipe({
       justifyContent: "center",
       position: "relative",
       whiteSpace: "nowrap",
+      zIndex: "1",
     },
   },
   className: "tabs",

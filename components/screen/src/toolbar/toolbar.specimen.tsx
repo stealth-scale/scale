@@ -12,21 +12,37 @@
 
 import { type ReactElement } from "react";
 
-import { Button } from "@stealthscale/component-actions";
+import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
 import { SearchInput } from "@stealthscale/component-forms";
 import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { type Scale } from "@stealthscale/theme/authoring";
 
 import * as Toolbar from "#toolbar/index.ts";
 import { recipe } from "#toolbar/recipe.ts";
 
 /**
- * Draws the controls every row holds.
+ * Describes what the controls of a row are told.
  */
-function Controls(): ReactElement {
+interface ControlsProps {
+  /**
+   * The step every control is drawn at, which is the row's own.
+   */
+  readonly size: Scale;
+}
+
+/**
+ * Draws the controls every row holds.
+ *
+ * @remarks
+ *   The controls take the row's size, because the row's own axis moves the gaps and the
+ *   separator alone. A row at every size around controls at the middle one drew eight rows that
+ *   differed by a few pixels of gap.
+ */
+function Controls({ size }: ControlsProps): ReactElement {
   const { t } = useWords("toolbar");
 
   return (
-    <>
+    <ButtonPropsProvider value={{ size }}>
       <Toolbar.Start>
         <Toolbar.Action as={Button} priority="primary" variant="subtle">
           {t("filter")}
@@ -45,9 +61,9 @@ function Controls(): ReactElement {
         </Toolbar.Folded>
       </Toolbar.End>
       <Toolbar.Search>
-        <SearchInput aria-label={t("search")} />
+        <SearchInput aria-label={t("search")} size={size} />
       </Toolbar.Search>
-    </>
+    </ButtonPropsProvider>
   );
 }
 
@@ -65,7 +81,7 @@ function Looks(): ReactElement {
     >
       {(variant, size) => (
         <Toolbar.Root aria-label={t("invoices")} size={size} variant={variant}>
-          <Controls />
+          <Controls size={size} />
         </Toolbar.Root>
       )}
     </Matrix>
@@ -82,7 +98,7 @@ function Corners(): ReactElement {
     <Matrix direction="column" knob="radius" of={valuesOf(recipe, "radius")}>
       {(radius) => (
         <Toolbar.Root aria-label={t("invoices")} radius={radius} variant="outline">
-          <Controls />
+          <Controls size="md" />
         </Toolbar.Root>
       )}
     </Matrix>

@@ -58,3 +58,15 @@ component-typography: show every component
 
 - One specimen per component, each scene drawing every value of every axis the recipe offers, with
   the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.
+
+component-typography: hold passive typography still under a pointer
+
+- Code and the unraised keycaps read the flat looks. They read the interactive looks, so a subtle
+  code chip repainted from the subtle fill to the muted one under a pointer without being anything
+  to press.
+
+component-typography: give a scene that reads once the width runs out a room
+
+- The heading's and the span's truncate scenes and the list's alignment scene stand in a room at a
+  measure their words pass, so the cut line, the wrapped line and the three places of a mark differ.
+  Each read the same in every value before.

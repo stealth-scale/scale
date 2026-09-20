@@ -27,18 +27,27 @@ describe("depth", () => {
   });
 
   it("casts a black shadow three times as dark on a dark page", () => {
-    expect(tokenAt(shadows(262), "md")).toBe(
-      "0 4px 8px light-dark(oklch(20% 0.02 262 / 0.080), oklch(0% 0.02 262 / 0.240))",
+    expect(tokenAt(shadows(262), "md")).toMatch(
+      /^0 4px 8px light-dark\(oklch\(20% 0\.02 262 \/ 0\.080\), oklch\(0% 0\.02 262 \/ 0\.240\)\)/u,
     );
+  });
+
+  it("lights the rim of every height after dark and not by day", () => {
+    for (const height of ["xs", "sm", "md", "lg", "xl", "2xl"]) {
+      expect(tokenAt(shadows(262), height)).toMatch(
+        /, inset 0 0 0 1px light-dark\(transparent, oklch\(100% 0 0 \/ 0\.12\)\)$/u,
+      );
+    }
   });
 
   it("scales every alpha by the depth a theme asked for", () => {
     expect(tokenAt(shadows(262, 2), "md")).toContain("0.160");
   });
 
-  it("draws the inner shadows inset", () => {
+  it("draws the inner shadows inset and without a rim", () => {
     expect(tokenAt(shadows(262), "inner")).toMatch(/^inset 0 2px 4px 0 /u);
     expect(tokenAt(shadows(262), "inset")).toMatch(/^inset 0 0 0 1px /u);
+    expect(tokenAt(shadows(262), "inset")).not.toContain("transparent");
   });
 
   it("draws the shadows at the foundation's hue and depth when nothing is stated", () => {

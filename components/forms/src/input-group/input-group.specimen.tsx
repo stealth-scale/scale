@@ -37,6 +37,11 @@ function Marks(): ReactElement {
 
 /**
  * Draws the field with both marks at every size.
+ *
+ * @remarks
+ *   The size is stated on the field as well as on the group. The group's size is the room a mark
+ *   takes, and the field's is its own height, so a group at one size around a field at another
+ *   drew the marks stepping while the box stayed put.
  */
 function Sizes(): ReactElement {
   const { t } = useWords("input-group");
@@ -46,7 +51,7 @@ function Sizes(): ReactElement {
       {(size) => (
         <InputGroup.Root size={size}>
           <InputGroup.Start aria-hidden>€</InputGroup.Start>
-          <InputGroup.Field aria-label={t("amount")} inputMode="decimal" />
+          <InputGroup.Field aria-label={t("amount")} inputMode="decimal" size={size} />
           <InputGroup.End aria-hidden>EUR</InputGroup.End>
         </InputGroup.Root>
       )}

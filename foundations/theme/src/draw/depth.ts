@@ -60,6 +60,17 @@ const DARK_WEIGHT = 3;
 const LIGHT_INK = 20;
 
 /**
+ * Fixes the rim a height casts after dark: a one-pixel line of white inside its edge.
+ *
+ * @remarks
+ *   A shadow is darker than the page it falls on, and a dark page leaves it nowhere to fall, so
+ *   a raised panel after dark reads as flat and its edge is lost against a page a few points
+ *   darker. The rim lights the edge from inside instead, at an alpha that reads as an edge and
+ *   not as a border. By day it is transparent, so a height casts a shadow alone.
+ */
+const RIM = "inset 0 0 0 1px light-dark(transparent, oklch(100% 0 0 / 0.12))";
+
+/**
  * Fixes the hue and the depth the foundation casts at.
  */
 const DEFAULTS = { depth: 1, hue: 262 };
@@ -83,7 +94,9 @@ function ink(hue: number, lightness: number, alpha: number): string {
  *   A shadow on a dark page has to be darker than the page to be seen at all, which is why the
  *   weight differs by mode and not the alpha alone. The mode is stated in the ink alone, as
  *   `light-dark()`, so a shadow is declared once and cast in the mode of the element it falls
- *   under, the same way every color is.
+ *   under, the same way every color is. Each height carries the rim after dark, so a raised panel
+ *   keeps an edge on a page its shadow cannot fall on. The inner shadow and the inset line are
+ *   not heights and carry none.
  * @param hue - The hue the shadow is tinted with.
  * @param weight - A multiplier on every alpha, for a theme that casts harder or softer.
  */
@@ -91,19 +104,18 @@ export function shadows(hue = DEFAULTS.hue, weight = DEFAULTS.depth): Shadows {
   /**
    * Writes one shadow from its geometry and its alpha, the ink of each mode inside it.
    */
-  const cast = (geometry: string, alpha: number): Shadows[string] => ({
-    value: `${geometry} light-dark(${ink(hue, LIGHT_INK, alpha * weight)}, ${ink(hue, 0, alpha * DARK_WEIGHT * weight)})`,
-  });
+  const cast = (geometry: string, alpha: number): string =>
+    `${geometry} light-dark(${ink(hue, LIGHT_INK, alpha * weight)}, ${ink(hue, 0, alpha * DARK_WEIGHT * weight)})`;
 
   return {
     ...Object.fromEntries(
       HEIGHTS.map(([name, offset, blur, alpha]) => [
         name,
-        cast(`0 ${String(offset)}px ${String(blur)}px`, alpha),
+        { value: `${cast(`0 ${String(offset)}px ${String(blur)}px`, alpha)}, ${RIM}` },
       ]),
     ),
-    inner: cast("inset 0 2px 4px 0", 0.05),
-    inset: cast("inset 0 0 0 1px", 0.1),
+    inner: { value: cast("inset 0 2px 4px 0", 0.05) },
+    inset: { value: cast("inset 0 0 0 1px", 0.1) },
   };
 }
 

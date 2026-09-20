@@ -39,7 +39,8 @@ describe("folio", () => {
 
   it("casts every shadow with half again the default ink", () => {
     expect(folio.variant.semanticTokens?.shadows?.["md"]).toStrictEqual({
-      value: "0 4px 8px light-dark(oklch(20% 0.02 295 / 0.120), oklch(0% 0.02 295 / 0.360))",
+      value:
+        "0 4px 8px light-dark(oklch(20% 0.02 295 / 0.120), oklch(0% 0.02 295 / 0.360)), inset 0 0 0 1px light-dark(transparent, oklch(100% 0 0 / 0.12))",
     });
   });
 

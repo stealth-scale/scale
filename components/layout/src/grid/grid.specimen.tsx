@@ -122,7 +122,7 @@ function Gaps(): ReactElement {
  *
  * @remarks
  *   The header spans two columns and the main region spans two, so a flow along the rows leaves
- *   a hole beside the header that the dense flow pulls the footer back into.
+ *   a hole beside the header that the dense flow pulls the aside back into.
  */
 function Flow(): ReactElement {
   const { t } = useWords("grid");
@@ -151,6 +151,12 @@ function Flow(): ReactElement {
 
 /**
  * Draws a short entry beside a long one at every place in the row.
+ *
+ * @remarks
+ *   Four columns rather than two, so the note wraps in its column on a wide page. In two columns
+ *   it sat on one line up to a page of some two thousand pixels, and the four places in the row
+ *   read the same. Each entry is drawn as a tile rather than holding one, because the alignment
+ *   moves the entry, and a tile inside an entry stretched with it kept its own height.
  */
 function Alignment(): ReactElement {
   const { t } = useWords("grid");
@@ -158,13 +164,9 @@ function Alignment(): ReactElement {
   return (
     <Matrix knob="align" of={valuesOf(recipe, "align")}>
       {(align) => (
-        <Grid.Root align={align} columns="2">
-          <Grid.Item>
-            <Tile>{t("article")}</Tile>
-          </Grid.Item>
-          <Grid.Item>
-            <Tile>{t("note")}</Tile>
-          </Grid.Item>
+        <Grid.Root align={align} columns="4">
+          <Grid.Item as={Tile}>{t("article")}</Grid.Item>
+          <Grid.Item as={Tile}>{t("note")}</Grid.Item>
         </Grid.Root>
       )}
     </Matrix>

@@ -7,7 +7,10 @@
  *   presses, the indicator swaps its mark while the copy is fresh, and the value text writes the
  *   value in a run of text. The trigger draws no control look of its own. A caller draws it as a
  *   button of the library through `as`, so a theme that moves the button moves the trigger with
- *   it, and the recipe here states only how the parts are placed.
+ *   it, and the recipe here states only how the parts are placed. The root aligns its parts at
+ *   the start, so a trigger drawn on its own keeps a button's width rather than stretching across
+ *   whatever holds the root, and the control row stretches back to the root's width so a field
+ *   in it fills the row.
  */
 
 import {
@@ -28,7 +31,7 @@ const STEPS = ["sm", "md", "lg"] as const;
  */
 export const recipe = defineSlotRecipe({
   base: {
-    control: { alignItems: "center", display: "flex" },
+    control: { alignItems: "center", alignSelf: "stretch", display: "flex" },
     indicator: {
       alignItems: "center",
       display: "inline-flex",
@@ -36,7 +39,7 @@ export const recipe = defineSlotRecipe({
       justifyContent: "center",
     },
     label: { color: "fg", display: "block" },
-    root: { display: "flex", flexDirection: "column" },
+    root: { alignItems: "start", display: "flex", flexDirection: "column" },
   },
   className: "clipboard",
   defaultVariants: { size: "md" },

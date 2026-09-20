@@ -53,6 +53,16 @@ describe("recipe", () => {
     });
   });
 
+  it("sets each mark a control square wide in the label of its step", () => {
+    const expected = {
+      inlineSize: "calc({sizes.control.xs} * var(--density, 1))",
+      textStyle: "label.xs",
+    };
+
+    expect(recipe.variants?.["size"]?.["xs"]?.["start"]).toStrictEqual(expected);
+    expect(recipe.variants?.["size"]?.["xs"]?.["end"]).toStrictEqual(expected);
+  });
+
   it("hands the room to the control's own inset property rather than writing padding", () => {
     expect(recipe.variants?.["marks"]?.["both"]?.["root"]).toStrictEqual({
       "--control-inset-end": "var(--input-group-room)",

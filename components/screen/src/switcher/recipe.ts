@@ -61,7 +61,12 @@ export const recipe = defineSlotRecipe({
       transitionTimingFunction: "press",
     },
     label: { display: "flex", flexDirection: "column", minInlineSize: "0", textAlign: "start" },
-    mark: { alignItems: "center", display: "inline-flex", flexShrink: "0" },
+    mark: {
+      alignItems: "center",
+      display: "inline-flex",
+      flexShrink: "0",
+      justifyContent: "center",
+    },
     name: truncate(),
     option: { ...row(), minInlineSize: "0" },
     root: {

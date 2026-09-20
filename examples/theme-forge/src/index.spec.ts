@@ -27,7 +27,8 @@ describe("forge", () => {
   it("casts every shadow with half the default ink in the neutral hue", () => {
     expect(DEPTH).toBe(0.5);
     expect(forge.variant.semanticTokens?.shadows?.["md"]).toStrictEqual({
-      value: "0 4px 8px light-dark(oklch(20% 0.02 70 / 0.040), oklch(0% 0.02 70 / 0.120))",
+      value:
+        "0 4px 8px light-dark(oklch(20% 0.02 70 / 0.040), oklch(0% 0.02 70 / 0.120)), inset 0 0 0 1px light-dark(transparent, oklch(100% 0 0 / 0.12))",
     });
   });
 

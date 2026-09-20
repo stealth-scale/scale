@@ -12,7 +12,20 @@ const recipe = {
 
 describe("valuesOf", () => {
   it("returns the values an axis offers in the order the recipe states them", () => {
-    expect(valuesOf(recipe, "size")).toStrictEqual(["lg", "md", "sm"]);
+    expect(valuesOf(recipe, "variant")).toStrictEqual(["outline", "solid"]);
+  });
+
+  it("returns the steps of the size axis in the order of the scale", () => {
+    expect(valuesOf(recipe, "size")).toStrictEqual(["sm", "md", "lg"]);
+  });
+
+  it("keeps a size the scale does not name after the steps in the recipe's order", () => {
+    const measured = {
+      className: "container",
+      variants: { size: { full: {}, lg: {}, md: {}, prose: {}, sm: {} } },
+    };
+
+    expect(valuesOf(measured, "size")).toStrictEqual(["sm", "md", "lg", "full", "prose"]);
   });
 
   it("types the values as the recipe's own literals", () => {

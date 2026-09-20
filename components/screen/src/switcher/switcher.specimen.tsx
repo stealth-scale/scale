@@ -12,6 +12,7 @@
 import { type ReactElement, useState } from "react";
 
 import { Menu } from "@stealthscale/component-disclosure";
+import { Icon } from "@stealthscale/component-typography";
 import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
 
 import * as Switcher from "#switcher/index.ts";
@@ -26,19 +27,21 @@ const WORKSPACES = [
 ] as const;
 
 /**
- * Describes what the control takes beyond the root's variants.
+ * The path of a pair of chevrons, one up and one down, in a 24 unit box.
  */
-interface ControlProps {
-  /**
-   * Whether the detail is drawn under the name, which a toolbar drops.
-   */
-  readonly detailed?: boolean;
-}
+const CHEVRONS = "m7 15 5 5 5-5M7 9l5-5 5 5";
 
 /**
  * Draws the control and the rows it opens, holding which workspace is chosen.
+ *
+ * @remarks
+ *   The name and the detail sit in the label column, which is the part the control draws them in.
+ *   They once sat in the panel part, which is the menu's own panel, so the trigger held a hidden
+ *   menu and showed the mark alone. The detail is always written, because dropping it in a
+ *   toolbar is the placement's own doing. The indicator holds a pair of chevrons, because the part
+ *   draws the glyph it is given and holds it still, and an empty one showed nothing to press for.
  */
-function Control({ detailed = true }: ControlProps): ReactElement {
+function Control(): ReactElement {
   const { t } = useWords("switcher");
   const [chosen, setChosen] = useState<(typeof WORKSPACES)[number]>(WORKSPACES[0]);
   const [name, detail] = chosen;
@@ -47,11 +50,15 @@ function Control({ detailed = true }: ControlProps): ReactElement {
     <>
       <Switcher.Trigger label={t("workspace")}>
         <Switcher.Mark>{t(name).charAt(0)}</Switcher.Mark>
-        <Switcher.Content>
+        <Switcher.Label>
           <Switcher.Name>{t(name)}</Switcher.Name>
-          {detailed ? <Switcher.Detail>{t(detail)}</Switcher.Detail> : null}
-        </Switcher.Content>
-        <Switcher.Indicator />
+          <Switcher.Detail>{t(detail)}</Switcher.Detail>
+        </Switcher.Label>
+        <Switcher.Indicator>
+          <Icon viewBox="0 0 24 24">
+            <path d={CHEVRONS} fill="none" stroke="currentColor" strokeWidth="2" />
+          </Icon>
+        </Switcher.Indicator>
       </Switcher.Trigger>
       <Menu.Positioner>
         <Switcher.Content>
@@ -103,7 +110,7 @@ function Placement(): ReactElement {
     <Matrix knob="placement" of={valuesOf(recipe, "placement")}>
       {(placement) => (
         <Switcher.Root placement={placement} variant="outline">
-          <Control detailed={placement === "sidebar"} />
+          <Control />
         </Switcher.Root>
       )}
     </Matrix>

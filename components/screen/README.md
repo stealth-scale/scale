@@ -303,10 +303,10 @@ import { Switcher } from "@stealthscale/component-screen";
 <Switcher.Root>
   <Switcher.Trigger label="Workspace">
     <Switcher.Mark>A</Switcher.Mark>
-    <Switcher.Content>
+    <Switcher.Label>
       <Switcher.Name>Acme</Switcher.Name>
       <Switcher.Detail>Pro plan</Switcher.Detail>
-    </Switcher.Content>
+    </Switcher.Label>
     <Switcher.Indicator />
   </Switcher.Trigger>
 </Switcher.Root>;

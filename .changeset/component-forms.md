@@ -107,3 +107,30 @@ component-forms: show every component
 
 - One specimen per component, each scene drawing every value of every axis the recipe offers, with
   the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.
+
+component-forms: reach a textarea's states from its own control
+
+- The textarea's surface reads `wrappedField()` and the wrapped looks, so its disabled, read-only,
+  invalid and focused treatments follow the control rather than the box. The box always matched
+  `:read-only`, so it rested on the read-only fill in every state.
+- The textarea reserves an input group's leading and trailing room through
+  `--control-inset-start/end`, which it wrote its own padding over. Text ran under both adornments.
+- The switch's thumb travels the other way where the page runs right to left, carries a border where
+  the display replaces every fill, and names `translate` as the property it moves in rather than
+  `transform`, which it never changed.
+
+component-forms: stack a field's texts under the control beside its label
+
+- A horizontal field is a grid of two columns: the label takes the first and every other part the
+  second, so the helper text, the counter and the message stack under the control. A row of every
+  part put the helper text and the counter in the room after the control, where the text wrapped
+  word by word and the counter broke over two lines.
+- A horizontal fieldset shares its row between the fields, each from twelve rem, and gives its two
+  texts a row each. A field fills the width it is given, so a row of fields put each on a line of
+  its own and the group across read the same as the group down.
+- An input group's marks are set in the label of the group's step. A mark in the body size overran a
+  small square: `EUR` ran past the end of an extra small field. The specimen states the size on the
+  field as well as on the group, because the group's size is the room a mark takes and the field's
+  is its own height.
+- The checkbox's and the switch's alignment scenes stand in a room at the smallest measure, so the
+  label runs to a second line and the two places differ.

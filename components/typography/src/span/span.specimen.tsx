@@ -10,7 +10,7 @@
 
 import { type ReactElement } from "react";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { Matrix, Room, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
 
 import { recipe } from "#span/recipe.ts";
 import { Span } from "#span/span.ts";
@@ -48,6 +48,10 @@ function Inks(): ReactElement {
 
 /**
  * Draws a path cut to the line beside one left whole.
+ *
+ * @remarks
+ *   Each path stands in a room at the smallest measure, because the two read the same until the
+ *   width runs out, and a cell of the catalogue gave the path more than it needed.
  */
 function Truncate(): ReactElement {
   const { t } = useWords("span");
@@ -55,9 +59,11 @@ function Truncate(): ReactElement {
   return (
     <Matrix knob="truncate" of={EITHER}>
       {(truncate) => (
-        <Text>
-          <Span truncate={truncate}>{t("path")}</Span>
-        </Text>
+        <Room size="xs">
+          <Text>
+            <Span truncate={truncate}>{t("path")}</Span>
+          </Text>
+        </Room>
       )}
     </Matrix>
   );

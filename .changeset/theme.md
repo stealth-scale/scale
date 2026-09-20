@@ -54,7 +54,7 @@ theme: draw a theme from a statement
 - A status a theme leaves unstated is drawn at the chroma of the brand's most saturated intent. That
   is the primary, or a stated accent, floored at 0.1. A muted brand's statuses no longer shout over
   it. A grey brand's still read as colors.
-- The statuses are drawn in turn rather than each alone. One lands too close where it sits within
+- The statuses are drawn in turn rather than each alone. One lands too close where it falls within
   0.05 of a solid already drawn, or within 0.12 of one of its own hue. Such a status moves in
   lightness until it clears. It may not bleach past half its chroma to get there. A red brand's
   error is now a different button from its primary. An error and a warning are no longer one badge.
@@ -72,8 +72,8 @@ theme: draw a theme from a statement
   display still shows them.
 - A color is refused with the value in the message where its fields are not numbers, where its hex
   is a length CSS never writes, or where it carries transparency. `oklch()` refuses a coordinate
-  that is not finite. `lightened()` bounds its search. A malformed color now reports itself rather
-  than hanging the build.
+  that is not finite. `lightened()` bounds its search. A malformed color now names itself in an
+  error rather than hanging the build.
 - The code inks are drawn to the text ratio on the page and the panel as well as to their distance
   from the page, and the gate measures every one of them. A keyword is text a reader reads, and a
   distance in lightness is not a contrast ratio.
@@ -281,3 +281,26 @@ theme: state a shadow's mode in its ink as light-dark()
   cast in the mode of the element it falls under the way every color is compiled.
 - `referenced()` is exported from the color scale, and the ink scale reads it rather than keeping a
   copy.
+
+theme: reach every field state from the surface that draws it
+
+- `wrappedField()` and `wrappedFieldVariants()` draw a field whose surface is a box around the
+  control, reading each state from the control through it. `:read-only` matches every element that
+  is not editable, a box among them, so an outlined textarea rested on the read-only fill whatever
+  its control was doing and neither reddened when invalid nor dimmed when disabled.
+- A highlighted row carries a line in the system's `Highlight` color where the display has replaced
+  every fill. A forced-color mode paints every background from one palette, so a tint and a solid
+  took the same color as the rows around them.
+- The plain fill marks a press with a fill rather than by inking the text in the palette's solid,
+  which dropped a pressed plain button to 3.27:1 at 12.6 pixels.
+- The ripple is clipped to its own box rather than by hiding the control's overflow. Hiding it also
+  clipped the pseudo-element a coarse pointer's target is drawn with, so an xs button declared a
+  forty-pixel area around its thirty-two-pixel box and a press two pixels above the box reached
+  nothing.
+
+theme: light the rim of every raised surface after dark
+
+- Every height of the shadow scale carries a one-pixel inset rim inside its edge, transparent by day
+  and white at twelve percent after dark. A shadow cannot fall on a dark page, so a raised card, a
+  menu and a popover had no edge to be told from the page by. The rim lights the edge from inside.
+  The two inner shadows carry none.

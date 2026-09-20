@@ -44,6 +44,21 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "orientation")).toStrictEqual(["horizontal", "vertical"]);
   });
 
+  it("stacks every part but the label under the control when the label sits beside it", () => {
+    const horizontal = recipe.variants?.["orientation"]?.["horizontal"];
+
+    expect(horizontal?.["root"]).toMatchObject({
+      display: "grid",
+      gridTemplateColumns: "auto minmax(0, 1fr)",
+    });
+
+    expect(horizontal?.["control"]).toStrictEqual({ gridColumn: "2" });
+    expect(horizontal?.["helperText"]).toStrictEqual({ gridColumn: "2" });
+    expect(horizontal?.["counter"]).toStrictEqual({ gridColumn: "2" });
+    expect(horizontal?.["errorText"]).toStrictEqual({ gridColumn: "2" });
+    expect(horizontal?.["label"]).not.toHaveProperty("gridColumn");
+  });
+
   it("draws the message and the required mark in the palette the status sets", () => {
     expect(recipe.base?.["errorText"]).toMatchObject({ color: "colorPalette.fg" });
     expect(recipe.base?.["requiredIndicator"]).toMatchObject({ color: "colorPalette.fg" });

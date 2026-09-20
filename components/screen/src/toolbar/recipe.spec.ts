@@ -49,6 +49,16 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual(["outline", "plain", "surface"]);
   });
 
+  it("insets a row with an edge by its own gap and leaves a plain row flush", () => {
+    expect(recipe.variants?.["variant"]?.["outline"]?.["root"]).toMatchObject({
+      padding: `var(${GAP})`,
+    });
+    expect(recipe.variants?.["variant"]?.["surface"]?.["root"]).toMatchObject({
+      padding: `var(${GAP})`,
+    });
+    expect(recipe.variants?.["variant"]?.["plain"]?.["root"]).not.toHaveProperty("padding");
+  });
+
   it("states the gap two steps below the size as one property every band reads", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["root"]).toStrictEqual({
       [GAP]: "{spacing.gap.xs}",

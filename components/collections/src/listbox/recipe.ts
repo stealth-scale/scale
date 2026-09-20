@@ -13,9 +13,11 @@
  */
 
 import {
+  controlSizes,
   cornerVariants,
   defineSlotRecipe,
   dense,
+  field,
   highlightVariants,
   iconSizes,
   onSlot,
@@ -28,11 +30,18 @@ import {
 
 /**
  * Draws a plain listbox at the middle size, tinting the row the highlight is on.
+ *
+ * @remarks
+ *   The input is drawn as a field of its own, from the theme's `field` fragment at the control
+ *   scale, because it is one: a person types in it to narrow the rows. The label and the group
+ *   labels keep the inset the rows keep, so their words line up with the rows' words, and a
+ *   list raised on a surface keeps a small gap between its frame and its rows, the way a menu's
+ *   panel does.
  */
 export const recipe = defineSlotRecipe({
   base: {
     content: { display: "flex", flexDirection: "column", minBlockSize: "0", overflowY: "auto" },
-    input: { inlineSize: "full" },
+    input: { ...field(), appearance: "none", borderRadius: "l2", inlineSize: "full" },
     item: { ...row(), _selected: { fontWeight: "medium" } },
     itemGroup: { display: "flex", flexDirection: "column", minInlineSize: "0" },
     itemGroupLabel: { color: "fg.muted", fontWeight: "medium" },
@@ -76,6 +85,7 @@ export const recipe = defineSlotRecipe({
         (size) => ({ gap: dense(`{spacing.gap.${size}}`) }),
         ["sm", "md", "lg"],
       ),
+      input: controlSizes(["sm", "md", "lg"]),
       item: sizeVariants(
         (size) => ({
           blockSize: dense(`{sizes.tag.${size}}`),
@@ -94,7 +104,10 @@ export const recipe = defineSlotRecipe({
         ["sm", "md", "lg"],
       ),
       itemIndicator: iconSizes(["sm", "md", "lg"]),
-      label: sizeVariants((size) => ({ textStyle: `label.${size}` }), ["sm", "md", "lg"]),
+      label: sizeVariants(
+        (size) => ({ paddingInline: dense(`{spacing.inset.${size}}`), textStyle: `label.${size}` }),
+        ["sm", "md", "lg"],
+      ),
       root: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), ["sm", "md", "lg"]),
     }),
 
@@ -103,7 +116,7 @@ export const recipe = defineSlotRecipe({
      */
     variant: {
       plain: { root: { background: "transparent" } },
-      surface: { root: { ...surface(), overflow: "clip" } },
+      surface: { root: { ...surface(), overflow: "clip", padding: "gap.sm" } },
     },
   },
 });

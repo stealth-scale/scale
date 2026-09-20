@@ -64,3 +64,17 @@ component-collections: show every component
 - The README's listbox example passes `item` to `Listbox.ItemText` and `Listbox.ItemIndicator`,
   which both require it, and its axis table lists the two looks the recipe offers. An `outline` look
   was listed that no recipe drew.
+
+component-collections: paint a sticky header on the cells that move
+
+- The sticky surface is on the column headers and the corner cell rather than on the section. A
+  `thead` does not move, so its fill scrolled away and the body's values showed through the header's
+  labels.
+
+component-collections: draw the listbox's narrowing input as a field
+
+- The listbox's input reads the theme's `field` fragment at the control scale, so the box a person
+  narrows the rows in has the surface, the edge, the ring and the states every field has. It was a
+  bare `input` the width of the list.
+- The label keeps the inset the rows keep, so its words line up with the rows' words, and a list on
+  a surface keeps a small gap between its frame and its rows, the way a menu's panel does.

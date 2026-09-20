@@ -135,6 +135,15 @@ describe("recipe", () => {
     });
   });
 
+  it("centres whatever the mark holds in its square", () => {
+    expect(recipe.base?.["mark"]).toStrictEqual({
+      alignItems: "center",
+      display: "inline-flex",
+      flexShrink: "0",
+      justifyContent: "center",
+    });
+  });
+
   it("sets the control in the neutral palette's ink", () => {
     expect(recipe.base?.["root"]).toMatchObject({
       color: "colorPalette.fg",

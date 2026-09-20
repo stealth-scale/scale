@@ -12,6 +12,7 @@ describe("index", () => {
       "Page",
       "Rail",
       "RailSearch",
+      "Room",
       "Tile",
       "captionOf",
       "declarations",

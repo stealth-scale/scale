@@ -11,7 +11,7 @@
 
 import { type ReactElement } from "react";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { Matrix, Room, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
 
 import { Heading } from "#heading/heading.ts";
 import { recipe } from "#heading/recipe.ts";
@@ -91,6 +91,10 @@ function Motion(): ReactElement {
 
 /**
  * Draws a long title cut to one line beside one left to wrap.
+ *
+ * @remarks
+ *   Each title stands in a room at the large measure, because the two read the same until the
+ *   width runs out, and a cell of the catalogue gave a title of eighty characters the whole page.
  */
 function Truncate(): ReactElement {
   const { t } = useWords("heading");
@@ -98,9 +102,11 @@ function Truncate(): ReactElement {
   return (
     <Matrix direction="column" knob="truncate" of={EITHER}>
       {(truncate) => (
-        <Heading as="h3" truncate={truncate}>
-          {t("winding")}
-        </Heading>
+        <Room size="lg">
+          <Heading as="h3" truncate={truncate}>
+            {t("winding")}
+          </Heading>
+        </Room>
       )}
     </Matrix>
   );

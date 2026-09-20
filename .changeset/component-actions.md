@@ -54,3 +54,15 @@ component-actions: add the clipboard over the clipboard machine
   `lg`, which steps the label and the gaps.
 - The package peers on `@stealthscale/hooks` and depends on `@zag-js/clipboard`, `@zag-js/react`,
   `@zag-js/types` and `@zag-js/utils`.
+
+component-actions: mark a solid button that is on
+
+- A solid button that is pressed or on the current page carries a line inside its own edge. The
+  pressed treatment covered the quiet and the filled looks and excluded solid, so a solid button at
+  `aria-pressed=true` was identical to one at `false` in background, ink, border, weight and shadow.
+
+component-actions: keep a clipboard's lone trigger at a button's width
+
+- The clipboard's root aligns its parts at the start and the control row stretches back across it,
+  so a trigger on its own keeps a button's width. A column that stretched every part drew the
+  trigger the width of the card.

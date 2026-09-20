@@ -43,3 +43,18 @@ component-feedback: show every component
 
 - One specimen per component, each scene drawing every value of every axis the recipe offers, with
   the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.
+
+component-feedback: reserve exactly the text a placeholder stands in for
+
+- Each placeholder bar takes one line box with the bar drawn inside it. Three bars occupied 96
+  pixels against 72 for three lines of text and six occupied 204 against 144, so loading pulled the
+  page upward.
+- The alert emits its neutral status beside the four semantic ones, which it offered and did not
+  emit.
+
+component-feedback: dismiss an alert in its own ink
+
+- The alert's specimen draws its dismiss control as an extra small icon button in the alert's
+  status: solid on a solid alert, where it reads in the contrast ink and its fill is the alert's
+  own, and ghost on every other look, where it reads in the palette's ink beside the title. A
+  neutral ghost control drew a dark cross on a solid fill.

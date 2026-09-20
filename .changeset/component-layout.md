@@ -45,3 +45,15 @@ component-layout: show every component
 
 - One specimen per component, each scene drawing every value of every axis the recipe offers, with
   the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.
+
+component-layout: attach a group by position among its children
+
+- An attached group joins its children by position among the children rather than among siblings of
+  one tag. A group of a button, a link and a button gave the middle item all four corners back and
+  lost its overlap.
+
+component-layout: show the grid's alignment and the stack's wrap in a narrow room
+
+- The grid's alignment scene draws four columns with each entry as a tile, so the note wraps and the
+  entry stretches. The stack's wrap scene stands each row in the first cell of a grid of four, so
+  the seven days pass its end. Both read the same in every value before.

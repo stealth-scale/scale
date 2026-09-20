@@ -45,8 +45,16 @@ describe("recipe", () => {
     });
   });
 
-  it("stacks the label over the control row", () => {
-    expect(recipe.base?.["root"]).toStrictEqual({ display: "flex", flexDirection: "column" });
+  it("stacks the label over the control row without stretching a trigger on its own", () => {
+    expect(recipe.base?.["root"]).toStrictEqual({
+      alignItems: "start",
+      display: "flex",
+      flexDirection: "column",
+    });
+  });
+
+  it("stretches the control row across the root", () => {
+    expect(recipe.base?.["control"]).toMatchObject({ alignSelf: "stretch" });
   });
 
   it("draws no control look on the trigger because the caller draws it as a button", () => {

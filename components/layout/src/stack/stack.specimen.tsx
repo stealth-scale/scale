@@ -13,6 +13,7 @@ import { type ReactElement } from "react";
 
 import { Matrix, type Scene, specimen, Tile, useWords, valuesOf } from "@stealthscale/specimen";
 
+import * as Grid from "#grid/index.ts";
 import { recipe } from "#stack/recipe.ts";
 import { Stack } from "#stack/stack.ts";
 
@@ -112,18 +113,28 @@ function Distribution(): ReactElement {
 
 /**
  * Draws the seven days in a row that wraps and in one that does not.
+ *
+ * @remarks
+ *   Each row sits in the first cell of a grid of four columns, so it has a quarter of the card to
+ *   fill and the seven days pass its end. Given the whole card, the days sat on one line either
+ *   way. The rows are stacked, so the one that does not wrap runs into empty room rather than
+ *   over the other.
  */
 function Wrap(): ReactElement {
   const { t } = useWords("stack");
 
   return (
-    <Matrix knob="wrap" of={EITHER}>
+    <Matrix direction="column" knob="wrap" of={EITHER}>
       {(wrap) => (
-        <Stack direction="row" wrap={wrap}>
-          {DAYS.map((day) => (
-            <Tile key={day}>{t(day)}</Tile>
-          ))}
-        </Stack>
+        <Grid.Root columns="4">
+          <Grid.Item>
+            <Stack direction="row" wrap={wrap}>
+              {DAYS.map((day) => (
+                <Tile key={day}>{t(day)}</Tile>
+              ))}
+            </Stack>
+          </Grid.Item>
+        </Grid.Root>
       )}
     </Matrix>
   );

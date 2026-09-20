@@ -10,7 +10,7 @@
 
 import { type ReactElement } from "react";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { Matrix, Room, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
 
 import * as Switch from "#switch/index.ts";
 import { recipe } from "#switch/recipe.ts";
@@ -119,6 +119,10 @@ function States(): ReactElement {
 
 /**
  * Draws the switch against a long label at both places.
+ *
+ * @remarks
+ *   Each row stands in a room at the smallest measure, which is what makes the label run to a
+ *   second line: given a cell of the catalogue it sat on one, and the two places read the same.
  */
 function Alignment(): ReactElement {
   const { t } = useWords("switch");
@@ -126,10 +130,12 @@ function Alignment(): ReactElement {
   return (
     <Matrix knob="align" of={valuesOf(recipe, "align")}>
       {(align) => (
-        <Switch.Root align={align}>
-          <Track />
-          <Switch.Label>{t("long")}</Switch.Label>
-        </Switch.Root>
+        <Room size="xs">
+          <Switch.Root align={align}>
+            <Track />
+            <Switch.Label>{t("long")}</Switch.Label>
+          </Switch.Root>
+        </Room>
       )}
     </Matrix>
   );

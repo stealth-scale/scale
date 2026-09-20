@@ -87,11 +87,16 @@ export const recipe = defineSlotRecipe({
 
     /**
      * Whether the row is raised on a surface of its own or drawn against what holds it.
+     *
+     * @remarks
+     *   A row with an edge is inset by its own gap, so the controls stand off the edge. Without
+     *   it a filled control sat against the edge and a field at the end drew its border over the
+     *   row's. The plain row has no edge and keeps its controls flush with what holds it.
      */
     variant: {
-      outline: { root: { borderColor: "border", borderWidth: "hairline" } },
+      outline: { root: { borderColor: "border", borderWidth: "hairline", padding: `var(${GAP})` } },
       plain: { root: { background: "transparent" } },
-      surface: { root: surface() },
+      surface: { root: { ...surface(), padding: `var(${GAP})` } },
     },
   },
 });

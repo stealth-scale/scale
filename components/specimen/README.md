@@ -246,12 +246,25 @@ onto the next line on a narrow page, or a column of them. Two axes are one capti
 of the first axis, holding one captioned cell per value of the second. A third axis nests one matrix
 in another.
 
-## No recipe of its own
+## Tile and Room
 
-Every part the catalogue draws is a component of the library: the arrangement is `Stack`, the
-caption is `Text`, the page is `Page`, the rail is `Sidebar.Nav` over `NavList`. The package
-therefore states no recipe and registers no preset, and a theme that moves the library moves the
-catalogue with it.
+`Tile` is a block that stands in for content, so a specimen of a layout has boxes to arrange rather
+than bare words. `Room` is a box held to one of the page's measures, `sm` by default, for a scene
+that only reads once the width runs out: a row that wraps, a heading cut to one line, a label beside
+its control.
+
+```tsx
+<Room size="xs">
+  <Heading truncate>A long title for a page that could have used a shorter one</Heading>
+</Room>
+```
+
+## The recipes it states
+
+Every part the catalogue draws is a component of the library: the caption is `Text`, the page is
+`Page`, the rail is `Sidebar.Nav` over `NavList`. The matrix, the tile and the room state a recipe
+each, published as a preset from `@stealthscale/specimen/theme`, and every value in them is a
+semantic token, so a theme that moves the library moves the catalogue with it.
 
 ## Types
 

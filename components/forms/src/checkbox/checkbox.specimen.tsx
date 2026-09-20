@@ -12,7 +12,7 @@
 import { type ReactElement } from "react";
 
 import { Icon } from "@stealthscale/component-typography";
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { Matrix, Room, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
 
 import * as Checkbox from "#checkbox/index.ts";
 import { type CheckedState } from "#checkbox/machine.ts";
@@ -151,6 +151,10 @@ function States(): ReactElement {
 
 /**
  * Draws the box against a long label at both places.
+ *
+ * @remarks
+ *   Each row stands in a room at the smallest measure, which is what makes the label run to a
+ *   second line: given a cell of the catalogue it sat on one, and the two places read the same.
  */
 function Alignment(): ReactElement {
   const { t } = useWords("checkbox");
@@ -158,10 +162,12 @@ function Alignment(): ReactElement {
   return (
     <Matrix knob="align" of={valuesOf(recipe, "align")}>
       {(align) => (
-        <Checkbox.Root align={align}>
-          <Marks />
-          <Checkbox.Label>{t("long")}</Checkbox.Label>
-        </Checkbox.Root>
+        <Room size="xs">
+          <Checkbox.Root align={align}>
+            <Marks />
+            <Checkbox.Label>{t("long")}</Checkbox.Label>
+          </Checkbox.Root>
+        </Room>
       )}
     </Matrix>
   );

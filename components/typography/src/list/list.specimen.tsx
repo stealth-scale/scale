@@ -11,7 +11,7 @@
 
 import { type ReactElement } from "react";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { Matrix, Room, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
 
 import * as List from "#list/index.ts";
 import { recipe } from "#list/recipe.ts";
@@ -104,6 +104,10 @@ function Gaps(): ReactElement {
 
 /**
  * Draws a plain entry running to more than one line, with its mark at every place.
+ *
+ * @remarks
+ *   Each entry stands in a room at the smallest measure, which is what makes it run to a second
+ *   line: given a cell of the catalogue it sat on one, and the three places read the same.
  */
 function Alignment(): ReactElement {
   const { t } = useWords("list");
@@ -111,12 +115,14 @@ function Alignment(): ReactElement {
   return (
     <Matrix knob="align" of={valuesOf(recipe, "align")}>
       {(align) => (
-        <List.Root align={align} variant="plain">
-          <List.Item>
-            <List.Indicator>✓</List.Indicator>
-            {t("note")}
-          </List.Item>
-        </List.Root>
+        <Room size="xs">
+          <List.Root align={align} variant="plain">
+            <List.Item>
+              <List.Indicator>✓</List.Indicator>
+              {t("note")}
+            </List.Item>
+          </List.Root>
+        </Room>
       )}
     </Matrix>
   );

@@ -81,7 +81,11 @@ describe("recipe", () => {
   });
 
   it("states the bar's thickness and never its place", () => {
-    expect(recipe.base?.["indicator"]).toStrictEqual({ borderRadius: "l1", zIndex: "1" });
+    expect(recipe.base?.["indicator"]).toMatchObject({ borderRadius: "l1", zIndex: "0" });
+  });
+
+  it("paints every tab over the indicator so a filled one never covers the words", () => {
+    expect(recipe.base?.["trigger"]).toMatchObject({ position: "relative", zIndex: "1" });
   });
 
   it("tracks the tag named Tabs and every part under it", () => {
