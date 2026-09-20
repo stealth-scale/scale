@@ -5,6 +5,7 @@
 
 import { type ReactElement } from "react";
 
+import { Stack } from "@stealthscale/component-layout";
 import { Toolbar } from "@stealthscale/component-screen";
 import { useTranslation } from "@stealthscale/provider-i18n";
 
@@ -23,7 +24,9 @@ import { ThemeSwitcher } from "#chrome/theme-switcher.tsx";
  *   them. The control that opens the navigation is a quiet square holding one glyph, named in
  *   words for a screen reader, and leaves the document where the navigation has dropped under the
  *   page. The catalogue is the one section this application has, and its link is filled while the
- *   reader is in it.
+ *   reader is in it. The brand and the sections stand an extra large gap apart in a row of their
+ *   own, because the row's own gap is the one between the controls of a bar, and at that gap the
+ *   brand read as the first of the sections.
  */
 export function Bar(): ReactElement {
   const { t } = useTranslation("docs");
@@ -32,8 +35,10 @@ export function Bar(): ReactElement {
     <Toolbar.Root aria-label={t("frame.bar")} size="md">
       <Toolbar.Start>
         <Toolbar.Item aria-label={t("frame.navigation")} as={Opener} />
-        <Toolbar.Item as={Brand} />
-        <Toolbar.Item as={SectionLink} />
+        <Stack direction="row" gap="xl">
+          <Toolbar.Item as={Brand} />
+          <Toolbar.Item as={SectionLink} />
+        </Stack>
       </Toolbar.Start>
       <Toolbar.End>
         <ThemeSwitcher />

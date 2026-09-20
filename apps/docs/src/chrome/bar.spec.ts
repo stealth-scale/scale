@@ -33,6 +33,16 @@ describe("Bar", () => {
     expect(within(row).getByRole("link", { name: "Components" })).toBeDefined();
   });
 
+  it("stands the brand and the sections an extra large gap apart in a row of their own", async () => {
+    const result = await opened("/components/actions/button");
+    const row = result.getByRole("toolbar", { name: "Docs" });
+    const brand = within(row).getByRole("link", { name: "Stealth Scale" });
+    const section = within(row).getByRole("link", { name: "Components" });
+
+    expect(brand.parentElement).toBe(section.parentElement);
+    expect(brand.parentElement?.classList.contains("stack--xl")).toBe(true);
+  });
+
   it("names the control that opens the navigation in words a glyph cannot say", async () => {
     const result = await opened("/components/actions/button");
 
