@@ -41,3 +41,19 @@ vite-plugin-theme: scope a theme's rules to the nearest theme
   inside Regatta was drawn in Ink's colors and Regatta's capitals, weight and corners.
 - Measured in Chromium against the compiled stylesheet: that button now reads weight 500, no
   transform and a 7.5px corner, which is what Ink draws on its own.
+
+vite-plugin-theme: start the compiler without holding the dev server
+
+- A dev server starts the assembly at `buildStart` and answers its first request without waiting for
+  it: the stylesheet waits when it is asked for, beside the modules the server transforms meanwhile.
+  The catalogue's server answered its first request after 0.4 seconds rather than 3.3. A build still
+  waits, because everything it bundles reads the compiled rules. An assembly that failed is tried
+  again on the next request rather than reported for the life of the process.
+- A change the server reports is applied once, however many environments it is reported to and
+  however many times an editor saves it, and the rules are compiled there rather than at the next
+  request. A change that compiles to the rules the stylesheets already hold, which is most edits to
+  a specimen or a page, invalidates nothing and sends nothing to the browser. The catalogue's server
+  sent the stylesheet three times per save before.
+- Under the bundling server the hot update hook receives no environment. The change is still applied
+  to the compiler. The bundler regenerates the stylesheets itself, from the watch files the
+  transform registered for every source behind them.

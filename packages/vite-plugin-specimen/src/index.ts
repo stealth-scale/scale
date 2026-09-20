@@ -26,6 +26,6 @@ export {
   type Refused,
   type Source,
 } from "#contract.ts";
-export { FRAGMENTS, ID, type Options, PROPS } from "#options.ts";
+export { FRAGMENTS, ID, type Options, PROPS, UPDATED } from "#options.ts";
 export { specimens } from "#plugin.ts";
 export { isRefused, read } from "#read.ts";

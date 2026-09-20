@@ -21,6 +21,19 @@ export const FRAGMENTS = "virtual:specimen-fragments/";
 export const PROPS = "virtual:specimen-props/";
 
 /**
+ * The event the index dispatches on the window when a page's module or its fragments were replaced
+ * by a hot update, carrying the page's identifier and the new module as its detail.
+ *
+ * @remarks
+ *   A specimen file exports scenes and constants beside its components, so the refresh runtime
+ *   cannot accept it and the update climbs to the index. The index accepts it there, so nothing
+ *   above the index is run again, and tells the catalogue through this event, because the loaders
+ *   the index handed out import the module that was replaced. The catalogue kit listens for the
+ *   same name.
+ */
+export const UPDATED = "specimen:updated";
+
+/**
  * Describes what a repository configures the index with.
  */
 export interface Options {

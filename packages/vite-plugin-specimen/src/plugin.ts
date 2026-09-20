@@ -14,25 +14,40 @@ import {
 import { type Compiler } from "#anatomy/compiler.ts";
 import { type Settled, settled } from "#anatomy/reading.ts";
 import { type Changed, type Indexing, pageOf, pathOf, reindexes, retyped } from "#changed.ts";
-import { anatomised, fragmented, type Listed, listings, type Resolved, written } from "#emit.ts";
+import {
+  accepting,
+  anatomised,
+  fragmented,
+  type Listed,
+  listings,
+  type Resolved,
+  written,
+} from "#emit.ts";
 import { found, roots } from "#found.ts";
 import { components, fragments } from "#fragments.ts";
 import { FRAGMENTS, ID, type Options, PROPS } from "#options.ts";
 
 /**
- * The resolved identifier of the index, whose leading NUL marks the module as this plugin's.
+ * The resolved identifier of the index.
+ *
+ * @remarks
+ *   The specifier itself rather than the specifier behind a NUL, which is the convention that
+ *   keeps other plugins off a generated module. A server that bundles loads a page's fragments
+ *   through a dynamic import, and its runtime looks a loaded module up by an identifier it
+ *   registered without the NUL, so a module behind one loads as nothing. No other plugin reads a
+ *   module with no extension, so the convention protects nothing here.
  */
-const RESOLVED = `\0${ID}`;
+const RESOLVED = ID;
 
 /**
  * The resolved identifier prefix of a page's fragments. The page's identifier follows it.
  */
-const RESOLVED_FRAGMENTS = `\0${FRAGMENTS}`;
+const RESOLVED_FRAGMENTS = FRAGMENTS;
 
 /**
  * The resolved identifier prefix of a page's props. The page's identifier follows it.
  */
-const RESOLVED_PROPS = `\0${PROPS}`;
+const RESOLVED_PROPS = PROPS;
 
 /**
  * The build output the watcher ignores.
@@ -136,8 +151,22 @@ interface State {
 }
 
 /**
+ * Describes the part of a load's context the plugin reads.
+ */
+interface Loading {
+  /**
+   * Adds a file whose change loads the module again.
+   */
+  readonly addWatchFile: (file: string) => void;
+}
+
+/**
  * Generates the module under one resolved identifier.
  *
+ * @remarks
+ *   A page's fragments are cut from the page's file, so the file is added to the module's watch
+ *   list: a server that bundles loads the fragments again when the file changes, where a
+ *   middleware server is told which module to reload by the hot update.
  * @returns The generated source, or undefined when the identifier is not this plugin's.
  * @throws {@link Error} When the patterns match nothing, a build meets a file it cannot read, or
  *   the requested page belongs to no listed specimen.
@@ -146,21 +175,24 @@ async function generated(
   state: State,
   patterns: readonly string[],
   id: string,
+  loading: Loading,
 ): Promise<string | undefined> {
   if (id === RESOLVED) {
     const files = found(state.resolved.root, patterns);
 
     state.last = listings(state.resolved, files, state.reading !== undefined);
 
-    return written([...state.last.values()].map((listed) => listed.listing));
+    return written(state.last);
   }
 
   if (id.startsWith(RESOLVED_FRAGMENTS)) {
-    const path = pathOf(state, id.slice(RESOLVED_FRAGMENTS.length));
-
+    const page = id.slice(RESOLVED_FRAGMENTS.length);
+    const path = pathOf(state, page);
     const file = { path, text: readFileSync(path, "utf8") };
 
-    return fragmented(fragments(file), components(file));
+    loading.addWatchFile(path);
+
+    return fragmented(fragments(file), components(file), page);
   }
 
   if (!id.startsWith(RESOLVED_PROPS) || state.reading === undefined) return undefined;
@@ -190,21 +222,33 @@ function refragmented(
 }
 
 /**
+ * Restarts the compiler on a change to a typed file.
+ *
+ * @remarks
+ *   Nothing happens where the compiler was never started, there being nothing to read again.
+ * @returns Whether the compiler was restarted.
+ */
+async function restarted(state: State, file: string): Promise<boolean> {
+  if (state.opening === undefined || !retyped(state.watched, file)) return false;
+
+  (await state.opening).restart();
+
+  return true;
+}
+
+/**
  * Restarts the compiler on a change to a typed file, and returns every props module that was
  * loaded.
  *
  * @remarks
- *   Every loaded module rather than the ones the file reaches. Nothing happens where the compiler
- *   was never started, there being nothing to read again.
+ *   Every loaded module rather than the ones the file reaches.
  */
 async function reread(
   state: State,
   file: string,
   graph: Watching["environment"]["moduleGraph"],
 ): Promise<EnvironmentModuleNode[]> {
-  if (state.opening === undefined || !retyped(state.watched, file)) return [];
-
-  (await state.opening).restart();
+  if (!(await restarted(state, file))) return [];
 
   return [...state.last.values()].flatMap((listed) => {
     const node =
@@ -272,13 +316,25 @@ export function specimens(options: Options): Plugin {
     /**
      * Adds the plugin's own modules to the ones a change invalidates.
      *
+     * @remarks
+     *   A server that bundles hands the hook no environment and no module graph. The compiler is
+     *   restarted all the same, and the modules are left to the bundler: a page's fragments watch
+     *   the page's file, and the index is generated again when the server starts.
      * @returns The modules to reload, or undefined when the change reaches none of this plugin's.
      */
     async hotUpdate(
       this: Watching,
       changed: Updated,
     ): Promise<EnvironmentModuleNode[] | undefined> {
-      const graph = this.environment.moduleGraph;
+      const environment: undefined | Watching["environment"] = this.environment;
+
+      if (environment === undefined) {
+        await restarted(state, changed.file);
+
+        return undefined;
+      }
+
+      const graph = environment.moduleGraph;
       const reloaded = [
         ...changed.modules,
         ...refragmented(state, changed.file, graph),
@@ -304,8 +360,8 @@ export function specimens(options: Options): Plugin {
      * @returns The generated source and a null map, or undefined when the module is not this
      *   plugin's.
      */
-    async load(id: string): Promise<undefined | Written> {
-      const code = await generated(state, options.patterns, id);
+    async load(this: Loading, id: string): Promise<undefined | Written> {
+      const code = await generated(state, options.patterns, id, this);
 
       return code === undefined ? undefined : { code, map: null };
     },
@@ -320,7 +376,22 @@ export function specimens(options: Options): Plugin {
     resolveId(id: string): string | undefined {
       if (id === ID) return RESOLVED;
 
-      return id.startsWith(FRAGMENTS) || id.startsWith(PROPS) ? `\0${id}` : undefined;
+      return id.startsWith(FRAGMENTS) || id.startsWith(PROPS) ? id : undefined;
+    },
+
+    /**
+     * Makes a listed specimen accept its own hot update and report the module that replaced it.
+     *
+     * @remarks
+     *   The index lists the file before anything imports it, because the file is reached through
+     *   the loader the index handed out, so a file the index has not listed is left alone. So is
+     *   a request for the file under a query, which is the file's text rather than the module.
+     * @returns The source with the statement appended, or undefined for any other module.
+     */
+    transform(code: string, id: string): undefined | Written {
+      const page = id.includes("?") ? undefined : pageOf(state, id);
+
+      return page === undefined ? undefined : { code: code + accepting(page, "module"), map: null };
     },
   };
 }

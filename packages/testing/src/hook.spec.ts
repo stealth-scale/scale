@@ -120,6 +120,16 @@ describe("hook", () => {
     await expect(loaded(driven().plugin, "/pkg/a.css")).resolves.toBeUndefined();
   });
 
+  it("binds the context as this in load where one is given and nothing where none is", async () => {
+    const one = driven();
+    const context = hookContext();
+
+    await loaded(one.plugin, "/pkg/a.css", context);
+    await loaded(one.plugin, "/pkg/a.css");
+
+    expect(one.bound).toStrictEqual([context, undefined]);
+  });
+
   it("returns the code transform wrote back", async () => {
     const one = driven({ code: "@layer a;\n.x{}", map: null });
 

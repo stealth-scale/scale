@@ -10,6 +10,7 @@
 import { extname } from "node:path";
 import {
   type DevEnvironment,
+  type Environment,
   type EnvironmentModuleNode,
   type Plugin,
   type ViteDevServer,
@@ -64,13 +65,48 @@ interface Compiled {
 }
 
 /**
+ * Records what the last change reported to the dev server did.
+ *
+ * @remarks
+ *   A server reports one change once per environment, and an editor saving a file reports it
+ *   twice, so the change is applied on the first report and the others read the answer.
+ */
+interface Applied {
+  /**
+   * The file the change was reported for.
+   */
+  file: string;
+
+  /**
+   * Whether the rules the stylesheets hold went stale: the compiler changed, and compiles to
+   * other rules than the ones served.
+   */
+  stale: boolean;
+
+  /**
+   * When the server reported the change, or nothing where the server reports no time.
+   */
+  timestamp: number | undefined;
+}
+
+/**
  * Carries everything the plugin holds between its hooks.
  */
 interface Running {
   /**
+   * The last change the dev server reported and what applying it did, once one was reported.
+   */
+  applied?: Applied | undefined;
+
+  /**
    * The compiler and what it was assembled from, once assembled.
    */
   assembled?: Assembled | undefined;
+
+  /**
+   * The assembly under way or done, once one was started.
+   */
+  assembling?: Promise<Assembled> | undefined;
 
   /**
    * The rules compiled from the current generation, once a stylesheet asked for them.
@@ -107,7 +143,8 @@ function bare(id: string): string {
 }
 
 /**
- * Assembles the compiler once, and returns the same assembly until something drops it.
+ * Assembles the compiler, and forgets the attempt where it failed, so the next request tries
+ * again rather than reporting the same failure for the life of the process.
  *
  * @remarks
  *   An assembly is a new generation, so rules compiled from the one before are compiled again.
@@ -115,22 +152,50 @@ function bare(id: string): string {
  *   handed to the watcher, because the server watches its own root alone and a file added to a
  *   package beside the application would otherwise reach the compiler only when it restarts.
  */
-async function ready(state: Running, resolved: Resolved): Promise<Assembled> {
-  if (state.assembled === undefined) {
-    state.assembled = await assemble(state.loading, resolved, state.server);
-    state.generation += 1;
-    state.server?.watcher.add([...state.assembled.roots]);
-  }
+async function assembling(state: Running, resolved: Resolved): Promise<Assembled> {
+  try {
+    const assembled = await assemble(state.loading, resolved, state.server);
 
-  return state.assembled;
+    state.assembled = assembled;
+    state.generation += 1;
+    state.server?.watcher.add([...assembled.roots]);
+
+    return assembled;
+  } catch (error: unknown) {
+    state.assembling = undefined;
+
+    throw error;
+  }
+}
+
+/**
+ * Starts the assembly once, and returns the same one until something drops it.
+ *
+ * @remarks
+ *   The assembly is a promise rather than a value, so a dev server starts it without waiting and
+ *   the first request for the stylesheet waits instead, beside every other request the server
+ *   answers meanwhile.
+ */
+function ready(state: Running, resolved: Resolved): Promise<Assembled> {
+  state.assembling ??= assembling(state, resolved);
+
+  return state.assembling;
+}
+
+/**
+ * Drops the assembly, so the next request assembles the compiler again.
+ */
+function dropped(state: Running): void {
+  state.assembled = undefined;
+  state.assembling = undefined;
 }
 
 /**
  * Lists what each face the themes named is imported as: its file, or its name where nothing
  * resolved it.
  */
-function faces(state: Running): readonly string[] {
-  return [...(state.assembled?.fonts ?? [])].map(([name, file]) => file ?? name);
+function faces(assembled: Assembled): readonly string[] {
+  return [...assembled.fonts].map(([name, file]) => file ?? name);
 }
 
 /**
@@ -232,34 +297,97 @@ function appended(
  *   deleted file is reported as one rather than read. A file outside the compiler's globs is left
  *   alone before the compiler is asked, because the compiler reads a file it is handed before it
  *   decides whether the file is one it scans.
- * @returns True when the compiler changed, so rules compiled before the change are stale.
+ * @returns The compiler as it stands after the change, or undefined where nothing changed.
  */
-async function applied(
+function applied(
   state: Running,
   resolved: Resolved,
   file: string,
   event: Event,
-): Promise<boolean> {
+): Promise<Assembled | undefined> {
   const assembled = state.assembled;
+  const nothing: Assembled | undefined = undefined;
 
-  if (assembled === undefined) return false;
+  if (assembled === undefined) return Promise.resolve(nothing);
 
   if (assembled.watched.includes(file)) {
-    state.assembled = undefined;
-    await ready(state, resolved);
+    dropped(state);
 
-    return true;
+    return ready(state, resolved);
   }
 
   const { driver } = assembled.compiler;
 
   if (!driver.isSourceFile(file) || !driver.applyChange({ kind: KINDS[event], path: file })) {
-    return false;
+    return Promise.resolve(nothing);
   }
 
   state.generation += 1;
 
-  return true;
+  return Promise.resolve(assembled);
+}
+
+/**
+ * Applies a change the dev server reported, once, and says whether the rules served went stale.
+ *
+ * @remarks
+ *   A server reports one change once per environment it runs, and an editor that saves a file by
+ *   writing a new one reports it twice more, so a change already applied under the same file and
+ *   time answers what the first report found. A server that bundles reports no time, and reports
+ *   a change once, so every report it makes is applied. The rules are compiled here rather than
+ *   at the next request, so a change that compiles to the rules the stylesheets already hold,
+ *   which is most edits to a specimen or a page, invalidates nothing and sends nothing to the
+ *   browser.
+ * @returns True when the stylesheets hold rules the compiler no longer compiles to.
+ */
+async function reported(
+  state: Running,
+  resolved: Resolved,
+  change: Pick<Changed, "file" | "timestamp" | "type">,
+  warn: Transforming["warn"],
+): Promise<boolean> {
+  const { file, timestamp, type } = change;
+  const last = state.applied;
+  const repeated =
+    last !== undefined &&
+    timestamp !== undefined &&
+    last.file === file &&
+    last.timestamp === timestamp;
+
+  if (repeated) return last.stale;
+
+  const before = state.compiled?.css;
+  const assembled = await applied(state, resolved, file, type);
+  const stale = assembled !== undefined && compiled(state, assembled, warn) !== before;
+
+  state.applied = { file, stale, timestamp };
+
+  return stale;
+}
+
+/**
+ * The part of a hot update the plugin reads.
+ */
+interface Changed {
+  /**
+   * The file that changed.
+   */
+  readonly file: string;
+
+  /**
+   * The modules the server resolved for the change.
+   */
+  readonly modules: EnvironmentModuleNode[];
+
+  /**
+   * When the server reported the change, which a server that bundles leaves out.
+   */
+  readonly timestamp?: number | undefined;
+
+  /**
+   * The kind of change.
+   */
+  readonly type: Event;
 }
 
 /**
@@ -296,9 +424,19 @@ export function stylesheet(options: Options = {}): Plugin {
 
     /**
      * Starts the compiler before anything is served or bundled.
+     *
+     * @remarks
+     *   A build waits for it, because everything it bundles reads the compiled rules. A dev
+     *   server does not, so it answers its first request seconds sooner: the stylesheet waits
+     *   for the compiler when it is asked for, beside the modules the server transforms
+     *   meanwhile, and a failure is reported there rather than left unhandled here.
      */
     async buildStart() {
-      await ready(state, resolved);
+      const environment: Environment | undefined = this.environment;
+      const started = ready(state, resolved);
+
+      if (environment?.config.command === "build") await started;
+      else void Promise.allSettled([started]);
     },
 
     /**
@@ -314,9 +452,15 @@ export function stylesheet(options: Options = {}): Plugin {
 
     /**
      * Renders the stylesheet: the faces the themes named, then the cascade order.
+     *
+     * @remarks
+     *   The faces are the compiler's to name, so the stylesheet waits for the assembly, and
+     *   starts one where a server was asked for the stylesheet before it started the compiler.
      */
-    load(id) {
-      return bare(id) === VIRTUAL ? renderStylesheet(resolved.layers, faces(state)) : null;
+    async load(id) {
+      if (bare(id) !== VIRTUAL) return null;
+
+      return renderStylesheet(resolved.layers, faces(await ready(state, resolved)));
     },
 
     /**
@@ -338,21 +482,29 @@ export function stylesheet(options: Options = {}): Plugin {
      *   stylesheets, so under a server this hook leaves the change to that one.
      */
     async watchChange(id, change) {
-      if (this.environment.config.command !== "build") return;
+      const environment: Environment | undefined = this.environment;
+
+      if (environment?.config.command !== "build") return;
 
       await applied(state, resolved, id, change.event);
     },
 
     /**
-     * Applies a change under a dev server, and invalidates every stylesheet the rules were
-     * appended to when the compiler changed.
+     * Applies a change under a dev server, once however many times the server reports it, and
+     * invalidates every stylesheet the rules were appended to when the rules went stale.
+     *
+     * @remarks
+     *   A server that bundles hands the hook no environment and no module graph. The change is
+     *   applied all the same, and the stylesheets are left to the bundler, which watches every
+     *   file behind them through the transform.
      */
     async hotUpdate(context) {
-      const changed = await applied(state, resolved, context.file, context.type);
+      const stale = await reported(state, resolved, context, this.warn.bind(this));
+      const environment: DevEnvironment | undefined = this.environment;
 
-      return changed
-        ? [...new Set([...invalidated(this.environment, state.sheets), ...context.modules])]
-        : context.modules;
+      if (!stale || environment === undefined) return context.modules;
+
+      return [...new Set([...invalidated(environment, state.sheets), ...context.modules])];
     },
   };
 }

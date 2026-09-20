@@ -232,11 +232,19 @@ export async function resolved(
 /**
  * Asks the plugin to load a module, the way a bundler would at `load`.
  *
+ * @param plugin - The plugin under test.
+ * @param id - The resolved identifier of the module.
+ * @param context - The context the hook reads `this` from, for a plugin that watches a file
+ *   while loading. Nothing is bound where it is absent.
  * @returns The module's code, or undefined where the plugin declined.
  * @throws {@link Error} When the plugin has no `load` hook.
  */
-export async function loaded(plugin: Plugin, id: string): Promise<string | undefined> {
-  const result: unknown = await Reflect.apply(handlerOf(plugin, "load"), undefined, [id, {}]);
+export async function loaded(
+  plugin: Plugin,
+  id: string,
+  context?: HookContext,
+): Promise<string | undefined> {
+  const result: unknown = await Reflect.apply(handlerOf(plugin, "load"), context, [id, {}]);
 
   return textOf(result, "code");
 }

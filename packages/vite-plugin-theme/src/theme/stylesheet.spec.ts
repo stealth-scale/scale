@@ -97,6 +97,45 @@ function linked(workspace: ScratchWorkspace): void {
   symlinkSync(workspace.path("packages/kit"), workspace.path("node_modules/@acme/kit"), "dir");
 }
 
+/**
+ * Reports an update to the plugin under a time of the specification's choosing, the way a server
+ * reports one change to each of its environments.
+ */
+function reported(
+  plugin: ReturnType<typeof stylesheet>,
+  context: object,
+  file: string,
+  timestamp?: number,
+): Promise<unknown> {
+  const hook: unknown = plugin.hotUpdate;
+
+  if (typeof hook !== "function") throw new Error("the plugin has no hotUpdate hook");
+
+  return Promise.resolve(
+    Reflect.apply(hook, context, [
+      {
+        file,
+        modules: [],
+        read: (): Promise<string> => Promise.resolve(""),
+        timestamp,
+        type: "update",
+      },
+    ]),
+  );
+}
+
+/**
+ * Strips the environment off a context, the way a server that bundles calls a hook.
+ *
+ * @remarks
+ *   Typed as the context it was built from, because the drivers take one, and the plugin under
+ *   test reads the environment as absent either way.
+ */
+function bundling(context: ReturnType<typeof hookContext>): ReturnType<typeof hookContext> {
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- a bundling server hands the hook a context typed as carrying an environment and carrying none, which is the case under test
+  return { ...context, environment: undefined } as unknown as ReturnType<typeof hookContext>;
+}
+
 async function serving(plugin: ReturnType<typeof stylesheet>, watched: string[]): Promise<void> {
   const server = {
     environments: { ssr: {} },
@@ -170,7 +209,7 @@ describe("stylesheet", () => {
     expect(found).toStrictEqual([`${DECLARED}\n`, undefined]);
   });
 
-  it("loads the virtual stylesheet with the cascade order alone before the compiler starts", async () => {
+  it("loads the virtual stylesheet and starts the compiler where nothing has yet", async () => {
     const found = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const plugin = stylesheet(OPTIONS);
 
@@ -180,6 +219,64 @@ describe("stylesheet", () => {
     });
 
     expect(found).toBe(`${DECLARED}\n`);
+  });
+
+  it("starts the compiler without waiting for it under a dev server", async () => {
+    const found = await withScratchWorkspaceAsync(LINKED, async (workspace) => {
+      const plugin = stylesheet(OPTIONS);
+      const watched: string[] = [];
+
+      linked(workspace);
+      await serving(plugin, watched);
+      await configured(plugin, { ...RESOLVED, root: workspace.root });
+      await started(plugin, hookContext());
+
+      const before = watched.length;
+
+      await loaded(plugin, VIRTUAL);
+
+      return { after: watched.length, before };
+    });
+
+    expect(found).toStrictEqual({ after: 1, before: 0 });
+  });
+
+  it("waits for the compiler under a build", async () => {
+    const found = await withScratchWorkspaceAsync(LINKED, async (workspace) => {
+      const plugin = stylesheet(OPTIONS);
+      const watched: string[] = [];
+
+      linked(workspace);
+      await serving(plugin, watched);
+      await configured(plugin, { ...RESOLVED, root: workspace.root });
+      await started(plugin, hookContext([], "build"));
+
+      return watched.length;
+    });
+
+    expect(found).toBe(1);
+  });
+
+  it("tries the assembly again after it failed", async () => {
+    const files = { ...APP, "package.json": manifest({ name: "@acme/app", type: "module" }) };
+    const found = await withScratchWorkspaceAsync(files, async (workspace) => {
+      const plugin = stylesheet(OPTIONS);
+
+      await configured(plugin, { ...RESOLVED, root: workspace.root });
+      await started(plugin, hookContext());
+
+      const failed = await loaded(plugin, VIRTUAL).then(
+        () => "loaded",
+        (error: unknown) => (error instanceof Error ? error.message : "failed"),
+      );
+
+      workspace.write({ "package.json": APP["package.json"] ?? "" });
+
+      return [failed, await loaded(plugin, VIRTUAL)];
+    });
+
+    expect(found[0]).toContain("does not depend on @acme/design");
+    expect(found[1]).toBe(`${DECLARED}\n`);
   });
 
   it("compiles through an environment of its own when the server's runner is absent", async () => {
@@ -205,6 +302,7 @@ describe("stylesheet", () => {
       await serving(plugin, watched);
       await configured(plugin, { ...RESOLVED, root: workspace.root });
       await started(plugin, hookContext());
+      await loaded(plugin, VIRTUAL);
 
       return watched.map((at) => at.slice(workspace.root.length + 1));
     });
@@ -220,6 +318,7 @@ describe("stylesheet", () => {
       await serving(plugin, watched);
       await configured(plugin, { ...RESOLVED, root: workspace.root });
       await started(plugin, hookContext());
+      await loaded(plugin, VIRTUAL);
 
       return watched;
     });
@@ -229,7 +328,9 @@ describe("stylesheet", () => {
 
   it("writes nothing into the application but the rendered configuration", async () => {
     const written = await withScratchWorkspaceAsync(APP, async (workspace) => {
-      await compiled(workspace);
+      const { plugin } = await compiled(workspace);
+
+      await loaded(plugin, VIRTUAL);
 
       return workspace.files().filter((file) => file.startsWith("node_modules/.theme/"));
     });
@@ -428,6 +529,92 @@ describe("stylesheet", () => {
     expect(invalidated).toStrictEqual(["styles.css"]);
   });
 
+  it("applies a change once however many times the server reports it and invalidates each graph", async () => {
+    const found = await withScratchWorkspaceAsync(APP, async (workspace) => {
+      const { context, plugin, sheet } = await compiled(workspace, true);
+      const other = hookContext([sheet]);
+      const file = workspace.path("src/page.tsx");
+
+      await transformed(plugin, context, DECLARED, sheet);
+      workspace.write({ "src/page.tsx": page("green") });
+
+      const compiles = context.warned.length;
+
+      await reported(plugin, context, file, 7);
+      await reported(plugin, other, file, 7);
+
+      return {
+        compiles: context.warned.length + other.warned.length - compiles,
+        invalidated: [...context.invalidated, ...other.invalidated].map((each) =>
+          each.slice(workspace.root.length + 1),
+        ),
+      };
+    });
+
+    expect(found).toStrictEqual({ compiles: 1, invalidated: ["styles.css", "styles.css"] });
+  });
+
+  it("applies every change a server that reports no time makes to one file", async () => {
+    const written = await withScratchWorkspaceAsync(APP, async (workspace) => {
+      const { context, plugin, sheet } = await compiled(workspace);
+      const file = workspace.path("src/page.tsx");
+
+      await transformed(plugin, context, DECLARED, sheet);
+      workspace.write({ "src/page.tsx": page("green") });
+      await reported(plugin, bundling(context), file);
+      workspace.write({ "src/page.tsx": page("blue") });
+      await reported(plugin, bundling(context), file);
+
+      return transformed(plugin, context, DECLARED, sheet);
+    });
+
+    expect(written).toContain("c-blue");
+  });
+
+  it("invalidates nothing when a change compiles to the rules the stylesheet already holds", async () => {
+    const found = await withScratchWorkspaceAsync(APP, async (workspace) => {
+      const { context, plugin, sheet } = await compiled(workspace, true);
+
+      await transformed(plugin, context, DECLARED, sheet);
+      workspace.write({ "src/page.tsx": `// a comment\n${page("red")}` });
+      await updated(plugin, context, workspace.path("src/page.tsx"));
+
+      return context.invalidated;
+    });
+
+    expect(found).toStrictEqual([]);
+  });
+
+  it("applies a change a bundling server reports with no environment and leaves the modules alone", async () => {
+    const found = await withScratchWorkspaceAsync(APP, async (workspace) => {
+      const { context, plugin, sheet } = await compiled(workspace);
+
+      await transformed(plugin, context, DECLARED, sheet);
+      workspace.write({ "src/page.tsx": page("blue") });
+
+      const answered = await reported(plugin, bundling(context), workspace.path("src/page.tsx"), 9);
+
+      return { answered, written: await transformed(plugin, context, DECLARED, sheet) };
+    });
+
+    expect(found.answered).toStrictEqual([]);
+    expect(found.written).toContain("c-blue");
+  });
+
+  it("leaves a watch change alone under a bundling server with no environment", async () => {
+    const written = await withScratchWorkspaceAsync(APP, async (workspace) => {
+      const { context, plugin, sheet } = await compiled(workspace);
+
+      await transformed(plugin, context, DECLARED, sheet);
+      workspace.write({ "src/page.tsx": page("blue") });
+      await changed(plugin, bundling(context), workspace.path("src/page.tsx"), "update");
+
+      return transformed(plugin, context, DECLARED, sheet);
+    });
+
+    expect(written).not.toContain("c-blue");
+  });
+
   it("forgets a stylesheet the graph no longer holds", async () => {
     const invalidated = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const { context, plugin, sheet } = await compiled(workspace, false);
@@ -505,7 +692,11 @@ describe("stylesheet", () => {
     const files = { ...APP, "package.json": manifest({ name: "@acme/app", type: "module" }) };
 
     await expect(
-      withScratchWorkspaceAsync(files, (workspace) => compiled(workspace)),
+      withScratchWorkspaceAsync(files, async (workspace) => {
+        const { plugin } = await compiled(workspace);
+
+        return loaded(plugin, VIRTUAL);
+      }),
     ).rejects.toThrow("does not depend on @acme/design");
   });
 

@@ -139,6 +139,16 @@ One identifier declared by two files is the same fault. The second is refused an
 A page appearing, disappearing, or changing the metadata it declares reloads the index. An edit that
 changes only a scene reloads that page and leaves the index alone.
 
+A listed specimen and its fragments accept their own hot update. A specimen file exports scenes and
+constants beside its components, so the refresh runtime cannot accept an edit to it, and without a
+boundary the edit climbs through the index to the application's own modules, which run again on
+every save. The plugin appends the boundary to each specimen it transforms and writes it into each
+fragments module, and the boundary dispatches `UPDATED` (`specimen:updated`) on the window with the
+page's identifier and the module that replaced the old one as the event's detail. The catalogue kit
+listens for the event and redraws the page. The module accepts itself rather than the index
+accepting it, because a server that bundles registers a module reached through a dynamic import
+under an identifier of its own, which an accepting importer cannot name.
+
 The directories the patterns start in are added to the watcher, including those outside the project
 root, because a dev server watches its own root and nothing above it.
 

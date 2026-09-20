@@ -33,3 +33,25 @@ vite-plugin-specimen: read a name a scope binds as that scope's own
 - The walk now tracks what each function binds: its own name, its parameters and the variables its
   body declares. A name bound inside a scope resolves to no declaration of the file, and a name the
   scope only mentions still does.
+
+vite-plugin-specimen: give a specimen a hot update boundary of its own
+
+- Every listed specimen the plugin transforms, and every fragments module it generates, accepts its
+  own hot update and dispatches `UPDATED` (`specimen:updated`) on the window with the page's
+  identifier and the module that replaced the old one. A specimen exports scenes and constants
+  beside its components, so the refresh runtime could not accept an edit to it, and every save ran
+  the application's own modules again. The catalogue kit listens for the event and redraws the page
+  in place.
+- The index, the fragments and the props modules are resolved to their specifiers as written, with
+  no NUL in front, because a server that bundles registers a module reached through a dynamic import
+  under its identifier and loads a module behind a NUL as nothing.
+- A fragments module watches the page's file, so a server that bundles generates it again on a save,
+  and the hot update hook restarts the compiler and leaves the modules to the bundler where the
+  server hands it no environment.
+
+vite-plugin-specimen: write a page's path relative to the root wherever the file is
+
+- `Indexed.path` is written relative to the project root whether or not the root holds the file,
+  `../../components/actions/src/button/button.specimen.tsx` for a catalogue beside the packages it
+  shows. A file outside the root kept its absolute path before, and the index is shipped, so a built
+  catalogue carried the directory layout of the machine it was built on.
