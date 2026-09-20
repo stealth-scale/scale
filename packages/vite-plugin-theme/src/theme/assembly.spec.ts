@@ -134,8 +134,20 @@ describe("assemble", () => {
   it("draws every theme under the attribute that switches to it with the first included", async () => {
     const css = await withScratchWorkspaceAsync(APP, compiled);
 
-    expect(declared(css, "[data-theme=abyss] .button", "letter-spacing")).toBe("0.06em");
-    expect(declared(css, "[data-theme=fathom] .button", "letter-spacing")).toBe("0.01em");
+    expect(
+      declared(
+        css,
+        "[data-theme=abyss] .button:not([data-theme=abyss] [data-theme] *)",
+        "letter-spacing",
+      ),
+    ).toBe("0.06em");
+    expect(
+      declared(
+        css,
+        "[data-theme=fathom] .button:not([data-theme=fathom] [data-theme] *)",
+        "letter-spacing",
+      ),
+    ).toBe("0.01em");
   });
 
   it("installs the presets the application states after the packages and before the themes", async () => {
@@ -158,8 +170,20 @@ describe("assemble", () => {
     const css = await withScratchWorkspaceAsync(files, compiled);
 
     expect(declared(css, ".badge", "letter-spacing")).toBe("0.02em");
-    expect(declared(css, "[data-theme=abyss] .badge", "letter-spacing")).toBe("0.09em");
-    expect(declared(css, "[data-theme=abyss] .button", "letter-spacing")).toBe("0.06em");
+    expect(
+      declared(
+        css,
+        "[data-theme=abyss] .badge:not([data-theme=abyss] [data-theme] *)",
+        "letter-spacing",
+      ),
+    ).toBe("0.09em");
+    expect(
+      declared(
+        css,
+        "[data-theme=abyss] .button:not([data-theme=abyss] [data-theme] *)",
+        "letter-spacing",
+      ),
+    ).toBe("0.06em");
   });
 
   it("draws a theme's token values under its attribute", async () => {
@@ -236,7 +260,13 @@ describe("assemble", () => {
     const css = await withScratchWorkspaceAsync(files, compiled);
 
     expect(declared(css, ".text-style-brand", "font-size")).toBe("12px");
-    expect(declared(css, "[data-theme=abyss] .text-style-brand", "font-size")).toBe("14px");
+    expect(
+      declared(
+        css,
+        "[data-theme=abyss] .text-style-brand:not([data-theme=abyss] [data-theme] *)",
+        "font-size",
+      ),
+    ).toBe("14px");
   });
 
   it("scopes a variant's styles under the attribute", async () => {
@@ -245,7 +275,13 @@ describe("assemble", () => {
     const css = await withScratchWorkspaceAsync(files, compiled);
 
     expect(declared(css, ".button--lg", "padding")).toBe("8px");
-    expect(declared(css, "[data-theme=abyss] .button--lg", "padding")).toBe("12px");
+    expect(
+      declared(
+        css,
+        "[data-theme=abyss] .button--lg:not([data-theme=abyss] [data-theme] *)",
+        "padding",
+      ),
+    ).toBe("12px");
   });
 
   it("compiles a compound under the class its recipe names", async () => {
@@ -260,7 +296,13 @@ describe("assemble", () => {
     const files = { ...APP, "themes/abyss.ts": theme("abyss", extend) };
     const css = await withScratchWorkspaceAsync(files, compiled);
 
-    expect(declared(css, "[data-theme=abyss] .button--expose", "letter-spacing")).toBe("0.2em");
+    expect(
+      declared(
+        css,
+        "[data-theme=abyss] .button--expose:not([data-theme=abyss] [data-theme] *)",
+        "letter-spacing",
+      ),
+    ).toBe("0.2em");
     expect(css).not.toContain("compound__");
   });
 
@@ -294,7 +336,13 @@ describe("assemble", () => {
     const css = await withScratchWorkspaceAsync(files, compiled);
 
     expect(declared(css, ".dialog__content", "padding")).toBe("4px");
-    expect(declared(css, "[data-theme=abyss] .dialog__content", "padding")).toBe("16px");
+    expect(
+      declared(
+        css,
+        "[data-theme=abyss] .dialog__content:not([data-theme=abyss] [data-theme] *)",
+        "padding",
+      ),
+    ).toBe("16px");
   });
 
   it("scopes a derived theme's own and inherited extensions under its attribute", async () => {
@@ -323,8 +371,14 @@ describe("assemble", () => {
     };
     const css = await withScratchWorkspaceAsync(files, compiled);
 
-    expect(declared(css, "[data-theme=deep] .button", "letter-spacing")).toBe("0.09em");
-    expect(css).toMatch(/\[data-theme=deep\] \.button\s*\{[^}]*font-weight/u);
+    expect(
+      declared(
+        css,
+        "[data-theme=deep] .button:not([data-theme=deep] [data-theme] *)",
+        "letter-spacing",
+      ),
+    ).toBe("0.09em");
+    expect(css).toMatch(/\[data-theme=deep\] \.button:not\([^)]*\)\s*\{[^}]*font-weight/u);
   });
 
   it("draws a theme's new value once that theme is edited", async () => {
@@ -335,7 +389,13 @@ describe("assemble", () => {
       return compiled(workspace);
     });
 
-    expect(declared(css, "[data-theme=abyss] .button", "letter-spacing")).toBe("0.3em");
+    expect(
+      declared(
+        css,
+        "[data-theme=abyss] .button:not([data-theme=abyss] [data-theme] *)",
+        "letter-spacing",
+      ),
+    ).toBe("0.3em");
   });
 
   it("stops scoping a theme that no longer extends anything", async () => {

@@ -31,3 +31,13 @@ vite-plugin-theme: render every moded color as light-dark()
   tokens layer falls from 70 to 35 kB gzipped.
 - A color stated once, one naming a condition beside the two modes, and every token outside the
   `colors` group are written as they are.
+
+vite-plugin-theme: scope a theme's rules to the nearest theme
+
+- A theme's rules are nested under `[data-theme=<name>] &:not([data-theme=<name>] [data-theme] *)`
+  rather than under the attribute alone. The exclusion stops them at the boundary of a theme nested
+  inside, which is what a reader means by the theme a thing is in. A theme's tokens already stopped
+  there, because the inner element redeclares them, and its rules did not: a button inside Ink
+  inside Regatta was drawn in Ink's colors and Regatta's capitals, weight and corners.
+- Measured in Chromium against the compiled stylesheet: that button now reads weight 500, no
+  transform and a 7.5px corner, which is what Ink draws on its own.
