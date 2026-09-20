@@ -46,7 +46,7 @@ describe("Picker", () => {
 
     const rows = getAllByRole("menuitemradio");
 
-    expect(rows.map((row) => row.textContent)).toStrictEqual(["outline✓", "solid✓", "subtle✓"]);
+    expect(rows.map((row) => row.textContent)).toStrictEqual(["outline", "solid", "subtle"]);
     expect(rows.map((row) => row.getAttribute("aria-checked"))).toStrictEqual([
       "false",
       "true",

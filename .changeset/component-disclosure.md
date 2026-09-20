@@ -54,3 +54,20 @@ component-disclosure: hold a popover to the width of the control that opened it
 - The panel reads `min-inline-size: var(--reference-width)`, the width the machine measures the
   control at and writes on the positioner. A panel narrower than its trigger reads as belonging to
   something else on the page. It is a minimum, so a panel whose contents need more room takes it.
+
+component-disclosure: add ItemMark, ItemLines, ItemDescription and ItemCommand to the menu
+
+- `Menu.ItemMark` renders a tinted square at the start of a row for an initial, an icon or an
+  avatar. It is sized from `sizes.tag` at the menu's `size`.
+- `Menu.ItemLines` stacks `Menu.ItemText` over `Menu.ItemDescription` in one column. Both lines
+  truncate at the same edge. The description uses `fg.subtle` and the `caption` text style.
+- `Menu.ItemCommand` renders a `kbd` at the end of a row in `fg.muted`, one text step under the row.
+- `Menu.ItemIndicator` is placed at the end of the row and keeps its box while the row is unchecked,
+  so the panel does not resize when a tick is removed. The reserved gutter for a tick is removed.
+  `inset` still reserves the gutter for an icon.
+- The panel is at least as wide as its trigger (`--reference-width`) and grows to its widest row.
+  The separator spans the panel's full width. A group label uses `fg.subtle` and one text step under
+  the rows. The panel's corners are `l2`. Its shadow is `md` for `surface` and `lg` for `elevated`.
+- A checkbox `Menu.OptionItem` keeps the menu open on select. A radio item closes it.
+  `closeOnSelect` overrides either.
+- `Menu.Indicator` no longer rotates when the menu opens.

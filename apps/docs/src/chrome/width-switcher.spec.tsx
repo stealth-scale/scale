@@ -31,13 +31,13 @@ describe("WidthSwitcher", () => {
     await pressed(result.getByRole("button", { name: "Width Window" }));
 
     expect(result.getAllByRole("menuitemradio").map((row) => row.textContent)).toStrictEqual([
-      "Window✓",
-      "Phone✓",
-      "sm 640✓",
-      "md 768✓",
-      "lg 1024✓",
-      "xl 1280✓",
-      "2xl 1536✓",
+      "Window",
+      "Phone",
+      "sm 640",
+      "md 768",
+      "lg 1024",
+      "xl 1280",
+      "2xl 1536",
     ]);
   });
 

@@ -339,18 +339,43 @@ import { Menu } from "@stealthscale/component-disclosure";
 background. `bar` draws a line down the leading edge as well, which a reader who cannot separate the
 two colours still sees.
 
-`inset` leaves every row the gutter a mark is drawn in, for a menu whose rows lead with an icon. A
-row that carries a mark is inset whatever the axis says, so a list of options does not step sideways
-as the marks appear.
+`inset` leaves every row the gutter an icon is drawn in, for a menu whose rows lead with one, so a
+row without an icon starts its words where the others do.
 
-The panel states no width of its own, so it is as wide as its widest row. Set
-`positioning: { sameWidth: true }` to match the control's width instead.
+The panel opens at least as wide as its control and as wide as its widest row. Set
+`positioning: { sameWidth: true }` to hold it to the control's width instead.
+
+### The parts of a row
+
+A row's words go in as children, or as `Menu.ItemText` where the row also carries a tick. Beside
+them a row may hold:
+
+| Part                   | What it draws                                                               |
+| ---------------------- | --------------------------------------------------------------------------- |
+| `Menu.ItemMark`        | A tinted square at the row's start holding an initial, an icon or an avatar |
+| `Menu.ItemLines`       | A column stacking `Menu.ItemText` over `Menu.ItemDescription`               |
+| `Menu.ItemDescription` | The line under the words: a plan, a role, a count                           |
+| `Menu.ItemCommand`     | The keystroke that runs the row, at its end                                 |
+
+```tsx
+<Menu.Item value="acme">
+  <Menu.ItemMark>A</Menu.ItemMark>
+  <Menu.ItemLines>
+    <Menu.ItemText>Acme</Menu.ItemText>
+    <Menu.ItemDescription>Pro plan</Menu.ItemDescription>
+  </Menu.ItemLines>
+  <Menu.ItemCommand>⌘1</Menu.ItemCommand>
+</Menu.Item>
+```
+
+A bare icon written as a child leads the row too. The mark is for what wants a box round it.
 
 ### Rows that carry a choice
 
 `Menu.OptionItem` draws a tick a reader turns on and off, or one of a set. The caller states both
 the kind and whether it is on. The machine reports a change and the caller decides what it means.
-That is how one radio set clears the rest.
+That is how one radio set clears the rest. The tick is drawn at the row's end wherever it is
+written, and keeps its room while the row is off, so the panel is one width whichever rows are on.
 
 ```tsx
 <Menu.OptionItem checked={dense} onCheckedChange={setDense} type="checkbox" value="dense">
@@ -360,6 +385,9 @@ That is how one radio set clears the rest.
   <Menu.ItemText>Compact rows</Menu.ItemText>
 </Menu.OptionItem>
 ```
+
+Choosing one of a set closes the menu, because that choice is finished. Turning a tick leaves it
+open, because a reader turning one often turns another. `closeOnSelect` overrides either.
 
 The row passes its value down. `Menu.ItemText` and `Menu.ItemIndicator` take no props of their own.
 Group rows with `Menu.ItemGroup` and `Menu.ItemGroupLabel`. The two share one `value`.

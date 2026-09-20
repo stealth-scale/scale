@@ -5,6 +5,8 @@
 
 import { type ReactElement } from "react";
 
+import { CheckIcon } from "lucide-react";
+
 import { Menu } from "@stealthscale/component-disclosure";
 import { Switcher, Toolbar } from "@stealthscale/component-screen";
 import { useTranslation } from "@stealthscale/provider-i18n";
@@ -116,9 +118,9 @@ export function WidthSwitcher(): ReactElement {
         </Switcher.Indicator>
       </Toolbar.Item>
       <Menu.Positioner>
-        <Switcher.Content>
+        <Menu.Content>
           {rows.map((row) => (
-            <Switcher.Option
+            <Menu.OptionItem
               checked={row === picked}
               key={row.value}
               onCheckedChange={() => {
@@ -127,14 +129,16 @@ export function WidthSwitcher(): ReactElement {
               type="radio"
               value={row.value}
             >
-              <Switcher.Mark>
+              <Menu.ItemIndicator>
+                <CheckIcon aria-hidden size="1em" />
+              </Menu.ItemIndicator>
+              <Menu.ItemMark>
                 <DeviceGlyph device={row.device} />
-              </Switcher.Mark>
+              </Menu.ItemMark>
               <Menu.ItemText>{row.label}</Menu.ItemText>
-              <Switcher.Check>✓</Switcher.Check>
-            </Switcher.Option>
+            </Menu.OptionItem>
           ))}
-        </Switcher.Content>
+        </Menu.Content>
       </Menu.Positioner>
     </Switcher.Root>
   );

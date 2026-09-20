@@ -227,3 +227,25 @@ export function nested(props: RootProps = {}): ReactElement {
     </Root>
   );
 }
+
+/**
+ * Draws an open menu holding one row named Acme, with whatever a case puts beside the words.
+ *
+ * @param children - The part under test, drawn in the row before the words.
+ * @returns The menu, open, holding the row.
+ */
+export function rowed(children: ReactNode): ReactElement {
+  return (
+    <Root defaultOpen>
+      <Trigger>Workspace</Trigger>
+      <Positioner>
+        <Content>
+          <Item value="acme">
+            {children}
+            <ItemText>Acme</ItemText>
+          </Item>
+        </Content>
+      </Positioner>
+    </Root>
+  );
+}

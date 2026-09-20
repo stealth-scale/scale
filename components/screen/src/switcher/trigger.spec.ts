@@ -5,7 +5,7 @@ import { accessibilityViolations, drawn } from "@stealthscale/testing-react";
 import { boundViolations, slotElement } from "@stealthscale/testing-theme";
 
 import { recipe } from "#switcher/recipe.ts";
-import { type RootProps } from "#switcher/root.ts";
+import { type RootProps } from "#switcher/root.tsx";
 import { composed, triggered } from "#switcher/switcher.fixtures.tsx";
 
 describe("Trigger", () => {

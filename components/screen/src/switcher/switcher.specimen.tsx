@@ -1,53 +1,92 @@
 /**
- * Shows the switcher: every look at every size, and both placements.
+ * Shows the switcher: at the head of a sidebar, on its own, and every look at every size.
  *
  * @remarks
  *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every switcher names the same workspace and offers the same two, the
- *   choice held in state so the row that is checked follows it. The words are keys under
- *   `switcher` in the catalogue's namespace, kept beside this file in
- *   `locales/en/specimen/switcher.json`.
+ *   this file changing. Every switcher names the same workspace and lists the same four, one of
+ *   them suspended, with the two things to do after a rule, the choice held in state so the row
+ *   that is checked follows it. The control is drawn where it belongs, at the head of a sidebar
+ *   with the sidebar's own groups and foot under it, because a switcher on a bare page has nothing
+ *   to read as a control among; the toolbar placement is what the catalogue's own bar draws, above
+ *   every page. Each positioner sits in a portal, because the card a scene is drawn in clips what
+ *   it holds. The words are keys under `switcher` in the catalogue's namespace, kept beside this
+ *   file in `locales/en/specimen/switcher.json`.
  */
 
-import { type ReactElement, useState } from "react";
+import { Fragment, type ReactElement, useState } from "react";
+
+import {
+  CheckIcon,
+  ChevronsUpDownIcon,
+  CreditCardIcon,
+  FileTextIcon,
+  HouseIcon,
+  PlusIcon,
+  SettingsIcon,
+  UserIcon,
+  UsersIcon,
+} from "lucide-react";
 
 import { Menu } from "@stealthscale/component-disclosure";
-import { Icon } from "@stealthscale/component-typography";
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { NavList } from "@stealthscale/component-navigation";
+import { Portal } from "@stealthscale/component-primitives";
+import { Span } from "@stealthscale/component-typography";
+import { Matrix, Room, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
 
+import * as Sidebar from "#sidebar/index.ts";
 import * as Switcher from "#switcher/index.ts";
 import { recipe } from "#switcher/recipe.ts";
 
 /**
- * The keys of the two workspaces every switcher offers, each with the key of its detail.
+ * The keys of the four workspaces every switcher lists, each with the key of its detail and
+ * whether it can still be entered.
  */
 const WORKSPACES = [
-  ["acme", "pro"],
-  ["fathom", "trial"],
+  ["acme", "pro", true],
+  ["fathom", "trial", true],
+  ["globex", "enterprise", true],
+  ["oldBooks", "suspended", false],
 ] as const;
 
 /**
- * The path of a pair of chevrons, one up and one down, in a 24 unit box.
+ * The destinations under the switcher, each with its mark, in the two groups a sidebar lists.
  */
-const CHEVRONS = "m7 15 5 5 5-5M7 9l5-5 5 5";
+const DESTINATIONS = [
+  [
+    "platform",
+    [
+      ["overview", HouseIcon],
+      ["invoices", FileTextIcon],
+      ["billing", CreditCardIcon],
+    ],
+  ],
+  [
+    "account",
+    [
+      ["profile", UserIcon],
+      ["members", UsersIcon],
+    ],
+  ],
+] as const;
 
 /**
  * Draws the control and the rows it opens, holding which workspace is chosen.
  *
  * @remarks
  *   The name and the detail sit in the label column, which is the part the control draws them in.
- *   They once sat in the panel part, which is the menu's own panel, so the trigger held a hidden
- *   menu and showed the mark alone. The detail is always written, because dropping it in a
- *   toolbar is the placement's own doing. The indicator holds a pair of chevrons, because the part
- *   draws the glyph it is given and holds it still, and an empty one showed nothing to press for.
+ *   The detail is always written, because dropping it in a toolbar is the placement's own doing.
+ *   The panel is the menu's, at least as wide as the control and as wide as its rows: a row per
+ *   workspace with the menu's mark, its words over the plan, and the tick at the row's end, then a
+ *   rule and the two things to do that are not switching. The indicator holds a pair of chevrons
+ *   and the tick a glyph, because neither component draws artwork of its own.
  */
-function Control(): ReactElement {
+function Switching(root: Switcher.RootProps): ReactElement {
   const { t } = useWords("switcher");
   const [chosen, setChosen] = useState<(typeof WORKSPACES)[number]>(WORKSPACES[0]);
   const [name, detail] = chosen;
 
   return (
-    <>
+    <Switcher.Root {...root}>
       <Switcher.Trigger label={t("workspace")}>
         <Switcher.Mark>{t(name).charAt(0)}</Switcher.Mark>
         <Switcher.Label>
@@ -55,32 +94,106 @@ function Control(): ReactElement {
           <Switcher.Detail>{t(detail)}</Switcher.Detail>
         </Switcher.Label>
         <Switcher.Indicator>
-          <Icon viewBox="0 0 24 24">
-            <path d={CHEVRONS} fill="none" stroke="currentColor" strokeWidth="2" />
-          </Icon>
+          <ChevronsUpDownIcon aria-hidden size="1em" />
         </Switcher.Indicator>
       </Switcher.Trigger>
-      <Menu.Positioner>
-        <Switcher.Content>
-          {WORKSPACES.map((workspace) => (
-            <Switcher.Option
-              checked={workspace === chosen}
-              key={workspace[0]}
-              onCheckedChange={() => {
-                setChosen(workspace);
-              }}
-              type="radio"
-              value={workspace[0]}
-            >
-              <Switcher.Mark>{t(workspace[0]).charAt(0)}</Switcher.Mark>
-              <Menu.ItemText>{t(workspace[0])}</Menu.ItemText>
-              <Switcher.Check>✓</Switcher.Check>
-            </Switcher.Option>
-          ))}
-        </Switcher.Content>
-      </Menu.Positioner>
-    </>
+      <Portal>
+        <Menu.Positioner>
+          <Menu.Content>
+            {WORKSPACES.map((workspace) => (
+              <Menu.OptionItem
+                checked={workspace === chosen}
+                disabled={!workspace[2]}
+                key={workspace[0]}
+                onCheckedChange={() => {
+                  setChosen(workspace);
+                }}
+                type="radio"
+                value={workspace[0]}
+              >
+                <Menu.ItemIndicator>
+                  <CheckIcon aria-hidden size="1em" />
+                </Menu.ItemIndicator>
+                <Menu.ItemMark>{t(workspace[0]).charAt(0)}</Menu.ItemMark>
+                <Menu.ItemLines>
+                  <Menu.ItemText>{t(workspace[0])}</Menu.ItemText>
+                  <Menu.ItemDescription>{t(workspace[1])}</Menu.ItemDescription>
+                </Menu.ItemLines>
+              </Menu.OptionItem>
+            ))}
+            <Menu.Separator />
+            <Menu.Item value="new">
+              <PlusIcon aria-hidden size="1em" />
+              {t("new")}
+            </Menu.Item>
+            <Menu.Item value="settings">
+              <SettingsIcon aria-hidden size="1em" />
+              {t("settings")}
+            </Menu.Item>
+          </Menu.Content>
+        </Menu.Positioner>
+      </Portal>
+    </Switcher.Root>
   );
+}
+
+/**
+ * Draws the destinations a sidebar lists under its head.
+ */
+function Destinations(): ReactElement {
+  const { t } = useWords("switcher");
+
+  return (
+    <Sidebar.Content>
+      {DESTINATIONS.map(([group, links], at) => (
+        <Fragment key={group}>
+          {at === 0 ? null : <Sidebar.Separator />}
+          <Sidebar.Nav>
+            <Sidebar.NavLabel>{t(group)}</Sidebar.NavLabel>
+            <NavList.Root>
+              {links.map(([destination, Mark], index) => (
+                <NavList.Item key={destination}>
+                  <NavList.Link
+                    {...(at === 0 && index === 0 ? { "aria-current": "page" } : {})}
+                    href={`#${destination}`}
+                  >
+                    <Mark aria-hidden size="1em" />
+                    <Span>{t(destination)}</Span>
+                  </NavList.Link>
+                </NavList.Item>
+              ))}
+            </NavList.Root>
+          </Sidebar.Nav>
+        </Fragment>
+      ))}
+    </Sidebar.Content>
+  );
+}
+
+/**
+ * Draws the switcher at the head of a sidebar, over the destinations the sidebar lists.
+ */
+function Head(): ReactElement {
+  const { t } = useWords("switcher");
+
+  return (
+    <Room size="xs">
+      <Sidebar.Root variant="subtle">
+        <Sidebar.Header>
+          <Switching />
+        </Sidebar.Header>
+        <Destinations />
+        <Sidebar.Footer>{t("signedIn")}</Sidebar.Footer>
+      </Sidebar.Root>
+    </Room>
+  );
+}
+
+/**
+ * Draws the switcher on its own, the width of its words.
+ */
+function Alone(): ReactElement {
+  return <Switching placement="toolbar" variant="subtle" />;
 }
 
 /**
@@ -93,29 +206,28 @@ function Looks(): ReactElement {
       knob="variant"
       of={valuesOf(recipe, "variant")}
     >
-      {(variant, size) => (
-        <Switcher.Root size={size} variant={variant}>
-          <Control />
-        </Switcher.Root>
-      )}
+      {(variant, size) => <Switching size={size} variant={variant} />}
     </Matrix>
   );
 }
 
 /**
- * Draws the switcher at both placements.
+ * At the head of a sidebar, open.
  */
-function Placement(): ReactElement {
-  return (
-    <Matrix knob="placement" of={valuesOf(recipe, "placement")}>
-      {(placement) => (
-        <Switcher.Root placement={placement} variant="outline">
-          <Control />
-        </Switcher.Root>
-      )}
-    </Matrix>
-  );
-}
+export const head: Scene = {
+  about: "switcher.head.about",
+  draw: Head,
+  title: "switcher.head.title",
+};
+
+/**
+ * On its own.
+ */
+export const alone: Scene = {
+  about: "switcher.alone.about",
+  draw: Alone,
+  title: "switcher.alone.title",
+};
 
 /**
  * Every look at every size.
@@ -126,19 +238,10 @@ export const looks: Scene = {
   title: "switcher.looks.title",
 };
 
-/**
- * Both placements.
- */
-export const placement: Scene = {
-  about: "switcher.placement.about",
-  draw: Placement,
-  title: "switcher.placement.title",
-};
-
 export default specimen({
   about: "switcher.about",
   group: "Screen",
   id: "screen/switcher",
-  scenes: [looks, placement],
+  scenes: [head, alone, looks],
   title: "switcher.title",
 });

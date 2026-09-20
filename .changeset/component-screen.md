@@ -229,3 +229,17 @@ component-screen: inset a toolbar with an edge and show the switcher's words
 - A page holding an aside gives the height it has left over to the body's row alone. A grid shares
   its spare height between every `auto` row, so a short page opened its empty bands as blank rows
   and stretched the header until the trail, the title and the description stood a screen apart.
+
+component-screen: render the switcher's list with the menu's own parts
+
+- `Switcher.Content`, `Switcher.Option`, `Switcher.Check` and `Switcher.Action` are removed. A list
+  is `Menu.Content` holding `Menu.OptionItem` rows composed from `Menu.ItemIndicator`,
+  `Menu.ItemMark`, `Menu.ItemLines`, `Menu.ItemText` and `Menu.ItemDescription`, and `Menu.Item`
+  rows after a `Menu.Separator`.
+- The switcher's recipe styles the control only: `root`, `mark`, `label`, `name`, `detail` and
+  `indicator`.
+- `Switcher.Root` passes its `size` to `Menu.Root`, so the rows are drawn at the control's size.
+- The control's text is one step under its `size` in `fg.muted`. The mark is two steps under the
+  control size. The detail uses `fg.subtle` and the `caption` text style. The indicator no longer
+  rotates when the menu opens.
+- With `placement="toolbar"` the control takes `inlineSize: fit` and hides the detail.

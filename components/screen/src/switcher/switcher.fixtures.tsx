@@ -6,13 +6,10 @@ import { type ReactElement, type ReactNode } from "react";
 
 import { Menu } from "@stealthscale/component-disclosure";
 
-import { Check } from "#switcher/check.ts";
-import { Content } from "#switcher/content.ts";
 import { Detail } from "#switcher/detail.ts";
 import { Label } from "#switcher/label.ts";
 import { Name } from "#switcher/name.ts";
-import { Option } from "#switcher/option.ts";
-import { Root, type RootProps } from "#switcher/root.ts";
+import { Root, type RootProps } from "#switcher/root.tsx";
 import { Trigger } from "#switcher/trigger.tsx";
 
 /**
@@ -51,28 +48,11 @@ export function triggered(props: RootProps = {}): ReactElement {
 }
 
 /**
- * Draws whatever rows a case wants measured inside an open panel.
- *
- * @param children - The rows under test.
- * @param props - Whatever the case sets on the switcher.
- * @returns The switcher, open, holding them.
- */
-export function opened(children: ReactNode, props: RootProps = {}): ReactElement {
-  return (
-    <Root open {...props}>
-      <Trigger label="Workspace">Acme</Trigger>
-      <Menu.Positioner>
-        <Content>{children}</Content>
-      </Menu.Positioner>
-    </Root>
-  );
-}
-
-/**
  * Draws a whole switcher, so a case can read what the control says and what the panel holds.
  *
  * @param props - Whatever the case sets on the switcher.
- * @returns The parts composed the way a caller composes them.
+ * @returns The parts composed the way a caller composes them: the control, and the menu's own
+ *   panel of rows.
  */
 export function composed(props: RootProps = {}): ReactElement {
   return (
@@ -84,16 +64,21 @@ export function composed(props: RootProps = {}): ReactElement {
         </Label>
       </Trigger>
       <Menu.Positioner>
-        <Content>
-          <Option checked type="radio" value="acme">
-            <Menu.ItemText>Acme</Menu.ItemText>
-            <Check />
-          </Option>
-          <Option checked={false} type="radio" value="globex">
+        <Menu.Content>
+          <Menu.OptionItem checked type="radio" value="acme">
+            <Menu.ItemIndicator>✓</Menu.ItemIndicator>
+            <Menu.ItemMark>A</Menu.ItemMark>
+            <Menu.ItemLines>
+              <Menu.ItemText>Acme</Menu.ItemText>
+              <Menu.ItemDescription>Pro plan</Menu.ItemDescription>
+            </Menu.ItemLines>
+          </Menu.OptionItem>
+          <Menu.OptionItem checked={false} type="radio" value="globex">
+            <Menu.ItemIndicator>✓</Menu.ItemIndicator>
+            <Menu.ItemMark>G</Menu.ItemMark>
             <Menu.ItemText>Globex</Menu.ItemText>
-            <Check />
-          </Option>
-        </Content>
+          </Menu.OptionItem>
+        </Menu.Content>
       </Menu.Positioner>
     </Root>
   );

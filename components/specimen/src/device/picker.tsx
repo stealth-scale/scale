@@ -5,7 +5,7 @@
 
 import { type ReactElement } from "react";
 
-import { ChevronsUpDownIcon } from "lucide-react";
+import { CheckIcon, ChevronsUpDownIcon } from "lucide-react";
 
 import { Menu } from "@stealthscale/component-disclosure";
 import { Switcher } from "@stealthscale/component-screen";
@@ -68,9 +68,9 @@ export function Picker({ knob, names, onPick, picked }: PickerProps): ReactEleme
           </Switcher.Indicator>
         </Switcher.Trigger>
         <Menu.Positioner>
-          <Switcher.Content>
+          <Menu.Content>
             {names.map((name, position) => (
-              <Switcher.Option
+              <Menu.OptionItem
                 checked={position === picked}
                 key={name}
                 onCheckedChange={() => {
@@ -79,11 +79,13 @@ export function Picker({ knob, names, onPick, picked }: PickerProps): ReactEleme
                 type="radio"
                 value={String(position)}
               >
+                <Menu.ItemIndicator>
+                  <CheckIcon aria-hidden size={GLYPH} />
+                </Menu.ItemIndicator>
                 <Menu.ItemText>{name}</Menu.ItemText>
-                <Switcher.Check>✓</Switcher.Check>
-              </Switcher.Option>
+              </Menu.OptionItem>
             ))}
-          </Switcher.Content>
+          </Menu.Content>
         </Menu.Positioner>
       </Switcher.Root>
     </Row>

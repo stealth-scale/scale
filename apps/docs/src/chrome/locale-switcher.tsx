@@ -4,6 +4,8 @@
 
 import { type ReactElement } from "react";
 
+import { CheckIcon } from "lucide-react";
+
 import { Menu } from "@stealthscale/component-disclosure";
 import { Switcher, Toolbar } from "@stealthscale/component-screen";
 import { useTranslation } from "@stealthscale/provider-i18n";
@@ -44,9 +46,9 @@ export function LocaleSwitcher(): null | ReactElement {
         </Switcher.Indicator>
       </Toolbar.Item>
       <Menu.Positioner>
-        <Switcher.Content>
+        <Menu.Content>
           {locales.map((tag) => (
-            <Switcher.Option
+            <Menu.OptionItem
               checked={tag === locale}
               key={tag}
               onCheckedChange={() => {
@@ -55,12 +57,14 @@ export function LocaleSwitcher(): null | ReactElement {
               type="radio"
               value={tag}
             >
-              <Switcher.Mark>{markOf(tag)}</Switcher.Mark>
+              <Menu.ItemIndicator>
+                <CheckIcon aria-hidden size="1em" />
+              </Menu.ItemIndicator>
+              <Menu.ItemMark>{markOf(tag)}</Menu.ItemMark>
               <Menu.ItemText>{endonymOf(tag)}</Menu.ItemText>
-              <Switcher.Check>✓</Switcher.Check>
-            </Switcher.Option>
+            </Menu.OptionItem>
           ))}
-        </Switcher.Content>
+        </Menu.Content>
       </Menu.Positioner>
     </Switcher.Root>
   );

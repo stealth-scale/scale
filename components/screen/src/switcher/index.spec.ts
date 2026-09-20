@@ -5,15 +5,11 @@ import * as barrel from "#switcher/index.ts";
 describe("index", () => {
   it("names every part a caller composes", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
-      "Action",
-      "Check",
-      "Content",
       "Detail",
       "Indicator",
       "Label",
       "Mark",
       "Name",
-      "Option",
       "Root",
       "Trigger",
     ]);

@@ -4,7 +4,7 @@
 
 import { type ReactElement, type ReactNode } from "react";
 
-import { Root } from "#switcher/root.ts";
+import { Root } from "#switcher/root.tsx";
 import { Trigger } from "#switcher/trigger.tsx";
 
 /**

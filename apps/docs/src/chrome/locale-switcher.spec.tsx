@@ -35,9 +35,9 @@ describe("LocaleSwitcher", () => {
     await pressed(result.getByRole("button", { name: "Language English" }));
 
     expect(result.getAllByRole("menuitemradio").map((row) => row.textContent)).toStrictEqual([
-      "ENEnglish✓",
-      "NLNederlands✓",
-      "ARالعربية✓",
+      "ENEnglish",
+      "NLNederlands",
+      "ARالعربية",
     ]);
   });
 

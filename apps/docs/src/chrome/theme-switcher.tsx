@@ -4,6 +4,8 @@
 
 import { type ReactElement } from "react";
 
+import { CheckIcon } from "lucide-react";
+
 import { Menu } from "@stealthscale/component-disclosure";
 import { Switcher, Toolbar } from "@stealthscale/component-screen";
 import { useTranslation } from "@stealthscale/provider-i18n";
@@ -59,9 +61,9 @@ export function ThemeSwitcher(): ReactElement {
         </Switcher.Indicator>
       </Toolbar.Item>
       <Menu.Positioner>
-        <Switcher.Content>
+        <Menu.Content>
           {themes.map((name) => (
-            <Switcher.Option
+            <Menu.OptionItem
               checked={name === theme}
               key={name}
               onCheckedChange={() => {
@@ -70,14 +72,16 @@ export function ThemeSwitcher(): ReactElement {
               type="radio"
               value={name}
             >
-              <Switcher.Mark>
+              <Menu.ItemIndicator>
+                <CheckIcon aria-hidden size="1em" />
+              </Menu.ItemIndicator>
+              <Menu.ItemMark>
                 <span className={swatch} data-theme={name} />
-              </Switcher.Mark>
+              </Menu.ItemMark>
               <Menu.ItemText>{name}</Menu.ItemText>
-              <Switcher.Check>✓</Switcher.Check>
-            </Switcher.Option>
+            </Menu.OptionItem>
           ))}
-        </Switcher.Content>
+        </Menu.Content>
       </Menu.Positioner>
     </Switcher.Root>
   );

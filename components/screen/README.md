@@ -295,9 +295,12 @@ still names each one.
 ## Switcher
 
 Draws the control at the head of a sidebar that names what is being worked in and opens the rest.
-Composed as `Switcher.Root`, which draws nothing itself and carries the variants.
+Composed as `Switcher.Root`, which is the disclosure package's menu, draws nothing itself and
+carries the variants. The control is the switcher's. The list is the menu's, with the menu's own
+mark, lines and description in each row.
 
 ```tsx
+import { Menu } from "@stealthscale/component-disclosure";
 import { Switcher } from "@stealthscale/component-screen";
 
 <Switcher.Root>
@@ -307,8 +310,26 @@ import { Switcher } from "@stealthscale/component-screen";
       <Switcher.Name>Acme</Switcher.Name>
       <Switcher.Detail>Pro plan</Switcher.Detail>
     </Switcher.Label>
-    <Switcher.Indicator />
+    <Switcher.Indicator>
+      <ChevronsUpDownIcon />
+    </Switcher.Indicator>
   </Switcher.Trigger>
+  <Menu.Positioner>
+    <Menu.Content>
+      <Menu.OptionItem checked type="radio" value="acme" onCheckedChange={…}>
+        <Menu.ItemIndicator>
+          <CheckIcon />
+        </Menu.ItemIndicator>
+        <Menu.ItemMark>A</Menu.ItemMark>
+        <Menu.ItemLines>
+          <Menu.ItemText>Acme</Menu.ItemText>
+          <Menu.ItemDescription>Pro plan</Menu.ItemDescription>
+        </Menu.ItemLines>
+      </Menu.OptionItem>
+      <Menu.Separator />
+      <Menu.Item value="new">New workspace</Menu.Item>
+    </Menu.Content>
+  </Menu.Positioner>
 </Switcher.Root>;
 ```
 
@@ -318,9 +339,10 @@ import { Switcher } from "@stealthscale/component-screen";
 | `size`      | `sm`, `md`, `lg`             | `md`      |
 | `variant`   | `outline`, `plain`, `subtle` | `plain`   |
 
-The root carries the variants without drawing anything. A disclosure places the list outside the
-trigger, and the list still has to read the variants. `Switcher.Trigger` states a `label`. A screen
-reader reads that before the name, so `Workspace Acme` says what pressing the control changes.
+The root carries the variants without drawing anything, and hands `size` to the menu as well, so the
+rows are drawn at the control's step. `Switcher.Trigger` states a `label`. A screen reader reads
+that before the name, so `Workspace Acme` says what pressing the control changes. The list opens at
+least as wide as the control, which is the menu's own rule.
 
 `placement` says where the control sits. At the head of a sidebar it is a row the width of the
 column. In a toolbar it takes the width of its words and drops the detail, and the trigger is drawn

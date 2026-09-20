@@ -13,7 +13,7 @@ describe("recipe", () => {
     expect(recipe.className).toBe("menu");
   });
 
-  it("draws the fifteen parts a menu is composed of", () => {
+  it("draws the nineteen parts a menu is composed of", () => {
     expect([...recipe.slots].toSorted()).toStrictEqual([
       "arrow",
       "arrowTip",
@@ -21,9 +21,13 @@ describe("recipe", () => {
       "contextTrigger",
       "indicator",
       "item",
+      "itemCommand",
+      "itemDescription",
       "itemGroup",
       "itemGroupLabel",
       "itemIndicator",
+      "itemLines",
+      "itemMark",
       "itemText",
       "positioner",
       "root",
@@ -90,8 +94,9 @@ describe("recipe", () => {
     expect(recipe.base?.["content"]).toMatchObject({ zIndex: "dropdown" });
   });
 
-  it("states no width so the panel is as wide as its widest row", () => {
-    expect(recipe.base?.["content"]).not.toHaveProperty("minInlineSize");
+  it("opens the panel at least as wide as its control and as wide as its widest row", () => {
+    expect(recipe.base?.["content"]).toMatchObject({ minInlineSize: "var(--reference-width)" });
+    expect(recipe.base?.["content"]).not.toHaveProperty("inlineSize");
   });
 
   it("draws no ring on the panel the machine focuses as it opens", () => {
@@ -99,10 +104,8 @@ describe("recipe", () => {
     expect(recipe.base?.["content"]).not.toHaveProperty("_focusVisible");
   });
 
-  it("leaves the gutter a mark sits in on a row that carries one", () => {
-    expect(recipe.base?.["item"]).toMatchObject({
-      "&[data-type]": { paddingInlineStart: "var(--menu-gutter)" },
-    });
+  it("leaves no gutter on a row that carries a tick", () => {
+    expect(recipe.base?.["item"]).not.toHaveProperty("&[data-type]");
   });
 
   it("leaves the same gutter on every row when the menu is inset", () => {
@@ -114,20 +117,55 @@ describe("recipe", () => {
 
   it("measures the gutter from the room at the edge the mark and the gap beside it", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["item"]).toMatchObject({
-      "--menu-gutter": "calc({spacing.inset.sm} + {sizes.icon.sm} + {spacing.gap.sm})",
+      "--menu-gutter": "calc({spacing.inset.sm} + {sizes.icon.sm} + {spacing.gap.md})",
     });
   });
 
-  it("reads a row one step below the name the menu was asked for", () => {
-    expect(recipe.variants?.["size"]?.["md"]?.["item"]).toMatchObject({
-      minBlockSize: "calc({sizes.control.sm} * var(--density, 1))",
-      textStyle: "label.sm",
+  it("reads a row one step below the name the menu was asked for and rounds its corners", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["item"]).toStrictEqual({
+      "--menu-gutter": "calc({spacing.inset.sm} + {sizes.icon.sm} + {spacing.gap.md})",
+      gap: "calc({spacing.gap.md} * var(--density, 1))",
+      paddingBlock: "calc({spacing.gap.sm} * var(--density, 1))",
+      paddingInline: "calc({spacing.inset.sm} * var(--density, 1))",
+      textStyle: "body.sm",
     });
+    expect(recipe.base?.["item"]).toMatchObject({ borderRadius: "l1" });
   });
 
-  it("reads a group's label one step below the rows it labels", () => {
+  it("runs a rule out to the panel's edge whatever width the rows took", () => {
+    expect(recipe.base?.["separator"]).toMatchObject({ inlineSize: "auto" });
+  });
+
+  it("draws a submenu's control as a row", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["triggerItem"]).toStrictEqual(
+      recipe.variants?.["size"]?.["md"]?.["item"],
+    );
+  });
+
+  it("reads a group's label smaller and lighter than the rows it names", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["itemGroupLabel"]).toMatchObject({
-      textStyle: "label.xs",
+      textStyle: "body.xs",
+    });
+    expect(recipe.base?.["itemGroupLabel"]).toStrictEqual({
+      color: "fg.subtle",
+      fontWeight: "medium",
+    });
+  });
+
+  it("pushes the keys that run a row to its end a step quieter and smaller", () => {
+    expect(recipe.base?.["itemCommand"]).toMatchObject({
+      color: "fg.muted",
+      marginInlineStart: "auto",
+    });
+    expect(recipe.variants?.["size"]?.["md"]?.["itemCommand"]).toMatchObject({
+      textStyle: "body.xs",
+    });
+  });
+
+  it("runs a rule out to the panel's edge through the room round the rows", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["separator"]).toStrictEqual({
+      marginBlock: "calc({spacing.gap.sm} * var(--density, 1))",
+      marginInline: "calc(-1 * calc({spacing.gap.sm} * var(--density, 1)))",
     });
   });
 
@@ -145,14 +183,50 @@ describe("recipe", () => {
     expect(recipe.base?.["item"]).toMatchObject({ cursor: "menuitem" });
   });
 
-  it("places a mark in the gutter rather than in the flow of the row", () => {
-    expect(recipe.base?.["itemIndicator"]).toMatchObject({ position: "absolute" });
+  it("pushes the tick to the end of the row and keeps its box while the row is off", () => {
+    expect(recipe.base?.["itemIndicator"]).toMatchObject({
+      "&[data-state=checked]": { visibility: "visible" },
+      marginInlineStart: "auto",
+      order: "1",
+      visibility: "hidden",
+    });
+    expect(recipe.base?.["itemIndicator"]).not.toHaveProperty("position");
   });
 
   it("cuts a label too long for its row rather than wrapping it", () => {
     expect(recipe.base?.["itemText"]).toMatchObject({
       overflow: "hidden",
       textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
+    });
+  });
+
+  it("draws a row's mark as a tinted square the size of a tag", () => {
+    expect(recipe.base?.["itemMark"]).toMatchObject({
+      background: "bg.muted",
+      borderRadius: "l1",
+      flexShrink: "0",
+      fontWeight: "semibold",
+    });
+    expect(recipe.variants?.["size"]?.["md"]?.["itemMark"]).toStrictEqual({
+      boxSize: "calc({sizes.tag.md} * var(--density, 1))",
+      fontSize: "xs",
+    });
+  });
+
+  it("stacks a row's words over the line about them and fills the row with the pair", () => {
+    expect(recipe.base?.["itemLines"]).toStrictEqual({
+      display: "flex",
+      flex: "1",
+      flexDirection: "column",
+      minInlineSize: "0",
+    });
+  });
+
+  it("draws the line under a row's words in the caption's type and the subtle ink", () => {
+    expect(recipe.base?.["itemDescription"]).toMatchObject({
+      color: "fg.subtle",
+      textStyle: "caption",
       whiteSpace: "nowrap",
     });
   });
@@ -168,13 +242,12 @@ describe("recipe", () => {
     expect(recipe.base?.["positioner"]).toStrictEqual({ position: "relative" });
   });
 
-  it("turns the mark half a revolution while the panel is open", () => {
-    expect(recipe.base?.["indicator"]).toMatchObject({ _open: { rotate: "180deg" } });
-  });
-
-  it("turns the mark without a turn for a reader who asked for no motion", () => {
-    expect(recipe.base?.["indicator"]).toMatchObject({
-      _motionReduce: { transitionDuration: "0s" },
+  it("pushes the mark that opens the panel to the end of its control and holds it still", () => {
+    expect(recipe.base?.["indicator"]).toStrictEqual({
+      alignItems: "center",
+      display: "inline-flex",
+      flexShrink: "0",
+      marginInlineStart: "auto",
     });
   });
 
