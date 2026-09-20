@@ -16,7 +16,7 @@ import { recipeViolations } from "#recipe-checks.ts";
 const button = defineRecipe({
   base: { ...interactive(), ...stack({ direction: "row", gap: "gap.sm" }) },
   className: "button",
-  defaultVariants: { size: "md", variant: "solid" },
+  defaultVariants: { size: "xl", variant: "solid" },
   staticCss: [statusEmitted()],
   variants: {
     size: controlSizes(["xs", "sm", "md", "lg", "xl"]),
@@ -27,7 +27,7 @@ const button = defineRecipe({
 
 const INK = { color: "fg" };
 
-const SIZES = { lg: { height: "control.lg" }, md: { height: "control.md" } };
+const SIZES = { sm: { height: "control.sm" }, xl: { height: "control.xl" } };
 
 describe("recipeViolations", () => {
   it("passes a recipe built from the helpers", () => {
@@ -114,7 +114,7 @@ describe("recipeViolations", () => {
     const recipe = defineRecipe({
       base: INK,
       className: "button",
-      compoundVariants: [{ css: { fontWeight: "bold" }, size: "lg" }],
+      compoundVariants: [{ css: { fontWeight: "bold" }, size: "sm" }],
       variants: { size: SIZES },
     });
 
@@ -127,7 +127,7 @@ describe("recipeViolations", () => {
     const recipe = {
       base: INK,
       className: "button",
-      compoundVariants: [{ css: { fontWeight: "bold" }, size: "lg" }],
+      compoundVariants: [{ css: { fontWeight: "bold" }, size: "sm" }],
       variants: { size: SIZES },
     };
 
@@ -147,16 +147,16 @@ describe("recipeViolations", () => {
       base: INK,
       className: "button",
       compoundVariants: [
-        { css: { fontWeight: "bold" }, name: "hero", size: "lg" },
-        { css: { fontWeight: "bold" }, name: "hero", size: "md" },
-        { css: { fontWeight: "bold" }, name: "md", size: "lg" },
+        { css: { fontWeight: "bold" }, name: "hero", size: "sm" },
+        { css: { fontWeight: "bold" }, name: "hero", size: "xl" },
+        { css: { fontWeight: "bold" }, name: "xl", size: "sm" },
       ],
       variants: { size: SIZES },
     });
 
     expect(recipeViolations(recipe)).toStrictEqual([
       "recipe.compounds: button names compound 2 button--hero, as it names another",
-      "recipe.compounds: button names compound 3 button--md, which is the class of a variant",
+      "recipe.compounds: button names compound 3 button--xl, which is the class of a variant",
     ]);
   });
 
@@ -168,11 +168,11 @@ describe("recipeViolations", () => {
         {
           css: { root: { gap: "gap.lg" }, title: { fontWeight: "bold" } },
           name: "hero",
-          size: "lg",
+          size: "sm",
         },
       ],
       slots: ["root", "title"],
-      variants: { size: { lg: { root: { gap: "gap.lg" } }, md: { root: { gap: "gap.md" } } } },
+      variants: { size: { sm: { root: { gap: "gap.sm" } }, xl: { root: { gap: "gap.xl" } } } },
     });
 
     expect(recipeViolations(recipe)).toStrictEqual([]);
@@ -195,7 +195,7 @@ describe("recipeViolations", () => {
     const recipe = defineRecipe({
       base: INK,
       className: "x",
-      compoundVariants: [{ css: {}, name: "hero", size: "lg" }],
+      compoundVariants: [{ css: {}, name: "hero", size: "sm" }],
       variants: { size: SIZES },
     });
 
@@ -209,11 +209,11 @@ describe("recipeViolations", () => {
       base: { root: { display: "flex" }, title: { textStyle: "heading.md" } },
       className: "card",
       slots: ["root", "title"],
-      variants: { size: { lg: { root: {} }, md: { root: { gap: "gap.md" } } } },
+      variants: { size: { sm: { root: {} }, xl: { root: { gap: "gap.xl" } } } },
     });
 
     expect(recipeViolations(recipe)).toStrictEqual([
-      "recipe.empty: card offers size lg with no styles, so its class has no rule",
+      "recipe.empty: card offers size sm with no styles, so its class has no rule",
     ]);
   });
 
@@ -252,12 +252,12 @@ describe("recipeViolations", () => {
     const recipe = {
       base: INK,
       className: "x",
-      defaultVariants: { loading: true, size: "xl" },
+      defaultVariants: { loading: true, size: "md" },
       variants: { loading: { true: { layerStyle: "disabled" } }, size: SIZES },
     };
 
     expect(recipeViolations(recipe)).toStrictEqual([
-      "recipe.defaults: x defaults size to xl, which the axis does not offer",
+      "recipe.defaults: x defaults size to md, which the axis does not offer",
     ]);
   });
 
@@ -284,12 +284,12 @@ describe("recipeViolations", () => {
     const recipe = {
       base: INK,
       className: "x",
-      compoundVariants: [{ className: "x--hero", css: { fontWeight: "bold" }, size: ["lg", "xl"] }],
+      compoundVariants: [{ className: "x--hero", css: { fontWeight: "bold" }, size: ["sm", "md"] }],
       variants: { size: SIZES },
     };
 
     expect(recipeViolations(recipe)).toStrictEqual([
-      "recipe.selections: x matches compound 1 on size xl, which the axis does not offer",
+      "recipe.selections: x matches compound 1 on size md, which the axis does not offer",
     ]);
   });
 
