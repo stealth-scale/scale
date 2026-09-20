@@ -17,6 +17,7 @@ describe("index", () => {
       "Row",
       "RowHeader",
       "Scroller",
+      "Simple",
       "Sorter",
     ]);
   });

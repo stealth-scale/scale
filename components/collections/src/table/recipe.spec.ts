@@ -44,7 +44,7 @@ describe("recipe", () => {
       "interactive",
       "layout",
       "radius",
-      "ruled",
+      "rules",
       "size",
       "stickyColumn",
       "stickyHeader",
@@ -53,18 +53,83 @@ describe("recipe", () => {
     ]);
   });
 
-  it("draws a ruled table at the middle size when nothing is asked for", () => {
+  it("draws a table ruled between its rows at the middle size when nothing is asked for", () => {
     expect(defaultsOf(recipe)).toStrictEqual({
       align: "middle",
       layout: "auto",
       radius: "l2",
+      rules: "rows",
       size: "md",
-      variant: "line",
+      variant: "plain",
     });
   });
 
-  it("offers the three ways a table is set off", () => {
-    expect(valuesOf(recipe, "variant")).toStrictEqual(["line", "outline", "plain"]);
+  it("offers the two ways a table is set off", () => {
+    expect(valuesOf(recipe, "variant")).toStrictEqual(["plain", "surface"]);
+  });
+
+  it("offers the three sets of rules a table is drawn with", () => {
+    expect(valuesOf(recipe, "rules")).toStrictEqual(["all", "none", "rows"]);
+  });
+
+  it("separates the borders rather than collapsing them", () => {
+    expect(recipe.base?.["root"]).toMatchObject({
+      borderCollapse: "separate",
+      borderSpacing: "0",
+    });
+  });
+
+  it("rules a cell's end on each axis and never its start", () => {
+    const ruled = recipe.variants?.["rules"]?.["all"];
+    const ends = { borderBlockEndWidth: "hairline" };
+
+    expect(ruled?.["cell"]).toMatchObject(ends);
+    expect(ruled?.["cell"]).not.toHaveProperty("borderBlockStartWidth");
+    expect(ruled?.["cell"]).not.toHaveProperty("borderInlineStartWidth");
+    expect(ruled?.["columnHeader"]).toMatchObject(ends);
+    expect(ruled?.["rowHeader"]).toMatchObject(ends);
+  });
+
+  it("counts the last cell of a row by child rather than by type", () => {
+    expect(recipe.variants?.["rules"]?.["all"]?.["rowHeader"]).toHaveProperty("&:not(:last-child)");
+  });
+
+  it("takes the rule off the last row of a body a footer follows", () => {
+    expect(recipe.variants?.["rules"]?.["rows"]?.["body"]).toMatchObject({
+      "&:has(+ tfoot) > tr:last-of-type > *": { borderBlockEndWidth: "0" },
+    });
+  });
+
+  it("closes the band of names whichever way the rows are ruled", () => {
+    const closed = { "& > tr:last-of-type > th": { borderBlockEndWidth: "indicator" } };
+
+    expect(recipe.variants?.["rules"]?.["all"]?.["header"]).toMatchObject(closed);
+    expect(recipe.variants?.["rules"]?.["none"]?.["header"]).toMatchObject(closed);
+    expect(recipe.variants?.["rules"]?.["rows"]?.["header"]).toMatchObject(closed);
+  });
+
+  it("separates a total from the figures it sums whichever way the rows are ruled", () => {
+    const over = { "& > tr:first-of-type > *": { borderBlockStartWidth: "indicator" } };
+
+    expect(recipe.variants?.["rules"]?.["all"]?.["footer"]).toMatchObject(over);
+    expect(recipe.variants?.["rules"]?.["none"]?.["footer"]).toMatchObject(over);
+    expect(recipe.variants?.["rules"]?.["rows"]?.["footer"]).toMatchObject(over);
+  });
+
+  it("sets the column names back from the values they head", () => {
+    expect(recipe.base?.["columnHeader"]).toMatchObject({
+      color: "fg.muted",
+      fontWeight: "medium",
+    });
+    expect(recipe.variants?.["size"]?.["md"]?.["columnHeader"]).toMatchObject({
+      textStyle: "label.sm",
+    });
+  });
+
+  it("takes the full ink back for the column a table is in the order of", () => {
+    expect(recipe.base?.["columnHeader"]).toMatchObject({
+      "&[aria-sort]:not([aria-sort=none])": { color: "fg" },
+    });
   });
 
   it("offers the three places a cell's words sit", () => {
@@ -73,7 +138,7 @@ describe("recipe", () => {
 
   it("stripes the body's own rows in the shallowest well rather than every row of the table", () => {
     expect(recipe.variants?.["striped"]?.["true"]).toStrictEqual({
-      body: { "& > tr": { _odd: { background: "bg.subtle" } } },
+      body: { "& > tr": { _odd: { background: "bg.muted" } } },
     });
   });
 
@@ -116,19 +181,25 @@ describe("recipe", () => {
     ]);
   });
 
-  it("pins the corner above both the sticky header and the sticky column", () => {
+  it("raises the held names over the held column rather than beside it", () => {
+    expect(recipe.variants?.["stickyHeader"]?.["true"]?.["header"]).toMatchObject({
+      "& > tr": { zIndex: "2" },
+    });
+    expect(recipe.variants?.["stickyColumn"]?.["true"]?.["rowHeader"]).toMatchObject({
+      zIndex: "1",
+    });
+  });
+
+  it("holds the name over a held column with the column itself", () => {
+    expect(recipe.variants?.["stickyColumn"]?.["true"]?.["columnHeader"]).toMatchObject({
+      "&:first-child": { insetInlineStart: "0", position: "sticky" },
+    });
+  });
+
+  it("raises the corner over both the held names and the held column", () => {
     const [, cornered] = recipe.compoundVariants ?? [];
 
-    expect(cornered?.css).toStrictEqual({
-      columnHeader: {
-        "&:first-child": {
-          background: "bg.panel",
-          insetInlineStart: "0",
-          position: "sticky",
-          zIndex: "2",
-        },
-      },
-    });
+    expect(cornered?.css).toStrictEqual({ columnHeader: { "&:first-child": { zIndex: "2" } } });
   });
 
   it("tracks the table and every part under its namespace", () => {

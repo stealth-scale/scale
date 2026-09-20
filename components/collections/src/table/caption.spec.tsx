@@ -6,7 +6,7 @@ import { boundViolations, slotElement } from "@stealthscale/testing-theme";
 import { Caption } from "#table/caption.ts";
 import { recipe } from "#table/recipe.ts";
 import { Root } from "#table/root.ts";
-import { type ScrollerProps } from "#table/scroller.ts";
+import { type ScrollerProps } from "#table/scroller.tsx";
 import { composed, scrolled } from "#table/table.fixtures.tsx";
 
 describe("Caption", () => {
