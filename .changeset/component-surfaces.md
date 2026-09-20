@@ -54,3 +54,8 @@ component-surfaces: draw a card with no panel
 
 - `variant="plain"` draws no fill, no edge and no shadow, so a card lays its bands out and states
   its inset while what it holds stands on whatever is behind it.
+- An interactive `Card` rings itself in `colorPalette.focusRing` rather than through a chain of
+  custom properties ending in a hard-coded `#005FCC`. The fallback was unreachable, and the root
+  declared the ring colour twice.
+- `Card`'s `size` and `variant` list their values in the scale's and the looks' order rather than
+  alphabetically. The styles each value draws are unchanged.

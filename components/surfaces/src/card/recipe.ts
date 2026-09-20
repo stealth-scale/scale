@@ -21,12 +21,15 @@
  */
 
 import {
+  below,
   cornerVariants,
   defineSlotRecipe,
   dense,
   justifyVariants,
   motionVariants,
   onSlot,
+  onSlots,
+  sizeVariants,
   statusEmitted,
   statusVariants,
   surface,
@@ -36,6 +39,11 @@ import {
  * The property the root states its own inset in, which the media and the rules read back.
  */
 const INSET = "--card-inset";
+
+/**
+ * The steps a card is drawn at.
+ */
+const STEPS = ["sm", "md", "lg", "xl"] as const;
 
 /**
  * Writes the room the root leaves, taken back.
@@ -130,16 +138,19 @@ export const recipe = defineSlotRecipe({
      *   The link in the title stretches a pseudo-element over the root, which is the card's one
      *   positioned ancestor, so a press anywhere on the card follows the link while the link alone
      *   holds the focus and the name.
+     *   The ring is written out rather than taken from `focusVisibleRing`, because the utility
+     *   draws on the element that took the focus and the element that took it here is the link
+     *   inside the title. It names the palette's focus colour directly, the way the utility does,
+     *   so the two rings are one colour.
      */
     interactive: {
       true: {
         root: {
           _hover: { borderColor: "border.emphasized" },
-          "--focus-ring-color": `var(--focus-ring-color-prop, var(--global-color-focus-ring, #005FCC))`,
           "&:has(.card__title a:focus-visible)": {
-            outlineColor: "var(--focus-ring-color)",
+            outlineColor: "colorPalette.focusRing",
             outlineOffset: "ring",
-            outlineStyle: "var(--focus-ring-style, solid)",
+            outlineStyle: "solid",
             outlineWidth: "ring",
           },
           cursor: "button",
@@ -179,40 +190,28 @@ export const recipe = defineSlotRecipe({
     /**
      * How much room the card leaves round its bands, and how loud the title is set.
      */
-    size: {
-      lg: {
-        root: {
-          gap: dense("{spacing.gap.lg}"),
-          [INSET]: "{spacing.inset.lg}",
-          padding: dense("{spacing.inset.lg}"),
-        },
-        title: { textStyle: "heading.md" },
-      },
-      md: {
-        root: {
-          gap: dense("{spacing.gap.md}"),
-          [INSET]: "{spacing.inset.md}",
-          padding: dense("{spacing.inset.md}"),
-        },
-        title: { textStyle: "heading.sm" },
-      },
-      sm: {
-        root: {
-          gap: dense("{spacing.gap.sm}"),
-          [INSET]: "{spacing.inset.sm}",
-          padding: dense("{spacing.inset.sm}"),
-        },
-        title: { textStyle: "label.lg" },
-      },
-      xl: {
-        root: {
-          gap: dense("{spacing.gap.xl}"),
-          [INSET]: "{spacing.inset.xl}",
-          padding: dense("{spacing.inset.xl}"),
-        },
-        title: { textStyle: "heading.lg" },
-      },
-    },
+    /**
+     * How much room the panel leaves round what it holds, and how loud its title is.
+     *
+     * @remarks
+     *   The title steps down one from the panel, because a card's title heads a panel rather than a
+     *   section of the page. The smallest card titles at the label role instead: a heading at the
+     *   step under `heading.sm` is body text, and a title set in body text is not a title.
+     */
+    size: onSlots({
+      root: sizeVariants(
+        (size) => ({
+          gap: dense(`{spacing.gap.${size}}`),
+          [INSET]: `{spacing.inset.${size}}`,
+          padding: dense(`{spacing.inset.${size}}`),
+        }),
+        STEPS,
+      ),
+      title: sizeVariants(
+        (size) => ({ textStyle: size === "sm" ? "label.lg" : `heading.${below(size)}` }),
+        STEPS,
+      ),
+    }),
 
     /**
      * How the panel is drawn.

@@ -108,12 +108,18 @@ describe("recipe", () => {
   it("draws the ring when the link in the title takes focus", () => {
     expect(recipe.variants?.["interactive"]?.["true"]?.["root"]).toMatchObject({
       "&:has(.card__title a:focus-visible)": {
-        outlineColor: "var(--focus-ring-color)",
+        outlineColor: "colorPalette.focusRing",
         outlineOffset: "ring",
-        outlineStyle: "var(--focus-ring-style, solid)",
+        outlineStyle: "solid",
         outlineWidth: "ring",
       },
     });
+  });
+
+  it("rings the card in the palette's own focus colour rather than a colour of its own", () => {
+    expect(JSON.stringify(recipe.variants?.["interactive"]?.["true"])).not.toMatch(
+      /#[0-9a-f]{3,8}/iu,
+    );
   });
 
   it("leaves a supplementary control to ring itself", () => {
