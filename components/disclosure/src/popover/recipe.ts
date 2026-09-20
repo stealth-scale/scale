@@ -10,6 +10,10 @@
  *   position as inline styles, so this recipe states nothing about where the panel goes. It grows
  *   from whichever corner the machine placed it against, which is a custom property the machine
  *   sets.
+ *   The panel is never narrower than the control that opened it. The machine measures that control
+ *   already and writes the width as a custom property, and a panel narrower than its trigger reads
+ *   as belonging to something else on the page. It is a minimum, so a panel whose contents need
+ *   more room still takes it.
  *   A popover is louder than a tooltip. It holds a heading, a paragraph and often a control, so it
  *   reads at body text and takes the room a panel needs.
  */
@@ -49,6 +53,7 @@ export const recipe = defineSlotRecipe({
       display: "flex",
       flexDirection: "column",
       gap: dense("{spacing.gap.sm}"),
+      minInlineSize: "var(--reference-width)",
       position: "relative",
       transformOrigin: "var(--transform-origin)",
       zIndex: "popover",

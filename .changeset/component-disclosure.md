@@ -48,3 +48,9 @@ component-disclosure: draw the indicator of every tab look
   indicator sits behind the label and takes no pointer input.
 - The collapsible's mark names `rotate` as the property it turns in rather than `transform`, which
   it never changed.
+
+component-disclosure: hold a popover to the width of the control that opened it
+
+- The panel reads `min-inline-size: var(--reference-width)`, the width the machine measures the
+  control at and writes on the positioner. A panel narrower than its trigger reads as belonging to
+  something else on the page. It is a minimum, so a panel whose contents need more room takes it.
