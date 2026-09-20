@@ -25,6 +25,7 @@ import {
   onSlots,
   sizeVariants,
   statusEmitted,
+  statusVariants,
 } from "@stealthscale/theme/authoring";
 
 /**
@@ -58,6 +59,25 @@ export const recipe = defineSlotRecipe({
   staticCss: [statusEmitted(), { status: ["neutral"] }],
   variants: {
     /**
+     * Which edge carries a bar in the palette's own colour.
+     *
+     * @remarks
+     *   The three bars the theme draws, each one a layer style that paints a pseudo-element along
+     *   one edge. They were drawn by the theme and reachable from no component until this axis
+     *   named them.
+     *   The bar reads the palette's solid, so an alert's status colours it and a theme moves it.
+     *   `end` is the inline edge a page's writing runs towards, so a bar asked for there stands at
+     *   the right of a page read left to right and at the left of one read the other way.
+     */
+    edge: {
+      top: { root: { layerStyle: "indicator.top" } },
+
+      bottom: { root: { layerStyle: "indicator.bottom" } },
+
+      end: { root: { layerStyle: "indicator.end" } },
+    },
+
+    /**
      * Whether the title and the description stack or run together on one line.
      */
     layout: {
@@ -86,11 +106,9 @@ export const recipe = defineSlotRecipe({
      * What the alert is about, which picks the palette and nothing else.
      */
     status: {
-      error: { root: { colorPalette: "error" } },
-      info: { root: { colorPalette: "info" } },
+      ...onSlot("root", statusVariants()),
+
       neutral: { root: { colorPalette: "neutral" } },
-      success: { root: { colorPalette: "success" } },
-      warning: { root: { colorPalette: "warning" } },
     },
 
     /**

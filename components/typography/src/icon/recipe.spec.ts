@@ -35,15 +35,23 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers the current colour and the muted ink and the four statuses as tones", () => {
+  it("offers every ink the library draws words in beside the current colour", () => {
     expect(valuesOf(recipe, "tone")).toStrictEqual([
       "current",
+      "default",
       "error",
       "info",
+      "inverted",
       "muted",
+      "subtle",
       "success",
       "warning",
     ]);
+  });
+
+  it("reads the ink of the words round it until a caller picks one", () => {
+    expect(recipe.base).toMatchObject({ color: "currentcolor" });
+    expect(recipe.variants?.["tone"]?.["current"]).toStrictEqual({ color: "currentcolor" });
   });
 
   it("offers the three motions a mark takes", () => {

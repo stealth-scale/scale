@@ -24,8 +24,9 @@ describe("recipe", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
   });
 
-  it("offers the six axes an alert takes", () => {
+  it("offers the seven axes an alert takes", () => {
     expect(axesOf(recipe)).toStrictEqual([
+      "edge",
       "layout",
       "motion",
       "radius",
@@ -33,6 +34,16 @@ describe("recipe", () => {
       "status",
       "variant",
     ]);
+  });
+
+  it("offers a bar on each of the three edges the theme draws one for", () => {
+    expect(valuesOf(recipe, "edge")).toStrictEqual(["bottom", "end", "top"]);
+  });
+
+  it("paints the bar on the root so a status colours it", () => {
+    expect(recipe.variants?.["edge"]?.["top"]).toStrictEqual({
+      root: { layerStyle: "indicator.top" },
+    });
   });
 
   it("draws a subtle notice at the middle size when nothing is asked for", () => {
