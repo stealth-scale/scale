@@ -66,3 +66,15 @@ component-actions: keep a clipboard's lone trigger at a button's width
 - The clipboard's root aligns its parts at the start and the control row stretches back across it,
   so a trigger on its own keeps a button's width. A column that stretched every part drew the
   trigger the width of the card.
+
+component-actions: add a breathing glow to the button's effect axis
+
+- `effect="pulse"` animates the glow between nothing and its full spread, through the theme's
+  `pulse-glow` animation style. It states `boxShadowColor` rather than layering `glow.md`, because
+  the keyframe writes the whole `box-shadow` and would overwrite a static one.
+- Both effects read `colorPalette.solid/50`, so a status or a theme moves them.
+- The moving border is deliberately not offered. `border.moving` paints the panel colour across the
+  padding box to mask the conic gradient inside the edge, so it replaces whatever fill the look
+  painted and leaves a solid button drawing its contrast ink on a panel. Drawing the ring without
+  touching the fill needs a pseudo-element, and a button has neither left: the ripple holds
+  `::after` and the touch target holds `::before`. The reason is recorded on the axis.

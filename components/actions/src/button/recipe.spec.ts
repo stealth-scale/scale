@@ -81,8 +81,15 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "shape")).toStrictEqual(["square"]);
   });
 
-  it("offers the glow as an effect", () => {
-    expect(valuesOf(recipe, "effect")).toStrictEqual(["glow"]);
+  it("offers a glow that holds still and one that breathes", () => {
+    expect(valuesOf(recipe, "effect")).toStrictEqual(["glow", "pulse"]);
+  });
+
+  it("states the shadow's colour on the breathing glow so the keyframe has one to read", () => {
+    expect(recipe.variants?.["effect"]?.["pulse"]).toStrictEqual({
+      animationStyle: "pulse-glow",
+      boxShadowColor: "colorPalette.solid/50",
+    });
   });
 
   it("ripples under every press and holds its box still", () => {

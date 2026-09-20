@@ -114,8 +114,23 @@ export const recipe = defineRecipe({
   jsx: [/Button$/u],
   staticCss: [{ shape: ["square"] }, statusEmitted(), { status: ["neutral"] }],
   variants: {
+    /**
+     * The candy a page can ask a button for.
+     *
+     * @remarks
+     *   Both read the palette's solid at half strength, so a status or a theme moves them. `glow`
+     *   holds still and `pulse` breathes between nothing and the same spread, which is why the
+     *   pulse states the shadow's colour rather than reading the glow layer style: the keyframe
+     *   writes the whole shadow and would overwrite a static one anyway.
+     *   The moving border is not here. `border.moving` paints the panel colour across the padding
+     *   box to mask the conic gradient inside the edge, so it replaces whatever fill the look
+     *   painted and leaves a solid button drawing its contrast ink on a panel. Drawing the ring
+     *   without touching the fill needs a pseudo-element, and a button has neither left: the ripple
+     *   holds `::after` and the touch target holds `::before`.
+     */
     effect: {
       glow: { layerStyle: "glow.md" },
+      pulse: { animationStyle: "pulse-glow", boxShadowColor: "colorPalette.solid/50" },
     },
     elevation: liftVariants(),
     shape: {

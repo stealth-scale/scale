@@ -11,7 +11,8 @@
 
 import { type ReactElement } from "react";
 
-import { Icon } from "@stealthscale/component-typography";
+import { CheckIcon } from "lucide-react";
+
 import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
 
 import { Button } from "#button/button.ts";
@@ -27,11 +28,6 @@ const LOOKS = valuesOf(recipe, "variant");
  * The two answers to a boolean prop.
  */
 const EITHER = [false, true] as const;
-
-/**
- * The path of the check mark the square buttons hold, in a 24 unit box.
- */
-const CHECK = "M20 6 9 17l-5-5";
 
 /**
  * Draws every look at every size.
@@ -115,9 +111,7 @@ function Square(): ReactElement {
     <Matrix across={{ knob: "variant", of: LOOKS }} knob="size" of={valuesOf(recipe, "size")}>
       {(size, variant) => (
         <IconButton aria-label={t("approve")} size={size} variant={variant}>
-          <Icon viewBox="0 0 24 24">
-            <path d={CHECK} fill="none" stroke="currentColor" strokeWidth="2" />
-          </Icon>
+          <CheckIcon size="1em" />
         </IconButton>
       )}
     </Matrix>
