@@ -64,3 +64,11 @@ vite-plugin-specimen: write a page's path relative to the root wherever the file
   `../../components/actions/src/button/button.specimen.tsx` for a catalogue beside the packages it
   shows. A file outside the root kept its absolute path before, and the index is shipped, so a built
   catalogue carried the directory layout of the machine it was built on.
+
+vite-plugin-specimen: include a page chunk's dependencies recursively
+
+- The page chunk group sets `includeDependenciesRecursively: true`, so the modules only the page
+  reaches, its icons among them, are bundled into the page's chunk. Without it the bundler left a
+  stub chunk under the page's own name that held those modules and re-exported the page, and the two
+  chunks imported each other. A table the page built at module level from an icon in the stub read
+  `undefined`, because the stub's binding was hoisted and not yet evaluated.

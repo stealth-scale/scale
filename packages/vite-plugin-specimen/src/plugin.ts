@@ -306,13 +306,21 @@ function chunkOf(indexing: Indexing, id: string): null | string {
  *   request rather than two. The props stay a chunk of their own, because a page loads them only
  *   where somebody opens them. Which file is which page is known once the index has been generated,
  *   which is before the bundler names a page's chunks, because it reaches every page through the
- *   index.
+ *   index. The group includes the page's dependencies recursively, so a module only the page
+ *   reaches, an icon among them, is bundled into the page's chunk. A group without that leaves
+ *   the page's module in a chunk of its own that holds those modules and re-exports the page, and
+ *   the two chunks import each other. A value the page computes at module level from a binding
+ *   in the other chunk is then `undefined`, because that chunk has not run yet.
  */
 function configured(indexing: Indexing): UserConfig {
   return {
     build: {
       rolldownOptions: {
-        output: { codeSplitting: { groups: [{ name: (id) => chunkOf(indexing, id) }] } },
+        output: {
+          codeSplitting: {
+            groups: [{ includeDependenciesRecursively: true, name: (id) => chunkOf(indexing, id) }],
+          },
+        },
       },
     },
     server: { watch: { ignored: [...OUTPUTS] } },
