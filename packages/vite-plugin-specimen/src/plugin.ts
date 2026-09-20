@@ -106,6 +106,27 @@ interface Watching {
 }
 
 /**
+ * Describes the part of an environment the watch change hook reads.
+ */
+interface Bundling {
+  /**
+   * The environment a file changed in, where the bundler binds one.
+   */
+  readonly environment?: {
+    /**
+     * The part of the configuration that says whether the environment produces a bundled output.
+     */
+    readonly config: {
+      /**
+       * Whether the environment produces a bundled output, as a build and a server that bundles
+       * do.
+       */
+      readonly isBundled: boolean;
+    };
+  };
+}
+
+/**
  * Describes a generated module and the absence of a source map for it.
  */
 interface Written {
@@ -259,6 +280,46 @@ async function reread(
 }
 
 /**
+ * Chooses the chunk a module is written into: the page's, for a page's module and its fragments,
+ * and none for any other module, which the bundler places as it would have.
+ *
+ * @remarks
+ *   The name is the page's identifier with its slashes turned into hyphens, so a chunk reads as
+ *   the page it holds, `actions-button-[hash].js`.
+ */
+function chunkOf(indexing: Indexing, id: string): null | string {
+  const bare = id.replace(/\?.*$/su, "");
+  const page = bare.startsWith(RESOLVED_FRAGMENTS)
+    ? bare.slice(RESOLVED_FRAGMENTS.length)
+    : pageOf(indexing, bare);
+
+  return page === undefined ? null : page.replaceAll("/", "-");
+}
+
+/**
+ * Writes the configuration the plugin adds: the build output the watcher leaves alone, and a
+ * page's module and its fragments in one chunk.
+ *
+ * @remarks
+ *   The index reaches a page through two dynamic imports, and the bundler would write a chunk per
+ *   import. Named after the page, the two are merged into one chunk, and a page opens with one
+ *   request rather than two. The props stay a chunk of their own, because a page loads them only
+ *   where somebody opens them. Which file is which page is known once the index has been generated,
+ *   which is before the bundler names a page's chunks, because it reaches every page through the
+ *   index.
+ */
+function configured(indexing: Indexing): UserConfig {
+  return {
+    build: {
+      rolldownOptions: {
+        output: { codeSplitting: { groups: [{ name: (id) => chunkOf(indexing, id) }] } },
+      },
+    },
+    server: { watch: { ignored: [...OUTPUTS] } },
+  };
+}
+
+/**
  * Indexes the specimens the patterns match, and answers that index as a virtual module.
  *
  * @remarks
@@ -288,10 +349,11 @@ export function specimens(options: Options): Plugin {
     },
 
     /**
-     * Excludes build output from the watcher, because the watched directories are whole trees.
+     * Excludes build output from the watcher and puts a page's module and its fragments in one
+     * chunk.
      */
     config(): UserConfig {
-      return { server: { watch: { ignored: [...OUTPUTS] } } };
+      return configured(state);
     },
 
     /**
@@ -317,9 +379,8 @@ export function specimens(options: Options): Plugin {
      * Adds the plugin's own modules to the ones a change invalidates.
      *
      * @remarks
-     *   A server that bundles hands the hook no environment and no module graph. The compiler is
-     *   restarted all the same, and the modules are left to the bundler: a page's fragments watch
-     *   the page's file, and the index is generated again when the server starts.
+     *   A bundler that calls the hook with no environment, and so no module graph, is answered
+     *   nothing: the change reached `watchChange` first, and the modules are the bundler's.
      * @returns The modules to reload, or undefined when the change reaches none of this plugin's.
      */
     async hotUpdate(
@@ -328,11 +389,7 @@ export function specimens(options: Options): Plugin {
     ): Promise<EnvironmentModuleNode[] | undefined> {
       const environment: undefined | Watching["environment"] = this.environment;
 
-      if (environment === undefined) {
-        await restarted(state, changed.file);
-
-        return undefined;
-      }
+      if (environment === undefined) return undefined;
 
       const graph = environment.moduleGraph;
       const reloaded = [
@@ -392,6 +449,20 @@ export function specimens(options: Options): Plugin {
       const page = id.includes("?") ? undefined : pageOf(state, id);
 
       return page === undefined ? undefined : { code: code + accepting(page, "module"), map: null };
+    },
+
+    /**
+     * Restarts the compiler on a change to a typed file where the environment bundles.
+     *
+     * @remarks
+     *   A server that bundles runs no hot update hook and reports a change here, so the compiler
+     *   is restarted here, and the modules are left to the bundler: a page's fragments watch the
+     *   page's file, and the index is generated again when the server starts. A server that
+     *   serves one module per file reports the change to `hotUpdate`, which restarts the compiler
+     *   and reloads the props modules through the module graph, so the change is left to that one.
+     */
+    async watchChange(this: Bundling, id: string): Promise<void> {
+      if (this.environment?.config.isBundled === true) await restarted(state, id);
     },
   };
 }

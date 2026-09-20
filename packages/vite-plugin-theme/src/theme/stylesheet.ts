@@ -475,28 +475,32 @@ export function stylesheet(options: Options = {}): Plugin {
     },
 
     /**
-     * Applies a change under a build that watches, where no hot update runs.
+     * Applies a change where no hot update runs: under a build that watches, and under a server
+     * that bundles.
      *
      * @remarks
-     *   A dev server reports the same change to `hotUpdate`, which applies it and invalidates the
-     *   stylesheets, so under a server this hook leaves the change to that one.
+     *   A server that serves one module per file reports the same change to `hotUpdate`, which
+     *   applies it and invalidates the stylesheets, so under that server this hook leaves the
+     *   change to that one. A server that bundles runs no hot update hook and reports the change
+     *   here, once per environment, so the bundled environment applies it before the bundler
+     *   compiles the stylesheet again, which watches every file behind it through the transform.
+     *   The presets are imported through the server's `ssr` runner, and the server invalidates
+     *   that runner's graph only once every watch change has returned, so the file is invalidated
+     *   here first: the assembly that follows would otherwise import the module the runner
+     *   evaluated before the change, and compile the rules the stylesheet already holds.
      */
     async watchChange(id, change) {
       const environment: Environment | undefined = this.environment;
 
-      if (environment?.config.command !== "build") return;
+      if (environment?.config.command !== "build" && !environment?.config.isBundled) return;
 
+      state.server?.environments["ssr"]?.moduleGraph.onFileChange(id);
       await applied(state, resolved, id, change.event);
     },
 
     /**
      * Applies a change under a dev server, once however many times the server reports it, and
      * invalidates every stylesheet the rules were appended to when the rules went stale.
-     *
-     * @remarks
-     *   A server that bundles hands the hook no environment and no module graph. The change is
-     *   applied all the same, and the stylesheets are left to the bundler, which watches every
-     *   file behind them through the transform.
      */
     async hotUpdate(context) {
       const stale = await reported(state, resolved, context, this.warn.bind(this));

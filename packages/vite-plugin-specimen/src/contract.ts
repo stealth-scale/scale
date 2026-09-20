@@ -193,16 +193,6 @@ export interface Refused {
 export type Read = Entry | Refused;
 
 /**
- * Describes the module a bundler returns for a file imported as text.
- */
-export interface Raw {
-  /**
-   * The text of the file.
-   */
-  default: string;
-}
-
-/**
  * Describes the module the plugin returns for one page's scenes as source.
  */
 export interface Fragments {
@@ -283,11 +273,6 @@ export interface Indexed {
    *   Split like the scenes, so a catalogue pays for a page's props only where somebody opens them.
    */
   props?: (() => Promise<Anatomy>) | undefined;
-
-  /**
-   * Loads the text of the file.
-   */
-  source: () => Promise<Raw>;
 
   /**
    * The page title. Derived from the last segment of the identifier when the file declares none.

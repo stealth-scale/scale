@@ -81,16 +81,26 @@ function grouped(command: string): readonly Group[] {
 }
 
 /**
- * Writes the split into a configuration, over whatever output the build already stated.
+ * Writes the split into a configuration, over whatever output the build already stated, keeping
+ * every group a plugin contributed ahead of these.
  *
  * @remarks
  *   An output stated as several is left alone, because a split written into every one of them
- *   would be a guess at which one is the page's.
+ *   would be a guess at which one is the page's. A group already in the configuration is kept
+ *   first, because a plugin that names the chunk a module lands in knows more about that module
+ *   than a path pattern does, and the groups here claim only what an entry reaches statically.
  */
 function split(config: UserConfig, groups: readonly Group[]): UserConfig {
   const output = config.build?.rolldownOptions?.output;
-  const held: Output = Array.isArray(output) ? {} : (output ?? {});
-  const codeSplitting: Splitting = { groups: [...groups], includeDependenciesRecursively: false };
+
+  if (Array.isArray(output)) return config;
+
+  const held: Output = output ?? {};
+  const splitting = typeof held.codeSplitting === "object" ? held.codeSplitting : {};
+  const codeSplitting: Splitting = {
+    groups: [...(splitting.groups ?? []), ...groups],
+    includeDependenciesRecursively: false,
+  };
 
   return {
     ...config,

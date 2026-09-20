@@ -21,7 +21,6 @@ export {
   type Kind,
   type Member,
   type Prop,
-  type Raw,
   type Read,
   type Refused,
   type Source,

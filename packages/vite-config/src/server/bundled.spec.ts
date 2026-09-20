@@ -28,8 +28,33 @@ describe("bundled", () => {
     expect(refined.experimental).toStrictEqual({ bundledDev: true, hmrPartialAccept: true });
   });
 
+  it("bundles every dynamic import up front", () => {
+    const refined = bundled().refine(SERVING, {});
+
+    expect(refined.build?.rolldownOptions?.experimental).toStrictEqual({
+      devMode: { lazy: false },
+    });
+  });
+
+  it("keeps whatever else the bundler's options held", () => {
+    const refined = bundled().refine(SERVING, {
+      build: { rolldownOptions: { experimental: { lazyBarrel: true }, treeshake: false } },
+    });
+
+    expect(refined.build?.rolldownOptions).toStrictEqual({
+      experimental: { devMode: { lazy: false }, lazyBarrel: true },
+      treeshake: false,
+    });
+  });
+
   it("leaves a specification run serving one module per file", () => {
     expect(bundled().refine({ ...SERVING, mode: "test" }, {})).toStrictEqual({});
+  });
+
+  it("leaves a build alone", () => {
+    const building = { ...SERVING, command: "build", mode: "production" } as const;
+
+    expect(bundled().refine(building, {})).toStrictEqual({});
   });
 
   it("names the layer for the call that produced it and says why", () => {

@@ -54,6 +54,11 @@ vite-plugin-theme: start the compiler without holding the dev server
   request. A change that compiles to the rules the stylesheets already hold, which is most edits to
   a specimen or a page, invalidates nothing and sends nothing to the browser. The catalogue's server
   sent the stylesheet three times per save before.
-- Under the bundling server the hot update hook receives no environment. The change is still applied
-  to the compiler. The bundler regenerates the stylesheets itself, from the watch files the
-  transform registered for every source behind them.
+- The bundling server runs no hot update hook, so a change it reports is applied to the compiler
+  from `watchChange`, where the environment says it bundles. The presets are imported through the
+  server's `ssr` runner, whose graph the server invalidates only once every watch change has
+  returned, so the changed file is invalidated first: the assembly imported the recipe the runner
+  evaluated before the edit otherwise, and a recipe edit reached the browser only after a second
+  save. The bundler regenerates the stylesheets itself, from the watch files the transform
+  registered for every source behind them. A recipe edit reaches the page in 2.9 seconds, with the
+  page's state kept.

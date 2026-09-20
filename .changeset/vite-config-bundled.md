@@ -13,6 +13,13 @@ vite-config: serve an application from one bundle in development
 - Vite marks the mode experimental. A hot update is computed in the browser from what ran rather
   than on the server from the graph, and a plugin's hot update hook is handed no environment, which
   the house plugins allow for.
+- Every dynamic import is bundled when the server starts rather than when a browser first asks for
+  it. The server compiles a lazy import on request and marks its output stale until a rebuild has
+  folded the module in, and a document requested in that window, a frame the page opens or the
+  source map a browser's tools ask for, is answered with the spinner page and reloads every client,
+  which asks for its imports again: a catalogue page reloaded 39 times in 20 seconds. Bundled up
+  front, the start costs five seconds more, a page nobody visited yet opens as fast as one somebody
+  did, and a chunk carries a source map the browser can find.
 
 vite-config: split the house's own packages into a library chunk
 

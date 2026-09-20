@@ -45,9 +45,18 @@ vite-plugin-specimen: give a specimen a hot update boundary of its own
 - The index, the fragments and the props modules are resolved to their specifiers as written, with
   no NUL in front, because a server that bundles registers a module reached through a dynamic import
   under its identifier and loads a module behind a NUL as nothing.
-- A fragments module watches the page's file, so a server that bundles generates it again on a save,
-  and the hot update hook restarts the compiler and leaves the modules to the bundler where the
-  server hands it no environment.
+- A fragments module watches the page's file, so a server that bundles generates it again on a save.
+  That server runs no hot update hook, so a change to a typed file restarts the compiler from
+  `watchChange` where the environment says it bundles, and the modules are left to the bundler.
+
+vite-plugin-specimen: merge a page's module and its fragments into one chunk
+
+- The plugin names the chunk a page's module and its fragments are bundled into after the page,
+  `actions-button-[hash].js`, so a page opens with one request rather than two. The props keep a
+  chunk of their own, loaded where somebody opens them. The catalogue's build writes 185 chunks
+  rather than 262.
+- `Indexed.source`, the file's text as one string, is gone. No catalogue read it, and it cost a
+  chunk per page that no browser ever asked for.
 
 vite-plugin-specimen: write a page's path relative to the root wherever the file is
 

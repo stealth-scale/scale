@@ -136,9 +136,21 @@ function bundling(context: ReturnType<typeof hookContext>): ReturnType<typeof ho
   return { ...context, environment: undefined } as unknown as ReturnType<typeof hookContext>;
 }
 
-async function serving(plugin: ReturnType<typeof stylesheet>, watched: string[]): Promise<void> {
+async function serving(
+  plugin: ReturnType<typeof stylesheet>,
+  watched: string[],
+  invalidated: string[] = [],
+): Promise<void> {
   const server = {
-    environments: { ssr: {} },
+    environments: {
+      ssr: {
+        moduleGraph: {
+          onFileChange(file: string): void {
+            invalidated.push(file);
+          },
+        },
+      },
+    },
     watcher: {
       add(paths: readonly string[]): void {
         watched.push(...paths);
@@ -613,6 +625,39 @@ describe("stylesheet", () => {
     });
 
     expect(written).not.toContain("c-blue");
+  });
+
+  it("compiles from the changed source after a bundling server reports the change", async () => {
+    const written = await withScratchWorkspaceAsync(APP, async (workspace) => {
+      const { context, plugin, sheet } = await compiled(workspace);
+      const bundled = hookContext([], "serve", true);
+
+      await transformed(plugin, context, DECLARED, sheet);
+      workspace.write({ "src/page.tsx": page("blue") });
+      await changed(plugin, bundled, workspace.path("src/page.tsx"), "update");
+
+      return transformed(plugin, bundled, DECLARED, sheet);
+    });
+
+    expect(written).toContain("c-blue");
+  });
+
+  it("invalidates the server runner's copy of a file a bundling server reports changed", async () => {
+    const found = await withScratchWorkspaceAsync(APP, async (workspace) => {
+      const plugin = stylesheet(OPTIONS);
+      const invalidated: string[] = [];
+      const bundled = hookContext([], "serve", true);
+
+      await serving(plugin, [], invalidated);
+      await configured(plugin, { ...RESOLVED, root: workspace.root });
+      await started(plugin, bundled);
+      await loaded(plugin, VIRTUAL);
+      await changed(plugin, bundled, workspace.path("src/page.tsx"), "update");
+
+      return invalidated.map((at) => at.slice(workspace.root.length + 1));
+    });
+
+    expect(found).toStrictEqual(["src/page.tsx"]);
   });
 
   it("forgets a stylesheet the graph no longer holds", async () => {

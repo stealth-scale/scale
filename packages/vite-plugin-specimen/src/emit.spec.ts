@@ -42,10 +42,10 @@ describe("emit", () => {
     );
   });
 
-  it("imports a page's own text under the raw query", () => {
+  it("imports nothing a catalogue does not read", () => {
     const held = listings(SERVING, [file("feedback/badge")]);
 
-    expect(listed(held, "/work/src/badge/badge.specimen.tsx")).toMatch(/\?raw"\)/u);
+    expect(listed(held, "/work/src/badge/badge.specimen.tsx")).not.toMatch(/\?raw|source:/u);
   });
 
   it("imports a page's fragments under its identifier", () => {

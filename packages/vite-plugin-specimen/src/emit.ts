@@ -112,17 +112,14 @@ export function ownerOf(path: string, owners: Owners = new Map()): string {
  *   props loader. `propped` states whether the index was asked to read props at all.
  */
 function loaders(result: Read, propped: boolean): readonly string[] {
-  const source = `    source: () => import(${JSON.stringify(`${result.path}?raw`)}),`;
-
   if (isRefused(result)) {
-    return [`    load: () => Promise.reject(new Error(${JSON.stringify(result.wrong)})),`, source];
+    return [`    load: () => Promise.reject(new Error(${JSON.stringify(result.wrong)})),`];
   }
 
   return [
     `    fragments: () => import(${JSON.stringify(`${FRAGMENTS}${result.id}`)}),`,
     `    load: () => import(${JSON.stringify(result.path)}),`,
     ...(propped ? [`    props: () => import(${JSON.stringify(`${PROPS}${result.id}`)}),`] : []),
-    source,
   ];
 }
 

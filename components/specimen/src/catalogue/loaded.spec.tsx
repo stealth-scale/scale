@@ -21,7 +21,6 @@ function entry(load: () => Promise<unknown>, fragments?: Indexed["fragments"]): 
     namespace: "",
     package: "@stealthscale/component-data",
     path: "src/badge.specimen.tsx",
-    source: () => Promise.resolve({ default: "" }),
     title: "Badge",
   };
 }

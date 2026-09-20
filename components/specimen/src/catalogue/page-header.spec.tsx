@@ -18,7 +18,6 @@ function entry(about = "", group = "Data", namespace = ""): Indexed {
     namespace,
     package: "@stealthscale/component-data",
     path: "src/badge.specimen.tsx",
-    source: () => Promise.resolve({ default: "" }),
     title: "Badge",
   };
 }

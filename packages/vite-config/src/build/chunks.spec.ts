@@ -103,6 +103,18 @@ describe("chunks", () => {
     expect(splitting().includeDependenciesRecursively).toBe(false);
   });
 
+  it("keeps a group a plugin contributed ahead of its own", () => {
+    const named = {
+      name: (id: string): null | string => (id.endsWith(".page.ts") ? "page" : null),
+    };
+    const refined = splitting(BUILDING, {
+      build: { rolldownOptions: { output: { codeSplitting: { groups: [named] } } } },
+    });
+
+    expect(refined.groups[0]).toBe(named);
+    expect(refined.groups.map((group) => group.name)).toHaveLength(5);
+  });
+
   it("keeps whatever else the build output already held", () => {
     const refined = chunks().refine(BUILDING, {
       build: { rolldownOptions: { output: { format: "es" }, treeshake: true }, sourcemap: true },
@@ -112,6 +124,12 @@ describe("chunks", () => {
       rolldownOptions: { output: { format: "es" }, treeshake: true },
       sourcemap: true,
     });
+  });
+
+  it("leaves an output stated as several alone", () => {
+    const several: UserConfig = { build: { rolldownOptions: { output: [{ format: "es" }] } } };
+
+    expect(chunks().refine(BUILDING, several)).toBe(several);
   });
 
   it("names the layer so a repository can remove it and says why", () => {
