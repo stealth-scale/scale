@@ -24,7 +24,7 @@ describe("Board", () => {
     const { container } = render(<Board>One</Board>);
 
     expect(slotClasses(container, "grid", "root")).toContain(
-      slotVariantClass("grid", "root", "columns", "fill-xs"),
+      slotVariantClass("grid", "root", "columns", "fit-xs"),
     );
   });
 

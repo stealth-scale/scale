@@ -69,7 +69,7 @@ describe("Matrix", () => {
 
   it("lays the cells on equal columns of the smallest measure until a caller says otherwise", () => {
     expect(slotClasses(drawn(), "grid", "root")).toContain(
-      slotVariantClass("grid", "root", "columns", "fill-xs"),
+      slotVariantClass("grid", "root", "columns", "fit-xs"),
     );
     expect(slotClasses(drawn(), "sample", "root")).toContain("sample__root");
   });

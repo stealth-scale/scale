@@ -3,18 +3,21 @@
  * rows where the room runs out.
  *
  * @remarks
- *   Above the middle container size the grid draws one column per value across, each as wide as
- *   the widest cell in it and no wider, so the small size takes a narrow column and the large size
- *   a wide one, and every row lines up on the same columns. The count of columns is an axis, one
- *   value per count a specimen can cross, because the compiler writes a rule per value and a count
- *   handed over at run time would be a rule it never sees. Below that size the grid folds: the top
- *   edge goes, each row becomes a line captioned by its own value, and every cell carries the
- *   caption the top edge held, wrapping where the row runs out of room. The root is the container
- *   the grid measures itself against, because a grid folds on the room it is given and not on the
- *   window. A grid wider than its column once unfolded scrolls across, because a row folded under
- *   itself no longer lines up with the caption above it. The cells are centred in their row, so a
- *   row of one control at every size reads as one line of controls, the small ones on the middle
- *   of the tall ones, which is how a row of mixed controls lines up on a page.
+ *   Above the middle container size the grid draws one column per value across, each no narrower
+ *   than the widest cell in it and sharing whatever the card has left over, so the grid reaches the
+ *   card's far edge and every row lines up on the same columns. The count of columns is an axis,
+ *   one value per count a specimen can cross, because the compiler writes a rule per value and a
+ *   count handed over at run time would be a rule it never sees. Below that size the grid folds:
+ *   the top edge goes, each row becomes a line captioned by its own value, and every cell carries
+ *   the caption the top edge held, wrapping where the row runs out of room. The root is the
+ *   container the grid measures itself against, because a grid folds on the room it is given and
+ *   not on the window. A grid wider than its column once unfolded scrolls across, because a row
+ *   folded under itself no longer lines up with the caption above it. The cells are centred in
+ *   their row, so a row of one control at every size reads as one line of controls, the small ones
+ *   on the middle of the tall ones, which is how a row of mixed controls lines up on a page.
+ *   The two gaps are set apart from each other. A row carries a caption of its own at the start of
+ *   it, and the row gap is what holds that pair together against the pair above, so it is drawn
+ *   wider than the gap between two cells that share one caption.
  */
 
 import {
@@ -32,12 +35,37 @@ import {
 const UNFOLDED = "@/md";
 
 /**
- * Writes the columns for one count of values across: that many of their own width, and one more
- * beside them for the side.
+ * The room the scrolling grid leaves round its cells, and takes back again.
+ *
+ * @remarks
+ *   A grid that scrolls across is a scroll container on both axes, because CSS resolves a visible
+ *   overflow against a scrolling one to `auto`. Anything a cell paints outside its own box was
+ *   cut at the grid's edge, so a button carrying the theme's glow lost the top and the bottom of
+ *   it and read as a halo with a flat lid. The room is the widest glow the theme draws, so the
+ *   largest of them clears the edge, and the same room comes off as a negative margin, which
+ *   leaves the grid occupying what it did before.
+ */
+const HALO = "{sizes.12}";
+
+/**
+ * Writes the columns for one count of values across: the side's own width, and that many columns
+ * that share whatever the card has left and never squeeze a cell past what it can give.
+ *
+ * @remarks
+ *   `minmax(min-content, 1fr)` rather than `max-content`. Columns of their own width packed against
+ *   the start of a card left the rest of the card empty, so a page of scenes read as a column of
+ *   drawings down the left edge rather than as a set of grids.
+ *   The floor is what a cell cannot go under rather than what it would take if offered everything.
+ *   A control that sets no width of its own reports the two alike, so a row of buttons keeps the
+ *   width it had. A control that fills whatever it is given reports a much smaller floor, so five
+ *   fields share the card instead of asking for five times their natural width and pushing the last
+ *   of them off the edge.
  */
 function columned(count: Count): SystemStyleObject {
   return {
-    [UNFOLDED]: { gridTemplateColumns: `repeat(${String(Number(count) + 1)}, max-content)` },
+    [UNFOLDED]: {
+      gridTemplateColumns: `max-content repeat(${count}, minmax(min-content, 1fr))`,
+    },
   };
 }
 
@@ -66,9 +94,10 @@ export const recipe = defineSlotRecipe({
         alignItems: "center",
         columnGap: dense("{spacing.gap.lg}"),
         display: "grid",
-        justifyContent: "start",
+        marginBlock: `calc(${HALO} * -1)`,
         overflowX: "auto",
-        rowGap: dense("{spacing.gap.md}"),
+        paddingBlock: HALO,
+        rowGap: dense("{spacing.gap.xl}"),
       },
     },
     head: { display: "none", [UNFOLDED]: { display: "contents" } },

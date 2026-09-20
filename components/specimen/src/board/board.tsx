@@ -30,16 +30,20 @@ const GAP = "2xl";
 
 /**
  * The columns a board draws until a caller says otherwise: as many of the smallest measure as the
- * room holds, whether or not there are samples for all of them.
+ * room holds, the empty ones dropped so the samples share the whole row.
  *
  * @remarks
  *   Equal columns are what make a page of drawings read as a set. Components differ in width by
  *   their nature, and cells that each take their own width put the captions at uneven intervals
- *   and leave a ragged edge down the page. A filled row rather than a fitted one keeps a column
- *   the same width whether three samples or eight sit on it, so two scenes of one page line up
- *   with each other as well as within themselves.
+ *   and leave a ragged edge down the page.
+ *   Fitted rather than filled. A filled row keeps the columns nobody wrote a sample for, so two
+ *   samples on a wide card each took a quarter of it and anything wider than a quarter was cut off
+ *   at the column's edge. Fitting drops the empty columns, so two samples take half the card each
+ *   and one takes all of it. The cost is that a scene of two samples no longer lines up with a
+ *   scene of four on the same page, which is the lesser of the two: a reader compares the samples
+ *   of one scene far more often than the scenes of one page.
  */
-const COLUMNS = "fill-xs";
+const COLUMNS = "fit-xs";
 
 /**
  * Describes what a board takes: everything the library's grid takes, and the look it sets for

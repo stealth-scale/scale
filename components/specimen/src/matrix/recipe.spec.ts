@@ -27,14 +27,39 @@ describe("recipe", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ across: "1" });
   });
 
-  it("draws a column of its own width per value across and one beside them for the side", () => {
+  it("draws a column per value across that shares the card and one beside them for the side", () => {
     expect(recipe.variants?.["across"]?.["3"]).toStrictEqual({
-      grid: { "@/md": { gridTemplateColumns: "repeat(4, max-content)" } },
+      grid: { "@/md": { gridTemplateColumns: "max-content repeat(3, minmax(min-content, 1fr))" } },
+    });
+  });
+
+  it("never squeezes a column past what the cells in it can give", () => {
+    expect(recipe.variants?.["across"]?.["6"]).toStrictEqual({
+      grid: { "@/md": { gridTemplateColumns: "max-content repeat(6, minmax(min-content, 1fr))" } },
+    });
+  });
+
+  it("holds two rows further apart than two cells of one row", () => {
+    expect(recipe.base?.["grid"]).toMatchObject({
+      "@/md": {
+        columnGap: "calc({spacing.gap.lg} * var(--density, 1))",
+        rowGap: "calc({spacing.gap.xl} * var(--density, 1))",
+      },
     });
   });
 
   it("centres each cell in its row once unfolded", () => {
     expect(recipe.base?.["grid"]).toMatchObject({ "@/md": { alignItems: "center" } });
+  });
+
+  it("leaves room for what a cell paints outside its box and takes the room back", () => {
+    expect(recipe.base?.["grid"]).toMatchObject({
+      "@/md": {
+        marginBlock: "calc({sizes.12} * -1)",
+        overflowX: "auto",
+        paddingBlock: "{sizes.12}",
+      },
+    });
   });
 
   it("folds the grid into rows below the middle container size", () => {

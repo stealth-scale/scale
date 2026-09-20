@@ -14,6 +14,11 @@
  *   the component frames the room beside it instead: a toolbar of three controls in a box that
  *   filled a grid column read as a control adrift in a panel. The other four fill the cell, which
  *   is what a column of boxes the same width asks for, and place the drawing in it.
+ *   Fitting is also what keeps a matrix of a control at every size on one card. A control that
+ *   fills whatever it is given asks its column for the width it would take stretched, so eight
+ *   fields drawn at `start` asked for more than the card holds and the last three fell off the
+ *   edge. A scene whose component should reach the far side of its column states `place="start"`
+ *   itself.
  *   The span is for a sample laid out on a board, which is the library's grid. A sample outside a
  *   grid is unaffected by it.
  */
