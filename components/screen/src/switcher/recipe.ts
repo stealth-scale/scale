@@ -139,9 +139,11 @@ export const recipe = defineSlotRecipe({
      *   default.
      */
     variant: onSlot("root", {
-      outline: { borderColor: "border.emphasized", borderWidth: "control" },
-      plain: { background: "transparent" },
       subtle: { background: "bg.muted" },
+
+      outline: { borderColor: "border.emphasized", borderWidth: "control" },
+
+      plain: { background: "transparent" },
     }),
   },
 });

@@ -94,9 +94,11 @@ export const recipe = defineSlotRecipe({
      *   row's. The plain row has no edge and keeps its controls flush with what holds it.
      */
     variant: {
-      outline: { root: { borderColor: "border", borderWidth: "hairline", padding: `var(${GAP})` } },
-      plain: { root: { background: "transparent" } },
       surface: { root: { ...surface(), padding: `var(${GAP})` } },
+
+      outline: { root: { borderColor: "border", borderWidth: "hairline", padding: `var(${GAP})` } },
+
+      plain: { root: { background: "transparent" } },
     },
   },
 });

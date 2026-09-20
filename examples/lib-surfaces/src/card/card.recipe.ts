@@ -34,9 +34,11 @@ export const recipe = defineSlotRecipe({
   slots: ["root", "header", "content", "footer"],
   variants: {
     size: {
-      lg: { header: { textStyle: "heading.md" }, root: { gap: "gap.lg", padding: "inset.lg" } },
-      md: { header: { textStyle: "heading.sm" }, root: { gap: "gap.md", padding: "inset.md" } },
       sm: { header: { textStyle: "label.lg" }, root: { gap: "gap.sm", padding: "inset.sm" } },
+
+      md: { header: { textStyle: "heading.sm" }, root: { gap: "gap.md", padding: "inset.md" } },
+
+      lg: { header: { textStyle: "heading.md" }, root: { gap: "gap.lg", padding: "inset.lg" } },
     },
     variant: {
       elevated: { root: { borderColor: "transparent", boxShadow: "md" } },

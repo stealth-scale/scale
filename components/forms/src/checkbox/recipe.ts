@@ -116,9 +116,11 @@ export const recipe = defineSlotRecipe({
      *   resting in their surface and checked in the layer style the palette fills them with.
      */
     variant: onSlot("control", {
-      outline: { _checked: { layerStyle: "outline.solid" }, background: "transparent" },
       solid: { _checked: { layerStyle: "fill.solid" } },
+
       subtle: { _checked: { layerStyle: "fill.subtle" }, background: "bg.muted" },
+
+      outline: { _checked: { layerStyle: "outline.solid" }, background: "transparent" },
     }),
   },
 });

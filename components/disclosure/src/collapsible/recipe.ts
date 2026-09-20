@@ -82,15 +82,11 @@ export const recipe = defineSlotRecipe({
      * How the pair is set off from the page around it.
      */
     variant: {
-      outline: {
-        root: { borderColor: "border", borderRadius: "l2", borderWidth: "hairline" },
-        trigger: { _open: { borderBlockEndColor: "border", borderBlockEndWidth: "hairline" } },
-      },
-      plain: { root: { borderWidth: "0" } },
       subtle: {
         root: { background: "bg.muted", borderRadius: "l2" },
         trigger: { _hover: { background: "bg.emphasized" } },
       },
+
       surface: {
         root: {
           background: "bg.panel",
@@ -100,6 +96,13 @@ export const recipe = defineSlotRecipe({
         },
         trigger: { _open: { borderBlockEndColor: "border", borderBlockEndWidth: "hairline" } },
       },
+
+      outline: {
+        root: { borderColor: "border", borderRadius: "l2", borderWidth: "hairline" },
+        trigger: { _open: { borderBlockEndColor: "border", borderBlockEndWidth: "hairline" } },
+      },
+
+      plain: { root: { borderWidth: "0" } },
     },
   },
 });

@@ -130,9 +130,11 @@ export const recipe = defineSlotRecipe({
      *   the layer style the palette fills the track with once it is on.
      */
     variant: onSlot("control", {
-      outline: { _checked: { layerStyle: "outline.solid" }, background: "transparent" },
       solid: { _checked: { layerStyle: "fill.solid" } },
+
       subtle: { _checked: { layerStyle: "fill.subtle" } },
+
+      outline: { _checked: { layerStyle: "outline.solid" }, background: "transparent" },
     }),
   },
 });

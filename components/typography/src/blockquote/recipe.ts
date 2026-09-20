@@ -15,9 +15,16 @@ import {
   dense,
   motionVariants,
   onSlot,
+  onSlots,
+  sizeVariants,
   statusEmitted,
   statusVariants,
 } from "@stealthscale/theme/authoring";
+
+/**
+ * The steps a quotation is read at.
+ */
+const STEPS = ["xs", "sm", "md", "lg", "xl"] as const;
 
 /**
  * Draws a quotation on the neutral palette in the subtle look and the middle size until a caller
@@ -47,28 +54,20 @@ export const recipe = defineSlotRecipe({
       start: { root: { alignItems: "flex-start", textAlign: "start" } },
     },
     motion: onSlot("root", motionVariants(["rise", "reveal"])),
-    size: {
-      lg: {
-        content: { textStyle: "body.lg" },
-        root: { gap: dense("{spacing.gap.lg}"), paddingInlineStart: dense("{spacing.inset.lg}") },
-      },
-      md: {
-        content: { textStyle: "body.md" },
-        root: { gap: dense("{spacing.gap.md}"), paddingInlineStart: dense("{spacing.inset.md}") },
-      },
-      sm: {
-        content: { textStyle: "body.sm" },
-        root: { gap: dense("{spacing.gap.sm}"), paddingInlineStart: dense("{spacing.inset.sm}") },
-      },
-      xl: {
-        content: { textStyle: "body.xl" },
-        root: { gap: dense("{spacing.gap.xl}"), paddingInlineStart: dense("{spacing.inset.xl}") },
-      },
-      xs: {
-        content: { textStyle: "body.xs" },
-        root: { gap: dense("{spacing.gap.xs}"), paddingInlineStart: dense("{spacing.inset.xs}") },
-      },
-    },
+    /**
+     * How loud the quotation is, on the five steps the body role offers.
+     */
+    size: onSlots({
+      content: sizeVariants((size) => ({ textStyle: `body.${size}` }), STEPS),
+      root: sizeVariants(
+        (size) => ({
+          gap: dense(`{spacing.gap.${size}}`),
+          paddingInlineStart: dense(`{spacing.inset.${size}}`),
+        }),
+        STEPS,
+      ),
+    }),
+
     status: onSlot("root", statusVariants()),
     variant: {
       glass: {

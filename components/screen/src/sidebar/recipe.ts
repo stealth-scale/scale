@@ -127,10 +127,13 @@ export const recipe = defineSlotRecipe({
      *   draws the hairline between the panel and the page, so a line here would be a second one.
      */
     variant: onSlot("root", {
-      outline: { borderColor: "border", borderInlineEndWidth: "hairline" },
-      plain: { background: "transparent" },
       subtle: { background: "bg.subtle" },
+
       surface: { ...surface(), borderRadius: "0" },
+
+      outline: { borderColor: "border", borderInlineEndWidth: "hairline" },
+
+      plain: { background: "transparent" },
     }),
   },
 });

@@ -420,10 +420,11 @@ export const recipe = defineSlotRecipe({
      *   sit one under another on the same fill.
      */
     variant: {
-      plain: { scroller: { background: "transparent" } },
       surface: {
         scroller: { ...surface(), overflow: "hidden", overflowX: "auto" },
       },
+
+      plain: { scroller: { background: "transparent" } },
     },
   },
 });
