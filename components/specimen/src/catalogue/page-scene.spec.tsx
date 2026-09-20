@@ -111,4 +111,14 @@ describe("SceneSection", () => {
 
     expect(recipeClasses(container, "stage")).toContain(variantClass("stage", "width", "phone"));
   });
+
+  it("draws a bled scene inset while the stage is held to a width the card is wider than", async () => {
+    const bled: Scene = { draw: marked, frame: "bleed", title: "Sizes" };
+    const { container, getByText } = await drawn(
+      <ViewportProvider width={PHONE.min}>{sectioned(bled)}</ViewportProvider>,
+    );
+
+    expect(slotElement(container, "card", "content").contains(getByText("drawn"))).toBe(true);
+    expect(container.querySelector(".card__media")).toBeNull();
+  });
 });

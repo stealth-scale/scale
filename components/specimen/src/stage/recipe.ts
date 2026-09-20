@@ -15,6 +15,23 @@
 import { defineRecipe } from "@stealthscale/theme/authoring";
 
 /**
+ * Writes what a held stage shares: a dashed hairline a gap outside its box, so the width it is
+ * held to can be seen against the card.
+ *
+ * @remarks
+ *   An outline rather than a border, because a border would take room from the width the stage
+ *   states and move the scene. Dashed, so it reads as a boundary the catalogue drew and not as
+ *   part of the component on the stage. A stage the window decides draws none, because there is
+ *   no width to show.
+ */
+const HELD = {
+  outlineColor: "border.emphasized",
+  outlineOffset: "gap.xs",
+  outlineStyle: "dashed",
+  outlineWidth: "hairline",
+};
+
+/**
  * Draws a stage the width of the card's content until a caller holds it to a window's width.
  */
 export const recipe = defineRecipe({
@@ -24,15 +41,15 @@ export const recipe = defineRecipe({
   variants: {
     /**
      * The window's width the stage is held to: the smallest measure for a phone, and where each
-     * of the theme's breakpoints starts.
+     * of the theme's breakpoints starts. A held stage shows its edge.
      */
     width: {
-      "2xl": { maxInlineSize: "{breakpoints.2xl}" },
-      lg: { maxInlineSize: "{breakpoints.lg}" },
-      md: { maxInlineSize: "{breakpoints.md}" },
-      phone: { maxInlineSize: "xs" },
-      sm: { maxInlineSize: "{breakpoints.sm}" },
-      xl: { maxInlineSize: "{breakpoints.xl}" },
+      "2xl": { ...HELD, maxInlineSize: "{breakpoints.2xl}" },
+      lg: { ...HELD, maxInlineSize: "{breakpoints.lg}" },
+      md: { ...HELD, maxInlineSize: "{breakpoints.md}" },
+      phone: { ...HELD, maxInlineSize: "xs" },
+      sm: { ...HELD, maxInlineSize: "{breakpoints.sm}" },
+      xl: { ...HELD, maxInlineSize: "{breakpoints.xl}" },
     },
   },
 });

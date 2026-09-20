@@ -27,8 +27,23 @@ describe("recipe", () => {
   });
 
   it("reads each breakpoint's width from its token and the phone's from the smallest measure", () => {
-    expect(recipe.variants?.width.md).toStrictEqual({ maxInlineSize: "{breakpoints.md}" });
-    expect(recipe.variants?.width.phone).toStrictEqual({ maxInlineSize: "xs" });
+    expect(recipe.variants?.width.md).toMatchObject({ maxInlineSize: "{breakpoints.md}" });
+    expect(recipe.variants?.width.phone).toMatchObject({ maxInlineSize: "xs" });
+  });
+
+  it("shows the edge of a held stage as a dashed hairline a gap outside its box", () => {
+    expect.hasAssertions();
+
+    for (const held of Object.values(recipe.variants?.width ?? {})) {
+      expect(held).toMatchObject({
+        outlineColor: "border.emphasized",
+        outlineOffset: "gap.xs",
+        outlineStyle: "dashed",
+        outlineWidth: "hairline",
+      });
+    }
+
+    expect(recipe.base).not.toHaveProperty("outlineStyle");
   });
 
   it("tracks the tag a consumer writes it under", () => {

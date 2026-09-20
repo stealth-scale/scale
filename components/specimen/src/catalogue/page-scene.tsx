@@ -3,18 +3,18 @@
  * its own, and its source folded under the stage.
  */
 
-import { type ReactElement } from "react";
+import { type ReactElement, useRef } from "react";
 
 import { Section } from "@stealthscale/component-screen";
 import { Card } from "@stealthscale/component-surfaces";
-import { useViewport } from "@stealthscale/provider-viewport";
+import { useNarrow, useViewport } from "@stealthscale/provider-viewport";
 
 import { marked } from "#catalogue/marked.tsx";
 import { Source } from "#catalogue/page-source.tsx";
 import { useWording } from "#catalogue/wording.ts";
 import { type Frame, type Scene } from "#page.ts";
 import { Stage } from "#stage/stage.ts";
-import { stageWidthOf } from "#stage/width.ts";
+import { stageWidthOf, widthsOf } from "#stage/width.ts";
 
 /**
  * Lists the look the card is drawn in for each frame a scene can take.
@@ -72,13 +72,21 @@ export interface SceneSectionProps {
  *   compiler reads the parts a page draws out of its source.
  *   The scene is drawn on a stage, which is held to the width the viewport states where one is
  *   stated, so a reader who picked a phone's width sees the scene fold as a phone folds it while
- *   the card, the page and the chrome around them keep their own.
+ *   the card, the page and the chrome around them keep their own. A scene that bleeds keeps its
+ *   bleed only while the stage fills the card: held to a width the card is wider than, it is
+ *   drawn in the card's content instead, because a stage bled to one edge and short of the other
+ *   read as a panel cut off. The card is measured for that, the way every screen component
+ *   measures itself, and until it has a box the stage is taken to fit inside it.
  */
 export function SceneSection({ id, namespace, scene, source }: SceneSectionProps): ReactElement {
   const word = useWording(namespace);
   const { sizes, width } = useViewport();
+  const card = useRef<HTMLDivElement>(null);
   const frame = scene.frame ?? "inset";
   const held = stageWidthOf(width, sizes);
+  const pixels = widthsOf(sizes).find((size) => size.name === held)?.min ?? 0;
+  const overflowing = useNarrow(card, pixels, "base");
+  const bleeds = frame !== "inset" && (held === undefined || overflowing);
   const stage = (
     <Stage {...(held === undefined ? {} : { width: held })}>
       <scene.draw />
@@ -94,12 +102,8 @@ export function SceneSection({ id, namespace, scene, source }: SceneSectionProps
         )}
       </Section.Header>
       <Section.Body>
-        <Card.Root as="div" variant={SURFACE[frame]}>
-          {frame === "inset" ? (
-            <Card.Content>{stage}</Card.Content>
-          ) : (
-            <Card.Media>{stage}</Card.Media>
-          )}
+        <Card.Root as="div" ref={card} variant={SURFACE[frame]}>
+          {bleeds ? <Card.Media>{stage}</Card.Media> : <Card.Content>{stage}</Card.Content>}
           {source === undefined ? null : <Source code={source} title={word(scene.title)} />}
         </Card.Root>
       </Section.Body>
