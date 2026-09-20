@@ -12,6 +12,14 @@ import { dependencies } from "@stealthscale/vite-plugin-base";
 
 import { contributors, workspaceRoots, workspaceSources } from "#contributors.ts";
 
+const PUBLISHED = {
+  ".": "./index.js",
+  "./package.json": "./package.json",
+  "./theme": "./theme.js",
+};
+
+const FILES = { "index.js": "export {};\n", "theme.js": "export default {};\n" };
+
 function installed(
   name: string,
   dependsOn: readonly string[] = [],
@@ -22,12 +30,11 @@ function installed(
     directory,
     {
       dependencies: Object.fromEntries(dependsOn.map((each) => [each, "*"])),
-      exports: publishes
-        ? { ".": "./index.js", "./package.json": "./package.json", "./theme": "./theme.js" }
-        : { ".": "./index.js", "./package.json": "./package.json" },
+      exports: publishes ? PUBLISHED : { ".": "./index.js", "./package.json": "./package.json" },
       name,
+      peerDependencies: publishes ? { "@acme/design": "*" } : {},
     },
-    { "index.js": "export {};\n", "theme.js": "export default {};\n" },
+    FILES,
   );
 }
 
@@ -79,6 +86,28 @@ describe("contributors", () => {
 
   it("passes over a dependency that publishes no preset", () => {
     expect(named({ ...root(["@acme/plain"]), ...installed("@acme/plain") })).toStrictEqual([]);
+  });
+
+  it("passes over a package that publishes the subpath without naming the system package", () => {
+    const stranger = packageFiles(
+      "node_modules/@vendor/highlight",
+      { exports: PUBLISHED, name: "@vendor/highlight" },
+      FILES,
+    );
+
+    expect(named({ ...root(["@vendor/highlight"]), ...stranger })).toStrictEqual([]);
+  });
+
+  it("lists a publisher that depends on the system package rather than peering on it", () => {
+    const kit = packageFiles(
+      "node_modules/@acme/kit",
+      { dependencies: { "@acme/design": "*" }, exports: PUBLISHED, name: "@acme/kit" },
+      FILES,
+    );
+
+    expect(named({ ...root(["@acme/kit"]), ...installed("@acme/design"), ...kit })).toStrictEqual([
+      "@acme/kit",
+    ]);
   });
 
   it("places the system package first whatever the graph says", () => {
