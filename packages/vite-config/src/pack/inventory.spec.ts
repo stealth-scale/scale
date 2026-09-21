@@ -1,57 +1,34 @@
-import { mkdtempSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { fileURLToPath } from "node:url";
+import { describe, expect, it, vi } from "vitest";
 
 import { type Context } from "@stealthscale/vite-config-core";
 
-import { inventory } from "#pack/inventory.ts";
+import { type Built } from "#sbom/sbom.fixtures.ts";
 import { told } from "#vite.fixtures.ts";
 
-interface Writing {
-  configResolved: (config: { root: string }) => void;
-  generateBundle: (this: unknown) => void;
-}
+const PLUGIN = "@stealthscale/vite-plugin-sbom";
 
-function isWriting(value: unknown): value is Writing {
-  return typeof value === "object" && value !== null && "generateBundle" in value;
-}
+const FIXTURE = fileURLToPath(new URL("../sbom/sbom.fixtures.ts", import.meta.url));
 
-function described(): string {
-  const at = mkdtempSync(join(tmpdir(), "stealth-pack-inventory-"));
+vi.mock(import("@stealthscale/vite-config-core"), async (importOriginal) => {
+  const actual = await importOriginal();
 
-  writeFileSync(join(at, "package.json"), JSON.stringify({ name: "one", version: "1.0.0" }));
+  return {
+    ...actual,
+    located: (specifier: string, from: string): string =>
+      specifier === PLUGIN ? FIXTURE : actual.located(specifier, from),
+  };
+});
 
-  return at;
-}
+const { inventory } = await import("#pack/inventory.ts");
 
-async function written(
+async function passed(
   stated: Partial<Context> = {},
   supplier?: Parameters<typeof inventory>[0],
-): Promise<Map<string, string>> {
-  const held = new Map<string, string>();
+): Promise<Record<string, unknown>> {
   const plugin: unknown = await inventory(supplier).itemOf?.(told(stated));
 
-  if (!isWriting(plugin)) throw new Error("the contribution built no plugin");
-
-  plugin.configResolved({ root: described() });
-  plugin.generateBundle.call({
-    emitFile: (file: { fileName: string; source: string }) => held.set(file.fileName, file.source),
-    getModuleIds: () => [],
-  });
-
-  return held;
-}
-
-async function document(
-  at: string,
-  stated: Partial<Context> = {},
-): Promise<Record<string, unknown>> {
-  return JSON.parse((await written(stated)).get(at) ?? "{}") as Record<string, unknown>;
-}
-
-async function metadata(stated: Partial<Context> = {}): Promise<Record<string, unknown>> {
-  return (await document("cyclonedx/bom.json", stated))["metadata"] as Record<string, unknown>;
+  return (plugin as Built).options;
 }
 
 describe("inventory", () => {
@@ -71,39 +48,38 @@ describe("inventory", () => {
     expect(inventory().item).toBeUndefined();
   });
 
-  it("writes one document", async () => {
-    expect([...(await written()).keys()]).toStrictEqual(["cyclonedx/bom.json"]);
+  it("names no path and leaves the document where the plugin puts it", async () => {
+    await expect(passed()).resolves.not.toHaveProperty("paths");
   });
 
-  it("describes a library", async () => {
-    expect(((await metadata())["component"] as Record<string, unknown>)["type"]).toBe("library");
+  it("asks for a document that describes a library", async () => {
+    expect((await passed())["type"]).toBe("library");
   });
 
   it("supplies the house", async () => {
-    expect(((await metadata())["supplier"] as Record<string, unknown>)["name"]).toBe(
-      "Stealth Scale B.V.",
-    );
+    expect((await passed())["supplier"]).toStrictEqual({
+      name: "Stealth Scale B.V.",
+      url: ["https://stealthscale.io"],
+    });
   });
 
   it("supplies the author the repository names instead", async () => {
-    const source = await written({}, { name: "Acme", url: ["https://acme.example"] });
-    const held = JSON.parse(source.get("cyclonedx/bom.json") ?? "{}") as Record<string, unknown>;
-    const supplier = (held["metadata"] as Record<string, unknown>)["supplier"];
+    const supplier = { name: "Acme", url: ["https://acme.example"] };
 
-    expect((supplier as Record<string, unknown>)["name"]).toBe("Acme");
+    expect((await passed({}, supplier))["supplier"]).toStrictEqual(supplier);
   });
 
-  it("includes a serial number and a timestamp for a release", async () => {
-    const held = await document("cyclonedx/bom.json", { mode: "production" });
+  it("asks for a serial number and a timestamp for a release", async () => {
+    const held = await passed({ mode: "production" });
 
-    expect(held["serialNumber"]).toBeDefined();
-    expect((held["metadata"] as Record<string, unknown>)["timestamp"]).toBeDefined();
+    expect(held["serialNumber"]).toBe(true);
+    expect(held["timestamp"]).toBe(true);
   });
 
-  it("includes neither in development", async () => {
-    const held = await document("cyclonedx/bom.json");
+  it("asks for neither in development", async () => {
+    const held = await passed();
 
-    expect(held["serialNumber"]).toBeUndefined();
-    expect((held["metadata"] as Record<string, unknown>)["timestamp"]).toBeUndefined();
+    expect(held["serialNumber"]).toBe(false);
+    expect(held["timestamp"]).toBe(false);
   });
 });
