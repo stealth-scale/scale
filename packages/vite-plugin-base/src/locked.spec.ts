@@ -1,5 +1,6 @@
 /**
- * Covers what each lockfile format yields, and what it declines to record.
+ * Covers what each lockfile format yields, what it declines to record, and which record an
+ * installation is matched to.
  *
  * @remarks
  *   Each case writes a real lockfile into a temporary directory rather than stubbing the reader,
@@ -11,7 +12,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { locked } from "#locked.ts";
+import { installedOf, locked } from "#locked.ts";
 
 /**
  * Lays out a workspace whose root holds a bun lockfile listing the given rows.
@@ -54,7 +55,10 @@ describe("locked", () => {
   it("reads a registry package", () => {
     const held = locked(workspace('    "wrappy": ["wrappy@1.0.2", "", {}, "sha512-abc"],'));
 
-    expect(held.get("wrappy")).toStrictEqual({ integrity: "sha512-abc", resolution: "1.0.2" });
+    expect(held.get("wrappy@1.0.2")).toStrictEqual({
+      integrity: "sha512-abc",
+      resolution: "1.0.2",
+    });
   });
 
   it("reads a git package from its resolution field", () => {
@@ -62,14 +66,16 @@ describe("locked", () => {
       workspace('    "once": ["once@github:isaacs/once#0fbb41e", {}, "isaacs", "sha512-def"],'),
     );
 
-    expect(held.get("once")?.resolution).toBe("github:isaacs/once#0fbb41e");
-    expect(held.get("once")?.integrity).toBe("sha512-def");
+    expect(held.get("once@github:isaacs/once#0fbb41e")).toStrictEqual({
+      integrity: "sha512-def",
+      resolution: "github:isaacs/once#0fbb41e",
+    });
   });
 
   it("reads a scoped name whole", () => {
     const held = locked(workspace('    "@types/bun": ["@types/bun@1.4.2", "", {}, "sha512-ghi"],'));
 
-    expect(held.get("@types/bun")?.resolution).toBe("1.4.2");
+    expect(held.get("@types/bun@1.4.2")?.resolution).toBe("1.4.2");
   });
 
   it("records a registry that is not the default one", () => {
@@ -77,7 +83,7 @@ describe("locked", () => {
       workspace('    "held": ["held@1.0.0", "https://npm.acme.test/", {}, "sha512-jkl"],'),
     );
 
-    expect(held.get("held")?.registry).toBe("https://npm.acme.test/");
+    expect(held.get("held@1.0.0")?.registry).toBe("https://npm.acme.test/");
   });
 
   it("ignores an entry whose first field names no version", () => {
@@ -115,19 +121,19 @@ describe("locked", () => {
   it("reads an entry that records no integrity", () => {
     const held = locked(workspace('    "held": ["held@1.0.0", "", {}],'));
 
-    expect(held.get("held")).toStrictEqual({ resolution: "1.0.0" });
+    expect(held.get("held@1.0.0")).toStrictEqual({ resolution: "1.0.0" });
   });
 
   it("reads a registry package out of a pnpm lockfile", () => {
     const held = pnpm("  wrappy@1.0.2:\n    resolution: {integrity: sha512-abc}\n");
 
-    expect(locked(held).get("wrappy")).toStrictEqual({ integrity: "sha512-abc" });
+    expect(locked(held).get("wrappy@1.0.2")).toStrictEqual({ integrity: "sha512-abc" });
   });
 
   it("reads a scoped name whole there too", () => {
     const held = pnpm("  '@types/node@26.5.1':\n    resolution: {integrity: sha512-def}\n");
 
-    expect(locked(held).get("@types/node")?.integrity).toBe("sha512-def");
+    expect(locked(held).get("@types/node@26.5.1")?.integrity).toBe("sha512-def");
   });
 
   it("records where a package came from when it did not come from the default registry", () => {
@@ -135,7 +141,7 @@ describe("locked", () => {
       "  once@1.4.1:\n    resolution: {tarball: https://codeload.github.com/isaacs/once/tar.gz/0fbb41e}\n",
     );
 
-    expect(locked(held).get("once")?.registry).toBe(
+    expect(locked(held).get("once@1.4.1")?.registry).toBe(
       "https://codeload.github.com/isaacs/once/tar.gz/0fbb41e",
     );
   });
@@ -146,7 +152,7 @@ describe("locked", () => {
       "packages:\n  '@pnpm/exe.linux-x64@12.4.1':\n    resolution: {integrity: sha512-self}",
     );
 
-    expect(locked(held).get("wrappy")?.integrity).toBe("sha512-abc");
+    expect(locked(held).get("wrappy@1.0.2")?.integrity).toBe("sha512-abc");
   });
 
   it("records a git remote", () => {
@@ -154,7 +160,7 @@ describe("locked", () => {
       "  held@1.0.0:\n    resolution: {type: git, url: git+ssh://git@github.com/acme/held.git}\n",
     );
 
-    expect(locked(held).get("held")?.registry).toBe("git+ssh://git@github.com/acme/held.git");
+    expect(locked(held).get("held@1.0.0")?.registry).toBe("git+ssh://git@github.com/acme/held.git");
   });
 
   it("records where a package came from when the key holds it in place of a version", () => {
@@ -162,7 +168,21 @@ describe("locked", () => {
       "  once@github.com/isaacs/once/0fbb41e:\n    resolution: {integrity: sha512-m}\n",
     );
 
-    expect(locked(held).get("once")?.resolution).toBe("github.com/isaacs/once/0fbb41e");
+    expect(locked(held).get("once@github.com/isaacs/once/0fbb41e")?.resolution).toBe(
+      "github.com/isaacs/once/0fbb41e",
+    );
+  });
+
+  it("keeps two versions of one package apart", () => {
+    const held = locked(
+      pnpm(
+        "  wrappy@1.0.2:\n    resolution: {integrity: sha512-one}\n" +
+          "  wrappy@2.0.0:\n    resolution: {integrity: sha512-two}\n",
+      ),
+    );
+
+    expect(held.get("wrappy@1.0.2")?.integrity).toBe("sha512-one");
+    expect(held.get("wrappy@2.0.0")?.integrity).toBe("sha512-two");
   });
 
   it("ignores a pnpm entry that records no resolution", () => {
@@ -180,7 +200,7 @@ describe("locked", () => {
   it("ignores an empty document and reads the one that follows", () => {
     const held = pnpm("  wrappy@1.0.2:\n    resolution: {integrity: sha512-abc}\n", "---");
 
-    expect(locked(held).get("wrappy")?.integrity).toBe("sha512-abc");
+    expect(locked(held).get("wrappy@1.0.2")?.integrity).toBe("sha512-abc");
   });
 
   it("ignores a pnpm key with no separator", () => {
@@ -193,5 +213,71 @@ describe("locked", () => {
     const held = pnpm("");
 
     expect(locked(held).size).toBe(0);
+  });
+});
+
+describe("installedOf", () => {
+  const two = locked(
+    pnpm(
+      "  wrappy@1.0.2:\n    resolution: {integrity: sha512-one}\n" +
+        "  wrappy@2.0.0:\n    resolution: {integrity: sha512-two}\n",
+    ),
+  );
+  const one = locked(pnpm("  wrappy@1.0.2:\n    resolution: {integrity: sha512-one}\n"));
+
+  it("finds the record for the installed version", () => {
+    expect(installedOf(two, "wrappy", "2.0.0")).toStrictEqual({ integrity: "sha512-two" });
+    expect(installedOf(two, "wrappy", "1.0.2")).toStrictEqual({ integrity: "sha512-one" });
+  });
+
+  it("returns nothing for a version the lockfile does not pin", () => {
+    expect(installedOf(two, "wrappy", "3.0.0")).toBeUndefined();
+    expect(installedOf(one, "wrappy", "3.0.0")).toBeUndefined();
+  });
+
+  it("takes the one record under a name when no version is given", () => {
+    expect(installedOf(one, "wrappy")).toStrictEqual({ integrity: "sha512-one" });
+    expect(installedOf(two, "wrappy")).toBeUndefined();
+    expect(installedOf(one, "absent")).toBeUndefined();
+  });
+
+  it("takes a reference for a package whose manifest states a version", () => {
+    const held = locked(
+      pnpm("  once@github.com/isaacs/once/0fbb41e:\n    resolution: {integrity: sha512-m}\n"),
+    );
+
+    expect(installedOf(held, "once", "1.4.1")).toStrictEqual({
+      integrity: "sha512-m",
+      resolution: "github.com/isaacs/once/0fbb41e",
+    });
+  });
+
+  it("keeps a record written for an alias under the name the alias installs as", () => {
+    const held = locked(pnpm("  alias@npm:real@1.0.0:\n    resolution: {integrity: sha512-a}\n"));
+
+    expect(installedOf(held, "alias")).toStrictEqual({
+      integrity: "sha512-a",
+      resolution: "npm:real@1.0.0",
+    });
+    expect(installedOf(held, "real")).toBeUndefined();
+  });
+
+  it("keeps an address with a credential whole on the version's side of the key", () => {
+    const held = locked(
+      pnpm(
+        "  held@git+https://token@github.com/acme/held.git#abc:\n    resolution: {integrity: sha512-b}\n",
+      ),
+    );
+
+    expect(installedOf(held, "held")).toStrictEqual({
+      integrity: "sha512-b",
+      resolution: "git+https://token@github.com/acme/held.git#abc",
+    });
+  });
+
+  it("keeps a scoped name whole when it matches", () => {
+    const held = locked(pnpm("  '@types/node@26.5.1':\n    resolution: {integrity: sha512-def}\n"));
+
+    expect(installedOf(held, "@types/node")).toStrictEqual({ integrity: "sha512-def" });
   });
 });
