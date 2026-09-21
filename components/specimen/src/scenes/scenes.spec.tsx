@@ -163,6 +163,17 @@ describe("scenesOf", () => {
     expect(container.textContent).toContain('"size":"sm"');
   });
 
+  it("carries the source a reader copies where the page states a sample", () => {
+    const [scene] = scenesOf(RECIPE, {
+      draw,
+      namespace: "probe",
+      order: ["variant"],
+      sample: { children: "Publish", name: "Button" },
+    });
+
+    expect(scene?.source).toBe('<Button variant="plain">\n  Publish\n</Button>');
+  });
+
   it("builds nothing for a recipe that offers no axes", () => {
     expect(scenesOf({}, { draw, namespace: "probe" })).toStrictEqual([]);
   });

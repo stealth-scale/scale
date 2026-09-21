@@ -36,10 +36,18 @@ const CUT: Fragments = {
 
 const UNLOADED: Fragments | undefined = undefined;
 
-function bodied(fragments: Fragments | undefined): ReactElement {
+const STATED: readonly Listed[] = [
+  {
+    id: "sizes",
+    scene: { draw: marked, source: '<Badge size="sm" />', title: "Sizes" },
+    title: "Sizes",
+  },
+];
+
+function bodied(fragments: Fragments | undefined, scenes = SCENES): ReactElement {
   return (
     <Page.Root>
-      <Body entry={ENTRY} fragments={fragments} scenes={SCENES} />
+      <Body entry={ENTRY} fragments={fragments} scenes={scenes} />
     </Page.Root>
   );
 }
@@ -62,6 +70,12 @@ describe("Body", () => {
 
   it("folds a scene's source under its stage", async () => {
     const { getAllByRole } = await drawn(bodied(CUT));
+
+    expect(getAllByRole("button", { name: "Source" })).toHaveLength(1);
+  });
+
+  it("shows the source a scene carries rather than the one the index cut", async () => {
+    const { getAllByRole } = await drawn(bodied(UNLOADED, STATED));
 
     expect(getAllByRole("button", { name: "Source" })).toHaveLength(1);
   });

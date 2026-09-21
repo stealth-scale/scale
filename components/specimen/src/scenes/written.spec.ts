@@ -42,6 +42,14 @@ describe("written", () => {
     );
   });
 
+  it("leaves a blank line inside the children blank rather than indenting nothing", () => {
+    const children = "<Card.Header />\n\n<Card.Footer />";
+
+    expect(written({ children, name: "Card.Root" }, { variant: "solid" })).toContain(
+      "  <Card.Header />\n\n  <Card.Footer />",
+    );
+  });
+
   it("writes a switch that is on as the bare prop a reader writes", () => {
     expect(written({ name: "Card.Root" }, { divided: true })).toBe("<Card.Root divided />");
   });

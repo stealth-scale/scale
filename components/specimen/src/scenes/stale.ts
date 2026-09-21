@@ -12,9 +12,23 @@
  */
 
 /**
- * Matches one attribute written as a word, `variant="solid"`, and names the two parts.
+ * Matches one attribute written as a word, `variant="solid"`.
+ *
+ * @remarks
+ *   The whole match is read and split rather than captured in two groups. A capture group is typed
+ *   as possibly absent, and the check for an absent one can never run, which leaves a branch no
+ *   case can reach. The whole match of an executed expression is typed as a string.
  */
-const ATTRIBUTE = /(\w[\w-]*)="([^"]*)"/gu;
+const ATTRIBUTE = /\w[\w-]*="[^"]*"/gu;
+
+/**
+ * Splits one attribute into the prop it names and the value it writes.
+ */
+function reads(attribute: string): readonly [axis: string, value: string] {
+  const at = attribute.indexOf("=");
+
+  return [attribute.slice(0, at), attribute.slice(at + 2, -1)];
+}
 
 /**
  * Describes what a recipe states about its axes, which is all this reads of one.
@@ -52,10 +66,11 @@ export function stale(recipe: Axed, scenes: readonly Stated[]): readonly string[
   const axes = recipe.variants ?? {};
 
   return scenes.flatMap((scene) =>
-    [...(scene.source ?? "").matchAll(ATTRIBUTE)].flatMap(([, axis, value]) => {
-      const offered = axis === undefined ? undefined : axes[axis];
+    [...(scene.source ?? "").matchAll(ATTRIBUTE)].flatMap((match) => {
+      const [axis, value] = reads(match[0]);
+      const offered = axes[axis];
 
-      return offered === undefined || value === undefined || value in offered
+      return offered === undefined || value in offered
         ? []
         : [`${scene.title} writes ${axis}="${value}", which the axis does not offer`];
     }),
