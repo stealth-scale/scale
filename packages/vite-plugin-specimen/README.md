@@ -59,6 +59,13 @@ fetched by the first page a reader opens and cached for every page after it, so 
 loader where the index was asked to read them. Every page's props share one chunk,
 `props-[hash].js`, loaded where somebody first opens them and not again for another page.
 
+The pages chunk holds each page's dependencies, so a component the entry also reaches is bundled
+with them. The entry's own chunk then imports the pages chunk and runs it first. The React plugin
+writes its refresh preamble into the document, and a dev server that bundles folds that preamble
+into the entry's chunk, so a component in the pages chunk read the refresh runtime before the
+preamble installed it and threw. A build therefore writes both chunks and a dev server writes
+neither. Both are a caching measure for a reader, and a dev server has no reader to cache for.
+
 A page states its own import line and each scene its own source. Neither is read out of the file, so
 the plugin parses no syntax tree.
 

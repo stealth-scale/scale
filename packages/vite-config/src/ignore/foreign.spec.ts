@@ -1,16 +1,18 @@
 /**
- * Covers which trees the foreign globs match, and whether a path under the agent worktrees is
- * excluded below a root and counted inside one.
+ * Covers which trees the foreign globs match, and whether a path under a copy of this repository
+ * is excluded below a root and counted inside one.
  */
 
 import { matchesGlob } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { FOREIGN, WORKTREE_TESTS, WORKTREES, worktreesBelow } from "#ignore/foreign.ts";
+import { COPIES, copiesBelow, COPY_TESTS, FOREIGN } from "#ignore/foreign.ts";
 
 const MAIN = "/repository";
 
 const INSIDE = `${MAIN}/.claude/worktrees/one`;
+
+const SNAPSHOT = `${MAIN}/.scratch/review/snapshot`;
 
 describe("foreign", () => {
   it("lists the installed built and reported trees in a fixed order", () => {
@@ -27,34 +29,62 @@ describe("foreign", () => {
     expect(FOREIGN).toContain("**/.git/**");
   });
 
-  it("carries no glob mentioning the worktrees segment", () => {
-    expect(FOREIGN.some((glob) => glob.includes(WORKTREES))).toBe(false);
+  it("names the worktrees and the scratch as the copies of this repository", () => {
+    expect(COPIES).toStrictEqual([".claude", ".scratch"]);
   });
 
-  it("matches a spec file under the worktrees with a glob relative to the root", () => {
-    expect(WORKTREE_TESTS).toBe(".claude/**");
-    expect(matchesGlob(".claude/worktrees/one/src/a.spec.ts", WORKTREE_TESTS)).toBe(true);
+  it("carries no glob mentioning a copy's own segment", () => {
+    expect(FOREIGN.some((glob) => COPIES.some((directory) => glob.includes(directory)))).toBe(
+      false,
+    );
+  });
+
+  it("names one glob per copy relative to the root", () => {
+    expect(COPY_TESTS).toStrictEqual([".claude/**", ".scratch/**"]);
+  });
+
+  it("matches a spec file under a worktree when collecting test files", () => {
+    const file = ".claude/worktrees/one/src/a.spec.ts";
+
+    expect(COPY_TESTS.some((glob) => matchesGlob(file, glob))).toBe(true);
+  });
+
+  it("matches a spec file under a snapshot when collecting test files", () => {
+    const file = ".scratch/review/snapshot/src/a.spec.ts";
+
+    expect(COPY_TESTS.some((glob) => matchesGlob(file, glob))).toBe(true);
   });
 
   it("leaves a spec file under packages unmatched when collecting test files", () => {
-    expect(matchesGlob("packages/one/src/a.spec.ts", WORKTREE_TESTS)).toBe(false);
+    expect(COPY_TESTS.some((glob) => matchesGlob("packages/one/src/a.spec.ts", glob))).toBe(false);
   });
 
-  it("matches a file inside a worktree with the glob anchored at the main checkout", () => {
-    const glob = worktreesBelow(MAIN);
+  it("anchors one absolute glob per copy at the main checkout", () => {
+    expect(copiesBelow(MAIN)).toStrictEqual(["/repository/.claude/**", "/repository/.scratch/**"]);
+  });
 
-    expect(glob).toBe("/repository/.claude/**");
-    expect(matchesGlob(`${INSIDE}/packages/one/src/a.ts`, glob)).toBe(true);
+  it("matches a file inside a worktree with the globs anchored at the main checkout", () => {
+    const globs = copiesBelow(MAIN);
+
+    expect(globs.some((glob) => matchesGlob(`${INSIDE}/packages/one/src/a.ts`, glob))).toBe(true);
+  });
+
+  it("matches a file inside a snapshot with the globs anchored at the main checkout", () => {
+    const globs = copiesBelow(MAIN);
+
+    expect(globs.some((glob) => matchesGlob(`${SNAPSHOT}/packages/one/src/a.ts`, glob))).toBe(true);
   });
 
   it("leaves a file under the main checkout's own packages unmatched", () => {
-    expect(matchesGlob(`${MAIN}/packages/one/src/a.ts`, worktreesBelow(MAIN))).toBe(false);
+    const globs = copiesBelow(MAIN);
+
+    expect(globs.some((glob) => matchesGlob(`${MAIN}/packages/one/src/a.ts`, glob))).toBe(false);
   });
 
-  it("leaves a file of a run inside a worktree unmatched by that run's own glob", () => {
-    const glob = worktreesBelow(INSIDE);
+  it("leaves a file of a run inside a copy unmatched by that run's own globs", () => {
+    const globs = copiesBelow(INSIDE);
 
-    expect(glob).toBe("/repository/.claude/worktrees/one/.claude/**");
-    expect(matchesGlob(`${INSIDE}/packages/one/src/a.ts`, glob)).toBe(false);
+    expect(globs).toStrictEqual([`${INSIDE}/.claude/**`, `${INSIDE}/.scratch/**`]);
+    expect(globs.some((glob) => matchesGlob(`${INSIDE}/packages/one/src/a.ts`, glob))).toBe(false);
   });
 });

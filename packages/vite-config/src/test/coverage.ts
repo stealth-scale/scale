@@ -4,7 +4,7 @@
 
 import { type Preset, preset } from "@stealthscale/vite-config-core";
 
-import { FOREIGN, worktreesBelow } from "#ignore/foreign.ts";
+import { copiesBelow, FOREIGN } from "#ignore/foreign.ts";
 import { GENERATED } from "#ignore/generated.ts";
 
 /**
@@ -64,8 +64,8 @@ const REPORTS = "**/coverage/**";
  *   The counter is the engine's own rather than an instrumented build, so what
  *   a test executes is what would ship. The terminal gets a summary and the
  *   detail goes to a report, because four numbers are what a person reads. The
- *   agent worktrees below the workspace root are left out by an absolute glob,
- *   so a run inside one of them still counts its own files.
+ *   agent worktrees and the scratch below the workspace root are left out by
+ *   absolute globs, so a run inside one of them still counts its own files.
  */
 export function coverage(): Preset {
   return preset({
@@ -74,7 +74,7 @@ export function coverage(): Preset {
       test: {
         coverage: {
           enabled: true,
-          exclude: [...UNCOUNTED, worktreesBelow(context.root)],
+          exclude: [...UNCOUNTED, ...copiesBelow(context.root)],
           include: COUNTED,
           provider: "v8",
           reporter: ["text-summary", "html", "lcov"],
