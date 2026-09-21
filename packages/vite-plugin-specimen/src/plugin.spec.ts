@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { type Plugin, type UserConfig } from "vite";
 import { describe, expect, it } from "vitest";
 
@@ -232,6 +233,128 @@ describe("plugin", () => {
     const held = await serving(TREE, (plugin) => loaded(plugin, "virtual:other"));
 
     expect(held).toBeUndefined();
+  });
+
+  it("lists the stamp as a file the index watches", async () => {
+    const watched = await serving(TREE, async (plugin) => {
+      const context = hookContext();
+
+      await loaded(plugin, RESOLVED, context);
+
+      return context.watched;
+    });
+
+    expect(watched).toHaveLength(1);
+    expect(watched[0]?.endsWith("/index")).toBe(true);
+  });
+
+  it("rewrites the stamp when a specimen appears under a server that bundles", async () => {
+    const stamps = await serving(TREE, async (plugin, scratch) => {
+      const context = hookContext();
+
+      await loaded(plugin, RESOLVED, context);
+
+      const stamp = context.watched[0] ?? "";
+      const before = readFileSync(stamp, "utf8");
+
+      scratch.write({ "src/chip.specimen.tsx": BADGE.replace("data/badge", "data/chip") });
+      await changed(
+        plugin,
+        hookContext([], "serve", true),
+        scratch.path("src/chip.specimen.tsx"),
+        "create",
+      );
+
+      return { after: readFileSync(stamp, "utf8"), before };
+    });
+
+    expect(stamps.after).not.toBe(stamps.before);
+  });
+
+  it("rewrites the stamp when a specimen disappears under a server that bundles", async () => {
+    const stamps = await serving(TREE, async (plugin, scratch) => {
+      const context = hookContext();
+
+      await loaded(plugin, RESOLVED, context);
+
+      const stamp = context.watched[0] ?? "";
+      const before = readFileSync(stamp, "utf8");
+
+      await changed(
+        plugin,
+        hookContext([], "serve", true),
+        scratch.path("src/badge.specimen.tsx"),
+        "delete",
+      );
+
+      return { after: readFileSync(stamp, "utf8"), before };
+    });
+
+    expect(stamps.after).not.toBe(stamps.before);
+  });
+
+  it("leaves the stamp alone when a scene changed under a server that bundles", async () => {
+    const stamps = await serving(TREE, async (plugin, scratch) => {
+      const context = hookContext();
+
+      await loaded(plugin, RESOLVED, context);
+
+      const stamp = context.watched[0] ?? "";
+      const before = readFileSync(stamp, "utf8");
+
+      scratch.write({ "src/badge.specimen.tsx": BADGE.replace("<Badge />", "<Badge>x</Badge>") });
+      await changed(
+        plugin,
+        hookContext([], "serve", true),
+        scratch.path("src/badge.specimen.tsx"),
+        "update",
+      );
+
+      return { after: readFileSync(stamp, "utf8"), before };
+    });
+
+    expect(stamps.after).toBe(stamps.before);
+  });
+
+  it("rewrites the stamp when an edit changed the metadata a page declares under a server that bundles", async () => {
+    const stamps = await serving(TREE, async (plugin, scratch) => {
+      const context = hookContext();
+
+      await loaded(plugin, RESOLVED, context);
+
+      const stamp = context.watched[0] ?? "";
+      const before = readFileSync(stamp, "utf8");
+
+      scratch.write({ "src/badge.specimen.tsx": BADGE.replace('group: "Data"', 'group: "Facts"') });
+      await changed(
+        plugin,
+        hookContext([], "serve", true),
+        scratch.path("src/badge.specimen.tsx"),
+        "update",
+      );
+
+      return { after: readFileSync(stamp, "utf8"), before };
+    });
+
+    expect(stamps.after).not.toBe(stamps.before);
+  });
+
+  it("leaves the stamp alone under a server that serves a module per file", async () => {
+    const stamps = await serving(TREE, async (plugin, scratch) => {
+      const context = hookContext();
+
+      await loaded(plugin, RESOLVED, context);
+
+      const stamp = context.watched[0] ?? "";
+      const before = readFileSync(stamp, "utf8");
+
+      scratch.write({ "src/chip.specimen.tsx": BADGE.replace("data/badge", "data/chip") });
+      await changed(plugin, hookContext(), scratch.path("src/chip.specimen.tsx"), "create");
+
+      return { after: readFileSync(stamp, "utf8"), before };
+    });
+
+    expect(stamps.after).toBe(stamps.before);
   });
 
   it("adds each pattern's starting directory to the watcher", async () => {

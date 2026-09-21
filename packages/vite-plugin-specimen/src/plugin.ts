@@ -3,6 +3,8 @@
  * invalidates them when a file changes.
  */
 
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import {
   type EnvironmentModuleGraph,
   type EnvironmentModuleNode,
@@ -10,8 +12,10 @@ import {
   type UserConfig,
 } from "vite";
 
-import { type Compiler } from "#anatomy/compiler.ts";
+import { scratchDir } from "@stealthscale/vite-plugin-base";
+
 import { type Settled, settled } from "#anatomy/reading.ts";
+import { type Compiler } from "#anatomy/types.ts";
 import { type Changed, type Indexing, pageOf, pathOf, reindexes, retyped } from "#changed.ts";
 import { accepting, anatomised, type Listed, listings, type Resolved, written } from "#emit.ts";
 import { found, roots } from "#found.ts";
@@ -42,6 +46,23 @@ const RESOLVED_PROPS = PROPS;
  *   a changed HTML file the server holds no module for triggers a full reload.
  */
 const OUTPUTS: readonly string[] = ["**/coverage/**"];
+
+/**
+ * The directory the plugin's scratch goes under, outside the workspace.
+ */
+const SCRATCH = "stealth-specimen";
+
+/**
+ * The file under the scratch that the plugin rewrites whenever the index would list something
+ * else: a page appearing or disappearing, or one changing the metadata it declares.
+ *
+ * @remarks
+ *   The index lists it as a file to watch. A server that bundles runs no hot update hook and
+ *   rebuilds a module when a file it listed changes, and a directory handed to its watcher tells it
+ *   nothing about a file appearing there, so a change to the listing is turned into a change to
+ *   this file.
+ */
+const STAMP = "index";
 
 /**
  * Describes the part of a dev server the plugin reads.
@@ -157,6 +178,54 @@ interface State {
 }
 
 /**
+ * Describes the part of a watch change the plugin reads beside the file.
+ */
+interface Change {
+  /**
+   * Whether the file was created, deleted, or edited.
+   */
+  readonly event: Changed["type"];
+}
+
+/**
+ * Finds the stamp for the resolved root, under the plugin's scratch.
+ */
+function stampOf(state: State): string {
+  return join(scratchDir(SCRATCH, state.resolved.root), STAMP);
+}
+
+/**
+ * Rewrites the stamp, so a bundler watching it generates the index again.
+ */
+function stamped(state: State): void {
+  const stamp = stampOf(state);
+
+  mkdirSync(dirname(stamp), { recursive: true });
+  writeFileSync(stamp, `${process.hrtime.bigint()}\n`);
+}
+
+/**
+ * Follows a change under a server that bundles: restarts the compiler on a change to a typed file,
+ * and rewrites the stamp when the change makes the index list something else.
+ *
+ * @remarks
+ *   The change is classified the way a hot update is, with the file read from disk because the
+ *   hook carries no reader. A file that is gone is not read.
+ */
+async function bundled(
+  state: State,
+  patterns: readonly string[],
+  file: string,
+  type: Changed["type"],
+): Promise<void> {
+  await restarted(state, file);
+
+  const changed: Changed = { file, read: () => readFileSync(file, "utf8"), type };
+
+  if (await reindexes(state, patterns, changed)) stamped(state);
+}
+
+/**
  * Describes the part of a load's context the plugin reads.
  */
 interface Loading {
@@ -167,7 +236,8 @@ interface Loading {
 }
 
 /**
- * Generates the module under one resolved identifier.
+ * Generates the module under one resolved identifier, and lists the stamp as a file the index
+ * watches.
  *
  * @returns The generated source, or undefined when the identifier is not this plugin's.
  * @throws {@link Error} When the patterns match nothing, a build meets a file it cannot read, or
@@ -177,11 +247,16 @@ async function generated(
   state: State,
   patterns: readonly string[],
   id: string,
+  loading: Loading,
 ): Promise<string | undefined> {
   if (id === RESOLVED) {
     const files = found(state.resolved.root, patterns);
 
     state.last = listings(state.resolved, files, state.reading !== undefined);
+
+    if (!existsSync(stampOf(state))) stamped(state);
+
+    loading.addWatchFile(stampOf(state));
 
     return written(state.last);
   }
@@ -376,7 +451,7 @@ export function specimens(options: Options): Plugin {
     },
 
     /**
-     * Serves the index or one page's props.
+     * Serves the index or one page's props, and lists the stamp as a file the index watches.
      *
      * @remarks
      *   Served without a source map. Every module here is generated rather than transformed, and
@@ -387,7 +462,7 @@ export function specimens(options: Options): Plugin {
      *   plugin's.
      */
     async load(this: Loading, id: string): Promise<undefined | Written> {
-      const code = await generated(state, options.patterns, id);
+      const code = await generated(state, options.patterns, id, this);
 
       return code === undefined ? undefined : { code, map: null };
     },
@@ -421,17 +496,22 @@ export function specimens(options: Options): Plugin {
     },
 
     /**
-     * Restarts the compiler on a change to a typed file where the environment bundles.
+     * Follows a change where the environment bundles: restarts the compiler on a change to a typed
+     * file, and rewrites the stamp when the index would list something else.
      *
      * @remarks
-     *   A server that bundles runs no hot update hook and reports a change here, so the compiler
-     *   is restarted here, and the modules are left to the bundler: the index is generated again
-     *   when the server starts. A server that
-     *   serves one module per file reports the change to `hotUpdate`, which restarts the compiler
-     *   and reloads the props modules through the module graph, so the change is left to that one.
+     *   A server that bundles runs no hot update hook and reports a change here. The modules are
+     *   left to the bundler, which generates the index again when the stamp it listed changes, and
+     *   leaves the index alone when a scene changed. A server that serves one module per file
+     *   reports the change to `hotUpdate`, which restarts the compiler and reloads the modules
+     *   through the module graph, so the change is left to that one.
+     * @param id - The file that changed.
+     * @param change - Whether the file was created, deleted or edited.
      */
-    async watchChange(this: Bundling, id: string): Promise<void> {
-      if (this.environment?.config.isBundled === true) await restarted(state, id);
+    async watchChange(this: Bundling, id: string, change: Change): Promise<void> {
+      if (this.environment?.config.isBundled !== true) return;
+
+      await bundled(state, options.patterns, id, change.event);
     },
   };
 }

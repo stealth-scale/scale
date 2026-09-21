@@ -8,6 +8,7 @@
  *   this file instead.
  */
 
+export type { Compiler } from "#anatomy/compiler.ts";
 export type {
   Checker,
   Program,

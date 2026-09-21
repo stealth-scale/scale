@@ -120,14 +120,16 @@ describe("hook", () => {
     await expect(loaded(driven().plugin, "/pkg/a.css")).resolves.toBeUndefined();
   });
 
-  it("binds the context as this in load where one is given and nothing where none is", async () => {
+  it("binds the context as this in load where one is given and a fresh one where none is", async () => {
     const one = driven();
     const context = hookContext();
 
     await loaded(one.plugin, "/pkg/a.css", context);
     await loaded(one.plugin, "/pkg/a.css");
 
-    expect(one.bound).toStrictEqual([context, undefined]);
+    expect(one.bound[0]).toBe(context);
+    expect(one.bound[1]).toMatchObject({ environment: { config: { command: "serve" } } });
+    expect(one.bound[1]).not.toBe(context);
   });
 
   it("returns the code transform wrote back", async () => {
