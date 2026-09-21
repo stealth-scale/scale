@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import {
   axesOf,
   defaultsOf,
@@ -8,9 +9,42 @@ import {
   valuesOf,
 } from "@stealthscale/testing-theme";
 
+import page from "#button/button.specimen.tsx";
 import { recipe } from "#button/recipe.ts";
 
 describe("recipe", () => {
+  it("draws every axis it offers on its own page", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("shows no source naming a value the recipe no longer offers", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("carries the source a reader copies on every scene it builds", () => {
+    const built = page.scenes.filter((scene) => scene.axes !== undefined);
+
+    expect(built.every((scene) => scene.source !== undefined)).toBe(true);
+  });
+
+  it("writes that source with every prop the cell is drawn with", () => {
+    const statuses = page.scenes.find((scene) => scene.axes?.[0] === "status");
+
+    expect(statuses?.source).toContain('<Button status="info" variant="solid">');
+  });
+
+  it("puts the import above the block", () => {
+    const statuses = page.scenes.find((scene) => scene.axes?.[0] === "status");
+
+    expect(statuses?.source).toContain('import { Button } from "@stealthscale/component-actions";');
+  });
+
+  it("writes the source of a scene it did not build off the same sample", () => {
+    const stated = page.scenes.find((scene) => scene.title === "button.pressed.title");
+
+    expect(stated?.source).toContain('<Button aria-pressed variant="solid">');
+  });
+
   it("writes no value a theme cannot move", () => {
     expect(recipeViolations(recipe, { names: ["Button", "IconButton"] })).toStrictEqual([]);
   });

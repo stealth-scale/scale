@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
+import specimen from "#frame/frame.specimen.tsx";
 import { recipe } from "#frame/recipe.ts";
 
 describe("recipe", () => {
@@ -11,6 +13,14 @@ describe("recipe", () => {
 
   it("names its class frame", () => {
     expect(recipe.className).toBe("frame");
+  });
+
+  it("draws every axis it offers on its own page", () => {
+    expect(uncovered(recipe, specimen.scenes)).toStrictEqual([]);
+  });
+
+  it("shows no source naming a value the recipe no longer offers", () => {
+    expect(stale(recipe, specimen.scenes)).toStrictEqual([]);
   });
 
   it("offers a blur axis and a fit axis and a corner axis and a shape axis", () => {

@@ -4,14 +4,6 @@
     "about": "Every pattern the theme draws behind a card, at the medium size.",
     "title": "Backdrops"
   },
-  "corners": {
-    "about": "Every corner at every size.",
-    "title": "Corners and sizes"
-  },
-  "distribution": {
-    "about": "How the footer shares its room among the controls.",
-    "title": "Distribution"
-  },
   "divided": {
     "about": "The header and the footer ruled apart from the band between them, beside a card left whole.",
     "title": "Divided"
@@ -26,11 +18,11 @@
   },
   "invoice": "Invoice 4821",
   "issued": "Issued on 2 September",
-  "lines": "Three lines, one unbilled.",
-  "looks": {
-    "about": "Every look in every status.",
-    "title": "Looks and statuses"
+  "justify": {
+    "about": "How the footer shares its room among the controls.",
+    "title": "Distribution"
   },
+  "lines": "Three lines, one unbilled.",
   "more": "More about this invoice",
   "motion": {
     "about": "How the card enters the page.",
@@ -40,7 +32,19 @@
     "about": "The bands stacked, and the bands side by side.",
     "title": "Orientation"
   },
+  "pressable": {
+    "about": "A card whose whole face follows the link in its title, in the looks worth pressing.",
+    "title": "Pressable"
+  },
+  "radius": {
+    "about": "Every corner at every size.",
+    "title": "Corners and sizes"
+  },
   "remind": "Remind",
   "send": "Send",
-  "title": "Card"
+  "title": "Card",
+  "variant": {
+    "about": "Every look in every status.",
+    "title": "Looks and statuses"
+  }
 }

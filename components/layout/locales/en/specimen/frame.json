@@ -9,9 +9,9 @@
     "title": "Fit"
   },
   "hillside": "A hillside under a morning sun",
-  "shapes": {
-    "about": "Every ratio at every corner. Whatever the frame holds is drawn at the frame's own size, so one picture fills every shape rather than setting it.",
-    "title": "Shapes"
+  "ratio": {
+    "about": "Every shape at every corner.",
+    "title": "Shapes and corners"
   },
   "title": "Frame"
 }

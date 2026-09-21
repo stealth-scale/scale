@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
+import page from "#card/card.specimen.tsx";
 import { recipe } from "#card/recipe.ts";
 
 const PARTS = [
@@ -24,6 +26,14 @@ describe("recipe", () => {
         parts: PARTS,
       }),
     ).toStrictEqual([]);
+  });
+
+  it("draws every axis it offers on its own page", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("shows no source naming a value the recipe no longer offers", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
   it("names its class card", () => {
