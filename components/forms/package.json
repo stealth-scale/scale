@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/component-forms",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Composes controls into something a person submits, and reports what is wrong with it.",
   "keywords": [
     "components",

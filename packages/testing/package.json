@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/testing",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Supplies the scratch workspaces, manifests, element measurements and plugin drivers a specification needs.",
   "license": "MIT",
   "repository": {

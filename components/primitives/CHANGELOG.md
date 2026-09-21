@@ -1,5 +1,14 @@
 # @stealthscale/component-primitives
 
+## 0.1.1
+
+### Patch Changes
+
+- [#38](https://github.com/stealth-scale/scale/pull/38) [`8a79e78`](https://github.com/stealth-scale/scale/commit/8a79e7859434eddb7b0f9db73af2a0611c3aa716) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - component-primitives: show every component
+  
+  - One specimen per component, with the words read through the catalogue's `specimen` namespace from
+    `locales/en/specimen/`.
+
 ## 0.1.0
 
 ### Minor Changes

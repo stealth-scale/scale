@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/component-content",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Presents a body of something: markdown, a diff, a document, a record about a thing.",
   "keywords": [
     "components",

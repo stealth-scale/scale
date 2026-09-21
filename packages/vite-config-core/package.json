@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/vite-config-core",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Composes presets, contributions, removals and overrides into one Vite configuration.",
   "keywords": [
     "compose",

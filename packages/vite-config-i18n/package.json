@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/vite-config-i18n",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Configures a package or an application with words: the catalogue plugin, and the words in scope for its specifications.",
   "keywords": [
     "i18n",

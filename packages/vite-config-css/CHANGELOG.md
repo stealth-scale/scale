@@ -1,5 +1,12 @@
 # @stealthscale/vite-config-css
 
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`4a5c301`](https://github.com/stealth-scale/scale/commit/4a5c3012adeb289593f28045a10bb4f3d5b47fca)]:
+  - @stealthscale/vite-config-core@0.4.0
+
 ## 0.2.0
 
 ### Minor Changes

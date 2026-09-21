@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/vite-config-css",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Runs Stylelint over the stylesheets a package imports.",
   "keywords": [
     "config",

@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/component-actions",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Draws what a person presses: a button, a toggle, and the triggers that carry an action.",
   "keywords": [
     "actions",

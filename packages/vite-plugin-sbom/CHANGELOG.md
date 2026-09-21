@@ -1,5 +1,15 @@
 # @stealthscale/vite-plugin-sbom
 
+## 0.3.2
+
+### Patch Changes
+
+- [#43](https://github.com/stealth-scale/scale/pull/43) [`66b780d`](https://github.com/stealth-scale/scale/commit/66b780d8f4ede66cee40e3b0130bf6bcf2177171) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - Match each reached package to the lockfile by its name and the version its manifest states, so two
+  installed versions of one name each carry their own digest and source. Write a source URL without
+  the credential in front of its host and without its query, keeping the fragment that names a commit.
+- Updated dependencies [[`ea7263b`](https://github.com/stealth-scale/scale/commit/ea7263ba8a41ef6bca751d5982194c6cec0824a7), [`725cf7e`](https://github.com/stealth-scale/scale/commit/725cf7eb750c998e795e546db2809009e6c3c2b5)]:
+  - @stealthscale/vite-plugin-base@0.3.0
+
 ## 0.3.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/vite-config",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Configures a package from five Vite+ tiers and a named layer for every block.",
   "keywords": [
     "config",

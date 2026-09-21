@@ -1,5 +1,17 @@
 # @stealthscale/vite-config-core
 
+## 0.4.0
+
+### Minor Changes
+
+- [#43](https://github.com/stealth-scale/scale/pull/43) [`4a5c301`](https://github.com/stealth-scale/scale/commit/4a5c3012adeb289593f28045a10bb4f3d5b47fca) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - Narrow the environment a layer reads to the `STEALTH_` and `VITE_` prefixes and the `CI`,
+  `CI_COMMIT_SHA` and `GITHUB_SHA` variables, so a task fingerprint no longer changes with the shell.
+  Pass over a `plugins` contribution while the toolchain resolves a configuration for its metadata,
+  and keep a `pack.plugins` contribution, because the packer reads its plugins under the same marker.
+  Export `resolvingMetadata`, `appended` and `located`; `located` resolves a plugin package from the
+  module that names it, so a configuration bundled from source loads the package from the right
+  `node_modules`.
+
 ## 0.3.0
 
 ### Minor Changes

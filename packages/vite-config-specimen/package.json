@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/vite-config-specimen",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Configures an application that shows a catalogue, and the workspace root the specimens sit under.",
   "keywords": [
     "catalogue",
