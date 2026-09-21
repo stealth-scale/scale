@@ -309,61 +309,56 @@ async function reread(
 }
 
 /**
- * The suffix a page's props chunk is named with, after the page.
+ * The chunk every page's props are written into.
  */
-const PROPS_CHUNK = "-props";
+const PROPS_CHUNK = "props";
 
 /**
- * Chooses the chunk a module is written into: the page's, for a page's own module, the page's
- * props chunk for its props, and none for any other module, which the bundler places as it would
- * have.
- *
- * @remarks
- *   The name is the page's identifier with its slashes turned into hyphens, so a chunk reads as
- *   the page it holds, `actions-button-[hash].js`, and the props chunk as the page's props,
- *   `actions-button-props-[hash].js`. Named rather than left to the bundler, which names a
- *   module by the last segment of its identifier and so called two pages' props `text` and `menu`.
+ * The chunk every page is written into.
  */
-function chunkOf(indexing: Indexing, id: string): null | string {
-  const bare = id.replace(/\?.*$/su, "");
-
-  if (bare.startsWith(RESOLVED_PROPS)) {
-    return `${bare.slice(RESOLVED_PROPS.length).replaceAll("/", "-")}${PROPS_CHUNK}`;
-  }
-
-  const page = pageOf(indexing, bare);
-
-  return page === undefined ? null : page.replaceAll("/", "-");
-}
+const PAGES_CHUNK = "pages";
 
 /**
- * Writes the configuration the plugin adds: the build output the watcher leaves alone, and a
- * page's module in a chunk named after the page.
+ * Writes the configuration the plugin adds: the build output the watcher leaves alone, every page
+ * in one chunk, and every page's props in another.
  *
  * @remarks
- *   The index reaches a page through a dynamic import, and the lazy form of that import is a second
- *   module. Named after the page, the two are merged into one chunk, and a page opens with one
- *   request rather than two. The props stay a chunk of their own, because a page loads them only
- *   where somebody opens them. Which file is which page is known once the index has been generated,
- *   which is before the bundler names a page's chunks, because it reaches every page through the
- *   index. The group includes the page's dependencies recursively, so a module only the page
- *   reaches, an icon among them, is bundled into the page's chunk. A group without that leaves the
- *   page's module in a chunk of its own that holds those modules and re-exports the page, and the
- *   two chunks import each other. A value the page computes at module level from a binding in the
- *   other chunk is then `undefined`, because that chunk has not run yet.
+ *   The pages and what they reach beyond the entry's own graph are one chunk, fetched by the first
+ *   page a reader opens and cached for every page after it. A chunk per page was the alternative,
+ *   and the docs build wrote sixty of them, from one kilobyte to fifty-five, most under two
+ *   kilobytes gzipped, each a request for what one page holds; a reader who opens one page opens
+ *   the next. The group includes each page's dependencies, so a component only its page reaches
+ *   travels with the page and no chunk re-exports a page to another. The lazy form of the index's
+ *   dynamic import carries the page's path and a query, which is stripped before the page is
+ *   looked up. The props of every page share a chunk of their own, because a page loads them only
+ *   where somebody opens them. A build output stated as several is left alone, because a group
+ *   written into every one of them would be a guess at which one is the page's.
+ * @param indexing - The index as last generated, which says which file is which page.
+ * @param stated - The configuration as the repository stated it.
  */
-function configured(indexing: Indexing): UserConfig {
+function configured(indexing: Indexing, stated: UserConfig): UserConfig {
+  const watched: UserConfig = { server: { watch: { ignored: [...OUTPUTS] } } };
+
+  if (Array.isArray(stated.build?.rolldownOptions?.output)) return watched;
+
   return {
+    ...watched,
     build: {
       rolldownOptions: {
         output: {
           codeSplitting: {
-            groups: [{ includeDependenciesRecursively: true, name: (id) => chunkOf(indexing, id) }],
+            groups: [
+              { name: PROPS_CHUNK, test: (id) => id.startsWith(RESOLVED_PROPS) },
+              {
+                includeDependenciesRecursively: true,
+                name: PAGES_CHUNK,
+                test: (id) => pageOf(indexing, id.replace(/\?.*$/su, "")) !== undefined,
+              },
+            ],
           },
         },
       },
     },
-    server: { watch: { ignored: [...OUTPUTS] } },
   };
 }
 
@@ -397,11 +392,13 @@ export function specimens(options: Options): Plugin {
     },
 
     /**
-     * Excludes build output from the watcher and puts a page's module in a chunk named after the
-     * page.
+     * Excludes build output from the watcher, puts every page in one chunk, and every page's props
+     * in another.
+     *
+     * @param stated - The configuration as the repository stated it.
      */
-    config(): UserConfig {
-      return configured(state);
+    config(stated: UserConfig): UserConfig {
+      return configured(state, stated);
     },
 
     /**

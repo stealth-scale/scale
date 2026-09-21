@@ -51,6 +51,26 @@ function index(files: Readonly<Record<string, string>> = TREE): Promise<string> 
 
 type Handler = (...args: readonly unknown[]) => unknown;
 
+interface Group {
+  readonly includeDependenciesRecursively?: boolean;
+  readonly name: string;
+  readonly test: (id: string) => boolean;
+}
+
+interface Naming {
+  readonly codeSplitting: { readonly groups: readonly [Group, Group] };
+}
+
+function naming(plugin: Plugin, stated: unknown): Naming {
+  const config: unknown = Reflect.apply(hookOf(plugin, "config"), undefined, [
+    stated,
+    { command: "build", mode: "production" },
+  ]);
+  const output: unknown = (config as UserConfig).build?.rolldownOptions?.output;
+
+  return output as Naming;
+}
+
 function reading(scratch: ScratchWorkspace): Promise<Plugin> {
   const plugin = specimens({ patterns: PATTERNS, props: {} });
 
@@ -109,28 +129,34 @@ describe("plugin", () => {
     expect(held).toMatchObject({ server: { watch: { ignored: ["**/coverage/**"] } } });
   });
 
-  it("names the chunk a page's module and its props", async () => {
-    const named = await serving(TREE, async (plugin, scratch) => {
+  it("puts every page and what it reaches in one chunk and every page's props in another", async () => {
+    const held = await serving(TREE, async (plugin, scratch) => {
       await loaded(plugin, RESOLVED);
 
-      const config: unknown = Reflect.apply(hookOf(plugin, "config"), undefined, [
-        {},
-        { command: "build", mode: "production" },
-      ]);
-      const group: unknown = (config as UserConfig).build?.rolldownOptions?.output;
-      const name = (
-        group as { codeSplitting: { groups: [{ name: (id: string) => null | string }] } }
-      ).codeSplitting.groups[0].name;
+      const [props, pages] = naming(plugin, {}).codeSplitting.groups;
+      const page = scratch.path("src/badge.specimen.tsx");
+      const asked = [page, `${page}?rolldown-lazy=1`, scratch.path("src/other.ts")];
 
-      return [
-        name(scratch.path("src/badge.specimen.tsx")),
-        name(`${scratch.path("src/badge.specimen.tsx")}?rolldown-lazy=1`),
-        name(`${PROPS}data/badge`),
-        name(scratch.path("src/other.ts")),
-      ];
+      return {
+        pages: { ...pages, test: asked.map((id) => pages.test(id)) },
+        props: { ...props, test: [`${PROPS}data/badge`, page].map((id) => props.test(id)) },
+      };
     });
 
-    expect(named).toStrictEqual(["data-badge", "data-badge", "data-badge-props", null]);
+    expect(held).toStrictEqual({
+      pages: { includeDependenciesRecursively: true, name: "pages", test: [true, true, false] },
+      props: { name: "props", test: [true, false] },
+    });
+  });
+
+  it("adds no group to an output stated as several", () => {
+    const plugin = specimens({ patterns: PATTERNS });
+    const held: unknown = Reflect.apply(hookOf(plugin, "config"), undefined, [
+      { build: { rolldownOptions: { output: [{}, {}] } } },
+      { command: "build", mode: "production" },
+    ]);
+
+    expect(held).toStrictEqual({ server: { watch: { ignored: ["**/coverage/**"] } } });
   });
 
   it("resolves the index specifier to an identifier of its own", async () => {

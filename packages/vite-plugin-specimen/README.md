@@ -53,10 +53,11 @@ import { pages } from "virtual:specimen-index";
 
 `pages` carries one entry per file, sorted by path. Each entry has the metadata the file declares,
 the name of the package the file belongs to, and `load`, a dynamic import of the page's module. The
-plugin puts that module in a chunk named after the page, `actions-button-[hash].js`, so a page opens
-with one request and a rail that lists 100 pages loads no component. A page's props are a second
-loader where the index was asked to read them, in a chunk of their own named
-`actions-button-props-[hash].js`, loaded where somebody opens them.
+plugin writes every page and what it reaches beyond the entry into one chunk, `pages-[hash].js`,
+fetched by the first page a reader opens and cached for every page after it, so a rail that lists
+100 pages loads no component and a page after the first loads nothing. A page's props are a second
+loader where the index was asked to read them. Every page's props share one chunk,
+`props-[hash].js`, loaded where somebody first opens them and not again for another page.
 
 A page states its own import line and each scene its own source. Neither is read out of the file, so
 the plugin parses no syntax tree.
