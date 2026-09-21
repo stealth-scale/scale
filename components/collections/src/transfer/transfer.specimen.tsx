@@ -177,6 +177,7 @@ export default specimen({
   about: "transfer.about",
   group: "Collections",
   id: "collections/transfer",
+  imports: 'import { Transfer } from "@stealthscale/component-collections";',
   scenes: [moving, explained, held],
   title: "transfer.title",
 });

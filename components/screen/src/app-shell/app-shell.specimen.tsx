@@ -149,6 +149,7 @@ export default specimen({
   about: "app-shell.about",
   group: "Screen",
   id: "screen/app-shell",
+  imports: 'import { AppShell, Sidebar } from "@stealthscale/component-screen";',
   scenes: [looks, scroll, divided],
   title: "app-shell.title",
 });

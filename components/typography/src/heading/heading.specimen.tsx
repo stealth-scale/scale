@@ -192,6 +192,7 @@ export default specimen({
   about: "heading.about",
   group: "Typography",
   id: "typography/heading",
+  imports: 'import { Heading } from "@stealthscale/component-typography";',
   scenes: [sizes, display, inks, effects, motion, truncate],
   title: "heading.title",
 });

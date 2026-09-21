@@ -208,6 +208,7 @@ export default specimen({
   about: "group.about",
   group: "Layout",
   id: "layout/group",
+  imports: 'import { Group, Stack } from "@stealthscale/component-layout";',
   scenes: [orientation, gaps, grow, dim, alignment, distribution],
   title: "group.title",
 });

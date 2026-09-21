@@ -184,6 +184,7 @@ export default specimen({
   about: "list.about",
   group: "Typography",
   id: "typography/list",
+  imports: 'import { List } from "@stealthscale/component-typography";',
   scenes: [looks, markers, gaps, alignment, motion],
   title: "list.title",
 });

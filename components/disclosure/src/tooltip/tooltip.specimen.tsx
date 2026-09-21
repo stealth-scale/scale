@@ -99,6 +99,7 @@ export default specimen({
   about: "tooltip.about",
   group: "Disclosure",
   id: "disclosure/tooltip",
+  imports: 'import { Tooltip } from "@stealthscale/component-disclosure";',
   scenes: [looks, placement],
   title: "tooltip.title",
 });

@@ -294,6 +294,7 @@ export default specimen({
   about: "grid.about",
   group: "Layout",
   id: "layout/grid",
+  imports: 'import { Grid } from "@stealthscale/component-layout";',
   scenes: [counts, fitted, filled, gaps, flow, alignment, distribution, spans],
   title: "grid.title",
 });

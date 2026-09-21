@@ -59,6 +59,7 @@ export default specimen({
   about: "search-input.about",
   group: "Forms",
   id: "forms/search-input",
+  imports: 'import { SearchInput } from "@stealthscale/component-forms";',
   scenes: [sizes],
   title: "search-input.title",
 });

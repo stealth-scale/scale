@@ -50,6 +50,7 @@ export default specimen({
   about: "portal.about",
   group: "Primitives",
   id: "primitives/portal",
+  imports: 'import { Portal } from "@stealthscale/component-primitives";',
   scenes: [placing],
   title: "portal.title",
 });

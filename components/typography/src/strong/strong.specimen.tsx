@@ -82,6 +82,7 @@ export default specimen({
   about: "strong.about",
   group: "Typography",
   id: "typography/strong",
+  imports: 'import { Strong, Text } from "@stealthscale/component-typography";',
   scenes: [weights, motion],
   title: "strong.title",
 });

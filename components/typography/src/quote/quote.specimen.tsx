@@ -97,6 +97,7 @@ export default specimen({
   about: "quote.about",
   group: "Typography",
   id: "typography/quote",
+  imports: 'import { Quote, Text } from "@stealthscale/component-typography";',
   scenes: [marks, inks, motion],
   title: "quote.title",
 });

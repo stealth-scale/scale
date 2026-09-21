@@ -60,6 +60,7 @@ export default specimen({
   about: "empty-state.about",
   group: "Feedback",
   id: "feedback/empty-state",
+  imports: 'import { EmptyState } from "@stealthscale/component-feedback";',
   scenes: [sizes],
   title: "empty-state.title",
 });

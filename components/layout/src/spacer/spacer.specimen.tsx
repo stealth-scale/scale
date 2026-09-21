@@ -42,6 +42,7 @@ export default specimen({
   about: "spacer.about",
   group: "Layout",
   id: "layout/spacer",
+  imports: 'import { Spacer, Stack } from "@stealthscale/component-layout";',
   scenes: [room],
   title: "spacer.title",
 });

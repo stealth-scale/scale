@@ -68,6 +68,7 @@ export default specimen({
   about: "code.about",
   group: "Typography",
   id: "typography/code",
+  imports: 'import { Code } from "@stealthscale/component-typography";',
   scenes: [looks, statuses],
   title: "code.title",
 });

@@ -65,6 +65,7 @@ export default specimen({
   about: "skeleton-text.about",
   group: "Feedback",
   id: "feedback/skeleton-text",
+  imports: 'import { SkeletonText } from "@stealthscale/component-feedback";',
   scenes: [lines, motion],
   title: "skeleton-text.title",
 });

@@ -114,6 +114,7 @@ export default specimen({
   about: "span.about",
   group: "Typography",
   id: "typography/span",
+  imports: 'import { Span, Text } from "@stealthscale/component-typography";',
   scenes: [inks, truncate, motion],
   title: "span.title",
 });

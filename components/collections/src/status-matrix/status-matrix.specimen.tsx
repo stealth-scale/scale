@@ -293,6 +293,7 @@ export default specimen({
   about: "status-matrix.about",
   group: "Collections",
   id: "collections/status-matrix",
+  imports: 'import { StatusMatrix } from "@stealthscale/component-collections";',
   scenes: [looks, measured, gapped, picking, plain],
   title: "status-matrix.title",
 });

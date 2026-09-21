@@ -142,6 +142,7 @@ export default specimen({
   about: "blockquote.about",
   group: "Typography",
   id: "typography/blockquote",
+  imports: 'import { Blockquote } from "@stealthscale/component-typography";',
   scenes: [looks, sizes, distribution, motion],
   title: "blockquote.title",
 });

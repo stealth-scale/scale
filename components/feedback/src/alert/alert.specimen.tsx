@@ -259,6 +259,7 @@ export default specimen({
   about: "alert.about",
   group: "Feedback",
   id: "feedback/alert",
+  imports: 'import { Alert } from "@stealthscale/component-feedback";',
   scenes: [looks, edge, layouts, corners, motion],
   title: "alert.title",
 });

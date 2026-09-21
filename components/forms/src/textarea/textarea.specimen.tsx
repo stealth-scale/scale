@@ -117,6 +117,7 @@ export default specimen({
   about: "textarea.about",
   group: "Forms",
   id: "forms/textarea",
+  imports: 'import { Textarea } from "@stealthscale/component-forms";',
   scenes: [looks, statuses, grip, grows],
   title: "textarea.title",
 });

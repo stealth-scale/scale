@@ -121,6 +121,7 @@ export default specimen({
   about: "popover.about",
   group: "Disclosure",
   id: "disclosure/popover",
+  imports: 'import { Popover } from "@stealthscale/component-disclosure";',
   scenes: [looks, placement],
   title: "popover.title",
 });

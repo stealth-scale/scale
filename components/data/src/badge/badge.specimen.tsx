@@ -105,6 +105,7 @@ export default specimen({
   about: "badge.about",
   group: "Data",
   id: "data/badge",
+  imports: 'import { Badge } from "@stealthscale/component-data";',
   scenes: [looks, statuses, corners],
   title: "badge.title",
 });

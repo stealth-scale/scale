@@ -66,6 +66,7 @@ export default specimen({
   about: "em.about",
   group: "Typography",
   id: "typography/em",
+  imports: 'import { Em, Text } from "@stealthscale/component-typography";',
   scenes: [inks, motion],
   title: "em.title",
 });

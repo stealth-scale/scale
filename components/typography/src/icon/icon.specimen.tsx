@@ -143,6 +143,7 @@ export default specimen({
   about: "icon.about",
   group: "Typography",
   id: "typography/icon",
+  imports: 'import { Icon } from "@stealthscale/component-typography";',
   scenes: [sizes, inks, motion, mirrored],
   title: "icon.title",
 });

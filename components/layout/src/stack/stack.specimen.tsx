@@ -189,6 +189,7 @@ export default specimen({
   about: "stack.about",
   group: "Layout",
   id: "layout/stack",
+  imports: 'import { Grid, Stack } from "@stealthscale/component-layout";',
   scenes: [directions, gaps, alignment, distribution, wrap],
   title: "stack.title",
 });

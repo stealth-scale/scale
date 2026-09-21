@@ -103,6 +103,7 @@ export default specimen({
   about: "skeleton.about",
   group: "Feedback",
   id: "feedback/skeleton",
+  imports: 'import { Skeleton } from "@stealthscale/component-feedback";',
   scenes: [loading, motion, corners],
   title: "skeleton.title",
 });

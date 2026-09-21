@@ -45,6 +45,7 @@ export default specimen({
   about: "frame.about",
   group: "Layout",
   id: "layout/frame",
+  imports: 'import { Frame } from "@stealthscale/component-layout";',
   scenes: scenesOf<FrameProps>(recipe, {
     axes: {
       blur: { with: { ratio: "landscape" } },

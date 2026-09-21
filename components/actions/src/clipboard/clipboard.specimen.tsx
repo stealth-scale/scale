@@ -250,6 +250,8 @@ export default specimen({
   about: "clipboard.about",
   group: "Actions",
   id: "actions/clipboard",
+  imports:
+    'import { Button, ButtonPropsProvider, Clipboard, IconButton } from "@stealthscale/component-actions";',
   scenes: [alone, beside, value, own, sizes, held],
   title: "clipboard.title",
 });

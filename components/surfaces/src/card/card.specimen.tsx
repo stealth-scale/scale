@@ -154,6 +154,7 @@ export default specimen({
   about: "card.about",
   group: "Surfaces",
   id: "surfaces/card",
+  imports: 'import { Card } from "@stealthscale/component-surfaces";',
   scenes: [
     ...scenesOf<Card.RootProps>(recipe, {
       axes: {

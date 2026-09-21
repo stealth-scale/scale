@@ -60,6 +60,7 @@ export default specimen({
   about: "breadcrumb.about",
   group: "Navigation",
   id: "navigation/breadcrumb",
+  imports: 'import { Breadcrumb } from "@stealthscale/component-navigation";',
   scenes: [looks],
   title: "breadcrumb.title",
 });

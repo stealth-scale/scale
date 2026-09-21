@@ -82,6 +82,7 @@ export default specimen({
   about: "link.about",
   group: "Navigation",
   id: "navigation/link",
+  imports: 'import { Link } from "@stealthscale/component-navigation";',
   scenes: [looks, inherit],
   title: "link.title",
 });

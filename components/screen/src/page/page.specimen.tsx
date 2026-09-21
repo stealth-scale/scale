@@ -168,6 +168,7 @@ export default specimen({
   about: "page.about",
   group: "Screen",
   id: "screen/page",
+  imports: 'import { Page } from "@stealthscale/component-screen";',
   scenes: [measures, sizes, gutters, alignment, divided],
   title: "page.title",
 });

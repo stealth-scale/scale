@@ -153,6 +153,7 @@ export default specimen({
   about: "text.about",
   group: "Typography",
   id: "typography/text",
+  imports: 'import { Text } from "@stealthscale/component-typography";',
   scenes: [sizes, inks, alignment, truncate, motion, mask],
   title: "text.title",
 });

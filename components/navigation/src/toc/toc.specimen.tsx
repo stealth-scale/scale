@@ -129,6 +129,7 @@ export default specimen({
   about: "toc.about",
   group: "Navigation",
   id: "navigation/toc",
+  imports: 'import { Toc } from "@stealthscale/component-navigation";',
   scenes: [sizes, following],
   title: "toc.title",
 });

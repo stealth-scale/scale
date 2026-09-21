@@ -215,6 +215,7 @@ export default specimen({
   about: "nav-list.about",
   group: "Navigation",
   id: "navigation/nav-list",
+  imports: 'import { NavList } from "@stealthscale/component-navigation";',
   scenes: [looks, highlights, corners, iconic, reveal],
   title: "nav-list.title",
 });
