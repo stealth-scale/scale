@@ -151,18 +151,17 @@ the page's parts accept. The row above the page's title leads back to the index,
 page is filed under stands beside the title as a badge.
 
 The examples band opens with the statement that imports the page's components from their package, in
-the content package's code block with the clipboard's trigger beside it. The plugin lists the
-components from what the specimen imports under the package's own imports map. Each scene stands on
-a card, which is the first time that component reaches the browser. The card's footer holds two
-controls: `Source`, a disclosure that shows the scene's source under the scene in the same code
-block, cut by the plugin from the specimen's file, and `Check`, which runs axe over the element the
-scene was drawn into and reports what it came to at the start of the footer. A clean audit says how
-many rules it held the scene to. A broken one opens a panel listing each rule broken, worst first,
-with the elements it was broken on and a link to the rule. Axe is loaded on the first check and not
-before. Each section is anchored by its worded title, `looks-and-sizes`, and a rail beside the page
-lists the sections, marks the ones on screen and scrolls the page to the one pressed. The rail is
-the navigation package's table of contents in the page's aside, which leaves a narrow page and
-sticks beside a wide one.
+the content package's code block with the clipboard's trigger beside it. The page states that
+statement itself, under `imports`. Each scene stands on a card, which is the first time that
+component reaches the browser. The card's footer holds two controls: `Source`, a disclosure that
+shows the scene's source under the scene in the same code block, written by the scene itself, and
+`Check`, which runs axe over the element the scene was drawn into and reports what it came to at the
+start of the footer. A clean audit says how many rules it held the scene to. A broken one opens a
+panel listing each rule broken, worst first, with the elements it was broken on and a link to the
+rule. Axe is loaded on the first check and not before. Each section is anchored by its worded title,
+`looks-and-sizes`, and a rail beside the page lists the sections, marks the ones on screen and
+scrolls the page to the one pressed. The rail is the navigation package's table of contents in the
+page's aside, which leaves a narrow page and sticks beside a wide one.
 
 The props band is drawn where the index was asked to read props, and loaded when the band is opened.
 It holds one section per part, headed by the component and the interface, with one table of what the
@@ -286,6 +285,7 @@ export default specimen({
   about: "The element a person presses.",
   group: "Actions",
   id: "actions/button",
+  imports: 'import { Button } from "@stealthscale/component-actions";',
   scenes: [sizes],
 });
 ```
@@ -297,6 +297,7 @@ export default specimen({
 | `title`     | The page heading. The last segment of the identifier when absent            |
 | `group`     | The group a navigation rail lists the page under. Empty when absent         |
 | `about`     | The sentence or two the page opens with. Empty when absent                  |
+| `imports`   | The statement the page opens with. No import line when absent               |
 | `namespace` | The catalogue namespace the words are keys in. Shown as written when absent |
 
 The scenes are listed rather than gathered from the file's exports, because a module returns its
