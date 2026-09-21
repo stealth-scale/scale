@@ -188,6 +188,19 @@ interface Change {
 }
 
 /**
+ * Describes the part of a configuration environment the plugin reads.
+ *
+ * @remarks
+ *   Narrower than Vite's own type, so a specification names the command alone.
+ */
+interface Composing {
+  /**
+   * The command the bundler is running, which is `build` for a build.
+   */
+  readonly command: string;
+}
+
+/**
  * Finds the stamp for the resolved root, under the plugin's scratch.
  */
 function stampOf(state: State): string {
@@ -319,6 +332,11 @@ const PROPS_CHUNK = "props";
 const PAGES_CHUNK = "pages";
 
 /**
+ * The command a build composes its configuration under.
+ */
+const BUILDING = "build";
+
+/**
  * Writes the configuration the plugin adds: the build output the watcher leaves alone, every page
  * in one chunk, and every page's props in another.
  *
@@ -333,13 +351,22 @@ const PAGES_CHUNK = "pages";
  *   looked up. The props of every page share a chunk of their own, because a page loads them only
  *   where somebody opens them. A build output stated as several is left alone, because a group
  *   written into every one of them would be a guess at which one is the page's.
+ *   The pages group pulls each page's dependencies in, so a component the entry also reaches is
+ *   bundled with them. The entry's own chunk then imports the pages chunk and runs it first. The
+ *   React plugin writes its refresh preamble into the document, and the bundling dev server folds
+ *   that preamble into the entry's chunk, so a component in the pages chunk read the refresh
+ *   runtime before the preamble installed it and threw. A build alone therefore carries the
+ *   groups. Both chunks are a caching measure for a reader, and a dev server has no reader to
+ *   cache for, which is the same reason `build.chunks` leaves its library and shared groups out
+ *   of a dev server.
  * @param indexing - The index as last generated, which says which file is which page.
  * @param stated - The configuration as the repository stated it.
+ * @param command - The command the bundler is running, which is `build` for a build.
  */
-function configured(indexing: Indexing, stated: UserConfig): UserConfig {
+function configured(indexing: Indexing, stated: UserConfig, command: string): UserConfig {
   const watched: UserConfig = { server: { watch: { ignored: [...OUTPUTS] } } };
 
-  if (Array.isArray(stated.build?.rolldownOptions?.output)) return watched;
+  if (Array.isArray(stated.build?.rolldownOptions?.output) || command !== BUILDING) return watched;
 
   return {
     ...watched,
@@ -392,13 +419,14 @@ export function specimens(options: Options): Plugin {
     },
 
     /**
-     * Excludes build output from the watcher, puts every page in one chunk, and every page's props
-     * in another.
+     * Excludes build output from the watcher, and under a build puts every page in one chunk and
+     * every page's props in another.
      *
      * @param stated - The configuration as the repository stated it.
+     * @param env - The command and the mode the bundler composes the configuration under.
      */
-    config(stated: UserConfig): UserConfig {
-      return configured(state, stated);
+    config(stated: UserConfig, env: Composing): UserConfig {
+      return configured(state, stated, env.command);
     },
 
     /**
