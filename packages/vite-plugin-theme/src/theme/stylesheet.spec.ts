@@ -1,4 +1,5 @@
-import { mkdirSync, rmSync, symlinkSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, symlinkSync } from "node:fs";
+import { join } from "node:path";
 import { type ViteDevServer } from "vite";
 import { describe, expect, it } from "vitest";
 
@@ -20,7 +21,7 @@ import {
   withScratchWorkspaceAsync,
 } from "@stealthscale/testing";
 
-import { layerDeclaration, resolveOptions } from "#options.ts";
+import { layerDeclaration, resolveOptions, scratchDir } from "#options.ts";
 import { stylesheet } from "#theme/stylesheet.ts";
 
 const OPTIONS = { systemPackage: "@acme/design" };
@@ -98,14 +99,23 @@ function linked(workspace: ScratchWorkspace): void {
 }
 
 /**
+ * The part of an update a specification chooses: the file, the modules the server resolved for
+ * it, and the time the server reports it under.
+ */
+interface Report {
+  readonly file: string;
+  readonly modules?: ReadonlyArray<{ id: string }>;
+  readonly timestamp?: number;
+}
+
+/**
  * Reports an update to the plugin under a time of the specification's choosing, the way a server
  * reports one change to each of its environments.
  */
 function reported(
   plugin: ReturnType<typeof stylesheet>,
   context: object,
-  file: string,
-  timestamp?: number,
+  report: Report,
 ): Promise<unknown> {
   const hook: unknown = plugin.hotUpdate;
 
@@ -114,15 +124,44 @@ function reported(
   return Promise.resolve(
     Reflect.apply(hook, context, [
       {
-        file,
-        modules: [],
+        file: report.file,
+        modules: report.modules ?? [],
         read: (): Promise<string> => Promise.resolve(""),
-        timestamp,
+        timestamp: report.timestamp,
         type: "update",
       },
     ]),
   );
 }
+
+/**
+ * Names the environment of a context, the way a server names each of its environments.
+ */
+function named(
+  context: ReturnType<typeof hookContext>,
+  name: string,
+): ReturnType<typeof hookContext> {
+  Object.assign(context.environment, { name });
+
+  return context;
+}
+
+const COLLIDING = packageFiles(
+  "node_modules/@acme/design",
+  { exports: { ".": "./index.js", "./theme": "./theme.js" }, name: "@acme/design", type: "module" },
+  {
+    "index.js": "export {};\n",
+    "theme.js":
+      'export default { name: "@acme/design", theme: { extend: { tokens: { colors: { A: { value: "#111" }, a: { value: "#222" } } } } } };\n',
+  },
+);
+
+const COLLISION: ScratchFiles = {
+  ...APP,
+  ...COLLIDING,
+  "src/page.tsx":
+    'import { css } from "@acme/design";\n\nexport const Page = () => [css({ color: "A" }), css({ color: "a" })];\n',
+};
 
 /**
  * Strips the environment off a context, the way a server that bundles calls a hook.
@@ -338,16 +377,19 @@ describe("stylesheet", () => {
     expect(added).toStrictEqual([]);
   });
 
-  it("writes nothing into the application but the rendered configuration", async () => {
+  it("writes nothing into the application and renders the configuration under its scratch", async () => {
     const written = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const { plugin } = await compiled(workspace);
 
       await loaded(plugin, VIRTUAL);
 
-      return workspace.files().filter((file) => file.startsWith("node_modules/.theme/"));
+      return {
+        rendered: existsSync(join(scratchDir(workspace.root), "stylesheet.config.mjs")),
+        written: workspace.files().filter((file) => file.startsWith("node_modules/.")),
+      };
     });
 
-    expect(written).toStrictEqual(["node_modules/.theme/stylesheet.config.mjs"]);
+    expect(written).toStrictEqual({ rendered: true, written: [] });
   });
 
   it("appends the compiled rules to a stylesheet that declares the cascade order", async () => {
@@ -504,7 +546,7 @@ describe("stylesheet", () => {
       workspace.write({ "theme.config.ts": statement().replace('"acme"', '"forged"') });
       await updated(plugin, context, workspace.path("theme.config.ts"));
 
-      return workspace.read("node_modules/.theme/stylesheet.config.mjs");
+      return readFileSync(join(scratchDir(workspace.root), "stylesheet.config.mjs"), "utf8");
     });
 
     expect(written).toContain('"forged"');
@@ -552,8 +594,8 @@ describe("stylesheet", () => {
 
       const compiles = context.warned.length;
 
-      await reported(plugin, context, file, 7);
-      await reported(plugin, other, file, 7);
+      await reported(plugin, context, { file, timestamp: 7 });
+      await reported(plugin, other, { file, timestamp: 7 });
 
       return {
         compiles: context.warned.length + other.warned.length - compiles,
@@ -573,9 +615,9 @@ describe("stylesheet", () => {
 
       await transformed(plugin, context, DECLARED, sheet);
       workspace.write({ "src/page.tsx": page("green") });
-      await reported(plugin, bundling(context), file);
+      await reported(plugin, bundling(context), { file });
       workspace.write({ "src/page.tsx": page("blue") });
-      await reported(plugin, bundling(context), file);
+      await reported(plugin, bundling(context), { file });
 
       return transformed(plugin, context, DECLARED, sheet);
     });
@@ -604,7 +646,10 @@ describe("stylesheet", () => {
       await transformed(plugin, context, DECLARED, sheet);
       workspace.write({ "src/page.tsx": page("blue") });
 
-      const answered = await reported(plugin, bundling(context), workspace.path("src/page.tsx"), 9);
+      const answered = await reported(plugin, bundling(context), {
+        file: workspace.path("src/page.tsx"),
+        timestamp: 9,
+      });
 
       return { answered, written: await transformed(plugin, context, DECLARED, sheet) };
     });
@@ -658,6 +703,145 @@ describe("stylesheet", () => {
     });
 
     expect(found).toStrictEqual(["src/page.tsx"]);
+  });
+
+  it("applies a change reported while the first assembly is under way", async () => {
+    const written = await withScratchWorkspaceAsync(APP, async (workspace) => {
+      const plugin = stylesheet(OPTIONS);
+      const context = hookContext();
+
+      await configured(plugin, { ...RESOLVED, root: workspace.root });
+      await started(plugin, context);
+      workspace.write({ "src/page.tsx": page("blue") });
+      await updated(plugin, context, workspace.path("src/page.tsx"));
+
+      return transformed(plugin, context, DECLARED, workspace.path("styles.css"));
+    });
+
+    expect(written).toContain("c-blue");
+    expect(written).not.toContain("c-red");
+  });
+
+  it("assembles again when the statement changes while the first assembly is under way", async () => {
+    const written = await withScratchWorkspaceAsync(APP, async (workspace) => {
+      const plugin = stylesheet(OPTIONS);
+      const context = hookContext();
+
+      await configured(plugin, { ...RESOLVED, root: workspace.root });
+      await started(plugin, context);
+      workspace.write({ "theme.config.ts": statement().replace('"acme"', '"forged"') });
+      await updated(plugin, context, workspace.path("theme.config.ts"));
+
+      return readFileSync(join(scratchDir(workspace.root), "stylesheet.config.mjs"), "utf8");
+    });
+
+    expect(written).toContain('"forged"');
+  });
+
+  it("keeps a change reported after a failed assembly for the assembly that follows", async () => {
+    const files = { ...APP, "package.json": manifest({ name: "@acme/app", type: "module" }) };
+    const written = await withScratchWorkspaceAsync(files, async (workspace) => {
+      const plugin = stylesheet(OPTIONS);
+      const context = hookContext();
+
+      await configured(plugin, { ...RESOLVED, root: workspace.root });
+      await started(plugin, context);
+      await loaded(plugin, VIRTUAL).catch(() => {});
+      workspace.write({ "package.json": APP["package.json"] ?? "", "src/page.tsx": page("blue") });
+      await updated(plugin, context, workspace.path("src/page.tsx"));
+
+      return transformed(plugin, context, DECLARED, workspace.path("styles.css"));
+    });
+
+    expect(written).toContain("c-blue");
+  });
+
+  it("keeps another environment's stylesheet when one environment's graph lacks it", async () => {
+    const invalidated = await withScratchWorkspaceAsync(APP, async (workspace) => {
+      const plugin = stylesheet(OPTIONS);
+      const sheet = workspace.path("styles.css");
+      const client = named(hookContext([sheet]), "client");
+      const ssr = named(hookContext([]), "ssr");
+      const file = workspace.path("src/page.tsx");
+
+      await configured(plugin, { ...RESOLVED, root: workspace.root });
+      await started(plugin, client);
+      await transformed(plugin, client, DECLARED, sheet);
+      await transformed(plugin, ssr, DECLARED, sheet);
+      workspace.write({ "src/page.tsx": page("green") });
+      await reported(plugin, ssr, { file, timestamp: 21 });
+      await reported(plugin, client, { file, timestamp: 21 });
+
+      return {
+        client: client.invalidated.map((each) => each.slice(workspace.root.length + 1)),
+        ssr: ssr.invalidated,
+      };
+    });
+
+    expect(invalidated).toStrictEqual({ client: ["styles.css"], ssr: [] });
+  });
+
+  it("leaves the stylesheet out of the changed modules when the rules did not change", async () => {
+    const answered = await withScratchWorkspaceAsync(APP, async (workspace) => {
+      const { context, plugin, sheet } = await compiled(workspace, true);
+      const file = workspace.path("src/page.tsx");
+
+      await transformed(plugin, context, DECLARED, sheet);
+      workspace.write({ "src/page.tsx": `// a comment\n${page("red")}` });
+
+      const modules = await reported(plugin, context, {
+        file,
+        modules: [{ id: sheet }, { id: file }],
+        timestamp: 31,
+      });
+
+      return { file, modules };
+    });
+
+    expect(answered.modules).toStrictEqual([{ id: answered.file }]);
+  });
+
+  it("fails a build on a class two names collide on", async () => {
+    await expect(
+      withScratchWorkspaceAsync(COLLISION, async (workspace) => {
+        const plugin = stylesheet(OPTIONS);
+        const context = hookContext([], "build");
+
+        await configured(plugin, { ...RESOLVED, root: workspace.root });
+        await started(plugin, context);
+
+        return transformed(plugin, context, DECLARED, workspace.path("styles.css"));
+      }),
+    ).rejects.toThrow("the stylesheet did not compile");
+  });
+
+  it("serves the rules and reports the collision under a dev server", async () => {
+    const found = await withScratchWorkspaceAsync(COLLISION, async (workspace) => {
+      const { context, plugin, sheet } = await compiled(workspace);
+      const written = await transformed(plugin, context, DECLARED, sheet);
+
+      return { warned: context.warned.join("\n"), written: written?.includes("c-a") };
+    });
+
+    expect(found.written).toBe(true);
+    expect(found.warned).toContain("naming/collision");
+  });
+
+  it("keeps the rules compiled before an error under a dev server", async () => {
+    const found = await withScratchWorkspaceAsync(APP, async (workspace) => {
+      const { context, plugin, sheet } = await compiled(workspace);
+      const before = await transformed(plugin, context, DECLARED, sheet);
+
+      workspace.write({ ...COLLIDING, "src/page.tsx": COLLISION["src/page.tsx"] ?? "" });
+      await updated(plugin, context, workspace.path("node_modules/@acme/design/theme.js"));
+
+      const after = await transformed(plugin, context, DECLARED, sheet);
+
+      return { same: before === after, warned: context.warned.join("\n") };
+    });
+
+    expect(found.same).toBe(true);
+    expect(found.warned).toContain("keeps the rules compiled before");
   });
 
   it("forgets a stylesheet the graph no longer holds", async () => {

@@ -7,6 +7,7 @@ import {
   scopedPresets,
   type Switchable,
   type SwitchablePreset,
+  unmatchedCompounds,
 } from "#scope.ts";
 
 const ABYSS = "[data-theme=abyss] &:not([data-theme=abyss] [data-theme] *)";
@@ -308,6 +309,84 @@ describe("scope", () => {
       },
       slotRecipes: { card: [{ className: "card__root--hero", size: "lg" }] },
     });
+  });
+
+  it("reads the compounds a preset nested under a published preset declares first", () => {
+    const published = publishedCompounds([
+      {
+        presets: [
+          {
+            theme: {
+              extend: {
+                recipes: {
+                  button: { compoundVariants: [{ className: "button--base", size: "sm" }] },
+                },
+              },
+            },
+          },
+        ],
+        theme: {
+          extend: {
+            recipes: { button: { compoundVariants: [{ className: "button--hero", size: "lg" }] } },
+          },
+        },
+      },
+    ]);
+
+    expect(published.recipes["button"]).toStrictEqual([
+      { className: "button--base", size: "sm" },
+      { className: "button--hero", size: "lg" },
+    ]);
+  });
+
+  it("matches a selection listing several values whatever their order", () => {
+    const published: Compounds = {
+      recipes: { button: [{ className: "button--wide", size: ["sm", "lg"] }] },
+      slotRecipes: {},
+    };
+    const scoped = scopedPreset(
+      theme("abyss", {
+        recipes: { button: { compoundVariants: [{ css: { gap: "2" }, size: ["lg", "sm"] }] } },
+      }),
+      published,
+    );
+
+    expect(scoped[0]?.theme.extend.recipes?.["button"]?.compoundVariants?.[0]).toMatchObject({
+      className: "button--wide",
+    });
+  });
+
+  it("lists every theme compound no published compound matches", () => {
+    const stated = [
+      theme("abyss", {
+        recipes: {
+          badge: { compoundVariants: [{ css: { gap: "1" }, size: "sm" }] },
+          button: {
+            compoundVariants: [
+              { css: { gap: "2" }, size: "lg", variant: "solid" },
+              { css: { gap: "3" }, size: "sm" },
+              { className: "button--own", css: { gap: "4" }, size: "xs" },
+            ],
+          },
+        },
+        slotRecipes: {
+          card: {
+            compoundVariants: [
+              { css: { footer: { gap: "1" }, root: { gap: "2" } }, size: "lg" },
+              { size: "md" },
+              { className: "card__root--own", css: { root: { gap: "3" } }, size: "xs" },
+            ],
+          },
+        },
+      }),
+      theme("forge"),
+    ];
+
+    expect(unmatchedCompounds(stated, PUBLISHED)).toStrictEqual([
+      'abyss: badge [["size","sm"]]',
+      'abyss: button [["size","sm"]]',
+      'abyss: card.footer [["size","lg"]]',
+    ]);
   });
 
   it("nests the value of a text style under the attribute", () => {

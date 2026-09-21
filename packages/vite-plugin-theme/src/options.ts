@@ -8,12 +8,44 @@
  *   repository that renamed one would have two ways of writing the same thing.
  */
 
+import { scratchDir as scratchOf } from "@stealthscale/vite-plugin-base";
+
 import { type StylesheetLayers } from "#pandacss.ts";
 
 /**
- * Fixes the directory, under an application or the system package, where generated files go.
+ * Fixes the directory, under the system's temporary directory, that every package's scratch goes
+ * under.
  */
-export const CACHE = "node_modules/.theme";
+const SCRATCH = "stealth-theme";
+
+/**
+ * Fixes the lock a generation holds, under a package's scratch, for the whole of rendering a
+ * configuration, running the compiler and publishing what it wrote.
+ *
+ * @remarks
+ *   One lock per package directory. A dev server, a type check and a test run in one checkout all
+ *   generate on start, and the lock is what keeps one from reading the configuration another is
+ *   writing or deleting the files another is publishing.
+ */
+export const LOCK = "lock";
+
+/**
+ * Finds the directory a package's scratch goes under: the rendered configurations, the runtime
+ * before it is published, and the lock.
+ *
+ * @remarks
+ *   Under the system's temporary directory, in a directory named for the package's root, rather
+ *   than under the package. A task runner fingerprints what a build reads and writes inside the
+ *   workspace, and refuses to cache a build that did both to one file. The rendered configuration
+ *   is written by the plugin and read by the compiler, and the compiler's own copy of it is
+ *   written and deleted, so under the package neither build was ever cached. Outside the
+ *   workspace they are neither inputs nor outputs, and the compiler puts its copy under the
+ *   temporary directory too, because no `node_modules` stands above the configuration there.
+ * @param root - The package's directory, absolute.
+ */
+export function scratchDir(root: string): string {
+  return scratchOf(SCRATCH, root);
+}
 
 /**
  * Fixes the file an application states its themes in.

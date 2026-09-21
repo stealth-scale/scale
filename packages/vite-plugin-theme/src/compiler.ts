@@ -26,7 +26,7 @@ import {
   writeIfChanged,
 } from "@stealthscale/vite-plugin-base";
 
-import { CACHE, SEPARATOR, THEME_ATTRIBUTE } from "#options.ts";
+import { scratchDir, SEPARATOR, THEME_ATTRIBUTE } from "#options.ts";
 
 /**
  * Marks a path that belongs to an installed package rather than to the workspace.
@@ -34,24 +34,15 @@ import { CACHE, SEPARATOR, THEME_ATTRIBUTE } from "#options.ts";
 const VENDOR = `${sep}node_modules${sep}`;
 
 /**
- * Fixes where the compiler bundles a configuration before it reads it.
- *
- * @remarks
- *   The copy is deleted before the driver starts. A file both read and written in one task is one
- *   the task runner refuses to cache on, so the copy is written and never read, which makes it an
- *   output.
- */
-const BUNDLE = join("node_modules", ".panda");
-
-/**
- * Fixes where codegen writes the runtime before it is synced into the generated directory.
+ * Fixes where, under a package's scratch, codegen writes the runtime before it is synced into the
+ * generated directory.
  *
  * @remarks
  *   Codegen writes every file whether or not its content changed. Writing into a scratch directory
  *   and syncing from there leaves an unchanged generated file as it was, so a watcher over the
  *   package sees the files a change reached and no others.
  */
-const SCRATCH = join(CACHE, "runtime");
+const STAGING = "runtime";
 
 /**
  * Fixes the declaration written beside the recipe runtime, which the compiler emits without one.
@@ -160,14 +151,19 @@ export interface Compiler {
 
 /**
  * Starts the compiler on a configuration file.
+ *
+ * @remarks
+ *   The compiler bundles the configuration before it reads it, beside the nearest `node_modules`
+ *   above the file or under the system's temporary directory where there is none, and deletes the
+ *   copy afterwards. A configuration rendered under the package's scratch keeps that copy out of
+ *   the workspace.
  */
 export async function startCompiler(root: string, configPath: string): Promise<Compiler> {
-  emptyDir(join(root, BUNDLE));
-
   const driver = await createNodeDriver({ configPath, cwd: root });
+  const scratch = scratchDir(root);
   const dependencies = [...new Set(driver.configDependencies)]
     .map((path) => resolve(root, path))
-    .filter((path) => !path.includes(VENDOR));
+    .filter((path) => !path.includes(VENDOR) && !path.startsWith(scratch));
 
   return { dependencies, driver };
 }
@@ -189,7 +185,7 @@ export async function generateRuntime(
   outdir: string,
 ): Promise<Compiler> {
   const compiler = await startCompiler(root, configPath);
-  const scratch = join(root, SCRATCH);
+  const scratch = join(scratchDir(root), STAGING);
 
   emptyDir(scratch);
   compiler.driver.codegen({ cwd: root, outdir: scratch });

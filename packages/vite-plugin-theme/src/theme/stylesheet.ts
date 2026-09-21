@@ -19,10 +19,10 @@ import {
 import { type Loading } from "@stealthscale/vite-plugin-base";
 
 import { rewritten } from "#compiler.ts";
-import { reportDiagnostics } from "#diagnostics.ts";
+import { hasErrors, reportDiagnostics } from "#diagnostics.ts";
 import { renderStylesheet } from "#fonts.ts";
 import { layerPattern, type Options, type Resolved, resolveOptions } from "#options.ts";
-import { type SourceChange } from "#pandacss.ts";
+import { type Diagnostic, type SourceChange } from "#pandacss.ts";
 import { assemble, type Assembled } from "#theme/assembly.ts";
 
 /**
@@ -33,6 +33,12 @@ import { assemble, type Assembled } from "#theme/assembly.ts";
  *   application would have to be committed or served out of `node_modules`.
  */
 const VIRTUAL = "virtual:stealth-theme.css";
+
+/**
+ * The name of the environment a hook is bound to where the bundler binds none, which is the case
+ * under a specification.
+ */
+const CLIENT = "client";
 
 /**
  * The kinds of change a bundler reports about a file, which a dev server's hot update and a build's
@@ -125,14 +131,30 @@ interface Running {
   loading: Loading;
 
   /**
+   * Every change reported while no compiler could take it, by file, for the next compiler to
+   * apply.
+   */
+  pending: Map<string, Event>;
+
+  /**
    * The dev server, where one is running.
    */
   server?: undefined | ViteDevServer;
 
   /**
-   * Every stylesheet the compiled rules were appended to.
+   * Every stylesheet the compiled rules were appended to, by the environment that asked.
    */
-  sheets: Set<string>;
+  sheets: Map<string, Set<string>>;
+}
+
+/**
+ * The part of an environment the plugin reads to tell one from another.
+ */
+interface Named {
+  /**
+   * The environment's name, which a bundler binds and a specification may leave out.
+   */
+  name?: string | undefined;
 }
 
 /**
@@ -140,6 +162,62 @@ interface Running {
  */
 function bare(id: string): string {
   return id.replace(/\?.*$/su, "");
+}
+
+/**
+ * Lists the stylesheets one environment appended the rules to, opening the list where the
+ * environment has none yet.
+ */
+function sheetsOf(state: Running, environment: Named | undefined): Set<string> {
+  const name = environment?.name ?? CLIENT;
+  const held = state.sheets.get(name) ?? new Set<string>();
+
+  state.sheets.set(name, held);
+
+  return held;
+}
+
+/**
+ * Hands one changed file to a compiler, and reports whether the compiler took it.
+ *
+ * @remarks
+ *   The compiler reads a changed file from disk itself, so the change carries no content, and a
+ *   deleted file is reported as one rather than read. A file outside the compiler's globs is left
+ *   alone before the compiler is asked, because the compiler reads a file it is handed before it
+ *   decides whether the file is one it scans.
+ */
+function handed(assembled: Assembled, file: string, event: Event): boolean {
+  const { driver } = assembled.compiler;
+
+  return driver.isSourceFile(file) && driver.applyChange({ kind: KINDS[event], path: file });
+}
+
+/**
+ * Applies every change reported while the assembly ran to the compiler it produced.
+ *
+ * @remarks
+ *   A change to a file the configuration was built from makes the assembly stale before it is
+ *   ever served, so the assembly is run again rather than handed a change it cannot take. The
+ *   changes are read after the assembly resolved, so a change reported at any point of the
+ *   assembly reaches this compiler or the next.
+ */
+function drained(state: Running, resolved: Resolved, held: Assembled): Promise<Assembled> {
+  const pending = [...state.pending];
+
+  state.pending.clear();
+
+  if (pending.some(([file]) => held.watched.includes(file))) return settled(state, resolved);
+
+  for (const [file, event] of pending) handed(held, file, event);
+
+  return Promise.resolve(held);
+}
+
+/**
+ * Assembles the compiler, then applies whatever was reported while it was assembling.
+ */
+async function settled(state: Running, resolved: Resolved): Promise<Assembled> {
+  return drained(state, resolved, await assemble(state.loading, resolved, state.server));
 }
 
 /**
@@ -154,7 +232,7 @@ function bare(id: string): string {
  */
 async function assembling(state: Running, resolved: Resolved): Promise<Assembled> {
   try {
-    const assembled = await assemble(state.loading, resolved, state.server);
+    const assembled = await settled(state, resolved);
 
     state.assembled = assembled;
     state.generation += 1;
@@ -204,7 +282,8 @@ function faces(assembled: Assembled): readonly string[] {
  *
  * @remarks
  *   A stylesheet the graph no longer holds is forgotten, so a sheet renamed while the server runs
- *   is not looked up on every change for the life of the process.
+ *   is not looked up on every change for the life of the process. The graph is the environment's
+ *   own, and so is the list, so a sheet another environment holds is not forgotten here.
  */
 function invalidated(environment: DevEnvironment, sheets: Set<string>): EnvironmentModuleNode[] {
   const found: EnvironmentModuleNode[] = [];
@@ -224,13 +303,15 @@ function invalidated(environment: DevEnvironment, sheets: Set<string>): Environm
 }
 
 /**
- * The part of a transform's context the compile reads: the watch list and the warning channel.
+ * The part of a hook's context the compile reads: whether a build is running, and the warning
+ * channel.
  */
-interface Transforming {
+interface Reporting {
   /**
-   * Adds a file whose change retransforms the module.
+   * Whether the rules are compiled for a build, which fails on an error, rather than for a
+   * server, which keeps serving the rules it compiled before the error.
    */
-  addWatchFile: (file: string) => void;
+  building: boolean;
 
   /**
    * Puts a message in front of the person running the build.
@@ -239,27 +320,81 @@ interface Transforming {
 }
 
 /**
- * Compiles the rules once per generation, renames every class selector into the scheme, reports
- * what the compiler and the rename found, and returns the rules.
- *
- * @remarks
- *   Every stylesheet that declares the cascade order receives the same rules, so the compile and
- *   the rename run once for a generation however many stylesheets ask, and the diagnostics are
- *   reported once with them. An application whose graph names no package publishing a preset
- *   beside the system package compiles a stylesheet carrying the foundation's values and no
- *   component's rules, which is a blank-looking page and a build that succeeded, so that is
- *   reported here too.
+ * The part of an environment's configuration the compile reads.
  */
-function compiled(state: Running, assembled: Assembled, warn: Transforming["warn"]): string {
-  if (state.compiled?.generation === state.generation) return state.compiled.css;
+interface Commanded {
+  /**
+   * The command the environment runs under.
+   */
+  command: string;
+}
 
+/**
+ * The part of an environment the compile reads.
+ */
+interface Environmental {
+  /**
+   * The environment's configuration.
+   */
+  config: Commanded;
+}
+
+/**
+ * Reads what a transform's context reveals about the run: the environment's command and the
+ * warning channel.
+ */
+interface Transforming {
+  /**
+   * Adds a file whose change retransforms the module.
+   */
+  addWatchFile: (file: string) => void;
+
+  /**
+   * The environment the hook is bound to, where the bundler binds one.
+   */
+  environment?: Environmental | undefined;
+
+  /**
+   * Puts a message in front of the person running the build.
+   */
+  warn: (message: string) => void;
+}
+
+/**
+ * Carries the diagnostics one stage of the compile produced.
+ */
+interface Diagnosed {
+  /**
+   * The diagnostics the stage produced.
+   */
+  diagnostics: readonly Diagnostic[];
+}
+
+/**
+ * Reads the reporting a transform's context allows.
+ */
+function reporting(context: Transforming): Reporting {
+  return {
+    building: context.environment?.config.command === "build",
+    warn: context.warn.bind(context),
+  };
+}
+
+/**
+ * Reports every diagnostic of one compile, and returns them all.
+ */
+function reported(
+  assembled: Assembled,
+  output: Diagnosed,
+  renamed: Diagnosed,
+  warn: Reporting["warn"],
+): readonly Diagnostic[] {
   const { compiler, contributors } = assembled;
-  const output = compiler.driver.cssgen({ emitLayerDeclaration: false });
-  const renamed = rewritten(compiler, output.css);
 
   reportDiagnostics(compiler.driver.designSystemDiagnostics, "the design system", warn);
   reportDiagnostics(output.diagnostics, "the stylesheet", warn);
   reportDiagnostics(renamed.diagnostics, "the class names", warn);
+  reportDiagnostics(assembled.diagnostics, "the contributors", warn);
 
   if (contributors.length === 1) {
     warn(
@@ -269,7 +404,45 @@ function compiled(state: Running, assembled: Assembled, warn: Transforming["warn
     );
   }
 
-  state.compiled = { css: renamed.css, generation: state.generation };
+  return [
+    ...compiler.driver.designSystemDiagnostics,
+    ...output.diagnostics,
+    ...renamed.diagnostics,
+    ...assembled.diagnostics,
+  ];
+}
+
+/**
+ * Compiles the rules once per generation, renames every class selector into the scheme, reports
+ * what the compiler and the rename found, and returns the rules.
+ *
+ * @remarks
+ *   Every stylesheet that declares the cascade order receives the same rules, so the compile and
+ *   the rename run once for a generation however many stylesheets ask, and the diagnostics are
+ *   reported once with them. An error is a rule the compiler could not compile or a class two
+ *   names collide on, which is a stylesheet that would draw the page wrong. A build fails on it. A
+ *   server reports it and keeps serving the rules compiled before it, so the page stays drawn
+ *   while the error is fixed.
+ * @throws {@link Error} When a build meets an error the compiler or the rename reported.
+ */
+function compiled(state: Running, assembled: Assembled, context: Reporting): string {
+  if (state.compiled?.generation === state.generation) return state.compiled.css;
+
+  const output = assembled.compiler.driver.cssgen({ emitLayerDeclaration: false });
+  const renamed = rewritten(assembled.compiler, output.css);
+  const failed = hasErrors(reported(assembled, output, renamed, context.warn));
+
+  if (failed && context.building) {
+    throw new Error("the stylesheet did not compile: the errors reported above stop the build");
+  }
+
+  const kept = failed ? state.compiled : undefined;
+
+  if (kept !== undefined) {
+    context.warn("the stylesheet keeps the rules compiled before the errors reported above");
+  }
+
+  state.compiled = { css: kept?.css ?? renamed.css, generation: state.generation };
 
   return state.compiled.css;
 }
@@ -285,7 +458,7 @@ function appended(
 ): string {
   for (const file of [...assembled.watched, ...assembled.sources]) context.addWatchFile(file);
 
-  return `${code}\n${compiled(state, assembled, context.warn.bind(context))}`;
+  return `${code}\n${compiled(state, assembled, reporting(context))}`;
 }
 
 /**
@@ -293,10 +466,10 @@ function appended(
  * file is handed to it, and any other file is left alone.
  *
  * @remarks
- *   The compiler reads a changed file from disk itself, so the change carries no content, and a
- *   deleted file is reported as one rather than read. A file outside the compiler's globs is left
- *   alone before the compiler is asked, because the compiler reads a file it is handed before it
- *   decides whether the file is one it scans.
+ *   A change reported while no compiler can take it, because the assembly is under way or failed,
+ *   is kept for the compiler that comes out of the next assembly, which is started here where none
+ *   is under way. So a change is never dropped, and the rules served after the assembly are the
+ *   rules the file on disk compiles to.
  * @returns The compiler as it stands after the change, or undefined where nothing changed.
  */
 function applied(
@@ -308,7 +481,11 @@ function applied(
   const assembled = state.assembled;
   const nothing: Assembled | undefined = undefined;
 
-  if (assembled === undefined) return Promise.resolve(nothing);
+  if (assembled === undefined) {
+    state.pending.set(file, event);
+
+    return ready(state, resolved);
+  }
 
   if (assembled.watched.includes(file)) {
     dropped(state);
@@ -316,11 +493,7 @@ function applied(
     return ready(state, resolved);
   }
 
-  const { driver } = assembled.compiler;
-
-  if (!driver.isSourceFile(file) || !driver.applyChange({ kind: KINDS[event], path: file })) {
-    return Promise.resolve(nothing);
-  }
+  if (!handed(assembled, file, event)) return Promise.resolve(nothing);
 
   state.generation += 1;
 
@@ -340,11 +513,11 @@ function applied(
  *   browser.
  * @returns True when the stylesheets hold rules the compiler no longer compiles to.
  */
-async function reported(
+async function changed(
   state: Running,
   resolved: Resolved,
   change: Pick<Changed, "file" | "timestamp" | "type">,
-  warn: Transforming["warn"],
+  warn: Reporting["warn"],
 ): Promise<boolean> {
   const { file, timestamp, type } = change;
   const last = state.applied;
@@ -358,7 +531,8 @@ async function reported(
 
   const before = state.compiled?.css;
   const assembled = await applied(state, resolved, file, type);
-  const stale = assembled !== undefined && compiled(state, assembled, warn) !== before;
+  const stale =
+    assembled !== undefined && compiled(state, assembled, { building: false, warn }) !== before;
 
   state.applied = { file, stale, timestamp };
 
@@ -402,7 +576,12 @@ interface Changed {
 export function stylesheet(options: Options = {}): Plugin {
   const resolved = resolveOptions(options);
   const declared = layerPattern(resolved.layers);
-  const state: Running = { generation: 0, loading: { root: process.cwd() }, sheets: new Set() };
+  const state: Running = {
+    generation: 0,
+    loading: { root: process.cwd() },
+    pending: new Map(),
+    sheets: new Map(),
+  };
 
   return {
     enforce: "pre",
@@ -469,7 +648,7 @@ export function stylesheet(options: Options = {}): Plugin {
     async transform(code, id) {
       if (extname(bare(id)) !== ".css" || !declared.test(code)) return null;
 
-      state.sheets.add(id);
+      sheetsOf(state, this.environment).add(id);
 
       return { code: appended(state, await ready(state, resolved), this, code), map: null };
     },
@@ -501,14 +680,26 @@ export function stylesheet(options: Options = {}): Plugin {
     /**
      * Applies a change under a dev server, once however many times the server reports it, and
      * invalidates every stylesheet the rules were appended to when the rules went stale.
+     *
+     * @remarks
+     *   A stylesheet watches every source the compiler scans, so the server lists it among the
+     *   modules of any source that changed. Where the change compiled to the rules the stylesheet
+     *   already holds, the stylesheet is taken out of that list, and the browser receives the
+     *   changed module alone.
      */
     async hotUpdate(context) {
-      const stale = await reported(state, resolved, context, this.warn.bind(this));
+      const stale = await changed(state, resolved, context, this.warn.bind(this));
       const environment: DevEnvironment | undefined = this.environment;
 
-      if (!stale || environment === undefined) return context.modules;
+      if (environment === undefined) return context.modules;
 
-      return [...new Set([...invalidated(environment, state.sheets), ...context.modules])];
+      const sheets = sheetsOf(state, environment);
+
+      if (!stale) {
+        return context.modules.filter((module) => module.id === null || !sheets.has(module.id));
+      }
+
+      return [...new Set([...invalidated(environment, sheets), ...context.modules])];
     },
   };
 }

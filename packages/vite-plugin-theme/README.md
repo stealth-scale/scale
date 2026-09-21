@@ -59,8 +59,12 @@ runtime is generated from the package's own preset and scans nothing. Every fiel
 | `systemPackage` | `string`                    | `@stealthscale/theme`   | The package that publishes the foundation and generates the runtime                                 |
 
 Everything else is a convention rather than an option: the statement is `theme.config.ts`, a preset
-is published under `./theme`, the runtime goes to `generated/`, and the rendered configurations go
-to `node_modules/.theme/`.
+is published under `./theme`, and the runtime goes to `generated/`. The rendered configurations, the
+runtime before it is published and the lock a generation holds go under the system's temporary
+directory, in a directory named for the package's root, so a task runner that fingerprints what a
+build reads and writes inside the workspace sees the preset as the input and `generated/` as the
+output and caches the build. Two processes generating in one checkout, such as a type check beside a
+dev server, take turns on the lock rather than reading a configuration the other is writing.
 
 ## Reference
 

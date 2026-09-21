@@ -6,6 +6,7 @@ const SURFACE = [
   "atomicClass",
   "compoundClass",
   "conditionsOf",
+  "isAtomic",
   "kebab",
   "rename",
   "sanitise",

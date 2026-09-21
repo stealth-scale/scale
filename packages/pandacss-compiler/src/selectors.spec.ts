@@ -216,6 +216,33 @@ describe("renameSelectors", () => {
     ]);
   });
 
+  it("leaves a class an author named inside a raw condition as the markup carries it", () => {
+    const { css, diagnostics } = renameSelectors(
+      String.raw`.\[\&_\.childBox\]\:c-red .childBox { color: red }` +
+        "\n" +
+        String.raw`.\[\&_\.my_thing\]\:c-blue .my_thing { color: blue }`,
+      CONFIG,
+    );
+
+    expect(classesOf(css)).toStrictEqual([
+      "[&_.childBox]:c-red",
+      "childBox",
+      "[&_.my_thing]:c-blue",
+      "my_thing",
+    ]);
+    expect(diagnostics.map((each) => each.code)).toStrictEqual(["naming/raw-condition"]);
+  });
+
+  it("leaves a class no declaration wrote as it is and reports no collision for two of them", () => {
+    const { css, diagnostics } = renameSelectors(
+      ".prose { max-width: 60ch }\n.fooBar { color: red }\n.foo-bar { color: blue }",
+      CONFIG,
+    );
+
+    expect(classesOf(css)).toStrictEqual(["prose", "fooBar", "foo-bar"]);
+    expect(diagnostics).toStrictEqual([]);
+  });
+
   it("leaves a keyframe step and a rule without a class as they are", () => {
     const sheet =
       "@keyframes spin { from { opacity: 0 } 12.5% { opacity: 1 } }\n:where(:root, :host) { --x: 1 }";

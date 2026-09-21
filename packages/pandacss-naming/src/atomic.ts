@@ -89,6 +89,19 @@ export function conditionsOf(pandaClass: string): string[] {
 }
 
 /**
+ * Reports whether a class is one the compiler wrote for a style declaration.
+ *
+ * @remarks
+ *   Every class the compiler writes for a declaration carries the separator between the property's
+ *   class and the value, because a declaration has both. A class without one that no recipe claims
+ *   was written by an author, in a selector or a global style, and the markup carries it as
+ *   written.
+ */
+export function isAtomic(pandaClass: string, separator: Separator): boolean {
+  return segments(pandaClass).utility.includes(separator);
+}
+
+/**
  * Rewrites a condition: a raw selector or at-rule stays as written, and a named condition is
  * written in kebab-case.
  */

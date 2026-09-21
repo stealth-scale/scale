@@ -441,11 +441,98 @@ describe("assemble", () => {
     const sources = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const assembled = await assemble({ root: workspace.root }, RESOLVED);
 
-      return assembled.sources;
+      return assembled.sources.map((file) => file.slice(workspace.root.length + 1)).toSorted();
     });
 
-    expect(sources).toHaveLength(1);
-    expect(sources[0]).toMatch(/^\/.*[/\\]src[/\\]page\.tsx$/u);
+    expect(sources).toStrictEqual([
+      "node_modules/@acme/kit/index.js",
+      "node_modules/@acme/kit/theme.js",
+      "src/page.tsx",
+    ]);
+  });
+
+  it("compiles a style prop written inside an installed contributor", async () => {
+    const files = {
+      ...APP,
+      "node_modules/@acme/kit/index.js":
+        'import { css } from "@acme/design";\n\nexport const pad = css({ padding: "17px" });\n',
+    };
+    const css = await withScratchWorkspaceAsync(files, compiled);
+
+    expect(declared(css, ".p-17px", "padding")).toBe("17px");
+  });
+
+  it("reports a contributor installed twice and compiles the first", async () => {
+    const files = {
+      ...APP,
+      ...packageFiles(
+        "node_modules/@acme/wrapper",
+        {
+          dependencies: { "@acme/kit": "*" },
+          exports: { ".": "./index.js" },
+          name: "@acme/wrapper",
+        },
+        { "index.js": "export {};\n" },
+      ),
+      ...packageFiles(
+        "node_modules/@acme/wrapper/node_modules/@acme/kit",
+        {
+          exports: { ".": "./index.js", "./theme": "./theme.js" },
+          name: "@acme/kit",
+          peerDependencies: { "@acme/design": "*" },
+          type: "module",
+          version: "2.0.0",
+        },
+        { "index.js": "export {};\n", "theme.js": 'export default { name: "@acme/kit" };\n' },
+      ),
+      "package.json": manifest({
+        dependencies: { "@acme/design": "*", "@acme/kit": "*", "@acme/wrapper": "*" },
+        name: "@acme/app",
+        type: "module",
+      }),
+    };
+    const found = await withScratchWorkspaceAsync(files, async (workspace) => {
+      const assembled = await assemble({ root: workspace.root }, RESOLVED);
+
+      return {
+        codes: assembled.diagnostics.map((each) => each.code),
+        contributors: assembled.contributors.map((each) => each.name),
+        watched: assembled.watched.map((file) => file.slice(workspace.root.length + 1)),
+      };
+    });
+
+    expect(found.codes).toStrictEqual(["theme/duplicate-contributor"]);
+    expect(found.contributors).toStrictEqual(["@acme/design", "@acme/kit"]);
+    expect(found.watched).toContain("node_modules/@acme/wrapper/package.json");
+  });
+
+  it("reports a theme compound no published recipe declares", async () => {
+    const extend =
+      'recipes: { button: { compoundVariants: [{ size: "sm", css: { letterSpacing: "0.2em" } }] } }';
+    const files = { ...APP, "themes/abyss.ts": theme("abyss", extend) };
+    const found = await withScratchWorkspaceAsync(files, async (workspace) => {
+      const assembled = await assemble({ root: workspace.root }, RESOLVED);
+
+      return assembled.diagnostics.map((each) => `${each.code} ${each.message}`);
+    });
+
+    expect(found).toHaveLength(1);
+    expect(found[0]).toContain('theme/unmatched-compound abyss: button [["size","sm"]]');
+  });
+
+  it("reports an import that renames a component a recipe matches", async () => {
+    const files = {
+      ...APP,
+      "src/page.tsx":
+        'import { Button as Renamed } from "@acme/kit";\n\nexport const Page = Renamed;\n',
+    };
+    const found = await withScratchWorkspaceAsync(files, async (workspace) => {
+      const assembled = await assemble({ root: workspace.root }, RESOLVED);
+
+      return assembled.diagnostics.map((each) => `${each.code} ${each.file ?? ""}`);
+    });
+
+    expect(found).toStrictEqual(["naming/aliased-import src/page.tsx"]);
   });
 
   it("draws the foundation alone where the application states no theme", async () => {

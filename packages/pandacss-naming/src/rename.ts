@@ -3,15 +3,18 @@
  *
  * @remarks
  *   A class is read against every recipe first, because the compiler's variant form and an atomic
- *   class share their characters and only the recipes tell them apart. A class no recipe claims is
- *   an atomic class. A class under a recipe that is not one of its variants is its base class or a
- *   compound, both of which the author named, so those pass through the atomic rewrite unchanged.
- *   Where one axis name prefixes another, the longest axis that fits is read, so `on-off` wins
- *   over `on` for `card--on-off-true` whatever their order.
+ *   class share their characters and only the recipes tell them apart. A recipe claims its own
+ *   class, one class per slot, and everything written after two hyphens: a variant is rewritten, a
+ *   compound the author named passes through, and a slot named in camel case is written in kebab
+ *   case as the runtime writes it. A class no recipe claims is an atomic class where it carries the
+ *   separator a declaration is written with, and an author's class otherwise, which is left as the
+ *   markup carries it. Where one axis name prefixes another, the longest axis that fits is read, so
+ *   `on-off` wins over `on` for `card--on-off-true` whatever their order.
  */
 
-import { atomicClass } from "#atomic.ts";
+import { atomicClass, isAtomic } from "#atomic.ts";
 import { type CompilerConfig, type Recipe, variantClass } from "#recipe.ts";
+import { kebab, sanitise } from "#sanitise.ts";
 
 /**
  * Separates a recipe's class from an axis in the compiler's variant form.
@@ -26,29 +29,46 @@ function owners(recipe: Recipe): string[] {
 }
 
 /**
- * Rewrites a class the compiler wrote into the scheme, reading it as a variant where a recipe
- * claims it and as an atomic class otherwise.
+ * Rewrites a class one recipe owns.
  *
- * @returns The class in the scheme, or an empty string for a boolean axis at `false`, which no
- *   element carries.
+ * @returns The class in the scheme, an empty string for a boolean axis at `false`, or undefined
+ *   where the recipe does not own the class.
+ */
+function owned(pandaClass: string, recipe: Recipe, config: CompilerConfig): string | undefined {
+  const owner = owners(recipe).find(
+    (each) => pandaClass === each || pandaClass.startsWith(`${each}${VARIANT}`),
+  );
+
+  if (owner === undefined) return undefined;
+  if (pandaClass === owner) return sanitise(kebab(owner));
+
+  const rest = pandaClass.slice(owner.length + VARIANT.length);
+  const axis = recipe.axes
+    .toSorted((one, other) => other.length - one.length)
+    .find((each) => rest.startsWith(`${each}${config.separator}`));
+
+  if (axis === undefined) return atomicClass(pandaClass, config.separator);
+
+  const written = variantClass(owner, axis, rest.slice(axis.length + config.separator.length));
+
+  return written === "" ? "" : atomicClass(written, config.separator);
+}
+
+/**
+ * Rewrites a class the compiler wrote into the scheme, reading it as a recipe's where a recipe
+ * claims it, as an atomic class where it carries the separator, and as an author's otherwise.
+ *
+ * @returns The class in the scheme, an empty string for a boolean axis at `false`, which no
+ *   element carries, or the class as written where no compiler wrote it.
  */
 export function rename(pandaClass: string, config: CompilerConfig): string {
   for (const recipe of config.recipes) {
-    const owner = owners(recipe).find((each) => pandaClass.startsWith(`${each}${VARIANT}`));
+    const written = owned(pandaClass, recipe, config);
 
-    if (owner === undefined) continue;
-
-    const rest = pandaClass.slice(owner.length + VARIANT.length);
-    const axis = recipe.axes
-      .toSorted((one, other) => other.length - one.length)
-      .find((each) => rest.startsWith(`${each}${config.separator}`));
-
-    if (axis === undefined) continue;
-
-    const written = variantClass(owner, axis, rest.slice(axis.length + config.separator.length));
-
-    return written === "" ? "" : atomicClass(written, config.separator);
+    if (written !== undefined) return written;
   }
 
-  return atomicClass(pandaClass, config.separator);
+  return isAtomic(pandaClass, config.separator)
+    ? atomicClass(pandaClass, config.separator)
+    : pandaClass;
 }

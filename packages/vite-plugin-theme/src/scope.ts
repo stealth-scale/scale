@@ -217,12 +217,27 @@ function isStyles(value: unknown): value is Styles {
 }
 
 /**
+ * Writes one value of a selection in the form two authors writing the same selection share.
+ *
+ * @remarks
+ *   A compound that lists several values of one axis matches any of them, so the list is a set
+ *   and its order says nothing. It is sorted, so `["sm", "lg"]` and `["lg", "sm"]` read as one
+ *   selection.
+ */
+function canonical(value: unknown): unknown {
+  return Array.isArray(value)
+    ? value.toSorted((one, other) => JSON.stringify(one).localeCompare(JSON.stringify(other)))
+    : value;
+}
+
+/**
  * Writes the selection a compound matches on, for equality with another's.
  */
 function selectionOf(compound: Compound): string {
   return JSON.stringify(
     Object.entries(compound)
       .filter(([axis]) => !UNMATCHED.has(axis))
+      .map(([axis, value]): readonly [string, unknown] => [axis, canonical(value)])
       .toSorted(([one], [other]) => one.localeCompare(other)),
   );
 }
@@ -433,26 +448,102 @@ function compoundsOf(
 }
 
 /**
+ * Collects the compounds of every published recipe while the presets are read.
+ */
+interface Gathering {
+  /**
+   * The compounds of each recipe that draws one element, by key.
+   */
+  recipes: Record<string, readonly Compound[]>;
+
+  /**
+   * The compounds of each recipe that draws several parts, by key.
+   */
+  slotRecipes: Record<string, readonly Compound[]>;
+}
+
+/**
+ * Reads the compounds one preset and every preset nested under it declare, the nested ones first.
+ */
+function gathered(preset: unknown, into: Gathering): void {
+  if (!isPreset(preset)) return;
+
+  for (const under of preset.presets ?? []) gathered(under, into);
+
+  compoundsOf(preset.theme?.extend?.recipes, into.recipes);
+  compoundsOf(preset.theme?.extend?.slotRecipes, into.slotRecipes);
+}
+
+/**
  * Reads the compounds every published preset declares, for the class each is emitted under.
  *
  * @remarks
  *   Read structurally, as a theme's preset is, so the plugin depends on no design-system package.
- *   A recipe two presets declare contributes the compounds of both, as the compiler merges them.
+ *   A recipe two presets declare contributes the compounds of both, as the compiler merges them,
+ *   and a preset nested under another contributes its compounds before the preset above it, in
+ *   the order the compiler installs them.
  * @param presets - Every preset installed before the themes: the packages' and the application's
  *   own.
  */
 export function publishedCompounds(presets: readonly unknown[]): Compounds {
-  const recipes: Record<string, readonly Compound[]> = {};
-  const slotRecipes: Record<string, readonly Compound[]> = {};
+  const into: Gathering = { recipes: {}, slotRecipes: {} };
 
-  for (const preset of presets) {
-    if (!isPreset(preset)) continue;
+  for (const preset of presets) gathered(preset, into);
 
-    compoundsOf(preset.theme?.extend?.recipes, recipes);
-    compoundsOf(preset.theme?.extend?.slotRecipes, slotRecipes);
-  }
+  return into;
+}
 
-  return { recipes, slotRecipes };
+/**
+ * Lists the slots one compound styles, or one unnamed slot for a recipe that draws one element.
+ */
+function slotsOf(compound: Compound, slotted: boolean): ReadonlyArray<string | undefined> {
+  if (!slotted) return [undefined];
+
+  return isStyles(compound.css) ? Object.keys(compound.css) : [];
+}
+
+/**
+ * Lists every compound of one map of extensions that no published compound matches.
+ */
+function unmatchedIn(
+  theme: string,
+  held: Readonly<Record<string, Extension>> | undefined,
+  published: Readonly<Record<string, readonly Compound[]>>,
+  slotted: boolean,
+): string[] {
+  return Object.entries(held ?? {}).flatMap(([key, extension]) =>
+    (extension.compoundVariants ?? [])
+      .filter((compound) => compound.className === undefined)
+      .flatMap((compound) => {
+        const selection = selectionOf(compound);
+
+        return slotsOf(compound, slotted)
+          .filter((slot) => classOf(published[key] ?? [], selection, slot) === undefined)
+          .map((slot) => `${theme}: ${key}${slot === undefined ? "" : `.${slot}`} ${selection}`);
+      }),
+  );
+}
+
+/**
+ * Lists every compound a theme states for a selection no published recipe declares a compound
+ * for, as one line naming the theme, the recipe, the slot and the selection.
+ *
+ * @remarks
+ *   The runtime writes the class of the published compound alone, so a theme's compound for a
+ *   selection the recipe does not declare compiles to a rule no element ever carries. A compound
+ *   the theme names a class for itself is left out: the author decided.
+ */
+export function unmatchedCompounds(
+  themes: readonly Switchable[],
+  compounds: Compounds,
+): readonly string[] {
+  return themes.flatMap((theme) =>
+    lineage(theme.preset).flatMap(({ extensions }) =>
+      unmatchedIn(theme.name, extensions.recipes, compounds.recipes, false).concat(
+        unmatchedIn(theme.name, extensions.slotRecipes, compounds.slotRecipes, true),
+      ),
+    ),
+  );
 }
 
 /**
