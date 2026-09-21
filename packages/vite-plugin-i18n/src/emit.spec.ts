@@ -201,6 +201,13 @@ describe("written", () => {
     );
   });
 
+  it("writes no loader for the language it inlines", () => {
+    const source = emitted();
+
+    expect(source).not.toContain(pairId("en", "site"));
+    expect(source).toContain(pairId("nl", "site"));
+  });
+
   it("exports load and catalogues", () => {
     const source = emitted();
 
