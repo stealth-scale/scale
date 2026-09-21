@@ -149,6 +149,16 @@ describe("plugin", () => {
     });
   });
 
+  it("adds no group under a dev server whose entry would import the chunk and run it first", () => {
+    const plugin = specimens({ patterns: PATTERNS });
+    const held: unknown = Reflect.apply(hookOf(plugin, "config"), undefined, [
+      {},
+      { command: "serve", mode: "development" },
+    ]);
+
+    expect(held).toStrictEqual({ server: { watch: { ignored: ["**/coverage/**"] } } });
+  });
+
   it("adds no group to an output stated as several", () => {
     const plugin = specimens({ patterns: PATTERNS });
     const held: unknown = Reflect.apply(hookOf(plugin, "config"), undefined, [
