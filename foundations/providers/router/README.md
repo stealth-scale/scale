@@ -62,6 +62,19 @@ const router = createRouter({ ...routerOptions({ routes: routeMap(tree) }), rout
 function of the declarations and call it once per declaration set. Compile every contributor's
 declarations in one call, because two calls under one parent cannot read each other's paths.
 
+Mount the router under the path the application is served at with
+`basepathOf(import.meta.env.BASE_URL)`. The base `/design/` gives `/design`, and `/` gives the root.
+A base naming another host says where the assets are and nothing about the documents, so it gives
+the root unless a second argument names the documents' path.
+
+```ts
+const router = createRouter({
+  ...routerOptions({ routes: routeMap(tree) }),
+  basepath: basepathOf(import.meta.env.BASE_URL),
+  routeTree: tree,
+});
+```
+
 Use `createAppRootRoute` rather than `createRootRoute`. It types the router context so the route map
 fits, and the alternative reports the mismatch at `createRouter` rather than at the root.
 

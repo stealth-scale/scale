@@ -4,6 +4,7 @@
 
 import {
   type AnyRoute,
+  basepathOf,
   compileRoutes,
   createAppRootRoute,
   createRoute,
@@ -46,12 +47,20 @@ export function buildTree(): AnyRoute {
 }
 
 /**
- * Builds the router.
+ * Builds the router, mounted under the path the application is served at.
  *
+ * @remarks
+ *   The base path is derived from the base the bundler was given, so a deployment under a prefix
+ *   such as `/design/` routes its deep links, and a deployment whose assets live on another host
+ *   still routes at the root of its own origin.
  * @returns The router.
  */
 export function routed(): ReturnType<typeof createRouter<AnyRoute>> {
   const tree = buildTree();
 
-  return createRouter({ ...routerOptions({ routes: routeMap(tree) }), routeTree: tree });
+  return createRouter({
+    ...routerOptions({ routes: routeMap(tree) }),
+    basepath: basepathOf(import.meta.env.BASE_URL),
+    routeTree: tree,
+  });
 }

@@ -42,6 +42,28 @@ function endpoint(held: unknown): Endpoint | undefined {
 }
 
 /**
+ * The file a deployment serves beside the application's documents to say where the remotes are.
+ */
+const REMOTES = "remotes.json";
+
+/**
+ * Locates the remotes file from the base the bundler was given.
+ *
+ * @remarks
+ *   The file is served beside the application's documents, on the application's own origin. A
+ *   path-only base says where those are, so the file sits under that path. A base naming another
+ *   host says where the assets are and nothing about the documents, so the file is read from the
+ *   root of the application's origin.
+ * @param base - The base the bundler was given, which is `import.meta.env.BASE_URL` in a page.
+ * @returns The path the file is fetched from, on the application's origin.
+ */
+export function where(base: string): string {
+  const path = base.startsWith("/") ? base.replace(/\/+$/u, "") : "";
+
+  return `${path}/${REMOTES}`;
+}
+
+/**
  * Fetches the file a deployment serves beside this application and lists the endpoints it names.
  *
  * @remarks
