@@ -62,8 +62,11 @@ export interface BodyProps {
  * @remarks
  *   A scene's source is keyed by the title the specimen declared, before wording, because the
  *   plugin cuts the source by the literal it finds in the file.
+ *   A scene carrying its own is read first and waits for nothing. A built scene writes its own,
+ *   because the plugin finds no declaration to cut for one.
  */
 function sourceOf(fragments: Fragments | undefined, scene: Scene): null | string | undefined {
+  if (scene.source !== undefined) return scene.source;
   if (fragments === undefined) return undefined;
 
   return fragments.fragments[scene.title] ?? null;
