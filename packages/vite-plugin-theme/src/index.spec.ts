@@ -15,6 +15,11 @@ describe("vite-plugin-theme", () => {
       "theme",
     ]);
     expect(published.LAYER_DECLARATION).toBe("@layer reset, base, tokens, recipes, utilities;\n");
-    expect(Object.keys(published.theme).toSorted()).toStrictEqual(["runtime", "stylesheet"]);
+    expect(Object.keys(published.theme).toSorted()).toStrictEqual([
+      "generator",
+      "packed",
+      "runtime",
+      "stylesheet",
+    ]);
   });
 });

@@ -53,10 +53,11 @@ import { pages } from "virtual:specimen-index";
 
 `pages` carries one entry per file, sorted by path. Each entry has the metadata the file declares,
 the name of the package the file belongs to, and `load`, a dynamic import of the page's module. The
-plugin puts that module in a chunk named after the page, `actions-button-[hash].js`, so a page opens
-with one request and a rail that lists 100 pages loads no component. A page's props are a second
-loader where the index was asked to read them, in a chunk of their own named
-`actions-button-props-[hash].js`, loaded where somebody opens them.
+plugin writes every page and what it reaches beyond the entry into one chunk, `pages-[hash].js`,
+fetched by the first page a reader opens and cached for every page after it, so a rail that lists
+100 pages loads no component and a page after the first loads nothing. A page's props are a second
+loader where the index was asked to read them. Every page's props share one chunk,
+`props-[hash].js`, loaded where somebody first opens them and not again for another page.
 
 A page states its own import line and each scene its own source. Neither is read out of the file, so
 the plugin parses no syntax tree.
@@ -145,9 +146,13 @@ name.
 The directories the patterns start in are added to the watcher, including those outside the project
 root, because a dev server watches its own root and nothing above it.
 
-A server that bundles runs no hot update hook. A change to a typed file restarts the compiler from
-`watchChange`. The index is generated when the server starts, so a page appearing or disappearing
-under that server needs a restart.
+A server that bundles runs no hot update hook and reports a change to `watchChange` instead. A
+change to a typed file restarts the compiler there. The index lists a stamp file as a file it
+watches, and the plugin rewrites the stamp when a specimen appears, disappears, or changes the
+metadata it declares, classified the way a hot update is with the file read from disk. The bundler
+then generates the index again on its next rebuild, and a scene-only edit leaves the stamp and the
+index alone. The stamp is under the system's temporary directory, in a directory named for the
+project root, so the task runner counts it as neither an input nor an output.
 
 ## Licence
 

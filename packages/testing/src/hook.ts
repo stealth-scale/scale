@@ -246,14 +246,15 @@ export async function resolved(
  * @param plugin - The plugin under test.
  * @param id - The resolved identifier of the module.
  * @param context - The context the hook reads `this` from, for a plugin that watches a file
- *   while loading. Nothing is bound where it is absent.
+ *   while loading. A fresh serving context is bound where none is given, so a plugin that lists
+ *   a file to watch loads under a specification that asks nothing about the watching.
  * @returns The module's code, or undefined where the plugin declined.
  * @throws {@link Error} When the plugin has no `load` hook.
  */
 export async function loaded(
   plugin: Plugin,
   id: string,
-  context?: HookContext,
+  context: HookContext = hookContext(),
 ): Promise<string | undefined> {
   const result: unknown = await Reflect.apply(handlerOf(plugin, "load"), context, [id, {}]);
 

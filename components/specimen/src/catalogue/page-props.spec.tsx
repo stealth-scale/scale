@@ -11,10 +11,10 @@ import { type Part } from "#catalogue/parted.ts";
 /**
  * Draws the props in the page they belong to.
  */
-function paged(parts?: readonly Part[]): ReactElement {
+function paged(parts?: readonly Part[], failure?: Error): ReactElement {
   return (
     <Page.Root>
-      <PropsBody parts={parts} />
+      <PropsBody failure={failure} parts={parts} />
     </Page.Root>
   );
 }
@@ -43,6 +43,15 @@ describe("PropsBody", () => {
     const { getByText } = await drawn(paged([]));
 
     expect(getByText("Nothing was read for this page.")).toBeDefined();
+  });
+
+  it("says why the parts could not be read and offers a reload", async () => {
+    const { getByRole } = await drawn(paged(undefined, new Error("chunk gone")));
+
+    expect(getByRole("alert").textContent).toBe(
+      "What the parts accept could not be read: chunk gone",
+    );
+    expect(getByRole("button", { name: "Reload the page" })).toBeDefined();
   });
 
   it("says once what the reader resolved and no table draws", async () => {

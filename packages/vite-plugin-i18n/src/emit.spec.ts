@@ -29,6 +29,18 @@ function emitted(eager = false): string {
   );
 }
 
+/**
+ * Runs a generated module the way a page would, and hands its namespace back.
+ *
+ * @remarks
+ *   The loaders in the module are functions nothing here calls, so the module runs whatever pair
+ *   specifiers it names.
+ * @param source - The module's source.
+ */
+function executed(source: string): Promise<unknown> {
+  return import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}`);
+}
+
 describe("merged", () => {
   it("overwrites only the keys the later words name", () => {
     expect(
@@ -189,6 +201,13 @@ describe("written", () => {
     );
   });
 
+  it("writes no loader for the language it inlines", () => {
+    const source = emitted();
+
+    expect(source).not.toContain(pairId("en", "site"));
+    expect(source).toContain(pairId("nl", "site"));
+  });
+
   it("exports load and catalogues", () => {
     const source = emitted();
 
@@ -205,5 +224,28 @@ describe("written", () => {
       '"nl":{"overlays":{"commands":"Opdrachten","nested":{"close":"Sluit {{what}}"},"menu":"Menu"}',
     );
     expect(source).toContain("const loaders = {};");
+  });
+
+  it("writes a module that runs with no or one or many catalogues whether lazy or eager", async () => {
+    const sources = withScratchWorkspace(WORKSPACE, (scratch) => {
+      const catalogues = found(join(scratch.root, APP));
+
+      return [
+        cataloguesModule(new Map(), "en"),
+        cataloguesModule(new Map(), "en", true),
+        cataloguesModule(indexed(catalogues.slice(0, 1)), "en"),
+        cataloguesModule(indexed(catalogues), "en"),
+        cataloguesModule(indexed(catalogues), "en", true),
+      ];
+    });
+    const ran = await Promise.all(sources.map((source) => executed(source)));
+
+    expect(ran).toHaveLength(5);
+
+    for (const held of ran) expect(held).toMatchObject({ catalogues: { fallback: "en" } });
+  });
+
+  it("closes an empty loader table as an object", () => {
+    expect(cataloguesModule(new Map(), "en")).toContain("const loaders = {};");
   });
 });

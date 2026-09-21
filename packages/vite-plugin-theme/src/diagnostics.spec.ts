@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { reportDiagnostics } from "#diagnostics.ts";
+import { hasErrors, reportDiagnostics } from "#diagnostics.ts";
 import { type Diagnostic } from "#pandacss.ts";
 
 function said(severity: Diagnostic["severity"], over: Partial<Diagnostic> = {}): Diagnostic {
@@ -74,6 +74,12 @@ describe("reportDiagnostics", () => {
     );
 
     expect(heard.said[0]).toContain("— name the slot");
+  });
+
+  it("tells a run holding an error from one holding warnings alone", () => {
+    expect(hasErrors([said("warning"), said("info")])).toBe(false);
+    expect(hasErrors([said("warning"), said("error")])).toBe(true);
+    expect(hasErrors([])).toBe(false);
   });
 
   it("writes neither a file nor a help when the compiler offered neither", () => {

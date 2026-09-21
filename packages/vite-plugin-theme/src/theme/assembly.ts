@@ -15,27 +15,32 @@ import {
   importer,
   type Loading,
   resolvedOnGraph,
+  withLock,
   writeIfChanged,
 } from "@stealthscale/vite-plugin-base";
 
-import { basePreset, type Compiler, startCompiler } from "#compiler.ts";
-import { renderStylesheetConfig } from "#config.ts";
-import { type Contributor, contributors, workspaceRoots, workspaceSources } from "#contributors.ts";
-import { CACHE, type Resolved } from "#options.ts";
-import { publishedCompounds, scopedPresets } from "#scope.ts";
+import { type Compiler, startCompiler } from "#compiler.ts";
 import {
-  type Application,
+  type Contributor,
+  contributors,
+  installedSources,
+  workspaceRoots,
+  workspaceSources,
+} from "#contributors.ts";
+import { LOCK, type Resolved, scratchDir } from "#options.ts";
+import { type Diagnostic } from "#pandacss.ts";
+import {
   fontPackages,
   loadPreset,
   loadStatement,
   type Published,
   type Statement,
-  type Theme,
 } from "#statement.ts";
-import { completed, stated } from "#theme/variant.ts";
+import { distinct, findings } from "#theme/findings.ts";
+import { renderedConfig } from "#theme/rendering.ts";
 
 /**
- * Fixes the file the rendered configuration is written to, under the cache directory.
+ * Fixes the file the rendered configuration is written to, under the application's scratch.
  */
 const CONFIG = "stylesheet.config.mjs";
 
@@ -57,6 +62,12 @@ export interface Assembled {
    * Every package contributing a preset, the system package first.
    */
   contributors: readonly Contributor[];
+
+  /**
+   * The findings of the assembly: a name two installations share, a compound no published recipe
+   * declares, and an import that renames a component.
+   */
+  diagnostics: readonly Diagnostic[];
 
   /**
    * The file each font package the themes named resolved to, or undefined where nothing resolved
@@ -100,13 +111,6 @@ interface Loaded {
 }
 
 /**
- * Turns what the application asked to compile outright into the compiler's rule.
- */
-function staticCssOf(application: Application): Exclude<Application["static"], "*"> {
-  return application.static === "*" ? { recipes: "*" } : application.static;
-}
-
-/**
  * Loads the statement and every contributor's preset through one importer.
  *
  * @remarks
@@ -131,21 +135,24 @@ async function loaded(
 }
 
 /**
- * Builds the presets that install the first theme unscoped, which is what draws that theme while
- * no attribute is set: its values, then its own preset where it has one.
- *
- * @remarks
- *   The values are installed beside the theme's own preset rather than merged into it, because
- *   that preset nests the presets the theme derives from, and a merge here would restate how the
- *   compiler merges them. An application that states no theme installs nothing here and draws the
- *   foundation alone.
+ * Lists the globs the compiler scans: the application's own, the source of every workspace
+ * package on the graph, and the published JavaScript of every installed contributor.
  */
-function defaultPresets(first: Theme | undefined): readonly object[] {
-  if (first === undefined) return [];
-
+function scanned(
+  root: string,
+  graph: ReturnType<typeof dependencies>,
+  found: readonly Contributor[],
+  resolved: Resolved,
+): readonly string[] {
   return [
-    { name: `theme:${first.name}`, theme: { extend: first.variant } },
-    ...(first.preset === undefined ? [] : [first.preset]),
+    ...new Set([
+      ...resolved.include,
+      ...workspaceSources(root, graph),
+      ...installedSources(
+        root,
+        found.filter((each) => each.name !== resolved.systemPackage),
+      ),
+    ]),
   ];
 }
 
@@ -154,16 +161,12 @@ function defaultPresets(first: Theme | undefined): readonly object[] {
  * compiler and scans everything the application draws with.
  *
  * @remarks
- *   The presets the application states are installed after every package's preset and before the
- *   themes, so a theme extends a recipe the application wrote as it extends one a package
- *   published. The first theme's values and preset are installed unscoped, which is what makes it
- *   the theme that applies while no attribute is set, and every theme's preset is installed scoped,
- *   the first included. An application that states no theme draws the foundation alone. Every
- *   theme's variant is completed with the foundation's value for each token another theme states
- *   before it is installed, so a subtree switched to a theme is drawn from that theme alone rather
- *   than from the theme around it. The manifests are watched beside the statement and the presets,
- *   because a package added to a manifest is a package whose own files nothing is watching yet, so
- *   the change that introduces it is the only notice there is.
+ *   An application that states no theme draws the foundation alone. Every manifest the walk over
+ *   the dependencies read is watched beside the statement and the presets, because a package added
+ *   to any of them is a package whose own files nothing is watching yet, so the change that
+ *   introduces it is the only notice there is. The configuration is rendered and the compiler
+ *   started under the application's lock, so a second process in the same checkout reads a
+ *   configuration this one has finished writing.
  * @throws {@link Error} When the application does not depend on the system package, or the
  *   statement or a preset cannot be loaded.
  */
@@ -174,7 +177,7 @@ export async function assemble(
 ): Promise<Assembled> {
   const { root } = loading;
   const graph = dependencies(root);
-  const found = contributors(graph, resolved.systemPackage);
+  const { diagnostics, kept: found } = distinct(contributors(graph, resolved.systemPackage));
   const { presets, statement } = await loaded(loading, found, server);
   const [foundation, ...rest] = presets;
 
@@ -182,39 +185,36 @@ export async function assemble(
     throw new Error(`${root} does not depend on ${resolved.systemPackage}`);
   }
 
-  const { presets: own = [], themes = [] } = statement.application;
-  const configPath = join(root, CACHE, CONFIG);
-  const published = [...rest.map((each) => each.preset), ...own];
-  const shape = stated(themes.map((each) => each.variant));
+  const { application } = statement;
+  const configPath = join(scratchDir(root), CONFIG);
+  const published = [...rest.map((each) => each.preset), ...(application.presets ?? [])];
+  const include = scanned(root, graph, found, resolved);
+  const compiler = await withLock(join(scratchDir(root), LOCK), () => {
+    writeIfChanged(
+      configPath,
+      renderedConfig({ application, foundation: foundation.preset, include, published, resolved }),
+    );
 
-  writeIfChanged(
-    configPath,
-    renderStylesheetConfig({
-      base: basePreset(),
-      foundation: foundation.preset,
-      include: [...new Set([...resolved.include, ...workspaceSources(root, graph)])],
-      layers: resolved.layers,
-      presets: [
-        ...published,
-        ...defaultPresets(themes[0]),
-        ...scopedPresets(themes, publishedCompounds([foundation.preset, ...published])),
-      ],
-      staticCss: staticCssOf(statement.application),
-      system: resolved.systemPackage,
-      themes: Object.fromEntries(
-        themes.map((each) => [each.name, completed(each.variant, foundation.preset, shape)]),
-      ),
-    }),
-  );
-
-  const compiler = await startCompiler(root, configPath);
+    return startCompiler(root, configPath);
+  });
   const sources = compiler.driver.parseFiles().map((report) => resolve(root, report.path));
 
   return {
     compiler,
     contributors: found,
+    diagnostics: [
+      ...diagnostics,
+      ...findings({
+        found,
+        loaded: presets.map((each) => each.preset),
+        published: [foundation.preset, ...published],
+        root,
+        sources,
+        themes: application.themes ?? [],
+      }),
+    ],
     fonts: new Map(
-      fontPackages(statement.application).map((name) => [name, resolvedOnGraph(root, name)]),
+      fontPackages(application).map((name) => [name, resolvedOnGraph(root, name, graph)]),
     ),
     roots: workspaceRoots(graph),
     sources,
@@ -223,7 +223,7 @@ export async function assemble(
         ...statement.files,
         ...presets.flatMap((each) => each.files),
         join(root, MANIFEST),
-        ...found.map((each) => join(each.at, MANIFEST)),
+        ...graph.map((each) => join(each.at, MANIFEST)),
         ...compiler.dependencies,
       ]),
     ],

@@ -367,4 +367,90 @@ describe("vite-plugin-sbom", () => {
 
     expect(field(first(document({}, held, [held.module])), "purl")).toContain("repository_url=");
   });
+
+  it("writes where a package came from without the credential and the query it was fetched with", () => {
+    const held = workspace(
+      {},
+      {
+        _resolved: "https://user:secret@npm.acme.test/held/-/held-2.0.0.tgz?token=abc&x=1",
+        name: "held",
+        version: "2.0.0",
+      },
+    );
+    const purl = field(first(document({}, held, [held.module])), "purl");
+    const spelled = typeof purl === "string" ? decodeURIComponent(purl) : "";
+
+    expect(spelled).toContain("repository_url=https://npm.acme.test/held/-/held-2.0.0.tgz");
+    expect(spelled).not.toContain("secret");
+    expect(spelled).not.toContain("token");
+  });
+
+  it("writes a source that is no URL as it was", () => {
+    const held = workspace(
+      {},
+      { _resolved: "../vendor/held-2.0.0.tgz", name: "held", version: "2.0.0" },
+    );
+    const purl = field(first(document({}, held, [held.module])), "purl");
+    const spelled = typeof purl === "string" ? decodeURIComponent(purl) : "";
+
+    expect(spelled).toContain("repository_url=../vendor/held-2.0.0.tgz");
+  });
+
+  it("keeps the commit a version control address names after the hash", () => {
+    const held = workspace(
+      {},
+      { name: "held", version: "2.0.0" },
+      `    "held": ["held@git+https://token@github.com/acme/held.git#abc123", {}, "acme", "${INTEGRITY}"],`,
+    );
+    const purl = field(first(document({}, held, [held.module])), "purl");
+    const spelled = typeof purl === "string" ? decodeURIComponent(purl) : "";
+
+    expect(spelled).toContain("vcs_url=git+https://github.com/acme/held.git#abc123");
+    expect(spelled).not.toContain("token");
+  });
+
+  it("pins each of two installed versions of one name to its own record", () => {
+    const root = mkdtempSync(join(tmpdir(), "stealth-sbom-"));
+    const at = join(root, "packages", "one");
+    const older = join(root, "node_modules", "held");
+    const newer = join(root, "node_modules", "other", "node_modules", "held");
+
+    mkdirSync(at, { recursive: true });
+    writeFileSync(join(at, "package.json"), JSON.stringify({ name: "@acme/one" }));
+    writeFileSync(
+      join(root, "bun.lock"),
+      [
+        "{",
+        '  "packages": {',
+        `    "held": ["held@1.0.0", "", {}, "${INTEGRITY}"],`,
+        '    "other/held": ["held@2.0.0", "https://npm.acme.test/held/-/held-2.0.0.tgz", {}, ""],',
+        "  },",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    for (const [directory, version] of [
+      [older, "1.0.0"],
+      [newer, "2.0.0"],
+    ] as const) {
+      mkdirSync(directory, { recursive: true });
+      writeFileSync(join(directory, "package.json"), JSON.stringify({ name: "held", version }));
+      writeFileSync(join(directory, "index.js"), "");
+    }
+
+    const modules = [join(older, "index.js"), join(newer, "index.js")];
+    const parsed = JSON.parse(written({}, building(modules), at)) as unknown;
+    const components = field(parsed, "components");
+    const purls = Array.isArray(components)
+      ? components
+          .map((one) => String(field(one, "purl")))
+          .toSorted((one, other) => one.localeCompare(other))
+      : [];
+
+    expect(purls).toStrictEqual([
+      "pkg:npm/held@1.0.0",
+      "pkg:npm/held@2.0.0?repository_url=https%3A%2F%2Fnpm.acme.test%2Fheld%2F-%2Fheld-2.0.0.tgz",
+    ]);
+  });
 });

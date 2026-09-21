@@ -60,4 +60,21 @@ describe("colorModeScript", () => {
       run(colorModeScript("docs"));
     }).not.toThrow();
   });
+
+  it("writes no angle bracket so an HTML parser keeps the whole text inside the element", () => {
+    const text = colorModeScript('docs</script><img src=x onerror="alert(1)">');
+    const parsed = new DOMParser().parseFromString(
+      `<head><script>${text}</script></head>`,
+      "text/html",
+    );
+
+    expect(text).not.toContain("<");
+    expect(parsed.scripts).toHaveLength(1);
+    expect(parsed.scripts[0]?.textContent).toBe(text);
+    expect(parsed.querySelector("img")).toBeNull();
+  });
+
+  it("reads the stored choice for an application whose name carries an angle bracket", () => {
+    expect(ran("a<b", { "stealth.a<b.color-mode": "dark" })).toBe("dark");
+  });
 });

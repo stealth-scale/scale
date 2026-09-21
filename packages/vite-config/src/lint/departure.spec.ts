@@ -212,12 +212,12 @@ describe("departure", () => {
     expect(held.files).toStrictEqual(["**/*.bench.ts"]);
   });
 
-  it("holds a specification to twice the lines of a source file", () => {
+  it("holds a specification to three times the lines of a source file", () => {
     const held = undocumented(["**/*.spec.ts"]).item as { rules: Record<string, unknown> };
 
     expect(held.rules["max-lines"]).toStrictEqual([
       "error",
-      { max: 600, skipBlankLines: true, skipComments: true },
+      { max: 900, skipBlankLines: true, skipComments: true },
     ]);
   });
 

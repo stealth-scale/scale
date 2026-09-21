@@ -1,24 +1,27 @@
 /**
- * Walks the packages a manifest depends on, the way Node resolves them.
+ * Walks the packages a manifest depends on, the way Node finds them.
  *
  * @remarks
  *   The walk reads `dependencies` alone. A peer is installed by whoever depends on the package,
- *   and a development dependency is the package's own business. A package is read once however
- *   many manifests name it, and one that is not installed is passed over, so a missing install
- *   never fails a build over a package nothing in it imports.
+ *   and a development dependency is the package's own business. An installation is read once
+ *   however many manifests reach it, and a package that is not installed is passed over, so a
+ *   missing install never fails a build over a package nothing in it imports.
  */
 
+import { existsSync, realpathSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 
-import { type Manifest, manifestAt, owning } from "#reached.ts";
+import { exportTarget } from "#exports.ts";
+import { type Manifest, manifestAt } from "#reached.ts";
 
 /**
  * One package the walk reached, with what its manifest depends on.
  */
 export interface Dependency {
   /**
-   * The package's own directory, absolute.
+   * The package's own directory, absolute and real, so a package linked into the workspace is
+   * reported where it is written.
    */
   at: string;
 
@@ -28,8 +31,7 @@ export interface Dependency {
   dependsOn: readonly string[];
 
   /**
-   * The package.json parsed out of that directory. Node resolved the package through that file,
-   * so it parses; an empty record stands in where the file went between the two reads.
+   * The package.json parsed out of that directory.
    */
   manifest: Manifest;
 
@@ -60,23 +62,46 @@ function resolvedBy(require: NodeJS.Require, request: string): string | undefine
 }
 
 /**
- * Resolves the directory of a package from the directory of the package that depends on it.
+ * Finds the directory of a package from the directory of the package that depends on it.
  *
  * @remarks
- *   The manifest subpath is tried first. A package whose export map does not publish it is resolved
- *   by its entry and walked up from there. Both routes go through Node, so a package is found where
- *   the package manager put it for that dependent and nowhere else.
+ *   The walk climbs through every `node_modules` above the dependent, the way Node looks a package
+ *   up, and reads the manifest itself rather than resolving it. So a package whose export map
+ *   withholds `package.json` is found, and so is a package that publishes for `import` alone,
+ *   which a `require` resolution refuses. The directory is the real one behind any link, so a
+ *   workspace package is reported where it is written and an installed one under `node_modules`.
  * @returns The directory, or undefined where the package is not installed for that dependent.
  */
 export function packageAt(name: string, from: string): string | undefined {
-  const require = createRequire(join(from, "package.json"));
-  const manifest = resolvedBy(require, `${name}/package.json`);
+  for (let at = from; ;) {
+    const candidate = join(at, "node_modules", name);
 
-  if (manifest !== undefined) return dirname(manifest);
+    if (existsSync(join(candidate, "package.json"))) return realpathSync(candidate);
 
-  const entry = resolvedBy(require, name);
+    const up = dirname(at);
 
-  return entry === undefined ? undefined : owning(entry);
+    if (up === at) return undefined;
+
+    at = up;
+  }
+}
+
+/**
+ * Resolves the entry of a package from one directory: through Node's own resolution, or through
+ * the export map where the package publishes for `import` alone.
+ */
+function entryFrom(name: string, from: string): string | undefined {
+  const entry = resolvedBy(createRequire(join(from, "package.json")), name);
+
+  if (entry !== undefined) return entry;
+
+  const at = packageAt(name, from);
+
+  if (at === undefined) return undefined;
+
+  const published = exportTarget(manifestAt(at) ?? {}, ".", ["import"]);
+
+  return published === undefined ? undefined : join(at, published);
 }
 
 /**
@@ -85,12 +110,18 @@ export function packageAt(name: string, from: string): string | undefined {
  *
  * @remarks
  *   A package that only a dependency declares is installed where that dependency resolves it,
- *   which under a package manager that does not flatten is not where the root resolves from.
+ *   which under a package manager that does not flatten is not where the root resolves from. The
+ *   graph is walked once by a caller that resolves several entries and handed in; without it the
+ *   walk happens here.
  * @returns The entry file, absolute, or undefined where no package on the graph declares it.
  */
-export function resolvedOnGraph(root: string, name: string): string | undefined {
-  for (const at of [root, ...dependencies(root).map((one) => one.at)]) {
-    const entry = resolvedBy(createRequire(join(at, "package.json")), name);
+export function resolvedOnGraph(
+  root: string,
+  name: string,
+  graph: readonly Dependency[] = dependencies(root),
+): string | undefined {
+  for (const at of [root, ...graph.map((one) => one.at)]) {
+    const entry = entryFrom(name, at);
 
     if (entry !== undefined) return entry;
   }
@@ -99,13 +130,16 @@ export function resolvedOnGraph(root: string, name: string): string | undefined 
 }
 
 /**
- * Lists every package reachable through `dependencies` from the package at `root`, each once, with
- * a package placed after every package it depends on.
+ * Lists every package reachable through `dependencies` from the package at `root`, each
+ * installation once, with a package placed after every package it depends on.
  *
  * @remarks
  *   The order is what a consumer needs when a later package's contribution has to win over an
  *   earlier one's. Two packages depending on each other are placed in the order they were met, so
- *   a cycle ends the descent rather than the walk. The root package itself is not listed.
+ *   a cycle ends the descent rather than the walk. An installation is keyed by its real directory,
+ *   so two installed versions of one name are two entries under one `named`, and a consumer that
+ *   cannot take two decides what to do with them. A package whose manifest does not parse is
+ *   passed over. The root package itself is not listed.
  */
 export function dependencies(root: string): readonly Dependency[] {
   const placed: Dependency[] = [];
@@ -113,24 +147,25 @@ export function dependencies(root: string): readonly Dependency[] {
   const placing = new Set<string>();
 
   /**
-   * Places one package after everything it depends on, and passes over one that is not installed.
+   * Places one installation after everything it depends on, and passes over one that is absent.
    */
   function place(name: string, from: string): void {
-    if (done.has(name) || placing.has(name)) return;
-
     const at = packageAt(name, from);
 
-    if (at === undefined) return;
+    if (at === undefined || done.has(at) || placing.has(at)) return;
 
-    const manifest: Manifest = { ...manifestAt(at) };
+    const manifest = manifestAt(at);
+
+    if (manifest === undefined) return;
+
     const dependsOn = namesIn(manifest);
 
-    placing.add(name);
+    placing.add(at);
 
     for (const each of dependsOn) place(each, at);
 
-    placing.delete(name);
-    done.add(name);
+    placing.delete(at);
+    done.add(at);
     placed.push({ at, dependsOn, manifest, named: name });
   }
 

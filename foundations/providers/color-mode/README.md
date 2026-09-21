@@ -74,7 +74,17 @@ match the one the provider is given.
 ```
 
 The script reads local storage and writes the attribute. An application keeping the choice in a
-cookie needs none of it.
+cookie needs none of it. A server that writes the document can import the script alone, without the
+provider or React, from the `./script` subpath:
+
+```ts
+import { colorModeScript } from "@stealthscale/provider-color-mode/script";
+```
+
+The text carries no `<`: every one in the application's name is written as its JavaScript escape, so
+an HTML parser ends the element where the application closes it whatever the name holds. A page
+under a content security policy that forbids inline script allows this one by a nonce or a hash,
+which the page states.
 
 ## Reference
 

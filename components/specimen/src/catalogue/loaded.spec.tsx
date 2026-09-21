@@ -25,7 +25,9 @@ function entry(load: () => Promise<unknown>): Indexed {
 }
 
 function Declaring({ of }: { readonly of: Indexed | undefined }): ReactElement {
-  const page = useDeclared(of);
+  const { failure, page } = useDeclared(of);
+
+  if (failure !== undefined) return <output>failed: {failure.message}</output>;
 
   return <output>{page?.scenes.map((scene) => scene.title).join(",") ?? "no page"}</output>;
 }
@@ -50,12 +52,21 @@ describe("useDeclared", () => {
     expect(container.textContent).toBe("Sizes");
   });
 
-  it("holds nothing for a module that fails to load", async () => {
+  it("reports why a module failed to load rather than holding an empty page", async () => {
     const { container } = await drawn(
       <Declaring of={entry(() => Promise.reject(new Error("gone")))} />,
     );
 
-    expect(container.textContent).toBe("no page");
+    expect(container.textContent).toBe("failed: gone");
+  });
+
+  it("reports a failure that is no error by what it said", async () => {
+    const { container } = await drawn(
+      // eslint-disable-next-line typescript/prefer-promise-reject-errors -- an import that fails with something other than an error is what the case covers
+      <Declaring of={entry(() => Promise.reject("chunk 404"))} />,
+    );
+
+    expect(container.textContent).toBe("failed: chunk 404");
   });
 
   it("keeps quiet when the module arrives after the page has left the screen", async () => {
@@ -107,6 +118,16 @@ describe("useDeclared", () => {
       <Declaring
         of={entry(() => Promise.resolve({ default: { id: "data/badge", scenes: [] } }))}
       />,
+    );
+
+    updated({ module: { default: { id: "data/badge", scenes: [SIZES] } } });
+
+    expect(container.textContent).toBe("Sizes");
+  });
+
+  it("clears a failure with the page a hot update carries", async () => {
+    const { container } = await drawn(
+      <Declaring of={entry(() => Promise.reject(new Error("gone")))} />,
     );
 
     updated({ module: { default: { id: "data/badge", scenes: [SIZES] } } });

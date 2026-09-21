@@ -3,7 +3,8 @@
  * writes their types, and pushes a changed string to a running page.
  */
 
-import { dirname, resolve } from "node:path";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import {
   type EnvironmentModuleNode,
   type HotUpdateOptions,
@@ -12,7 +13,7 @@ import {
   type ViteDevServer,
 } from "vite";
 
-import { writeIfChanged } from "@stealthscale/vite-plugin-base";
+import { scratchDir, writeIfChanged } from "@stealthscale/vite-plugin-base";
 
 import { problems } from "#check.ts";
 import {
@@ -22,6 +23,7 @@ import {
   ID,
   indexed,
   mergedWords,
+  ofLanguage,
   type Pair,
   pairId,
   pairModule,
@@ -55,6 +57,23 @@ const FALLBACK = "en";
  * The default path the generated types are written to, against the project root.
  */
 const TYPES = "src/i18n.gen.d.ts";
+
+/**
+ * The directory the plugin's scratch goes under, outside the workspace.
+ */
+const SCRATCH = "stealth-i18n";
+
+/**
+ * The file under the scratch that the plugin rewrites whenever the set of languages and namespaces
+ * changes.
+ *
+ * @remarks
+ *   The catalogues module lists it as a file to watch. A bundler that rebuilds on a watched file's
+ *   change rebuilds the module when the file changes, and a directory handed to the watcher tells
+ *   it nothing about a file appearing there, so the file appearing is turned into this one
+ *   changing.
+ */
+const STAMP = "topology";
 
 /**
  * The payload the change event carries.
@@ -168,6 +187,37 @@ interface Watching {
 }
 
 /**
+ * The part of an environment the watch change hook reads.
+ */
+interface Bundling {
+  /**
+   * The environment a file changed in, where the bundler binds one.
+   */
+  readonly environment?: {
+    /**
+     * The part of the configuration that says whether the environment produces a bundled output.
+     */
+    readonly config: {
+      /**
+       * Whether the environment produces a bundled output, as a build and a server that bundles
+       * do.
+       */
+      readonly isBundled: boolean;
+    };
+  };
+}
+
+/**
+ * The part of a load's context the plugin reads.
+ */
+interface Loading {
+  /**
+   * Adds a file whose change loads the module again.
+   */
+  readonly addWatchFile: (file: string) => void;
+}
+
+/**
  * The state the plugin carries between hooks.
  */
 interface State {
@@ -185,6 +235,32 @@ interface State {
    * The resolved configuration, set before any other hook runs.
    */
   resolved: Resolved;
+
+  /**
+   * Every language and namespace pair the last search found, one per line, sorted.
+   */
+  shape: string;
+
+  /**
+   * The file rewritten when the shape changes, under the plugin's scratch for the root.
+   */
+  stamp: string;
+}
+
+/**
+ * Lists every language and namespace pair an index holds, one per line, sorted.
+ *
+ * @remarks
+ *   The shape is what the catalogues module's exports and loader table depend on beside the words.
+ *   A change to it is a change to the module a running page cannot take as a pushed event.
+ */
+function shapeOf(index: CatalogueIndex): string {
+  return [...index.entries()]
+    .flatMap(([language, byNamespace]) =>
+      [...byNamespace.keys()].map((namespace) => `${language}/${namespace}`),
+    )
+    .toSorted()
+    .join("\n");
 }
 
 /**
@@ -192,14 +268,22 @@ interface State {
  *
  * @param state - The state to write the result into.
  * @param options - Where to search and which namespaces to keep.
+ * @returns True when the set of languages and namespaces differs from the last search's.
  */
-function refound(state: State, options: Options): void {
+function refound(state: State, options: Options): boolean {
   const wanted = options.namespaces ?? ((): boolean => true);
 
   state.catalogues = found(state.resolved.root, options.scopes).filter((one) =>
     wanted(one.namespace),
   );
   state.index = indexed(state.catalogues);
+
+  const shape = shapeOf(state.index);
+  const reshaped = shape !== state.shape;
+
+  state.shape = shape;
+
+  return reshaped;
 }
 
 /**
@@ -216,6 +300,16 @@ function retyped(state: State, options: Options): boolean {
     resolve(state.resolved.root, options.types ?? TYPES),
     declared(state.index, options.fallback ?? FALLBACK),
   );
+}
+
+/**
+ * Rewrites the stamp, so a bundler watching it rebuilds the catalogues module.
+ *
+ * @param state - The state carrying the stamp's path.
+ */
+function stamped(state: State): void {
+  mkdirSync(dirname(state.stamp), { recursive: true });
+  writeFileSync(state.stamp, `${process.hrtime.bigint()}\n`);
 }
 
 /**
@@ -293,22 +387,53 @@ function resent(state: State, options: Options, pair: Pair, watching: Watching):
  * Handles a catalogue file that was added or deleted.
  *
  * @remarks
- *   The search and the types run again, because the set of languages may have changed. The module
- *   is invalidated rather than sent, because sending it would refresh the component tree when only
- *   the strings changed.
+ *   The search and the types run again, because the set of languages and namespaces may have
+ *   changed. Where it did, the catalogues module is handed back for the server to reload, because
+ *   a running page holds the old set in the module it imported and no pushed event replaces that.
+ *   Where the set is the same and only the words of a pair changed, the pair is pushed to the page
+ *   the way an edit is, so the page keeps its state.
  * @param state - The catalogues found.
  * @param options - Where to search.
  * @param path - The file that appeared or disappeared.
  * @param watching - The environment the file changed in.
+ * @returns The catalogues module where the server has to reload it, and nothing otherwise.
  */
-function refollowed(state: State, options: Options, path: string, watching: Watching): void {
-  refound(state, options);
+function refollowed(
+  state: State,
+  options: Options,
+  path: string,
+  watching: Watching,
+): EnvironmentModuleNode[] {
+  const reshaped = refound(state, options);
+
   retyped(state, options);
+
+  if (reshaped) {
+    stamped(state);
+
+    const node = watching.environment.moduleGraph.getModuleById(RESOLVED);
+
+    return node === undefined ? [] : [node];
+  }
 
   const pair = pairOf(path);
 
   if (pair === undefined) stale(watching.environment.moduleGraph, RESOLVED);
   else resent(state, options, pair, watching);
+
+  return [];
+}
+
+/**
+ * Lists the files whose words the catalogues module inlines.
+ *
+ * @param state - The catalogues found.
+ * @param options - Whether every language is inlined, and which one is otherwise.
+ */
+function inlinedFiles(state: State, options: Options): readonly Catalogue[] {
+  if (options.eager === true) return state.catalogues;
+
+  return [...ofLanguage(state.index, options.fallback ?? FALLBACK).values()].flat();
 }
 
 /**
@@ -316,7 +441,10 @@ function refollowed(state: State, options: Options, path: string, watching: Watc
  *
  * @remarks
  *   On a dev server a catalogue change is pushed to the page as an event rather than a reload, so
- *   the page keeps its state. In a build an invalid catalogue throws instead.
+ *   the page keeps its state. In a build an invalid catalogue throws instead. Every module lists
+ *   the files it read as files to watch, so a bundler that rebuilds on a change rebuilds the
+ *   module, and the catalogues module lists the stamp the plugin rewrites when a language or a
+ *   namespace appears or disappears.
  * @param options - Where to search and what to write. `Options` documents every member.
  * @returns The plugin.
  */
@@ -325,6 +453,8 @@ export function i18n(options: Options = {}): Plugin {
     catalogues: [],
     index: new Map(),
     resolved: { command: "serve", root: process.cwd() },
+    shape: "",
+    stamp: join(scratchDir(SCRATCH, process.cwd()), STAMP),
   };
 
   return {
@@ -349,6 +479,7 @@ export function i18n(options: Options = {}): Plugin {
      */
     configResolved(config: Resolved): void {
       state.resolved = config;
+      state.stamp = join(scratchDir(SCRATCH, config.root), STAMP);
       refound(state, options);
       retyped(state, options);
     },
@@ -365,45 +496,56 @@ export function i18n(options: Options = {}): Plugin {
     /**
      * Handles a catalogue change on a dev server by pushing the new strings to the page.
      *
+     * @remarks
+     *   The types are written again on an edit too, because a key or a placeholder added to the
+     *   fallback language changes what the page may ask for.
      * @param changed - The file, what happened to it, and the modules the change reached.
-     * @returns An empty array for a catalogue, or undefined for any other file.
+     * @returns The catalogues module where the page has to reload it, an empty array for a
+     *   catalogue pushed to the page, or undefined for any other file.
      */
     hotUpdate(this: Watching, changed: HotUpdateOptions): EnvironmentModuleNode[] | undefined {
       const path = normalizePath(changed.file);
 
       if (!catalogued(path)) return undefined;
-
-      if (changed.type !== "update") {
-        refollowed(state, options, path, this);
-
-        return [];
-      }
+      if (changed.type !== "update") return refollowed(state, options, path, this);
 
       const catalogue = state.catalogues.find((one) => one.file === path);
 
       if (catalogue === undefined) return undefined;
 
+      retyped(state, options);
       resent(state, options, catalogue, this);
 
       return [];
     },
 
     /**
-     * Serves the catalogues module, or the module one pair is fetched as.
+     * Serves the catalogues module, or the module one pair is fetched as, and lists the files each
+     * one read as files to watch.
      *
      * @param id - The module being loaded.
      * @returns The source, or undefined when the module is not this plugin's.
      */
-    load(id: string): string | undefined {
+    load(this: Loading, id: string): string | undefined {
       if (id === RESOLVED) {
+        if (!existsSync(state.stamp)) stamped(state);
+
+        this.addWatchFile(state.stamp);
+
+        for (const one of inlinedFiles(state, options)) this.addWatchFile(one.file);
+
         return cataloguesModule(state.index, options.fallback ?? FALLBACK, options.eager ?? false);
       }
 
       const pair = pairOfId(id);
 
-      return pair === undefined
-        ? undefined
-        : pairModule(filesOf(state.index, pair.language, pair.namespace));
+      if (pair === undefined) return undefined;
+
+      const files = filesOf(state.index, pair.language, pair.namespace);
+
+      for (const one of files) this.addWatchFile(one.file);
+
+      return pairModule(files);
     },
 
     name: "stealth:i18n",
@@ -419,18 +561,25 @@ export function i18n(options: Options = {}): Plugin {
     },
 
     /**
-     * Runs the search and the types again during a watching build.
+     * Runs the search and the types again during a watching build or under a server that bundles.
      *
      * @remarks
-     *   A dev server reports the same change to `hotUpdate`, which pushes the strings to the page,
-     *   so this hook ignores a change while serving. A watching build has no page and rebuilds.
+     *   A server that serves a module per file reports the same change to `hotUpdate`, which pushes
+     *   the strings to the page, so this hook leaves a change under that server alone. A watching
+     *   build has no page and rebuilds, and a server that bundles runs no hot update hook, so both
+     *   are followed here: the words reach the bundler through the files each module listed, and a
+     *   language or a namespace appearing reaches it through the stamp.
      * @param id - The file that changed.
      */
-    watchChange(id: string): void {
-      if (state.resolved.command !== "build" || !catalogued(normalizePath(id))) return;
+    watchChange(this: Bundling, id: string): void {
+      if (!catalogued(normalizePath(id))) return;
+      if (state.resolved.command !== "build" && this.environment?.config.isBundled !== true) return;
 
-      refound(state, options);
+      const reshaped = refound(state, options);
+
       retyped(state, options);
+
+      if (reshaped) stamped(state);
     },
   };
 }

@@ -5,6 +5,7 @@
 
 import { type ReactElement } from "react";
 
+import { Failed } from "#catalogue/failed.tsx";
 import { useDeclared } from "#catalogue/loaded.ts";
 import { Bands } from "#catalogue/page-bands.tsx";
 import { Header } from "#catalogue/page-header.tsx";
@@ -41,10 +42,12 @@ export interface PageProps {
  *   the scenes are drawn once the module arrives. Each scene carries whatever source it shows, so
  *   nothing beside the module is loaded for the page.
  *   Each scene is anchored by its worded title, so the rail beside the page points at it and the
- *   address of a section reads as its title does.
+ *   address of a section reads as its title does. A module that fails to load leaves the head of
+ *   the page in place and says under it why there is nothing else, with the one thing a reader can
+ *   do about a chunk a deployment no longer serves.
  */
 export function Page({ back, entry, framed }: PageProps): ReactElement {
-  const page = useDeclared(entry);
+  const { failure, page } = useDeclared(entry);
   const word = useWording(entry.namespace);
   const scenes = (page?.scenes ?? []).map((scene) => ({
     id: slugOf(word(scene.title)),
@@ -54,7 +57,10 @@ export function Page({ back, entry, framed }: PageProps): ReactElement {
 
   return (
     <Bands entry={entry} framed={framed} imports={page?.imports} scenes={scenes}>
-      <Header back={back} entry={entry} />
+      <>
+        <Header back={back} entry={entry} />
+        {failure === undefined ? null : <Failed failure={failure} said="page.failed" />}
+      </>
     </Bands>
   );
 }

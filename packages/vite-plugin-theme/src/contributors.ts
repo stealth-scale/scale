@@ -9,9 +9,9 @@
  *   every manifest on it, and both readers here take the result.
  */
 
-import { join, relative, resolve, sep } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 
-import { type Dependency } from "@stealthscale/vite-plugin-base";
+import { type Dependency, exportTarget, type Manifest } from "@stealthscale/vite-plugin-base";
 
 import { PRESET_SUBPATH } from "#options.ts";
 
@@ -33,6 +33,11 @@ export interface Contributor {
    * The package's directory, absolute.
    */
   at: string;
+
+  /**
+   * The package's manifest, read for what it publishes.
+   */
+  manifest: Manifest;
 
   /**
    * The package's name, which its preset is imported under as `<name>/theme`.
@@ -95,12 +100,44 @@ export function contributors(
 ): readonly Contributor[] {
   const found = graph
     .filter((one) => contributes(one, systemPackage))
-    .map((one) => ({ at: one.at, name: one.named }));
+    .map((one) => ({ at: one.at, manifest: one.manifest, name: one.named }));
 
   return [
     ...found.filter((one) => one.name === systemPackage),
     ...found.filter((one) => one.name !== systemPackage),
   ];
+}
+
+/**
+ * Fixes the directory a package's published JavaScript is read from where its export map names
+ * no entry.
+ */
+const DIST = "dist";
+
+/**
+ * Lists a glob for the published JavaScript of every installed contributor, relative to the
+ * application, sorted.
+ *
+ * @remarks
+ *   A style prop written inside a component of an installed package is resolved when the
+ *   application's stylesheet is compiled, as one in a workspace package is, and nothing else names
+ *   the rules it needs. The house packs a library unminified, and the compiler reads a compiled
+ *   call the way it reads the source. The directory read is the one the package's entry is
+ *   published in, so only what the package ships as its own code is read, and only a package that
+ *   contributes a preset is read at all.
+ * @param root - The application's directory, which the globs are written relative to.
+ * @param found - Every contributor, the system package included.
+ */
+export function installedSources(root: string, found: readonly Contributor[]): readonly string[] {
+  return found
+    .filter((one) => resolve(one.at).includes(VENDOR))
+    .map((one) => {
+      const entry = exportTarget(one.manifest, ".", ["import"]);
+      const under = entry === undefined ? DIST : dirname(entry.replace(/^\.\//u, ""));
+
+      return `${relative(root, resolve(one.at))}/${under}/**/*.{js,mjs}`.replaceAll(sep, "/");
+    })
+    .toSorted();
 }
 
 /**

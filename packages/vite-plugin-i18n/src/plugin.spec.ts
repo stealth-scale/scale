@@ -1,10 +1,11 @@
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
-import { withScratchWorkspace } from "@stealthscale/testing";
+import { hookContext, withScratchWorkspace } from "@stealthscale/testing";
 
 import { APP, WORKSPACE } from "#find.fixtures.ts";
-import { configured, updated } from "#plugin.fixtures.ts";
+import { configured, loading, updated, watched } from "#plugin.fixtures.ts";
 import { ID } from "#plugin.ts";
 
 describe("i18n", () => {
@@ -23,7 +24,7 @@ describe("i18n", () => {
       const plugin = configured(scratch);
 
       expect(plugin.resolveId("react")).toBeUndefined();
-      expect(plugin.load("react")).toBeUndefined();
+      expect(loading(plugin, "react")).toBeUndefined();
     });
   });
 
@@ -31,7 +32,47 @@ describe("i18n", () => {
     expect.hasAssertions();
 
     withScratchWorkspace(WORKSPACE, (scratch) => {
-      expect(configured(scratch).load(`\0${ID}`)).toContain('export const fallback = "en";');
+      expect(loading(configured(scratch), `\0${ID}`)).toContain('export const fallback = "en";');
+    });
+  });
+
+  it("lists the stamp and the inlined language's files as files the catalogues module watches", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const context = hookContext();
+
+      loading(configured(scratch), `\0${ID}`, context);
+
+      expect(context.watched[0]?.endsWith("/topology")).toBe(true);
+      expect(context.watched.some((file) => file.endsWith(`/${APP}/locales/en/site.json`))).toBe(
+        true,
+      );
+      expect(context.watched.some((file) => file.includes("/locales/nl/"))).toBe(false);
+    });
+  });
+
+  it("lists every language's files as files the catalogues module watches when eager", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const context = hookContext();
+
+      loading(configured(scratch, "serve", { eager: true }), `\0${ID}`, context);
+
+      expect(context.watched.some((file) => file.includes("/locales/nl/"))).toBe(true);
+    });
+  });
+
+  it("lists a pair's files as files the pair module watches", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const context = hookContext();
+
+      loading(configured(scratch), `\0${ID}/nl/site`, context);
+
+      expect(context.watched).toStrictEqual([join(scratch.root, APP, "locales/nl/site.json")]);
     });
   });
 
@@ -69,18 +110,18 @@ describe("i18n", () => {
     expect.hasAssertions();
 
     withScratchWorkspace(WORKSPACE, (scratch) => {
-      const watched: string[] = [];
+      const watching: string[] = [];
 
       configured(scratch).configureServer({
         watcher: {
           add: (paths) => {
-            watched.push(...paths);
+            watching.push(...paths);
           },
         },
       });
 
-      expect(watched.some((path) => path.endsWith("/@house/overlays/locales"))).toBe(true);
-      expect(watched.some((path) => path.endsWith(`/${APP}/locales`))).toBe(true);
+      expect(watching.some((path) => path.endsWith("/@house/overlays/locales"))).toBe(true);
+      expect(watching.some((path) => path.endsWith(`/${APP}/locales`))).toBe(true);
     });
   });
 
@@ -101,6 +142,21 @@ describe("i18n", () => {
       expect(
         updated(configured(scratch), join(scratch.root, APP, "locales/en/unknown.json")).answered,
       ).toBeUndefined();
+    });
+  });
+
+  it("rewrites the types when an edit adds a key", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const plugin = configured(scratch);
+
+      scratch.write({
+        [`${APP}/locales/en/site.json`]: '{"welcome":"Welcome to {{name}}","added":"Added"}',
+      });
+      updated(plugin, join(scratch.root, APP, "locales/en/site.json"));
+
+      expect(scratch.read(`${APP}/src/i18n.gen.d.ts`)).toContain('"added": "Added"');
     });
   });
 
@@ -172,7 +228,7 @@ describe("i18n", () => {
       const plugin = configured(scratch, "build");
 
       scratch.write({ [`${APP}/locales/en/site.json`]: '{"welcome":"Hello {{name}}"}' });
-      plugin.watchChange(join(scratch.root, APP, "locales/en/site.json"));
+      watched(plugin, join(scratch.root, APP, "locales/en/site.json"), hookContext([], "build"));
 
       expect(scratch.read(`${APP}/src/i18n.gen.d.ts`)).toContain('"welcome": "Hello {{name}}"');
     });
@@ -186,13 +242,13 @@ describe("i18n", () => {
       const before = scratch.read(`${APP}/src/i18n.gen.d.ts`);
 
       scratch.write({ [`${APP}/locales/en/site.json`]: '{"welcome":"Hello {{name}}"}' });
-      plugin.watchChange(join(scratch.root, APP, "src/main.tsx"));
+      watched(plugin, join(scratch.root, APP, "src/main.tsx"), hookContext([], "build"));
 
       expect(scratch.read(`${APP}/src/i18n.gen.d.ts`)).toBe(before);
     });
   });
 
-  it("ignores a catalogue change when serving", () => {
+  it("leaves a catalogue change to the hot update under a server that serves a module per file", () => {
     expect.hasAssertions();
 
     withScratchWorkspace(WORKSPACE, (scratch) => {
@@ -200,9 +256,61 @@ describe("i18n", () => {
       const before = scratch.read(`${APP}/src/i18n.gen.d.ts`);
 
       scratch.write({ [`${APP}/locales/en/site.json`]: '{"welcome":"Hello {{name}}"}' });
-      plugin.watchChange(join(scratch.root, APP, "locales/en/site.json"));
+      watched(plugin, join(scratch.root, APP, "locales/en/site.json"), hookContext());
 
       expect(scratch.read(`${APP}/src/i18n.gen.d.ts`)).toBe(before);
+    });
+  });
+
+  it("rewrites the types when a catalogue changes under a server that bundles", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const plugin = configured(scratch);
+
+      scratch.write({ [`${APP}/locales/en/site.json`]: '{"welcome":"Hello {{name}}"}' });
+      watched(plugin, join(scratch.root, APP, "locales/en/site.json"));
+
+      expect(scratch.read(`${APP}/src/i18n.gen.d.ts`)).toContain('"welcome": "Hello {{name}}"');
+    });
+  });
+
+  it("rewrites the stamp when a language appears under a server that bundles", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const plugin = configured(scratch);
+      const context = hookContext();
+
+      loading(plugin, `\0${ID}`, context);
+
+      const stamp = context.watched[0] ?? "";
+      const before = readFileSync(stamp, "utf8");
+
+      scratch.write({ [`${APP}/locales/de/site.json`]: '{"welcome":"Willkommen {{name}}"}' });
+      watched(plugin, join(scratch.root, APP, "locales/de/site.json"));
+
+      expect(readFileSync(stamp, "utf8")).not.toBe(before);
+      expect(loading(plugin, `\0${ID}`)).toContain('export const languages = ["de","en","nl"];');
+    });
+  });
+
+  it("leaves the stamp alone when only the words change under a server that bundles", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const plugin = configured(scratch);
+      const context = hookContext();
+
+      loading(plugin, `\0${ID}`, context);
+
+      const stamp = context.watched[0] ?? "";
+      const before = readFileSync(stamp, "utf8");
+
+      scratch.write({ [`${APP}/locales/en/site.json`]: '{"welcome":"Hello {{name}}"}' });
+      watched(plugin, join(scratch.root, APP, "locales/en/site.json"));
+
+      expect(readFileSync(stamp, "utf8")).toBe(before);
     });
   });
 });

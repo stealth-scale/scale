@@ -10,7 +10,7 @@ import {
 } from "@stealthscale/testing";
 import { dependencies } from "@stealthscale/vite-plugin-base";
 
-import { contributors, workspaceRoots, workspaceSources } from "#contributors.ts";
+import { contributors, installedSources, workspaceRoots, workspaceSources } from "#contributors.ts";
 
 const PUBLISHED = {
   ".": "./index.js",
@@ -171,6 +171,54 @@ describe("contributors", () => {
     );
 
     expect(globs).toStrictEqual([]);
+  });
+
+  it("lists a glob for the published code of every installed contributor", () => {
+    const globs = withScratchWorkspace(
+      {
+        ...root(["@acme/kit", "@acme/plain"]),
+        ...packageFiles(
+          "node_modules/@acme/kit",
+          {
+            exports: { ".": { import: "./dist/index.js" }, "./theme": "./dist/theme.js" },
+            name: "@acme/kit",
+            peerDependencies: { "@acme/design": "*" },
+          },
+          { "dist/index.js": "export {};\n", "dist/theme.js": "export default {};\n" },
+        ),
+        ...installed("@acme/plain", [], true, "packages/plain"),
+      },
+      (workspace) => {
+        linked(workspace, ["plain"]);
+
+        return installedSources(
+          workspace.root,
+          contributors(dependencies(workspace.root), "@acme/design"),
+        );
+      },
+    );
+
+    expect(globs).toStrictEqual(["node_modules/@acme/kit/dist/**/*.{js,mjs}"]);
+  });
+
+  it("reads an installed contributor whose export map names no entry under dist", () => {
+    const globs = withScratchWorkspace(
+      { ...root(["@acme/kit"]), ...installed("@acme/kit", [], true) },
+      (workspace) => {
+        const found = contributors(dependencies(workspace.root), "@acme/design");
+
+        return installedSources(workspace.root, [
+          {
+            ...found[0],
+            at: found[0]?.at ?? "",
+            manifest: { name: "@acme/kit" },
+            name: "@acme/kit",
+          },
+        ]);
+      },
+    );
+
+    expect(globs).toStrictEqual(["node_modules/@acme/kit/dist/**/*.{js,mjs}"]);
   });
 
   it("lists the source directory of every linked package as an absolute path", () => {

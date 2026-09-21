@@ -65,14 +65,46 @@ describe("published", () => {
   });
 
   it("contributes nothing for a workspace root", () => {
-    const held = resolving({ at: "/repository", manifest: {}, root: "/repository" });
+    const held = resolving({
+      at: "/repository",
+      manifest: { workspaces: ["packages/*"] },
+      root: "/repository",
+    });
 
     expect(held()).toStrictEqual({});
   });
 
   it("contributes nothing for a root even when a package below uses the root config", () => {
-    const held = resolving({ at: "/repository", manifest: { exports: {} }, root: "/repository" });
+    const held = resolving({
+      at: "/repository",
+      manifest: { exports: {}, workspaces: [] },
+      root: "/repository",
+    });
 
     expect(held()).toStrictEqual({});
+  });
+
+  it("builds a package standing alone as its own root from its export map", () => {
+    const held = resolving({
+      at: "/alone",
+      manifest: {
+        exports: {
+          ".": { default: "./dist/index.mjs", "stealth-source": "./src/index.ts" },
+          "./extra": { default: "./dist/extra.mjs", "stealth-source": "./src/extra.ts" },
+        },
+        name: "alone",
+      },
+      root: "/alone",
+    });
+
+    expect(held()).toStrictEqual({
+      pack: { entry: { extra: "src/extra.ts", index: "src/index.ts" } },
+    });
+  });
+
+  it("throws for a package standing alone that declares no exports", () => {
+    expect(resolving({ at: "/alone", manifest: { name: "alone" }, root: "/alone" })).toThrow(
+      /found no exports/u,
+    );
   });
 });

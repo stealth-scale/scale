@@ -67,4 +67,20 @@ describe("rename", () => {
     expect(rename("button--size_lg", { ...CONFIG, separator: "_" })).toBe("button--lg");
     expect(rename("button--size=lg", { ...CONFIG, separator: "=" })).toBe("button--lg");
   });
+
+  it("leaves a class no recipe claims and no declaration wrote as the markup carries it", () => {
+    expect(rename("childBox", CONFIG)).toBe("childBox");
+    expect(rename("prose", CONFIG)).toBe("prose");
+    expect(rename("md:childBox", CONFIG)).toBe("md:childBox");
+  });
+
+  it("writes a slot named in camel case the way the runtime writes it", () => {
+    const config: CompilerConfig = {
+      recipes: [{ axes: ["size"], className: "card", slots: ["iconBox"] }],
+      separator: "-",
+    };
+
+    expect(rename("card__iconBox", config)).toBe("card__icon-box");
+    expect(rename("card__iconBox--size-sm", config)).toBe("card__icon-box--sm");
+  });
 });

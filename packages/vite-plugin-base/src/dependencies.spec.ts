@@ -138,6 +138,34 @@ describe("dependencies", () => {
     ).toStrictEqual(["@acme/shy"]);
   });
 
+  it("reaches a package that publishes for import alone", () => {
+    expect(
+      named({
+        ...root(["@acme/esm"]),
+        ...installed("@acme/esm", [], { exports: { ".": { import: "./index.js" } } }),
+      }),
+    ).toStrictEqual(["@acme/esm"]);
+  });
+
+  it("lists two installations of one name once each", () => {
+    const found = walked({
+      ...root(["@acme/dup", "@acme/one"]),
+      ...installed("@acme/dup", [], { version: "1.0.0" }),
+      ...installed("@acme/one", ["@acme/dup"]),
+      ...packageFiles(
+        "node_modules/@acme/one/node_modules/@acme/dup",
+        { name: "@acme/dup", version: "2.0.0" },
+        { "index.js": "export {};\n" },
+      ),
+    }).filter((each) => each.named === "@acme/dup");
+
+    expect(found.map((each) => each.at)).toStrictEqual([
+      "node_modules/@acme/dup",
+      "node_modules/@acme/one/node_modules/@acme/dup",
+    ]);
+    expect(found.map((each) => each.manifest["version"])).toStrictEqual(["1.0.0", "2.0.0"]);
+  });
+
   it("returns an empty array when the root has no readable manifest", () => {
     expect(named({ "package.json": "{ not json" })).toStrictEqual([]);
   });
@@ -193,5 +221,75 @@ describe("dependencies", () => {
     expect(
       withScratchWorkspace(root([]), (workspace) => resolvedOnGraph(workspace.root, "@f/absent")),
     ).toBeUndefined();
+  });
+
+  it("resolves the entry of a package that publishes for import alone", () => {
+    const entry = withScratchWorkspace(
+      {
+        ...root(["@acme/esm"]),
+        ...installed("@acme/esm", [], { exports: { ".": { import: "./index.js" } } }),
+      },
+      (workspace) => resolvedOnGraph(workspace.root, "@acme/esm")?.slice(workspace.root.length + 1),
+    );
+
+    expect(entry).toBe("node_modules/@acme/esm/index.js");
+  });
+
+  it("resolves the entry of a package that withholds require and publishes for import", () => {
+    const withheld = Object.fromEntries([
+      ["require", null],
+      ["import", "./index.js"],
+    ]);
+    const entry = withScratchWorkspace(
+      {
+        ...root(["@acme/withheld"]),
+        ...installed("@acme/withheld", [], { exports: { ".": withheld } }),
+      },
+      (workspace) =>
+        resolvedOnGraph(workspace.root, "@acme/withheld")?.slice(workspace.root.length + 1),
+    );
+
+    expect(entry).toBe("node_modules/@acme/withheld/index.js");
+  });
+
+  it("returns undefined for an installed package whose manifest does not parse", () => {
+    expect(
+      withScratchWorkspace(
+        {
+          ...root(["@acme/broken"]),
+          "node_modules/@acme/broken/index.js": "",
+          "node_modules/@acme/broken/package.json": "{ not json",
+        },
+        (workspace) => resolvedOnGraph(workspace.root, "@acme/broken"),
+      ),
+    ).toBeUndefined();
+  });
+
+  it("returns undefined for an installed package that publishes no import target", () => {
+    expect(
+      withScratchWorkspace(
+        {
+          ...root(["@acme/typed"]),
+          ...installed("@acme/typed", [], { exports: { ".": { types: "./index.d.ts" } } }),
+        },
+        (workspace) => resolvedOnGraph(workspace.root, "@acme/typed"),
+      ),
+    ).toBeUndefined();
+  });
+
+  it("resolves an entry through a graph handed in", () => {
+    const entry = withScratchWorkspace(
+      {
+        ...root(["@acme/theme"]),
+        ...installed("@acme/theme", ["@f/face"]),
+        ...installed("@f/face"),
+      },
+      (workspace) =>
+        resolvedOnGraph(workspace.root, "@f/face", dependencies(workspace.root))?.slice(
+          workspace.root.length + 1,
+        ),
+    );
+
+    expect(entry).toBe("node_modules/@f/face/index.js");
   });
 });

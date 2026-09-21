@@ -2,7 +2,7 @@
  * Attributes the components of a generated SBOM to one organisation.
  */
 
-import { type Supplier } from "@stealthscale/vite-plugin-sbom";
+import { type Supplier } from "#sbom/types.ts";
 
 /**
  * The supplier recorded against a component of an SBOM this repository

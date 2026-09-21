@@ -92,10 +92,27 @@ describe("context", () => {
     expect(contextOf(SERVING, held.at, held.at).env["STEALTH_SPECIFIED"]).toBe("stated");
   });
 
-  it("reads them with no prefix", () => {
-    const held = workspace("NOT_PREFIXED=read\n");
+  it("leaves a variable with neither prefix out", () => {
+    const held = workspace("NOT_PREFIXED=read\nVITE_SHOWN=client\n");
+    const context = contextOf(SERVING, held.at, held.at);
 
-    expect(contextOf(SERVING, held.at, held.at).env["NOT_PREFIXED"]).toBe("read");
+    vi.stubEnv("REVIEW_CACHE_UNRELATED", "one");
+
+    expect(context.env["NOT_PREFIXED"]).toBeUndefined();
+    expect(context.env["VITE_SHOWN"]).toBe("client");
+    expect(contextOf(SERVING, held.at, held.at).env["REVIEW_CACHE_UNRELATED"]).toBeUndefined();
+  });
+
+  it("reads the revision and the CI flag the runner sets by name", () => {
+    const held = workspace();
+
+    vi.stubEnv("GITHUB_SHA", "abc123");
+    vi.stubEnv("CI", "true");
+
+    const context = contextOf(SERVING, held.at, held.at);
+
+    expect(context.env["GITHUB_SHA"]).toBe("abc123");
+    expect(context.env["CI"]).toBe("true");
   });
 
   it("returns no repository variable when the repository declares none", () => {

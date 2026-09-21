@@ -5,7 +5,7 @@
 import { join } from "node:path";
 import { type EnvironmentModuleNode, type HotUpdateOptions } from "vite";
 
-import { type ScratchWorkspace } from "@stealthscale/testing";
+import { type HookContext, hookContext, type ScratchWorkspace } from "@stealthscale/testing";
 
 import { APP } from "#find.fixtures.ts";
 import { type Changed, i18n, ID, type Options } from "#plugin.ts";
@@ -85,9 +85,9 @@ export interface Hooks {
   ) => EnvironmentModuleNode[] | undefined;
 
   /**
-   * Answers the catalogues' module and each pair's.
+   * Answers the catalogues' module and each pair's, listing what each read as files to watch.
    */
-  readonly load: (id: string) => string | undefined;
+  readonly load: (this: HookContext, id: string) => string | undefined;
 
   /**
    * Claims this plugin's identifiers.
@@ -95,9 +95,9 @@ export interface Hooks {
   readonly resolveId: (id: string) => string | undefined;
 
   /**
-   * Follows a change under a build that watches.
+   * Follows a change under a build that watches or a server that bundles.
    */
-  readonly watchChange: (id: string) => void;
+  readonly watchChange: (this: HookContext, id: string) => void;
 }
 
 /**
@@ -127,6 +127,38 @@ export function configured(
   plugin.configResolved({ command, root: join(scratch.root, APP) });
 
   return plugin;
+}
+
+/**
+ * Loads a module the way the bundler would, over a context that records the files watched.
+ *
+ * @param plugin - The hooks.
+ * @param id - The resolved identifier.
+ * @param context - The context the hook reads `this` from. A serving one by default.
+ * @returns The source, or undefined when the module is not the plugin's.
+ */
+export function loading(
+  plugin: Hooks,
+  id: string,
+  context: HookContext = hookContext(),
+): string | undefined {
+  return plugin.load.call(context, id);
+}
+
+/**
+ * Reports a watched file's change the way the bundler would, over a context that says whether the
+ * environment bundles.
+ *
+ * @param plugin - The hooks.
+ * @param file - The file that changed.
+ * @param context - The context the hook reads `this` from. A serving one that bundles by default.
+ */
+export function watched(
+  plugin: Hooks,
+  file: string,
+  context: HookContext = hookContext([], "serve", true),
+): void {
+  plugin.watchChange.call(context, file);
 }
 
 /**

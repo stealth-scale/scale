@@ -5,9 +5,8 @@
  * @packageDocumentation
  */
 
-export { type Options } from "@stealthscale/vite-plugin-theme";
-
 export { layers } from "#layers.ts";
 export { runtime } from "#runtime.ts";
 export { stylesheet } from "#stylesheet.ts";
+export type { Options, RuntimeOptions } from "#types.ts";
 export { workspace } from "#workspace.ts";

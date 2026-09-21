@@ -22,7 +22,14 @@ export type Report = (message: string) => void;
 /**
  * Tells which compile a run of diagnostics belongs to.
  */
-export type Stage = "the class names" | "the design system" | "the stylesheet";
+export type Stage = "the class names" | "the contributors" | "the design system" | "the stylesheet";
+
+/**
+ * Reports whether any diagnostic is an error, which is one the compiler could not compile past.
+ */
+export function hasErrors(diagnostics: readonly Diagnostic[]): boolean {
+  return diagnostics.some((held) => held.severity === "error");
+}
 
 /**
  * Lists the severities worth interrupting somebody for.

@@ -30,11 +30,16 @@
       "stealth-source": "./src/index.ts",
       "default": "./dist/index.js"
     },
+    "./script": {
+      "stealth-source": "./src/script.ts",
+      "default": "./dist/script.js"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
     "exports": {
       ".": "./dist/index.js",
+      "./script": "./dist/script.js",
       "./package.json": "./package.json"
     },
     "access": "public"

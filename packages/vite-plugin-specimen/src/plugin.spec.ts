@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { type Plugin, type UserConfig } from "vite";
 import { describe, expect, it } from "vitest";
 
@@ -49,6 +50,26 @@ function index(files: Readonly<Record<string, string>> = TREE): Promise<string> 
 }
 
 type Handler = (...args: readonly unknown[]) => unknown;
+
+interface Group {
+  readonly includeDependenciesRecursively?: boolean;
+  readonly name: string;
+  readonly test: (id: string) => boolean;
+}
+
+interface Naming {
+  readonly codeSplitting: { readonly groups: readonly [Group, Group] };
+}
+
+function naming(plugin: Plugin, stated: unknown): Naming {
+  const config: unknown = Reflect.apply(hookOf(plugin, "config"), undefined, [
+    stated,
+    { command: "build", mode: "production" },
+  ]);
+  const output: unknown = (config as UserConfig).build?.rolldownOptions?.output;
+
+  return output as Naming;
+}
 
 function reading(scratch: ScratchWorkspace): Promise<Plugin> {
   const plugin = specimens({ patterns: PATTERNS, props: {} });
@@ -108,28 +129,34 @@ describe("plugin", () => {
     expect(held).toMatchObject({ server: { watch: { ignored: ["**/coverage/**"] } } });
   });
 
-  it("names the chunk a page's module and its props", async () => {
-    const named = await serving(TREE, async (plugin, scratch) => {
+  it("puts every page and what it reaches in one chunk and every page's props in another", async () => {
+    const held = await serving(TREE, async (plugin, scratch) => {
       await loaded(plugin, RESOLVED);
 
-      const config: unknown = Reflect.apply(hookOf(plugin, "config"), undefined, [
-        {},
-        { command: "build", mode: "production" },
-      ]);
-      const group: unknown = (config as UserConfig).build?.rolldownOptions?.output;
-      const name = (
-        group as { codeSplitting: { groups: [{ name: (id: string) => null | string }] } }
-      ).codeSplitting.groups[0].name;
+      const [props, pages] = naming(plugin, {}).codeSplitting.groups;
+      const page = scratch.path("src/badge.specimen.tsx");
+      const asked = [page, `${page}?rolldown-lazy=1`, scratch.path("src/other.ts")];
 
-      return [
-        name(scratch.path("src/badge.specimen.tsx")),
-        name(`${scratch.path("src/badge.specimen.tsx")}?rolldown-lazy=1`),
-        name(`${PROPS}data/badge`),
-        name(scratch.path("src/other.ts")),
-      ];
+      return {
+        pages: { ...pages, test: asked.map((id) => pages.test(id)) },
+        props: { ...props, test: [`${PROPS}data/badge`, page].map((id) => props.test(id)) },
+      };
     });
 
-    expect(named).toStrictEqual(["data-badge", "data-badge", "data-badge-props", null]);
+    expect(held).toStrictEqual({
+      pages: { includeDependenciesRecursively: true, name: "pages", test: [true, true, false] },
+      props: { name: "props", test: [true, false] },
+    });
+  });
+
+  it("adds no group to an output stated as several", () => {
+    const plugin = specimens({ patterns: PATTERNS });
+    const held: unknown = Reflect.apply(hookOf(plugin, "config"), undefined, [
+      { build: { rolldownOptions: { output: [{}, {}] } } },
+      { command: "build", mode: "production" },
+    ]);
+
+    expect(held).toStrictEqual({ server: { watch: { ignored: ["**/coverage/**"] } } });
   });
 
   it("resolves the index specifier to an identifier of its own", async () => {
@@ -232,6 +259,128 @@ describe("plugin", () => {
     const held = await serving(TREE, (plugin) => loaded(plugin, "virtual:other"));
 
     expect(held).toBeUndefined();
+  });
+
+  it("lists the stamp as a file the index watches", async () => {
+    const watched = await serving(TREE, async (plugin) => {
+      const context = hookContext();
+
+      await loaded(plugin, RESOLVED, context);
+
+      return context.watched;
+    });
+
+    expect(watched).toHaveLength(1);
+    expect(watched[0]?.endsWith("/index")).toBe(true);
+  });
+
+  it("rewrites the stamp when a specimen appears under a server that bundles", async () => {
+    const stamps = await serving(TREE, async (plugin, scratch) => {
+      const context = hookContext();
+
+      await loaded(plugin, RESOLVED, context);
+
+      const stamp = context.watched[0] ?? "";
+      const before = readFileSync(stamp, "utf8");
+
+      scratch.write({ "src/chip.specimen.tsx": BADGE.replace("data/badge", "data/chip") });
+      await changed(
+        plugin,
+        hookContext([], "serve", true),
+        scratch.path("src/chip.specimen.tsx"),
+        "create",
+      );
+
+      return { after: readFileSync(stamp, "utf8"), before };
+    });
+
+    expect(stamps.after).not.toBe(stamps.before);
+  });
+
+  it("rewrites the stamp when a specimen disappears under a server that bundles", async () => {
+    const stamps = await serving(TREE, async (plugin, scratch) => {
+      const context = hookContext();
+
+      await loaded(plugin, RESOLVED, context);
+
+      const stamp = context.watched[0] ?? "";
+      const before = readFileSync(stamp, "utf8");
+
+      await changed(
+        plugin,
+        hookContext([], "serve", true),
+        scratch.path("src/badge.specimen.tsx"),
+        "delete",
+      );
+
+      return { after: readFileSync(stamp, "utf8"), before };
+    });
+
+    expect(stamps.after).not.toBe(stamps.before);
+  });
+
+  it("leaves the stamp alone when a scene changed under a server that bundles", async () => {
+    const stamps = await serving(TREE, async (plugin, scratch) => {
+      const context = hookContext();
+
+      await loaded(plugin, RESOLVED, context);
+
+      const stamp = context.watched[0] ?? "";
+      const before = readFileSync(stamp, "utf8");
+
+      scratch.write({ "src/badge.specimen.tsx": BADGE.replace("<Badge />", "<Badge>x</Badge>") });
+      await changed(
+        plugin,
+        hookContext([], "serve", true),
+        scratch.path("src/badge.specimen.tsx"),
+        "update",
+      );
+
+      return { after: readFileSync(stamp, "utf8"), before };
+    });
+
+    expect(stamps.after).toBe(stamps.before);
+  });
+
+  it("rewrites the stamp when an edit changed the metadata a page declares under a server that bundles", async () => {
+    const stamps = await serving(TREE, async (plugin, scratch) => {
+      const context = hookContext();
+
+      await loaded(plugin, RESOLVED, context);
+
+      const stamp = context.watched[0] ?? "";
+      const before = readFileSync(stamp, "utf8");
+
+      scratch.write({ "src/badge.specimen.tsx": BADGE.replace('group: "Data"', 'group: "Facts"') });
+      await changed(
+        plugin,
+        hookContext([], "serve", true),
+        scratch.path("src/badge.specimen.tsx"),
+        "update",
+      );
+
+      return { after: readFileSync(stamp, "utf8"), before };
+    });
+
+    expect(stamps.after).not.toBe(stamps.before);
+  });
+
+  it("leaves the stamp alone under a server that serves a module per file", async () => {
+    const stamps = await serving(TREE, async (plugin, scratch) => {
+      const context = hookContext();
+
+      await loaded(plugin, RESOLVED, context);
+
+      const stamp = context.watched[0] ?? "";
+      const before = readFileSync(stamp, "utf8");
+
+      scratch.write({ "src/chip.specimen.tsx": BADGE.replace("data/badge", "data/chip") });
+      await changed(plugin, hookContext(), scratch.path("src/chip.specimen.tsx"), "create");
+
+      return { after: readFileSync(stamp, "utf8"), before };
+    });
+
+    expect(stamps.after).toBe(stamps.before);
   });
 
   it("adds each pattern's starting directory to the watcher", async () => {

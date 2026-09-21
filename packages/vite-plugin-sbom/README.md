@@ -94,8 +94,11 @@ preceding tables list their fields.
   define is recorded as a name instead.
 - **Integrity and origin.** A digest the lockfile pinned becomes the component's hash, and a source
   other than the default registry becomes a `vcs_url` or `repository_url` qualifier on the package
-  URL. The search reads `bun.lock` first and `pnpm-lock.yaml` second, from the nearest directory
-  above the package that has either one.
+  URL. Each installed package is matched to the lockfile by its name and the version its own
+  manifest states, so two installed versions of one name each carry their own digest and source. A
+  source written as a URL is written without the credential in front of its host and without its
+  query, and with the fragment that names a commit. The search reads `bun.lock` first and
+  `pnpm-lock.yaml` second, from the nearest directory above the package that has either one.
 
 A missing manifest, an unreadable lockfile and a digest nothing can parse each cost the document
 detail rather than failing the build.

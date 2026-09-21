@@ -9,9 +9,10 @@ type Refining = Parameters<Override["refine"]>[0];
 
 interface Group {
   entriesAware?: boolean;
+  minShareCount?: number;
   name: string;
   priority?: number;
-  tags: readonly string[];
+  tags?: readonly string[];
   test?: RegExp;
 }
 
@@ -48,7 +49,7 @@ function landing(path: string, context: Refining = BUILDING): string | undefined
 }
 
 describe("chunks", () => {
-  it("splits the runtime the dependencies the library and the application into a chunk each", () => {
+  it("splits the runtime the dependencies and the library into a chunk each", () => {
     expect(landing("/r/node_modules/.pnpm/react-dom@19/node_modules/react-dom/index.js")).toBe(
       "framework",
     );
@@ -61,7 +62,12 @@ describe("chunks", () => {
     expect(
       landing("/r/node_modules/.pnpm/@chakra-ui+react@3/node_modules/@chakra-ui/react/x.js"),
     ).toBe("vendor");
-    expect(landing("/r/apps/docs/src/main.tsx")).toBe("app");
+  });
+
+  it("claims no module of the application's own so each entry keeps what it reaches", () => {
+    expect(landing("/r/apps/docs/src/main.tsx")).toBeUndefined();
+    expect(landing("/r/apps/docs/src/other.tsx", SERVING)).toBeUndefined();
+    expect(splitting().groups.every((group) => group.test !== undefined)).toBe(true);
   });
 
   it("groups the house's own packages into the library wherever they were resolved from", () => {
@@ -77,22 +83,36 @@ describe("chunks", () => {
     );
   });
 
-  it("leaves the library in the application's chunk under a dev server", () => {
+  it("leaves the library with the application under a dev server", () => {
     expect(splitting(SERVING).groups.map((group) => group.name)).toStrictEqual([
       "framework",
       "vendor",
-      "app",
     ]);
-    expect(landing("/r/components/controls/src/index.ts", SERVING)).toBe("app");
+    expect(landing("/r/components/controls/src/index.ts", SERVING)).toBeUndefined();
     expect(landing("/r/node_modules/.pnpm/react@19/node_modules/react/index.js", SERVING)).toBe(
       "framework",
     );
   });
 
-  it("takes only what the entry reaches statically", () => {
-    for (const group of splitting().groups) {
-      expect(group.tags).toStrictEqual(["$initial"]);
-    }
+  it("takes only what the entry reaches statically into the initial chunks", () => {
+    const tagged = Object.fromEntries(splitting().groups.map((group) => [group.name, group.tags]));
+
+    expect(tagged).toStrictEqual({
+      framework: ["$initial"],
+      library: ["$initial"],
+      shared: undefined,
+      vendor: ["$initial"],
+    });
+  });
+
+  it("collects what several routes reach and the entry does not into one chunk", () => {
+    const shared = splitting().groups.find((group) => group.name === "shared");
+
+    expect(shared).toMatchObject({ minShareCount: 2, priority: 3 });
+    expect(shared?.test?.test("/r/node_modules/.pnpm/@zag-js+core@1/node_modules/x.js")).toBe(true);
+    expect(shared?.test?.test("/r/components/forms/src/switch/root.tsx")).toBe(true);
+    expect(shared?.test?.test("/r/apps/docs/src/routes.tsx")).toBe(false);
+    expect(splitting(SERVING).groups.map((group) => group.name)).not.toContain("shared");
   });
 
   it("groups nothing per entry and places a module by its own path alone", () => {

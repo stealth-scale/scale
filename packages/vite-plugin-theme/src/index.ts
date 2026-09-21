@@ -14,3 +14,4 @@ export {
 export { type Extension, type Extensions, type Switchable, type SwitchablePreset } from "#scope.ts";
 export { type Application, type Theme } from "#statement.ts";
 export * as theme from "#theme/index.ts";
+export { type Generator } from "#theme/runtime.ts";

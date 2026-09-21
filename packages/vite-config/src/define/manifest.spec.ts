@@ -5,16 +5,23 @@ import { describe, expect, it } from "vitest";
 import { type Manifest } from "@stealthscale/vite-config-core";
 
 import { type Injected, manifest } from "#define/manifest.ts";
-import { answered } from "#vite.fixtures.ts";
+import { told } from "#vite.fixtures.ts";
+
+function refined(
+  stated: Manifest,
+  injected: Injected = {},
+  env: Record<string, string> = {},
+  config: UserConfig = {},
+): UserConfig {
+  return manifest(injected).refine(told({ env, manifest: stated }), config);
+}
 
 function definedBy(
   stated: Manifest,
   injected: Injected = {},
   env: Record<string, string> = {},
 ): Record<string, string> {
-  const held = answered(manifest(injected), { env, manifest: stated }) as UserConfig;
-
-  return held.define as Record<string, string>;
+  return refined(stated, injected, env).define as Record<string, string>;
 }
 
 const SUBPATH = "./globals";
@@ -77,6 +84,33 @@ describe("manifest", () => {
 
   it("timestamps the build when asked to", () => {
     expect(definedBy({}, { builtAt: true })["__BUILT_AT__"]).toMatch(/^"\d{4}-\d{2}-\d{2}T/u);
+  });
+
+  it("writes the same constants for the packer as for Vite", () => {
+    const held = refined({ name: "@acme/thing", version: "1.2.3" });
+
+    expect(held.pack).toStrictEqual({ define: held.define });
+  });
+
+  it("writes the constants on every bundle of a packer configured as a list", () => {
+    const held = refined({ name: "@acme/thing" }, {}, {}, { pack: [{ dts: true }, {}] });
+
+    expect(held.pack).toStrictEqual([{ define: held.define, dts: true }, { define: held.define }]);
+  });
+
+  it("keeps a constant the configuration defined already", () => {
+    const held = refined(
+      { name: "@acme/thing" },
+      {},
+      {},
+      {
+        define: { __OTHER__: "1" },
+        pack: { define: { __OTHER__: "1" } },
+      },
+    );
+
+    expect(held.define?.["__OTHER__"]).toBe("1");
+    expect(held.pack).toMatchObject({ define: { __NAME__: '"@acme/thing"', __OTHER__: "1" } });
   });
 
   it("names the layer for the constants beyond the two always injected", () => {

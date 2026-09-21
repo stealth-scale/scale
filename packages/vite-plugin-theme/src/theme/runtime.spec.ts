@@ -1,4 +1,5 @@
-import { statSync, utimesSync } from "node:fs";
+import { existsSync, statSync, utimesSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -10,8 +11,10 @@ import {
   updated,
   withScratchWorkspaceAsync,
 } from "@stealthscale/testing";
+import { changed } from "@stealthscale/testing";
 
-import { runtime } from "#theme/runtime.ts";
+import { scratchDir } from "#options.ts";
+import { generator, packed, runtime } from "#theme/runtime.ts";
 
 function preset(tokens = ""): string {
   return [
@@ -44,14 +47,27 @@ describe("runtime", () => {
     const files = await withScratchWorkspaceAsync(SYSTEM, async (workspace) => {
       await configured(runtime(), { ...RESOLVED, root: workspace.root });
 
-      return workspace.files();
+      return {
+        rendered: existsSync(join(scratchDir(workspace.root), "runtime.config.mjs")),
+        written: workspace.files(),
+      };
     });
 
-    expect(files).toContain("generated/css/index.mjs");
-    expect(files).toContain("generated/jsx/index.mjs");
-    expect(files).toContain("generated/recipes/runtime.mjs");
-    expect(files).toContain("generated/recipes/runtime.d.mts");
-    expect(files).toContain("node_modules/.theme/runtime.config.mjs");
+    expect(files.written).toContain("generated/css/index.mjs");
+    expect(files.written).toContain("generated/jsx/index.mjs");
+    expect(files.written).toContain("generated/recipes/runtime.mjs");
+    expect(files.written).toContain("generated/recipes/runtime.d.mts");
+    expect(files.rendered).toBe(true);
+  });
+
+  it("writes nothing under the package but the runtime", async () => {
+    const files = await withScratchWorkspaceAsync(SYSTEM, async (workspace) => {
+      await configured(runtime(), { ...RESOLVED, root: workspace.root });
+
+      return workspace.files().filter((file) => file.startsWith("node_modules/"));
+    });
+
+    expect(files).toStrictEqual([]);
   });
 
   it("writes every relative import with its extension", async () => {
@@ -150,6 +166,88 @@ describe("runtime", () => {
     });
 
     expect(same).toBe(true);
+  });
+
+  it("regenerates from the packer's plugin when a file behind the preset changes", async () => {
+    const written = await withScratchWorkspaceAsync(SYSTEM, async (workspace) => {
+      const shared = generator();
+      const packing = packed(shared);
+      const context = hookContext([], "build");
+
+      await configured(runtime({}, shared), { ...RESOLVED, root: workspace.root });
+      await started(packing, context);
+      workspace.write({ "src/theme.ts": preset('brand: { value: "#abc" }') });
+      await changed(packing, context, workspace.path("src/theme.ts"), "update");
+      await changed(packing, context, workspace.path("src/index.ts"), "update");
+
+      return {
+        tokens: workspace.read("generated/tokens/index.mjs").includes("brand"),
+        watched: context.watched.map((file) => file.slice(workspace.root.length + 1)),
+      };
+    });
+
+    expect(written.tokens).toBe(true);
+    expect(written.watched).toContain("src/theme.ts");
+  });
+
+  it("generates from the packer's plugin where it is told the root and nothing generated yet", async () => {
+    const written = await withScratchWorkspaceAsync(SYSTEM, async (workspace) => {
+      const shared = generator();
+      const context = hookContext([], "build");
+
+      await started(packed(shared, { root: workspace.root }), context);
+
+      return {
+        files: workspace.files().filter((file) => file.startsWith("generated/")),
+        watched: context.watched.map((file) => file.slice(workspace.root.length + 1)),
+      };
+    });
+
+    expect(written.files).toContain("generated/css/index.mjs");
+    expect(written.files).toContain("generated/recipes/runtime.mjs");
+    expect(written.watched).toContain("src/theme.ts");
+  });
+
+  it("leaves the runtime alone when the packer builds again", async () => {
+    const past = new Date("2020-01-01T00:00:00Z");
+    const untouched = await withScratchWorkspaceAsync(SYSTEM, async (workspace) => {
+      const shared = generator();
+      const packing = packed(shared);
+
+      shared.loading = { root: workspace.root };
+      await started(packing, hookContext([], "build"));
+      utimesSync(workspace.path("generated/css/index.mjs"), past, past);
+      await started(packing, hookContext([], "build"));
+
+      return statSync(workspace.path("generated/css/index.mjs")).mtime;
+    });
+
+    expect(untouched).toStrictEqual(past);
+  });
+
+  it("names the packer's plugin for the runtime it regenerates", () => {
+    expect(packed(generator()).name).toBe("stealth:theme.runtime(pack)");
+    expect(generator().watching).toStrictEqual([]);
+  });
+
+  it("starts a generator at the working directory and takes another root", () => {
+    const shared = generator();
+
+    expect(shared.loading.root).toBe(process.cwd());
+
+    shared.loading = { root: "/elsewhere" };
+
+    expect(shared.loading).toStrictEqual({ root: "/elsewhere" });
+  });
+
+  it("holds the package's lock while it generates and releases it after", async () => {
+    const left = await withScratchWorkspaceAsync(SYSTEM, async (workspace) => {
+      await configured(runtime(), { ...RESOLVED, root: workspace.root });
+
+      return existsSync(join(scratchDir(workspace.root), "lock"));
+    });
+
+    expect(left).toBe(false);
   });
 
   it("leaves a generated file the change did not reach as it was when regenerating", async () => {

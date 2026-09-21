@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { endpoints, join } from "#endpoints.ts";
+import { endpoints, join, where } from "#endpoints.ts";
 
 /**
  * Collects what the federation runtime was handed, one array per call.
@@ -70,5 +70,15 @@ describe("endpoints", () => {
     join([]);
 
     expect(registered.at(-1)).toStrictEqual([]);
+  });
+
+  it("locates the file beside the documents under the path the application is served at", () => {
+    expect(where("/")).toBe("/remotes.json");
+    expect(where("/design/")).toBe("/design/remotes.json");
+    expect(where("/design")).toBe("/design/remotes.json");
+  });
+
+  it("locates the file at the root of the origin when the assets live on another host", () => {
+    expect(where("https://cdn.example.test/assets/")).toBe("/remotes.json");
   });
 });

@@ -2,9 +2,9 @@
  * Covers which layers survive a removal and what each pass contributes.
  */
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { resolved, surviving } from "#compose.ts";
+import { resolved, resolvingMetadata, surviving } from "#compose.ts";
 import { BUILDING } from "#core.fixtures.ts";
 import { contribute, type Contribution, preset, type Removal, remove } from "#layer.ts";
 
@@ -93,6 +93,57 @@ describe("compose", () => {
     ]);
 
     expect(held.test?.setupFiles).toStrictEqual(["production.ts"]);
+  });
+
+  it("passes over a Vite plugin contribution while the toolchain reads metadata alone", async () => {
+    let constructed = 0;
+
+    vi.stubEnv("VP_RESOLVING_CONFIG_METADATA", "1");
+
+    const held = await resolved(BUILDING, [
+      contribute({
+        at: "plugins",
+        because: "a reason",
+        itemOf: () => {
+          constructed += 1;
+
+          return { name: "plugin" };
+        },
+        name: "one",
+      }),
+      contribute({ at: "test.setupFiles", because: "a reason", item: "stated.ts", name: "three" }),
+    ]);
+
+    expect(resolvingMetadata()).toBe(true);
+    expect(constructed).toBe(0);
+    expect(held.plugins).toBeUndefined();
+    expect(held.test?.setupFiles).toStrictEqual(["stated.ts"]);
+  });
+
+  it("constructs a contribution to the packer's plugins while the toolchain reads metadata", async () => {
+    vi.stubEnv("VP_RESOLVING_CONFIG_METADATA", "1");
+
+    const held = await resolved(BUILDING, [
+      contribute({
+        at: "pack.plugins",
+        because: "a reason",
+        itemOf: () => ({ name: "packed" }),
+        name: "one",
+      }),
+    ]);
+
+    expect(held.pack).toStrictEqual({ plugins: [{ name: "packed" }] });
+  });
+
+  it("appends a plugin contribution while the toolchain runs a command", async () => {
+    vi.stubEnv("VP_RESOLVING_CONFIG_METADATA", "0");
+
+    const held = await resolved(BUILDING, [
+      contribute({ at: "plugins", because: "a reason", item: { name: "plugin" }, name: "one" }),
+    ]);
+
+    expect(resolvingMetadata()).toBe(false);
+    expect(held.plugins).toStrictEqual([{ name: "plugin" }]);
   });
 
   it("prefers the derived value when a layer declares both", async () => {

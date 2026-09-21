@@ -76,21 +76,22 @@ function integral(held: unknown): held is string {
 }
 
 /**
- * Turns one bun lockfile row into the name it installs and what it pins under that name.
+ * Turns one bun lockfile row into the key it installs under and what it pins under that key.
  *
  * @remarks
- *   A row's first field packs the name and the resolution together, and the split takes the last
- *   `@` so that a scoped name survives it. The digest is looked for in the final field and the
- *   registry in the second, since bun leaves the second empty for a default registry install.
- * @returns The package name and what the row pins, or undefined for a row whose first field names
- *   no resolution.
+ *   A row's first field packs the name and the resolution together as `name@resolution`, which is
+ *   the key every record is kept under. The split for the resolution takes the last `@` so that a
+ *   scoped name survives it. The digest is looked for in the final field and the registry in the
+ *   second, since bun leaves the second empty for a default registry install.
+ * @returns The key and what the row pins, or undefined for a row whose first field names no
+ *   resolution.
  */
 function entry(held: readonly unknown[]): readonly [string, Installed] | undefined {
   const first = held[0];
 
   if (typeof first !== "string") return undefined;
 
-  const at = first.lastIndexOf("@");
+  const at = first.indexOf("@", 1);
 
   if (at < 1) return undefined;
 
@@ -98,7 +99,7 @@ function entry(held: readonly unknown[]): readonly [string, Installed] | undefin
   const second = held[1];
 
   return [
-    first.slice(0, at),
+    first,
     {
       ...(integral(last) ? { integrity: last } : {}),
       ...(typeof second === "string" && second !== "" && !integral(second)
@@ -143,11 +144,13 @@ function bun(root: string): ReadonlyMap<string, Installed> | undefined {
  * Cuts a pnpm package key into the name and whatever stands where its version would.
  *
  * @remarks
- *   The cut is made at the last `@`, so `@types/node@26.5.1` keeps its scope. A key holding no `@`
- *   past its first character pins no version, and describes nothing this can record.
+ *   The cut is made at the first `@` past the opening character, so `@types/node@26.5.1` keeps
+ *   its scope and a resolution carrying an `@` of its own, an address with a credential or an
+ *   alias such as `npm:real@1.0.0`, stays whole on the version's side. A key holding no `@` past
+ *   its first character pins no version, and describes nothing this can record.
  */
 function divided(key: string): readonly [string, string] | undefined {
-  const at = key.lastIndexOf("@");
+  const at = key.indexOf("@", 1);
 
   if (at <= 0) return undefined;
 
@@ -184,8 +187,9 @@ function resolved(version: string, resolution: Readonly<Record<string, unknown>>
  *
  * @remarks
  *   An entry is kept only where the key divides and a resolution block sits beneath it. An entry
- *   carrying platform fields and nothing else pins no download, and is left out of the result.
- * @returns The package name and what the entry pins, or undefined where either half is missing.
+ *   carrying platform fields and nothing else pins no download, and is left out of the result. The
+ *   key, `name@version`, is what the record is kept under.
+ * @returns The key and what the entry pins, or undefined where either half is missing.
  */
 function record(key: string, one: unknown): readonly [string, Installed] | undefined {
   const split = divided(key);
@@ -195,14 +199,14 @@ function record(key: string, one: unknown): readonly [string, Installed] | undef
   if (split === undefined) return undefined;
   if (typeof resolution !== "object" || resolution === null) return undefined;
 
-  return [split[0], resolved(split[1], Object.fromEntries(Object.entries(resolution)))];
+  return [key, resolved(split[1], Object.fromEntries(Object.entries(resolution)))];
 }
 
 /**
  * Adds every readable entry of one parsed document to the records collected so far.
  *
  * @remarks
- *   A name met twice keeps whatever the later document said about it. pnpm puts the packages that
+ *   A key met twice keeps whatever the later document said about it. pnpm puts the packages that
  *   make up its own installation in a document ahead of the dependency set, and this ordering is
  *   what lets the real set win.
  */
@@ -275,11 +279,13 @@ function rooted(from: string): string | undefined {
  *
  * @remarks
  *   A repository holding two lockfiles is read by whichever reader comes first, and the other is
- *   ignored rather than merged into it. A record is keyed by package name alone, so where two
- *   versions of one package are installed side by side only one of them survives.
+ *   ignored rather than merged into it. A record is keyed by `name@version`, where the version is
+ *   what the lockfile wrote after the name: a version for a registry install and a reference for
+ *   anything else. So two installed versions of one package are two records, and
+ *   {@link installedOf} picks the one an installation matches.
  * @param from - A directory inside the workspace. The search for a lockfile climbs from here.
- * @returns One record per installed package, and an empty map where no lockfile was found or none
- *   could be read.
+ * @returns One record per installed package version, and an empty map where no lockfile was found
+ *   or none could be read.
  */
 export function locked(from: string): ReadonlyMap<string, Installed> {
   const root = rooted(from);
@@ -291,4 +297,51 @@ export function locked(from: string): ReadonlyMap<string, Installed> {
   }
 
   return new Map();
+}
+
+/**
+ * Lists the records kept under one name, each with the text the lockfile wrote after the name.
+ *
+ * @remarks
+ *   The `@` that ends the name is the first one past the key's opening character, which keeps a
+ *   scoped name whole and leaves whatever follows the name, an alias or an address with an `@`
+ *   of its own, on the version's side.
+ */
+function under(
+  pinned: ReadonlyMap<string, Installed>,
+  name: string,
+): ReadonlyArray<readonly [string, Installed]> {
+  return [...pinned]
+    .filter(([key]) => key.startsWith(`${name}@`) && key.indexOf("@", 1) === name.length)
+    .map(([key, held]) => [key.slice(name.length + 1), held]);
+}
+
+/**
+ * Finds what the lockfile pinned for one installation.
+ *
+ * @remarks
+ *   The exact `name@version` is read first. Where no version is given, or the lockfile keys the one
+ *   record under the name by a reference rather than a version, that one record is taken, because
+ *   a reference is what stands in for the version of a package fetched from a repository. Anything
+ *   else is a package the lockfile cannot vouch for, and nothing is returned rather than a digest
+ *   that belongs to another copy.
+ * @param pinned - The records {@link locked} collected.
+ * @param name - The package's name.
+ * @param version - The version the installed manifest states, where it states one.
+ */
+export function installedOf(
+  pinned: ReadonlyMap<string, Installed>,
+  name: string,
+  version?: string,
+): Installed | undefined {
+  const exact = version === undefined ? undefined : pinned.get(`${name}@${version}`);
+
+  if (exact !== undefined) return exact;
+
+  const found = under(pinned, name);
+  const only = found[0];
+
+  if (found.length !== 1 || only === undefined) return undefined;
+
+  return version === undefined || !/^\d/u.test(only[0]) ? only[1] : undefined;
 }

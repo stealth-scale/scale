@@ -44,6 +44,7 @@ export const plain: UserConfig = {
     dts: true,
     entry: { index: "src/index.ts" },
     exports: { devExports: SOURCE },
+    platform: "node",
     publint: true,
   },
 

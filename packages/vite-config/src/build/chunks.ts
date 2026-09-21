@@ -57,9 +57,31 @@ type Splitting = Exclude<NonNullable<Output["codeSplitting"]>, boolean>;
 type Group = NonNullable<Splitting["groups"]>[number];
 
 /**
+ * Matches what the house and the registry supply alike: the library's packages wherever they
+ * were resolved from, and everything under `node_modules`.
+ */
+const SUPPLIED = /[\\/](?:node_modules|components|foundations|packages|themes)[\\/]/u;
+
+/**
  * The library's group, which a build alone carries.
  */
 const LIBRARIED: Group = { name: "library", priority: 8, tags: ["$initial"], test: LIBRARY };
+
+/**
+ * The group of what several lazily loaded routes reach and the entry does not, which a build alone
+ * carries.
+ *
+ * @remarks
+ *   The bundler places a module the entry does not reach with the route that reaches it, and gives
+ *   a module several routes reach a chunk per set of routes: the docs build wrote a chunk of a
+ *   tenth of a kilobyte for one such module. Here every such module lands in one chunk, fetched by
+ *   the first route that needs it and cached for the rest. The share count the bundler filters on
+ *   counts every entry that reaches the module, a route's dynamic import as much as the page's
+ *   own, so a module the entry reaches is counted too, and the initial groups claim it first by
+ *   their priority. What one route alone reaches stays with that route, and the application's own
+ *   modules are left to the bundler, as the initial groups leave them.
+ */
+const SHARED: Group = { minShareCount: 2, name: "shared", priority: 3, test: SUPPLIED };
 
 /**
  * Lists the groups, with the library's where the command is a build.
@@ -69,14 +91,17 @@ const LIBRARIED: Group = { name: "library", priority: 8, tags: ["$initial"], tes
  *   runtime and the preamble that installs it are modules of the application's chunk. A library
  *   chunk runs before that chunk, so every component in it called a runtime not yet set up and the
  *   page stayed white. The library's chunk is a caching measure for a deploy, and a dev server
- *   deploys nothing, so it is left out there.
+ *   deploys nothing, so it is left out there, and so is the shared chunk, which an initial module
+ *   would join there for the same lack of a library group. No group claims the application's own
+ *   modules: a group with no test claimed every module the patterns left, whichever entry reached
+ *   it, so two pages ran each other's bootstrap. The bundler keeps a module with the entry that
+ *   reaches it where nothing claims it.
  */
 function grouped(command: string): readonly Group[] {
   return [
     { name: "framework", priority: 10, tags: ["$initial"], test: FRAMEWORK },
-    ...(command === BUILDING ? [LIBRARIED] : []),
+    ...(command === BUILDING ? [LIBRARIED, SHARED] : []),
     { name: "vendor", priority: 5, tags: ["$initial"], test: VENDOR },
-    { name: "app", tags: ["$initial"] },
   ];
 }
 
@@ -112,8 +137,9 @@ function split(config: UserConfig, groups: readonly Group[]): UserConfig {
 }
 
 /**
- * Splits a bundle four ways: the rendering runtime, the rest of the dependencies, the house's own
- * packages, the application. A dev server splits it three ways, without the library.
+ * Splits a bundle four ways beside the application: the rendering runtime, the rest of the
+ * dependencies, the house's own packages, and what several routes reach beyond the entry. A dev
+ * server splits it two ways, without the library and the shared chunk.
  *
  * @remarks
  *   Priority decides which group claims a module, not the order the groups are written in, so the
@@ -121,12 +147,16 @@ function split(config: UserConfig, groups: readonly Group[]): UserConfig {
  *   vendor pattern that also matches a house package installed from the registry. A module is
  *   placed by its own path alone: the bundler would otherwise pull everything a matched module
  *   imports into the same group, and the library's dependencies would follow it out of the
- *   vendor chunk. Only what an entry reaches statically is grouped, which leaves a lazily
- *   imported module in a chunk of its own and a route that is never visited undownloaded. The
- *   library is a chunk of its own because it changes at another pace than the application drawn
- *   with it: a deploy that touched a page alone leaves the library chunk's name, and the
- *   browser's copy of it, as they were. An override rather than a preset, because only an
- *   override is handed the command.
+ *   vendor chunk. Only what an entry reaches statically goes into those three, which leaves a
+ *   route that is never visited undownloaded. What several routes reach and the entry does not
+ *   lands in the shared chunk, fetched once, rather than in the chunk of whichever route the
+ *   bundler met first with every other route importing that one, and what one route alone reaches
+ *   stays with it. The application's own modules are claimed by no group, so each entry keeps the
+ *   modules it reaches and two pages of one build run their own bootstrap and not each other's.
+ *   The library is a chunk of its own because it changes at another pace than the application
+ *   drawn with it: a deploy that touched a page alone leaves the library chunk's name, and the
+ *   browser's copy of it, as they were. An override rather than a preset, because only an override
+ *   is handed the command.
  */
 export function chunks(): Override {
   return override({

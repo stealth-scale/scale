@@ -4,9 +4,9 @@
  * @remarks
  *   An application depending on two packages of the house, one of which depends on a third, and on
  *   a package outside the house whose catalogue must not be found. The application overrides one
- *   word of the overlays, translates one, and has words of its own. Every package is installed
- *   under the application's `node_modules`, the way a consumer has them, so the search resolves
- *   them as an import would.
+ *   word of the overlays, translates one, and has words of its own, and its manifest is private, as
+ *   an application's is. Every package is installed under the application's `node_modules`, the
+ *   way a consumer has them, so the search resolves them as an import would.
  */
 
 import { manifest, packageFiles, type ScratchFiles } from "@stealthscale/testing";
@@ -28,6 +28,7 @@ export const WORKSPACE: ScratchFiles = {
       outsider: "1",
     },
     name: "@house/site",
+    private: true,
   }),
   [`${APP}/locales/en/overlays.json`]: JSON.stringify({ commands: "Actions" }),
   [`${APP}/locales/en/site.json`]: JSON.stringify({ welcome: "Welcome to {{name}}" }),

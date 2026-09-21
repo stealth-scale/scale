@@ -1,6 +1,6 @@
 /**
- * Gathers the two plugins under the name a configuration calls them by.
+ * Gathers the plugins under the name a configuration calls them by.
  */
 
-export { runtime } from "#theme/runtime.ts";
+export { type Generator, generator, packed, runtime } from "#theme/runtime.ts";
 export { stylesheet } from "#theme/stylesheet.ts";

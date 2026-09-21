@@ -62,7 +62,8 @@ export interface Context extends ConfigEnv {
   readonly at: string;
 
   /**
-   * Every variable in scope, merged from the root, the package and the shell.
+   * The variables in scope: those prefixed `STEALTH_` or `VITE_`, merged from the root's env
+   * files, the package's and the shell, and the revision and CI variables by name.
    */
   readonly env: Readonly<Record<string, string>>;
 
@@ -151,18 +152,53 @@ function configures(at: string): boolean {
 }
 
 /**
+ * The prefixes a variable carries to reach a layer, from an env file or from the shell.
+ *
+ * @remarks
+ *   The house's own variables open with `STEALTH_`, and Vite exposes `VITE_` to the client. A
+ *   variable with neither prefix is the shell's business: a session path or a manager's flag
+ *   differs between two shells that build the same thing, and a task runner that fingerprints
+ *   what a configuration read would miss its cache on every one of them.
+ */
+const PREFIXES = ["STEALTH_", "VITE_"];
+
+/**
+ * The variables a layer reads from the shell by name, whatever their prefix.
+ *
+ * @remarks
+ *   The revision is what a build embeds, and whether a runner is a CI job is what decides a
+ *   default. Both belong in the fingerprint of a build that reads them.
+ */
+const NAMED = ["CI", "CI_COMMIT_SHA", "GITHUB_SHA"];
+
+/**
+ * Reads the named variables the shell sets, and leaves out the ones it does not.
+ */
+function named(): Record<string, string> {
+  return Object.fromEntries(
+    NAMED.flatMap((name) => {
+      const held = process.env[name];
+
+      return held === undefined ? [] : [[name, held]];
+    }),
+  );
+}
+
+/**
  * Collects the variables in scope for one directory.
  *
  * @remarks
  *   The root's files are read first and the package's are laid over them, so a
- *   package redeclaring a variable wins and one it leaves alone survives. No
- *   prefix is required, and the shell beats both because the loader folds the
- *   process environment in last.
+ *   package redeclaring a variable wins and one it leaves alone survives. The
+ *   shell beats both because the loader folds the process environment in last.
+ *   Only a prefixed variable is read, and the named ones beside them, so the
+ *   shell's own variables reach no layer and no fingerprint.
  */
 function varied(mode: string, at: string, root: string): Record<string, string> {
-  const shared = loadEnv(mode, root, "");
+  const shared = loadEnv(mode, root, PREFIXES);
+  const own = at === root ? {} : loadEnv(mode, at, PREFIXES);
 
-  return at === root ? shared : { ...shared, ...loadEnv(mode, at, "") };
+  return { ...shared, ...own, ...named() };
 }
 
 /**

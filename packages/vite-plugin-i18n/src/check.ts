@@ -172,8 +172,10 @@ interface Defined {
  * @remarks
  *   A package defines whatever keys it ships. Another package may override one, and the override is
  *   checked for placeholders. The application may override too, but may not add a key to a
- *   namespace a package owns, because a key nobody else defines is a typo. One owner declaring a
- *   key in two files is a fault wherever it happens, because the merge would silently pick one.
+ *   namespace a package owns, because a key nobody else defines is a typo. Which files are the
+ *   application's own is the search's call, and a package under its own root has none: what it
+ *   adds to a namespace is what it ships. One owner declaring a key in two files is a fault
+ *   wherever it happens, because the merge would silently pick one.
  * @param files - The fallback files of the namespace, in merge order.
  * @param found - The array faults are pushed onto.
  * @returns The namespace's contents, flattened.

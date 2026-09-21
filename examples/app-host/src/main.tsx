@@ -12,14 +12,14 @@ import { Suspense } from "react";
 import { createRoot } from "react-dom/client";
 
 import { Dashboard } from "#dashboard.ts";
-import { endpoints, join } from "#endpoints.ts";
+import { endpoints, join, where } from "#endpoints.ts";
 import { Shell } from "#shell.tsx";
 import { watching } from "#stale.ts";
 
 /**
- * Locates the file the deployment serves to say where the remotes are.
+ * Locates the file the deployment serves to say where the remotes are, beside the documents.
  */
-const WHERE = "/remotes.json";
+const WHERE = where(import.meta.env.BASE_URL);
 
 /**
  * Looks up the element the host mounts its shell in, or null on a page without one.

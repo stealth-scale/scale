@@ -10,10 +10,9 @@
  * @packageDocumentation
  */
 
-export { type Options } from "@stealthscale/vite-plugin-specimen";
-
 export { catalogue } from "#catalogue.ts";
 export { crawled } from "#crawled.ts";
 export { indexed } from "#indexed.ts";
 export { layers } from "#layers.ts";
+export type { Options } from "#types.ts";
 export { workspace } from "#workspace.ts";

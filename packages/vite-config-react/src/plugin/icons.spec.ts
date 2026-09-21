@@ -1,7 +1,8 @@
 import { type Plugin } from "vite";
+import { parseAst } from "vite/rolldown/parseAst";
 import { describe, expect, it } from "vitest";
 
-import { fileOf, iconized, icons } from "#plugin/icons.ts";
+import { fileOf, iconized, icons, type Parse } from "#plugin/icons.ts";
 
 const KNOWN = new Set([
   "CheckIcon",
@@ -16,6 +17,18 @@ function answers(exported: string): boolean {
 }
 
 /**
+ * Parses a source the way the bundler's own parser does.
+ */
+const parse: Parse = (code, lang) => parseAst(code, { lang });
+
+/**
+ * Rewrites a source with the fixture's answers.
+ */
+function rewritten(code: string): null | string {
+  return iconized(code, answers, parse);
+}
+
+/**
  * Runs the plugin's transform over a source, resolving every icon file the fixture knows.
  */
 async function transformed(code: string, id = "/work/src/glyph.tsx"): Promise<null | string> {
@@ -26,6 +39,8 @@ async function transformed(code: string, id = "/work/src/glyph.tsx"): Promise<nu
   if (typeof transform !== "function") throw new Error("the plugin has no transform hook");
 
   const context = {
+    parse: (source: string, options: { lang: Parameters<Parse>[1] }): ReturnType<Parse> =>
+      parseAst(source, { lang: options.lang }),
     resolve: (specifier: string): Promise<{ id: string } | null> => {
       const found = [...KNOWN].some((name) => specifier.endsWith(`/${fileOf(name)}.mjs`));
 
@@ -70,9 +85,7 @@ describe("fileOf", () => {
 
 describe("iconized", () => {
   it("imports each icon from its own file", () => {
-    expect(
-      iconized('import { CheckIcon, Smartphone } from "lucide-react";\nexport {};\n', answers),
-    ).toBe(
+    expect(rewritten('import { CheckIcon, Smartphone } from "lucide-react";\nexport {};\n')).toBe(
       'import CheckIcon from "lucide-react/dist/esm/icons/check.mjs"; ' +
         'import Smartphone from "lucide-react/dist/esm/icons/smartphone.mjs";\nexport {};\n',
     );
@@ -80,29 +93,31 @@ describe("iconized", () => {
 
   it("keeps a name no icon file answers to on the root import and drops a type", () => {
     expect(
-      iconized(
-        'import { CheckIcon, createLucideIcon, type LucideIcon } from "lucide-react";\n',
-        answers,
-      ),
+      rewritten('import { CheckIcon, createLucideIcon, type LucideIcon } from "lucide-react";\n'),
     ).toBe(
       'import CheckIcon from "lucide-react/dist/esm/icons/check.mjs"; ' +
         'import { createLucideIcon } from "lucide-react";\n',
     );
-    expect(iconized('import { CheckIcon, type LucideIcon } from "lucide-react";\n', answers)).toBe(
+    expect(rewritten('import { CheckIcon, type LucideIcon } from "lucide-react";\n')).toBe(
       'import CheckIcon from "lucide-react/dist/esm/icons/check.mjs";\n',
     );
   });
 
   it("binds a renamed import under the name the file wrote", () => {
-    expect(iconized('import { CheckIcon as Tick } from "lucide-react";\n', answers)).toBe(
+    expect(rewritten('import { CheckIcon as Tick } from "lucide-react";\n')).toBe(
+      'import Tick from "lucide-react/dist/esm/icons/check.mjs";\n',
+    );
+  });
+
+  it("reads an export named as a string the way it reads an identifier", () => {
+    expect(rewritten('import { "CheckIcon" as Tick } from "lucide-react";\n')).toBe(
       'import Tick from "lucide-react/dist/esm/icons/check.mjs";\n',
     );
   });
 
   it("keeps the line count of an import written over several lines", () => {
-    const written = iconized(
+    const written = rewritten(
       'import {\n  CheckIcon,\n  Smartphone,\n} from "lucide-react";\nconst a = 1;\n',
-      answers,
     );
 
     expect(written?.split("\n")).toHaveLength(6);
@@ -110,12 +125,41 @@ describe("iconized", () => {
   });
 
   it("answers nothing for a file that imports nothing from the root", () => {
-    expect(iconized('import { a } from "other";\n', answers)).toBeNull();
-    expect(iconized('import lucide from "lucide-react";\n', answers)).toBeNull();
+    expect(rewritten('import { a } from "other";\n')).toBeNull();
+    expect(rewritten('import lucide from "lucide-react";\n')).toBeNull();
+    expect(rewritten('import * as lucide from "lucide-react";\n')).toBeNull();
   });
 
   it("answers nothing where no name has an icon file", () => {
-    expect(iconized('import { type LucideIcon } from "lucide-react";\n', answers)).toBeNull();
+    expect(rewritten('import { type LucideIcon } from "lucide-react";\n')).toBeNull();
+    expect(rewritten('import type { LucideIcon, CheckIcon } from "lucide-react";\n')).toBeNull();
+  });
+
+  it("leaves an import written inside a string or a comment or a template as it was", () => {
+    const code = [
+      "const text = 'import { CheckIcon } from \"lucide-react\";';",
+      '// import { Smartphone } from "lucide-react";',
+      '/* import { Smartphone } from "lucide-react"; */',
+      'const shown = `import { CheckIcon } from "lucide-react";`;',
+      'import { CheckIcon } from "lucide-react";',
+      "",
+    ].join("\n");
+
+    expect(rewritten(code)).toBe(
+      code.replace(
+        '\nimport { CheckIcon } from "lucide-react";',
+        '\nimport CheckIcon from "lucide-react/dist/esm/icons/check.mjs";',
+      ),
+    );
+  });
+
+  it("keeps a comment between two imports and the quoting of the rest", () => {
+    const code =
+      "import { CheckIcon } from 'lucide-react';\n// kept\nimport { a } from \"other\";\n";
+
+    expect(rewritten(code)).toBe(
+      'import CheckIcon from "lucide-react/dist/esm/icons/check.mjs";\n// kept\nimport { a } from "other";\n',
+    );
   });
 });
 
@@ -148,6 +192,12 @@ describe("icons", () => {
     await expect(
       transformed('import { Nope as no, type LucideIcon } from "lucide-react";\n'),
     ).resolves.toBeNull();
+  });
+
+  it("parses a plain script file as one", async () => {
+    await expect(
+      transformed('import { CheckIcon } from "lucide-react";\n', "/work/src/glyph.js"),
+    ).resolves.toBe('import CheckIcon from "lucide-react/dist/esm/icons/check.mjs";\n');
   });
 
   it("leaves a file under node_modules and a file of another kind alone", async () => {

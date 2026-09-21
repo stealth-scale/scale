@@ -142,11 +142,12 @@ describe("Page", () => {
     expect(container.textContent).toBe("BadgeDataExamples0Props");
   });
 
-  it("draws no scene where the module failed to load", async () => {
+  it("says why the module failed to load and offers a reload under the head", async () => {
     const broken: Indexed = { ...entry({}), load: () => Promise.reject(new Error("gone")) };
-    const { container } = await drawn(<Page entry={broken} />);
+    const { getByRole } = await drawn(<Page entry={broken} />);
 
-    expect(container.textContent).toBe("BadgeDataExamples0Props");
+    expect(getByRole("alert").textContent).toBe("This page could not be loaded: gone");
+    expect(getByRole("button", { name: "Reload the page" })).toBeDefined();
   });
 
   it("leaves the page alone when it is taken off the screen before the module arrives", () => {

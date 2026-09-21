@@ -10,6 +10,7 @@ describe("index", () => {
       "exportTarget",
       "imported",
       "importer",
+      "installedOf",
       "licensed",
       "literal",
       "locked",
@@ -20,8 +21,10 @@ describe("index", () => {
       "quoted",
       "reached",
       "resolvedOnGraph",
+      "scratchDir",
       "syncDir",
       "text",
+      "withLock",
       "writeIfChanged",
     ]);
   });

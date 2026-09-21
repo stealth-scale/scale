@@ -111,14 +111,45 @@ describe("useAnatomy", () => {
     expect(result.current.parts).toBeUndefined();
   });
 
-  it("draws no parts at all where the props fail to load", async () => {
+  it("reports why the props failed to load rather than answering with no parts", async () => {
     expect.hasAssertions();
 
     const page = indexed(() => Promise.reject(new Error("no props")));
     const { result } = renderHook(() => useAnatomy(page, true));
 
     await waitFor(() => {
-      expect(result.current.parts).toStrictEqual([]);
+      expect(result.current.failure?.message).toBe("no props");
     });
+
+    expect(result.current.parts).toBeUndefined();
+  });
+
+  it("reports a rejection that is no error by what it said", async () => {
+    expect.hasAssertions();
+
+    // eslint-disable-next-line typescript/prefer-promise-reject-errors -- a loader that fails with something other than an error is what the case covers
+    const page = indexed(() => Promise.reject("Failed to fetch"));
+    const { result } = renderHook(() => useAnatomy(page, true));
+
+    await waitFor(() => {
+      expect(result.current.failure?.message).toBe("Failed to fetch");
+    });
+  });
+
+  it("keeps nothing for a page taken off the screen before the props fail", async () => {
+    const held: { reject?: (reason: Error) => void } = {};
+    const pending = new Promise<Anatomy>((_, reject) => {
+      held.reject = reject;
+    });
+    const page = indexed(() => pending);
+    const { result, unmount } = renderHook(() => useAnatomy(page, true));
+
+    unmount();
+    held.reject?.(new Error("gone"));
+    await pending.catch(() => {});
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(result.current.failure).toBeUndefined();
   });
 });

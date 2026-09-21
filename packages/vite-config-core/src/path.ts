@@ -30,7 +30,9 @@ function walkable(value: unknown): value is Held {
  *   `test.setupFiles`, which leaves a property whose own name holds a dot out
  *   of reach. Every level along it is copied and everything beside it is
  *   carried over by reference, a missing level is created, and anything at the
- *   end that is not an array is thrown away for a list holding the one item.
+ *   end that is not an array is thrown away for a list holding the one item. A
+ *   level that holds a list of objects, such as a `pack` stated as several
+ *   bundles, is walked into each object, so the item reaches every bundle.
  */
 export function appended<Of extends object>(held: Of, path: string, item: unknown): Of {
   const dot = path.indexOf(".");
@@ -40,7 +42,20 @@ export function appended<Of extends object>(held: Of, path: string, item: unknow
   const grown =
     dot < 0
       ? [...(Array.isArray(below) ? (below as readonly unknown[]) : []), item]
-      : appended(walkable(below) ? below : {}, path.slice(dot + 1), item);
+      : descended(below, path.slice(dot + 1), item);
 
   return { ...held, [step]: grown };
+}
+
+/**
+ * Continues the path below one level: into each object of a list, or into the one object there.
+ */
+function descended(below: unknown, rest: string, item: unknown): unknown {
+  if (Array.isArray(below)) {
+    return (below as readonly unknown[]).map((each) =>
+      walkable(each) ? appended(each, rest, item) : each,
+    );
+  }
+
+  return appended(walkable(below) ? below : {}, rest, item);
 }

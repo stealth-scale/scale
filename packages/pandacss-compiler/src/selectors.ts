@@ -84,6 +84,36 @@ const CLASS = ".";
 const NOT = ":not";
 
 /**
+ * Matches a class an author named inside a raw selector condition, such as `.childBox` in
+ * `[&_.childBox]:c_red`.
+ */
+const NAMED = /\.[\w-]+/gu;
+
+/**
+ * Lists the classes an author named inside the raw conditions of the compiler's classes in one
+ * selector.
+ *
+ * @remarks
+ *   A declaration nested under a selector, such as `css({ "& .childBox": { color: "red" } })`,
+ *   compiles to a rule whose subject is the compiler's class and whose descendant is the author's,
+ *   and the author's class also appears inside the raw condition of the compiler's. The markup
+ *   carries the author's class as written, so the rename leaves it alone.
+ */
+function authoredIn(root: selectorParser.Root): ReadonlySet<string> {
+  const found = new Set<string>();
+
+  root.walkClasses((node) => {
+    for (const condition of conditionsOf(node.value)) {
+      if (!condition.startsWith(RAW)) continue;
+
+      for (const match of condition.matchAll(NAMED)) found.add(match[0].slice(1));
+    }
+  });
+
+  return found;
+}
+
+/**
  * Tells whether a node is an at-rule.
  */
 function isAtRule(node: Node | undefined): node is AtRule {
@@ -177,17 +207,22 @@ function drop(node: selectorParser.Node): void {
 }
 
 /**
- * Builds the selector transform for one call: it renames each class, then removes each selector
- * that needs a class no element carries.
+ * Builds the selector transform for one call: it renames each class the compiler wrote, then
+ * removes each selector that needs a class no element carries.
  *
  * @remarks
- *   The removals run after the walk, so the walk never visits a node its own callback removed.
+ *   The removals run after the walk, so the walk never visits a node its own callback removed. A
+ *   class an author named inside a raw condition is passed over, because the markup carries it as
+ *   written.
  */
 function transformer(config: CompilerConfig, pass: Pass): (selector: string) => string {
   const processor = selectorParser((root) => {
     const dead: selectorParser.ClassName[] = [];
+    const authored = authoredIn(root);
 
     root.walkClasses((node) => {
+      if (authored.has(node.value)) return;
+
       const renamed = renamedOf(node.value, config, pass);
 
       if (renamed === "") dead.push(node);

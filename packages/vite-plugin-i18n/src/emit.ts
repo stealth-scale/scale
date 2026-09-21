@@ -191,22 +191,32 @@ export function pairModule(files: readonly Catalogue[]): string {
 }
 
 /**
- * Generates the loader table: one dynamic import per pair, so a namespace costs one request.
+ * Generates the loader table: one dynamic import per pair of a language the module does not
+ * inline, so a namespace costs one request and an inlined one costs none.
  *
+ * @remarks
+ *   Every entry ends in its own comma, so a table with no language and a language with no
+ *   namespace both close as an object rather than as a bare comma. An inlined language gets no
+ *   loader. The runtime reads its words from the bundle and never asks for them, and a loader it
+ *   never calls still made the bundler write every pair of the language as a chunk beside the same
+ *   words inlined: the docs build wrote the catalogue's whole `specimen` namespace twice.
  * @param index - The indexed catalogues.
+ * @param inlining - The languages the module inlines.
  * @returns The table as JavaScript source.
  */
-function loaders(index: CatalogueIndex): string {
-  const languages = [...index.entries()].map(([language, byNamespace]) => {
-    const imports = [...byNamespace.keys()].map(
-      (namespace) =>
-        `    ${JSON.stringify(namespace)}: () => import(${JSON.stringify(pairId(language, namespace))})`,
-    );
+function loaders(index: CatalogueIndex, inlining: ReadonlySet<string>): string {
+  const languages = [...index.entries()]
+    .filter(([language]) => !inlining.has(language))
+    .map(([language, byNamespace]) => {
+      const imports = [...byNamespace.keys()].map(
+        (namespace) =>
+          `    ${JSON.stringify(namespace)}: () => import(${JSON.stringify(pairId(language, namespace))}),`,
+      );
 
-    return `  ${JSON.stringify(language)}: {\n${imports.join(",\n")},\n  }`;
-  });
+      return `  ${JSON.stringify(language)}: {\n${imports.join("\n")}\n  },`;
+    });
 
-  return `{\n${languages.join(",\n")},\n}`;
+  return languages.length === 0 ? "{}" : `{\n${languages.join("\n")}\n}`;
 }
 
 /**
@@ -253,8 +263,9 @@ function namespacesIn(index: CatalogueIndex): readonly string[] {
  */
 export function cataloguesModule(index: CatalogueIndex, fallback: string, eager = false): string {
   const languages = [...index.keys()].toSorted();
+  const inlining = eager ? languages : [fallback];
   const bundled = Object.fromEntries(
-    (eager ? languages : [fallback]).map((language) => [language, inlined(index, language)]),
+    inlining.map((language) => [language, inlined(index, language)]),
   );
 
   return [
@@ -263,7 +274,7 @@ export function cataloguesModule(index: CatalogueIndex, fallback: string, eager 
     `export const namespaces = ${JSON.stringify(namespacesIn(index))};`,
     `export const bundled = ${JSON.stringify(bundled)};`,
     `export const defaults = bundled[fallback] ?? {};`,
-    `const loaders = ${eager ? "{}" : loaders(index)};`,
+    `const loaders = ${loaders(index, new Set(inlining))};`,
     "",
     "export async function load(language, namespace) {",
     "  const loader = loaders[language]?.[namespace];",

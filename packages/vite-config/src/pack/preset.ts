@@ -4,6 +4,7 @@
 
 import { type Layer } from "@stealthscale/vite-config-core";
 
+import { builtins } from "#pack/builtins.ts";
 import { carry } from "#pack/carry.ts";
 import { declarations } from "#pack/declarations.ts";
 import { inventory } from "#pack/inventory.ts";
@@ -24,14 +25,14 @@ export function base(): readonly Layer[] {
 }
 
 /**
- * Takes the base group for a library that only ever runs on a server.
+ * Extends the base group for a library that only ever runs on a server.
  *
  * @remarks
- *   The packer already resolves for node, so this adds nothing. A package calls it to say which
- *   runtime it targets, which stops the choice from being invisible when that changes.
+ *   The platform is stated rather than left to the packer's default, which happens to be node, so
+ *   the choice is visible where it is made and survives a packer whose default changes.
  */
 export function node(): readonly Layer[] {
-  return base();
+  return [...base(), platform("node")];
 }
 
 /**
@@ -39,8 +40,12 @@ export function node(): readonly Layer[] {
  *
  * @remarks
  *   The runtime is fixed to neutral rather than to the browser, because a library reaching the
- *   browser is usually also imported by a server rendering it.
+ *   browser is usually also imported by a server rendering it. Neutral says nothing about
+ *   built-ins, so the pack refuses them separately: a Node built-in reached from such a library
+ *   fails the pack rather than the browser. A package on this tier that states
+ *   `pack.platform("node")` over it, because it reads files under a test runner, is packed for node
+ *   and refused nothing.
  */
 export function web(): readonly Layer[] {
-  return [...base(), platform("neutral")];
+  return [...base(), platform("neutral"), builtins()];
 }

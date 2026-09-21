@@ -1,14 +1,31 @@
 /**
  * Covers the writes a generator makes: one that leaves an unchanged file alone, one that clears a
  * directory, and one that makes a directory match another.
+ *
+ * @remarks
+ *   The unreadable-source case takes read permission off a directory, which a process running as
+ *   root is not held to. Run the suite as an ordinary user.
  */
 
-import { existsSync, statSync, utimesSync } from "node:fs";
+import { chmodSync, existsSync, statSync, utimesSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import { withScratchWorkspace } from "@stealthscale/testing";
 
 import { emptyDir, syncDir, writeIfChanged } from "#fs.ts";
+
+/**
+ * Runs a function and returns the message it threw, or an empty string where it returned.
+ */
+function failing(run: () => void): string {
+  try {
+    run();
+
+    return "";
+  } catch (error: unknown) {
+    return error instanceof Error ? error.message : String(error);
+  }
+}
 
 /**
  * Writes `content` to one file in a scratch workspace holding `files`, and reads the file back.
@@ -46,6 +63,32 @@ describe("fs", () => {
 
   it("overwrites a file whose content differs", () => {
     expect(written({ "a/b/c.txt": "one" }, "two")).toStrictEqual({ content: "two", wrote: true });
+  });
+
+  it("leaves no staged file beside the one it wrote", () => {
+    const files = withScratchWorkspace({ "a/b/c.txt": "one" }, (workspace) => {
+      writeIfChanged(workspace.path("a/b/c.txt"), "two");
+
+      return workspace.files();
+    });
+
+    expect(files).toStrictEqual(["a/b/c.txt"]);
+  });
+
+  it("throws when the file exists and cannot be read", () => {
+    const message = withScratchWorkspace({ "a/b/c.txt": "one" }, (workspace) => {
+      chmodSync(workspace.path("a/b/c.txt"), 0o000);
+
+      try {
+        return failing(() => {
+          writeIfChanged(workspace.path("a/b/c.txt"), "two");
+        });
+      } finally {
+        chmodSync(workspace.path("a/b/c.txt"), 0o644);
+      }
+    });
+
+    expect(message).toMatch(/EACCES/u);
   });
 
   it("deletes a directory and everything under it", () => {
@@ -121,6 +164,26 @@ describe("fs", () => {
 
   it("empties the target when the source is absent", () => {
     expect(synced({ "to/a.txt": "a" })).toStrictEqual([]);
+  });
+
+  it("stops before deleting anything when the source cannot be listed", () => {
+    const outcome = withScratchWorkspace(
+      { "from/a.txt": "a", "to/kept.txt": "kept" },
+      (workspace) => {
+        chmodSync(workspace.path("from"), 0o000);
+
+        const message = failing(() => {
+          syncDir(workspace.path("from"), workspace.path("to"));
+        });
+
+        chmodSync(workspace.path("from"), 0o755);
+
+        return { files: workspace.files().filter((file) => file.startsWith("to/")), message };
+      },
+    );
+
+    expect(outcome.message).toMatch(/EACCES/u);
+    expect(outcome.files).toStrictEqual(["to/kept.txt"]);
   });
 
   it("does nothing when both directories are absent", () => {

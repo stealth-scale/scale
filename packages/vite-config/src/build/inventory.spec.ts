@@ -13,6 +13,10 @@ interface Writing {
   generateBundle: (this: unknown) => void;
 }
 
+function isWriting(value: unknown): value is Writing {
+  return typeof value === "object" && value !== null && "generateBundle" in value;
+}
+
 function described(): string {
   const at = mkdtempSync(join(tmpdir(), "stealth-build-inventory-"));
 
@@ -21,12 +25,14 @@ function described(): string {
   return at;
 }
 
-function written(
+async function written(
   stated: Partial<Context> = {},
   supplier?: Parameters<typeof inventory>[0],
-): Map<string, string> {
+): Promise<Map<string, string>> {
   const held = new Map<string, string>();
-  const plugin = inventory(supplier).itemOf?.(told(stated)) as Writing;
+  const plugin: unknown = await inventory(supplier).itemOf?.(told(stated));
+
+  if (!isWriting(plugin)) throw new Error("the contribution built no plugin");
 
   plugin.configResolved({ root: described() });
   plugin.generateBundle.call({
@@ -37,12 +43,15 @@ function written(
   return held;
 }
 
-function document(at: string, stated: Partial<Context> = {}): Record<string, unknown> {
-  return JSON.parse(written(stated).get(at) ?? "{}") as Record<string, unknown>;
+async function document(
+  at: string,
+  stated: Partial<Context> = {},
+): Promise<Record<string, unknown>> {
+  return JSON.parse((await written(stated)).get(at) ?? "{}") as Record<string, unknown>;
 }
 
-function metadata(stated: Partial<Context> = {}): Record<string, unknown> {
-  return document("cyclonedx/bom.json", stated)["metadata"] as Record<string, unknown>;
+async function metadata(stated: Partial<Context> = {}): Promise<Record<string, unknown>> {
+  return (await document("cyclonedx/bom.json", stated))["metadata"] as Record<string, unknown>;
 }
 
 describe("inventory", () => {
@@ -58,44 +67,52 @@ describe("inventory", () => {
     expect(inventory().name).toBe("build.inventory");
   });
 
-  it("writes one copy beside the output and one where a scanner reaches for it", () => {
-    expect([...written().keys()].toSorted()).toStrictEqual([
+  it("constructs the plugin when the configuration is composed and not when the layer is stated", () => {
+    expect(inventory().item).toBeUndefined();
+  });
+
+  it("writes one copy beside the output and one where a scanner reaches for it", async () => {
+    expect([...(await written()).keys()].toSorted()).toStrictEqual([
       ".well-known/sbom",
       "cyclonedx/bom.json",
     ]);
   });
 
-  it("writes the same document to both paths", () => {
-    const held = written();
+  it("writes the same document to both paths", async () => {
+    const held = await written();
 
     expect(held.get(".well-known/sbom")).toBe(held.get("cyclonedx/bom.json"));
   });
 
-  it("describes an application", () => {
-    expect((metadata()["component"] as Record<string, unknown>)["type"]).toBe("application");
+  it("describes an application", async () => {
+    expect(((await metadata())["component"] as Record<string, unknown>)["type"]).toBe(
+      "application",
+    );
   });
 
-  it("supplies the house", () => {
-    expect((metadata()["supplier"] as Record<string, unknown>)["name"]).toBe("Stealth Scale B.V.");
+  it("supplies the house", async () => {
+    expect(((await metadata())["supplier"] as Record<string, unknown>)["name"]).toBe(
+      "Stealth Scale B.V.",
+    );
   });
 
-  it("supplies the author the repository names instead", () => {
-    const source = written({}, { name: "Acme", url: ["https://acme.example"] });
+  it("supplies the author the repository names instead", async () => {
+    const source = await written({}, { name: "Acme", url: ["https://acme.example"] });
     const held = JSON.parse(source.get("cyclonedx/bom.json") ?? "{}") as Record<string, unknown>;
     const supplier = (held["metadata"] as Record<string, unknown>)["supplier"];
 
     expect((supplier as Record<string, unknown>)["name"]).toBe("Acme");
   });
 
-  it("includes a serial number and a timestamp for a release", () => {
-    const held = document("cyclonedx/bom.json", { mode: "production" });
+  it("includes a serial number and a timestamp for a release", async () => {
+    const held = await document("cyclonedx/bom.json", { mode: "production" });
 
     expect(held["serialNumber"]).toBeDefined();
     expect((held["metadata"] as Record<string, unknown>)["timestamp"]).toBeDefined();
   });
 
-  it("includes neither in development", () => {
-    const held = document("cyclonedx/bom.json");
+  it("includes neither in development", async () => {
+    const held = await document("cyclonedx/bom.json");
 
     expect(held["serialNumber"]).toBeUndefined();
     expect((held["metadata"] as Record<string, unknown>)["timestamp"]).toBeUndefined();

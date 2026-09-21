@@ -11,19 +11,42 @@ import { useUpdated } from "#catalogue/updated.ts";
 import { type Specimen } from "#page.ts";
 
 /**
+ * Describes what {@link useDeclared} returns: the page, or why there is none.
+ */
+export interface Loaded {
+  /**
+   * Why the page could not be loaded, or nothing where it loaded or is still loading.
+   */
+  readonly failure: Error | undefined;
+
+  /**
+   * The page as declared, or nothing until it has loaded, where it failed, or where the module
+   * declares none.
+   */
+  readonly page: Specimen | undefined;
+}
+
+/**
  * Pairs a loaded page with the entry it was loaded for, so a page loaded for one entry is never
  * read as another's.
  */
-interface Declared {
+interface Declared extends Loaded {
   /**
    * The entry the page was loaded for.
    */
   readonly entry: Indexed;
+}
 
-  /**
-   * The page as declared, or nothing where it failed to load or declares none.
-   */
-  readonly page: Specimen | undefined;
+/**
+ * Nothing loaded, which is what a reader sees until the module arrives and where no entry is named.
+ */
+const NOTHING: Loaded = { failure: undefined, page: undefined };
+
+/**
+ * Turns whatever a rejected import carried into an error a reader can be shown.
+ */
+function failed(reason: unknown): Error {
+  return reason instanceof Error ? reason : new Error(String(reason));
 }
 
 /**
@@ -35,11 +58,13 @@ interface Declared {
  *   components are fetched. The page is kept beside the entry it was loaded for and read back only
  *   while the entry is the same, so a change of entry shows nothing rather than the page before it,
  *   without a state reset in the effect. A hot update the index reports for the page replaces its
- *   module in place.
+ *   module in place. A module that fails to load is reported as the failure it was, and not as a
+ *   page with nothing on it: a chunk a deployment no longer serves reads the same as an empty page
+ *   otherwise, and a reader cannot tell the two apart.
  * @param entry - The entry the index holds for the page, or nothing where no page is named yet.
- * @returns The page as declared, or nothing until it has loaded or where it fails.
+ * @returns The page as declared, or the failure, or neither until the module has loaded.
  */
-export function useDeclared(entry: Indexed | undefined): Specimen | undefined {
+export function useDeclared(entry: Indexed | undefined): Loaded {
   const [loaded, setLoaded] = useState<Declared | undefined>();
 
   useEffect(() => {
@@ -52,9 +77,9 @@ export function useDeclared(entry: Indexed | undefined): Specimen | undefined {
       try {
         const module = await named.load();
 
-        if (watching) setLoaded({ entry: named, page: declared(module) });
-      } catch {
-        if (watching) setLoaded({ entry: named, page: undefined });
+        if (watching) setLoaded({ entry: named, failure: undefined, page: declared(module) });
+      } catch (error) {
+        if (watching) setLoaded({ entry: named, failure: failed(error), page: undefined });
       }
     }
 
@@ -67,9 +92,9 @@ export function useDeclared(entry: Indexed | undefined): Specimen | undefined {
 
   useUpdated(entry?.id ?? "", (update) => {
     if (entry !== undefined && update.module !== undefined) {
-      setLoaded({ entry, page: declared(update.module) });
+      setLoaded({ entry, failure: undefined, page: declared(update.module) });
     }
   });
 
-  return loaded !== undefined && loaded.entry === entry ? loaded.page : undefined;
+  return loaded !== undefined && loaded.entry === entry ? loaded : NOTHING;
 }
