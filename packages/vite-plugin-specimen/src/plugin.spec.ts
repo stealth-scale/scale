@@ -13,7 +13,7 @@ import {
 } from "@stealthscale/testing";
 
 import { kit } from "#anatomy/kit.fixtures.ts";
-import { FRAGMENTS, ID, PROPS } from "#options.ts";
+import { ID, PROPS } from "#options.ts";
 import { specimens } from "#plugin.ts";
 
 const RESOLVED = ID;
@@ -108,7 +108,7 @@ describe("plugin", () => {
     expect(held).toMatchObject({ server: { watch: { ignored: ["**/coverage/**"] } } });
   });
 
-  it("names the chunk a page's module and its fragments land in after the page", async () => {
+  it("names the chunk a page's module and its props", async () => {
     const named = await serving(TREE, async (plugin, scratch) => {
       await loaded(plugin, RESOLVED);
 
@@ -124,29 +124,16 @@ describe("plugin", () => {
       return [
         name(scratch.path("src/badge.specimen.tsx")),
         name(`${scratch.path("src/badge.specimen.tsx")}?rolldown-lazy=1`),
-        name(`${FRAGMENTS}data/badge`),
         name(`${PROPS}data/badge`),
         name(scratch.path("src/other.ts")),
       ];
     });
 
-    expect(named).toStrictEqual([
-      "data-badge",
-      "data-badge",
-      "data-badge",
-      "data-badge-props",
-      null,
-    ]);
+    expect(named).toStrictEqual(["data-badge", "data-badge", "data-badge-props", null]);
   });
 
   it("resolves the index specifier to an identifier of its own", async () => {
     await expect(resolved(specimens({ patterns: PATTERNS }), ID)).resolves.toBe(RESOLVED);
-  });
-
-  it("resolves a fragments specifier to an identifier of its own", async () => {
-    await expect(
-      resolved(specimens({ patterns: PATTERNS }), `${FRAGMENTS}data/badge`),
-    ).resolves.toBe(`${FRAGMENTS}data/badge`);
   });
 
   it("declines any other specifier", async () => {
@@ -176,16 +163,6 @@ describe("plugin", () => {
     expect(held.slice(1)).toStrictEqual([undefined, undefined]);
   });
 
-  it("makes a page's fragments accept their own hot update", async () => {
-    const held = await serving(TREE, async (plugin) => {
-      await loaded(plugin, RESOLVED);
-
-      return (await loaded(plugin, `${FRAGMENTS}data/badge`, hookContext())) ?? "";
-    });
-
-    expect(held).toContain('{ detail: { fragments: replaced, id: "data/badge" } }');
-  });
-
   it("lists the page a specimen declares", async () => {
     await expect(index()).resolves.toMatch(/id: "data\/badge"/u);
   });
@@ -196,39 +173,6 @@ describe("plugin", () => {
 
   it("names the package the specimen belongs to", async () => {
     await expect(index()).resolves.toMatch(/package: "@kit\/data"/u);
-  });
-
-  it("serves one page's scenes as source", async () => {
-    const held = await serving(TREE, async (plugin) => {
-      await loaded(plugin, RESOLVED);
-
-      return (await loaded(plugin, `${FRAGMENTS}data/badge`, hookContext())) ?? "";
-    });
-
-    expect(held).toMatch(/export const fragments/u);
-  });
-
-  it("cuts the scene a page declares into its own snippet", async () => {
-    const held = await serving(TREE, async (plugin) => {
-      await loaded(plugin, RESOLVED);
-
-      return (await loaded(plugin, `${FRAGMENTS}data/badge`, hookContext())) ?? "";
-    });
-
-    expect(held).toMatch(/Sizes/u);
-  });
-
-  it("watches the page's file from its fragments", async () => {
-    const held = await serving(TREE, async (plugin, scratch) => {
-      const context = hookContext();
-
-      await loaded(plugin, RESOLVED);
-      await loaded(plugin, `${FRAGMENTS}data/badge`, context);
-
-      return context.watched.map((file) => file.slice(scratch.root.length + 1));
-    });
-
-    expect(held).toStrictEqual(["src/badge.specimen.tsx"]);
   });
 
   it("answers a bundler that hands the update no environment nothing", async () => {
@@ -332,18 +276,6 @@ describe("plugin", () => {
     });
 
     expect(held).toBeUndefined();
-  });
-
-  it("reloads a page's fragments when its file changed", async () => {
-    const held = await serving(TREE, async (plugin, scratch) => {
-      await loaded(plugin, RESOLVED);
-
-      return updating(plugin, scratch.path("src/badge.specimen.tsx"), BADGE, [
-        `${FRAGMENTS}data/badge`,
-      ]);
-    });
-
-    expect(held).toHaveLength(1);
   });
 
   it("reaches nothing of its own when a file it lists no page for changed", async () => {

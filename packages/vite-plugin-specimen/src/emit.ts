@@ -7,7 +7,7 @@ import { relative } from "node:path";
 import { literal, manifestAt, owning, quoted, text } from "@stealthscale/vite-plugin-base";
 
 import { type Anatomy, type Read, type Source } from "#contract.ts";
-import { FRAGMENTS, PROPS, UPDATED } from "#options.ts";
+import { PROPS, UPDATED } from "#options.ts";
 import { isRefused, read } from "#read.ts";
 
 /**
@@ -108,8 +108,8 @@ export function ownerOf(path: string, owners: Owners = new Map()): string {
  * Generates the loader properties of one listing.
  *
  * @remarks
- *   A refused file loads a rejection carrying the reason, and carries neither a fragments nor a
- *   props loader. `propped` states whether the index was asked to read props at all.
+ *   A refused file loads a rejection carrying the reason, and carries no props loader. `propped`
+ *   states whether the index was asked to read props at all.
  */
 function loaders(result: Read, propped: boolean): readonly string[] {
   if (isRefused(result)) {
@@ -117,7 +117,6 @@ function loaders(result: Read, propped: boolean): readonly string[] {
   }
 
   return [
-    `    fragments: () => import(${quoted(`${FRAGMENTS}${result.id}`)}),`,
     `    load: () => import(${quoted(result.path)}),`,
     ...(propped ? [`    props: () => import(${quoted(`${PROPS}${result.id}`)}),`] : []),
   ];
@@ -223,35 +222,15 @@ export function written(listed: ReadonlyMap<string, Listed>): string {
  *   new module and hands it to the callback, and the callback dispatches {@link UPDATED} on the
  *   window with the page's identifier and the module, under the key the catalogue reads it by.
  * @param page - The page's identifier.
- * @param key - The key the module is reported under: `module` for the page's own, `fragments`
- *   for its sources.
+ * @param key - The key the module is reported under, which is `module` for the page's own.
  * @returns The statement, on one line, ending in a newline.
  */
-export function accepting(page: string, key: "fragments" | "module"): string {
+export function accepting(page: string, key: "module"): string {
   const detail = `{ ${key}: replaced, id: ${quoted(page)} }`;
 
   return (
     "if (import.meta.hot) import.meta.hot.accept((replaced) => { if (replaced !== undefined) " +
     `window.dispatchEvent(new CustomEvent(${quoted(UPDATED)}, { detail: ${detail} })); });\n`
-  );
-}
-
-/**
- * Generates the module a catalogue imports one page's scenes as source from, beside the names the
- * page imports from its own package, accepting its own hot update.
- *
- * @param snippets - Each scene's source, keyed by title.
- * @param names - The components the page imports from its own package.
- * @param page - The page's identifier, which the module reports its replacement under.
- */
-export function fragmented(
-  snippets: Readonly<Record<string, string>>,
-  names: readonly string[],
-  page: string,
-): string {
-  return (
-    `export const fragments = ${literal(snippets)};\nexport const imported = ${literal(names)};\n` +
-    accepting(page, "fragments")
   );
 }
 

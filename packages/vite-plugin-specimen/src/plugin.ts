@@ -3,7 +3,6 @@
  * invalidates them when a file changes.
  */
 
-import { readFileSync } from "node:fs";
 import {
   type EnvironmentModuleGraph,
   type EnvironmentModuleNode,
@@ -14,35 +13,21 @@ import {
 import { type Compiler } from "#anatomy/compiler.ts";
 import { type Settled, settled } from "#anatomy/reading.ts";
 import { type Changed, type Indexing, pageOf, pathOf, reindexes, retyped } from "#changed.ts";
-import {
-  accepting,
-  anatomised,
-  fragmented,
-  type Listed,
-  listings,
-  type Resolved,
-  written,
-} from "#emit.ts";
+import { accepting, anatomised, type Listed, listings, type Resolved, written } from "#emit.ts";
 import { found, roots } from "#found.ts";
-import { sliced } from "#fragments.ts";
-import { FRAGMENTS, ID, type Options, PROPS } from "#options.ts";
+import { ID, type Options, PROPS } from "#options.ts";
 
 /**
  * The resolved identifier of the index.
  *
  * @remarks
  *   The specifier itself rather than the specifier behind a NUL, which is the convention that
- *   keeps other plugins off a generated module. A server that bundles loads a page's fragments
+ *   keeps other plugins off a generated module. A server that bundles loads a page's props
  *   through a dynamic import, and its runtime looks a loaded module up by an identifier it
  *   registered without the NUL, so a module behind one loads as nothing. No other plugin reads a
  *   module with no extension, so the convention protects nothing here.
  */
 const RESOLVED = ID;
-
-/**
- * The resolved identifier prefix of a page's fragments. The page's identifier follows it.
- */
-const RESOLVED_FRAGMENTS = FRAGMENTS;
 
 /**
  * The resolved identifier prefix of a page's props. The page's identifier follows it.
@@ -184,10 +169,6 @@ interface Loading {
 /**
  * Generates the module under one resolved identifier.
  *
- * @remarks
- *   A page's fragments are cut from the page's file, so the file is added to the module's watch
- *   list: a server that bundles loads the fragments again when the file changes, where a
- *   middleware server is told which module to reload by the hot update.
  * @returns The generated source, or undefined when the identifier is not this plugin's.
  * @throws {@link Error} When the patterns match nothing, a build meets a file it cannot read, or
  *   the requested page belongs to no listed specimen.
@@ -196,7 +177,6 @@ async function generated(
   state: State,
   patterns: readonly string[],
   id: string,
-  loading: Loading,
 ): Promise<string | undefined> {
   if (id === RESOLVED) {
     const files = found(state.resolved.root, patterns);
@@ -204,18 +184,6 @@ async function generated(
     state.last = listings(state.resolved, files, state.reading !== undefined);
 
     return written(state.last);
-  }
-
-  if (id.startsWith(RESOLVED_FRAGMENTS)) {
-    const page = id.slice(RESOLVED_FRAGMENTS.length);
-    const path = pathOf(state, page);
-    const file = { path, text: readFileSync(path, "utf8") };
-
-    loading.addWatchFile(path);
-
-    const { fragments, imported } = sliced(file);
-
-    return fragmented(fragments, imported, page);
   }
 
   if (!id.startsWith(RESOLVED_PROPS) || state.reading === undefined) return undefined;
@@ -226,22 +194,6 @@ async function generated(
   state.opening ??= compiler(state.resolved.root);
 
   return anatomised((await state.opening).anatomyOf(path, state.reading));
-}
-
-/**
- * Returns the fragments module of a changed page.
- *
- * @returns The module node, and an empty array when nothing imported it.
- */
-function refragmented(
-  indexing: Indexing,
-  file: string,
-  graph: Watching["environment"]["moduleGraph"],
-): EnvironmentModuleNode[] {
-  const page = pageOf(indexing, file);
-  const node = page === undefined ? undefined : graph.getModuleById(`${RESOLVED_FRAGMENTS}${page}`);
-
-  return node === undefined ? [] : [node];
 }
 
 /**
@@ -287,9 +239,9 @@ async function reread(
 const PROPS_CHUNK = "-props";
 
 /**
- * Chooses the chunk a module is written into: the page's, for a page's module and its fragments,
- * the page's props chunk for its props, and none for any other module, which the bundler places
- * as it would have.
+ * Chooses the chunk a module is written into: the page's, for a page's own module, the page's
+ * props chunk for its props, and none for any other module, which the bundler places as it would
+ * have.
  *
  * @remarks
  *   The name is the page's identifier with its slashes turned into hyphens, so a chunk reads as
@@ -304,28 +256,26 @@ function chunkOf(indexing: Indexing, id: string): null | string {
     return `${bare.slice(RESOLVED_PROPS.length).replaceAll("/", "-")}${PROPS_CHUNK}`;
   }
 
-  const page = bare.startsWith(RESOLVED_FRAGMENTS)
-    ? bare.slice(RESOLVED_FRAGMENTS.length)
-    : pageOf(indexing, bare);
+  const page = pageOf(indexing, bare);
 
   return page === undefined ? null : page.replaceAll("/", "-");
 }
 
 /**
  * Writes the configuration the plugin adds: the build output the watcher leaves alone, and a
- * page's module and its fragments in one chunk.
+ * page's module in a chunk named after the page.
  *
  * @remarks
- *   The index reaches a page through two dynamic imports, and the bundler would write a chunk per
- *   import. Named after the page, the two are merged into one chunk, and a page opens with one
+ *   The index reaches a page through a dynamic import, and the lazy form of that import is a second
+ *   module. Named after the page, the two are merged into one chunk, and a page opens with one
  *   request rather than two. The props stay a chunk of their own, because a page loads them only
  *   where somebody opens them. Which file is which page is known once the index has been generated,
  *   which is before the bundler names a page's chunks, because it reaches every page through the
  *   index. The group includes the page's dependencies recursively, so a module only the page
- *   reaches, an icon among them, is bundled into the page's chunk. A group without that leaves
- *   the page's module in a chunk of its own that holds those modules and re-exports the page, and
- *   the two chunks import each other. A value the page computes at module level from a binding
- *   in the other chunk is then `undefined`, because that chunk has not run yet.
+ *   reaches, an icon among them, is bundled into the page's chunk. A group without that leaves the
+ *   page's module in a chunk of its own that holds those modules and re-exports the page, and the
+ *   two chunks import each other. A value the page computes at module level from a binding in the
+ *   other chunk is then `undefined`, because that chunk has not run yet.
  */
 function configured(indexing: Indexing): UserConfig {
   return {
@@ -372,8 +322,8 @@ export function specimens(options: Options): Plugin {
     },
 
     /**
-     * Excludes build output from the watcher and puts a page's module and its fragments in one
-     * chunk.
+     * Excludes build output from the watcher and puts a page's module in a chunk named after the
+     * page.
      */
     config(): UserConfig {
       return configured(state);
@@ -415,11 +365,7 @@ export function specimens(options: Options): Plugin {
       if (environment === undefined) return undefined;
 
       const graph = environment.moduleGraph;
-      const reloaded = [
-        ...changed.modules,
-        ...refragmented(state, changed.file, graph),
-        ...(await reread(state, changed.file, graph)),
-      ];
+      const reloaded = [...changed.modules, ...(await reread(state, changed.file, graph))];
       const index = (await reindexes(state, options.patterns, changed))
         ? graph.getModuleById(RESOLVED)
         : undefined;
@@ -430,7 +376,7 @@ export function specimens(options: Options): Plugin {
     },
 
     /**
-     * Serves the index, one page's fragments, or one page's props.
+     * Serves the index or one page's props.
      *
      * @remarks
      *   Served without a source map. Every module here is generated rather than transformed, and
@@ -441,7 +387,7 @@ export function specimens(options: Options): Plugin {
      *   plugin's.
      */
     async load(this: Loading, id: string): Promise<undefined | Written> {
-      const code = await generated(state, options.patterns, id, this);
+      const code = await generated(state, options.patterns, id);
 
       return code === undefined ? undefined : { code, map: null };
     },
@@ -449,14 +395,14 @@ export function specimens(options: Options): Plugin {
     name: "stealth:specimens",
 
     /**
-     * Claims the index specifier and every fragments and props specifier.
+     * Claims the index specifier and every props specifier.
      *
      * @returns The resolved identifier, or undefined for any other import.
      */
     resolveId(id: string): string | undefined {
       if (id === ID) return RESOLVED;
 
-      return id.startsWith(FRAGMENTS) || id.startsWith(PROPS) ? id : undefined;
+      return id.startsWith(PROPS) ? id : undefined;
     },
 
     /**
@@ -479,8 +425,8 @@ export function specimens(options: Options): Plugin {
      *
      * @remarks
      *   A server that bundles runs no hot update hook and reports a change here, so the compiler
-     *   is restarted here, and the modules are left to the bundler: a page's fragments watch the
-     *   page's file, and the index is generated again when the server starts. A server that
+     *   is restarted here, and the modules are left to the bundler: the index is generated again
+     *   when the server starts. A server that
      *   serves one module per file reports the change to `hotUpdate`, which restarts the compiler
      *   and reloads the props modules through the module graph, so the change is left to that one.
      */

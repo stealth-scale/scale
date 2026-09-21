@@ -10,7 +10,7 @@ describe("contract", () => {
     expectTypeOf<contract.Indexed["props"]>().toEqualTypeOf<
       (() => Promise<contract.Anatomy>) | undefined
     >();
-    expectTypeOf<contract.Fragments>().toHaveProperty("imported");
+    expectTypeOf<contract.Anatomy>().toHaveProperty("parts");
     expectTypeOf<contract.Read>().toEqualTypeOf<contract.Entry | contract.Refused>();
     expectTypeOf<contract.Kind>().toEqualTypeOf<"option" | "variant">();
   });
