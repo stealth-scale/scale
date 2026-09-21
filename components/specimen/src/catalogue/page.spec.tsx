@@ -29,6 +29,8 @@ function marked(): ReactElement {
 
 const SIZES = { about: "Every step.", draw: marked, title: "Sizes" };
 
+const STATEMENT = 'import { Badge } from "@stealthscale/component-data";';
+
 function page(scenes: readonly unknown[]): unknown {
   return { default: { id: "data/badge", scenes } };
 }
@@ -165,7 +167,7 @@ describe("Page", () => {
   });
 
   it("redraws the page with the module a hot update replaced its own with", async () => {
-    const { container, queryAllByText } = await drawn(<Page entry={entry(page([]))} />);
+    const { queryAllByText } = await drawn(<Page entry={entry(page([]))} />);
     const added = { ...SIZES, title: "Added" };
 
     expect(queryAllByText("Added")).toHaveLength(0);
@@ -177,67 +179,23 @@ describe("Page", () => {
     });
 
     expect(queryAllByText("Added")).not.toHaveLength(0);
-
-    act(() => {
-      window.dispatchEvent(
-        new CustomEvent(UPDATED, {
-          detail: { fragments: { fragments: {}, imported: ["Chip"] }, id: "data/badge" },
-        }),
-      );
-    });
-
-    expect(slotElement(container, "code-block", "code").textContent).toBe(
-      'import { Chip } from "@stealthscale/component-data";',
-    );
   });
 
-  it("opens with the import line once the fragments have loaded", async () => {
-    const cut: Indexed = {
-      ...entry(page([SIZES])),
-      fragments: () => Promise.resolve({ fragments: {}, imported: ["Badge"] }),
-    };
-    const { container } = await drawn(<Page entry={cut} />);
+  it("opens with the statement the page declares", async () => {
+    const stated = { default: { id: "data/badge", imports: STATEMENT, scenes: [SIZES] } };
+    const { container } = await drawn(<Page entry={entry(stated)} />);
 
-    expect(slotElement(container, "code-block", "code").textContent).toBe(
-      'import { Badge } from "@stealthscale/component-data";',
-    );
+    expect(slotElement(container, "code-block", "code").textContent).toBe(STATEMENT);
   });
 
-  it("folds a scene's source under its stage once the fragments have loaded", async () => {
-    const cut: Indexed = {
-      ...entry(page([SIZES])),
-      fragments: () =>
-        Promise.resolve({ fragments: { Sizes: "export const sizes = {};" }, imported: [] }),
-    };
-    const { getByRole } = await drawn(<Page entry={cut} />);
+  it("folds the source a scene carries under its stage", async () => {
+    const carried = { ...SIZES, source: '<Badge size="sm" />' };
+    const { getByRole } = await drawn(<Page entry={entry(page([carried]))} />);
 
     expect(getByRole("button", { name: "Source" })).toBeDefined();
   });
 
-  it("draws the scenes without their sources where the fragments fail to load", async () => {
-    const broken: Indexed = {
-      ...entry(page([SIZES])),
-      fragments: () => Promise.reject(new Error("gone")),
-    };
-    const { getByText, queryByRole } = await drawn(<Page entry={broken} />);
-
-    expect(getByText("drawn")).toBeDefined();
-    expect(queryByRole("button", { name: "Source" })).toBeNull();
-  });
-
-  it("keeps quiet when the fragments fail after the page has left the screen", async () => {
-    const broken: Indexed = {
-      ...entry(page([SIZES])),
-      fragments: () => Promise.reject(new Error("gone")),
-    };
-    const { unmount } = render(<Page entry={broken} />);
-
-    unmount();
-
-    await expect(broken.fragments?.()).rejects.toThrow("gone");
-  });
-
-  it("draws the scenes without their sources where the index cut none for the page", async () => {
+  it("draws a scene carrying no source without one", async () => {
     const { getByText, queryByRole } = await drawn(<Page entry={entry(page([SIZES]))} />);
 
     expect(getByText("drawn")).toBeDefined();

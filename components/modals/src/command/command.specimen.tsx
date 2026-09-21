@@ -64,6 +64,7 @@ export default specimen({
   about: "command.about",
   group: "Modals",
   id: "modals/command",
+  imports: 'import { Command } from "@stealthscale/component-modals";',
   scenes: [sizes],
   title: "command.title",
 });

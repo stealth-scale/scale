@@ -18,40 +18,31 @@ vite-plugin-specimen: carry the namespace a page names its catalogue by
   `Indexed.namespace`, empty where it states none, so a catalogue resolves the page's words in the
   namespace they are keys in.
 
-vite-plugin-specimen: list the components a page imports from its own package
+vite-plugin-specimen: drop the fragments module and the syntax tree behind it
 
-- The fragments module exports `imported` beside `fragments`: every value the file binds from a
-  specifier under the package's imports map whose name starts with a capital letter, sorted. A
-  namespace import is listed under its local name, and a type specifier, a type-only declaration and
-  a lowercase binding such as `recipe` are left out.
-
-vite-plugin-specimen: read a name a scope binds as that scope's own
-
-- The slicer collected every identifier of a subtree as a reference, binding positions among them. A
-  parameter named after another scene closed that whole scene into the snippet, so a page of two
-  scenes showed both of them under either one.
-- The walk now tracks what each function binds: its own name, its parameters and the variables its
-  body declares. A name bound inside a scope resolves to no declaration of the file, and a name the
-  scope only mentions still does.
+- `virtual:specimen-fragments/<id>`, `Fragments` and `Indexed.fragments` are gone, with the slicer
+  and the scope walker that built them. A page states its own import line and each scene its own
+  source, so nothing needs the file's syntax tree. The plugin parses the metadata out of the source
+  text as it always did.
+- The package sheds 550 lines of implementation and 473 of specification, and a catalogue makes one
+  request per page rather than two.
 
 vite-plugin-specimen: give a specimen a hot update boundary of its own
 
-- Every listed specimen the plugin transforms, and every fragments module it generates, accepts its
-  own hot update and dispatches `UPDATED` (`specimen:updated`) on the window with the page's
-  identifier and the module that replaced the old one. A specimen exports scenes and constants
-  beside its components, so the refresh runtime could not accept an edit to it, and every save ran
-  the application's own modules again. The catalogue kit listens for the event and redraws the page
-  in place.
-- The index, the fragments and the props modules are resolved to their specifiers as written, with
-  no NUL in front, because a server that bundles registers a module reached through a dynamic import
-  under its identifier and loads a module behind a NUL as nothing.
-- A fragments module watches the page's file, so a server that bundles generates it again on a save.
-  That server runs no hot update hook, so a change to a typed file restarts the compiler from
-  `watchChange` where the environment says it bundles, and the modules are left to the bundler.
+- Every listed specimen the plugin transforms accepts its own hot update and dispatches `UPDATED`
+  (`specimen:updated`) on the window with the page's identifier and the module that replaced the old
+  one. A specimen exports scenes and constants beside its components, so the refresh runtime could
+  not accept an edit to it, and every save ran the application's own modules again. The catalogue
+  kit listens for the event and redraws the page in place.
+- The index and the props modules are resolved to their specifiers as written, with no NUL in front,
+  because a server that bundles registers a module reached through a dynamic import under its
+  identifier and loads a module behind a NUL as nothing.
+- A server that bundles runs no hot update hook, so a change to a typed file restarts the compiler
+  from `watchChange` where the environment says it bundles, and the modules are left to the bundler.
 
-vite-plugin-specimen: merge a page's module and its fragments into one chunk
+vite-plugin-specimen: name a page's chunk after the page
 
-- The plugin names the chunk a page's module and its fragments are bundled into after the page,
+- The plugin names the chunk a page's module is bundled into after the page,
   `actions-button-[hash].js`, so a page opens with one request rather than two. The props keep a
   chunk of their own, loaded where somebody opens them. The catalogue's build writes 185 chunks
   rather than 262.
@@ -70,11 +61,8 @@ vite-plugin-specimen: name a page's props chunk after the page
 - A props module is bundled into a chunk named `<page>-props`, `actions-button-props-[hash].js`,
   rather than one the bundler named after the last segment of the module's identifier, which called
   two pages' props `text` and `menu`.
-- A page's fragments and its imported names come from one parse of the file rather than two.
 - Every string written into a generated module goes through `quoted()` from `vite-plugin-base`,
   which escapes the line and paragraph separators JSON leaves bare.
-- `client.d.ts` declares `imported` on a fragments module, which the module has exported since the
-  names were listed.
 
 vite-plugin-specimen: include a page chunk's dependencies recursively
 

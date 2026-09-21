@@ -183,6 +183,8 @@ export const recipe = defineSlotRecipe({
      *   squaring the corner it runs into.
      */
     variant: {
+      surface: { root: { overflow: "clip" } },
+
       plain: {
         root: {
           "& + &": {
@@ -193,7 +195,6 @@ export const recipe = defineSlotRecipe({
           },
         },
       },
-      surface: { root: { overflow: "clip" } },
     },
   },
 });

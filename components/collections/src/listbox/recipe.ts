@@ -428,8 +428,9 @@ export const recipe = defineSlotRecipe({
      *   the block axis is where the rows scroll and a clip on both would take the scrolling away.
      */
     variant: {
-      plain: { content: { background: "transparent" } },
       surface: { content: { ...surface(), overflowX: "clip" } },
+
+      plain: { content: { background: "transparent" } },
     },
   },
 });

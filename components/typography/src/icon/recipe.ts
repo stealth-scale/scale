@@ -49,8 +49,19 @@ export const recipe = defineRecipe({
     },
     motion: motionVariants(["float", "spin", "twinkle"]),
     size: { ...iconSizes(), inherit: { boxSize: "1em" } },
+    /**
+     * The ink the mark is drawn in.
+     *
+     * @remarks
+     *   The full set of inks, the same one every other component that draws ink alone offers. Drawn
+     *   from a shorter set, a mark beside a word could not be quietened to the subtle ink or turned
+     *   over on a filled surface, which the words next to it could.
+     *   `current` is the mark's own and is what it takes until a caller says otherwise: a mark in a
+     *   line of words is drawn in the ink of those words.
+     */
     tone: {
-      ...toneVariants(["muted", "info", "success", "warning", "error"]),
+      ...toneVariants(),
+
       current: { color: "currentcolor" },
     },
   },

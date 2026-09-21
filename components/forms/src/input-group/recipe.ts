@@ -64,13 +64,14 @@ export const recipe = defineSlotRecipe({
      * Where a mark sits against a control that runs to more than one line.
      */
     align: {
-      center: {
-        end: { alignItems: "center", blockSize: "full" },
-        start: { alignItems: "center", blockSize: "full" },
-      },
       start: {
         end: { alignItems: "start", blockSize: "full" },
         start: { alignItems: "start", blockSize: "full" },
+      },
+
+      center: {
+        end: { alignItems: "center", blockSize: "full" },
+        start: { alignItems: "center", blockSize: "full" },
       },
     },
 

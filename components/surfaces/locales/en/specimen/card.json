@@ -1,28 +1,28 @@
 {
   "about": "Draws a panel a reader takes in on its own: a picture, a header, the substance, and whatever they act on.",
-  "corners": {
-    "about": "Every corner at every size.",
-    "title": "Corners and sizes"
-  },
-  "distribution": {
-    "about": "How the footer shares its room among the controls.",
-    "title": "Distribution"
+  "backdrop": {
+    "about": "Every pattern the theme draws behind a card, at the medium size.",
+    "title": "Backdrops"
   },
   "divided": {
     "about": "The header and the footer ruled apart from the band between them, beside a card left whole.",
     "title": "Divided"
   },
+  "effect": {
+    "about": "The light a card is drawn under, in the informational palette.",
+    "title": "Effect"
+  },
   "interactive": {
     "about": "A card a reader presses, which follows the link in its title and shows its focus, beside one that only holds.",
     "title": "Interactive"
   },
-  "issued": "Issued on 2 September",
   "invoice": "Invoice 4821",
-  "lines": "Three lines, one unbilled.",
-  "looks": {
-    "about": "Every look in every status.",
-    "title": "Looks and statuses"
+  "issued": "Issued on 2 September",
+  "justify": {
+    "about": "How the footer shares its room among the controls.",
+    "title": "Distribution"
   },
+  "lines": "Three lines, one unbilled.",
   "more": "More about this invoice",
   "motion": {
     "about": "How the card enters the page.",
@@ -32,7 +32,19 @@
     "about": "The bands stacked, and the bands side by side.",
     "title": "Orientation"
   },
+  "pressable": {
+    "about": "A card whose whole face follows the link in its title, in the looks worth pressing.",
+    "title": "Pressable"
+  },
+  "radius": {
+    "about": "Every corner at every size.",
+    "title": "Corners and sizes"
+  },
   "remind": "Remind",
   "send": "Send",
-  "title": "Card"
+  "title": "Card",
+  "variant": {
+    "about": "Every look in every status.",
+    "title": "Looks and statuses"
+  }
 }

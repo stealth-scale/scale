@@ -7,7 +7,7 @@ describe("types", () => {
     expect(Object.keys(types)).toStrictEqual([]);
 
     expectTypeOf<types.Indexed>().toHaveProperty("load");
-    expectTypeOf<types.Fragments>().toHaveProperty("imported");
+    expectTypeOf<types.Dropped>().toHaveProperty("foreign");
     expectTypeOf<types.Anatomy>().toHaveProperty("parts");
     expectTypeOf<types.RunOptions>().toHaveProperty("rules");
     expectTypeOf<types.AxeResults>().toHaveProperty("violations");

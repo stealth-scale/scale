@@ -19,6 +19,20 @@ describe("declared", () => {
     expect(declared({ default: { id: "empty", scenes: [] } })?.scenes).toStrictEqual([]);
   });
 
+  it("returns the statement the page declares", () => {
+    const stated = { id: "a", imports: 'import { Badge } from "@acme/kit";', scenes: [] };
+
+    expect(declared({ default: stated })?.imports).toBe('import { Badge } from "@acme/kit";');
+  });
+
+  it("returns no statement where the page declares none", () => {
+    expect(declared({ default: { id: "a", scenes: [] } })?.imports).toBeUndefined();
+  });
+
+  it("returns no statement where the page declares one that is not text", () => {
+    expect(declared({ default: { id: "a", imports: 12, scenes: [] } })?.imports).toBeUndefined();
+  });
+
   it("returns nothing for a module with no default export", () => {
     expect(declared({})).toBeUndefined();
   });

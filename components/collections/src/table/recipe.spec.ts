@@ -56,7 +56,7 @@ describe("recipe", () => {
 
   it("draws a table ruled between its rows at the middle size when nothing is asked for", () => {
     expect(defaultsOf(recipe)).toStrictEqual({
-      align: "middle",
+      align: "center",
       layout: "auto",
       radius: "l2",
       rules: "rows",
@@ -151,7 +151,7 @@ describe("recipe", () => {
   });
 
   it("offers the three places a cell's words sit", () => {
-    expect(valuesOf(recipe, "align")).toStrictEqual(["bottom", "middle", "top"]);
+    expect(valuesOf(recipe, "align")).toStrictEqual(["center", "end", "start"]);
   });
 
   it("stripes the body's own rows in the shallowest well rather than every row of the table", () => {

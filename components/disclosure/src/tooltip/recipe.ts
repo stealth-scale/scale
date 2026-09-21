@@ -15,6 +15,10 @@
  *   A tooltip is quieter than a popover. It holds a few words, so it reads at a label rather than
  *   at body text, and it is capped narrow so a long hint wraps rather than running the width of the
  *   page.
+ *   The control draws no look of its own. A tooltip describes a control that is already on the
+ *   page, so the control is the caller's and is drawn through `as`: a button of the library, a
+ *   link, or whatever the hint belongs to. A look written here would be a second look fighting the
+ *   one the caller passed.
  */
 
 import {

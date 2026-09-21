@@ -147,6 +147,7 @@ export default specimen({
   about: "tabs.about",
   group: "Disclosure",
   id: "disclosure/tabs",
+  imports: 'import { Tabs } from "@stealthscale/component-disclosure";',
   scenes: [looks, fitted, distribution, orientation],
   title: "tabs.title",
 });

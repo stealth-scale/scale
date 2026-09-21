@@ -127,6 +127,7 @@ export default specimen({
   about: "toolbar.about",
   group: "Screen",
   id: "screen/toolbar",
+  imports: 'import { Toolbar } from "@stealthscale/component-screen";',
   scenes: [looks, corners],
   title: "toolbar.title",
 });

@@ -5,20 +5,23 @@ import { slotElement } from "@stealthscale/testing-theme";
 
 import { Import } from "#catalogue/page-import.tsx";
 
+/**
+ * The statement a page of the actions package declares.
+ */
+const STATEMENT = 'import { Button, IconButton } from "@stealthscale/component-actions";';
+
 describe("Import", () => {
-  it("writes the statement that imports the names from the package", async () => {
+  it("writes the statement the page declares", async () => {
     const { container } = await drawn(
-      <Import names={["Button", "IconButton"]} package="@stealthscale/component-actions" />,
+      <Import imports={STATEMENT} package="@stealthscale/component-actions" />,
     );
 
-    expect(slotElement(container, "code-block", "code").textContent).toBe(
-      'import { Button, IconButton } from "@stealthscale/component-actions";',
-    );
+    expect(slotElement(container, "code-block", "code").textContent).toBe(STATEMENT);
   });
 
   it("heads the block with the package's name", async () => {
     const { container } = await drawn(
-      <Import names={["Button"]} package="@stealthscale/component-actions" />,
+      <Import imports={STATEMENT} package="@stealthscale/component-actions" />,
     );
 
     expect(slotElement(container, "code-block", "title").textContent).toBe(
@@ -27,14 +30,20 @@ describe("Import", () => {
   });
 
   it("draws nothing where the index knows no package", async () => {
-    const { container } = await drawn(<Import names={["Button"]} package="" />);
+    const { container } = await drawn(<Import imports={STATEMENT} package="" />);
 
     expect(container.textContent).toBe("");
   });
 
-  it("draws nothing where the page imports no component", async () => {
+  it("draws nothing where the page declares no statement", async () => {
+    const { container } = await drawn(<Import package="@stealthscale/component-actions" />);
+
+    expect(container.textContent).toBe("");
+  });
+
+  it("draws nothing for a page whose statement is empty", async () => {
     const { container } = await drawn(
-      <Import names={[]} package="@stealthscale/component-actions" />,
+      <Import imports="" package="@stealthscale/component-actions" />,
     );
 
     expect(container.textContent).toBe("");

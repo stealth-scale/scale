@@ -51,6 +51,7 @@ export default specimen({
   about: "divider.about",
   group: "Layout",
   id: "layout/divider",
+  imports: 'import { Divider, Stack } from "@stealthscale/component-layout";',
   scenes: [orientations],
   title: "divider.title",
 });

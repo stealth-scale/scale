@@ -16,18 +16,6 @@ declare module "virtual:specimen-index" {
   export const pages: readonly Indexed[];
 }
 
-declare module "virtual:specimen-fragments/*" {
-  /**
-   * Each scene's source, keyed by the scene's title.
-   */
-  export const fragments: Readonly<Record<string, string>>;
-
-  /**
-   * The components the page imports from its own package, sorted.
-   */
-  export const imported: readonly string[];
-}
-
 declare module "virtual:specimen-props/*" {
   import { type Dropped, type Member, type Prop } from "@stealthscale/vite-plugin-specimen";
 

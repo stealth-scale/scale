@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
+import page from "#card/card.specimen.tsx";
 import { recipe } from "#card/recipe.ts";
 
 const PARTS = [
@@ -26,6 +28,14 @@ describe("recipe", () => {
     ).toStrictEqual([]);
   });
 
+  it("draws every axis it offers on its own page", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("shows no source naming a value the recipe no longer offers", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
   it("names its class card", () => {
     expect(recipe.className).toBe("card");
   });
@@ -34,9 +44,11 @@ describe("recipe", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
   });
 
-  it("offers the nine axes a card takes", () => {
+  it("offers the eleven axes a card takes", () => {
     expect(axesOf(recipe)).toStrictEqual([
+      "backdrop",
       "divided",
+      "effect",
       "interactive",
       "justify",
       "motion",
@@ -108,12 +120,18 @@ describe("recipe", () => {
   it("draws the ring when the link in the title takes focus", () => {
     expect(recipe.variants?.["interactive"]?.["true"]?.["root"]).toMatchObject({
       "&:has(.card__title a:focus-visible)": {
-        outlineColor: "var(--focus-ring-color)",
+        outlineColor: "colorPalette.focusRing",
         outlineOffset: "ring",
-        outlineStyle: "var(--focus-ring-style, solid)",
+        outlineStyle: "solid",
         outlineWidth: "ring",
       },
     });
+  });
+
+  it("rings the card in the palette's own focus colour rather than a colour of its own", () => {
+    expect(JSON.stringify(recipe.variants?.["interactive"]?.["true"])).not.toMatch(
+      /#[0-9a-f]{3,8}/iu,
+    );
   });
 
   it("leaves a supplementary control to ring itself", () => {
@@ -131,6 +149,33 @@ describe("recipe", () => {
     expect(recipe.variants?.["divided"]?.["true"]?.["header"]).toMatchObject({
       borderBlockEndWidth: "hairline",
       paddingBlockEnd: "var(--card-inset)",
+    });
+  });
+
+  it("offers every pattern the theme draws as a backdrop", () => {
+    expect(valuesOf(recipe, "backdrop")).toStrictEqual([
+      "aurora",
+      "checker",
+      "dots",
+      "grid",
+      "noise",
+      "spotlight",
+      "stars",
+      "stripes",
+      "vignette",
+    ]);
+  });
+
+  it("drifts the one backdrop that is a gradient rather than a pattern", () => {
+    expect(recipe.variants?.["backdrop"]?.["aurora"]?.["root"]).toStrictEqual({
+      animationStyle: "aurora",
+      layerStyle: "backdrop.aurora",
+    });
+  });
+
+  it("draws the larger of the two glows the theme states", () => {
+    expect(recipe.variants?.["effect"]?.["glow"]).toStrictEqual({
+      root: { layerStyle: "glow.lg" },
     });
   });
 

@@ -68,6 +68,7 @@ export default specimen({
   about: "kbd.about",
   group: "Typography",
   id: "typography/kbd",
+  imports: 'import { Kbd } from "@stealthscale/component-typography";',
   scenes: [looks, statuses],
   title: "kbd.title",
 });

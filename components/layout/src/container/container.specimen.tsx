@@ -81,6 +81,7 @@ export default specimen({
   about: "container.about",
   group: "Layout",
   id: "layout/container",
+  imports: 'import { Container } from "@stealthscale/component-layout";',
   scenes: [measures, gutter],
   title: "container.title",
 });

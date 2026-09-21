@@ -503,6 +503,7 @@ export default specimen({
   about: "menu.about",
   group: "Disclosure",
   id: "disclosure/menu",
+  imports: 'import { Menu } from "@stealthscale/component-disclosure";',
   scenes: [looks, highlights, placements, long, over, everything, submenus, rtl],
   title: "menu.title",
 });

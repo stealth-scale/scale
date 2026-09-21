@@ -118,7 +118,7 @@ describe("Framed", () => {
         }),
       );
       window.dispatchEvent(
-        new CustomEvent("specimen:updated", { detail: { fragments: {}, id: "actions/button" } }),
+        new CustomEvent("specimen:updated", { detail: { id: "actions/button" } }),
       );
     });
 

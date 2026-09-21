@@ -109,6 +109,7 @@ export default specimen({
   about: "input-group.about",
   group: "Forms",
   id: "forms/input-group",
+  imports: 'import { InputGroup, Textarea } from "@stealthscale/component-forms";',
   scenes: [marks, sizes, alignment],
   title: "input-group.title",
 });

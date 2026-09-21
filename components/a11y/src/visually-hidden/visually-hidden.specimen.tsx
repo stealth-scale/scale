@@ -73,6 +73,7 @@ export default specimen({
   about: "visually-hidden.about",
   group: "Accessibility",
   id: "a11y/visually-hidden",
+  imports: 'import { VisuallyHidden } from "@stealthscale/component-a11y";',
   scenes: [focusable],
   title: "visually-hidden.title",
 });

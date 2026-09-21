@@ -139,6 +139,7 @@ export default specimen({
   about: "mark.about",
   group: "Typography",
   id: "typography/mark",
+  imports: 'import { Mark, Text } from "@stealthscale/component-typography";',
   scenes: [looks, corners, effects, motion],
   title: "mark.title",
 });

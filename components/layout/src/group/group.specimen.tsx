@@ -68,6 +68,25 @@ function Gaps(): ReactElement {
 /**
  * Draws three answers, each taking what it needs beside each taking a third.
  */
+/**
+ * Draws a row whose other children recede while a pointer rests on one.
+ */
+function Dim(): ReactElement {
+  const { t } = useWords("group");
+
+  return (
+    <Matrix direction="column" knob="dim" of={EITHER}>
+      {(dim) => (
+        <Group dim={dim}>
+          <Button variant="outline">{t("yes")}</Button>
+          <Button variant="outline">{t("no")}</Button>
+          <Button variant="outline">{t("maybe")}</Button>
+        </Group>
+      )}
+    </Matrix>
+  );
+}
+
 function Grow(): ReactElement {
   const { t } = useWords("group");
 
@@ -159,6 +178,15 @@ export const grow: Scene = {
 };
 
 /**
+ * A row whose other children recede under a pointer.
+ */
+export const dim: Scene = {
+  about: "group.dim.about",
+  draw: Dim,
+  title: "group.dim.title",
+};
+
+/**
  * Every place across the flow.
  */
 export const alignment: Scene = {
@@ -180,6 +208,7 @@ export default specimen({
   about: "group.about",
   group: "Layout",
   id: "layout/group",
-  scenes: [orientation, gaps, grow, alignment, distribution],
+  imports: 'import { Group, Stack } from "@stealthscale/component-layout";',
+  scenes: [orientation, gaps, grow, dim, alignment, distribution],
   title: "group.title",
 });

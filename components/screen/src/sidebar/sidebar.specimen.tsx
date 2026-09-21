@@ -185,6 +185,7 @@ export default specimen({
   about: "sidebar.about",
   group: "Screen",
   id: "screen/sidebar",
+  imports: 'import { Sidebar } from "@stealthscale/component-screen";',
   scenes: [looks, iconic],
   title: "sidebar.title",
 });

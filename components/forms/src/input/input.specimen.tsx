@@ -107,6 +107,7 @@ export default specimen({
   about: "input.about",
   group: "Forms",
   id: "forms/input",
+  imports: 'import { Input } from "@stealthscale/component-forms";',
   scenes: [looks, statuses, states],
   title: "input.title",
 });

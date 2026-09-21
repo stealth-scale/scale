@@ -243,3 +243,7 @@ component-screen: render the switcher's list with the menu's own parts
   control size. The detail uses `fg.subtle` and the `caption` text style. The indicator no longer
   rotates when the menu opens.
 - With `placement="toolbar"` the control takes `inlineSize: fit` and hides the detail.
+- A sticky `Page` band sits at the `sticky` z-index rather than at `1`, which is where `AppShell`
+  pins its own bars. The header, the navigation, the toolbar and the footer all move.
+- `Section`, `Sidebar`, `Switcher` and `Toolbar` list their looks from the loudest down rather than
+  alphabetically. The styles each look draws are unchanged.

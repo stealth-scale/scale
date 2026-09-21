@@ -99,6 +99,7 @@ export default specimen({
   about: "section.about",
   group: "Screen",
   id: "screen/section",
+  imports: 'import { Section } from "@stealthscale/component-screen";',
   scenes: [looks, annotated],
   title: "section.title",
 });

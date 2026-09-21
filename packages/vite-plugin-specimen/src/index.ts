@@ -16,7 +16,6 @@ export {
   type Anatomy,
   type Dropped,
   type Entry,
-  type Fragments,
   type Indexed,
   type Kind,
   type Member,
@@ -25,6 +24,6 @@ export {
   type Refused,
   type Source,
 } from "#contract.ts";
-export { FRAGMENTS, ID, type Options, PROPS, UPDATED } from "#options.ts";
+export { ID, type Options, PROPS, UPDATED } from "#options.ts";
 export { specimens } from "#plugin.ts";
 export { isRefused, read } from "#read.ts";

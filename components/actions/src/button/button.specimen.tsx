@@ -1,21 +1,31 @@
 /**
- * Shows the button: every axis of its recipe crossed with every look, the square that holds one
- * glyph, and the two states a page puts it in.
+ * Shows the button: every axis of its recipe crossed with every look, and the two states a page
+ * puts one in that no axis names.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme or to the recipe reaches the
- *   page without this file changing. Each scene names a different action, so a reader sees the
- *   words vary rather than one label repeated. The words are keys under `button` in the catalogue's
- *   namespace, kept beside this file in `locales/en/specimen/button.json`.
+ *   The axes are built from the recipe, so one added to it reaches this page without the file
+ *   changing. The pressed state and the disabled state are written out, because a page states them
+ *   on the element and the recipe names neither.
+ *   Each scene names a different action, so a reader sees the words vary rather than one label
+ *   repeated. The words are keys under `button` in the catalogue's namespace, kept beside this file
+ *   in `locales/en/specimen/button.json`.
  */
 
 import { type ReactElement } from "react";
 
 import { CheckIcon } from "lucide-react";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import {
+  Matrix,
+  type Scene,
+  scenesOf,
+  specimen,
+  useWords,
+  valuesOf,
+  written,
+} from "@stealthscale/specimen";
 
-import { Button } from "#button/button.ts";
+import { Button, type ButtonProps } from "#button/button.ts";
 import { IconButton } from "#button/icon-button.ts";
 import { recipe } from "#button/recipe.ts";
 
@@ -30,93 +40,14 @@ const LOOKS = valuesOf(recipe, "variant");
 const EITHER = [false, true] as const;
 
 /**
- * Draws every look at every size.
+ * The button as a consumer writes it, which every scene on the page shows as its source, the ones
+ * built from the recipe and the ones written out alike.
  */
-function Looks(): ReactElement {
-  const { t } = useWords("button");
-
-  return (
-    <Matrix across={{ knob: "size", of: valuesOf(recipe, "size") }} knob="variant" of={LOOKS}>
-      {(variant, size) => (
-        <Button size={size} variant={variant}>
-          {t("publish")}
-        </Button>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws every status in every look.
- */
-function Statuses(): ReactElement {
-  const { t } = useWords("button");
-
-  return (
-    <Matrix across={{ knob: "variant", of: LOOKS }} knob="status" of={valuesOf(recipe, "status")}>
-      {(status, variant) => (
-        <Button status={status} variant={variant}>
-          {t("retry")}
-        </Button>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws both elevations in every look.
- */
-function Elevation(): ReactElement {
-  const { t } = useWords("button");
-
-  return (
-    <Matrix
-      across={{ knob: "variant", of: LOOKS }}
-      knob="elevation"
-      of={valuesOf(recipe, "elevation")}
-    >
-      {(elevation, variant) => (
-        <Button elevation={elevation} variant={variant}>
-          {t("upload")}
-        </Button>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the glow in every look.
- */
-function Effects(): ReactElement {
-  const { t } = useWords("button");
-
-  return (
-    <Matrix across={{ knob: "variant", of: LOOKS }} knob="effect" of={valuesOf(recipe, "effect")}>
-      {(effect, variant) => (
-        <Button effect={effect} variant={variant}>
-          {t("celebrate")}
-        </Button>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the square that holds one glyph, at every size in every look.
- */
-function Square(): ReactElement {
-  const { t } = useWords("button");
-
-  return (
-    <Matrix across={{ knob: "variant", of: LOOKS }} knob="size" of={valuesOf(recipe, "size")}>
-      {(size, variant) => (
-        <IconButton aria-label={t("approve")} size={size} variant={variant}>
-          <CheckIcon size="1em" />
-        </IconButton>
-      )}
-    </Matrix>
-  );
-}
+const SAMPLE = {
+  children: "Publish",
+  imports: 'import { Button } from "@stealthscale/component-actions";',
+  name: "Button",
+};
 
 /**
  * Draws a button beside its pressed self, in every look.
@@ -153,65 +84,52 @@ function Disabled(): ReactElement {
 }
 
 /**
- * Every look at every size.
+ * Draws a button naming one action, so a reader sees the words vary from scene to scene rather
+ * than one label repeated down the page.
  */
-export const looks: Scene = {
-  about: "button.looks.about",
-  draw: Looks,
-  title: "button.looks.title",
-};
+function acting(says: string): (props: ButtonProps) => ReactElement {
+  return function Acting(props: ButtonProps): ReactElement {
+    const { t } = useWords("button");
+
+    return <Button {...props}>{t(says)}</Button>;
+  };
+}
 
 /**
- * Every status in every look.
+ * Draws the square that holds one glyph rather than words.
  */
-export const statuses: Scene = {
-  about: "button.statuses.about",
-  draw: Statuses,
-  title: "button.statuses.title",
-};
+function Glyph({ shape, size, variant }: ButtonProps): ReactElement {
+  const { t } = useWords("button");
+
+  return (
+    <IconButton
+      aria-label={t("approve")}
+      {...(shape === undefined ? {} : { shape })}
+      {...(size === undefined ? {} : { size })}
+      {...(variant === undefined ? {} : { variant })}
+    >
+      <CheckIcon size="1em" />
+    </IconButton>
+  );
+}
 
 /**
- * Both elevations in every look.
- */
-export const elevation: Scene = {
-  about: "button.elevation.about",
-  draw: Elevation,
-  title: "button.elevation.title",
-};
-
-/**
- * The glow in every look.
- */
-export const effects: Scene = {
-  about: "button.effects.about",
-  draw: Effects,
-  title: "button.effects.title",
-};
-
-/**
- * The square that holds one glyph.
- */
-export const square: Scene = {
-  about: "button.square.about",
-  draw: Square,
-  title: "button.square.title",
-};
-
-/**
- * The pressed state.
+ * A button beside its pressed self.
  */
 export const pressed: Scene = {
   about: "button.pressed.about",
   draw: Pressed,
+  source: written(SAMPLE, { "aria-pressed": true, variant: "solid" }),
   title: "button.pressed.title",
 };
 
 /**
- * The disabled state.
+ * A button beside its disabled self.
  */
 export const disabled: Scene = {
   about: "button.disabled.about",
   draw: Disabled,
+  source: written(SAMPLE, { disabled: true, variant: "solid" }),
   title: "button.disabled.title",
 };
 
@@ -219,6 +137,23 @@ export default specimen({
   about: "button.about",
   group: "Actions",
   id: "actions/button",
-  scenes: [looks, statuses, elevation, effects, square, pressed, disabled],
+  imports: 'import { Button, IconButton } from "@stealthscale/component-actions";',
+  scenes: [
+    ...scenesOf<ButtonProps>(recipe, {
+      axes: {
+        effect: { across: "variant", draw: acting("celebrate") },
+        elevation: { across: "variant", draw: acting("upload") },
+        shape: { across: "variant", draw: (props) => <Glyph {...props} /> },
+        status: { across: "variant", draw: acting("retry") },
+        variant: { across: "size" },
+      },
+      draw: acting("publish"),
+      namespace: "button",
+      order: ["variant", "status", "elevation", "effect", "shape"],
+      sample: SAMPLE,
+    }),
+    pressed,
+    disabled,
+  ],
   title: "button.title",
 });

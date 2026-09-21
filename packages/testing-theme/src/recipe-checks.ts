@@ -20,6 +20,7 @@ import foundation from "@stealthscale/theme/theme";
 
 import { COMPOSITIONS, conditionNames, semanticColorPaths, tokenPaths } from "#categories.ts";
 import { gated } from "#gate.ts";
+import { orderViolations } from "#ordered.ts";
 import {
   defaultViolations,
   emittedViolations,
@@ -45,6 +46,7 @@ export type RecipeCheck =
   | "recipe.jsx"
   | "recipe.lengths"
   | "recipe.modes"
+  | "recipe.order"
   | "recipe.selections"
   | "recipe.slots"
   | "recipe.tokens"
@@ -509,6 +511,7 @@ const RUNNERS: ReadonlyArray<readonly [RecipeCheck, Runner]> = [
     (recipe, found, options) => lengthViolations(recipe, found.strings, options.lengths ?? []),
   ],
   ["recipe.modes", (recipe, found) => modeViolations(recipe, found)],
+  ["recipe.order", (recipe) => orderViolations(recipe)],
   [
     "recipe.slots",
     (recipe, _found, options) =>

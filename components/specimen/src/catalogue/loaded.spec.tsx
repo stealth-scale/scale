@@ -5,16 +5,15 @@ import { describe, expect, it } from "vitest";
 
 import { drawn } from "@stealthscale/testing-react";
 
-import { useDeclared, useLoadedPage } from "#catalogue/loaded.ts";
+import { useDeclared } from "#catalogue/loaded.ts";
 import { type Indexed } from "#catalogue/types.ts";
 import { UPDATED } from "#catalogue/updated.ts";
 
 const SIZES = { draw: (): ReactElement => <span />, title: "Sizes" };
 
-function entry(load: () => Promise<unknown>, fragments?: Indexed["fragments"]): Indexed {
+function entry(load: () => Promise<unknown>): Indexed {
   return {
     about: "",
-    fragments,
     group: "Data",
     id: "data/badge",
     load,
@@ -23,17 +22,6 @@ function entry(load: () => Promise<unknown>, fragments?: Indexed["fragments"]): 
     path: "src/badge.specimen.tsx",
     title: "Badge",
   };
-}
-
-function Loading({ of }: { readonly of: Indexed }): ReactElement {
-  const { fragments, page } = useLoadedPage(of);
-
-  return (
-    <output>
-      {page?.scenes.map((scene) => scene.title).join(",") ?? "no page"}|
-      {fragments?.imported.join(",") ?? "no fragments"}
-    </output>
-  );
 }
 
 function Declaring({ of }: { readonly of: Indexed | undefined }): ReactElement {
@@ -51,42 +39,26 @@ function updated(detail: Record<string, unknown>): void {
   });
 }
 
-describe("useLoadedPage", () => {
-  it("loads the page and its sources", async () => {
+describe("useDeclared", () => {
+  it("loads the page the entry names", async () => {
     const { container } = await drawn(
-      <Loading
-        of={entry(
-          () => Promise.resolve({ default: { id: "data/badge", scenes: [SIZES] } }),
-          () => Promise.resolve({ fragments: {}, imported: ["Badge"] }),
-        )}
+      <Declaring
+        of={entry(() => Promise.resolve({ default: { id: "data/badge", scenes: [SIZES] } }))}
       />,
     );
 
-    expect(container.textContent).toBe("Sizes|Badge");
+    expect(container.textContent).toBe("Sizes");
   });
 
-  it("holds nothing for a module or sources that fail to load", async () => {
+  it("holds nothing for a module that fails to load", async () => {
     const { container } = await drawn(
-      <Loading
-        of={entry(
-          () => Promise.reject(new Error("gone")),
-          () => Promise.reject(new Error("gone")),
-        )}
-      />,
+      <Declaring of={entry(() => Promise.reject(new Error("gone")))} />,
     );
 
-    expect(container.textContent).toBe("no page|no fragments");
+    expect(container.textContent).toBe("no page");
   });
 
-  it("holds nothing for a page with no sources", async () => {
-    const { container } = await drawn(
-      <Loading of={entry(() => Promise.resolve({ default: { id: "data/badge", scenes: [] } }))} />,
-    );
-
-    expect(container.textContent).toBe("|no fragments");
-  });
-
-  it("keeps quiet when the module or the sources arrive after the page has left the screen", async () => {
+  it("keeps quiet when the module arrives after the page has left the screen", async () => {
     const settle: Array<() => void> = [];
     const held = entry(
       () =>
@@ -95,14 +67,8 @@ describe("useLoadedPage", () => {
             resolve({ default: { id: "data/badge", scenes: [SIZES] } });
           });
         }),
-      () =>
-        new Promise((_, reject) => {
-          settle.push(() => {
-            reject(new Error("gone"));
-          });
-        }),
     );
-    const { unmount } = render(<Loading of={held} />);
+    const { unmount } = render(<Declaring of={held} />);
 
     unmount();
 
@@ -114,22 +80,52 @@ describe("useLoadedPage", () => {
     expect(document.body.textContent).toBe("");
   });
 
-  it("replaces the page and the sources with what a hot update carries", async () => {
+  it("keeps quiet when a module that fails arrives after the page has left the screen", async () => {
+    const settle: Array<() => void> = [];
+    const held = entry(
+      () =>
+        new Promise((_, reject) => {
+          settle.push(() => {
+            reject(new Error("gone"));
+          });
+        }),
+    );
+    const { unmount } = render(<Declaring of={held} />);
+
+    unmount();
+
+    await act(async () => {
+      for (const done of settle) done();
+      await Promise.resolve();
+    });
+
+    expect(document.body.textContent).toBe("");
+  });
+
+  it("replaces the page with what a hot update carries", async () => {
     const { container } = await drawn(
-      <Loading of={entry(() => Promise.resolve({ default: { id: "data/badge", scenes: [] } }))} />,
+      <Declaring
+        of={entry(() => Promise.resolve({ default: { id: "data/badge", scenes: [] } }))}
+      />,
     );
 
     updated({ module: { default: { id: "data/badge", scenes: [SIZES] } } });
 
-    expect(container.textContent).toBe("Sizes|no fragments");
-
-    updated({ fragments: { fragments: {}, imported: ["Chip"] } });
-
-    expect(container.textContent).toBe("Sizes|Chip");
+    expect(container.textContent).toBe("Sizes");
   });
-});
 
-describe("useDeclared", () => {
+  it("leaves the page alone for an update carrying no module", async () => {
+    const { container } = await drawn(
+      <Declaring
+        of={entry(() => Promise.resolve({ default: { id: "data/badge", scenes: [SIZES] } }))}
+      />,
+    );
+
+    updated({});
+
+    expect(container.textContent).toBe("Sizes");
+  });
+
   it("holds nothing while no entry is named", () => {
     const { container } = render(<Declaring of={undefined} />);
 

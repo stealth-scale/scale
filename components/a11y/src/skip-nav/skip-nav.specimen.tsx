@@ -46,6 +46,7 @@ export default specimen({
   about: "skip-nav.about",
   group: "Accessibility",
   id: "a11y/skip-nav",
+  imports: 'import { SkipNav } from "@stealthscale/component-a11y";',
   scenes: [pair],
   title: "skip-nav.title",
 });

@@ -92,8 +92,9 @@ export const recipe = defineSlotRecipe({
      * Where the track sits against a label that runs to more than one line.
      */
     align: {
-      center: { root: { alignItems: "center" } },
       start: { root: { alignItems: "flex-start" } },
+
+      center: { root: { alignItems: "center" } },
     },
 
     radius: onSlot("control", cornerVariants(["l1", "l2", "full"])),
@@ -130,9 +131,11 @@ export const recipe = defineSlotRecipe({
      *   the layer style the palette fills the track with once it is on.
      */
     variant: onSlot("control", {
-      outline: { _checked: { layerStyle: "outline.solid" }, background: "transparent" },
       solid: { _checked: { layerStyle: "fill.solid" } },
+
       subtle: { _checked: { layerStyle: "fill.subtle" } },
+
+      outline: { _checked: { layerStyle: "outline.solid" }, background: "transparent" },
     }),
   },
 });

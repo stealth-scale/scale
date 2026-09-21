@@ -13,8 +13,36 @@ describe("recipe", () => {
     expect(recipe.className).toBe("heading");
   });
 
-  it("offers the five axes a heading takes", () => {
-    expect(axesOf(recipe)).toStrictEqual(["effect", "motion", "size", "tone", "truncate"]);
+  it("offers the six axes a heading takes", () => {
+    expect(axesOf(recipe)).toStrictEqual([
+      "display",
+      "effect",
+      "motion",
+      "size",
+      "tone",
+      "truncate",
+    ]);
+  });
+
+  it("sets a display heading in the middle step of the display role", () => {
+    expect(recipe.variants?.["display"]?.["true"]).toStrictEqual({ textStyle: "display.md" });
+  });
+
+  it("moves a display heading to the quieter and louder steps at the two loudest sizes", () => {
+    expect(recipe.compoundVariants).toStrictEqual([
+      {
+        className: "heading--display-quiet",
+        css: { textStyle: "display.sm" },
+        display: true,
+        size: "2xl",
+      },
+      {
+        className: "heading--display-loud",
+        css: { textStyle: "display.lg" },
+        display: true,
+        size: "4xl",
+      },
+    ]);
   });
 
   it("draws the large heading role when nothing is asked for", () => {

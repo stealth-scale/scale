@@ -589,6 +589,7 @@ export default specimen({
   about: "table.about",
   group: "Collections",
   id: "collections/table",
+  imports: 'import { Table } from "@stealthscale/component-collections";',
   scenes: [
     looks,
     alignment,

@@ -10,18 +10,12 @@ import { type Reading } from "#anatomy/reading.ts";
 export const ID = "virtual:specimen-index";
 
 /**
- * The specifier prefix a catalogue imports one page's scenes as source from. The page's identifier
- * follows it.
- */
-export const FRAGMENTS = "virtual:specimen-fragments/";
-
-/**
  * The specifier prefix a catalogue imports one page's props from. The page's identifier follows it.
  */
 export const PROPS = "virtual:specimen-props/";
 
 /**
- * The event the index dispatches on the window when a page's module or its fragments were replaced
+ * The event the index dispatches on the window when a page's module was replaced
  * by a hot update, carrying the page's identifier and the new module as its detail.
  *
  * @remarks

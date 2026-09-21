@@ -7,6 +7,7 @@ describe("index", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Board",
       "DisplayProvider",
+      "Drawn",
       "FRAMES",
       "Index",
       "Matrix",
@@ -31,10 +32,14 @@ describe("index", () => {
       "parted",
       "routeId",
       "scene",
+      "scenesOf",
       "specimen",
+      "stale",
+      "uncovered",
       "useWords",
       "valuesOf",
       "widthsOf",
+      "written",
     ]);
   });
 

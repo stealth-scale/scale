@@ -3,15 +3,7 @@ import { describe, expect, it } from "vitest";
 import { withScratchWorkspace } from "@stealthscale/testing";
 
 import { type Source } from "#contract.ts";
-import {
-  accepting,
-  anatomised,
-  fragmented,
-  listings,
-  ownerOf,
-  type Resolved,
-  written,
-} from "#emit.ts";
+import { accepting, anatomised, listings, ownerOf, type Resolved, written } from "#emit.ts";
 
 const SERVING: Resolved = { command: "serve", root: "/work" };
 
@@ -48,14 +40,6 @@ describe("emit", () => {
     expect(listed(held, "/work/src/badge/badge.specimen.tsx")).not.toMatch(/\?raw|source:/u);
   });
 
-  it("imports a page's fragments under its identifier", () => {
-    const held = listings(SERVING, [file("feedback/badge")]);
-
-    expect(listed(held, "/work/src/badge/badge.specimen.tsx")).toMatch(
-      /virtual:specimen-fragments\/feedback\/badge/u,
-    );
-  });
-
   it("records the identifier a listing is addressed by", () => {
     const held = listings(SERVING, [file("feedback/badge")]);
 
@@ -78,12 +62,6 @@ describe("emit", () => {
     const held = listings(SERVING, [{ path: "/work/a.specimen.tsx", text: "export default 1;\n" }]);
 
     expect(listed(held, "/work/a.specimen.tsx")).toMatch(/Promise\.reject/u);
-  });
-
-  it("carries no fragments loader on a refused file", () => {
-    const held = listings(SERVING, [{ path: "/work/a.specimen.tsx", text: "export default 1;\n" }]);
-
-    expect(listed(held, "/work/a.specimen.tsx")).not.toMatch(/fragments:/u);
   });
 
   it("throws when a build met a file it cannot read", () => {
@@ -119,9 +97,7 @@ describe("emit", () => {
         'window.dispatchEvent(new CustomEvent("specimen:updated", ' +
         '{ detail: { module: replaced, id: "data/badge" } })); });\n',
     );
-    expect(accepting("data/badge", "fragments")).toContain(
-      '{ fragments: replaced, id: "data/badge" }',
-    );
+    expect(accepting("data/badge", "module")).toContain('{ module: replaced, id: "data/badge" }');
   });
 
   it("carries a props loader when the index was asked to read props", () => {
@@ -144,13 +120,6 @@ describe("emit", () => {
     );
   });
 
-  it("writes the fragments as one exported record beside the imported names that accepts its own update", () => {
-    expect(fragmented({ Sizes: "const a = 1;" }, ["Badge"], "data/badge")).toBe(
-      'export const fragments = {"Sizes": "const a = 1;"};\nexport const imported = ["Badge"];\n' +
-        accepting("data/badge", "fragments"),
-    );
-  });
-
   it("escapes a separator JSON leaves bare in a snippet and in a listing", () => {
     const separated = `a${String.fromCodePoint(0x2028)}b`;
     const escaped = `"a${String.raw`\u`}2028b"`;
@@ -159,7 +128,6 @@ describe("emit", () => {
       { path: "/root/x.specimen.tsx", text: source },
     ]);
 
-    expect(fragmented({ Sizes: separated }, [], "data/badge")).toContain(`"Sizes": ${escaped}`);
     expect(written(held)).toContain(`about: ${escaped}`);
   });
 

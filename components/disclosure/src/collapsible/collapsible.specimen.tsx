@@ -123,6 +123,7 @@ export default specimen({
   about: "collapsible.about",
   group: "Disclosure",
   id: "disclosure/collapsible",
+  imports: 'import { Collapsible } from "@stealthscale/component-disclosure";',
   scenes: [looks, motion, preview],
   title: "collapsible.title",
 });

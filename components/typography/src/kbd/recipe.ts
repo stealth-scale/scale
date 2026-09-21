@@ -11,9 +11,11 @@
  */
 
 import {
+  below,
   defineRecipe,
   dense,
   flatVariants,
+  sizeVariants,
   statusEmitted,
   statusVariants,
 } from "@stealthscale/theme/authoring";
@@ -38,23 +40,23 @@ export const recipe = defineRecipe({
   jsx: [/Kbd$/u],
   staticCss: [statusEmitted()],
   variants: {
-    size: {
-      lg: {
-        height: dense("{sizes.control.md}"),
-        paddingInline: dense("{spacing.inset.sm}"),
-        textStyle: "label.md",
-      },
-      md: {
-        height: dense("{sizes.control.sm}"),
-        paddingInline: dense("{spacing.inset.xs}"),
-        textStyle: "label.sm",
-      },
-      sm: {
-        height: dense("{sizes.control.xs}"),
-        paddingInline: dense("{spacing.inset.xs}"),
-        textStyle: "label.xs",
-      },
-    },
+    /**
+     * How large the keycap is, a step under the control it stands for.
+     *
+     * @remarks
+     *   The height and the label come from the step below, because a keycap in a line of words is
+     *   a mark on the words rather than a control of its own. The room on either side comes from
+     *   two steps below, which keeps a one-character cap close to square at every size.
+     */
+    size: sizeVariants(
+      (size) => ({
+        height: dense(`{sizes.control.${below(size)}}`),
+        paddingInline: dense(`{spacing.inset.${below(below(size))}}`),
+        textStyle: `label.${below(size)}`,
+      }),
+      ["sm", "md", "lg"],
+    ),
+
     status: statusVariants(),
     variant: {
       ...flatVariants(["outline", "subtle", "plain"]),

@@ -30,13 +30,30 @@ export const recipe = defineRecipe({
   jsx: [/Text$/u],
   variants: {
     align: {
-      center: { textAlign: "center" },
-      end: { textAlign: "end" },
-      justify: { textAlign: "justify" },
       start: { textAlign: "start" },
+
+      center: { textAlign: "center" },
+
+      end: { textAlign: "end" },
+
+      justify: { textAlign: "justify" },
     },
+
+    /**
+     * Which edges the words fade out at, for a passage cut short by the room it is given.
+     *
+     * @remarks
+     *   All three fades the theme draws. `bottom` fades the last lines of a passage that runs past
+     *   its box, `edges` fades both inline ends of a line that scrolls, and `radial` fades a block
+     *   away from its middle. Only the first was offered, so the other two were drawn by the theme
+     *   and reachable from nothing.
+     */
     mask: {
       bottom: { layerStyle: "mask.bottom" },
+
+      edges: { layerStyle: "mask.edges" },
+
+      radial: { layerStyle: "mask.radial" },
     },
     motion: motionVariants(["fade", "rise", "reveal"]),
     size: textSizes("body"),

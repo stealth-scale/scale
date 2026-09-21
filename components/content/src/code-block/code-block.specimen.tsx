@@ -217,6 +217,7 @@ export default specimen({
   about: "code-block.about",
   group: "Content",
   id: "content/code-block",
+  imports: 'import { CodeBlock } from "@stealthscale/component-content";',
   scenes: [file, sizes, languages, plain, modes],
   title: "code-block.title",
 });

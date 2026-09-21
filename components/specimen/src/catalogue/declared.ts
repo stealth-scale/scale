@@ -33,9 +33,10 @@ export function declared(module: unknown): Specimen | undefined {
 
   const scenes: unknown = Reflect.get(page, "scenes");
   const id: unknown = Reflect.get(page, "id");
+  const imports: unknown = Reflect.get(page, "imports");
 
   if (typeof id !== "string" || !Array.isArray(scenes)) return undefined;
   if (!scenes.every((one: unknown) => isScene(one))) return undefined;
 
-  return { id, scenes };
+  return typeof imports === "string" ? { id, imports, scenes } : { id, scenes };
 }

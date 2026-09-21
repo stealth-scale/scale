@@ -145,6 +145,7 @@ export default specimen({
   about: "fieldset.about",
   group: "Forms",
   id: "forms/fieldset",
+  imports: 'import { Field, Fieldset } from "@stealthscale/component-forms";',
   scenes: [sizes, orientations, statuses, states],
   title: "fieldset.title",
 });

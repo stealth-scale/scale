@@ -70,3 +70,14 @@ component-typography: give a scene that reads once the width runs out a room
 - The heading's and the span's truncate scenes and the list's alignment scene stand in a room at a
   measure their words pass, so the cut line, the wrapped line and the three places of a mark differ.
   Each read the same in every value before.
+- `Code`, `Kbd` and `Blockquote` build their `size` axis through `sizeVariants` rather than as an
+  object literal, so the steps run from the smallest up rather than alphabetically. The styles each
+  step draws are unchanged.
+- `Heading` takes a `display` switch, which sets the title in the theme's display role. The role was
+  drawn by the theme and reachable from no component. It takes the middle of the role's three steps,
+  and the `2xl` and `4xl` sizes move it to the quieter and the louder step. It is a switch rather
+  than three more sizes because a class carries the value alone, so a step named `sm` on two axes
+  would write one class for both.
+- `Text` takes all three fades the theme draws as `mask`: `bottom`, `edges` and `radial`. Only
+  `bottom` was offered.
+- `Icon` offers every ink `Text` offers rather than five of the eight, beside its own `current`.

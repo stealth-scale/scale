@@ -1,5 +1,9 @@
 {
   "about": "Draws a heading, in a heading role, an ink, an effect and a motion, at the level `as` names.",
+  "display": {
+    "about": "The theme's loudest role, at the three sizes it reaches.",
+    "title": "Display"
+  },
   "effects": {
     "about": "The two effects a heading can carry: a gradient across the words, and a shine that passes over them.",
     "title": "Effects"

@@ -10,9 +10,11 @@
  */
 
 import {
+  below,
   defineRecipe,
   dense,
   flatVariants,
+  sizeVariants,
   statusEmitted,
   statusVariants,
 } from "@stealthscale/theme/authoring";
@@ -35,10 +37,17 @@ export const recipe = defineRecipe({
   jsx: [/Code$/u],
   staticCss: [statusEmitted()],
   variants: {
-    size: {
-      md: { paddingInline: dense("{spacing.inset.sm}"), textStyle: "code.md" },
-      sm: { paddingInline: dense("{spacing.inset.xs}"), textStyle: "code.sm" },
-    },
+    /**
+     * How loud the snippet is, on the two steps the code role offers.
+     */
+    size: sizeVariants(
+      (size) => ({
+        paddingInline: dense(`{spacing.inset.${below(size)}}`),
+        textStyle: `code.${size}`,
+      }),
+      ["sm", "md"],
+    ),
+
     status: statusVariants(),
 
     /**

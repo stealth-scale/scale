@@ -93,10 +93,13 @@ export const recipe = defineSlotRecipe({
      * How the box round the drawing is drawn.
      */
     variant: {
-      outline: { body: { ...ROOM, ...EDGE } },
-      plain: { body: { background: "transparent", borderWidth: "0", padding: "0" } },
       subtle: { body: { ...ROOM, background: "bg.subtle" } },
+
       surface: { body: { ...ROOM, ...EDGE, background: "bg.subtle" } },
+
+      outline: { body: { ...ROOM, ...EDGE } },
+
+      plain: { body: { background: "transparent", borderWidth: "0", padding: "0" } },
     },
   },
 });

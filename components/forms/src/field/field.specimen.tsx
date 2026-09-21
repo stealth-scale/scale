@@ -146,6 +146,7 @@ export default specimen({
   about: "field.about",
   group: "Forms",
   id: "forms/field",
+  imports: 'import { Field } from "@stealthscale/component-forms";',
   scenes: [sizes, orientations, statuses, states],
   title: "field.title",
 });

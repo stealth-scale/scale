@@ -126,11 +126,18 @@ function inset(size: string): SystemStyleObject {
 
 /**
  * Writes where a cell's words sit against the height of its row.
+ *
+ * @remarks
+ *   The values are the ones every other `align` axis in the library takes, rather than the words
+ *   the `vertical-align` property spells them with. A reader who has learned `align="center"` on a
+ *   stack reads it the same way on a table.
  */
 const VERTICAL = {
-  bottom: { verticalAlign: "bottom" },
-  middle: { verticalAlign: "middle" },
-  top: { verticalAlign: "top" },
+  start: { verticalAlign: "top" },
+
+  center: { verticalAlign: "middle" },
+
+  end: { verticalAlign: "bottom" },
 };
 
 /**
@@ -203,7 +210,7 @@ export const recipe = defineSlotRecipe({
     },
   ],
   defaultVariants: {
-    align: "middle",
+    align: "center",
     layout: "auto",
     radius: "l2",
     rules: "rows",
@@ -420,10 +427,11 @@ export const recipe = defineSlotRecipe({
      *   sit one under another on the same fill.
      */
     variant: {
-      plain: { scroller: { background: "transparent" } },
       surface: {
         scroller: { ...surface(), overflow: "hidden", overflowX: "auto" },
       },
+
+      plain: { scroller: { background: "transparent" } },
     },
   },
 });

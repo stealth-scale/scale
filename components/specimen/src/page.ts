@@ -28,6 +28,20 @@ export interface Scene {
   about?: string;
 
   /**
+   * The axes of the page's recipe this scene draws, so a check can tell which axes a page shows
+   * and which it leaves undrawn.
+   *
+   * @remarks
+   *   Stated rather than read off what the scene renders, because a scene renders a component and
+   *   a component's props are not the recipe's axes: a scene may turn one axis while holding three
+   *   others fixed to make it visible.
+   *   A scene built by `scenesOf` states this itself. A scene written by hand states it where it
+   *   stands in for a generated one, and leaves it out where it shows something other than an
+   *   axis, such as a page's anatomy or a worked example.
+   */
+  axes?: readonly string[] | undefined;
+
+  /**
    * Draws the scene.
    *
    * @remarks
@@ -48,6 +62,19 @@ export interface Scene {
    *   page's edge reads as part of the scene rather than as part of the catalogue.
    */
   frame?: Frame;
+
+  /**
+   * The source a reader copies, where the scene carries its own rather than leaving the index to
+   * cut one out of the file.
+   *
+   * @remarks
+   *   The index cuts a snippet by finding the scene's declaration in the specimen's text, so a
+   *   scene built at runtime has nothing to cut and shows none. A built scene writes what a
+   *   consumer would write instead: the component, once per value of the axis, which is what the
+   *   scene is drawn to demonstrate. That reads better than the matrix wiring it replaces, which
+   *   is the catalogue's plumbing rather than the component's use.
+   */
+  source?: string | undefined;
 
   /**
    * The name the scene is headed with, which also keys its source in the catalogue.
@@ -87,6 +114,16 @@ export interface Specimen {
    *   Two pages declaring one identifier leave the second unreachable, which the index refuses.
    */
   id: string;
+
+  /**
+   * The statement a reader copies first, which the page opens with. No import line when absent.
+   *
+   * @remarks
+   *   Written out rather than read off the file's own imports, because a page imports the
+   *   catalogue's kit and its icons beside the components it shows, and no rule separates the two
+   *   reliably. A page whose scenes share one sample states the sample's imports here.
+   */
+  imports?: string;
 
   /**
    * The catalogue namespace the page's words are keys in: the title, the opening, and each

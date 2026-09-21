@@ -8,7 +8,6 @@ import { VisuallyHidden } from "@stealthscale/component-a11y";
 import { Section } from "@stealthscale/component-screen";
 
 import { Code } from "#catalogue/code.tsx";
-import { importOf } from "#catalogue/imports.ts";
 import { useWords } from "#words.ts";
 
 /**
@@ -16,12 +15,12 @@ import { useWords } from "#words.ts";
  */
 export interface ImportProps {
   /**
-   * The components' names, as the page imports them.
+   * The statement as the page declares it, or nothing where it declares none.
    */
-  readonly names: readonly string[];
+  readonly imports?: string | undefined;
 
   /**
-   * The package they are imported from.
+   * The package the page's components are imported from, which heads the block.
    */
   readonly package: string;
 }
@@ -34,13 +33,13 @@ export interface ImportProps {
  *   A section, so the scenes after it are parted from it the way they are parted from each other,
  *   and named for a screen reader by a title the eye does not see: the statement is its own
  *   heading on the page. Nothing is drawn where the index knows no package for the page, or the
- *   page imports no component of its own package.
+ *   page declares no statement.
  * @returns The section, or nothing.
  */
-export function Import({ names, package: from }: ImportProps): null | ReactElement {
+export function Import({ imports, package: from }: ImportProps): null | ReactElement {
   const { t } = useWords();
 
-  if (from === "" || names.length === 0) return null;
+  if (from === "" || imports === undefined || imports === "") return null;
 
   return (
     <Section.Root>
@@ -50,7 +49,7 @@ export function Import({ names, package: from }: ImportProps): null | ReactEleme
         </Section.Title>
       </Section.Header>
       <Section.Body>
-        <Code code={importOf(names, from)} title={from} />
+        <Code code={imports} title={from} />
       </Section.Body>
     </Section.Root>
   );

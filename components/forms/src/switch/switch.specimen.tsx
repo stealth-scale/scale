@@ -217,6 +217,7 @@ export default specimen({
   about: "switch.about",
   group: "Forms",
   id: "forms/switch",
+  imports: 'import { Switch } from "@stealthscale/component-forms";',
   scenes: [looks, statuses, corners, states, alignment, spread],
   title: "switch.title",
 });

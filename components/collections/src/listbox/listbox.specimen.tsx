@@ -674,6 +674,7 @@ export default specimen({
   about: "listbox.about",
   group: "Collections",
   id: "collections/listbox",
+  imports: 'import { Listbox } from "@stealthscale/component-collections";',
   scenes: [
     looks,
     picked,

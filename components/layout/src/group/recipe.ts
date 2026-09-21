@@ -72,6 +72,18 @@ export const recipe = defineRecipe({
     align: alignVariants(),
 
     /**
+     * Whether the children the pointer is not on recede while it rests on one of them.
+     *
+     * @remarks
+     *   The theme's own rule, which blurs and quietens every child but the hovered one and
+     *   transitions both so the group settles rather than snaps. It was drawn by the theme and
+     *   reachable from no component until this axis named it.
+     *   A group is where it belongs: the rule reads the hovered child of the element it is set on,
+     *   so it wants a container whose children are peers a reader picks between.
+     */
+    dim: { true: { layerStyle: "dim.others" } },
+
+    /**
      * Whether the children touch and read as one control.
      *
      * @remarks

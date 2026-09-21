@@ -57,3 +57,7 @@ component-layout: show the grid's alignment and the stack's wrap in a narrow roo
 - The grid's alignment scene draws four columns with each entry as a tile, so the note wraps and the
   entry stretches. The stack's wrap scene stands each row in the first cell of a grid of four, so
   the seven days pass its end. Both read the same in every value before.
+- `Frame` takes a `blur` axis on the three blurs the theme draws, applied to what the frame holds
+  rather than to the frame. They were reachable from no component.
+- `Group` takes a `dim` switch, which recedes the children the pointer is not resting on. The rule
+  reads the hovered child of the element it is set on, so a group of peers is where it works.

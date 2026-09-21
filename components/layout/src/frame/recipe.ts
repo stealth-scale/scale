@@ -25,10 +25,32 @@ export const recipe = defineRecipe({
   defaultVariants: { fit: "cover", ratio: "square" },
   jsx: [/^Frame$/u],
   variants: {
+    /**
+     * How far what the frame holds is thrown out of focus.
+     *
+     * @remarks
+     *   The three blurs the theme draws, each one a layer style. A frame is the box a picture, a
+     *   video or a map is drawn in, and a picture behind a caption or standing in for one that has
+     *   not loaded is the case for one. They were drawn by the theme and reachable from no
+     *   component until this axis named them.
+     *   What is blurred is grown to cover the frame. A blur samples the pixels around each one it
+     *   writes, and past the edge of a picture there are none, so the picture fades out along all
+     *   four sides and the frame's own rectangle goes with it. Each step grows by rather more than
+     *   its radius costs, and the frame clips what that pushes out.
+     */
+    blur: {
+      sm: { "& > *": { layerStyle: "blur.sm", scale: "1.06" } },
+
+      md: { "& > *": { layerStyle: "blur.md", scale: "1.09" } },
+
+      lg: { "& > *": { layerStyle: "blur.lg", scale: "1.12" } },
+    },
+
     fit: {
       contain: { "& > *": { objectFit: "contain" } },
       cover: { "& > *": { objectFit: "cover" } },
     },
+
     radius: cornerVariants(),
     ratio: ratioVariants(),
   },

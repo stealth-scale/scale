@@ -133,6 +133,7 @@ export default specimen({
   about: "roving-focus.about",
   group: "Accessibility",
   id: "a11y/roving-focus",
+  imports: 'import { RovingFocus } from "@stealthscale/component-a11y";',
   scenes: [orientations, wrap],
   title: "roving-focus.title",
 });

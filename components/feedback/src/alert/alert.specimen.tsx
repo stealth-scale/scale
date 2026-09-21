@@ -194,12 +194,38 @@ function Motion(): ReactElement {
 }
 
 /**
+ * Draws the notice with a bar along each edge the theme draws one for.
+ */
+function Edge(): ReactElement {
+  const { t } = useWords("alert");
+
+  return (
+    <Matrix knob="edge" of={valuesOf(recipe, "edge")}>
+      {(edge) => (
+        <Alert.Root edge={edge} live="off" status="warning">
+          <Notice description={t("restored")} status="warning" title={t("saved")} />
+        </Alert.Root>
+      )}
+    </Matrix>
+  );
+}
+
+/**
  * Every look in every status.
  */
 export const looks: Scene = {
   about: "alert.looks.about",
   draw: Looks,
   title: "alert.looks.title",
+};
+
+/**
+ * The bar a notice carries along one of its edges.
+ */
+export const edge: Scene = {
+  about: "alert.edge.about",
+  draw: Edge,
+  title: "alert.edge.title",
 };
 
 /**
@@ -233,6 +259,7 @@ export default specimen({
   about: "alert.about",
   group: "Feedback",
   id: "feedback/alert",
-  scenes: [looks, layouts, corners, motion],
+  imports: 'import { Alert } from "@stealthscale/component-feedback";',
+  scenes: [looks, edge, layouts, corners, motion],
   title: "alert.title",
 });

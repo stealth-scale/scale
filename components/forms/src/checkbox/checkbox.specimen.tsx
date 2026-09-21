@@ -276,6 +276,7 @@ export default specimen({
   about: "checkbox.about",
   group: "Forms",
   id: "forms/checkbox",
+  imports: 'import { Checkbox } from "@stealthscale/component-forms";',
   scenes: [looks, statuses, corners, states, alignment, spread, motion],
   title: "checkbox.title",
 });

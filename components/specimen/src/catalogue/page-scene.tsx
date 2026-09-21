@@ -64,10 +64,9 @@ export interface SceneSectionProps {
   readonly scene: Scene;
 
   /**
-   * The scene's source: the text, `null` where the index cut none for the scene, or undefined
-   * until the sources have loaded.
+   * The scene's source, or `null` where the scene carries none.
    */
-  readonly source?: null | string | undefined;
+  readonly source: null | string;
 }
 
 /**
@@ -115,7 +114,7 @@ export function SceneSection({
             <Staged frame={frame} ref={stage}>
               <scene.draw />
             </Staged>
-            {source === undefined ? null : <Tools code={source} stage={stage} title={title} />}
+            <Tools code={source} stage={stage} title={title} />
           </Card.Root>
         </Section.Body>
       </Section.Root>

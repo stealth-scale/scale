@@ -16,6 +16,12 @@
  *   more room still takes it.
  *   A popover is louder than a tooltip. It holds a heading, a paragraph and often a control, so it
  *   reads at body text and takes the room a panel needs.
+ *   The control takes the cursor, the focus ring and the disabled look every control in the library
+ *   takes, and no fill, no edge and no room of its own. Drawn with none of them it fell back to the
+ *   browser's own ring, a hairline in the browser's ink rather than the three the theme draws in
+ *   the palette's focus colour, and to the arrow cursor. What it looks like past that is the
+ *   caller's: a caller who wants a button draws one through `as`, and the library's own button is
+ *   then what a theme moves.
  */
 
 import {
@@ -67,6 +73,12 @@ export const recipe = defineSlotRecipe({
     positioner: { position: "relative" },
     root: { display: "contents" },
     title: { fontWeight: "semibold" },
+    trigger: {
+      ...interactive(),
+      alignItems: "center",
+      display: "inline-flex",
+      gap: dense("{spacing.gap.xs}"),
+    },
   },
   className: "popover",
   defaultVariants: { size: "md", variant: "surface" },

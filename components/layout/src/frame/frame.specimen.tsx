@@ -1,19 +1,20 @@
 /**
- * Shows the frame: every ratio at every corner, and the two ways a picture fits.
+ * Shows the frame: every axis it offers, drawn on one picture.
  *
  * @remarks
- *   Every axis is read off the recipe, so a ratio or a corner added to the theme reaches the page
- *   without this file changing. The picture is a small drawing carried in the file as a data URL,
- *   so the page fetches nothing and the picture cannot go missing. It is wide, so a tall frame
- *   shows what each fit does with it. The words are keys under `frame` in the catalogue's
- *   namespace, kept beside this file in `locales/en/specimen/frame.json`.
+ *   The scenes are built from the recipe, so an axis added to it reaches this page without the
+ *   file changing and the page cannot fall behind the component. The picture is a small drawing
+ *   carried in the file as a data URL, so the page fetches nothing and the picture cannot go
+ *   missing. It is wide, so a tall frame shows what each fit does with it. The words are keys
+ *   under `frame` in the catalogue's namespace, kept beside this file in
+ *   `locales/en/specimen/frame.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
-import { Frame } from "#frame/frame.ts";
+import { Frame, type FrameProps } from "#frame/frame.ts";
 import { recipe } from "#frame/recipe.ts";
 
 /**
@@ -28,65 +29,37 @@ const HILLSIDE =
   "%3C/svg%3E";
 
 /**
- * Draws the picture in every ratio at every corner.
+ * Draws the picture in whatever frame the scene hands over.
  */
-function Shapes(): ReactElement {
+function Hillside(props: FrameProps): ReactElement {
   const { t } = useWords("frame");
 
   return (
-    <Matrix
-      across={{ knob: "radius", of: valuesOf(recipe, "radius") }}
-      knob="ratio"
-      of={valuesOf(recipe, "ratio")}
-    >
-      {(ratio, radius) => (
-        <Frame radius={radius} ratio={ratio}>
-          <img alt={t("hillside")} src={HILLSIDE} />
-        </Frame>
-      )}
-    </Matrix>
+    <Frame {...props}>
+      <img alt={t("hillside")} src={HILLSIDE} />
+    </Frame>
   );
 }
-
-/**
- * Draws the wide picture in a tall frame, fitted both ways.
- */
-function Fit(): ReactElement {
-  const { t } = useWords("frame");
-
-  return (
-    <Matrix knob="fit" of={valuesOf(recipe, "fit")}>
-      {(fit) => (
-        <Frame fit={fit} ratio="portrait">
-          <img alt={t("hillside")} src={HILLSIDE} />
-        </Frame>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Every ratio at every corner.
- */
-export const shapes: Scene = {
-  about: "frame.shapes.about",
-  draw: Shapes,
-  title: "frame.shapes.title",
-};
-
-/**
- * The two ways a picture fits.
- */
-export const fit: Scene = {
-  about: "frame.fit.about",
-  draw: Fit,
-  title: "frame.fit.title",
-};
 
 export default specimen({
   about: "frame.about",
   group: "Layout",
   id: "layout/frame",
-  scenes: [shapes, fit],
+  imports: 'import { Frame } from "@stealthscale/component-layout";',
+  scenes: scenesOf<FrameProps>(recipe, {
+    axes: {
+      blur: { with: { ratio: "landscape" } },
+      fit: { with: { ratio: "portrait" } },
+      ratio: { across: "radius" },
+    },
+    draw: (props) => <Hillside {...props} />,
+    namespace: "frame",
+    order: ["ratio", "fit", "blur"],
+    sample: {
+      children: '<img alt="A hillside under a morning sun" src={hillside} />',
+      imports: 'import { Frame } from "@stealthscale/component-layout";',
+      name: "Frame",
+    },
+  }),
   title: "frame.title",
 });

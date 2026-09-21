@@ -64,3 +64,8 @@ testing-theme: read a recipe's styles from the styles rather than from every key
   reported as a color token no theme defines.
 - A recipe may name a CSS system color. A forced-color mode replaces every color an author writes,
   so a recipe naming one is the only way a marked row or a switch's thumb is still seen there.
+- `recipeViolations` runs a `recipe.order` check. An axis whose values all come from a shared
+  vocabulary has to list them in that vocabulary's order: `size` on the scale, `variant` on the
+  looks, and `radius`, `status`, `tone` and `weight` likewise. An axis holding a value no vocabulary
+  names is left alone, so a recipe offering looks of its own is not held to an order. The check
+  reads `orderViolations` from the new `ordered.ts`.
