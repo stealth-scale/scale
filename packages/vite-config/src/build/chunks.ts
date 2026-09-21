@@ -69,14 +69,16 @@ const LIBRARIED: Group = { name: "library", priority: 8, tags: ["$initial"], tes
  *   runtime and the preamble that installs it are modules of the application's chunk. A library
  *   chunk runs before that chunk, so every component in it called a runtime not yet set up and the
  *   page stayed white. The library's chunk is a caching measure for a deploy, and a dev server
- *   deploys nothing, so it is left out there.
+ *   deploys nothing, so it is left out there. No group claims the application's own modules: a
+ *   group with no test claimed every module the patterns left, whichever entry reached it, so two
+ *   pages ran each other's bootstrap. The bundler keeps a module with the entry that reaches it
+ *   where nothing claims it.
  */
 function grouped(command: string): readonly Group[] {
   return [
     { name: "framework", priority: 10, tags: ["$initial"], test: FRAMEWORK },
     ...(command === BUILDING ? [LIBRARIED] : []),
     { name: "vendor", priority: 5, tags: ["$initial"], test: VENDOR },
-    { name: "app", tags: ["$initial"] },
   ];
 }
 
@@ -112,8 +114,8 @@ function split(config: UserConfig, groups: readonly Group[]): UserConfig {
 }
 
 /**
- * Splits a bundle four ways: the rendering runtime, the rest of the dependencies, the house's own
- * packages, the application. A dev server splits it three ways, without the library.
+ * Splits a bundle three ways beside the application: the rendering runtime, the rest of the
+ * dependencies, the house's own packages. A dev server splits it two ways, without the library.
  *
  * @remarks
  *   Priority decides which group claims a module, not the order the groups are written in, so the
@@ -123,10 +125,12 @@ function split(config: UserConfig, groups: readonly Group[]): UserConfig {
  *   imports into the same group, and the library's dependencies would follow it out of the
  *   vendor chunk. Only what an entry reaches statically is grouped, which leaves a lazily
  *   imported module in a chunk of its own and a route that is never visited undownloaded. The
- *   library is a chunk of its own because it changes at another pace than the application drawn
- *   with it: a deploy that touched a page alone leaves the library chunk's name, and the
- *   browser's copy of it, as they were. An override rather than a preset, because only an
- *   override is handed the command.
+ *   application's own modules are claimed by no group, so each entry keeps the modules it reaches
+ *   and two pages of one build run their own bootstrap and not each other's. The library is a
+ *   chunk of its own because it changes at another pace than the application drawn with it: a
+ *   deploy that touched a page alone leaves the library chunk's name, and the browser's copy of
+ *   it, as they were. An override rather than a preset, because only an override is handed the
+ *   command.
  */
 export function chunks(): Override {
   return override({

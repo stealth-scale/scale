@@ -7,6 +7,7 @@
  *   setting each on top of whichever of the two it chose.
  */
 
+export { builtins } from "#pack/builtins.ts";
 export { carry } from "#pack/carry.ts";
 export { command } from "#pack/command.ts";
 export { declarations } from "#pack/declarations.ts";

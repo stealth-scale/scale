@@ -48,7 +48,7 @@ function landing(path: string, context: Refining = BUILDING): string | undefined
 }
 
 describe("chunks", () => {
-  it("splits the runtime the dependencies the library and the application into a chunk each", () => {
+  it("splits the runtime the dependencies and the library into a chunk each", () => {
     expect(landing("/r/node_modules/.pnpm/react-dom@19/node_modules/react-dom/index.js")).toBe(
       "framework",
     );
@@ -61,7 +61,12 @@ describe("chunks", () => {
     expect(
       landing("/r/node_modules/.pnpm/@chakra-ui+react@3/node_modules/@chakra-ui/react/x.js"),
     ).toBe("vendor");
-    expect(landing("/r/apps/docs/src/main.tsx")).toBe("app");
+  });
+
+  it("claims no module of the application's own so each entry keeps what it reaches", () => {
+    expect(landing("/r/apps/docs/src/main.tsx")).toBeUndefined();
+    expect(landing("/r/apps/docs/src/other.tsx", SERVING)).toBeUndefined();
+    expect(splitting().groups.every((group) => group.test !== undefined)).toBe(true);
   });
 
   it("groups the house's own packages into the library wherever they were resolved from", () => {
@@ -77,13 +82,12 @@ describe("chunks", () => {
     );
   });
 
-  it("leaves the library in the application's chunk under a dev server", () => {
+  it("leaves the library with the application under a dev server", () => {
     expect(splitting(SERVING).groups.map((group) => group.name)).toStrictEqual([
       "framework",
       "vendor",
-      "app",
     ]);
-    expect(landing("/r/components/controls/src/index.ts", SERVING)).toBe("app");
+    expect(landing("/r/components/controls/src/index.ts", SERVING)).toBeUndefined();
     expect(landing("/r/node_modules/.pnpm/react@19/node_modules/react/index.js", SERVING)).toBe(
       "framework",
     );
@@ -112,7 +116,7 @@ describe("chunks", () => {
     });
 
     expect(refined.groups[0]).toBe(named);
-    expect(refined.groups.map((group) => group.name)).toHaveLength(5);
+    expect(refined.groups.map((group) => group.name)).toHaveLength(4);
   });
 
   it("keeps whatever else the build output already held", () => {

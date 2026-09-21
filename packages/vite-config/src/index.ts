@@ -19,6 +19,7 @@ export {
   type Defining,
   type Extendable,
   type Layer,
+  located,
   type Manifest,
   named,
   override,
@@ -28,6 +29,7 @@ export {
   preset,
   type Removal,
   remove,
+  resolvingMetadata,
   type Stated,
 } from "@stealthscale/vite-config-core";
 

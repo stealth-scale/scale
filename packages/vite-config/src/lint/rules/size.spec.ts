@@ -23,11 +23,11 @@ describe("size", () => {
     expect(held.max).toBeLessThan(file.max);
   });
 
-  it("caps a specification at twice the lines of a source file", () => {
+  it("caps a specification at three times the lines of a source file", () => {
     const [, file] = SIZE["max-lines"] as [string, { max: number }];
     const [, spec] = SPEC_SIZE["max-lines"] as [string, { max: number }];
 
-    expect(spec.max).toBe(file.max * 2);
+    expect(spec.max).toBe(file.max * 3);
   });
 
   it("counts a specification's lines the way it counts a source file's", () => {

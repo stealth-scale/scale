@@ -31,13 +31,16 @@ function within(path: string): string {
  * Hands back the export map to build from, or nothing at all for a workspace root.
  *
  * @remarks
- *   The root configuration is extended by every package under it, and the root itself publishes
- *   nothing. Separating that case from a missing export map is what lets the missing one be an
+ *   The root of a workspace is told apart by the workspace globs its manifest declares: that
+ *   configuration is extended by every package under it, and the root itself publishes nothing.
+ *   A package that is its own root, standing alone in a repository of its own, declares no globs
+ *   and publishes what its export map says, so it is built like a package below a root.
+ *   Separating the workspace root from a missing export map is what lets the missing one be an
  *   error.
- * @throws {@link Error} When a package below the root declares no exports.
+ * @throws {@link Error} When a package declares no exports.
  */
 function exported(context: Context): Readonly<Record<string, unknown>> | undefined {
-  if (context.at === context.root) return undefined;
+  if (context.manifest.workspaces !== undefined) return undefined;
 
   const stated = context.manifest.exports;
 

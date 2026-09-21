@@ -11,12 +11,19 @@ describe("preset", () => {
     ).not.toContain("platform");
   });
 
-  it("leaves a console package on the packer's own target", () => {
-    expect(node().map((one) => one.name)).toStrictEqual(base().map((one) => one.name));
+  it("states the platform of a console package rather than leaving it to the packer", () => {
+    expect(node().map((one) => one.name)).toStrictEqual([
+      ...base().map((one) => one.name),
+      "pack.platform(node)",
+    ]);
   });
 
-  it("builds a library for no runtime in particular", () => {
-    expect(web().map((one) => one.name)).toContain("pack.platform(neutral)");
+  it("builds a library for no runtime in particular and refuses the built-ins there", () => {
+    expect(web().map((one) => one.name)).toStrictEqual([
+      ...base().map((one) => one.name),
+      "pack.platform(neutral)",
+      "pack.builtins",
+    ]);
   });
 
   it("ships types and checks the manifest in every tier", () => {

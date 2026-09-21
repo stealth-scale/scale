@@ -101,24 +101,24 @@ Sixteen namespaces sit at the package root, one for each part of a configuration
 
 ### Blocks
 
-| Namespace    | What it configures                                                               |
-| ------------ | -------------------------------------------------------------------------------- |
-| `build`      | The output of a deployed application: chunks, preloads, source maps, inventories |
-| `define`     | The constants a build substitutes into a bundle, starting with name and version  |
-| `deps`       | Which dependencies Vite pre-bundles, and which files the scan walks to find them |
-| `federation` | Both sides of a module federation boundary, the host and the remote              |
-| `fmt`        | The formatter: doc comments, import order, manifest key order, prose and style   |
-| `lint`       | The lint tiers, and the departures a repository states on top of one             |
-| `pack`       | The packer that publishes a library: entries, declarations, platform and quality |
-| `preview`    | The preview server: port, interface, hostnames, shared origins and headers       |
-| `resolve`    | What makes a workspace import reach source rather than built output              |
-| `run`        | What a workspace root tells the task runner: the result cache and the task table |
-| `server`     | The development server: port, interface, hostnames, proxied paths and bundling   |
-| `serving`    | The hosts and origins a machine states in `STEALTH_HOSTS` and `STEALTH_ORIGINS`  |
-| `ssr`        | A server-side render build: which dependencies it bundles, and which runtime     |
-| `staged`     | The work a commit does over the files it stages                                  |
-| `test`       | The runner: environment, coverage, isolation, collection, order and projects     |
-| `worker`     | The module format a bundled worker is emitted in                                 |
+| Namespace    | What it configures                                                                       |
+| ------------ | ---------------------------------------------------------------------------------------- |
+| `build`      | The output of a deployed application: chunks, preloads, source maps, inventories         |
+| `define`     | The constants a build substitutes into a bundle, starting with name and version          |
+| `deps`       | Which dependencies Vite pre-bundles, and which files the scan walks to find them         |
+| `federation` | Both sides of a module federation boundary, the host and the remote                      |
+| `fmt`        | The formatter: doc comments, import order, manifest key order, prose and style           |
+| `lint`       | The lint tiers, and the departures a repository states on top of one                     |
+| `pack`       | The packer that publishes a library: entries, declarations, platform, built-ins, quality |
+| `preview`    | The preview server: port, interface, hostnames, shared origins and headers               |
+| `resolve`    | What makes a workspace import reach source rather than built output                      |
+| `run`        | What a workspace root tells the task runner: the result cache and the task table         |
+| `server`     | The development server: port, interface, hostnames, proxied paths and bundling           |
+| `serving`    | The hosts and origins a machine states in `STEALTH_HOSTS` and `STEALTH_ORIGINS`          |
+| `ssr`        | A server-side render build: which dependencies it bundles, and which runtime             |
+| `staged`     | The work a commit does over the files it stages                                          |
+| `test`       | The runner: environment, coverage, isolation, collection, order and projects             |
+| `worker`     | The module format a bundled worker is emitted in                                         |
 
 Note: the linter and the formatter run from the workspace root and read the root configuration only.
 A `lint` or `fmt` layer written in a package composes and merges as any other layer does, and
@@ -127,6 +127,19 @@ neither tool ever reads it. Express a package's own rules as the glob that selec
 Setting `STEALTH_HOSTS` or `STEALTH_ORIGINS` replaces the list the repository declared rather than
 adding to it. Each is a comma-separated list, so a developer gets the names they arranged on their
 own machine and no others.
+
+The packer's layers hold for every form the packer accepts. `pack.hook()` schedules its moments on
+every bundle of a `pack` written as a list, and keeps a registrar function another layer wrote by
+calling it first and adding the moments to the same table. `define.manifest()` writes its constants
+for the packer as well as for Vite, so a library reaches its own name and version as literals.
+`pack.published()` derives entries for a package that is its own root as it does for one below a
+workspace root: the workspace root is told apart by the globs its manifest declares, not by its
+position. `pack.preset.node()` states the `node` platform, and `pack.preset.web()` states `neutral`
+and refuses a Node built-in at the pack through `pack.builtins()`, so a library packed for a browser
+fails where the import is written rather than in the browser. The refusal follows the platform in
+effect: a package on the web tier that states `pack.platform("node")` over it is refused nothing.
+`build.chunks()` claims no module of the application's own: each entry keeps what it reaches, so two
+pages of one build run their own bootstrap.
 
 ## Layers
 

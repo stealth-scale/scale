@@ -50,10 +50,24 @@ describe("hook", () => {
     expect(refined({ pack: {} }, { "build:prepare": one })["build:prepare"]).toBe(one);
   });
 
-  it("ignores hooks declared as a function", () => {
-    const held = refined({ pack: { hooks: one } }, { "build:before": one });
+  it("keeps a registrar another layer wrote and adds the moments to its table after it", async () => {
+    const calls: string[] = [];
+    const registrar = (table: { addHooks: (hooks: object) => void }): void => {
+      calls.push("registrar");
+      table.addHooks({ "build:done": two });
+    };
+    const held = hook({ because: "why", hooks: { "build:before": one } }).refine(ANY, {
+      pack: { hooks: registrar },
+    });
+    const table = {
+      addHooks: (hooks: object): void => {
+        calls.push(...Object.keys(hooks));
+      },
+    };
 
-    expect(held["build:before"]).toBe(one);
+    await (held.pack as { hooks: (given: object) => Promise<void> }).hooks(table);
+
+    expect(calls).toStrictEqual(["registrar", "build:done", "build:before"]);
   });
 
   it("leaves the rest of the pack settings alone", () => {
@@ -68,10 +82,15 @@ describe("hook", () => {
     expect(held.test?.globals).toBe(true);
   });
 
-  it("ignores a packer configured as a list", () => {
-    const held = hook({ because: "why", hooks: {} }).refine(ANY, { pack: [{ dts: true }] });
+  it("schedules the moments on every bundle of a packer configured as a list", () => {
+    const held = hook({ because: "why", hooks: { "build:done": two } }).refine(ANY, {
+      pack: [{ dts: true }, { hooks: { "build:before": one } }],
+    });
 
-    expect((held.pack as { dts?: boolean }).dts).toBeUndefined();
+    expect(held.pack).toStrictEqual([
+      { dts: true, hooks: { "build:done": two } },
+      { hooks: { "build:before": one, "build:done": two } },
+    ]);
   });
 
   it("keeps the reason", () => {

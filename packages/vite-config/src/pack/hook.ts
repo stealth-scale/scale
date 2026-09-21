@@ -4,7 +4,7 @@
 
 import { named, type Override, override } from "@stealthscale/vite-config-core";
 
-import { type Moments } from "#pack/settings.ts";
+import { type Hooks, type Moments, type Packing } from "#pack/settings.ts";
 
 /**
  * Carries a set of moments together with the reason a package scheduled them.
@@ -22,23 +22,53 @@ export interface Hooked {
 }
 
 /**
- * Merges the stated moments into whatever the configuration has already scheduled.
+ * The registrar form of the packer's hooks: a function handed the packer's hook table.
+ */
+type Registrar = Extract<Hooks, (...args: never[]) => unknown>;
+
+/**
+ * Merges the stated moments into what one packer configuration already scheduled.
  *
  * @remarks
  *   A moment another layer has already taken is replaced, and every other moment survives. Hooks
- *   stated as a registrar function are discarded rather than merged, and so is a `pack` field
- *   holding the multi-bundle array form.
+ *   stated as a registrar function are kept: the registrar is called first, and the stated moments
+ *   are added to the same table after it, so what it registered runs beside them.
+ */
+function scheduled(held: Packing | undefined, stated: Moments): Packing {
+  const already = held?.hooks;
+
+  if (typeof already === "function") {
+    const registrar: Registrar = already;
+
+    return {
+      ...held,
+      hooks: async (table) => {
+        await registrar(table);
+        table.addHooks(stated);
+      },
+    };
+  }
+
+  return { ...held, hooks: { ...already, ...stated } };
+}
+
+/**
+ * Merges the stated moments into whatever the configuration has already scheduled.
+ *
+ * @remarks
+ *   A packer configured as a list of bundles gets the moments on every bundle, because a moment
+ *   is scheduled for the package and a bundle is one of the forms the package is packed in.
  */
 export function hook(stated: Hooked): Override {
   return override({
     because: stated.because,
     name: `pack.hook(${Object.keys(stated.hooks).join(", ")})`,
-    refine: (_context, config) => {
-      const held = Array.isArray(config.pack) ? undefined : config.pack;
-      const already: Moments = typeof held?.hooks === "object" ? held.hooks : {};
-
-      return { ...config, pack: { ...held, hooks: { ...already, ...stated.hooks } } };
-    },
+    refine: (_context, config) => ({
+      ...config,
+      pack: Array.isArray(config.pack)
+        ? config.pack.map((one) => scheduled(one, stated.hooks))
+        : scheduled(config.pack, stated.hooks),
+    }),
   });
 }
 
