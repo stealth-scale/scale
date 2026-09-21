@@ -3,12 +3,31 @@
  */
 
 import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { type Contribution, type Override } from "@stealthscale/vite-config";
 
 import { mdx, options } from "#plugin/mdx.ts";
 import { FACTORY } from "#plugin/refresh.ts";
+
+/**
+ * Whether the compiler package is to be found, which a case flips to stand for a checkout without
+ * the optional peer.
+ */
+const absent = vi.hoisted(() => ({ value: false }));
+
+vi.mock(import("@stealthscale/vite-config"), async (importOriginal) => {
+  const actual = await importOriginal();
+
+  return {
+    ...actual,
+    located: (specifier: string, from: string): string => {
+      if (absent.value) throw new Error(`Cannot find module '${specifier}'`);
+
+      return actual.located(specifier, from);
+    },
+  };
+});
 
 type Refining = Parameters<Override["refine"]>[0];
 
@@ -29,14 +48,16 @@ interface Named {
 }
 
 /**
- * Reads the plugin name and phase off whatever the layer put into a plugin list.
+ * Reads the plugin name and phase off whatever the layer put into a plugin list, once settled.
  */
-function named(value: unknown): Named {
-  if (typeof value !== "object" || value === null || !("name" in value)) {
+async function named(value: unknown): Promise<Named> {
+  const held: unknown = await value;
+
+  if (typeof held !== "object" || held === null || !("name" in held)) {
     throw new Error("the plugin list holds something without a name");
   }
 
-  return value as Named;
+  return held as Named;
 }
 
 /**
@@ -69,9 +90,11 @@ describe("mdx", () => {
     ]);
   });
 
-  it("puts the plugin ahead of whatever plugins the tree built and in the pre phase", () => {
+  it("puts the plugin ahead of whatever plugins the tree built and in the pre phase", async () => {
+    vi.stubEnv("VP_RESOLVING_CONFIG_METADATA", "0");
+
     const refined = compiled().refine(CONTEXT, { plugins: [{ name: "other" }] });
-    const [first, second] = (refined.plugins ?? []).map((one) => named(one));
+    const [first, second] = await Promise.all((refined.plugins ?? []).map((one) => named(one)));
 
     expect(first).toStrictEqual(
       expect.objectContaining({ enforce: "pre", name: "@mdx-js/rollup" }),
@@ -80,12 +103,37 @@ describe("mdx", () => {
   });
 
   it("puts the plugin first when the tree built none", () => {
+    vi.stubEnv("VP_RESOLVING_CONFIG_METADATA", "0");
+
     expect(compiled().refine(CONTEXT, {}).plugins).toHaveLength(1);
   });
 
-  it("appends to the packer's plugins rather than replacing them", () => {
+  it("constructs nothing while the toolchain reads the configuration for its metadata", () => {
+    vi.stubEnv("VP_RESOLVING_CONFIG_METADATA", "1");
+
+    const config = { plugins: [{ name: "other" }] };
+
+    expect(compiled().refine(CONTEXT, config)).toBe(config);
+  });
+
+  it("appends to the packer's plugins rather than replacing them", async () => {
     expect(packed().at).toBe("pack.plugins");
-    expect(named(packed().item).name).toBe("@mdx-js/rollup");
+    expect(packed().item).toBeUndefined();
+    await expect(named(packed().itemOf?.(CONTEXT))).resolves.toMatchObject({
+      name: "@mdx-js/rollup",
+    });
+  });
+
+  it("says which package to install where the compiler is not installed", async () => {
+    absent.value = true;
+
+    try {
+      await expect(named(packed().itemOf?.(CONTEXT))).rejects.toThrow(
+        "@mdx-js/rollup, which is an optional peer of @stealthscale/vite-config-react and is not installed",
+      );
+    } finally {
+      absent.value = false;
+    }
   });
 
   it("compiles .mdx and leaves markdown alone", () => {

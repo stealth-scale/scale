@@ -189,6 +189,13 @@ override is applied after every contribution, so the order is the same whatever 
 `react.plugin.mdx(pack)` appends the same plugin to `pack.plugins`, because the packer reads that
 list and nothing under `plugins`. `layers({ mdx: true })` adds both.
 
+`@mdx-js/rollup` is an optional peer, loaded when a plugin is constructed and not when this package
+is imported. A repository that compiles no document imports the React tier with the peer absent. A
+repository that states the layer without the peer is told, at the first build that constructs the
+plugin, that the package is an optional peer of `@stealthscale/vite-config-react` and has to be
+installed beside it. Nothing is loaded while the toolchain reads the configuration for its metadata
+alone.
+
 The plugin compiles `.mdx` and nothing else. At its own default it also claims `.md`, and a markdown
 file imported with `?raw` then arrives as a component rather than as a string. `Documented` has one
 field, `from`, with the same meaning and default as `Refreshed.from`. A package that changes one
