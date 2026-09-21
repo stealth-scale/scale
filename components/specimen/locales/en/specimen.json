@@ -27,11 +27,14 @@
     "title": "Components"
   },
   "page": {
-    "back": "Components"
+    "back": "Components",
+    "failed": "This page could not be loaded: {{reason}}",
+    "reload": "Reload the page"
   },
   "props": {
     "accepts": "Accepts",
     "dropped": "{{conditions}} styling conditions and {{foreign}} properties from elsewhere are not listed.",
+    "failed": "What the parts accept could not be read: {{reason}}",
     "fallback": "Falls back to",
     "loading": "Reading what the parts accept.",
     "name": "Prop",

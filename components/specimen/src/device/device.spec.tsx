@@ -47,12 +47,17 @@ function sized(container: HTMLElement): readonly [width: string, height: string]
 }
 
 /**
- * Posts a report to the page, as a framed document at an address would.
+ * Posts a report to the page, as the framed document at an address would: from the device's own
+ * frame, at the page's origin.
  */
 function reported(address: string, choices: Report["choices"]): void {
   act(() => {
     window.dispatchEvent(
-      new MessageEvent("message", { data: { address, choices, type: REPORTED } }),
+      new MessageEvent("message", {
+        data: { address, choices, type: REPORTED },
+        origin: window.location.origin,
+        source: document.querySelector("iframe")?.contentWindow ?? null,
+      }),
     );
   });
 }

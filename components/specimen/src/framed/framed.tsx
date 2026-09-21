@@ -93,7 +93,7 @@ export function Framed({ pages }: FramedProps): null | ReactElement {
   const fragment = useSyncExternalStore(subscribe, snapshot, absent);
   const address: Address | undefined = readAddress(fragment);
   const entry = pages.find((page) => page.id === address?.page);
-  const page = useDeclared(entry);
+  const { page } = useDeclared(entry);
   const scene = address === undefined ? undefined : page?.scenes[address.scene];
 
   useMarked();

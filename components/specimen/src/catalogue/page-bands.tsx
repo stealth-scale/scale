@@ -76,7 +76,7 @@ export interface BandsProps {
  */
 export function Bands({ children, entry, framed, imports, scenes }: BandsProps): ReactElement {
   const [band, setBand] = useState<Band>(BANDS.examples);
-  const { parts } = useAnatomy(entry, band === BANDS.props);
+  const { failure, parts } = useAnatomy(entry, band === BANDS.props);
 
   return (
     <Banded
@@ -92,7 +92,7 @@ export function Bands({ children, entry, framed, imports, scenes }: BandsProps):
         <Body entry={entry} framed={framed} imports={imports} scenes={scenes} />
       </Tabs.Content>
       <Tabs.Content as={Page.Body} value={BANDS.props}>
-        {band === BANDS.props ? <PropsBody parts={parts} /> : null}
+        {band === BANDS.props ? <PropsBody failure={failure} parts={parts} /> : null}
       </Tabs.Content>
       <Sections band={band} parts={parts} scenes={scenes} />
     </Banded>
