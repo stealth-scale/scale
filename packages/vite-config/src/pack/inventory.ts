@@ -3,9 +3,10 @@
  */
 
 import { contribute, type Contribution } from "@stealthscale/vite-config-core";
-import { sbom, type Supplier } from "@stealthscale/vite-plugin-sbom";
 
+import { loaded } from "#sbom/loaded.ts";
 import { HOUSE } from "#sbom/supplier.ts";
+import { type Supplier } from "#sbom/types.ts";
 
 /**
  * Writes the bill of materials for a library, alongside what the packer built.
@@ -15,7 +16,8 @@ import { HOUSE } from "#sbom/supplier.ts";
  *   package published to a registry wants. Its counterpart in `build` types the document as an
  *   application and writes it twice. A serial number and a timestamp differ between two builds of
  *   the same source, so both are written only in production and a development build stays
- *   reproducible.
+ *   reproducible. The plugin package is loaded when the plugin is constructed and not when the
+ *   layer is stated, and the packer constructs it whenever it reads the configuration.
  * @param supplier - The organisation attributed as publisher of every component. The house
  *   identity is used unless a repository states its own.
  */
@@ -24,8 +26,8 @@ export function inventory(supplier: Supplier = HOUSE): Contribution {
     apply: "build",
     at: "pack.plugins",
     because: "what a packer inlines is no longer named by the manifest that declared it",
-    itemOf: (context) =>
-      sbom({
+    itemOf: async (context) =>
+      (await loaded()).sbom({
         serialNumber: context.mode === "production",
         supplier,
         timestamp: context.mode === "production",

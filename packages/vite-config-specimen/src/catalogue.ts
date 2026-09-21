@@ -3,10 +3,10 @@
  */
 
 import { type Layer } from "@stealthscale/vite-config-core";
-import { type Options } from "@stealthscale/vite-plugin-specimen";
 
 import { crawled } from "#crawled.ts";
 import { indexed } from "#indexed.ts";
+import { type Options } from "#types.ts";
 
 /**
  * Returns the layers an application that shows a catalogue extends its tier with.

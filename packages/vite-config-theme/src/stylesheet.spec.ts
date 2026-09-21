@@ -4,7 +4,22 @@
 
 import { describe, expect, it } from "vitest";
 
+import { type Context } from "@stealthscale/vite-config-core";
+
 import { stylesheet } from "#stylesheet.ts";
+
+const BUILDING: Context = {
+  at: "/repository/apps/docs",
+  command: "build",
+  env: {},
+  manifest: {},
+  mode: "production",
+  root: "/repository",
+};
+
+function item(): Promise<unknown> {
+  return Promise.resolve(stylesheet().itemOf?.(BUILDING));
+}
 
 describe("stylesheet", () => {
   it("appends to the list of plugins rather than replacing whatever else is there", () => {
@@ -15,12 +30,20 @@ describe("stylesheet", () => {
     expect(stylesheet().name).toBe("theme.stylesheet");
   });
 
-  it("carries the stylesheet plugin under its house name", () => {
-    expect(stylesheet().item).toMatchObject({ enforce: "pre", name: "stealth:theme.stylesheet" });
+  it("carries the stylesheet plugin under its house name", async () => {
+    await expect(item()).resolves.toMatchObject({
+      enforce: "pre",
+      name: "stealth:theme.stylesheet",
+    });
   });
 
-  it("builds a plugin instance per call", () => {
-    expect(stylesheet().item).not.toBe(stylesheet().item);
+  it("constructs the plugin when the configuration is composed and not when the layer is stated", () => {
+    expect(stylesheet().item).toBeUndefined();
+    expect(stylesheet().itemOf).toBeTypeOf("function");
+  });
+
+  it("builds a plugin instance per call", async () => {
+    await expect(item()).resolves.not.toBe(await item());
   });
 
   it("passes the repository's own options through to the plugin", () => {

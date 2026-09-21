@@ -27,6 +27,37 @@ import { appended } from "#path.ts";
 const ORDER: Record<NonNullable<Preset["enforce"]>, number> = { post: 1, pre: -1 };
 
 /**
+ * The variable the toolchain sets while it resolves a configuration for its metadata alone.
+ *
+ * @remarks
+ *   The task runner reads every package's configuration to plan the graph, a check reads it for
+ *   its lint and format blocks, and the packer reads it for its pack block. None of them runs a
+ *   Vite plugin, and the toolchain says so through this variable for the length of the resolution.
+ *   The name is the toolchain's, read here so that no package imports the toolchain to ask.
+ */
+const METADATA = "VP_RESOLVING_CONFIG_METADATA";
+
+/**
+ * Reports whether the toolchain is resolving the configuration for its metadata alone, which is
+ * when a Vite plugin is neither run nor worth constructing.
+ */
+export function resolvingMetadata(): boolean {
+  return process.env[METADATA] === "1";
+}
+
+/**
+ * Reports whether a contribution appends a Vite plugin, at the top-level list.
+ *
+ * @remarks
+ *   The packer's list under `pack.plugins` is not one: the packer resolves the configuration under
+ *   the metadata marker and takes its plugins from what it read, so a contribution to that list is
+ *   worked out under the marker like any other value.
+ */
+function plugging(contribution: Contribution): boolean {
+  return contribution.at === "plugins";
+}
+
+/**
  * Walks a nest of extends entries and returns the layers in reading order.
  */
 export function flattened(extended: readonly Extendable[]): readonly Layer[] {
@@ -105,7 +136,12 @@ export function surviving(layers: readonly Layer[]): readonly Layer[] {
  *   Layers the environment rules out are dropped before removals run, so a
  *   removal aimed at a layer that does not apply here throws rather than
  *   quietly matching nothing. What the caller wrote beside `extends` is not
- *   merged in here, so the result is what the layers alone decided.
+ *   merged in here, so the result is what the layers alone decided. While the
+ *   toolchain resolves the configuration for its metadata alone, a contribution
+ *   that appends a Vite plugin is passed over without being worked out, so
+ *   planning the task graph loads no Vite plugin and reads no artefact one
+ *   would. A contribution to the packer's list is worked out, because the packer
+ *   reads that list under the same marker.
  * @throws {@link Error} When a removal names a layer that nothing above it stated.
  */
 export async function resolved(
@@ -113,6 +149,7 @@ export async function resolved(
   extended: readonly Extendable[],
 ): Promise<UserConfig> {
   const taking = surviving(flattened(extended).filter((layer) => applies(layer, context)));
+  const skipping = resolvingMetadata();
 
   let composed = await settled(
     context,
@@ -122,6 +159,8 @@ export async function resolved(
   for (const contribution of taking.filter(
     (one): one is Contribution => one.kind === "contribution",
   )) {
+    if (skipping && plugging(contribution)) continue;
+
     const item = contribution.itemOf ? contribution.itemOf(context) : contribution.item;
 
     composed = appended(composed, contribution.at, item);

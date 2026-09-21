@@ -3,9 +3,9 @@
  */
 
 import { type Layer } from "@stealthscale/vite-config-core";
-import { type Options } from "@stealthscale/vite-plugin-i18n";
 
 import { catalogued } from "#catalogued.ts";
+import { type Options } from "#types.ts";
 import { worded } from "#worded.ts";
 
 /**

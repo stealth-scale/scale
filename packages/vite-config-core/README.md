@@ -58,19 +58,22 @@ package extends. A removal applies only to layers above it, so a package can tak
 
 ## Reference
 
-The entry point publishes nine functions and thirteen types.
+The entry point publishes twelve functions and thirteen types.
 
-| Export         | Signature                                                                         | What it returns                                                           |
-| -------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `defineConfig` | `(at: string, config: Config \| ConfigFn \| Promise<Config>) => UserConfigExport` | The composed configuration, with the caller's own keys merged over it     |
-| `configuring`  | `(defaults: () => readonly Extendable[]) => Defining`                             | A `defineConfig` that lays a tier's defaults under what a package extends |
-| `preset`       | `(stated: Omit<Stated<Preset>, "kind">) => Preset`                                | A layer that merges configuration keys                                    |
-| `contribute`   | `(stated: Omit<Stated<Contribution>, "kind">) => Contribution`                    | A layer that appends one item to a list                                   |
-| `remove`       | `(stated: Omit<Stated<Removal>, "kind">) => Removal`                              | A layer that takes an earlier layer back by name                          |
-| `override`     | `(stated: Omit<Stated<Override>, "kind">) => Override`                            | A layer that rewrites the merged configuration                            |
-| `named`        | `<Of extends Layer>(name: string, layer: Of) => Of`                               | The same layer under a new name                                           |
-| `owned`        | `(name: string, layers: readonly Extendable[]) => readonly Layer[]`               | The flattened layers, renamed `owner/name`                                |
-| `contextOf`    | `(env: ConfigEnv, declared: string, from?: string) => Context`                    | The context passed to every layer                                         |
+| Export              | Signature                                                                         | What it returns                                                           |
+| ------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `defineConfig`      | `(at: string, config: Config \| ConfigFn \| Promise<Config>) => UserConfigExport` | The composed configuration, with the caller's own keys merged over it     |
+| `configuring`       | `(defaults: () => readonly Extendable[]) => Defining`                             | A `defineConfig` that lays a tier's defaults under what a package extends |
+| `preset`            | `(stated: Omit<Stated<Preset>, "kind">) => Preset`                                | A layer that merges configuration keys                                    |
+| `contribute`        | `(stated: Omit<Stated<Contribution>, "kind">) => Contribution`                    | A layer that appends one item to a list                                   |
+| `remove`            | `(stated: Omit<Stated<Removal>, "kind">) => Removal`                              | A layer that takes an earlier layer back by name                          |
+| `override`          | `(stated: Omit<Stated<Override>, "kind">) => Override`                            | A layer that rewrites the merged configuration                            |
+| `named`             | `<Of extends Layer>(name: string, layer: Of) => Of`                               | The same layer under a new name                                           |
+| `owned`             | `(name: string, layers: readonly Extendable[]) => readonly Layer[]`               | The flattened layers, renamed `owner/name`                                |
+| `contextOf`         | `(env: ConfigEnv, declared: string, from?: string) => Context`                    | The context passed to every layer                                         |
+| `appended`          | `<Of extends object>(held: Of, path: string, item: unknown) => Of`                | A copy of `held` with `item` appended to the list at the dotted path      |
+| `located`           | `(specifier: string, from: string) => string`                                     | The file URL of a package's entry, resolved from the module at `from`     |
+| `resolvingMetadata` | `() => boolean`                                                                   | Whether the toolchain is reading the configuration for its metadata alone |
 
 | Type         | What it describes                                                                                         |
 | ------------ | --------------------------------------------------------------------------------------------------------- |
@@ -95,9 +98,25 @@ The entry point publishes nine functions and thirteen types.
 | `env`      | Every variable in scope, merged from the root, the package and the shell   |
 
 `contextOf` climbs from the declared directory until it meets one that declares workspace globs,
-either in its manifest or in a `pnpm-workspace.yaml` beside it. Variables are loaded under no
-prefix. The root's files are read first and the package's are laid over them. A variable already set
-in the process environment overrides both.
+either in its manifest or in a `pnpm-workspace.yaml` beside it. A variable reaches `env` under the
+`STEALTH_` or the `VITE_` prefix, and `CI`, `CI_COMMIT_SHA` and `GITHUB_SHA` reach it by name. The
+root's files are read first and the package's are laid over them. A variable already set in the
+process environment overrides both. A variable with neither prefix is the shell's business: the task
+runner fingerprints what a configuration read, and a session path or a manager's flag would miss the
+cache on every shell that differs.
+
+The toolchain sets `VP_RESOLVING_CONFIG_METADATA=1` while it reads a configuration for its metadata
+alone: the task runner planning the graph, a check reading the lint and format blocks, and the
+packer reading the `pack` block. Under it, a contribution to `plugins` is passed over without being
+worked out, so planning the graph constructs no Vite plugin. A contribution to `pack.plugins` is
+worked out, because the packer takes its plugins from what it read. `resolvingMetadata()` reports
+the marker to a layer that has to know.
+
+A layer that loads a plugin package when the plugin is constructed writes the import as
+`import(located("@scope/plugin", import.meta.url))`. The bundler that reads a configuration resolves
+every import it can read, so a literal specifier fails the resolution where the package is not built
+yet, and `located` resolves from the module that names the package rather than from the temporary
+file a bundled configuration runs from.
 
 ## Layer kinds
 

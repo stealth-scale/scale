@@ -9,6 +9,7 @@
  * @packageDocumentation
  */
 
+export { resolvingMetadata } from "#compose.ts";
 export { type Context, contextOf, type Manifest } from "#context.ts";
 export { configuring, type Defining } from "#defaults.ts";
 export { type Config, type ConfigFn, defineConfig } from "#define.ts";
@@ -28,3 +29,5 @@ export {
   remove,
   type Stated,
 } from "#layer.ts";
+export { located } from "#located.ts";
+export { appended } from "#path.ts";

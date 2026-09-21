@@ -5,8 +5,7 @@
  * @packageDocumentation
  */
 
-export { type Options } from "@stealthscale/vite-plugin-i18n";
-
 export { catalogued } from "#catalogued.ts";
 export { layers } from "#layers.ts";
+export type { Options } from "#types.ts";
 export { worded } from "#worded.ts";

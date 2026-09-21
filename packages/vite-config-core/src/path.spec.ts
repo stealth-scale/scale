@@ -39,4 +39,10 @@ describe("path", () => {
   it("appends at the top when the path names one step", () => {
     expect(appended({}, "plugins", "one")).toStrictEqual({ plugins: ["one"] });
   });
+
+  it("reaches every object of a list on the way to the path", () => {
+    expect(
+      appended({ pack: [{ dts: true }, { plugins: ["a"] }, 3] }, "pack.plugins", "b"),
+    ).toStrictEqual({ pack: [{ dts: true, plugins: ["b"] }, { plugins: ["a", "b"] }, 3] });
+  });
 });
