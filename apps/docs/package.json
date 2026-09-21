@@ -14,6 +14,7 @@
     "check": "vp check",
     "dev": "vp dev",
     "dev:standard": "STEALTH_DEV_SERVER=standard vp dev",
+    "preview": "vp preview",
     "test": "vp test"
   },
   "dependencies": {
