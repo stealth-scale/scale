@@ -1,5 +1,278 @@
 # @stealthscale/component-screen
 
+## 0.1.0
+
+### Minor Changes
+
+- [#35](https://github.com/stealth-scale/scale/pull/35) [`a4b1d24`](https://github.com/stealth-scale/scale/commit/a4b1d2460ded2afebd340ccdce38a79b1d880fdf) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - component-screen: read the theme's layout sizes and stroke widths
+  
+  - The shell opens its navbar to `sizes.sidebar`, its aside to `sizes.aside` and closes a panel to
+    `sizes.rail`, rather than to three steps of the grid, so a theme that wants a wider sidebar states
+    one number. A panel over the page stops a rail short of the far edge for the same reason.
+  - The page's `narrow` and `wide` measures read `sizes.page.narrow` and `sizes.page.wide`.
+  - Every hairline the shell, the page, a section, a sidebar and a toolbar draw reads
+    `borderWidths.hairline`. The switcher's outline reads `border.emphasized` at
+    `borderWidths.control`, because it is a control.
+  
+  component-screen: publish AppShell, Page, Section, Sidebar, Switcher and Toolbar
+  
+  - A screen component folds on its own width and never on the window's. Each one measures the element
+    it draws against the width a breakpoint starts at, reads that width through `widthOf`, and writes
+    `data-narrow` for the recipes to select on. A page beside an open sidebar therefore folds on the
+    room the sidebar left it while the window is still wide, and a consumer writes no breakpoint.
+  - A row of actions folds by priority rather than by measurement. A primary action keeps its words, a
+    secondary one keeps them for a screen reader alone, and a tertiary one leaves the document. Three
+    rules and no JavaScript. The source this was ported from had each action register itself into a
+    menu from an effect, which React 19 reports and which filled the menu in one render after it
+    opened.
+  
+  - `AppShell` lays an application out: bars across the top and the bottom, and a body between them
+    holding a panel down either side of the page. Eight parts under one namespace and ten slots.
+  - Each panel says how it closes and where it goes when the shell runs out of room. `collapse` takes
+    `hide` or `icons` and decides what closing it beside the page leaves. `folds` takes `over` or
+    `under` and decides where it goes once the shell is too narrow to hold it there. The source had
+    one enum carrying both, so a panel could not close to icons beside the page and stack under it on
+    a phone.
+  - A trigger anywhere in the shell reaches a panel by name through a store the panels write to and
+    `useSyncExternalStore` reads. The source kept the same list in `useState` and wrote it from a
+    layout effect, which React 19 reports. A write that changes nothing tells nobody, so a panel that
+    publishes the same facts every render costs its readers nothing.
+  - `useAppShellPanel(name)` reads a panel from an application's own code, which is how a navigation
+    closes when a destination is pressed. `useNearestPanel` reads the panel a part is inside, and
+    `useOverlaid` reads what stands over the page.
+  - A panel over the page makes the bars, the page and the other panels inert, takes the reader in,
+    and gives focus back to the control that opened it. Escape and the backdrop put it away. It claims
+    no dialog role, because inert already gives a reader what the role would promise: nothing behind
+    it to reach, a key to leave by, and the control still under the cursor on return.
+  - The reader is taken in and handed back on what the panel store says rather than on the panel's own
+    state, and the control that opened the panel is written down while the press is still being
+    handled. A browser refuses to focus anything inert and takes focus off anything it has just made
+    inert, so a move read off the panel's own state was a frame out on both sides: the reader was left
+    on the body when the sheet opened, and left inside the sheet when it closed.
+  - A panel over the page starts closed whatever it was beside the page, and starts closed again every
+    time the shell crosses the width. The width is held beside the answer and compared while
+    rendering, which is how React drops state a prop has made stale. The source compared the wrong
+    pair and never reset, so an application dragged narrow opened with its navigation across the page.
+  - The backdrop is drawn once and fades rather than mounting and unmounting. The fade therefore runs
+    both ways. While nothing stands over the page it takes neither a press nor a reading.
+  - `AppShell.Rail` and `AppShell.Section` are gone. The rail's selectors never matched the markup the
+    source drew, its `col-resize` cursor promised a resize it did not do, and the trigger does the
+    same job on every pointer. A panel's bands are `Sidebar`'s.
+  - Two axes: `scroll` and `variant`. `scroll="window"` pins each bar under the ones before it and
+    sticks the panels under all of them.
+  
+  - `Page` lays a page out: a banner, a header, a navigation, a body and a footer. Twenty-one parts
+    and twenty slots.
+  - The header is a grid of three rows, so the context above the title, what leads it, the title, the
+    marks beside it, the actions and the description are written flat and placed by name.
+  - The root carries no landmark, because `AppShell.Main` draws `main` and a page that claimed one as
+    well would give a reader two to choose between on the same screen. The header names itself from
+    `Page.Title`, so a caller writes no identifier.
+  - The gutter and the measure are properties the root states and every band reads, so one value moves
+    all of them and a band that bleeds reads the same numbers to line its own cells up.
+  - `Page.When` draws a part at one width only, and `Page.Picker` is the control a folded page offers
+    in place of a strip of tabs. The picker states neither `aria-expanded` nor `aria-controls`,
+    because it is a disclosure's trigger rather than a disclosure.
+  - Five axes: `align`, `divided`, `gutter`, `measure` and `size`.
+  
+  - `Section` draws one block of a page under its own heading. Nine parts and nine slots.
+  - The element is `section` and it names itself from `Section.Title`, so a reader jumping by landmark
+    hears the heading rather than an unnamed region, and a caller wires nothing.
+  - A section that states no size takes the page's, so one value on `Page.Root` sets every section
+    under it.
+  - Three axes: `annotated`, `size` and `variant`. `variant` takes `plain` and `surface`, which are
+    the names `Sidebar` and `Toolbar` draw the same rule under and the names the vocabulary's looks
+    carry. A value called `card` would have named another component.
+  
+  - `Sidebar` gathers what a person moves around an application by. Ten parts and ten slots.
+  - The content scrolls rather than the column, so a switcher at the head and an account at the foot
+    stay where a reader left them however long the list of destinations grows.
+  - Each `Sidebar.Nav` derives its own identifier and its heading carries it, so the block names its
+    landmark from its heading and a caller writes neither. A heading drawn outside a block throws
+    where it was written.
+  - `iconic` is a prop the shell passes rather than state the sidebar measures. The shell decides how
+    wide the sidebar is, so a sidebar that measured itself would disagree with the shell for one frame
+    every time it moved.
+  - Two axes: `size` and `variant`.
+  
+  - `Switcher` draws the control at the head of a sidebar that names what is being worked in. Eleven
+    parts and ten slots. The root draws nothing and carries the variants, because a disclosure places
+    its list outside the trigger and the list still has to read them.
+  - `Switcher.Trigger` states a `label` that a screen reader reads before the name, so
+    `Workspace Acme` says what pressing the control changes.
+  - Two axes: `size` and `variant`.
+  
+  - `Toolbar` draws a row of controls over a table or a list. Nine parts and eight slots.
+  - The row carries `role="toolbar"` and moves focus with the arrow keys, so it is one stop in the tab
+    order rather than one per control.
+  - `Toolbar.Item` picks its own element from whether it was given an `href`, so a link in the row is
+    a link and a control is a button, and both stay in the roving focus group. Handing `as` to a bound
+    part replaces the component, which silently took an item out of the group.
+  - `Toolbar.Search` is laid over the row while it is open. Opening it puts the reader in the field
+    and closing it puts them back on the control they pressed, because that control is under the field
+    while the field is open.
+  - `Toolbar.Separator` draws the divider on its end and states `aria-orientation="vertical"`. It drew
+    a horizontal rule stretched to the row's height, which is a box with a bottom border rather than a
+    line between two sets of controls, and announced as parting what was above it from what was below.
+  - Three axes: `radius`, `size` and `variant`.
+  
+  - A rule reaching from one part of a recipe to another selects the class the binding writes, built
+    from the recipe's own class name. `Page`'s rule dropping the header's hairline above a navigation
+    selected `[data-part=nav]`, which nothing in this repository stamps, and its specification
+    asserted the same dead selector.
+  
+  component-screen: give the page a gutter by default and set its title larger than a section's
+  
+  - `Page` stated no `gutter` in its defaults, so `--page-gutter` was unset and every band's inline
+    padding fell to 0. The default is `md`.
+  - `size` sets the title one heading step larger than a section's at the same step: `heading.md` at
+    `sm`, `heading.lg` at `md` and `heading.xl` at `lg`. The two were set in the same role, so an h1
+    and an h2 read at one size.
+  - The body and the banner inset on the block axis alone, so the gutter holds on the inline axis.
+  
+  component-screen: part plain sections with room round the hairline
+  
+  - A plain `Section` after another draws its hairline with `gap.2xl` above and below, so two sections
+    read as two. The hairline had no room on either side.
+  
+  component-screen: add the divided axis to AppShell and fill a pinned bar
+  
+  - `AppShell divided` draws a hairline on the inner edge of each bar and each panel: under the
+    header, over the footer, on the end of the navbar and on the start of the aside. Default `true`.
+  - A header or a footer told to stick takes `bg` as its fill, the way a page's pinned band does. It
+    had none, so the page showed through it.
+  
+  component-screen: add the subtle variant to Sidebar
+  
+  - `Sidebar variant="subtle"` is `bg.subtle` and no line, for a sidebar inside a shell panel where
+    the shell draws the hairline.
+  
+  component-screen: add the placement axis to Switcher
+  
+  - `Switcher placement="toolbar"` takes the width of its words and drops the detail. `sidebar`, the
+    default, fills the column as before. The root's `inlineSize: full` moved from the base into the
+    `sidebar` value.
+  - `Switcher.Root` types its own `size` and `variant` over the menu's, whose `variant` axis it
+    intersected to a type no value satisfied.
+  
+  component-screen: measure the toolbar and let an item draw any control
+  
+  - `Toolbar.Root` measures its own width and writes `data-narrow` below `sm`, which is what folds a
+    `Toolbar.Action` by its priority and shows `Toolbar.Folded`. Nothing wrote the attribute before
+    this, so the row never folded.
+  - `Toolbar.Item as={…}` draws the component named with the row's tab stop on the element it renders,
+    and takes that component's props beside its own: `as={Button}`, `as={Switcher.Trigger}`.
+  
+  component-screen: show every component
+  
+  - One specimen per component, each scene drawing every value of every axis the recipe offers, with
+    the words read through the catalogue's `specimen` namespace from `locales/en/specimen/`.
+  
+  component-screen: draw the shell the way a page is read
+  
+  - A pinned bar of the shell is filled with the panel surface rather than the page, so it reads as a
+    thing laid over the page.
+  - A toolbar's gap is the gap two steps smaller than its size, so a bar of icon buttons reads as one
+    bar.
+  - A page opens at the extra-large gutter, its header keeps closer to its body than to the bar before
+    it, and its context is set a text step smaller than the page.
+  - A section's title is a heading step and its description a text step smaller than the page's, in
+    the page's own ink, and its bands are parted by the gap two steps larger than the size.
+  - A switcher holds its size's control height with no padding on the block axis, sets its name
+    semibold and its control in the neutral palette's ink, and in a toolbar draws its mark as a tinted
+    square with a wider gap. The tick of an option is placed at the row's end whatever the menu
+    states, and the mark that opens the list holds still and centred as the list opens.
+  
+  component-screen: hold the shell still until it has settled and bring a sheet into sight at once
+  
+  - `AppShell.Root` writes `data-settled` on itself in an effect after its first paint, and no panel
+    and no backdrop transitions before it is there. A panel's first render answers for a narrow shell
+    until it has measured the root, so a panel beside the page on a wide screen was drawn closed and
+    then opened, and the page beside it slid 256 pixels into place on every load. Measured in Firefox
+    at 2560 pixels: the page's header moved from 1 to 256 pixels over 100 milliseconds.
+  - A sheet's visibility changes in no time, with a delay as long as the slide while it closes. The
+    visibility changed with the slide, so a sheet read `visibility: hidden` on the frame it opened,
+    the browser refused to focus it, and the reader was left on the body. Measured in Chromium after a
+    press on the trigger: `visibility: hidden` at 0 milliseconds and `visible` at 50.
+  
+  component-screen: lay a page's body beside its aside
+  
+  - A `Page.Root` holding a `Page.Aside` becomes a grid from the `lg` breakpoint up: every band
+    across, and the body beside the aside, which is as wide as what it holds, parted by the extra
+    large gap. Every band names its area, so a page with no aside lays out as it did. Below the
+    breakpoint the root stays a column and the aside stacks under the body.
+  - `Page.Aside` takes `folds`: `under` stacks it below the breakpoint, and `hide` drops it, for a
+    rail of headings a phone has no room for. It takes `sticky`, which keeps it at the top of its row
+    under the shell's pinned bars while the body scrolls past.
+  - A `Section.Root` scrolled to by its id stops one large gap under the shell's pinned bars, so a
+    title reached from a table of contents is read rather than covered.
+  - The aside keeps the same inset on the block axis as the body, so what it holds starts on the line
+    the body's first section starts on.
+  
+  component-screen: centre a page's measure rather than its root
+  
+  - The alignment moves the room each band leaves before its content. The root runs edge to edge so a
+    band's surface is full bleed, and automatic margins on a full-width root moved nothing: a centred
+    page and a start-aligned one measured the same 1,846-pixel root with the content held at the start
+    of both.
+  
+  component-screen: inset a toolbar with an edge and show the switcher's words
+  
+  - A toolbar in the outline or the surface look is inset by its own gap, so a filled control stands
+    off the edge and a field at the end draws its border inside the row's rather than over it. The
+    plain row keeps its controls flush with what holds it. In the specimen the controls take the row's
+    size, where eight rows at the middle size differed by a few pixels of gap.
+  - The switcher's mark centres whatever it holds in its square. The specimen draws the name and the
+    detail in `Switcher.Label`, and the README's example does too: both wrote them in
+    `Switcher.Content`, which is the menu's own panel, so the trigger held a hidden menu and showed
+    the mark alone. The indicator holds a pair of chevrons.
+  - The sidebar's specimen gives every destination a mark and tells its lists when the column is
+    collapsed, so the rail is a rail of marks rather than a column of clipped words.
+  - A page holding an aside gives the height it has left over to the body's row alone. A grid shares
+    its spare height between every `auto` row, so a short page opened its empty bands as blank rows
+    and stretched the header until the trail, the title and the description stood a screen apart.
+  
+  component-screen: render the switcher's list with the menu's own parts
+  
+  - `Switcher.Content`, `Switcher.Option`, `Switcher.Check` and `Switcher.Action` are removed. A list
+    is `Menu.Content` holding `Menu.OptionItem` rows composed from `Menu.ItemIndicator`,
+    `Menu.ItemMark`, `Menu.ItemLines`, `Menu.ItemText` and `Menu.ItemDescription`, and `Menu.Item`
+    rows after a `Menu.Separator`.
+  - The switcher's recipe styles the control only: `root`, `mark`, `label`, `name`, `detail` and
+    `indicator`.
+  - `Switcher.Root` passes its `size` to `Menu.Root`, so the rows are drawn at the control's size.
+  - The control's text is one step under its `size` in `fg.muted`. The mark is two steps under the
+    control size. The detail uses `fg.subtle` and the `caption` text style. The indicator no longer
+    rotates when the menu opens.
+  - With `placement="toolbar"` the control takes `inlineSize: fit` and hides the detail.
+
+### Patch Changes
+
+- [#35](https://github.com/stealth-scale/scale/pull/35) [`b271aae`](https://github.com/stealth-scale/scale/commit/b271aaec473fab167732606b8ffa52672259fcbf) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - components: hold every package to the barrel rule its ADR already states
+  
+  - ADR-0018 puts a specification beside every source file, the barrels included, and records that the
+    conformance suite holds a package to it "where the package asks with `barrels: true`, which every
+    component package does". Ten of the sixteen asked for nothing, so the rule was written down and
+    enforced nowhere in them.
+  - `collections`, `content`, `data`, `disclosure`, `feedback`, `forms`, `modals`, `navigation`,
+    `screen` and `surfaces` now ask. The check reported thirteen barrels with no specification beside
+    them, each now written: the package barrel of nine of those ten, `screen`'s folding and focus
+    barrels, and `collections`' collection barrel.
+  - A barrel specification names every export as a sorted list and asserts that neither a recipe nor a
+    binding is among them, which is what catches a leaked binding and a dropped export.
+  - Forty-three barrels under `foundations/` and `packages/` still have no specification. The ADR's
+    decision covers them and its enforcement note does not, so they are left for a pass of their own.
+- Updated dependencies [[`b271aae`](https://github.com/stealth-scale/scale/commit/b271aaec473fab167732606b8ffa52672259fcbf), [`a4b1d24`](https://github.com/stealth-scale/scale/commit/a4b1d2460ded2afebd340ccdce38a79b1d880fdf), [`c8b2f1e`](https://github.com/stealth-scale/scale/commit/c8b2f1ea3cd9f92a5e80a0c275c69d5f4d5da8fd), [`a4b1d24`](https://github.com/stealth-scale/scale/commit/a4b1d2460ded2afebd340ccdce38a79b1d880fdf), [`a4b1d24`](https://github.com/stealth-scale/scale/commit/a4b1d2460ded2afebd340ccdce38a79b1d880fdf), [`a4b1d24`](https://github.com/stealth-scale/scale/commit/a4b1d2460ded2afebd340ccdce38a79b1d880fdf), [`d577ce3`](https://github.com/stealth-scale/scale/commit/d577ce3a013b0af1f6cd2dce358f496382a58616), [`699ee75`](https://github.com/stealth-scale/scale/commit/699ee7513a1df84d019c9310a8131a6700ba5bd4), [`a4b1d24`](https://github.com/stealth-scale/scale/commit/a4b1d2460ded2afebd340ccdce38a79b1d880fdf), [`a4b1d24`](https://github.com/stealth-scale/scale/commit/a4b1d2460ded2afebd340ccdce38a79b1d880fdf), [`8d6817e`](https://github.com/stealth-scale/scale/commit/8d6817e34dc94a02b98933c39e2cd6f94cca5c34)]:
+  - @stealthscale/component-disclosure@0.1.1
+  - @stealthscale/component-navigation@0.2.0
+  - @stealthscale/component-a11y@0.1.1
+  - @stealthscale/component-actions@0.2.0
+  - @stealthscale/component-layout@0.2.0
+  - @stealthscale/component-typography@0.2.0
+  - @stealthscale/hooks@0.2.0
+  - @stealthscale/provider-viewport@0.2.0
+  - @stealthscale/theme@0.4.0
+
 ## 0.0.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/vite-plugin-i18n",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Finds every catalogue an application can reach, types their keys, and answers the module it loads them from.",
   "keywords": [
     "i18n",

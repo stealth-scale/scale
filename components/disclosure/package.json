@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/component-disclosure",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Draws what is shown and hidden on the reader's say-so.",
   "keywords": [
     "accordion",

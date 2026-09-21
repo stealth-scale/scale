@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/component-collections",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Draws many of a thing: the lists, tables and grids that render a set of records.",
   "keywords": [
     "collections",

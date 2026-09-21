@@ -1,5 +1,12 @@
 # @stealthscale/vite-plugin-i18n
 
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`725cf7e`](https://github.com/stealth-scale/scale/commit/725cf7eb750c998e795e546db2809009e6c3c2b5)]:
+  - @stealthscale/vite-plugin-base@0.3.0
+
 ## 0.1.0
 
 ### Minor Changes

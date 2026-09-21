@@ -1,5 +1,17 @@
 # @stealthscale/testing-router
 
+## 0.1.1
+
+### Patch Changes
+
+- [#38](https://github.com/stealth-scale/scale/pull/38) [`70f258d`](https://github.com/stealth-scale/scale/commit/70f258d9060c497ded332400cfde04f49c337251) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - testing-router: settle the render in mountRouter before returning it
+  
+  - `mountRouter` renders inside an async `act` and flushes one microtask before it returns, so a page
+    holding a component built on a state machine no longer reports an update outside `act`.
+    `mountRoute` calls it and gains the same.
+- Updated dependencies [[`345722c`](https://github.com/stealth-scale/scale/commit/345722c508064b16202cb9363668b44352f7a706)]:
+  - @stealthscale/provider-router@0.2.0
+
 ## 0.1.0
 
 ### Minor Changes

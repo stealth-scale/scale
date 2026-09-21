@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/component-typography",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Draws the components that are text: a heading, a paragraph, a snippet of code, a key a reader is asked to press.",
   "keywords": [
     "components",

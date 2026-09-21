@@ -1,5 +1,15 @@
 # @stealthscale/vite-plugin-base
 
+## 0.3.0
+
+### Minor Changes
+
+- [#40](https://github.com/stealth-scale/scale/pull/40) [`725cf7e`](https://github.com/stealth-scale/scale/commit/725cf7eb750c998e795e546db2809009e6c3c2b5) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - vite-plugin-base: add quoted
+  
+  - `quoted(text)` writes a string as a JavaScript string literal: JSON's escaping, plus the line and
+    paragraph separators as unicode escapes, which JSON leaves bare and a code scanner reads as
+    unsanitised code. `literal()` writes every string and key through it.
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,5 +1,23 @@
 # @stealthscale/vite-config-i18n
 
+## 0.1.1
+
+### Patch Changes
+
+- [#34](https://github.com/stealth-scale/scale/pull/34) [`808c86b`](https://github.com/stealth-scale/scale/commit/808c86be6484d08a16b059d7d31680c5929257b4) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - find the setup file before the foundation has been built
+  
+  `worded` resolved `@stealthscale/provider-i18n/testing` at module scope, which is built output. The
+  runner loads every package's configuration to assemble its task graph, and that happens before
+  anything has been built, so the first package to call `i18n.layers()` failed the whole graph rather
+  than one build.
+  
+  The manifest is resolved instead, which a workspace holds whatever it has built. A workspace then
+  answers with the source and an installed copy, which publishes no source, answers with the built
+  file.
+- Updated dependencies []:
+  - @stealthscale/provider-i18n@0.1.0
+  - @stealthscale/vite-plugin-i18n@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes

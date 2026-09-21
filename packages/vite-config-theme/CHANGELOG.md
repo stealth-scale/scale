@@ -1,5 +1,12 @@
 # @stealthscale/vite-config-theme
 
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`35ed1e2`](https://github.com/stealth-scale/scale/commit/35ed1e20a3ba344ad15a13b716123b04f6db88d6)]:
+  - @stealthscale/vite-plugin-theme@0.2.0
+
 ## 0.1.0
 
 ### Minor Changes

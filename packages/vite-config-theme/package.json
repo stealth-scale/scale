@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/vite-config-theme",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Adds the runtime generator to a design-system package and the stylesheet compiler to an application.",
   "keywords": [
     "config",

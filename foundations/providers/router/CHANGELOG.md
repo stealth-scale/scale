@@ -1,5 +1,16 @@
 # @stealthscale/provider-router
 
+## 0.2.0
+
+### Minor Changes
+
+- [#38](https://github.com/stealth-scale/scale/pull/38) [`345722c`](https://github.com/stealth-scale/scale/commit/345722c508064b16202cb9363668b44352f7a706) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - provider-router: move the window in one step on navigation
+  
+  - `routerDefaults` states `scrollRestorationBehavior: "instant"`. The library moved the window with
+    the page's own scroll behaviour, and the foundation sets `html { scroll-behavior: smooth }` for a
+    link into the page, so a page opened from a scrolled one glided to the top. A link into the page
+    keeps the smooth scroll.
+
 ## 0.1.0
 
 ### Minor Changes

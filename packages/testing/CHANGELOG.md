@@ -1,5 +1,14 @@
 # @stealthscale/testing
 
+## 0.4.0
+
+### Minor Changes
+
+- [#38](https://github.com/stealth-scale/scale/pull/38) [`832064c`](https://github.com/stealth-scale/scale/commit/832064cb73b2d437c496f551b26202ca96cdd954) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - testing: bind a context in the load driver
+  
+  - `loaded(plugin, id, context)` binds the context as `this` when one is given, for a plugin that
+    watches a file while loading a module. Nothing is bound where it is absent, as before.
+
 ## 0.3.0
 
 ### Minor Changes

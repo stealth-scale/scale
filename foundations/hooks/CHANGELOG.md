@@ -1,5 +1,17 @@
 # @stealthscale/hooks
 
+## 0.2.0
+
+### Minor Changes
+
+- [#40](https://github.com/stealth-scale/scale/pull/40) [`699ee75`](https://github.com/stealth-scale/scale/commit/699ee7513a1df84d019c9310a8131a6700ba5bd4) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - hooks: add splitEnumerable
+  
+  - `splitEnumerable(split)` wraps a state machine's props splitter so it reads a copy of the props
+    holding their own enumerable properties only. In development React defines a non-enumerable `key`
+    getter on the props of an element created with a key, which warns when read. A machine's splitter
+    reads every own key, so a root rendered with a `key` warned twice: once for the read, and once
+    more when the copied `key` was spread onto the root's element.
+
 ## 0.1.0
 
 ### Minor Changes

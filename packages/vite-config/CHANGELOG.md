@@ -1,5 +1,80 @@
 # @stealthscale/vite-config
 
+## 0.7.0
+
+### Minor Changes
+
+- [#35](https://github.com/stealth-scale/scale/pull/35) [`b588ff3`](https://github.com/stealth-scale/scale/commit/b588ff39d85f40125c2665be19124d208d485ae9) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - vite-config-react: fail a test that updates a component outside act
+  
+  - React reports an update made outside `act` on `console.error`. A passing run wrote it to stderr,
+    no gate read it, and the runner does not always print it, so grepping a captured run reported none
+    while the warnings were still being emitted.
+  - The shared setup file now records that one message and throws in `afterEach`, naming the
+    component. A test that renders a component built on a state machine and asserts before the machine
+    settles is reading a half-drawn tree, which is a defect rather than noise.
+  - Only that message is caught. A specification that drives a component into throwing makes React
+    report the throw the same way, and that is a case rather than a fault.
+  
+  vite-config: excuse a fixture from the cap on dependencies
+  
+  - `lint.composed` turns `import/max-dependencies` off for `**/*.fixtures.ts` and
+    `**/*.fixtures.tsx`, beside `lint.barrelled` and under a reason of its own.
+  - A fixture builds the component its specifications measure, so it imports every part that component
+    is composed of. Its count is the size of the component rather than a sign that one module does too
+    much, and a fixture held to the cap pushes the composition back into the specifications that were
+    meant to share it.
+
+- [#38](https://github.com/stealth-scale/scale/pull/38) [`832064c`](https://github.com/stealth-scale/scale/commit/832064cb73b2d437c496f551b26202ca96cdd954) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - vite-config: serve an application from one bundle in development
+  
+  - `server.bundled()` turns on Vite's full bundle mode for a dev server, and the application preset
+    carries it, so every application is served from a handful of chunks rather than one module per
+    file. The catalogue's page loaded in 729 requests and 19 MB before and in nine requests after, and
+    a frame the page opens loads in eight, from the browser's cache. A specification run is left
+    serving one module per file, because the runner reads one file at a time and a bundled server
+    parses a setup file another package publishes as plain script.
+  - Vite marks the mode experimental. A hot update is computed in the browser from what ran rather
+    than on the server from the graph, and a plugin's hot update hook is handed no environment, which
+    the house plugins allow for.
+  - Every dynamic import is bundled when the server starts rather than when a browser first asks for
+    it. The server compiles a lazy import on request and marks its output stale until a rebuild has
+    folded the module in, and a document requested in that window, a frame the page opens or the
+    source map a browser's tools ask for, is answered with the spinner page and reloads every client,
+    which asks for its imports again: a catalogue page reloaded 39 times in 20 seconds. Bundled up
+    front, the start costs five seconds more, a page nobody visited yet opens as fast as one somebody
+    did, and a chunk carries a source map the browser can find.
+  
+  vite-config: split the house's own packages into a library chunk
+  
+  - `build.chunks()` groups the components, the foundations, the themes and the tooling a page runs
+    into a `library` chunk, beside the `framework`, `vendor` and `app` chunks a build already wrote,
+    whether they resolved to their source beside the application or were installed under the house
+    scope. The library changes at another pace than the application drawn with it, so a deploy that
+    touched a page alone leaves the library chunk's name, and the browser's copy of it, as they were.
+    The catalogue's first load is the same 240 kB gzipped, now as 66 kB of framework, 90 of vendor, 56
+    of library and 26 of the application.
+  - A module is placed by its own path alone. The bundler would otherwise pull everything a matched
+    module imports into the same group, and the library's dependencies followed it out of the vendor
+    chunk.
+  - A dev server keeps the three-way split, because it groups its chunks the way a build does and its
+    React refresh runtime is a module of the application's chunk: a library chunk ran before it and
+    every component called a runtime not yet set up, which was a white page.
+
+### Patch Changes
+
+- [#34](https://github.com/stealth-scale/scale/pull/34) [`808c86b`](https://github.com/stealth-scale/scale/commit/808c86be6484d08a16b059d7d31680c5929257b4) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - walk past the worktrees an agent session checks out
+  
+  `.claude` holds a worktree per session, each a second copy of the repository. A run from the root
+  descended into them, counting every file twice and running every specification again: 2090 of 3016
+  files in one root coverage report came from a worktree, which put the report at 32% against a
+  threshold of 100%.
+  
+  The globs are anchored at the root: `.claude/**` for the test files, which the runner globs from the
+  root, and `<root>/.claude/**` for coverage, which the provider matches anywhere in an absolute path.
+  A run inside a worktree counts its own files again. With `**/.claude/**` it reported 0 of 0 lines at
+  100% and passed the thresholds on nothing.
+- Updated dependencies []:
+  - @stealthscale/vite-plugin-sbom@0.3.2
+
 ## 0.6.0
 
 ### Minor Changes
