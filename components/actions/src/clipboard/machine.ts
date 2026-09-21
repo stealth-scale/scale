@@ -1,12 +1,12 @@
 /**
- * Runs the clipboard's machine and hands what it returns down to the parts.
+ * Runs the clipboard state machine at the root and distributes its api to the parts.
  *
  * @remarks
- *   The machine is connected once, at the root, so every part reads one api from one running
- *   machine. A part drawn outside the root throws where it was written rather than drawing wrongly
- *   and saying nothing.
- *   The id is the machine's and never an element's. It builds the reference between the label and
- *   the input from it, so a caller naming their own passes it here and the reference follows.
+ *   One machine is connected per root, so every part below it reads the same api. A part rendered
+ *   with no root above it throws at its own call site rather than rendering something inert and
+ *   silent. The `id` belongs to the machine and not to any element: the machine derives the
+ *   association between the label and the input from it, so an id a caller supplies carries into
+ *   that association.
  */
 
 import { useId } from "react";
@@ -20,30 +20,34 @@ import { createRequiredContext, splitEnumerable } from "@stealthscale/hooks";
 import { stated } from "#stated.ts";
 
 /**
- * Describes what the machine returns: a prop getter per part, beside its state and its methods.
+ * Mirrors the return type of `clipboard.connect`: one prop getter per part, plus the machine's
+ * state and methods.
  *
  * @remarks
- *   Inferred off `connect` rather than named, so the parts take exactly what the machine hands
- *   them. The inferred type reaches `@zag-js/types`, which this package declares for that reason
- *   alone: a declaration file naming a type from a package nobody declared is not portable.
+ *   Inferring the type instead of writing one keeps the parts in step with the installed machine.
+ *   The inference reaches into `@zag-js/types`, which is the only reason this package depends on it
+ *   directly: a declaration file referring to a type from an undeclared package does not resolve
+ *   for a consumer.
  */
 export type ClipboardApi = ReturnType<typeof clipboard.connect>;
 
 /**
- * Describes what a caller sets on the machine, less the id it is given.
+ * Relaxes the machine's props so that every setting is optional, the id included.
  */
 export type ClipboardOptions = Partial<clipboard.Props>;
 
 /**
- * Hands the running machine to every part, and reads it back.
+ * Publishes the connected api at the root and reads it back in a part, throwing where no root is
+ * above.
  */
 export const [ApiProvider, useClipboard] = createRequiredContext<ClipboardApi>("Clipboard");
 
 /**
- * Starts the machine and connects it.
+ * Starts the clipboard machine and connects it to React.
  *
- * @param options - The settings the caller handed the root, less the id where it named none.
- * @returns The api every part reads.
+ * @param options - The machine settings taken from the root's props. A generated id stands in
+ *   where the caller supplies none.
+ * @returns The api the parts below the root read.
  */
 export function useClipboardMachine(options: ClipboardOptions): ClipboardApi {
   const generated = useId();
@@ -55,13 +59,13 @@ export function useClipboardMachine(options: ClipboardOptions): ClipboardApi {
 }
 
 /**
- * Splits what the machine reads from what the element does.
+ * Divides the root's props into the machine's settings and everything the element takes.
  *
  * @remarks
- *   The machine states which props are its own, so the root never lists them and never drifts from
- *   the version it is built against. The machine's own splitter is typed over its full props, id
- *   included, and the root names the id after the split, so the split is built here over the same
- *   key list with every setting optional.
+ *   The key list is `clipboard.props`, published by the machine itself, so nothing here restates it
+ *   and it cannot drift from the installed version. The splitter shipped with the machine is typed
+ *   over the full props with the id required, while the root supplies the id after splitting;
+ *   rebuilding the splitter over `ClipboardOptions` makes every setting optional.
  */
 export const splitClipboardProps = splitEnumerable(
   createSplitProps<ClipboardOptions>(clipboard.props),

@@ -5,15 +5,15 @@ import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/te
 import { recipe } from "#clipboard/recipe.ts";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("styles Clipboard from tokens a theme can override", () => {
     expect(recipeViolations(recipe, { names: ["Clipboard"] })).toStrictEqual([]);
   });
 
-  it("names its class clipboard", () => {
+  it("sets className to clipboard", () => {
     expect(recipe.className).toBe("clipboard");
   });
 
-  it("draws the seven parts a clipboard is composed of", () => {
+  it("declares seven slots", () => {
     expect([...recipe.slots].toSorted()).toStrictEqual([
       "control",
       "indicator",
@@ -25,19 +25,19 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers the one axis a clipboard takes", () => {
+  it("declares size as its only variant axis", () => {
     expect(axesOf(recipe)).toStrictEqual(["size"]);
   });
 
-  it("draws the middle size by default", () => {
+  it("defaults size to md", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md" });
   });
 
-  it("offers the three sizes a label and a control row are set at", () => {
+  it("declares three size values from sm to lg", () => {
     expect(valuesOf(recipe, "size")).toStrictEqual(["lg", "md", "sm"]);
   });
 
-  it("sets the label's role and the gaps together at each size", () => {
+  it("gives the root a smaller gap than the control at the md size", () => {
     expect(recipe.variants?.["size"]?.["md"]).toStrictEqual({
       control: { gap: "calc({spacing.gap.md} * var(--density, 1))" },
       label: { textStyle: "label.md" },
@@ -45,7 +45,7 @@ describe("recipe", () => {
     });
   });
 
-  it("stacks the label over the control row without stretching a trigger on its own", () => {
+  it("lays the root out as a column aligned at the start", () => {
     expect(recipe.base?.["root"]).toStrictEqual({
       alignItems: "start",
       display: "flex",
@@ -53,15 +53,15 @@ describe("recipe", () => {
     });
   });
 
-  it("stretches the control row across the root", () => {
+  it("sets alignSelf to stretch on the control slot", () => {
     expect(recipe.base?.["control"]).toMatchObject({ alignSelf: "stretch" });
   });
 
-  it("draws no control look on the trigger because the caller draws it as a button", () => {
+  it("leaves the trigger slot without base styles", () => {
     expect(recipe.base?.["trigger"]).toBeUndefined();
   });
 
-  it("tracks the tag named Clipboard and every part under it", () => {
+  it("matches the Clipboard tag and its dotted parts", () => {
     expect(recipe.jsx).toStrictEqual([/^Clipboard(\.\w+)?$/u]);
   });
 });

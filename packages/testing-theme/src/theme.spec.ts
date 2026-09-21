@@ -24,7 +24,7 @@ describe("theme", () => {
     expect(resolved(paletteTheme(), { value: { _dark: "b", base: "a" } }, "base")).toBe("a");
   });
 
-  it("follows a reference to a step of the theme's own ramp", () => {
+  it("follows a reference to a step of the theme's ramp", () => {
     const value = resolved(paletteTheme(), { value: "{colors.primary.500}" }, "base");
 
     expect(value).toBe("oklch(58.0% 0.1400 262.0)");
@@ -46,7 +46,7 @@ describe("theme", () => {
     );
   });
 
-  it("follows a reference into the base preset when the theme leaves the scale alone", () => {
+  it("follows a reference into the base preset when the theme declares no such scale", () => {
     const value = resolved(paletteTheme(), { value: "{colors.red.600}" }, "base", {
       base: foundation,
     });
@@ -82,7 +82,7 @@ describe("theme", () => {
     expect(resolved(theme, { value: "{colors.primary.solid}" }, "base")).toBeUndefined();
   });
 
-  it("returns undefined where the mode was never stated", () => {
+  it("returns undefined when the token declares no value in that mode", () => {
     expect(resolved(paletteTheme(), { value: { base: "a" } }, "_dark")).toBeUndefined();
   });
 
@@ -91,7 +91,7 @@ describe("theme", () => {
     expect(resolved(paletteTheme(), { value: "{colors}" }, "base")).toBeUndefined();
   });
 
-  it("reads one string in either mode", () => {
+  it("resolves a token declared as one string in either mode", () => {
     expect(resolved(paletteTheme(), { value: "{colors.primary.500}" }, "_dark")).toBe(
       "oklch(58.0% 0.1400 262.0)",
     );
@@ -106,7 +106,7 @@ describe("theme", () => {
     expect(colorAt(theme, "bg", "base", {})).toBeUndefined();
   });
 
-  it("reads a group at its own value", () => {
+  it("reads a group at its DEFAULT value", () => {
     const theme = paletteTheme({
       solid: { DEFAULT: { value: "#123456" }, hover: { value: "#0" } },
     });
@@ -122,7 +122,7 @@ describe("theme", () => {
     expect(lightnessAt(theme, "primary.contrast", "base", {})).toBeCloseTo(0.97, 2);
   });
 
-  it("reads no lightness where the color cannot be resolved or read", () => {
+  it("returns undefined when the color cannot be resolved or read", () => {
     const theme = paletteTheme({ solid: { value: "nope" } });
 
     expect(lightnessAt(theme, "primary.solid", "base", {})).toBeUndefined();
@@ -135,11 +135,11 @@ describe("theme", () => {
     expect(palettesOf(foundationTheme())).not.toContain("bg");
   });
 
-  it("lists no palette for a theme that states no color", () => {
+  it("lists no palette for a theme that declares no color", () => {
     expect(palettesOf({ ...paletteTheme(), variant: {} })).toStrictEqual([]);
   });
 
-  it("lists the recipe keys a theme's own preset extends", () => {
+  it("lists the recipe keys a theme's preset extends", () => {
     const theme = defineTheme({
       extends: foundationTheme(),
       name: "abyss",
@@ -176,11 +176,11 @@ describe("theme", () => {
     });
   });
 
-  it("maps nothing for a preset that registers no recipe", () => {
+  it("returns an empty object for a preset that registers no recipe", () => {
     expect(publishedRecipes(definePreset({ name: "@acme/bare" }))).toStrictEqual({});
   });
 
-  it("leaves out an entry that names no class", () => {
+  it("leaves out an entry with no class name", () => {
     const theme = defineTheme({
       extends: foundationTheme(),
       name: "abyss",

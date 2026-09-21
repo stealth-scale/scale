@@ -1,5 +1,6 @@
 /**
- * The plugin built over the fixture workspace, its hooks called the way the bundler calls them.
+ * Builds the plugin over the fixture workspace and calls its hooks with the contexts a bundler
+ * would pass.
  */
 
 import { join } from "node:path";
@@ -26,7 +27,7 @@ export interface Resolved {
 }
 
 /**
- * What the update hook is called on.
+ * The environment an update hook is called on.
  */
 export interface Watching {
   /**
@@ -34,12 +35,12 @@ export interface Watching {
    */
   readonly environment: {
     /**
-     * Its channel to the page.
+     * The environment's channel to the page.
      */
     readonly hot: { readonly send: (event: string, payload: Changed) => void };
 
     /**
-     * Its module graph.
+     * The environment's module graph.
      */
     readonly moduleGraph: {
       /**
@@ -48,7 +49,7 @@ export interface Watching {
       readonly getModuleById: (id: string) => EnvironmentModuleNode | undefined;
 
       /**
-       * Marks a module stale.
+       * Invalidates a module, so the next import reloads it.
        */
       readonly invalidateModule?: ((node: EnvironmentModuleNode) => void) | undefined;
     };
@@ -56,16 +57,16 @@ export interface Watching {
 }
 
 /**
- * The hooks, as functions rather than as whatever an object hook allows.
+ * The plugin's hooks, typed as plain functions.
  */
 export interface Hooks {
   /**
-   * Says what is wrong, or fails the build.
+   * Warns on an invalid catalogue, or throws during a build.
    */
   readonly buildStart: (this: { readonly warn: (message: string) => void }) => void;
 
   /**
-   * Takes the resolved configuration.
+   * Receives the resolved configuration.
    */
   readonly configResolved: (config: Resolved) => void;
 
@@ -77,7 +78,7 @@ export interface Hooks {
   }) => void;
 
   /**
-   * Follows a change under a dev server.
+   * Handles a catalogue change under a dev server.
    */
   readonly hotUpdate: (
     this: Watching,
@@ -85,7 +86,8 @@ export interface Hooks {
   ) => EnvironmentModuleNode[] | undefined;
 
   /**
-   * Answers the catalogues' module and each pair's, listing what each read as files to watch.
+   * Serves the catalogues module and each pair module, and lists the files each one read as files
+   * to watch.
    */
   readonly load: (this: HookContext, id: string) => string | undefined;
 
@@ -95,22 +97,22 @@ export interface Hooks {
   readonly resolveId: (id: string) => string | undefined;
 
   /**
-   * Follows a change under a build that watches or a server that bundles.
+   * Handles a change under a watching build or a server that bundles.
    */
   readonly watchChange: (this: HookContext, id: string) => void;
 }
 
 /**
- * Stands in for the module's node in a module graph.
+ * The catalogues module's node, with the identifier the plugin reads it by.
  */
-// The graph holds nodes with more on them than a fixture needs, and the plugin reads the id alone.
+// A graph node has more on it than a fixture needs, and the plugin reads the id alone.
 // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
 export const MODULE = { id: `\0${ID}` } as EnvironmentModuleNode;
 
 /**
  * Builds the plugin over the fixture workspace and resolves its configuration.
  *
- * @param scratch - The workspace.
+ * @param scratch - The scratch workspace holding the fixture application.
  * @param command - Whether the bundler is building or serving. Serving by default.
  * @param options - The plugin options. None by default.
  * @returns The hooks.
@@ -120,7 +122,7 @@ export function configured(
   command: Resolved["command"] = "serve",
   options: Options = {},
 ): Hooks {
-  // The plugin is a Vite plugin, whose hooks are typed as object hooks rather than as functions.
+  // Vite types a plugin's hooks as object hooks, and this fixture calls them as functions.
   // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
   const plugin = i18n(options) as unknown as Hooks;
 
@@ -130,7 +132,7 @@ export function configured(
 }
 
 /**
- * Loads a module the way the bundler would, over a context that records the files watched.
+ * Calls the load hook over a context that records the files watched.
  *
  * @param plugin - The hooks.
  * @param id - The resolved identifier.
@@ -146,8 +148,7 @@ export function loading(
 }
 
 /**
- * Reports a watched file's change the way the bundler would, over a context that says whether the
- * environment bundles.
+ * Calls the watch change hook over a context that declares whether the environment bundles.
  *
  * @param plugin - The hooks.
  * @param file - The file that changed.
@@ -162,34 +163,34 @@ export function watched(
 }
 
 /**
- * Describes what one update was called with and returned.
+ * The result of one call to the update hook.
  */
 export interface Updated {
   /**
-   * What the hook returned.
+   * The hook's return value.
    */
   readonly answered: EnvironmentModuleNode[] | undefined;
 
   /**
-   * Every module the hook marked stale.
+   * Every module the hook invalidated.
    */
   readonly invalidated: readonly EnvironmentModuleNode[];
 
   /**
-   * Every event the hook sent, with what it carried.
+   * Every event the hook sent, with its payload.
    */
   readonly sent: ReadonlyArray<readonly [string, Changed]>;
 }
 
 /**
- * Runs the update hook for a file, over a graph holding the module and whichever pair modules were
- * loaded.
+ * Runs the update hook for a file, over a graph containing the catalogues module and the pair
+ * modules named.
  *
  * @param plugin - The hooks.
  * @param file - The file that changed.
  * @param type - Whether the file was updated, created or deleted. An update by default.
  * @param loaded - The resolved identifiers of the pair modules already in the graph.
- * @returns What was sent, marked stale and returned.
+ * @returns The events sent, the modules invalidated and the hook's return value.
  */
 export function updated(
   plugin: Hooks,
@@ -202,7 +203,7 @@ export function updated(
   const nodes = new Map(
     [
       MODULE,
-      // A pair module's node is read by its id alone, as the module's own is.
+      // The plugin reads a pair module's node by its id alone.
       // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
       ...loaded.map((id) => ({ id }) as EnvironmentModuleNode),
     ].map((node) => [node.id, node]),
@@ -226,7 +227,7 @@ export function updated(
     file,
     modules: [],
     read: () => "",
-    // A hot update carries the server, which nothing this plugin does reads.
+    // A hot update includes the server, which no hook of this plugin reads.
     // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
     server: {} as HotUpdateOptions["server"],
     timestamp: 0,

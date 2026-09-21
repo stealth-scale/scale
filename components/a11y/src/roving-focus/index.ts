@@ -1,6 +1,6 @@
 /**
- * Publishes the group that holds one tab stop for a set of controls, composed as
- * `RovingFocus.Root` holding `RovingFocus.Item`.
+ * Re-exports the parts of the roving focus group, which a caller composes as `RovingFocus.Root`
+ * around one `RovingFocus.Item` per control.
  */
 
 export { Item, type ItemProps } from "#roving-focus/item.tsx";

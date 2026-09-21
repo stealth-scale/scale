@@ -1,13 +1,11 @@
 /**
- * States what a blockquote is: a quotation with a mark beside it and a caption under it, set off
- * from the page by a rule down its leading edge or by a pane of glass, in a size, in the palette
- * of its status, entering with a motion where a page wants one.
+ * Slot recipe for the blockquote, covering its four slots and five variant axes.
  *
  * @remarks
- *   Every value is a body role, a semantic gap, a semantic inset, a palette role, a layer style or
- *   an animation style, so a theme moves all of them. The root takes the variants and every part
- *   draws its slot in them. The icon slot states the mark's colour and nothing of its size,
- *   because the mark is the icon component, and its own recipe sizes it.
+ *   No value here is a literal: every one resolves to a text style, a semantic spacing token, a
+ *   palette role, a layer style or an animation style, so a theme swap moves the whole component
+ *   without an edit to this file. The icon slot sets colour only. Sizing the mark is the icon
+ *   component's job, and declaring a size here would fight its recipe at the same specificity.
  */
 
 import {
@@ -22,13 +20,14 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * The steps a quotation is read at.
+ * The size steps, shared by the `body` text styles and the semantic spacing scale so that one
+ * variant value can index both.
  */
 const STEPS = ["xs", "sm", "md", "lg", "xl"] as const;
 
 /**
- * Draws a quotation on the neutral palette in the subtle look and the middle size until a caller
- * says otherwise, lined up on its leading edge, with no motion until a caller asks for one.
+ * Defines the blockquote's slots and variants. Unset, a blockquote renders on the neutral palette
+ * as a `subtle` rule down the leading edge, at `md`, aligned to the start, and without motion.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -57,7 +56,8 @@ export const recipe = defineSlotRecipe({
     },
     motion: onSlot("root", motionVariants(["rise", "reveal"])),
     /**
-     * How loud the quotation is, on the five steps the body role offers.
+     * Moves the content's text style and the root's gap and leading inset together, so the rule
+     * stays proportional to the type at every step.
      */
     size: onSlots({
       content: sizeVariants((size) => ({ textStyle: `body.${size}` }), STEPS),

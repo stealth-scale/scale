@@ -1,11 +1,12 @@
 /**
- * Draws words a screen reader reads and an eye never sees.
+ * Renders content that assistive technology can reach and the browser never paints.
  *
  * @remarks
- *   The element is `span`, which carries no meaning of its own, because the words inside it are
- *   the meaning. A caller naming a region or a table cell changes the element with `as`. The words
- *   stay in the accessibility tree, which is the whole point: a mark with no label, a heading a
- *   page needs and a design does not, and the words that tell a reader what a control does.
+ *   The default element is a `span`, which contributes no semantics of its own; callers that need
+ *   a landmark, a heading or a table cell override the element with `as`. The content is clipped
+ *   rather than removed, so it remains in the accessibility tree. The usual cases are the
+ *   accessible name of an icon-only control, a heading the document outline requires but the
+ *   layout has no room for, and instructions that should be announced before a control.
  */
 
 import { type ComponentProps } from "react";
@@ -13,12 +14,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#visually-hidden/context.ts";
 
 /**
- * Reads its words to a screen reader and draws them nowhere.
+ * Exposes its children to assistive technology without rendering them visibly.
  */
 export const VisuallyHidden = withContext("span");
 
 /**
- * Describes what hidden text takes: the variants its recipe offers, and everything a styled span
- * element takes.
+ * Props accepted by `VisuallyHidden`: the recipe's variants plus the props of a styled `span`.
  */
 export type VisuallyHiddenProps = ComponentProps<typeof VisuallyHidden>;

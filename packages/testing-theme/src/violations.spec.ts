@@ -21,15 +21,15 @@ describe("violations", () => {
     ]);
   });
 
-  it("passes the foundation wrapped as a theme", () => {
+  it("reports nothing for the foundation wrapped as a theme", () => {
     expect(violations(foundationTheme(), { recipes: [] })).toStrictEqual([]);
   });
 
-  it("passes a palette theme layered on the foundation", () => {
+  it("reports nothing for a palette theme layered on the foundation", () => {
     expect(violations(paletteTheme(), { base: foundation })).toStrictEqual([]);
   });
 
-  it("opens each violation with the check that reported it", () => {
+  it("prefixes each violation with the check that reported it", () => {
     const theme = paletteTheme({ solid: { value: { base: "{colors.primary.700}" } } });
 
     expect(violations(theme, { base: foundation })).toStrictEqual(
@@ -47,7 +47,7 @@ describe("violations", () => {
     ).toStrictEqual(["name.attribute: Dark Mode is not a valid attribute value"]);
   });
 
-  it("leaves out a check skipped with a reason", () => {
+  it("runs no check skipped with a reason", () => {
     const theme = { ...paletteTheme(), name: "Dark Mode" };
 
     expect(

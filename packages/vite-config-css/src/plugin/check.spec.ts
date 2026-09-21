@@ -1,6 +1,5 @@
 /**
- * Covers the layer the check produces: where it lands, what it is called, and
- * what a repository's own options do to it.
+ * Covers the contribution the check returns.
  */
 
 import { describe, expect, it } from "vitest";
@@ -8,28 +7,28 @@ import { describe, expect, it } from "vitest";
 import { check } from "#plugin/check.ts";
 
 describe("check", () => {
-  it("appends to the list of plugins rather than replacing whatever else is there", () => {
+  it("returns a contribution at plugins", () => {
     expect(check().at).toBe("plugins");
   });
 
-  it("names the layer for the call a consumer wrote", () => {
+  it("returns a contribution named css.check", () => {
     expect(check().name).toBe("css.check");
   });
 
-  it("gives a reason the type checker cannot supply", () => {
+  it("records a reason naming the type checker", () => {
     expect(check().because).toContain("type checker");
   });
 
-  it("adds a plugin for the bundler to run", () => {
+  it("returns a contribution whose item is defined", () => {
     expect(check().item).toBeDefined();
   });
 
-  it("checks the extra globs a repository names", () => {
+  it("returns a contribution whose item is defined when also is stated", () => {
     expect(() => check({ also: ["**/*.module.css"] })).not.toThrow();
     expect(check({ also: ["**/*.module.css"] }).item).toBeDefined();
   });
 
-  it("leaves the globs a repository names untouched", () => {
+  it("returns a contribution whose item is defined when except is stated", () => {
     expect(check({ except: ["vendor/**"] }).item).toBeDefined();
   });
 });

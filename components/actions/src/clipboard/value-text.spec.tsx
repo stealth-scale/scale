@@ -8,7 +8,7 @@ import { clipped, LINK } from "#clipboard/clipboard.fixtures.tsx";
 import { ValueText } from "#clipboard/value-text.tsx";
 
 describe("ValueText", () => {
-  it("conforms as a span inside the root it needs above it", () => {
+  it("returns no conformance violation for its SPAN slot inside a root", () => {
     expect(
       violations(ValueText, {
         as: true,
@@ -20,13 +20,13 @@ describe("ValueText", () => {
     ).toStrictEqual([]);
   });
 
-  it("writes the value where a caller writes nothing", () => {
+  it("renders the machine's value when given no children", () => {
     const { container } = render(clipped(<ValueText />));
 
     expect(slotElement(container, "clipboard", "valueText").textContent).toBe(LINK);
   });
 
-  it("keeps the words a caller writes", () => {
+  it("renders the children in place of the machine's value", () => {
     const { container } = render(clipped(<ValueText>The payout link</ValueText>));
 
     expect(slotElement(container, "clipboard", "valueText").textContent).toBe("The payout link");

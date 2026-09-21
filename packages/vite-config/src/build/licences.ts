@@ -1,16 +1,15 @@
 /**
- * Ships the licence notices of the code a bundle absorbed.
+ * Emits the licence notices of the dependencies a bundle includes.
  */
 
 import { type Preset, preset } from "@stealthscale/vite-config-core";
 
 /**
- * Collects the licence of every dependency the bundle drew from into a file beside it.
+ * Writes the licence of every dependency the bundle includes into a file in the output directory.
  *
  * @remarks
- *   A bundle carries other people's code with the attribution stripped out by minification, and
- *   most licences require the notice to travel with the code. The collected file is what satisfies
- *   that.
+ *   The minifier strips attribution comments out of the dependency code the bundle includes, and
+ *   most licences require the notice to ship with the code. The emitted file supplies that notice.
  */
 export function licences(): Preset {
   return preset({ config: { build: { license: true } }, name: "build.licences" });

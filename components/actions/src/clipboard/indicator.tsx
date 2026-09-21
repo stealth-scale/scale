@@ -1,12 +1,11 @@
 /**
- * Draws the mark that swaps while the copy is fresh.
+ * Renders the mark that changes for a moment after a copy.
  *
  * @remarks
- *   A caller hands over two glyphs: the children at rest, and `copied` for the while after a
- *   press. It states `aria-hidden`, because it sits inside the trigger and everything inside a
- *   control is read as part of that control's name, which the machine already writes to say the
- *   same thing. A caller whose mark says something the name does not can state
- *   `aria-hidden={false}`.
+ *   The caller supplies two glyphs: `children` for the resting state and `copied` for the window
+ *   after a successful copy. The span sets `aria-hidden` because it sits inside the trigger, whose
+ *   content becomes its accessible name, and the machine already writes that name to the same
+ *   effect. A caller whose mark carries something the name does not can pass `aria-hidden={false}`.
  */
 
 import { type ComponentProps, type ReactElement, type ReactNode } from "react";
@@ -17,26 +16,25 @@ import { withContext } from "#clipboard/context.ts";
 import { useClipboard } from "#clipboard/machine.ts";
 
 /**
- * Draws the mark at the box the recipe states.
+ * Renders the indicator slot at the box the recipe gives it.
  */
 const Marked = withContext("span", "indicator");
 
 /**
- * Describes what the indicator takes: the glyph at rest as its children, and the one after a
- * copy.
+ * Extends the styled span's props with the second glyph.
  */
 export interface IndicatorProps extends ComponentProps<typeof Marked> {
   /**
-   * The glyph shown while the copy is fresh.
+   * The glyph rendered for the window following a successful copy.
    */
   readonly copied?: ReactNode;
 }
 
 /**
- * Shows one glyph at rest and another for a while after a copy.
+ * Renders whichever glyph the machine's copied state selects.
  *
- * @param props - The two glyphs, and everything a styled span takes.
- * @returns The mark, holding whichever glyph the machine's state picks.
+ * @param props - Both glyphs, plus everything a styled span takes.
+ * @returns The span, hidden from assistive technology unless the caller overrides it.
  */
 export function Indicator({ children, copied, ...rest }: IndicatorProps): ReactElement {
   const api = useClipboard();

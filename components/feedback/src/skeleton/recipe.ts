@@ -1,35 +1,35 @@
 /**
- * States what a skeleton is: a box standing in for content that has not arrived, drawn in one of
- * the theme's own motions and revealed once the content does.
+ * Declares the recipe a skeleton is styled from, the placeholder a surface shows while content is
+ * still in flight.
  *
  * @remarks
- *   A skeleton wraps the content it stands in for rather than replacing it, so a caller writes one
- *   tree and flips one prop. While it is loading it takes the content's own box and hides
- *   everything inside it, which is what makes the stand-in the size of the thing it stands in for
- *   without anybody stating a width. Once it has loaded it fades the content in and gets out of
- *   the way. The fade is written in the base, because a boolean axis carries no class at `false`
- *   and a rule written there reaches no element. Each motion is written under the class the
- *   loading state carries, so a skeleton that has loaded keeps neither the pulse nor the shimmer.
- *   Every motion is an animation style the theme owns, so a reader who asked for less motion is
- *   answered once in the theme rather than in every recipe. Nothing here states a colour, a length
- *   or a duration of its own. The stand-in is drawn in the neutral palette's quiet fills, which
- *   lift above a dark page rather than sinking below it, so a placeholder reads as something on
- *   its way rather than as a hole in the page.
+ *   A skeleton wraps the content it covers rather than replacing it, so a caller writes one
+ *   tree and toggles one prop. While loading it adopts that content's own box and hides everything
+ *   inside it, which is how the placeholder takes the size of the real thing without anyone
+ *   declaring a width; once loading ends it fades the content in and otherwise gets out of the
+ *   way. The fade lives in the base rather than under `loading: false`, because a boolean variant
+ *   emits no class for its false value and a rule declared there would reach no element. Each
+ *   motion is nested under the loading class, so a skeleton that has finished keeps neither the
+ *   pulse nor the shimmer. Every motion resolves to an animation style the theme owns, which is
+ *   what lets a reduced-motion preference be honoured once in the theme instead of in every
+ *   recipe. No colour, length or duration is declared here. The placeholder uses the neutral
+ *   palette's quiet fills, which lift above a dark page instead of sinking into it, so that it
+ *   reads as content on its way rather than as a hole.
  */
 
 import { cornerVariants, defineRecipe } from "@stealthscale/theme/authoring";
 
 /**
- * Selects a skeleton that is still standing in, from inside a motion's own styles.
+ * Selects an element that is still loading, for a motion variant to nest its rules under.
  *
  * @remarks
- *   The class is spelt as the compiler spells a value, the axis and the value joined by its
- *   separator, and the naming pass rewrites it beside the value's own class.
+ *   The selector is written the way the compiler spells a variant class, the axis and the value
+ *   joined by its separator, so that the naming pass rewrites it alongside the class it targets.
  */
 const WHILE_LOADING = "&.skeleton--loading_true";
 
 /**
- * Draws a pulsing stand-in at the middle corner until a caller says otherwise.
+ * Styles a skeleton, defaulting to a loading placeholder that pulses at the middle radius.
  */
 export const recipe = defineRecipe({
   base: { animationStyle: "fade.in" },
@@ -38,7 +38,7 @@ export const recipe = defineRecipe({
   jsx: [/^Skeleton$/u],
   variants: {
     /**
-     * Whether the content it stands in for has arrived.
+     * Whether the content behind the placeholder is still in flight.
      */
     loading: {
       true: {
@@ -55,7 +55,7 @@ export const recipe = defineRecipe({
     },
 
     /**
-     * How it moves while it waits.
+     * The animation the placeholder runs while loading.
      */
     motion: {
       none: { [WHILE_LOADING]: { animation: "none" } },

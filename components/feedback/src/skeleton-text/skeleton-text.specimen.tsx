@@ -1,11 +1,12 @@
 /**
- * Shows the paragraph placeholder: one, three and six lines, and every motion.
+ * Catalogues the placeholder paragraph at three line counts and under every motion.
  *
  * @remarks
- *   The motion is read off the skeleton's recipe, which the bars are drawn with. The count of
- *   lines is a prop rather than an axis, so three counts are written here. The cells run down the
- *   page, because the bars fill the width they are given. The words are keys under
- *   `skeleton-text` in the catalogue's namespace, kept beside this file in
+ *   The motion values are enumerated from the skeleton recipe the bars are bound to, not from
+ *   this component's own, which declares no variants. The line count is a prop rather than a
+ *   variant, so the three counts are written out here. The cells are stacked in a column because
+ *   the bars take the full width they are given. The scene titles are keyed under `skeleton-text`
+ *   in the catalogue namespace and stored beside this file at
  *   `locales/en/specimen/skeleton-text.json`.
  */
 
@@ -17,12 +18,12 @@ import { SkeletonText } from "#skeleton-text/skeleton-text.tsx";
 import { recipe } from "#skeleton/recipe.ts";
 
 /**
- * Three counts of lines: a heading's worth, a paragraph's, and a long one.
+ * The three line counts the scene steps through: a single line, a short paragraph, a long one.
  */
 const COUNTS = [1, 3, 6] as const;
 
 /**
- * Draws the placeholder at each count of lines.
+ * Renders the placeholder once per line count.
  */
 function Lines(): ReactElement {
   return (
@@ -33,7 +34,7 @@ function Lines(): ReactElement {
 }
 
 /**
- * Draws the placeholder with every motion.
+ * Renders the placeholder once per motion.
  */
 function Motion(): ReactElement {
   return (
@@ -44,7 +45,7 @@ function Motion(): ReactElement {
 }
 
 /**
- * Three counts of lines.
+ * The scene stepping through the three line counts.
  */
 export const lines: Scene = {
   about: "skeleton-text.lines.about",
@@ -53,7 +54,7 @@ export const lines: Scene = {
 };
 
 /**
- * Every motion.
+ * The scene stepping through the motions.
  */
 export const motion: Scene = {
   about: "skeleton-text.motion.about",

@@ -1,5 +1,5 @@
 /**
- * Publishes the portal: what it holds, drawn somewhere else in the document.
+ * Forms the public surface of the portal.
  */
 
 export { Portal, type PortalProps } from "#portal/portal.ts";

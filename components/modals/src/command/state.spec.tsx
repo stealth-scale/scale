@@ -9,20 +9,14 @@ import { ACTIONS } from "#command/actions.fixtures.ts";
 import { type CommandOptions, useCommandState } from "#command/state.ts";
 
 /**
- * Says how many matches are left, so a case can read the line off the screen.
- *
- * @param matches - How many actions are still listed.
- * @returns The line.
+ * Formats the result count in a shape a case can recognise on screen.
  */
 function counted(matches: number): string {
   return `${String(matches)} left`;
 }
 
 /**
- * Runs the palette and reports what is left of it, with a control that narrows it.
- *
- * @param props - What to narrow to, and what to say about the count.
- * @returns The rows left, drawn as text.
+ * Drives the hook from a button and renders the matching labels and the query as text.
  */
 function Reader(props: { to: string } & Partial<CommandOptions>): ReactElement {
   const { to, ...rest } = props;
@@ -50,34 +44,34 @@ function Reader(props: { to: string } & Partial<CommandOptions>): ReactElement {
 }
 
 describe("useCommandState", () => {
-  it("holds every action before anything is typed", () => {
+  it("keeps every action in the collection before any query is entered", () => {
     render(<Reader to="" />);
 
     expect(screen.getByTestId("left").textContent).toBe("Invoices,Reports,New document");
   });
 
-  it("keeps the actions whose words match what was typed", async () => {
+  it("drops the actions whose labels do not contain the query", async () => {
     render(<Reader to="rep" />);
     await pressed(screen.getByRole("button"));
 
     expect(screen.getByTestId("left").textContent).toBe("Reports");
   });
 
-  it("matches an action by the words added to it", async () => {
+  it("keeps an action whose keywords contain the query but whose label does not", async () => {
     render(<Reader to="create" />);
     await pressed(screen.getByRole("button"));
 
     expect(screen.getByTestId("left").textContent).toBe("New document");
   });
 
-  it("reports what was typed", async () => {
+  it("returns the query it was last narrowed with", async () => {
     render(<Reader to="rep" />);
     await pressed(screen.getByRole("button"));
 
     expect(screen.getByTestId("typed").textContent).toBe("rep");
   });
 
-  it("carries the words the palette is named by", () => {
+  it("builds its state without throwing when it is given a label", () => {
     render(<Reader to="" />);
 
     expect(screen.getByTestId("left")).toBeTruthy();

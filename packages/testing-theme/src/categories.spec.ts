@@ -18,13 +18,13 @@ describe("categories", () => {
     expect(categoryOf("bg")).toBe("colors");
   });
 
-  it("names the three compositions the compiler resolves itself", () => {
+  it("reads the category of the three compositions the compiler resolves itself", () => {
     expect(categoryOf("textStyle")).toBe("textStyles");
     expect(categoryOf("layerStyle")).toBe("layerStyles");
     expect(categoryOf("animationStyle")).toBe("animationStyles");
   });
 
-  it("reads no category for a property that reads no token", () => {
+  it("returns undefined for a property that reads no token", () => {
     expect(categoryOf("display")).toBeUndefined();
   });
 
@@ -40,7 +40,7 @@ describe("categories", () => {
     expect(tokenPaths("sizes").has("control.md")).toBe(true);
   });
 
-  it("lists a group's own value with and without its suffix", () => {
+  it("lists a group's value with and without its DEFAULT suffix", () => {
     expect(tokenPaths("colors").has("bg")).toBe(true);
     expect(tokenPaths("colors").has("bg.DEFAULT")).toBe(true);
     expect(tokenPaths("colors").has("primary.solid.hover")).toBe(true);
@@ -52,13 +52,13 @@ describe("categories", () => {
     expect(tokenPaths("animationStyles").has("scale-fade.in")).toBe(true);
   });
 
-  it("reads a category once per preset", () => {
+  it("caches the paths of a category per preset", () => {
     expect(tokenPaths("radii")).toBe(tokenPaths("radii"));
     expect(tokenPaths("nope").size).toBe(0);
     expect(tokenPaths("radii", { name: "bare" })).not.toBe(tokenPaths("radii"));
   });
 
-  it("reads nothing from a preset that states no theme", () => {
+  it("returns no token path for a preset that declares no theme", () => {
     const bare = { name: "bare" };
 
     expect(tokenPaths("spacing", bare).size).toBe(0);
@@ -69,7 +69,7 @@ describe("categories", () => {
     expect(conditionNames(bare).has("narrow")).toBe(false);
   });
 
-  it("lists the semantic colors apart from the ramps", () => {
+  it("lists the semantic colors and no step of a ramp", () => {
     expect(semanticColorPaths().has("fg.muted")).toBe(true);
     expect(semanticColorPaths().has("blue.500")).toBe(false);
     expect(semanticColorPaths()).toBe(semanticColorPaths());

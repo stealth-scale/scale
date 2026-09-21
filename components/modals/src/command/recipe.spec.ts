@@ -5,7 +5,7 @@ import { axesOf, defaultsOf, recipeViolations } from "@stealthscale/testing-them
 import { recipe } from "#command/recipe.ts";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("reports no violation across the shared recipe checks", () => {
     expect(
       recipeViolations(recipe, {
         names: ["Command"],
@@ -14,11 +14,11 @@ describe("recipe", () => {
     ).toStrictEqual([]);
   });
 
-  it("names its class command", () => {
+  it("sets className to command", () => {
     expect(recipe.className).toBe("command");
   });
 
-  it("styles the seven parts a palette draws", () => {
+  it("declares its seven slots in the order the palette renders them", () => {
     expect(recipe.slots).toStrictEqual([
       "root",
       "control",
@@ -30,24 +30,27 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers the one axis a palette takes", () => {
+  it("declares size as its only variant", () => {
     expect(axesOf(recipe)).toStrictEqual(["size"]);
   });
 
-  it("draws a palette at the middle size when nothing is asked for", () => {
+  it("defaults size to md", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md" });
   });
 
-  it("draws no edge round the field", () => {
+  it("clears the border and the outline on the input slot", () => {
     expect(recipe.base?.["input"]).toMatchObject({ borderStyle: "none", outline: "none" });
   });
 
-  it("scrolls the rows rather than the panel", () => {
+  it("sets overflowY to auto on the list slot", () => {
     expect(recipe.base?.["list"]).toMatchObject({ overflowY: "auto" });
+  });
+
+  it("leaves overflowY unset on the root slot", () => {
     expect(recipe.base?.["root"]).not.toHaveProperty("overflowY");
   });
 
-  it("tracks every tag under the Command namespace", () => {
+  it("matches Command and its dotted parts with its jsx pattern", () => {
     expect(recipe.jsx).toStrictEqual([/^Command(\.\w+)?$/u]);
   });
 });

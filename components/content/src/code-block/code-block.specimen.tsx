@@ -1,13 +1,13 @@
 /**
- * Shows the code block: a file with a copy control, every size, three languages, and plain text.
+ * Catalogue entry for the code block, covering a titled file with a copy control, both sizes,
+ * three languages, plain text, and all three colour modes.
  *
  * @remarks
- *   The copy control is `CodeBlock.Copy`, which reads the code off the root and wires the
- *   clipboard itself. The page hands it the two marks and the words, because the library ships no
- *   icon set and this package ships no words. The marks come from Lucide, which this package takes
- *   for its specimens alone: a published component still takes its glyph from whoever draws it.
- *   The words are keys under `code-block` in the catalogue's namespace, kept beside this file in
- *   `locales/en/specimen/code-block.json`.
+ *   The copy control is `CodeBlock.Copy`, which takes the code from the root and drives the
+ *   clipboard itself. The page passes it the two glyphs and the label, because the library ships
+ *   neither an icon set nor any user-facing strings. The glyphs come from Lucide, which this
+ *   package depends on for specimens only; published components still take their glyphs from the
+ *   consumer. Copy comes from the `code-block` namespace in `locales/en/specimen/code-block.json`.
  */
 
 import { type ReactElement } from "react";
@@ -20,7 +20,7 @@ import * as CodeBlock from "#code-block/index.ts";
 import { recipe } from "#code-block/recipe.ts";
 
 /**
- * A component file, the passage the first two scenes set.
+ * The TypeScript source the first two scenes render.
  */
 const FILE = `import { Button } from "@stealthscale/component-actions";
 
@@ -38,7 +38,7 @@ export function Send({ onSend }: SendProps) {
 }`;
 
 /**
- * One passage per language the third scene sets.
+ * Sample source in each of the non-TypeScript languages the scenes render.
  */
 const PASSAGES = {
   json: `{
@@ -55,17 +55,17 @@ vp dev --port 5179`,
 } as const;
 
 /**
- * The languages the third scene sets, in the order they are shown.
+ * The axis of the languages scene, in the order the cells appear.
  */
 const LANGUAGES = ["json", "shell", "yaml"] as const;
 
 /**
- * The three modes the root offers, in the order they are shown.
+ * The axis of the modes scene, in the order the cells appear.
  */
 const MODES = ["dark", "light", "inherit"] as const;
 
 /**
- * Draws the control that copies the passage, named in the catalogue's words.
+ * Renders the copy control with Lucide glyphs and a translated accessible label.
  */
 function CopyControl(): ReactElement {
   const { t } = useWords("code-block");
@@ -81,7 +81,7 @@ function CopyControl(): ReactElement {
 }
 
 /**
- * Draws a file with its name and a copy control.
+ * Renders the block with every slot in place, including a file name and a copy control.
  */
 function File(): ReactElement {
   return (
@@ -100,7 +100,7 @@ function File(): ReactElement {
 }
 
 /**
- * Draws the same file at every size.
+ * Renders the same source once per size the recipe declares.
  */
 function Sizes(): ReactElement {
   return (
@@ -120,7 +120,7 @@ function Sizes(): ReactElement {
 }
 
 /**
- * Draws a passage in each of three languages.
+ * Renders one block per language, to show the token colours across different grammars.
  */
 function Languages(): ReactElement {
   return (
@@ -137,7 +137,7 @@ function Languages(): ReactElement {
 }
 
 /**
- * Draws a passage with no language named.
+ * Renders a block with the language omitted, so the source falls back to plain text.
  */
 function Plain(): ReactElement {
   return (
@@ -150,7 +150,7 @@ function Plain(): ReactElement {
 }
 
 /**
- * Draws the same passage in each mode the root offers.
+ * Renders the same source once per colour mode the root accepts.
  */
 function Modes(): ReactElement {
   return (
@@ -167,7 +167,7 @@ function Modes(): ReactElement {
 }
 
 /**
- * A file with a copy control.
+ * Scene showing the block fully composed.
  */
 export const file: Scene = {
   about: "code-block.file.about",
@@ -177,7 +177,7 @@ export const file: Scene = {
 };
 
 /**
- * Every size.
+ * Scene covering the size variant.
  */
 export const sizes: Scene = {
   about: "code-block.sizes.about",
@@ -186,7 +186,7 @@ export const sizes: Scene = {
 };
 
 /**
- * Three languages.
+ * Scene covering highlighting across three languages.
  */
 export const languages: Scene = {
   about: "code-block.languages.about",
@@ -195,7 +195,7 @@ export const languages: Scene = {
 };
 
 /**
- * Plain text.
+ * Scene covering source rendered with no language set.
  */
 export const plain: Scene = {
   about: "code-block.plain.about",
@@ -205,7 +205,7 @@ export const plain: Scene = {
 };
 
 /**
- * Every mode.
+ * Scene covering the three colour modes of the panel.
  */
 export const modes: Scene = {
   about: "code-block.modes.about",

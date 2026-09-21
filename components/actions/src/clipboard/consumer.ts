@@ -1,10 +1,10 @@
 /**
- * Hands the running machine to a caller's own render function.
+ * Exposes the running machine to a render function the caller supplies.
  *
  * @remarks
- *   A caller whose control is not the trigger, or whose words change with the state, reads
- *   `copied`, `value` and `copy` here and draws what it likes with them. It draws no element of
- *   its own, so it sits anywhere under the root.
+ *   A caller whose control is something other than the trigger, or whose text depends on the
+ *   state, reads `copied`, `value` and `copy` from the api and renders whatever it needs. Nothing
+ *   is rendered around the function, so it can sit at any depth below the root.
  */
 
 import { type ReactNode } from "react";
@@ -12,20 +12,20 @@ import { type ReactNode } from "react";
 import { type ClipboardApi, useClipboard } from "#clipboard/machine.ts";
 
 /**
- * Describes what the consumer takes: a function of the machine's api.
+ * Carries the single render function the consumer calls.
  */
 export interface ConsumerProps {
   /**
-   * Draws whatever the caller likes from the machine's state and methods.
+   * The function called with the machine's api, whose result is rendered in place.
    */
   readonly children: (api: ClipboardApi) => ReactNode;
 }
 
 /**
- * Calls the caller's function with the running machine.
+ * Invokes the render function with the api of the nearest root.
  *
- * @param props - The function to draw with.
- * @returns The tree the function drew.
+ * @param props - The render function, under `children`.
+ * @returns The tree the render function produced.
  */
 export function Consumer({ children }: ConsumerProps): ReactNode {
   return children(useClipboard());

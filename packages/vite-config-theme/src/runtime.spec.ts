@@ -45,26 +45,26 @@ function packed(composed = {}): Promise<unknown> {
 }
 
 describe("runtime", () => {
-  it("appends to the list of plugins rather than replacing whatever else is there", () => {
+  it("contributes the plugin at plugins", () => {
     expect(contributed().at).toBe("plugins");
   });
 
-  it("names the layers for the call a consumer wrote", () => {
+  it("names both layers for the call that produced them", () => {
     expect(runtime().map((layer) => layer.name)).toStrictEqual([
       "theme.runtime",
       "theme.runtime(pack)",
     ]);
   });
 
-  it("carries the runtime plugin under its house name", async () => {
+  it("returns a plugin named stealth:theme.runtime", async () => {
     await expect(item()).resolves.toMatchObject({ name: "stealth:theme.runtime" });
   });
 
-  it("appends the packer's plugin to the packer's list", async () => {
+  it("appends the packer's plugin to pack.plugins", async () => {
     await expect(packed()).resolves.toMatchObject({ name: "stealth:theme.runtime(pack)" });
   });
 
-  it("leaves what the packer's list already held in place", async () => {
+  it("keeps the plugins pack.plugins already declared", async () => {
     const refined = overriding().refine(PACKING, { pack: { plugins: [{ name: "kept" }] } });
 
     expect(refined.pack).toMatchObject({ plugins: [{ name: "kept" }, expect.any(Promise)] });
@@ -73,7 +73,7 @@ describe("runtime", () => {
     });
   });
 
-  it("constructs the plugin when the configuration is composed and not when the layer is stated", () => {
+  it("defers plugin construction to itemOf when the layer is stated", () => {
     expect(contributed().item).toBeUndefined();
     expect(contributed().itemOf).toBeTypeOf("function");
   });
@@ -82,7 +82,7 @@ describe("runtime", () => {
     await expect(item()).resolves.not.toBe(await item());
   });
 
-  it("passes the repository's own options through to the plugin", () => {
+  it("accepts the layer names a repository declares", () => {
     expect(() => runtime({ layers: { base: "foundation" } })).not.toThrow();
   });
 });

@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#index.ts";
 
 describe("index", () => {
-  it("names every component the package publishes and nothing beside them", () => {
+  it("limits its runtime exports to Command", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual(["Command"]);
   });
 
-  it("publishes a component with parts as a namespace of its short names", () => {
+  it("exposes Command as a namespace holding Empty Input List and Root", () => {
     expect(Object.keys(barrel.Command).toSorted()).toStrictEqual([
       "Empty",
       "Input",
@@ -16,7 +16,7 @@ describe("index", () => {
     ]);
   });
 
-  it("publishes neither a recipe nor a binding", () => {
+  it("exports no name prefixed with recipe with or use", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {

@@ -1,9 +1,9 @@
 /**
- * Excludes the directories holding nothing this repository wrote.
+ * Globs excluding the directories that hold nothing this repository wrote.
  */
 
 /**
- * The globs matching installed, built and reported trees.
+ * Globs matching the installed, built and reported trees, for any tool that walks the repository.
  *
  * @remarks
  *   A coverage report and a test run both walk from the repository root, and
@@ -14,7 +14,7 @@
 export const FOREIGN = ["**/node_modules/**", "**/.git/**", "**/dist/**", "**/coverage/**"];
 
 /**
- * The directory under a workspace root that holds the worktrees an agent session checks out.
+ * Directory under a workspace root holding the worktrees an agent session checks out.
  *
  * @remarks
  *   Each worktree is a second copy of this repository, and a run from the main checkout's root
@@ -26,19 +26,20 @@ export const FOREIGN = ["**/node_modules/**", "**/.git/**", "**/dist/**", "**/co
 export const WORKTREES = ".claude";
 
 /**
- * Matches every test file under the agent worktrees below the root, relative to the root, which
- * is how the runner globs its test files.
+ * Glob matching every test file under the agent worktrees, relative to the root, which is how the
+ * runner globs its test files.
  */
 export const WORKTREE_TESTS = `${WORKTREES}/**`;
 
 /**
- * Matches every file under the agent worktrees below `root`, as an absolute path, which is how the
- * coverage provider matches a file against its exclusions.
+ * Builds the absolute glob matching every file under the agent worktrees below `root`, which is
+ * the form the coverage provider matches a file against.
  *
  * @remarks
  *   Measured on vitest 4.1.11: `isIncluded` matches the absolute file name with `contains: true`,
  *   so a relative glob excludes every file of a root that sits inside another checkout's
  *   worktrees directory, and the run reports 0 of 0 lines covered at 100%.
+ * @param root - The absolute path of the checkout the worktrees sit under.
  */
 export function worktreesBelow(root: string): string {
   return `${root}/${WORKTREES}/**`;

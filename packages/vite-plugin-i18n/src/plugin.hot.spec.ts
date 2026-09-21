@@ -41,7 +41,7 @@ describe("hotUpdate", () => {
     });
   });
 
-  it("hands the catalogues module back for a reload when a language appears", () => {
+  it("returns the catalogues module for a reload when a language appears", () => {
     expect.hasAssertions();
 
     withScratchWorkspace(WORKSPACE, (scratch) => {
@@ -87,7 +87,7 @@ describe("hotUpdate", () => {
     });
   });
 
-  it("lists the new language after a catalogue is added", () => {
+  it("adds the new language to the catalogues module when a catalogue is created", () => {
     expect.hasAssertions();
 
     withScratchWorkspace(WORKSPACE, (scratch) => {
@@ -179,7 +179,7 @@ describe("hotUpdate", () => {
           file: join(scratch.root, APP, "locales/nl/site.json"),
           modules: [],
           read: () => "",
-          // A hot update carries the server, which nothing this plugin does reads.
+          // A hot update includes the server, which no hook of this plugin reads.
           // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
           server: {} as HotUpdateOptions["server"],
           timestamp: 0,
@@ -191,7 +191,7 @@ describe("hotUpdate", () => {
     });
   });
 
-  it("hands nothing back for a reload when a language appears and the module was never imported", () => {
+  it("returns an empty array when a language appears and the module was never imported", () => {
     expect.hasAssertions();
 
     withScratchWorkspace(WORKSPACE, (scratch) => {
@@ -210,7 +210,7 @@ describe("hotUpdate", () => {
           file: join(scratch.root, APP, "locales/de/site.json"),
           modules: [],
           read: () => "",
-          // A hot update carries the server, which nothing this plugin does reads.
+          // A hot update includes the server, which no hook of this plugin reads.
           // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
           server: {} as HotUpdateOptions["server"],
           timestamp: 0,
@@ -284,7 +284,7 @@ describe("hotUpdate", () => {
     });
   });
 
-  it("invalidates the catalogues module on every change", () => {
+  it("invalidates the catalogues module when a catalogue changes", () => {
     expect.hasAssertions();
 
     withScratchWorkspace(WORKSPACE, (scratch) => {

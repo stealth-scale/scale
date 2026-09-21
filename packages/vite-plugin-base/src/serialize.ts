@@ -1,14 +1,15 @@
 /**
- * Writes a value as the JavaScript source that reproduces it, for a file a plugin generates.
+ * Renders a value as the JavaScript source a generated file evaluates back into that value.
  *
  * @remarks
- *   JSON would do for most generated configuration and drops what JSON cannot spell, such as a
- *   regular expression. A function is refused with the path it sat at, because a generated file is
- *   evaluated in another process and a function would not survive the trip.
+ *   JSON covers most generated configuration but cannot spell a regular expression. A function is
+ *   refused, with the path it sat at, because a generated file is evaluated in another process and
+ *   a function does not survive serialisation.
  */
 
 /**
- * Reports whether an object is plain: made by a literal, or with no prototype at all.
+ * Returns true when an object is a plain object rather than a class instance, and narrows it to a
+ * record.
  */
 function plain(value: object): value is Readonly<Record<string, unknown>> {
   const prototype: unknown = Object.getPrototypeOf(value);
@@ -17,11 +18,11 @@ function plain(value: object): value is Readonly<Record<string, unknown>> {
 }
 
 /**
- * Describes what kind of thing a value is, for the sentence that refuses it.
+ * Returns the name to call a value by in the error that refuses it.
  *
  * @remarks
- *   An instance is described by its class name, so a `Date` is refused as a Date. An object whose
- *   prototype declares no constructor is described as an object.
+ *   An instance is called by its class name, so a `Date` is refused as a Date. An object whose
+ *   prototype declares no constructor is called an object.
  */
 function kindOf(value: unknown): string {
   if (typeof value !== "object" || value === null) return typeof value;
@@ -32,26 +33,25 @@ function kindOf(value: unknown): string {
 }
 
 /**
- * The code points of the line separator and the paragraph separator, which JSON leaves bare in a
- * string.
+ * Lists the code points JSON leaves bare inside a string: line separator and paragraph separator.
  */
 const SEPARATORS = [0x2028, 0x2029];
 
 /**
- * The opening of a unicode escape in a string literal, which the separators are written as.
+ * Opens the unicode escape the separators are rewritten as.
  */
 const ESCAPE = String.raw`\u`;
 
 /**
- * Writes a string as a JavaScript string literal.
+ * Renders a string as a JavaScript string literal, with the two separators JSON leaves bare
+ * escaped as well.
  *
  * @remarks
  *   JSON escapes everything a string literal needs escaped except the line and paragraph
- *   separators, which it leaves bare. A source file holding either bare inside a literal was a
- *   syntax error before ES2019 and is what a code scanner reads as unsanitised code, so the two are
- *   escaped after. A string a plugin writes into generated code goes through this and nothing else.
- * @param text - The string to write.
- * @returns The literal, with its quotes.
+ *   separators. Either one bare inside a literal was a syntax error before ES2019, and a code
+ *   scanner reports it as unsanitised code. Every string a plugin writes into generated code goes
+ *   through here and nowhere else.
+ * @returns The literal, quotes included.
  */
 export function quoted(text: string): string {
   let written = JSON.stringify(text);
@@ -64,7 +64,8 @@ export function quoted(text: string): string {
 }
 
 /**
- * Writes a value that needs no descent, and returns undefined for one that does or that is refused.
+ * Renders a value that needs no recursion, and returns undefined for an array, a plain object or
+ * anything the module refuses.
  */
 function scalar(value: unknown): string | undefined {
   if (typeof value === "string") return quoted(value);
@@ -78,11 +79,12 @@ function scalar(value: unknown): string | undefined {
 }
 
 /**
- * Writes the entries of a plain object, leaving out one whose value is undefined.
+ * Renders the entries of a plain object as `key: value` pairs, dropping an entry whose value is
+ * undefined.
  *
  * @remarks
- *   A key holding undefined is what an optional field reads as when nothing set it, and JSON
- *   leaves it out for the same reason.
+ *   An optional field nothing set reads as undefined, and dropping the key matches what JSON does
+ *   with it.
  */
 function entries(value: Readonly<Record<string, unknown>>, path: string): string {
   return Object.entries(value)
@@ -92,14 +94,14 @@ function entries(value: Readonly<Record<string, unknown>>, path: string): string
 }
 
 /**
- * Writes a value as source.
+ * Renders a value as source, descending into arrays and plain objects.
  *
  * @remarks
  *   Strings, finite numbers, booleans, null, undefined, regular expressions, arrays and plain
- *   objects are written. Everything else is refused. The path names where the value sits in the
- *   whole, and opens the sentence that refuses it.
- * @throws {@link Error} When the value, or anything inside it, is a function, an instance of a
- *   class, a symbol, a bigint or a number that is not finite.
+ *   objects are written, and everything else is refused. The path gives the position of the value
+ *   inside the whole and opens the error message that refuses it.
+ * @throws {@link Error} When the value, or anything inside it, is a function, a class instance, a
+ *   symbol, a bigint or a number that is not finite.
  */
 export function literal(value: unknown, path = "value"): string {
   const written = scalar(value);

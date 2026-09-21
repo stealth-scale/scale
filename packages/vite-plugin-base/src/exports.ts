@@ -1,25 +1,23 @@
 /**
- * Reads the target an export map names for a subpath, under a set of conditions.
+ * Reads the target an export map names for a subpath, under a given set of conditions.
  *
  * @remarks
- *   A plugin reads an export map where it has to name a file rather than import it: to write a
- *   path into a generated file, or to load a package's own subpath from inside that package, which
- *   an import by name does not resolve. The reading follows Node's resolution, so the file it names
- *   is the file a consumer imports.
+ *   A plugin needs this where it has to name a file rather than import it: writing a path into a
+ *   generated file, or loading a package's own subpath from inside that package. Resolution follows
+ *   Node's, so the file named here is the file a consumer gets.
  */
 
 import { type Manifest } from "#reached.ts";
 
 /**
- * Picks the target of one export map entry, the way Node's resolver does.
+ * Resolves one export map entry to its target, the way Node's resolver does.
  *
  * @remarks
- *   A string is the target. An array is tried element by element and the first that resolves
- *   wins. An object is read in the order its keys are written, and a key is followed where it is
- *   `default` or one of the conditions given. What is found under it is read the same way, and a
- *   key that leads nowhere passes the search on to the next key, which is how a condition nested
- *   under another falls back. A `null` target is Node's spelling of a subpath the package
- *   withholds, and it ends the search.
+ *   A string is the target itself. An array is tried element by element and the first that resolves
+ *   wins. An object is read in key order, following a key where it is `default` or one of the given
+ *   conditions, and resolving its value the same way; a key that resolves to nothing hands the
+ *   search to the next. A `null` target means the package withholds that subpath, and ends the
+ *   search.
  * @returns The target, `null` for a withheld subpath, or undefined where nothing matched.
  */
 function target(entry: unknown, conditions: readonly string[]): null | string | undefined {
@@ -39,7 +37,7 @@ function target(entry: unknown, conditions: readonly string[]): null | string | 
 }
 
 /**
- * Picks the first element of an array target that resolves.
+ * Takes the first element of an array target that resolves to anything.
  */
 function first(
   entries: readonly unknown[],
@@ -55,15 +53,15 @@ function first(
 }
 
 /**
- * Finds the file a manifest publishes a subpath as, under the conditions given.
+ * Resolves the file a manifest publishes a subpath as, under the conditions given.
  *
  * @remarks
- *   The two short forms of an export map are read as Node reads them: a string names the `.`
- *   subpath, and an object whose keys are conditions rather than subpaths describes `.` alone. A
- *   subpath is matched by its exact key. A pattern such as `./*` is not expanded, so a subpath
- *   published through one alone reads as unpublished.
+ *   Node's two short forms are handled as well: a bare string is the target of `.`, and an object
+ *   whose keys are conditions rather than subpaths covers `.` alone. A subpath has to match its key
+ *   exactly. Patterns such as `./*` are not expanded, so a subpath published only through one
+ *   resolves to undefined.
  * @returns The target as the manifest writes it, such as `./src/index.ts`, or undefined where the
- *   manifest publishes no such subpath under those conditions or withholds it.
+ *   manifest publishes no such subpath under those conditions, or withholds it.
  */
 export function exportTarget(
   manifest: Manifest,

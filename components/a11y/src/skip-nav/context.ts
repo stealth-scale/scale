@@ -1,11 +1,11 @@
 /**
- * Binds the skip link's recipe to the parts that draw it.
+ * Connects the slot recipe to React.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. Neither part takes a variant, so each is bound on its own
- *   rather than one providing for the other: a page puts the link at the top and the target
- *   further down, and the two are never nested.
+ *   This is a separate module from `recipe.ts` so that an application's compiler can read the
+ *   recipe at build time without pulling React in with it. Only `withProvider` is taken, because
+ *   the two slots are never nested: the link sits at the top of the document and the target sits
+ *   wherever the content begins, so neither can resolve variants for the other.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";
@@ -13,6 +13,6 @@ import { createSlotRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#skip-nav/recipe.ts";
 
 /**
- * Binds the recipe once, for the link and for the target it jumps to.
+ * A single binding of the recipe, used to wrap the link and the target independently.
  */
 export const { withProvider } = createSlotRecipeContext(recipe);

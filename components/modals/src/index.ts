@@ -1,7 +1,8 @@
 /**
- * Publishes what the page waits for: a dialog, a drawer, a palette, a tour. Each component binds a
- * recipe a theme can extend and draws nothing of its own. The recipes reach an application's
- * compiler through the preset under `./theme`, and the components reach its bundle through here.
+ * Provides the components that take over the page until a user deals with them: a command palette
+ * now, with dialogs, drawers and tours to follow. Each one binds a recipe a theme can extend and
+ * ships no appearance of its own. An application installs the recipes through the preset at
+ * `./theme` and imports the components from here.
  *
  * @packageDocumentation
  */

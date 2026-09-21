@@ -1,14 +1,14 @@
 /**
- * Draws the box an alert's parts sit in, and decides how it is announced.
+ * Renders the container element of an alert and publishes the variants its slots resolve against.
  *
  * @remarks
- *   The element is `div`. Its role follows `live`, because the role is what decides whether a
- *   reader who is not looking at the alert hears it at all. An alert raised in answer to something
- *   a person did takes `assertive`, one that reports progress takes `polite`, and one that is part
- *   of the page from the first paint takes `off`.
- *   A live region announces what changes inside it after it is in the document. An alert mounted
- *   with its words already in place may reach a reader late or not at all, so a page that raises
- *   alerts keeps the region mounted and empty and fills it.
+ *   The element is a `div` whose ARIA role is derived from `live`, because the role decides
+ *   whether a user who is not looking at the region is interrupted: `assertive` for an alert
+ *   raised in response to a user action, `polite` for progress reporting, `off` for a notice
+ *   present from the initial render. Assistive technology announces mutations to a live region
+ *   that is already in the document, and mounting the region together with its text is unreliable
+ *   across screen readers, so a surface that raises alerts dynamically should keep an empty region
+ *   mounted and write into it.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -17,26 +17,26 @@ import { withProvider } from "#alert/context.ts";
 import { type Live, ROLES } from "#alert/live.ts";
 
 /**
- * Draws the box and states the variants every part reads.
+ * Renders the root slot as a styled `div` and provides the resolved variants to its descendants.
  */
 const Framed = withProvider("div", "root");
 
 /**
- * Describes what an alert takes: the recipe's variants, how loudly it is announced, and everything
- * a styled div takes.
+ * The recipe variants, the announcement level, and the props of a styled `div`.
  */
 export interface RootProps extends ComponentProps<typeof Framed> {
   /**
-   * How an alert reaches a reader who is not looking at it. Default: `polite`.
+   * The announcement level, which selects the root's ARIA role. Defaults to `polite`.
    */
   readonly live?: Live | undefined;
 }
 
 /**
- * Draws the alert, in the role its loudness asks for.
+ * Renders an alert container carrying the ARIA role its announcement level implies.
  *
- * @param props - The variants, the loudness, and the element's own props.
- * @returns The box, holding the parts, under the role that announces it.
+ * @remarks
+ *   The role is spread before the caller's own props, so a caller that passes `role` explicitly
+ *   overrides the one `live` selected.
  */
 export function Root({ live = "polite", ...rest }: RootProps): ReactElement {
   return <Framed {...ROLES[live]} {...rest} />;

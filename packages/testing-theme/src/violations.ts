@@ -1,9 +1,9 @@
 /**
- * Runs every check a theme is held to and reports each breach as one sentence.
+ * Runs every check a theme has to pass and reports each violation as one sentence.
  *
  * @remarks
- *   Every selected check runs, and a breach found by one never stops another, so a specification
- *   reports the whole set in a single run. Skipping a check costs a written reason.
+ *   No check short-circuits another, so one run reports the whole set rather than the first thing
+ *   that broke. Skipping a check costs a written reason.
  */
 
 import { FLOOR, type Preset, type Theme } from "@stealthscale/theme/authoring";
@@ -18,7 +18,7 @@ import { type Declared } from "#recipe.ts";
 import * as status from "#status.ts";
 
 /**
- * Enumerates every check a theme specification can select or skip.
+ * Every check a theme specification can select or skip, keyed as `<module>.<check>`.
  */
 export type ThemeCheck =
   | "contract.compounds"
@@ -44,13 +44,14 @@ export type ThemeCheck =
   | "status.identity";
 
 /**
- * Describes what a theme specification states beside the theme.
+ * The context a theme specification passes alongside the theme. Every field is optional, and
+ * omitting one turns off the checks that need it.
  */
 export interface ThemeChecks {
   /**
-   * The theme package's source directory. With it, every file under `recipes/` and
-   * `slot-recipes/` that exports `extension` has to be listed in the theme, and a font package has
-   * to resolve from the package.
+   * The theme package's source directory. Given it, every file under `recipes/` and `slot-recipes/`
+   * that exports `extension` has to be listed in the theme, and a font package has to resolve from
+   * the package.
    */
   at?: string | undefined;
 
@@ -61,40 +62,41 @@ export interface ThemeChecks {
   base?: Preset | undefined;
 
   /**
-   * The recipe keys the workspace publishes, as a list, or as a map from each key to its recipe.
-   * An extension naming any other key is reported, and with the map, so is a compound whose
-   * selection the recipe does not declare.
+   * The recipe keys the workspace publishes, either as a list or as a map from each key to its
+   * recipe. An extension naming any other key is reported. The map buys two more checks, against
+   * the variants and the compound selections the recipe actually declares.
    */
   recipes?: Readonly<Record<string, Declared>> | readonly string[] | undefined;
 
   /**
-   * The checks to leave out, each with a reason a reviewer can weigh.
+   * The checks to skip, each against the reason a reviewer can weigh.
    */
   skip?: Readonly<Partial<Record<ThemeCheck, string>>> | undefined;
 
   /**
-   * The ratio each class of pair is held to and the distance each class of step is held apart,
-   * over the defaults from WCAG 1.4.3, 1.4.6 and 1.4.11 and the foundation's own ladders. A theme
-   * whose stated ink cannot reach the text ratio on its stated page states the ratio it draws
-   * to here, with the reason beside it.
+   * The ratio each class of pair has to reach and the distance each class of step has to keep,
+   * over the defaults from WCAG 1.4.3, 1.4.6 and 1.4.11 and the foundation's ladders. A theme whose
+   * declared ink cannot reach the text ratio on its declared page records the ratio it does reach
+   * here, with its reason.
    */
   thresholds?: Partial<contrast.Thresholds> | undefined;
 }
 
 /**
- * Matches a name a page can write as the value of the theme attribute.
+ * The shape of a theme name a page can write into the attribute: lower case, starting on a letter,
+ * hyphens and digits after that.
  */
 const ATTRIBUTE_VALUE = /^[a-z][a-z0-9-]*$/u;
 
 /**
- * Reports whether the recipes were stated as a list of keys rather than a map.
+ * Narrows the recipes to the list form, which carries keys alone.
  */
 function isKeys(recipes: NonNullable<ThemeChecks["recipes"]>): recipes is readonly string[] {
   return Array.isArray(recipes);
 }
 
 /**
- * Lists the recipe keys the specification states, in either form.
+ * The recipe keys the specification declares, read out of either form it can take.
  */
 function keysOf(options: ThemeChecks): readonly string[] | undefined {
   if (options.recipes === undefined) return undefined;
@@ -103,7 +105,7 @@ function keysOf(options: ThemeChecks): readonly string[] | undefined {
 }
 
 /**
- * Reports a theme's unapplied compounds where the specification maps each key to its recipe.
+ * Runs the compounds check, and nothing where the specification lists keys without their recipes.
  */
 function compoundsOf(theme: Theme, options: ThemeChecks): readonly string[] {
   if (options.recipes === undefined || isKeys(options.recipes)) return [];
@@ -112,8 +114,7 @@ function compoundsOf(theme: Theme, options: ThemeChecks): readonly string[] {
 }
 
 /**
- * Runs the variants check where the specification maps each key to its recipe, and nothing
- * where it lists keys alone.
+ * Runs the variants check, and nothing where the specification lists keys without their recipes.
  */
 function variantsOf(theme: Theme, options: ThemeChecks): readonly string[] {
   if (options.recipes === undefined || isKeys(options.recipes)) return [];
@@ -122,12 +123,12 @@ function variantsOf(theme: Theme, options: ThemeChecks): readonly string[] {
 }
 
 /**
- * Runs one check and reports what it found.
+ * The signature every check is called through: theme and context in, violations out.
  */
 type Runner = (theme: Theme, options: ThemeChecks) => readonly string[];
 
 /**
- * Maps each check to the call that performs it, in the order they report.
+ * Each check against the call that performs it. The order here is the order violations report in.
  */
 const RUNNERS: ReadonlyArray<readonly [ThemeCheck, Runner]> = [
   [
@@ -167,15 +168,16 @@ const RUNNERS: ReadonlyArray<readonly [ThemeCheck, Runner]> = [
 ];
 
 /**
- * Fills in every threshold the specification did not state, and holds the four a reader depends
- * on at the floor.
+ * Fills in every threshold the specification omits, then clamps its five contrast ratios at the
+ * four accessibility floors.
  *
  * @remarks
- *   A specification states thresholds to say what its theme aims for, and the engine draws to the
- *   same numbers. Neither may go below what WCAG asks of normal-size text and of the visual
- *   information that identifies a control, so a theme whose colors cannot reach the floor is
- *   reported rather than measured against a lower one. The distances, the hues and the hairline
- *   are quality targets and a specification moves them freely.
+ *   A specification declares thresholds to record what its theme aims for, and the engine builds to
+ *   the same numbers, so a specification could otherwise lower a ratio until its theme passed.
+ *   Neither may go below what WCAG requires of normal-size text or of the visual information that
+ *   identifies a control. Clamping means a theme whose colors cannot reach the floor is reported
+ *   rather than measured against a weaker bar. The distances, the hues and the hairline are quality
+ *   targets, so a specification moves those freely.
  */
 function thresholdsOf(options: ThemeChecks): contrast.Thresholds {
   const stated = { ...contrast.THRESHOLDS, ...options.thresholds };
@@ -191,9 +193,9 @@ function thresholdsOf(options: ThemeChecks): contrast.Thresholds {
 }
 
 /**
- * Runs every check the specification leaves standing over a theme.
+ * Runs every check the specification does not skip against a theme.
  *
- * @returns Each violation, opening with the check that reported it, or an empty array for a theme
+ * @returns Each violation, prefixed with the check that reported it, or an empty array for a theme
  *   that keeps the contract.
  */
 export function violations(theme: Theme, options: ThemeChecks = {}): readonly string[] {

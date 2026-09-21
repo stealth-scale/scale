@@ -1,5 +1,6 @@
 /**
- * Covers what a dotted path grows, creates and replaces on the way to a list.
+ * Covers where a dotted path appends, what it creates on the way down, and what it replaces at the
+ * end.
  */
 
 import { describe, expect, it } from "vitest";
@@ -7,7 +8,7 @@ import { describe, expect, it } from "vitest";
 import { appended } from "#path.ts";
 
 describe("path", () => {
-  it("appends to a list that is already there", () => {
+  it("appends to the array already at the path", () => {
     expect(
       appended({ test: { setupFiles: ["./a.ts"] } }, "test.setupFiles", "./b.ts"),
     ).toStrictEqual({
@@ -15,13 +16,13 @@ describe("path", () => {
     });
   });
 
-  it("creates the array and every level above it when absent", () => {
+  it("creates each missing level of the path", () => {
     expect(appended({}, "test.setupFiles", "./a.ts")).toStrictEqual({
       test: { setupFiles: ["./a.ts"] },
     });
   });
 
-  it("leaves what it did not walk untouched", () => {
+  it("keeps a sibling level by reference rather than copying it", () => {
     const untouched = { environment: "node" };
     const held = appended({ lint: {}, test: untouched }, "lint.layers", "one");
 
@@ -36,13 +37,17 @@ describe("path", () => {
     );
   });
 
-  it("appends at the top when the path names one step", () => {
+  it("appends at the top level when the path names one step", () => {
     expect(appended({}, "plugins", "one")).toStrictEqual({ plugins: ["one"] });
   });
 
-  it("reaches every object of a list on the way to the path", () => {
+  it("appends through every object of an array level", () => {
     expect(
-      appended({ pack: [{ dts: true }, { plugins: ["a"] }, 3] }, "pack.plugins", "b"),
-    ).toStrictEqual({ pack: [{ dts: true, plugins: ["b"] }, { plugins: ["a", "b"] }, 3] });
+      appended({ pack: [{ dts: true }, { plugins: ["a"] }] }, "pack.plugins", "b"),
+    ).toStrictEqual({ pack: [{ dts: true, plugins: ["b"] }, { plugins: ["a", "b"] }] });
+  });
+
+  it("leaves an entry of an array level that is not an object alone", () => {
+    expect(appended({ pack: [3] }, "pack.plugins", "b")).toStrictEqual({ pack: [3] });
   });
 });

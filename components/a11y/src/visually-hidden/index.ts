@@ -1,5 +1,5 @@
 /**
- * Publishes the hidden text: words a screen reader reads and an eye never sees.
+ * Re-exports the visually hidden component, its props type and its props provider.
  */
 
 export { PropsProvider as VisuallyHiddenPropsProvider } from "#visually-hidden/context.ts";

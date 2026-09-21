@@ -8,27 +8,27 @@ import { recipe } from "#skeleton/recipe.ts";
 import { Skeleton } from "#skeleton/skeleton.ts";
 
 describe("Skeleton", () => {
-  it("conforms as a div element", () => {
+  it("meets the component contract as a div element", () => {
     expect(violations(Skeleton, { as: true, children: true, element: "DIV" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule", async () => {
+  it("reports no axe violation on its own", async () => {
     await expect(accessibilityViolations(Skeleton)).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("emits a class for every variant value the recipe declares", () => {
     expect(
       boundViolations(recipe, (props) => render(<Skeleton {...props} />).container),
     ).toStrictEqual([]);
   });
 
-  it("carries no role so a screen reader is told once by the region rather than by each bar", () => {
+  it("sets no role attribute on the element it renders", () => {
     const { container } = render(<Skeleton />);
 
     expect(recipeElement(container, "skeleton").hasAttribute("role")).toBe(false);
   });
 
-  it("takes the box of whatever it wraps", () => {
+  it("keeps the content it wraps inside its own element", () => {
     const { container } = render(
       <Skeleton>
         <p>Words that have not arrived</p>
@@ -38,7 +38,7 @@ describe("Skeleton", () => {
     expect(recipeElement(container, "skeleton").textContent).toBe("Words that have not arrived");
   });
 
-  it("draws the element as names", () => {
+  it("renders the element named by as instead of a div", () => {
     const { container } = render(<Skeleton as="span" />);
 
     expect(recipeElement(container, "skeleton").tagName).toBe("SPAN");

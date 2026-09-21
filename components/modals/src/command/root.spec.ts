@@ -9,16 +9,16 @@ import { recipe } from "#command/recipe.ts";
 import { type RootProps } from "#command/root.tsx";
 
 /**
- * Describes what a case sets on the panel, less what the fixture already states.
+ * The props a case may override, excluding the two the fixture already supplies.
  */
 type Settings = Omit<RootProps, "actions" | "aria-label">;
 
 describe("Root", () => {
-  it("breaks no accessibility rule holding a field and a list", async () => {
+  it("reports no axe violation with every part composed", async () => {
     await expect(accessibilityViolations(() => composed())).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("emits a class for every variant value the recipe declares", () => {
     expect(
       boundViolations(recipe, (props: Settings) => render(composed(props)).container, {
         slot: "root",
@@ -26,25 +26,25 @@ describe("Root", () => {
     ).toStrictEqual([]);
   });
 
-  it("draws a panel", () => {
+  it("renders a div element for the root slot", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "command", "root").tagName).toBe("DIV");
   });
 
-  it("names the list from what the palette is for", () => {
+  it("passes its aria-label down to the listbox", () => {
     render(composed());
 
     expect(screen.getByRole("listbox", { name: "Commands" })).toBeTruthy();
   });
 
-  it("lists every action before anything is typed", () => {
+  it("renders one option per action before any query is typed", () => {
     render(composed());
 
     expect(screen.getAllByRole("option")).toHaveLength(3);
   });
 
-  it("hands back the value of the action that was run", async () => {
+  it("calls onRun with the value of the action that was chosen", async () => {
     const heard = vi.fn<(value: string) => void>();
 
     render(composed({ onRun: heard }));
@@ -53,7 +53,7 @@ describe("Root", () => {
     expect(heard).toHaveBeenCalledWith("invoices");
   });
 
-  it("leaves nothing marked once an action has been run", async () => {
+  it("leaves aria-selected false on an option after it has been chosen", async () => {
     render(composed());
     await pressed(screen.getByRole("option", { name: "Invoices" }));
 

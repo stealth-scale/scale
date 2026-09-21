@@ -1,5 +1,6 @@
 /**
- * Generates the module an application imports its catalogues from, and one module per pair.
+ * Generates the virtual module an application imports its catalogues from, and one module per
+ * language and namespace pair.
  */
 
 import { readFileSync } from "node:fs";
@@ -8,7 +9,7 @@ import { parse as parseYaml } from "yaml";
 import { type Catalogue } from "#find.ts";
 
 /**
- * The specifier an application imports to reach its catalogues.
+ * Specifier an application imports to reach its catalogues.
  */
 export const ID = "virtual:i18n";
 
@@ -16,8 +17,8 @@ export const ID = "virtual:i18n";
  * Builds the specifier one language's namespace is fetched under.
  *
  * @remarks
- *   Neither a language tag nor a namespace contains a slash, so `pairOfId` splits the result back
- *   without ambiguity.
+ *   Neither a language tag nor a namespace contains a slash, so {@link pairOfId} splits the result
+ *   back without ambiguity.
  * @param language - The BCP 47 tag.
  * @param namespace - The namespace name.
  * @returns A specifier such as `virtual:i18n/nl/menu`.
@@ -34,7 +35,7 @@ export type Pair = Pick<Catalogue, "language" | "namespace">;
 /**
  * Splits a pair module's specifier back into its language and namespace.
  *
- * @param id - A specifier, with or without the resolution prefix.
+ * @param id - A specifier, with or without the resolved-module prefix.
  * @returns The pair, or undefined when the specifier addresses something else.
  */
 export function pairOfId(id: string): Pair | undefined {
@@ -46,7 +47,7 @@ export function pairOfId(id: string): Pair | undefined {
 }
 
 /**
- * The contents of one catalogue: keys mapped to strings, nested to any depth.
+ * Contents of one catalogue: keys mapped to strings, nested to any depth.
  */
 export interface Words {
   readonly [key: string]: string | Words;
@@ -58,7 +59,7 @@ export interface Words {
 export type CatalogueIndex = ReadonlyMap<string, ReadonlyMap<string, readonly Catalogue[]>>;
 
 /**
- * Indexes catalogues by language and namespace, preserving the order they were found in.
+ * Indexes catalogues by language and namespace, keeping the order they were found in.
  *
  * @param catalogues - Every catalogue found.
  */
@@ -78,7 +79,7 @@ export function indexed(catalogues: readonly Catalogue[]): CatalogueIndex {
 }
 
 /**
- * Returns one language's catalogues indexed by namespace.
+ * Returns one language's catalogues, indexed by namespace.
  *
  * @param index - The indexed catalogues.
  * @param language - The BCP 47 tag.
@@ -92,7 +93,7 @@ export function ofLanguage(
 }
 
 /**
- * Returns every file that belongs to one pair.
+ * Returns the files that belong to one language and namespace pair.
  *
  * @param index - The indexed catalogues.
  * @param language - The BCP 47 tag.
@@ -108,7 +109,7 @@ export function filesOf(
 }
 
 /**
- * Returns true when a parsed value is an object whose every leaf is a string.
+ * Reports whether a parsed value is an object whose every leaf is a string.
  *
  * @param value - The parsed file contents.
  */
@@ -125,7 +126,7 @@ function isWords(value: unknown): value is Words {
  * Parses one catalogue file, as JSON or as YAML according to its extension.
  *
  * @param catalogue - The file to read.
- * @returns Its contents, nested as written.
+ * @returns The contents, nested as written.
  * @throws {@link Error} When the file does not parse to an object of strings.
  */
 export function wordsOf(catalogue: Catalogue): Words {
@@ -140,7 +141,7 @@ export function wordsOf(catalogue: Catalogue): Words {
 }
 
 /**
- * Parses one catalogue file and nests its contents under the file's prefix.
+ * Parses one catalogue file and nests its contents under the file's own prefix.
  *
  * @remarks
  *   A `title` key in `menu/sections/billing.json` comes back as `sections.billing.title`.
@@ -156,8 +157,8 @@ export function nested(catalogue: Catalogue): Words {
 /**
  * Merges two sets of contents key by key, so the later one overwrites only the keys it declares.
  *
- * @param under - The contents merged so far.
- * @param over - The contents to apply on top.
+ * @param under - Contents merged so far.
+ * @param over - Contents to apply on top.
  */
 export function merged(under: Words, over: Words): Words {
   const result: Record<string, string | Words> = { ...under };
@@ -175,14 +176,14 @@ export function merged(under: Words, over: Words): Words {
 /**
  * Parses and merges every file of one pair, each nested under its own prefix.
  *
- * @param files - The files in merge order, the last one winning each key.
+ * @param files - The files in merge order. The last one wins each key.
  */
 export function mergedWords(files: readonly Catalogue[]): Words {
   return files.reduce<Words>((words, file) => merged(words, nested(file)), {});
 }
 
 /**
- * Generates the module one pair is fetched as, holding every file of the pair merged.
+ * Generates the module a pair is fetched as, with every file of the pair merged into it.
  *
  * @param files - The files in merge order.
  */
@@ -191,17 +192,16 @@ export function pairModule(files: readonly Catalogue[]): string {
 }
 
 /**
- * Generates the loader table: one dynamic import per pair of a language the module does not
- * inline, so a namespace costs one request and an inlined one costs none.
+ * Generates the loader table, one dynamic import per pair, for the languages the module does not
+ * inline.
  *
  * @remarks
- *   Every entry ends in its own comma, so a table with no language and a language with no
- *   namespace both close as an object rather than as a bare comma. An inlined language gets no
- *   loader. The runtime reads its words from the bundle and never asks for them, and a loader it
- *   never calls still made the bundler write every pair of the language as a chunk beside the same
- *   words inlined: the docs build wrote the catalogue's whole `specimen` namespace twice.
+ *   Every entry ends in its own comma, so a table with no language and a language with no namespace
+ *   both close as valid objects. An inlined language gets no loader entry. Leaving one in would
+ *   still make the bundler emit a chunk per pair even though nothing calls it, which is how the
+ *   docs build came to emit the `specimen` namespace twice.
  * @param index - The indexed catalogues.
- * @param inlining - The languages the module inlines.
+ * @param inlining - Languages the module inlines.
  * @returns The table as JavaScript source.
  */
 function loaders(index: CatalogueIndex, inlining: ReadonlySet<string>): string {
@@ -220,7 +220,7 @@ function loaders(index: CatalogueIndex, inlining: ReadonlySet<string>): string {
 }
 
 /**
- * Merges each namespace of one language, for inlining into the module.
+ * Merges each namespace of one language, ready to inline into the module.
  *
  * @param index - The indexed catalogues.
  * @param language - The BCP 47 tag.
@@ -235,7 +235,7 @@ function inlined(index: CatalogueIndex, language: string): Readonly<Record<strin
 }
 
 /**
- * Lists every namespace any language declares, sorted.
+ * Lists every namespace any language declares, sorted, each one once.
  *
  * @param index - The indexed catalogues.
  */
@@ -253,12 +253,12 @@ function namespacesIn(index: CatalogueIndex): readonly string[] {
  * Generates the module an application imports its catalogues from.
  *
  * @remarks
- *   The fallback language is inlined so the first paint needs no request. Every other language is
- *   reached through the loader. Under `eager` every language is inlined instead and the loader
- *   fetches nothing, which costs one larger bundle and saves a request per language.
+ *   The fallback language is inlined, so the first paint needs no request. Every other language is
+ *   fetched through the loader. Under `eager` every language is inlined and the loader fetches
+ *   nothing, trading a larger bundle for one saved request per language.
  * @param index - The indexed catalogues.
  * @param fallback - The language that defines every key.
- * @param eager - Inlines every language when true.
+ * @param eager - Whether to inline every language rather than the fallback alone.
  * @returns The module as JavaScript source.
  */
 export function cataloguesModule(index: CatalogueIndex, fallback: string, eager = false): string {

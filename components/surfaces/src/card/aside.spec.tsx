@@ -9,13 +9,13 @@ import { recipe } from "#card/recipe.ts";
 import { type RootProps } from "#card/root.ts";
 
 describe("Aside", () => {
-  it("draws a div inside the root it needs above it", () => {
+  it("renders a DIV for its slot inside a root", () => {
     const { container } = render(carded(<Aside>More</Aside>));
 
     expect(slotElement(container, "card", "aside").tagName).toBe("DIV");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("emits an aside-slot class for every variant value the recipe declares", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "aside",
@@ -23,7 +23,7 @@ describe("Aside", () => {
     ).toStrictEqual([]);
   });
 
-  it("puts a control it holds in reach of a keyboard", () => {
+  it("leaves a button it holds reachable by role and name", () => {
     render(
       carded(
         <Aside>

@@ -36,7 +36,7 @@ describe("i18n", () => {
     });
   });
 
-  it("lists the stamp and the inlined language's files as files the catalogues module watches", () => {
+  it("watches the stamp when it loads the catalogues module", () => {
     expect.hasAssertions();
 
     withScratchWorkspace(WORKSPACE, (scratch) => {
@@ -45,6 +45,17 @@ describe("i18n", () => {
       loading(configured(scratch), `\0${ID}`, context);
 
       expect(context.watched[0]?.endsWith("/topology")).toBe(true);
+    });
+  });
+
+  it("watches the inlined language's files when it loads the catalogues module", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const context = hookContext();
+
+      loading(configured(scratch), `\0${ID}`, context);
+
       expect(context.watched.some((file) => file.endsWith(`/${APP}/locales/en/site.json`))).toBe(
         true,
       );
@@ -52,7 +63,7 @@ describe("i18n", () => {
     });
   });
 
-  it("lists every language's files as files the catalogues module watches when eager", () => {
+  it("watches every language's files when eager is true", () => {
     expect.hasAssertions();
 
     withScratchWorkspace(WORKSPACE, (scratch) => {
@@ -64,7 +75,7 @@ describe("i18n", () => {
     });
   });
 
-  it("lists a pair's files as files the pair module watches", () => {
+  it("watches a pair's files when it loads the pair module", () => {
     expect.hasAssertions();
 
     withScratchWorkspace(WORKSPACE, (scratch) => {
@@ -248,7 +259,7 @@ describe("i18n", () => {
     });
   });
 
-  it("leaves a catalogue change to the hot update under a server that serves a module per file", () => {
+  it("leaves a catalogue change to hotUpdate under a server that serves a module per file", () => {
     expect.hasAssertions();
 
     withScratchWorkspace(WORKSPACE, (scratch) => {

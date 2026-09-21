@@ -8,7 +8,7 @@ import { slotClass, slotClasses, variantClass } from "@stealthscale/testing-them
 import { withContext, withProvider } from "#checkbox/context.ts";
 
 describe("context", () => {
-  it("draws the slot's class on an element it binds", () => {
+  it("applies the control slot class to a component built with withContext", () => {
     const Row = withProvider("label", "root");
     const Boxed = withContext("div", "control");
     const { container } = render(createElement(Row, null, createElement(Boxed)));

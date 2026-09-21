@@ -9,11 +9,11 @@ import { indexed } from "#indexed.ts";
 import { type Options } from "#types.ts";
 
 /**
- * Returns the layers an application that shows a catalogue extends its tier with.
+ * Returns the index layer and the crawl layers, in the order they run.
  *
  * @remarks
- *   A list rather than a tier, because a catalogue is an ordinary application first: it picks
- *   whichever tier its framework calls for and adds these.
+ *   An array and not a tier, because a catalogue is an ordinary application first: it picks the
+ *   tier its framework calls for, and these layers extend it.
  * @param stated - Where the specimens are. `Options` documents every member.
  */
 export function catalogue(stated: Options): readonly Layer[] {

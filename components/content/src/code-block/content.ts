@@ -1,10 +1,10 @@
 /**
- * Draws the box the code scrolls in.
+ * Renders the scrolling region the code sits in.
  *
  * @remarks
- *   The element is `pre`, so the browser keeps every space and line break and a screen reader
- *   reads the passage as preformatted text. A line longer than the panel scrolls across inside
- *   the box rather than wrapping, because a wrapped line of code reads as two.
+ *   The element is a `pre`, so the browser preserves every space and line break and assistive
+ *   technology announces the block as preformatted text. A line wider than the panel scrolls
+ *   horizontally rather than wrapping, because a wrapped line of code reads as two lines.
  */
 
 import { type ComponentProps } from "react";
@@ -12,11 +12,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#code-block/context.ts";
 
 /**
- * Draws the box at the size the root states.
+ * Preserves the whitespace of the code and scrolls it sideways when it overflows.
  */
 export const Content = withContext("pre", "content");
 
 /**
- * Describes what the content takes.
+ * Props accepted by `Content`, which are the props of a styled `pre` element.
  */
 export type ContentProps = ComponentProps<typeof Content>;

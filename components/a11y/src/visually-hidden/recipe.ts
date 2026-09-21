@@ -1,19 +1,20 @@
 /**
- * States what visually hidden text is: words a screen reader reads and an eye never sees, and
- * which come into view where a keyboard reaches them.
+ * Styles for content that is announced but not painted, and for the variant that reveals it under
+ * focus.
  *
  * @remarks
- *   The compiler's `srOnly` utility writes the hiding, which takes the words out of sight without
- *   taking them out of the accessibility tree the way `display: none` and `visibility: hidden`
- *   both do. A control a reader can reach by keyboard has to be visible once focus is on it, or a
- *   sighted reader tabbing through the page loses their place, so the focusable value undoes the
- *   hiding for as long as focus is there.
+ *   The hiding comes from the compiler's `srOnly` utility, which clips the element instead of
+ *   applying `display: none` or `visibility: hidden`; either of those would drop the content from
+ *   the accessibility tree as well as from the page. Anything reachable by keyboard has to become
+ *   visible while it holds focus, or a sighted keyboard user loses track of where they are, so the
+ *   `focusable` variant reverses the clipping under `:focus-visible` and pins the element to the
+ *   start corner of the viewport above the rest of the page.
  */
 
 import { defineRecipe, dense } from "@stealthscale/theme/authoring";
 
 /**
- * Hides what it holds from sight and leaves it to a screen reader.
+ * The `visually-hidden` recipe, matched against the `VisuallyHidden` JSX tag.
  */
 export const recipe = defineRecipe({
   base: { srOnly: true },

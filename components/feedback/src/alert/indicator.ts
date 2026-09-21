@@ -1,13 +1,13 @@
 /**
- * Draws the mark that opens an alert.
+ * Renders the leading icon of an alert.
  *
  * @remarks
- *   The element is `div` and holds an `Icon` sized to the alert. It takes no colour of its own and
- *   reads the root's, so a solid alert marks itself in the ink the contrast gate measured against
- *   that fill.
- *   The mark states `aria-hidden`. It repeats what the title says in words, and a reader hearing
- *   the alert read out does not need a glyph named before it. A mark that is the only thing saying
- *   which status an alert carries fails WCAG 1.4.1, so the words carry it.
+ *   The element is a `div` that sizes an `Icon` child from the root's `size` variant and declares
+ *   no colour of its own, so it inherits the foreground the contrast gate measured against the
+ *   root's fill. It is hidden from assistive technology by default: the icon duplicates what the
+ *   title already carries in words, and naming a glyph ahead of the alert text is noise. Hiding it
+ *   is only safe because the title states the severity, since an alert that conveyed severity
+ *   through the icon and the palette alone would fail WCAG 1.4.1.
  */
 
 import { type ComponentProps } from "react";
@@ -15,13 +15,13 @@ import { type ComponentProps } from "react";
 import { withContext } from "#alert/context.ts";
 
 /**
- * Marks the alert, at the size the root states.
+ * Renders the icon container of an alert, hidden from assistive technology by default.
  */
 export const Indicator = withContext("div", "indicator", {
   defaultProps: { "aria-hidden": true },
 });
 
 /**
- * Describes what the mark takes: everything a styled div takes.
+ * The props of a styled `div`.
  */
 export type IndicatorProps = ComponentProps<typeof Indicator>;

@@ -55,37 +55,37 @@ async function metadata(stated: Partial<Context> = {}): Promise<Record<string, u
 }
 
 describe("inventory", () => {
-  it("appends to the packer's plugins rather than replacing them", () => {
+  it("contributes at the pack.plugins key", () => {
     expect(inventory().at).toBe("pack.plugins");
   });
 
-  it("applies to the build and not to the dev server", () => {
+  it("applies to the build command", () => {
     expect(inventory().apply).toBe("build");
   });
 
-  it("names the layer so a repository can remove it", () => {
+  it("names the contribution pack.inventory", () => {
     expect(inventory().name).toBe("pack.inventory");
   });
 
-  it("constructs the plugin when the configuration is composed and not when the layer is stated", () => {
+  it("constructs the plugin when the configuration is composed", () => {
     expect(inventory().item).toBeUndefined();
   });
 
-  it("writes one document", async () => {
+  it("writes one document to the output path", async () => {
     expect([...(await written()).keys()]).toStrictEqual(["cyclonedx/bom.json"]);
   });
 
-  it("describes a library", async () => {
+  it("types the component as a library", async () => {
     expect(((await metadata())["component"] as Record<string, unknown>)["type"]).toBe("library");
   });
 
-  it("supplies the house", async () => {
+  it("records the house identity as the supplier by default", async () => {
     expect(((await metadata())["supplier"] as Record<string, unknown>)["name"]).toBe(
       "Stealth Scale B.V.",
     );
   });
 
-  it("supplies the author the repository names instead", async () => {
+  it("records the supplier the caller passes", async () => {
     const source = await written({}, { name: "Acme", url: ["https://acme.example"] });
     const held = JSON.parse(source.get("cyclonedx/bom.json") ?? "{}") as Record<string, unknown>;
     const supplier = (held["metadata"] as Record<string, unknown>)["supplier"];
@@ -93,17 +93,25 @@ describe("inventory", () => {
     expect((supplier as Record<string, unknown>)["name"]).toBe("Acme");
   });
 
-  it("includes a serial number and a timestamp for a release", async () => {
+  it("writes a serial number when the mode is production", async () => {
     const held = await document("cyclonedx/bom.json", { mode: "production" });
 
     expect(held["serialNumber"]).toBeDefined();
-    expect((held["metadata"] as Record<string, unknown>)["timestamp"]).toBeDefined();
   });
 
-  it("includes neither in development", async () => {
+  it("writes a timestamp when the mode is production", async () => {
+    const held = await metadata({ mode: "production" });
+
+    expect(held["timestamp"]).toBeDefined();
+  });
+
+  it("omits the serial number when the mode is development", async () => {
     const held = await document("cyclonedx/bom.json");
 
     expect(held["serialNumber"]).toBeUndefined();
-    expect((held["metadata"] as Record<string, unknown>)["timestamp"]).toBeUndefined();
+  });
+
+  it("omits the timestamp when the mode is development", async () => {
+    expect((await metadata())["timestamp"]).toBeUndefined();
   });
 });

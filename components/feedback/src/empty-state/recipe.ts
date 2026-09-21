@@ -1,16 +1,15 @@
 /**
- * States what an empty state is: the panel a page draws where there is nothing to show, holding a
- * mark, a heading and a line saying what would be here.
+ * Declares the slot recipe an empty state is styled from, the panel a surface renders in place of
+ * content it has none of.
  *
  * @remarks
- *   Five parts, because each is styled and a caller composes them in whatever order a page wants.
- *   The root is the panel, the content centres what is inside it, the indicator draws the mark, and
- *   the title and the description carry the words.
- *   One axis moves all of them together. The room inside the panel, the gap in the content, the box
- *   of the mark and the size of the title each read the scale of the same name, so a small empty
- *   state in a side panel and a large one filling a page are one name apart. The description holds
- *   its size, because a line of explanation is read at the size the rest of the page is read at
- *   however big the panel is.
+ *   Five slots, each separately styled so that a caller can order and omit them: `root` is the
+ *   panel, `content` centres a column inside it, `indicator` holds the icon, and `title` and
+ *   `description` carry the copy. `size` is the only variant, and it drives four scales at once:
+ *   the panel's inset, the column's gap, the icon's box and the title's type step. That puts a
+ *   compact empty state in a side panel and a full-page one a single value apart. The description
+ *   is deliberately excluded from it, because body copy is read at the page's own size no matter
+ *   how large the panel around it is.
  */
 
 import {
@@ -23,7 +22,7 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * Draws a centred panel at the middle size until a caller says otherwise.
+ * Styles an empty state, defaulting to a centred panel at the middle size.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -56,7 +55,8 @@ export const recipe = defineSlotRecipe({
   slots: ["root", "content", "indicator", "title", "description"],
   variants: {
     /**
-     * How much room the panel takes, which every part steps with.
+     * The scale step the panel's inset, the column's gap, the icon's box and the title's type all
+     * move together on.
      */
     size: onSlots({
       content: gapSizes(),

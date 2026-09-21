@@ -1,12 +1,12 @@
 /**
- * Builds the component package for a browser, with the React, theme, specimen and i18n layers
- * added.
+ * Configures the build of this package for the browser, over the React, theme, specimen and i18n
+ * layers.
  *
  * @remarks
- *   The theme layers contribute nothing. The preset under `src/theme.ts` is written by hand, and
- *   the package's own specification reports a recipe file it leaves out. The specimen layers stop
- *   the package counting its specimens towards its coverage. The i18n layers type the words the
- *   specimens read out of `locales/`, so a key a specimen misspells is an error in the editor.
+ *   The theme layers generate nothing here: `src/theme.ts` is maintained by hand and the package
+ *   spec fails when a recipe is missing from it. The specimen layers exclude the specimen files
+ *   from the coverage denominator. The i18n layers generate types from `locales/`, which turns a
+ *   misspelled key in a specimen into a type error in the editor.
  */
 
 import * as i18n from "@stealthscale/vite-config-i18n";

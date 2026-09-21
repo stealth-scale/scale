@@ -11,36 +11,39 @@ import {
 import { recipe } from "#roving-focus/recipe.ts";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("reports no violation across the shared recipe checks", () => {
     expect(
       recipeViolations(recipe, { names: ["RovingFocus.Root", "RovingFocus.Item"] }),
     ).toStrictEqual([]);
   });
 
-  it("names its class roving-focus", () => {
+  it("sets className to roving-focus", () => {
     expect(recipe.className).toBe("roving-focus");
   });
 
-  it("styles the root and the item", () => {
+  it("declares item and root as its only slots", () => {
     expect(slotsOf(recipe)).toStrictEqual(["item", "root"]);
   });
 
-  it("offers the one axis a group takes", () => {
+  it("declares orientation as its only variant", () => {
     expect(axesOf(recipe)).toStrictEqual(["orientation"]);
+  });
+
+  it("declares both horizontal and vertical as the values of orientation", () => {
     expect(valuesOf(recipe, "orientation")).toStrictEqual(["both", "horizontal", "vertical"]);
   });
 
-  it("lays the items out in a row when nothing is asked for", () => {
+  it("defaults orientation to horizontal", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ orientation: "horizontal" });
   });
 
-  it("wraps a group the arrows move through on both axes", () => {
+  it("sets flexWrap on the root when the orientation is both", () => {
     expect(recipe.variants?.["orientation"]).toMatchObject({
       both: { root: { flexWrap: "wrap" } },
     });
   });
 
-  it("tracks the namespace and every tag whose name opens with RovingFocus", () => {
+  it("matches RovingFocus and its dotted parts with its jsx pattern", () => {
     expect(recipe.jsx).toStrictEqual([/^RovingFocus(\.\w+)?$/u]);
   });
 });

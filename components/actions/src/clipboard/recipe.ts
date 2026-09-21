@@ -1,16 +1,13 @@
 /**
- * States what a clipboard is: a value, the control that copies it, and the mark that says it did.
+ * Styles the seven slots of the clipboard.
  *
  * @remarks
- *   Seven parts. The root stacks a label over the control row, the control lays the field and the
- *   trigger side by side, the input shows the value read-only, the trigger is what a person
- *   presses, the indicator swaps its mark while the copy is fresh, and the value text writes the
- *   value in a run of text. The trigger draws no control look of its own. A caller draws it as a
- *   button of the library through `as`, so a theme that moves the button moves the trigger with
- *   it, and the recipe here states only how the parts are placed. The root aligns its parts at
- *   the start, so a trigger drawn on its own keeps a button's width rather than stretching across
- *   whatever holds the root, and the control row stretches back to the root's width so a field
- *   in it fills the row.
+ *   The recipe places the parts and does nothing else to them. The trigger carries no control
+ *   styling here because a caller renders it as the library's button through `as`, which keeps it
+ *   in step with every other button in a theme. The root aligns its children at the start, so a
+ *   trigger standing on its own keeps a button's width instead of stretching across the root's
+ *   container, and the control row stretches back to the root's width so a field inside it fills
+ *   the row.
  */
 
 import {
@@ -22,12 +19,12 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * The steps a label and a control row are set at.
+ * The three sizes the label text and the gaps step through.
  */
 const STEPS = ["sm", "md", "lg"] as const;
 
 /**
- * Draws a labelled row at the middle size until a caller says otherwise.
+ * Declares the slot styles and the single size axis, defaulting to md.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -47,7 +44,11 @@ export const recipe = defineSlotRecipe({
   slots: ["root", "label", "control", "input", "trigger", "indicator", "valueText"],
   variants: {
     /**
-     * How much room the parts take, which the label and the gaps step together.
+     * The room the parts occupy, stepping the label text and both gaps together.
+     *
+     * @remarks
+     *   The root's gap is taken one step below the control's, so the label sits tighter to the row
+     *   than the field sits to the trigger.
      */
     size: onSlots({
       control: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), STEPS),

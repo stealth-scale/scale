@@ -1,5 +1,5 @@
 /**
- * Specifies how a departure reaches the lint block and what it carries there.
+ * Covers how a departure reaches the lint block and what it puts there.
  */
 
 import { type ConfigEnv, type UserConfig } from "vite";
@@ -57,13 +57,13 @@ function paraglide(): readonly Layer[] {
 }
 
 describe("departure", () => {
-  it("appends to the block's overrides rather than replacing them", () => {
+  it("contributes forbid to lint.overrides", () => {
     const held = forbid({ because: "a reason", files: ["core/**"], packages: ["@scope/tool-*"] });
 
     expect(held).toMatchObject({ at: "lint.overrides", kind: "contribution" });
   });
 
-  it("refuses the patterns a tier may not reach for", () => {
+  it("turns the packages forbid is given into a restricted-import pattern", () => {
     const held = forbid({ because: "a reason", files: ["core/**"], packages: ["@scope/tool-*"] });
 
     expect(held.item).toStrictEqual({
@@ -77,7 +77,7 @@ describe("departure", () => {
     });
   });
 
-  it("lets an exception back in", () => {
+  it("adds each exception to the group as a negated pattern", () => {
     const held = forbid({
       because: "a reason",
       except: ["@scope/tool-fixtures"],
@@ -95,7 +95,7 @@ describe("departure", () => {
     });
   });
 
-  it("shows the reason as the message the author sees", () => {
+  it("sets the reason as the restricted-import message", () => {
     const held = forbid({
       because: "a tool builds on core, so core reaches for no tool",
       files: ["core/**"],
@@ -105,13 +105,13 @@ describe("departure", () => {
     expect(JSON.stringify(held.item)).toContain("so core reaches for no tool");
   });
 
-  it("names itself by the paths it covers", () => {
+  it("names forbid for the globs it covers", () => {
     expect(forbid({ because: "b", files: ["core/**", "themes/**"], packages: ["x"] }).name).toBe(
       "lint.forbid(core/**, themes/**)",
     );
   });
 
-  it("relaxes the rules a path is held to", () => {
+  it("contributes the globs and rules relax is given", () => {
     const held = relax({
       because: "a config is read by its default export",
       files: ["**/*.config.ts"],
@@ -124,7 +124,7 @@ describe("departure", () => {
     });
   });
 
-  it("copies the globs it was handed", () => {
+  it("copies the globs array so a later push cannot reach the contribution", () => {
     const files = ["x"];
     const held = relax({ because: "b", files, rules: {} });
     files.push("y");
@@ -148,7 +148,7 @@ describe("departure", () => {
     ]);
   });
 
-  it("keeps both where two cover the same paths", async () => {
+  it("keeps two contributions covering the same globs", async () => {
     const held = await readBack({
       extends: [
         relax({ because: "one", files: ["src/**"], rules: { "no-console": "off" } }),
@@ -159,7 +159,7 @@ describe("departure", () => {
     expect(overridesOf(held)).toHaveLength(2);
   });
 
-  it("keeps what several packages each contribute", async () => {
+  it("keeps the contribution of each package", async () => {
     const held = await readBack({ extends: [react(), paraglide()] });
 
     expect(overridesOf(held).map((one) => Object.keys(one.rules))).toStrictEqual([
@@ -168,7 +168,7 @@ describe("departure", () => {
     ]);
   });
 
-  it("keeps a repository's own contribution beside them", async () => {
+  it("keeps a repository's contribution with those of the packages", async () => {
     const held = await readBack({
       extends: [
         react(),
@@ -192,7 +192,7 @@ describe("departure", () => {
     expect(overridesOf(held).map((one) => Object.keys(one.rules))).toStrictEqual([["max-lines"]]);
   });
 
-  it("excuses exactly the globs it is handed", () => {
+  it("contributes the globs defaultExported is given", () => {
     const held = defaultExported(["**/*.config.ts", "**/*.stories.tsx"]).item as {
       files: string[];
     };
@@ -200,19 +200,19 @@ describe("departure", () => {
     expect(held.files).toStrictEqual(["**/*.config.ts", "**/*.stories.tsx"]);
   });
 
-  it("turns off the rule a default export would break", () => {
+  it("turns no-default-export off for the globs defaultExported covers", () => {
     const held = defaultExported(["**/*.config.ts"]).item as { rules: Record<string, unknown> };
 
     expect(held.rules).toStrictEqual({ "no-default-export": "off" });
   });
 
-  it("excuses a specification exactly the globs it is handed", () => {
+  it("contributes the globs undocumented is given", () => {
     const held = undocumented(["**/*.bench.ts"]).item as { files: string[] };
 
     expect(held.files).toStrictEqual(["**/*.bench.ts"]);
   });
 
-  it("holds a specification to three times the lines of a source file", () => {
+  it("caps a specification at 900 lines", () => {
     const held = undocumented(["**/*.spec.ts"]).item as { rules: Record<string, unknown> };
 
     expect(held.rules["max-lines"]).toStrictEqual([
@@ -221,13 +221,13 @@ describe("departure", () => {
     ]);
   });
 
-  it("caps no function inside a specification", () => {
+  it("leaves a function inside a specification uncapped", () => {
     const held = undocumented(["**/*.spec.ts"]).item as { rules: Record<string, unknown> };
 
     expect(held.rules["max-lines-per-function"]).toBe("off");
   });
 
-  it("turns off the dependency cap for a barrel", () => {
+  it("turns import/max-dependencies off for a barrel", () => {
     const held = barrelled(["**/index.ts"]).item as {
       files: string[];
       rules: Record<string, unknown>;
@@ -237,7 +237,7 @@ describe("departure", () => {
     expect(held.rules).toStrictEqual({ "import/max-dependencies": "off" });
   });
 
-  it("turns off the dependency cap for a fixture", () => {
+  it("turns import/max-dependencies off for a fixture", () => {
     const held = composed(["**/*.fixtures.tsx"]).item as {
       files: string[];
       rules: Record<string, unknown>;
@@ -247,14 +247,14 @@ describe("departure", () => {
     expect(held.rules).toStrictEqual({ "import/max-dependencies": "off" });
   });
 
-  it("names each delegating factory for the call a consumer writes", () => {
+  it("names each factory for the call that produced it", () => {
     expect(defaultExported(["**/*.config.ts"]).name).toBe("lint.defaultExported(**/*.config.ts)");
     expect(undocumented(["**/*.spec.ts"]).name).toBe("lint.undocumented(**/*.spec.ts)");
     expect(barrelled(["**/index.ts"]).name).toBe("lint.barrelled(**/index.ts)");
     expect(composed(["**/*.fixtures.tsx"]).name).toBe("lint.composed(**/*.fixtures.tsx)");
   });
 
-  it("lets a repository add its own beside the preset's", async () => {
+  it("keeps both contributions when a repository states defaultExported twice", async () => {
     const held = await readBack({
       extends: [defaultExported(["**/*.config.ts"]), defaultExported(["**/*.stories.tsx"])],
     });

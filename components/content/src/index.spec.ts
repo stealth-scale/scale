@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#index.ts";
 
 describe("index", () => {
-  it("names every component the package publishes and nothing beside them", () => {
+  it("limits its runtime exports to CodeBlock", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual(["CodeBlock"]);
   });
 
-  it("publishes a component with parts as a namespace of its short names", () => {
+  it("exposes CodeBlock as a namespace holding its seven parts", () => {
     expect(Object.keys(barrel.CodeBlock).toSorted()).toStrictEqual([
       "Code",
       "Content",
@@ -19,7 +19,7 @@ describe("index", () => {
     ]);
   });
 
-  it("publishes neither a recipe nor a binding", () => {
+  it("exports no name prefixed with recipe with use or PropsProvider", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel.CodeBlock)) {

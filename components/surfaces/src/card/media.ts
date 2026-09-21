@@ -1,13 +1,13 @@
 /**
- * Draws the band a card's picture sits in.
+ * Renders the band holding a card's image.
  *
  * @remarks
- *   The element is `div` and holds the caller's picture, video or map. The band takes back the
- *   room the root leaves, so the picture meets the card's edges and its corners are clipped by the
- *   root rather than restated here. Which edges it meets follows the orientation: the top and both
- *   sides of a card that runs down the page, and the leading side of one that runs across it.
- *   The band names nothing. Alternative text stays with the picture inside it, where a screen
- *   reader reads it, and a decorative picture states `alt=""`.
+ *   The element is a `div` wrapping the caller's image, video or map. The band cancels the padding
+ *   the root applies, so the image reaches the card's edges, and the root clips the corners rather
+ *   than this band restating them. Which edges it reaches follows the orientation: the top and both
+ *   sides of a card running down the page, and the leading side of one running across it. The band
+ *   carries no accessible name of its own. The alternative text belongs on the image inside it,
+ *   where a screen reader reads it, and a decorative image passes `alt=""`.
  */
 
 import { type ComponentProps } from "react";
@@ -15,11 +15,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#card/context.ts";
 
 /**
- * Bleeds the picture to the card's edges.
+ * Renders the media slot, bleeding its content to the card's edges.
  */
 export const Media = withContext("div", "media");
 
 /**
- * Describes what the band takes: everything a styled div takes.
+ * Accepts every prop the styled div takes.
  */
 export type MediaProps = ComponentProps<typeof Media>;

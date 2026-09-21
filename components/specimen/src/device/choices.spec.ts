@@ -7,7 +7,7 @@ import { type Report, REPORTED } from "#framed/report.ts";
 const CHOICES: Report["choices"] = [{ knob: "size", names: ["sm", "md"], part: "value" }];
 
 /**
- * Puts a frame on the page, as the device does, and hands its window back.
+ * Appends an iframe to the document, as the device does, and returns its window.
  */
 function framed(): null | Window {
   const frame = document.createElement("iframe");
@@ -18,8 +18,8 @@ function framed(): null | Window {
 }
 
 /**
- * Posts a message to the page, as a framed document would: from a frame the page holds, at the
- * page's own origin, unless a case says otherwise.
+ * Dispatches a message event as a framed document would, from an iframe this document contains and
+ * at the page's origin. A case overrides either through init.
  */
 function posted(data: unknown, init: Partial<MessageEventInit> = {}): void {
   act(() => {
@@ -35,13 +35,13 @@ function posted(data: unknown, init: Partial<MessageEventInit> = {}): void {
 }
 
 describe("useChoices", () => {
-  it("reads no axes until a document reports them", () => {
+  it("returns an empty array before any document reports choices", () => {
     const { result } = renderHook(() => useChoices("#actions/button/2"));
 
     expect(result.current).toStrictEqual([]);
   });
 
-  it("reads the axes a document at the frame's address reports", () => {
+  it("returns the choices a document at the address reports", () => {
     const { result } = renderHook(() => useChoices("#actions/button/2"));
 
     posted({ address: "#actions/button/2", choices: CHOICES, type: REPORTED });
@@ -49,7 +49,7 @@ describe("useChoices", () => {
     expect(result.current).toStrictEqual(CHOICES);
   });
 
-  it("leaves a report from a document at another address alone", () => {
+  it("ignores a report whose address is not the frame's", () => {
     const { result } = renderHook(() => useChoices("#actions/button/2"));
 
     posted({ address: "#actions/button/3", choices: CHOICES, type: REPORTED });
@@ -57,7 +57,7 @@ describe("useChoices", () => {
     expect(result.current).toStrictEqual([]);
   });
 
-  it("leaves a message that is no report alone", () => {
+  it("ignores a message without the report type", () => {
     const { result } = renderHook(() => useChoices("#actions/button/2"));
 
     posted({ address: "#actions/button/2", choices: CHOICES });
@@ -65,7 +65,7 @@ describe("useChoices", () => {
     expect(result.current).toStrictEqual([]);
   });
 
-  it("leaves a report from another origin alone", () => {
+  it("ignores a report from another origin", () => {
     const { result } = renderHook(() => useChoices("#actions/button/2"));
 
     posted(
@@ -76,7 +76,7 @@ describe("useChoices", () => {
     expect(result.current).toStrictEqual([]);
   });
 
-  it("leaves a report from a window the page does not frame alone", () => {
+  it("ignores a report from a window this document does not frame", () => {
     const { result } = renderHook(() => useChoices("#actions/button/2"));
 
     posted({ address: "#actions/button/2", choices: CHOICES, type: REPORTED }, { source: null });
@@ -85,7 +85,7 @@ describe("useChoices", () => {
     expect(result.current).toStrictEqual([]);
   });
 
-  it("keeps what was reported as the address moves within the scene", () => {
+  it("keeps the reported choices when the address changes within the scene", () => {
     const { rerender, result } = renderHook((address: string) => useChoices(address), {
       initialProps: "#actions/button/2",
     });

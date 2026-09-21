@@ -18,7 +18,7 @@ describe("exportTarget", () => {
     );
   });
 
-  it("picks the first matching condition in the order given", () => {
+  it("picks the first matching condition in the order the map writes them", () => {
     const manifest = {
       exports: { ".": { "acme-source": "./src/index.ts", default: "./dist/index.mjs" } },
     };
@@ -77,13 +77,16 @@ describe("exportTarget", () => {
     expect(exportTarget(manifest, ".", ["import"])).toBeUndefined();
   });
 
-  it("reads a withheld subpath as unpublished and stops there", () => {
+  it("returns undefined for a subpath the map withholds with null", () => {
+    expect(exportTarget({ exports: { ".": null } }, ".")).toBeUndefined();
+  });
+
+  it("returns undefined when a matching condition is null", () => {
     const withheld = Object.fromEntries([
       ["import", null],
       ["default", "./x.js"],
     ]);
 
-    expect(exportTarget({ exports: { ".": null } }, ".")).toBeUndefined();
     expect(exportTarget({ exports: { ".": withheld } }, ".", ["import"])).toBeUndefined();
   });
 
@@ -98,7 +101,7 @@ describe("exportTarget", () => {
     expect(exportTarget(manifest, "./theme", ["import"])).toBeUndefined();
   });
 
-  it("returns undefined when the subpath is absent or names no target", () => {
+  it("returns undefined when the subpath resolves to no target", () => {
     expect(exportTarget({ exports: { ".": "./index.js" } }, "./theme")).toBeUndefined();
     expect(
       exportTarget({ exports: { "./theme": { types: "./t.d.ts" } } }, "./theme"),
@@ -106,7 +109,7 @@ describe("exportTarget", () => {
     expect(exportTarget({ exports: { "./theme": 3 } }, "./theme")).toBeUndefined();
   });
 
-  it("returns undefined when no condition matches and the object names no default", () => {
+  it("returns undefined when no condition matches and the map declares no default", () => {
     const manifest = { exports: { ".": { require: "./index.cjs", types: "./index.d.ts" } } };
 
     expect(exportTarget(manifest, ".", ["import"])).toBeUndefined();

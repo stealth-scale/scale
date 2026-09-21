@@ -1,14 +1,13 @@
 /**
- * Shows the button: every axis of its recipe crossed with every look, and the two states a page
- * puts one in that no axis names.
+ * Lays out the catalogue page for the button.
  *
  * @remarks
- *   The axes are built from the recipe, so one added to it reaches this page without the file
- *   changing. The pressed state and the disabled state are written out, because a page states them
- *   on the element and the recipe names neither.
- *   Each scene names a different action, so a reader sees the words vary rather than one label
- *   repeated. The words are keys under `button` in the catalogue's namespace, kept beside this file
- *   in `locales/en/specimen/button.json`.
+ *   The axis scenes are generated from the recipe, so a variant added there appears here without an
+ *   edit to this file. The pressed and disabled scenes are written by hand because a caller sets
+ *   both as attributes on the element and the recipe declares neither as an axis. Each scene labels
+ *   its buttons with a different action to keep one word from repeating down the page; the labels
+ *   are keys under `button` in the catalogue namespace, held beside this file in
+ *   `locales/en/specimen/button.json`.
  */
 
 import { type ReactElement } from "react";
@@ -30,18 +29,18 @@ import { IconButton } from "#button/icon-button.ts";
 import { recipe } from "#button/recipe.ts";
 
 /**
- * Every look the recipe draws, which every other scene crosses with its own axis.
+ * The variant values that form the second dimension of every other scene.
  */
 const LOOKS = valuesOf(recipe, "variant");
 
 /**
- * The two answers to a boolean prop.
+ * Both values of a boolean prop, off first.
  */
 const EITHER = [false, true] as const;
 
 /**
- * The button as a consumer writes it, which every scene on the page shows as its source, the ones
- * built from the recipe and the ones written out alike.
+ * The call site every scene's source snippet is generated from, whether the scene is generated or
+ * hand-written.
  */
 const SAMPLE = {
   children: "Publish",
@@ -50,7 +49,7 @@ const SAMPLE = {
 };
 
 /**
- * Draws a button beside its pressed self, in every look.
+ * Renders a matrix of every look against `aria-pressed` set and unset.
  */
 function Pressed(): ReactElement {
   const { t } = useWords("button");
@@ -67,7 +66,7 @@ function Pressed(): ReactElement {
 }
 
 /**
- * Draws a button beside its disabled self, in every look.
+ * Renders a matrix of every look against `disabled` set and unset.
  */
 function Disabled(): ReactElement {
   const { t } = useWords("button");
@@ -84,8 +83,9 @@ function Disabled(): ReactElement {
 }
 
 /**
- * Draws a button naming one action, so a reader sees the words vary from scene to scene rather
- * than one label repeated down the page.
+ * Builds a scene renderer whose buttons all carry the same action as their label.
+ *
+ * @param says - The translation key, not the label itself.
  */
 function acting(says: string): (props: ButtonProps) => ReactElement {
   return function Acting(props: ButtonProps): ReactElement {
@@ -96,7 +96,11 @@ function acting(says: string): (props: ButtonProps) => ReactElement {
 }
 
 /**
- * Draws the square that holds one glyph rather than words.
+ * Renders an icon button holding a check mark, forwarding only the axes a scene set.
+ *
+ * @remarks
+ *   An axis the scene left out is omitted from the element rather than passed as `undefined`, so
+ *   the icon button's own defaults still apply to it.
  */
 function Glyph({ shape, size, variant }: ButtonProps): ReactElement {
   const { t } = useWords("button");
@@ -114,7 +118,7 @@ function Glyph({ shape, size, variant }: ButtonProps): ReactElement {
 }
 
 /**
- * A button beside its pressed self.
+ * The hand-written scene for the pressed state.
  */
 export const pressed: Scene = {
   about: "button.pressed.about",
@@ -124,7 +128,7 @@ export const pressed: Scene = {
 };
 
 /**
- * A button beside its disabled self.
+ * The hand-written scene for the disabled state.
  */
 export const disabled: Scene = {
   about: "button.disabled.about",

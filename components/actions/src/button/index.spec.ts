@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#button/index.ts";
 
 describe("index", () => {
-  it("names every export and nothing beside it", () => {
+  it("exports only the three public names", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Button",
       "ButtonPropsProvider",
@@ -11,7 +11,7 @@ describe("index", () => {
     ]);
   });
 
-  it("publishes neither the recipe nor the binding", () => {
+  it("exports no recipe or binding helper", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {

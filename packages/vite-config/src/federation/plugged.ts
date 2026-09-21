@@ -2,48 +2,47 @@
  * Resolves the federation plugin, which this package depends on only optionally.
  *
  * @remarks
- *   A repository that federates nothing should not carry a bundler plugin it
- *   never runs, so the package is an optional peer and the import waits until a
- *   layer actually needs it.
+ *   The manifest declares `@module-federation/vite` as an optional peer, so a repository that
+ *   federates nothing installs no bundler plugin it never runs. The dynamic import runs only when
+ *   a layer needs the plugin.
  */
 
 /**
- * Describes the options the federation plugin accepts.
+ * The options the federation plugin accepts, taken from its own signature.
  *
  * @remarks
- *   The shape is read off the plugin rather than restated here, so a change to
- *   the plugin's own options is a type error in this package instead of a
- *   mismatch nobody notices until a build runs.
+ *   Deriving the shape rather than restating it means a change to the plugin's options surfaces as
+ *   a type error in this package instead of a build failure.
  */
 type Federating = Parameters<typeof import("@module-federation/vite").federation>[0];
 
 /**
- * Mirrors what the federation plugin returns once it is configured.
+ * The value the federation plugin returns once it is configured, taken from its own signature.
  */
 type Federated = ReturnType<typeof import("@module-federation/vite").federation>;
 
 /**
- * Stands for the plugin package a loader resolves.
+ * The shape of the plugin package a loader resolves.
  *
  * @remarks
- *   A test supplies its own loader so the suite runs without the optional peer
- *   installed, and this is the shape such a loader has to satisfy.
+ *   A specification supplies its own loader, so the suite runs without the optional peer
+ *   installed.
  */
 export type Loaded = typeof import("@module-federation/vite");
 
 /**
- * Configures the federation plugin, resolving its package on first use.
+ * Configures the federation plugin, importing its package on first use.
  *
  * @remarks
- *   A missing install and a rejected set of options both fail here, and only the
- *   first is rewritten. An error the plugin raises about the options travels on
- *   untouched, so a typo is not reported as a dependency that was never
- *   installed.
- * @param stated - The options handed straight to the plugin.
- * @param load - Resolves the plugin package. A caller overrides it to avoid
- *   depending on the optional peer.
+ *   A missing install and a rejected set of options both fail here, and only the first is
+ *   rewritten. The plugin's own error about the options propagates untouched, so a typo is not
+ *   reported as a missing dependency.
+ * @param stated - The options passed to the plugin unchanged.
+ * @param load - Resolves the plugin package. A caller overrides it to avoid depending on the
+ *   optional peer.
  * @returns The bundler plugins the options configure.
- * @throws {@link Error} When the plugin package cannot be resolved.
+ * @throws {@link Error} When the plugin package cannot be imported. The message names the two
+ *   entry points that need it and why it is an optional peer.
  */
 export async function plugged(
   stated: Federating,

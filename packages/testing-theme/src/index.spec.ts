@@ -59,11 +59,11 @@ const SURFACE = [
 ];
 
 describe("testing-theme", () => {
-  it("publishes the three gates with the report and the readers", () => {
+  it("exports exactly the names the surface list declares", () => {
     expect(Object.keys(published).toSorted()).toStrictEqual(SURFACE.toSorted());
   });
 
-  it("agrees with the build plugin on what a theme and an application are", () => {
+  it("matches the build plugin on the separator the theme attribute and the theme types", () => {
     expect(published.THRESHOLDS.text).toBe(7);
     expect(SEPARATOR).toBe(pluginSeparator);
     expect(THEME_ATTRIBUTE).toBe(pluginAttribute);

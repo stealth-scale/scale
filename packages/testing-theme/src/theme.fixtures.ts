@@ -1,13 +1,17 @@
 /**
- * Builds the themes the specifications hold to the gate: the foundation wrapped as a theme, and a
- * theme of one palette whose colors a case can bend.
+ * Builds the two themes the specifications run through the gate: the foundation wrapped as a
+ * theme, and a single-palette theme a case can override roles on.
  */
 
 import { colorScale, drawn, FOUNDATION, type Theme } from "@stealthscale/theme/authoring";
 import foundation from "@stealthscale/theme/theme";
 
 /**
- * Wraps the foundation as a theme, so it is held to the same gate as every theme.
+ * Wraps the foundation preset as a theme, so the gate checks it like any other theme.
+ *
+ * @remarks
+ *   The preset's `theme.extend` tokens are lifted onto the theme's `variant`, because that is
+ *   where the gate reads a theme's values from. A preset that extends neither is still a theme.
  */
 export function foundationTheme(): Theme {
   const stated = foundation.theme?.extend;
@@ -25,9 +29,13 @@ export function foundationTheme(): Theme {
 }
 
 /**
- * Builds a theme of one palette drawn from the foundation's blue over the foundation's pages,
- * with a ramp of the same blue a case may reference a step of, and whatever is handed in put over
- * the palette's roles.
+ * Builds a theme carrying a single palette, drawn from the foundation's blue over the foundation's
+ * pages.
+ *
+ * @remarks
+ *   The theme also carries a ramp of the same blue, so a case can point a role at one of its steps
+ *   rather than at a literal colour.
+ * @param over - Roles to replace on the drawn palette.
  */
 export function paletteTheme(over: Readonly<Record<string, unknown>> = {}): Theme {
   return {

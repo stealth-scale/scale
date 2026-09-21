@@ -1,17 +1,15 @@
 /**
- * Defines the styles an alert is drawn with.
+ * Declares the slot recipe the alert is styled from.
  *
  * @remarks
- *   Six parts. The root is the box, the indicator holds a mark, the content stacks the title and
- *   the description, and the aside holds whatever a reader acts on.
- *   The status picks the palette and nothing else, so one set of looks and sizes draws a warning
- *   and an error alike and a theme retints every alert at once. Colour never carries the status on
- *   its own: the indicator holds a mark and the title holds words, because an alert that said
- *   `error` in red alone would say nothing to a reader who cannot tell the two reds apart. WCAG
- *   1.4.1 fails a distinction drawn in colour alone.
- *   The looks read the `flat` layer styles, whose fill and ink are the palette pairs the contrast
- *   gate measures. The indicator takes no colour of its own and reads the root's, so a solid alert
- *   marks itself in the ink the gate measured against that fill.
+ *   Six slots: `root` is the container, `indicator` holds the icon, `content` groups `title` and
+ *   `description`, and `aside` holds trailing controls. `status` switches `colorPalette` and
+ *   nothing else, which keeps it orthogonal to `variant` and `size`, lets a warning and an error
+ *   share one set of generated styles, and lets a theme retint every alert at once. Severity is
+ *   never encoded in colour alone, because WCAG 1.4.1 rejects a distinction a reader who cannot
+ *   separate two reds is unable to resolve. `variant` maps to the `flat` layer styles, whose fill
+ *   and foreground are the token pairs the contrast gate measures, and the indicator inherits from
+ *   the root so that a `solid` alert draws its icon in the foreground measured against its fill.
  */
 
 import {
@@ -29,13 +27,12 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * The steps an alert offers, which are the three a notice is read at.
+ * Lists the three size steps an alert offers, shared by the icon and by the root's spacing scale.
  */
 const SIZES = ["sm", "md", "lg"] as const;
 
 /**
- * Draws a subtle alert about something worth knowing, at the middle size, until a caller says
- * otherwise.
+ * Styles an alert, defaulting to a subtle informational notice at the middle size.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -59,15 +56,14 @@ export const recipe = defineSlotRecipe({
   staticCss: [statusEmitted(), { status: ["neutral"] }],
   variants: {
     /**
-     * Which edge carries a bar in the palette's own colour.
+     * The edge that carries a rule in the palette's solid colour. Unset by default.
      *
      * @remarks
-     *   The three bars the theme draws, each one a layer style that paints a pseudo-element along
-     *   one edge. They were drawn by the theme and reachable from no component until this axis
-     *   named them.
-     *   The bar reads the palette's solid, so an alert's status colours it and a theme moves it.
-     *   `end` is the inline edge a page's writing runs towards, so a bar asked for there stands at
-     *   the right of a page read left to right and at the left of one read the other way.
+     *   Each value selects one of the theme's three `indicator.*` layer styles, which paint a
+     *   pseudo-element along the named edge. The theme ships all three and no component reached
+     *   them until this variant existed. The rule takes the palette's solid token, so `status`
+     *   colours it and a theme swap moves it. `end` is a logical edge: it resolves to the right
+     *   under left-to-right writing and to the left under right-to-left.
      */
     edge: {
       top: { root: { layerStyle: "indicator.top" } },
@@ -78,7 +74,8 @@ export const recipe = defineSlotRecipe({
     },
 
     /**
-     * Whether the title and the description stack or run together on one line.
+     * Whether the content slot stacks the title above the description or wraps both onto a shared
+     * baseline.
      */
     layout: {
       inline: {
@@ -103,7 +100,7 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * What the alert is about, which picks the palette and nothing else.
+     * The severity of the alert. It selects `colorPalette` and affects nothing else.
      */
     status: {
       ...onSlot("root", statusVariants()),
@@ -112,7 +109,7 @@ export const recipe = defineSlotRecipe({
     },
 
     /**
-     * How the alert is set off from the page.
+     * The fill treatment that separates the alert from the surface behind it.
      */
     variant: onSlot("root", flatVariants()),
   },

@@ -1,19 +1,18 @@
 /**
- * Draws one item of the group, which holds the tab stop when the arrows reach it.
+ * Renders one member of a roving focus group.
  *
  * @remarks
- *   Exactly one item is reachable by Tab and every other is at minus one, which is what makes the
- *   whole group one stop in the tab order. A disabled item registers with nothing, so the arrows
- *   pass over it, and it does not claim the stop when a pointer focuses it: an item that claimed
- *   the stop without registering would leave the stop pointing at nothing and take the group out
- *   of the tab order. The element is kept in state rather than in a ref, because the effect that
- *   registers it has to run again once the element is there, and a ref changing starts no effect.
- *   The group tracks an item by its registration, so the element carries an id only where a caller
- *   names one. A control drawn as an item keeps whatever id it writes for itself, such as the id a
- *   menu's control is pointed at.
- *   The item holding the stop is stamped `data-stop` rather than `data-active`, because the theme
- *   reads `[data-active]` as a control being pressed and a control drawn as an item would be filled
- *   for holding the stop.
+ *   Exactly one item carries `tabIndex` 0 and every other carries -1, which is what reduces the
+ *   whole group to a single stop in the tab order. A disabled item never registers, so the arrows
+ *   step past it, and it also refuses the stop when a pointer focuses it, since an item that took
+ *   the stop without registering would leave the stop pointing at an item the arrows cannot find
+ *   and the group unreachable by Tab. The element is tracked in state rather than in a ref because
+ *   the registering effect has to run again once the node exists, and writing a ref schedules
+ *   nothing. The group keys on the registration, so the DOM `id` attribute is written only when
+ *   the caller supplies one, which leaves a control rendered as an item free to keep the id it
+ *   already needs, such as the one a menu trigger points at. The item holding the stop is marked
+ *   `data-stop` and not `data-active`, because the theme reads `[data-active]` as a pressed
+ *   control and a button rendered as an item would then render filled.
  */
 
 import {
@@ -32,41 +31,41 @@ import { withContext } from "#roving-focus/context.ts";
 import { RovingFocusContext } from "#roving-focus/use-roving-focus.ts";
 
 /**
- * Draws the element an item is laid out on.
+ * The styled element carrying the recipe's item slot.
  */
 const Shell = withContext("div", "item");
 
 /**
- * Describes what an item takes beside everything a styled element takes.
+ * Props of a group item, plus everything the styled element accepts.
  */
 export interface ItemProps extends Omit<ComponentProps<typeof Shell>, "ref"> {
   /**
-   * Whether the arrows pass over the item.
+   * Whether the arrows step past the item.
    */
   disabled?: boolean | undefined;
 
   /**
-   * The id the item answers to, which the group generates where a caller states none. The element
-   * carries it only where a caller states it.
+   * The identifier the group registers the item under. One is generated when the caller omits it,
+   * and the DOM attribute is written only when the caller supplies it.
    */
   id?: string | undefined;
 
   /**
-   * Where a caller wants the element.
+   * The ref to receive the item's element.
    *
    * @remarks
-   *   Typed to any element rather than to a div, because the item is what a caller draws their
-   *   control as. The tab stop sits on this element, so a control drawn inside an item rather than
-   *   as one carries a second stop and the group's promise of one stop per group is broken. A
-   *   toolbar writes `as="button"`.
+   *   Typed to `HTMLElement` rather than to a div, because the caller renders their own control as
+   *   the item. The tab stop is placed on this element, so a control nested inside an item instead
+   *   of rendered as one introduces a second stop and breaks the single-stop guarantee. A toolbar
+   *   passes `as="button"`.
    */
   ref?: Ref<HTMLElement> | undefined;
 }
 
 /**
- * Takes the tab stop when the arrows reach it, and leaves the tab order otherwise.
+ * Takes the tab stop while it is the active item and stays out of the tab order otherwise.
  *
- * @throws {@link Error} When it is drawn outside a group.
+ * @throws {@link Error} When rendered outside a root.
  */
 export function Item(props: ItemProps): ReactElement {
   const { disabled = false, id: named, ref: handed, ...rest } = props;
@@ -82,7 +81,8 @@ export function Item(props: ItemProps): ReactElement {
   const [element, setElement] = useState<HTMLDivElement | null>(null);
 
   /**
-   * Keeps the element the item registers, and hands it to whatever asked for it.
+   * Stores the node in state so the registering effect can run, then forwards it to the caller's
+   * ref.
    */
   const attach = useCallbackRef((node: HTMLDivElement | null): void => {
     setElement(node);
@@ -92,7 +92,7 @@ export function Item(props: ItemProps): ReactElement {
   });
 
   /**
-   * Reports focus reaching the item, which moves the tab stop to it.
+   * Moves the tab stop to this item when focus reaches it, unless the item is disabled.
    */
   const claim = useCallbackRef((): void => {
     if (!disabled) onFocus(id);

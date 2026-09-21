@@ -22,22 +22,22 @@ function item(): Promise<unknown> {
 }
 
 describe("stylesheet", () => {
-  it("appends to the list of plugins rather than replacing whatever else is there", () => {
+  it("contributes the plugin at plugins", () => {
     expect(stylesheet().at).toBe("plugins");
   });
 
-  it("names the layer for the call a consumer wrote", () => {
+  it("names the layer for the call that produced it", () => {
     expect(stylesheet().name).toBe("theme.stylesheet");
   });
 
-  it("carries the stylesheet plugin under its house name", async () => {
+  it("returns a plugin named stealth:theme.stylesheet", async () => {
     await expect(item()).resolves.toMatchObject({
       enforce: "pre",
       name: "stealth:theme.stylesheet",
     });
   });
 
-  it("constructs the plugin when the configuration is composed and not when the layer is stated", () => {
+  it("defers plugin construction to itemOf when the layer is stated", () => {
     expect(stylesheet().item).toBeUndefined();
     expect(stylesheet().itemOf).toBeTypeOf("function");
   });
@@ -46,7 +46,7 @@ describe("stylesheet", () => {
     await expect(item()).resolves.not.toBe(await item());
   });
 
-  it("passes the repository's own options through to the plugin", () => {
+  it("accepts the include globs a repository declares", () => {
     expect(() => stylesheet({ include: ["app/**/*.tsx"] })).not.toThrow();
   });
 });

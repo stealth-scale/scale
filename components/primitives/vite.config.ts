@@ -1,10 +1,10 @@
 /**
- * Builds the primitives package for a browser, with the React, specimen and i18n layers added.
+ * Builds this package for the browser under the React, specimen and i18n layers.
  *
  * @remarks
- *   The package binds no recipe, so it needs no theme layers. The specimen layers stop the package
- *   counting its specimens towards its coverage. The i18n layers type the words the specimens read
- *   out of `locales/`, so a key a specimen misspells is an error in the editor.
+ *   Nothing here binds a recipe, so the theme layers are absent. The specimen layers keep the
+ *   specimen files out of the coverage figures. The i18n layers type the keys the specimens read
+ *   from `locales/`, so a misspelt key fails in the editor rather than at run time.
  */
 
 import * as i18n from "@stealthscale/vite-config-i18n";

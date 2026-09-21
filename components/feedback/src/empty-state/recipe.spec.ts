@@ -5,15 +5,15 @@ import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/te
 import { recipe } from "#empty-state/recipe.ts";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to move", () => {
     expect(recipeViolations(recipe, { names: ["EmptyState"] })).toStrictEqual([]);
   });
 
-  it("names its class empty-state", () => {
+  it("prefixes its generated classes with empty-state", () => {
     expect(recipe.className).toBe("empty-state");
   });
 
-  it("draws the five parts an empty state is composed of", () => {
+  it("declares exactly the five slots content through title", () => {
     expect([...recipe.slots].toSorted()).toStrictEqual([
       "content",
       "description",
@@ -23,15 +23,15 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers the one axis every part steps with", () => {
+  it("declares size as its only variant", () => {
     expect(axesOf(recipe)).toStrictEqual(["size"]);
   });
 
-  it("draws the middle size when nothing is asked for", () => {
+  it("defaults size to md", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md" });
   });
 
-  it("offers the eight sizes every component shares", () => {
+  it("accepts all eight steps of the shared size scale", () => {
     expect(valuesOf(recipe, "size")).toStrictEqual([
       "2xl",
       "3xl",
@@ -44,7 +44,7 @@ describe("recipe", () => {
     ]);
   });
 
-  it("steps the panel the content the mark and the title together at one name", () => {
+  it("scales every slot but the description from a single size value", () => {
     expect(recipe.variants?.["size"]?.["md"]).toStrictEqual({
       content: { gap: "calc({spacing.gap.md} * var(--density, 1))" },
       indicator: { boxSize: "calc({sizes.icon.md} * var(--density, 1))" },
@@ -53,12 +53,15 @@ describe("recipe", () => {
     });
   });
 
-  it("holds the description at one size whatever the panel's is", () => {
+  it("leaves the description slot untouched by the largest size", () => {
     expect(recipe.variants?.["size"]?.["4xl"]).not.toHaveProperty("description");
+  });
+
+  it("pins the description to the small body text style in its base", () => {
     expect(recipe.base?.["description"]).toMatchObject({ textStyle: "body.sm" });
   });
 
-  it("tracks the tag named EmptyState and every part under it", () => {
+  it("matches EmptyState and any dotted member of it for jsx tracking", () => {
     expect(recipe.jsx).toStrictEqual([/^EmptyState(\.\w+)?$/u]);
   });
 });

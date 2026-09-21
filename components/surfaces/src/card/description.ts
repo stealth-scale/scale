@@ -1,10 +1,10 @@
 /**
- * Draws the line that supports a card's title.
+ * Renders the supporting line beneath a card's title.
  *
  * @remarks
- *   The element is `p`. The description reads in the muted ink at the small body style, which the
- *   contrast gate holds to the text ratio, so it sits under the title without dropping below what
- *   a reader can read.
+ *   The element is a `p` set in the muted ink at the small body style. The contrast gate holds
+ *   that ink to the body text ratio, so the line recedes from the title without falling below
+ *   what a reader can make out.
  */
 
 import { type ComponentProps } from "react";
@@ -12,11 +12,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#card/context.ts";
 
 /**
- * Says what the card is about, under its title.
+ * Renders the description slot under the title.
  */
 export const Description = withContext("p", "description");
 
 /**
- * Describes what the description takes: everything a styled p takes.
+ * Accepts every prop the styled p takes.
  */
 export type DescriptionProps = ComponentProps<typeof Description>;

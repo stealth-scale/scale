@@ -9,7 +9,7 @@ import { docblocks } from "#fmt/docblock.ts";
 import { DOCBLOCK } from "#lint/rules/docblock.ts";
 
 /**
- * Reaches the doc comment block the layer states.
+ * Returns the jsdoc settings the preset configures.
  */
 function settings(): Record<string, unknown> {
   const held = (docblocks().config as UserConfig).fmt?.jsdoc;
@@ -18,22 +18,22 @@ function settings(): Record<string, unknown> {
 }
 
 describe("docblock", () => {
-  it("keeps a block on several lines", () => {
+  it("sets commentLineStrategy to multiline", () => {
     expect(settings()["commentLineStrategy"]).toBe("multiline");
   });
 
-  it("ends every description with a full stop", () => {
+  it("sets descriptionWithDot to true", () => {
     expect(settings()["descriptionWithDot"]).toBe(true);
   });
 
-  it("agrees with the rule that refuses a single-line block", () => {
+  it("matches the lint rule that refuses a single-line block", () => {
     const held = DOCBLOCK["jsdoc-js/multiline-blocks"] as [string, { noSingleLineBlocks: boolean }];
 
     expect(held[1].noSingleLineBlocks).toBe(true);
     expect(settings()["commentLineStrategy"]).toBe("multiline");
   });
 
-  it("wraps a continuation where the rule checking the wrap expects to find it", () => {
+  it("sets wrapIndent to the two spaces the alignment rule expects", () => {
     const held = DOCBLOCK["jsdoc-js/check-line-alignment"] as [
       string,
       string,

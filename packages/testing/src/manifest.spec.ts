@@ -1,9 +1,10 @@
 /**
- * Covers the manifests and file maps a spec builds a workspace out of.
+ * Covers the manifest text and the file maps a scratch workspace is written from.
  *
  * @remarks
- *   The exact JSON text is asserted once, because a caller writing it to disk cares about the
- *   trailing newline. Every other expectation parses the text, so field order stays free to move.
+ *   The exact JSON text is asserted once, because a caller writing it to disk depends on the
+ *   trailing newline. Every other expectation parses the text first, so field order can change
+ *   without breaking a test.
  */
 
 import { describe, expect, it } from "vitest";
@@ -12,13 +13,13 @@ import { manifest, packageFiles, workspaceFiles } from "#manifest.ts";
 import { withScratchWorkspace } from "#scratch.ts";
 
 describe("manifest", () => {
-  it("writes the fields a package manager expects with a default version", () => {
+  it("writes the fields as indented JSON with a version of 0.0.0 where none is declared", () => {
     expect(manifest({ name: "@acme/leaf" })).toBe(
       '{\n  "version": "0.0.0",\n  "name": "@acme/leaf"\n}\n',
     );
   });
 
-  it("keeps the version the fields declare", () => {
+  it("keeps a version the fields declare for themselves", () => {
     expect(JSON.parse(manifest({ name: "@acme/leaf", version: "1.2.3" }))).toStrictEqual({
       name: "@acme/leaf",
       version: "1.2.3",
@@ -27,7 +28,7 @@ describe("manifest", () => {
 });
 
 describe("packageFiles", () => {
-  it("writes the manifest and every other file under the directory", () => {
+  it("keys the manifest ahead of every other file under the directory", () => {
     const files = packageFiles(
       "packages/leaf",
       { name: "@acme/leaf" },
@@ -45,7 +46,7 @@ describe("packageFiles", () => {
     });
   });
 
-  it("composes with the root into one scratch workspace", () => {
+  it("combines with a root manifest into a single scratch workspace", () => {
     const files = withScratchWorkspace(
       {
         ...workspaceFiles(["packages/*"]),
@@ -59,7 +60,7 @@ describe("packageFiles", () => {
 });
 
 describe("workspaceFiles", () => {
-  it("writes a private root manifest with the globs it was given", () => {
+  it("writes a private root manifest declaring the globs it was given", () => {
     expect(JSON.parse(workspaceFiles(["core/*", "tools/*"])["package.json"] ?? "")).toStrictEqual({
       name: "root",
       private: true,
@@ -68,7 +69,7 @@ describe("workspaceFiles", () => {
     });
   });
 
-  it("keeps other root fields such as the catalog", () => {
+  it("keeps any further root field such as the catalog", () => {
     const root = JSON.parse(
       workspaceFiles(["core/*"], { catalog: { valibot: "^1.4.2" } })["package.json"] ?? "",
     ) as { catalog: Record<string, string> };

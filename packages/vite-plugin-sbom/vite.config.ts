@@ -1,9 +1,9 @@
 /**
- * Builds this package on the plain tier, written out rather than extended from a tier.
+ * Builds this package under the settings the plain tier states.
  *
  * @remarks
- *   Every tier packs through this plugin, so a tier cannot be the thing that builds it without
- *   depending on its own output.
+ *   Every tier packs through this plugin, so building the package from a tier would make it depend
+ *   on its own output.
  */
 
 import { defineConfig } from "vite";

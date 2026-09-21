@@ -1,6 +1,6 @@
 /**
- * The plugin itself: it finds the catalogues, serves the module an application loads them from,
- * writes their types, and pushes a changed string to a running page.
+ * Vite plugin for translation catalogues: finds them, serves the modules an application loads them
+ * from, writes their types, and pushes a changed string to a running page.
  */
 
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
@@ -35,48 +35,47 @@ import { declared } from "#typegen.ts";
 export { ID };
 
 /**
- * The resolved identifier, whose leading NUL marks the module as this plugin's.
+ * Resolved id of the catalogues module, with the leading NUL that marks it as generated.
  */
 const RESOLVED = `\0${ID}`;
 
 /**
- * The custom event name a changed catalogue is sent to the page under.
+ * Name of the custom event a changed catalogue is sent to the page under.
  *
  * @remarks
  *   The foundation listens for the same string. Neither package imports the other, so the name is a
- *   contract between them rather than a shared constant.
+ *   contract between them and not a shared constant.
  */
 export const EVENT = "i18n:catalogue";
 
 /**
- * The default language that defines every key.
+ * Default for {@link Options.fallback}: the language every key is defined in.
  */
 const FALLBACK = "en";
 
 /**
- * The default path the generated types are written to, against the project root.
+ * Default for {@link Options.types}, resolved against the project root.
  */
 const TYPES = "src/i18n.gen.d.ts";
 
 /**
- * The directory the plugin's scratch goes under, outside the workspace.
+ * Directory name the plugin's scratch space takes under the system temporary directory.
  */
 const SCRATCH = "stealth-i18n";
 
 /**
- * The file under the scratch that the plugin rewrites whenever the set of languages and namespaces
+ * File under the scratch that the plugin rewrites whenever the set of languages and namespaces
  * changes.
  *
  * @remarks
- *   The catalogues module lists it as a file to watch. A bundler that rebuilds on a watched file's
- *   change rebuilds the module when the file changes, and a directory handed to the watcher tells
- *   it nothing about a file appearing there, so the file appearing is turned into this one
- *   changing.
+ *   The catalogues module lists the stamp as a file to watch, so the bundler rebuilds the module
+ *   when the stamp changes. A watcher reports nothing for a file appearing in a watched directory,
+ *   so the plugin turns that into a change to the stamp.
  */
 const STAMP = "topology";
 
 /**
- * The payload the change event carries.
+ * The payload sent to the page under {@link EVENT}.
  */
 export interface Changed {
   /**
@@ -85,7 +84,7 @@ export interface Changed {
   readonly language: string;
 
   /**
-   * The namespace.
+   * The namespace that changed.
    */
   readonly namespace: string;
 
@@ -96,11 +95,11 @@ export interface Changed {
 }
 
 /**
- * Configures the catalogues.
+ * The settings a repository configures the plugin with. Every member has a default.
  */
 export interface Options {
   /**
-   * Inlines every language rather than the fallback alone, so nothing is fetched. Off by default.
+   * Inlines every language, not the fallback alone, so the page fetches nothing. Off by default.
    */
   readonly eager?: boolean | undefined;
 
@@ -152,7 +151,7 @@ interface Channel {
 }
 
 /**
- * The part of a module graph the update hook reads.
+ * The part of a module graph the update hook uses.
  */
 interface Graph {
   /**
@@ -161,46 +160,47 @@ interface Graph {
   readonly getModuleById: (id: string) => EnvironmentModuleNode | undefined;
 
   /**
-   * Invalidates a module, so the next import reloads it.
+   * Invalidates a module, so the next import reloads it. Every call site guards against its
+   * absence.
    */
   readonly invalidateModule?: ((node: EnvironmentModuleNode) => void) | undefined;
 }
 
 /**
- * The environment an update hook is called on.
+ * The part of the environment the update hook reads off `this`.
  */
 interface Watching {
   /**
-   * The environment a file changed in.
+   * The environment the change was reported in.
    */
   readonly environment: {
     /**
-     * The channel to the page.
+     * The channel the new strings are pushed down.
      */
     readonly hot: Channel;
 
     /**
-     * The module graph to invalidate through.
+     * The module graph the stale modules are invalidated through.
      */
     readonly moduleGraph: Graph;
   };
 }
 
 /**
- * The part of an environment the watch change hook reads.
+ * The part of the environment the watch change hook reads off `this`.
  */
 interface Bundling {
   /**
-   * The environment a file changed in, where the bundler binds one.
+   * The environment the change was reported in, absent where the bundler binds none.
    */
   readonly environment?: {
     /**
-     * The part of the configuration that says whether the environment produces a bundled output.
+     * The resolved configuration, narrowed to the one flag read here.
      */
     readonly config: {
       /**
-       * Whether the environment produces a bundled output, as a build and a server that bundles
-       * do.
+       * True under a build and under a server that bundles, false when the server serves one
+       * module per file.
        */
       readonly isBundled: boolean;
     };
@@ -208,17 +208,17 @@ interface Bundling {
 }
 
 /**
- * The part of a load's context the plugin reads.
+ * The part of the load hook's context the plugin reads off `this`.
  */
 interface Loading {
   /**
-   * Adds a file whose change loads the module again.
+   * Declares a file the loaded module depends on, so that changing it loads the module again.
    */
   readonly addWatchFile: (file: string) => void;
 }
 
 /**
- * The state the plugin carries between hooks.
+ * The mutable state the plugin carries across hook calls.
  */
 interface State {
   /**
@@ -232,7 +232,7 @@ interface State {
   index: CatalogueIndex;
 
   /**
-   * The resolved configuration, set before any other hook runs.
+   * The resolved configuration, replaced before any other hook runs.
    */
   resolved: Resolved;
 
@@ -242,17 +242,19 @@ interface State {
   shape: string;
 
   /**
-   * The file rewritten when the shape changes, under the plugin's scratch for the root.
+   * Absolute path of the file rewritten when the shape changes, under the scratch for the root.
    */
   stamp: string;
 }
 
 /**
- * Lists every language and namespace pair an index holds, one per line, sorted.
+ * Renders every language and namespace pair an index contains as sorted lines, for comparing one
+ * search against the last.
  *
  * @remarks
- *   The shape is what the catalogues module's exports and loader table depend on beside the words.
- *   A change to it is a change to the module a running page cannot take as a pushed event.
+ *   The catalogues module's exports and loader table depend on the shape as well as on the words. A
+ *   page that already imported the module cannot pick up a shape change from a pushed event, so the
+ *   plugin hands the module back for a reload.
  */
 function shapeOf(index: CatalogueIndex): string {
   return [...index.entries()]
@@ -266,7 +268,7 @@ function shapeOf(index: CatalogueIndex): string {
 /**
  * Searches for the catalogues again and indexes them, keeping the namespaces the options accept.
  *
- * @param state - The state to write the result into.
+ * @param state - The state whose catalogues, index and shape are replaced.
  * @param options - Where to search and which namespaces to keep.
  * @returns True when the set of languages and namespaces differs from the last search's.
  */
@@ -291,7 +293,7 @@ function refound(state: State, options: Options): boolean {
  *
  * @param state - The catalogues found.
  * @param options - Where to write and which language types the keys.
- * @returns True when the file changed.
+ * @returns True when the file's content changed, false when it matched or types are off.
  */
 function retyped(state: State, options: Options): boolean {
   if (options.types === false) return false;
@@ -303,8 +305,12 @@ function retyped(state: State, options: Options): boolean {
 }
 
 /**
- * Rewrites the stamp, so a bundler watching it rebuilds the catalogues module.
+ * Rewrites the stamp with a new timestamp, so a bundler watching it rebuilds the catalogues
+ * module.
  *
+ * @remarks
+ *   `process.hrtime.bigint` has nanosecond resolution, so two writes within the same millisecond
+ *   still produce different content.
  * @param state - The state carrying the stamp's path.
  */
 function stamped(state: State): void {
@@ -313,10 +319,12 @@ function stamped(state: State): void {
 }
 
 /**
- * Formats each fault in the catalogues as one line.
+ * Formats each fault in the catalogues as one line naming the file, the key where the fault has
+ * one, and what is wrong.
  *
  * @param state - The catalogues found.
  * @param options - Which language defines the keys.
+ * @returns One line per fault, empty when every catalogue is valid.
  */
 function wrong(state: State, options: Options): readonly string[] {
   return problems(state.index, options.fallback ?? FALLBACK).map(
@@ -325,7 +333,7 @@ function wrong(state: State, options: Options): readonly string[] {
 }
 
 /**
- * Reads the pair a catalogue file belongs to out of its path.
+ * Reads the language and namespace a catalogue file belongs to out of its path.
  *
  * @param path - A normalised path under a `locales` directory.
  * @returns The pair, or undefined when no language directory sits under `locales`.
@@ -340,7 +348,7 @@ function pairOf(path: string): Pair | undefined {
 }
 
 /**
- * Returns true when a path is a catalogue file.
+ * Returns true for a path carrying a catalogue extension under a `locales` directory.
  *
  * @param path - A normalised path.
  */
@@ -349,9 +357,9 @@ function catalogued(path: string): boolean {
 }
 
 /**
- * Invalidates a module when the graph holds it, and does nothing when nothing imported it.
+ * Invalidates a module the graph contains, and does nothing for one nothing imported.
  *
- * @param graph - The module graph.
+ * @param graph - The module graph to look the module up in and invalidate through.
  * @param id - The module's resolved identifier.
  */
 function stale(graph: Graph, id: string): void {
@@ -361,11 +369,12 @@ function stale(graph: Graph, id: string): void {
 }
 
 /**
- * Pushes a changed pair to a running page and invalidates the modules holding the old strings.
+ * Pushes a changed pair to a running page, invalidates the modules holding the old strings, and
+ * warns about any fault the change introduced.
  *
  * @remarks
- *   The catalogues module is invalidated as well, because the fallback language is inlined in it,
- *   so a page loaded after the change gets the current strings.
+ *   The catalogues module is invalidated as well as the pair's own, because the fallback language
+ *   is inlined in it, so a page loaded after the change gets the current strings.
  * @param state - The catalogues found.
  * @param options - Which language defines the keys, for the validation that follows.
  * @param pair - The language and namespace that changed.
@@ -388,15 +397,14 @@ function resent(state: State, options: Options, pair: Pair, watching: Watching):
  *
  * @remarks
  *   The search and the types run again, because the set of languages and namespaces may have
- *   changed. Where it did, the catalogues module is handed back for the server to reload, because
- *   a running page holds the old set in the module it imported and no pushed event replaces that.
- *   Where the set is the same and only the words of a pair changed, the pair is pushed to the page
- *   the way an edit is, so the page keeps its state.
- * @param state - The catalogues found.
+ *   changed. Where it did, the catalogues module goes back to the server for a reload, because a
+ *   running page imported the old set and no pushed event replaces it. Where only the words of a
+ *   pair changed, the pair is pushed to the page and the page keeps its state.
+ * @param state - The catalogues found, searched again here.
  * @param options - Where to search.
  * @param path - The file that appeared or disappeared.
  * @param watching - The environment the file changed in.
- * @returns The catalogues module where the server has to reload it, and nothing otherwise.
+ * @returns The catalogues module where the server has to reload it, and an empty array otherwise.
  */
 function refollowed(
   state: State,
@@ -425,10 +433,12 @@ function refollowed(
 }
 
 /**
- * Lists the files whose words the catalogues module inlines.
+ * Selects the files whose words the catalogues module inlines: every catalogue when eager, and the
+ * fallback language's alone otherwise.
  *
  * @param state - The catalogues found.
  * @param options - Whether every language is inlined, and which one is otherwise.
+ * @returns The catalogues to inline, which are also the files the module watches.
  */
 function inlinedFiles(state: State, options: Options): readonly Catalogue[] {
   if (options.eager === true) return state.catalogues;
@@ -437,16 +447,16 @@ function inlinedFiles(state: State, options: Options): readonly Catalogue[] {
 }
 
 /**
- * Builds the plugin that finds the catalogues, types their keys, and serves `virtual:i18n`.
+ * Creates the plugin that finds the catalogues, types their keys, and serves `virtual:i18n`.
  *
  * @remarks
- *   On a dev server a catalogue change is pushed to the page as an event rather than a reload, so
- *   the page keeps its state. In a build an invalid catalogue throws instead. Every module lists
- *   the files it read as files to watch, so a bundler that rebuilds on a change rebuilds the
- *   module, and the catalogues module lists the stamp the plugin rewrites when a language or a
- *   namespace appears or disappears.
- * @param options - Where to search and what to write. `Options` documents every member.
- * @returns The plugin.
+ *   On a dev server a catalogue change reaches the page as an event and not as a reload, so the
+ *   page keeps its state. A build throws on an invalid catalogue. Every module lists the files it
+ *   read as files to watch, so a bundler that rebuilds on a change rebuilds the module.
+ * @param options - Where to search and what to write. {@link Options} Documents every member, and
+ *   every one has a default.
+ * @returns The plugin, with its state already holding the working directory until
+ *   `configResolved` replaces it.
  */
 export function i18n(options: Options = {}): Plugin {
   const state: State = {
@@ -459,9 +469,11 @@ export function i18n(options: Options = {}): Plugin {
 
   return {
     /**
-     * Throws on an invalid catalogue during a build, and warns during a dev server run.
+     * Throws on an invalid catalogue during a build, and warns through the bundler on a dev server
+     * run.
      *
-     * @throws {@link Error} When a catalogue defines an unknown key or drops a placeholder.
+     * @throws {@link Error} When the command is `build` and a catalogue defines an unknown key or
+     *   drops a placeholder. The message carries every fault, one per line.
      */
     buildStart(): void {
       const lines = wrong(state, options);
@@ -473,7 +485,8 @@ export function i18n(options: Options = {}): Plugin {
     },
 
     /**
-     * Records the root, runs the search, and writes the types.
+     * Records the resolved configuration and the stamp's path for that root, then runs the first
+     * search and writes the types.
      *
      * @param config - The resolved configuration.
      */
@@ -485,9 +498,10 @@ export function i18n(options: Options = {}): Plugin {
     },
 
     /**
-     * Adds every `locales` directory to the watcher, including those outside the project root.
+     * Registers every `locales` directory with the watcher, including those outside the project
+     * root.
      *
-     * @param server - The dev server.
+     * @param server - The dev server whose watcher the directories are added to.
      */
     configureServer(server: ViteDevServer): void {
       server.watcher.add([...new Set(state.catalogues.map((one) => dirname(dirname(one.file))))]);
@@ -501,7 +515,8 @@ export function i18n(options: Options = {}): Plugin {
      *   fallback language changes what the page may ask for.
      * @param changed - The file, what happened to it, and the modules the change reached.
      * @returns The catalogues module where the page has to reload it, an empty array for a
-     *   catalogue pushed to the page, or undefined for any other file.
+     *   catalogue pushed to the page, or undefined for a file this plugin does not own, which
+     *   leaves the change to the bundler.
      */
     hotUpdate(this: Watching, changed: HotUpdateOptions): EnvironmentModuleNode[] | undefined {
       const path = normalizePath(changed.file);
@@ -520,11 +535,11 @@ export function i18n(options: Options = {}): Plugin {
     },
 
     /**
-     * Serves the catalogues module, or the module one pair is fetched as, and lists the files each
+     * Serves the catalogues module, or the module one pair is fetched as, declaring the files each
      * one read as files to watch.
      *
-     * @param id - The module being loaded.
-     * @returns The source, or undefined when the module is not this plugin's.
+     * @param id - The resolved identifier of the module being loaded.
+     * @returns The generated source, or undefined when the module is not this plugin's.
      */
     load(this: Loading, id: string): string | undefined {
       if (id === RESOLVED) {
@@ -551,25 +566,24 @@ export function i18n(options: Options = {}): Plugin {
     name: "stealth:i18n",
 
     /**
-     * Claims the catalogues specifier and every pair specifier.
+     * Claims the catalogues specifier and every pair specifier, leaving every other import alone.
      *
      * @param id - The specifier being resolved.
-     * @returns The resolved identifier, or undefined for any other import.
+     * @returns The specifier behind a NUL, or undefined for any other import.
      */
     resolveId(id: string): string | undefined {
       return id === ID || pairOfId(id) !== undefined ? `\0${id}` : undefined;
     },
 
     /**
-     * Runs the search and the types again during a watching build or under a server that bundles.
+     * Runs the search and the types again during a watching build or under a server that bundles,
+     * and rewrites the stamp when the set of languages and namespaces changed.
      *
      * @remarks
      *   A server that serves a module per file reports the same change to `hotUpdate`, which pushes
-     *   the strings to the page, so this hook leaves a change under that server alone. A watching
-     *   build has no page and rebuilds, and a server that bundles runs no hot update hook, so both
-     *   are followed here: the words reach the bundler through the files each module listed, and a
-     *   language or a namespace appearing reaches it through the stamp.
-     * @param id - The file that changed.
+     *   the strings to the page, so this hook ignores a change under that server. A watching build
+     *   has no page, and a server that bundles runs no hot update hook, so both are followed here.
+     * @param id - The path of the file that changed.
      */
     watchChange(this: Bundling, id: string): void {
       if (!catalogued(normalizePath(id))) return;

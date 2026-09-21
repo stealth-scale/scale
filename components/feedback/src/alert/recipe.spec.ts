@@ -7,7 +7,7 @@ import { recipe } from "#alert/recipe.ts";
 const PARTS = ["root", "indicator", "content", "title", "description", "aside"];
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to move", () => {
     expect(
       recipeViolations(recipe, {
         names: ["Alert.Root", "Alert.Title", "Alert.Indicator"],
@@ -16,15 +16,15 @@ describe("recipe", () => {
     ).toStrictEqual([]);
   });
 
-  it("names its class alert", () => {
+  it("prefixes its generated classes with alert", () => {
     expect(recipe.className).toBe("alert");
   });
 
-  it("styles the six parts an alert draws", () => {
+  it("declares the six slots in the order the markup nests them", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
   });
 
-  it("offers the seven axes an alert takes", () => {
+  it("declares exactly the seven variants edge through variant", () => {
     expect(axesOf(recipe)).toStrictEqual([
       "edge",
       "layout",
@@ -36,17 +36,17 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers a bar on each of the three edges the theme draws one for", () => {
+  it("accepts only the three edges the theme draws a rule along", () => {
     expect(valuesOf(recipe, "edge")).toStrictEqual(["bottom", "end", "top"]);
   });
 
-  it("paints the bar on the root so a status colours it", () => {
+  it("maps edge top to the indicator.top layer style on the root slot", () => {
     expect(recipe.variants?.["edge"]?.["top"]).toStrictEqual({
       root: { layerStyle: "indicator.top" },
     });
   });
 
-  it("draws a subtle notice at the middle size when nothing is asked for", () => {
+  it("defaults every variant except edge and motion", () => {
     expect(defaultsOf(recipe)).toStrictEqual({
       layout: "stacked",
       radius: "l3",
@@ -56,7 +56,7 @@ describe("recipe", () => {
     });
   });
 
-  it("offers the four statuses and the neutral one", () => {
+  it("adds neutral to the four statuses the theme emits", () => {
     expect(valuesOf(recipe, "status")).toStrictEqual([
       "error",
       "info",
@@ -66,7 +66,7 @@ describe("recipe", () => {
     ]);
   });
 
-  it("names an intent for every status rather than a hue", () => {
+  it("sets colorPalette to the status name and nothing else on every status", () => {
     expect.hasAssertions();
 
     for (const [status, styles] of Object.entries(recipe.variants?.["status"] ?? {})) {
@@ -74,7 +74,7 @@ describe("recipe", () => {
     }
   });
 
-  it("offers the five flat looks", () => {
+  it("accepts all five flat treatments for variant", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual([
       "outline",
       "plain",
@@ -84,11 +84,11 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers the three steps a notice is read at", () => {
+  it("accepts three size steps rather than the theme's full scale", () => {
     expect(valuesOf(recipe, "size")).toStrictEqual(["lg", "md", "sm"]);
   });
 
-  it("steps the root's room and the mark's box at one name", () => {
+  it("scales the root's spacing and the indicator's box from a single size value", () => {
     expect(recipe.variants?.["size"]?.["md"]).toStrictEqual({
       indicator: { boxSize: "calc({sizes.icon.md} * var(--density, 1))" },
       root: {
@@ -99,15 +99,15 @@ describe("recipe", () => {
     });
   });
 
-  it("wraps a long word rather than pushing the aside off the end", () => {
+  it("sets a zero minimum inline size on the content slot", () => {
     expect(recipe.base?.["content"]).toMatchObject({ minInlineSize: "0" });
   });
 
-  it("leaves the mark the root's ink so a solid alert marks itself in the measured pair", () => {
+  it("declares no colour on the indicator slot", () => {
     expect(recipe.base?.["indicator"]).not.toHaveProperty("color");
   });
 
-  it("tracks the alert and every part under its namespace", () => {
+  it("matches Alert and any dotted member of it for jsx tracking", () => {
     expect(recipe.jsx).toStrictEqual([/^Alert(\.\w+)?$/u]);
   });
 });

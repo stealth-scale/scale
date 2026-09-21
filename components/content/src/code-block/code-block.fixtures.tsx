@@ -1,6 +1,6 @@
 /**
- * Builds the code block a part's specification needs above it, every part needing the root's
- * provider and the code it holds.
+ * Supplies the root every part has to be rendered inside, since each one reads the recipe variants
+ * and the code from it.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -13,16 +13,12 @@ import { Root, type RootProps } from "#code-block/root.tsx";
 import { Title } from "#code-block/title.ts";
 
 /**
- * The passage every case sets: one import in a component file.
+ * The source text every case renders, a single import statement.
  */
 export const SOURCE = 'import { Button } from "@stealthscale/component-actions";';
 
 /**
- * Draws whatever a case wants measured inside the panel that provides the variants and the code.
- *
- * @param children - The part under test.
- * @param props - Whatever the case sets on the panel.
- * @returns The panel, holding it.
+ * Wraps the part under test in a root carrying the fixture source in TypeScript.
  */
 export function coded(children: ReactNode, props: Partial<RootProps> = {}): ReactElement {
   return (
@@ -33,10 +29,7 @@ export function coded(children: ReactNode, props: Partial<RootProps> = {}): Reac
 }
 
 /**
- * Draws a whole block, so a case can read how its parts are composed.
- *
- * @param props - Whatever the case sets on the panel.
- * @returns The six parts composed the way a caller composes them.
+ * Renders every slot of the block arranged the way a caller arranges them.
  */
 export function composed(props: Partial<RootProps> = {}): ReactElement {
   return coded(

@@ -1,5 +1,5 @@
 /**
- * Covers which layers survive a removal and what each pass contributes.
+ * Checks which layers survive a removal and what the resolved config holds afterwards.
  */
 
 import { describe, expect, it, vi } from "vitest";
@@ -12,28 +12,28 @@ import { contribute, type Contribution, preset, type Removal, remove } from "#la
  * Builds a contribution whose name is also the item it appends.
  *
  * @remarks
- *   The two are the same string so an assertion can read the surviving names
- *   and the appended items interchangeably.
+ *   The two are the same string, so an assertion can read the surviving names and the appended
+ *   items interchangeably.
  */
 function added(name: string): Contribution {
   return contribute({ at: "test.setupFiles", because: "a reason", item: name, name });
 }
 
 /**
- * Builds a removal aimed at one name, called after the name it takes back.
+ * Builds a removal aimed at one name, itself named after the layer it removes.
  */
 function taken(target: string): Removal {
   return remove({ because: "a reason", name: `without(${target})`, target });
 }
 
 describe("compose", () => {
-  it("keeps every contribution no removal took back", () => {
+  it("keeps every contribution that no removal names", () => {
     const held = surviving([added("a"), added("b")]);
 
     expect(held.map((one) => one.name)).toStrictEqual(["a", "b"]);
   });
 
-  it("keeps a preset", () => {
+  it("keeps a preset when no removal names it", () => {
     const held = surviving([preset({ config: {}, name: "base" }), added("a")]);
 
     expect(held.map((one) => one.name)).toStrictEqual(["base", "a"]);
@@ -51,21 +51,21 @@ describe("compose", () => {
     expect(held.map((one) => one.name)).toStrictEqual(["b"]);
   });
 
-  it("removes the nearest contribution above it", () => {
+  it("removes the last matching contribution above the removal", () => {
     const held = surviving([added("a"), taken("a"), added("a")]);
 
     expect(held.map((one) => one.name)).toStrictEqual(["a"]);
   });
 
-  it("throws for a removal naming nothing contributed above it", () => {
+  it("throws when a removal is written above the contribution it names", () => {
     expect(() => surviving([taken("a"), added("a")])).toThrow(/written too early/u);
   });
 
-  it("throws for a removal naming nothing", () => {
+  it("throws when a removal names a layer that nothing declared", () => {
     expect(() => surviving([added("a"), taken("z")])).toThrow(/nothing above it stated/u);
   });
 
-  it("orders a preset asking to go last after one that declared no order", async () => {
+  it("orders a preset that enforces post after one that declares no enforcement", async () => {
     const held = await resolved(BUILDING, [
       preset({ config: { mode: "last" }, enforce: "post", name: "after" }),
       preset({ config: { mode: "first" }, name: "before" }),
@@ -74,7 +74,7 @@ describe("compose", () => {
     expect(held.mode).toBe("last");
   });
 
-  it("appends what a contribution declares outright", async () => {
+  it("appends the item a contribution declares", async () => {
     const held = await resolved(BUILDING, [
       contribute({ at: "test.setupFiles", because: "a reason", item: "stated.ts", name: "one" }),
     ]);
@@ -82,7 +82,7 @@ describe("compose", () => {
     expect(held.test?.setupFiles).toStrictEqual(["stated.ts"]);
   });
 
-  it("appends what a contribution derives from the config", async () => {
+  it("appends the item itemOf derives from the context", async () => {
     const held = await resolved(BUILDING, [
       contribute({
         at: "test.setupFiles",
@@ -95,7 +95,7 @@ describe("compose", () => {
     expect(held.test?.setupFiles).toStrictEqual(["production.ts"]);
   });
 
-  it("passes over a Vite plugin contribution while the toolchain reads metadata alone", async () => {
+  it("skips a contribution to plugins while the toolchain resolves for metadata", async () => {
     let constructed = 0;
 
     vi.stubEnv("VP_RESOLVING_CONFIG_METADATA", "1");
@@ -111,16 +111,30 @@ describe("compose", () => {
         },
         name: "one",
       }),
-      contribute({ at: "test.setupFiles", because: "a reason", item: "stated.ts", name: "three" }),
     ]);
 
     expect(resolvingMetadata()).toBe(true);
     expect(constructed).toBe(0);
     expect(held.plugins).toBeUndefined();
+  });
+
+  it("appends a contribution outside plugins while the toolchain resolves for metadata", async () => {
+    vi.stubEnv("VP_RESOLVING_CONFIG_METADATA", "1");
+
+    const held = await resolved(BUILDING, [
+      contribute({
+        at: "plugins",
+        because: "a reason",
+        itemOf: () => ({ name: "plugin" }),
+        name: "one",
+      }),
+      contribute({ at: "test.setupFiles", because: "a reason", item: "stated.ts", name: "three" }),
+    ]);
+
     expect(held.test?.setupFiles).toStrictEqual(["stated.ts"]);
   });
 
-  it("constructs a contribution to the packer's plugins while the toolchain reads metadata", async () => {
+  it("appends a contribution to pack.plugins while the toolchain resolves for metadata", async () => {
     vi.stubEnv("VP_RESOLVING_CONFIG_METADATA", "1");
 
     const held = await resolved(BUILDING, [
@@ -135,7 +149,7 @@ describe("compose", () => {
     expect(held.pack).toStrictEqual({ plugins: [{ name: "packed" }] });
   });
 
-  it("appends a plugin contribution while the toolchain runs a command", async () => {
+  it("appends a contribution to plugins when the toolchain is not resolving for metadata", async () => {
     vi.stubEnv("VP_RESOLVING_CONFIG_METADATA", "0");
 
     const held = await resolved(BUILDING, [
@@ -146,7 +160,7 @@ describe("compose", () => {
     expect(held.plugins).toStrictEqual([{ name: "plugin" }]);
   });
 
-  it("prefers the derived value when a layer declares both", async () => {
+  it("prefers itemOf over item when a contribution declares both", async () => {
     const held = await resolved(BUILDING, [
       contribute({
         at: "test.setupFiles",

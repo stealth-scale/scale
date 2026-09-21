@@ -9,13 +9,13 @@ import { recipe } from "#alert/recipe.ts";
 import { type RootProps } from "#alert/root.tsx";
 
 describe("Content", () => {
-  it("draws a div inside the root it needs above it", () => {
+  it("renders a div for the content slot", () => {
     const { container } = render(alerted(<Content>a word</Content>));
 
     expect(slotElement(container, "alert", "content").tagName).toBe("DIV");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("emits a class for every variant value the recipe declares", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "content",
@@ -23,7 +23,7 @@ describe("Content", () => {
     ).toStrictEqual([]);
   });
 
-  it("carries no role because the band groups nothing a reader navigates by", () => {
+  it("sets no role attribute on the element it renders", () => {
     const { container } = render(alerted(<Content>a word</Content>));
 
     expect(slotElement(container, "alert", "content").hasAttribute("role")).toBe(false);

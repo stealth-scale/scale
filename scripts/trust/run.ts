@@ -1,9 +1,9 @@
 /**
- * Runs one command and hands back what it wrote and how it ended, for the trust scripts.
+ * Runs one command for the trust scripts and reports its exit code and both its streams.
  *
  * @remarks
- *   The scripts talk to the registry through pnpm and npm, and every call goes through this one
- *   function so a specification hands in a stand-in that answers offline.
+ *   Every call the scripts make to pnpm and npm goes through this one function, so a specification
+ *   passes a stand-in that answers offline.
  */
 
 import { execFile } from "node:child_process";
@@ -13,29 +13,29 @@ import { execFile } from "node:child_process";
  */
 export interface Ran {
   /**
-   * The exit code, or -1 where the command could not be started.
+   * Gives the exit code, or -1 where the command could not be started at all.
    */
   readonly code: number;
 
   /**
-   * The command's error stream, as text.
+   * Gives the command's error stream, as text.
    */
   readonly stderr: string;
 
   /**
-   * The command's output stream, as text.
+   * Gives the command's output stream, as text.
    */
   readonly stdout: string;
 }
 
 /**
- * Runs a command, given its arguments, from a directory.
+ * Runs a command with its arguments from a directory, and resolves with how it ended.
  */
 export type Runner = (command: string, args: readonly string[], cwd?: string) => Promise<Ran>;
 
 /**
- * Runs a command through the shell's search path and never rejects: a command that fails, or
- * cannot be started, answers with its code and its streams.
+ * Runs a command found on the search path, and resolves rather than rejects when it fails or
+ * cannot be started.
  */
 export const run: Runner = (command, args, cwd) =>
   new Promise((settle) => {

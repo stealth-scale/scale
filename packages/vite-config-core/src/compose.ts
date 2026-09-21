@@ -1,10 +1,9 @@
 /**
- * Turns a list of layers into the one config a build runs on.
+ * Folds a list of layers into the one Vite config a build runs on.
  *
  * @remarks
- *   The three passes are presets, then contributions, then overrides. A layer
- *   never sees what a later pass does, so a contribution cannot read a value an
- *   override is about to rewrite.
+ *   Three passes, in this order: presets, then contributions, then overrides. No layer observes a
+ *   later pass, so a contribution cannot read a value an override is about to rewrite.
  */
 
 import { mergeConfig, type UserConfig } from "vite";
@@ -22,54 +21,53 @@ import {
 import { appended } from "#path.ts";
 
 /**
- * The weight each enforcement carries when presets are sorted.
+ * The sort weight each `enforce` value carries when the presets are ordered.
  */
 const ORDER: Record<NonNullable<Preset["enforce"]>, number> = { post: 1, pre: -1 };
 
 /**
- * The variable the toolchain sets while it resolves a configuration for its metadata alone.
+ * The environment variable the toolchain sets while it resolves a configuration for metadata
+ * alone.
  *
  * @remarks
- *   The task runner reads every package's configuration to plan the graph, a check reads it for
- *   its lint and format blocks, and the packer reads it for its pack block. None of them runs a
- *   Vite plugin, and the toolchain says so through this variable for the length of the resolution.
- *   The name is the toolchain's, read here so that no package imports the toolchain to ask.
+ *   The task runner reads every package's configuration to plan the task graph, `vp check` reads it
+ *   for the lint and format blocks, and `vp pack` reads it for the pack block. None of them runs a
+ *   Vite plugin. The toolchain owns the name; it is restated here so that no package has to import
+ *   the toolchain just to read it.
  */
 const METADATA = "VP_RESOLVING_CONFIG_METADATA";
 
 /**
- * Reports whether the toolchain is resolving the configuration for its metadata alone, which is
- * when a Vite plugin is neither run nor worth constructing.
+ * True while the toolchain is resolving this configuration for metadata alone.
+ *
+ * @remarks
+ *   No Vite plugin runs during such a resolution, so a caller can skip constructing one.
  */
 export function resolvingMetadata(): boolean {
   return process.env[METADATA] === "1";
 }
 
 /**
- * Reports whether a contribution appends a Vite plugin, at the top-level list.
+ * True for a contribution that appends to the top-level plugins list.
  *
  * @remarks
- *   The packer's list under `pack.plugins` is not one: the packer resolves the configuration under
- *   the metadata marker and takes its plugins from what it read, so a contribution to that list is
- *   worked out under the marker like any other value.
+ *   A contribution to `pack.plugins` deliberately does not count. `vp pack` resolves the
+ *   configuration under the metadata variable and reads its plugins out of the result, so that list
+ *   has to be evaluated like any other value.
  */
 function plugging(contribution: Contribution): boolean {
   return contribution.at === "plugins";
 }
 
 /**
- * Walks a nest of extends entries and returns the layers in reading order.
+ * Flattens a nest of `extends` entries into the layers it holds, in declaration order.
  */
 export function flattened(extended: readonly Extendable[]): readonly Layer[] {
   return extended.flatMap((held) => (isLayer(held) ? [held] : flattened(held)));
 }
 
 /**
- * Settles one preset into the config it stands for.
- *
- * @remarks
- *   A preset stating a plain object is handed straight back. One stating a
- *   function is called with the context and may answer with a promise.
+ * Resolves one preset to the config it declares, whether it states a value or a function.
  */
 async function setBy(context: Context, preset: Preset): Promise<UserConfig> {
   const held = await (typeof preset.config === "function" ? preset.config(context) : preset.config);
@@ -78,13 +76,12 @@ async function setBy(context: Context, preset: Preset): Promise<UserConfig> {
 }
 
 /**
- * Merges every preset into a single config, in enforcement order.
+ * Merges every preset into one config, in enforcement order.
  *
  * @remarks
- *   A preset stating no enforcement sorts with `pre`, and the sort is stable,
- *   so two such presets keep the order the array gave them. The configs are
- *   settled concurrently, which means one preset's function cannot depend on
- *   another's having run.
+ *   A preset declaring no enforcement sorts with `pre`. `Array.prototype.toSorted` is stable, so
+ *   two such presets keep the order the array gave them. The presets resolve concurrently, which
+ *   means no preset's function may depend on another having run.
  */
 async function settled(context: Context, presets: readonly Preset[]): Promise<UserConfig> {
   const ordered = presets.toSorted(
@@ -97,14 +94,13 @@ async function settled(context: Context, presets: readonly Preset[]): Promise<Us
 }
 
 /**
- * Applies every removal and returns the layers still standing.
+ * Applies every removal and returns the layers left standing.
  *
  * @remarks
- *   A removal reaches the last matching layer above it, so the nearer of two
- *   layers sharing a name goes first. Reaching nothing is an error rather than
- *   a no-op, because a removal written above what it names would otherwise
- *   pass while doing nothing.
- * @throws {@link Error} When a removal names a layer that nothing above it stated.
+ *   A removal matches the last layer of that name above it, so of two layers sharing a name the
+ *   nearer one goes first. A removal that matches nothing throws rather than passing silently,
+ *   because a removal written above the layer it names would otherwise be a no-op.
+ * @throws {@link Error} When a removal names a layer that no layer above it declared.
  */
 export function surviving(layers: readonly Layer[]): readonly Layer[] {
   const held: Layer[] = [];
@@ -130,19 +126,16 @@ export function surviving(layers: readonly Layer[]): readonly Layer[] {
 }
 
 /**
- * Composes every layer that applies into one config for this environment.
+ * Composes every layer that applies to this environment into one config.
  *
  * @remarks
- *   Layers the environment rules out are dropped before removals run, so a
- *   removal aimed at a layer that does not apply here throws rather than
- *   quietly matching nothing. What the caller wrote beside `extends` is not
- *   merged in here, so the result is what the layers alone decided. While the
- *   toolchain resolves the configuration for its metadata alone, a contribution
- *   that appends a Vite plugin is passed over without being worked out, so
- *   planning the task graph loads no Vite plugin and reads no artefact one
- *   would. A contribution to the packer's list is worked out, because the packer
- *   reads that list under the same marker.
- * @throws {@link Error} When a removal names a layer that nothing above it stated.
+ *   A layer the environment rules out is dropped before removals run, so a removal aimed at it
+ *   throws rather than matching nothing. Nothing the caller wrote alongside `extends` is merged
+ *   here. While the toolchain resolves for metadata alone, a contribution to the top-level plugins
+ *   list is skipped without being evaluated, so planning the task graph constructs no Vite plugin.
+ *   A contribution to `pack.plugins` is still evaluated, because `vp pack` reads that list under
+ *   the same variable.
+ * @throws {@link Error} When a removal names a layer that no layer above it declared.
  */
 export async function resolved(
   context: Context,

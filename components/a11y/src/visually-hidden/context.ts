@@ -1,9 +1,9 @@
 /**
- * Binds the hidden text's recipe to the element that draws it.
+ * Connects the recipe to React.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. A recipe file that also bound one would put the runtime behind
+ *   This is deliberately a separate module from `recipe.ts`. An application's compiler imports the
+ *   recipe at build time, and a recipe module that also created the context would drag React into
  *   every compiler configuration that reads it.
  */
 
@@ -12,6 +12,7 @@ import { createRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#visually-hidden/recipe.ts";
 
 /**
- * Binds the recipe once, for the hidden text and for whatever sets its variants from above.
+ * A single binding of the recipe, shared by the component and by any ancestor that supplies its
+ * variants through the provider.
  */
 export const { PropsProvider, withContext } = createRecipeContext(recipe);

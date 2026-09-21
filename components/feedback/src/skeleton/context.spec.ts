@@ -8,14 +8,14 @@ import { recipeClasses, variantClass } from "@stealthscale/testing-theme";
 import { PropsProvider, withContext } from "#skeleton/context.ts";
 
 describe("context", () => {
-  it("draws the recipe's class on an element it binds", () => {
+  it("applies the recipe class to an element bound with withContext", () => {
     const Probe = withContext("div");
     const { container } = render(createElement(Probe));
 
     expect(recipeClasses(container, "skeleton")).toContain("skeleton");
   });
 
-  it("hands a provider's variants to an element below it", () => {
+  it("applies a motion the provider supplies to a descendant element", () => {
     const Probe = withContext("div");
     const { container } = render(
       createElement(PropsProvider, { value: { motion: "shimmer" } }, createElement(Probe)),

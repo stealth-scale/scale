@@ -1,19 +1,16 @@
 /**
- * States what a badge is: a short label set off from what it labels, drawn in a look, a size, a
- * corner and the palette of its status.
+ * Styles every element bound to the badge recipe.
  *
  * @remarks
- *   Every value is a flat layer style, a semantic tag height, a semantic corner or a palette, so a
- *   theme moves all of them. The looks are flat rather than filled: a badge is read rather than
- *   pressed, and one drawn in a fill repaints whenever a pointer crosses it, which reads as a
- *   control a reader can press and then cannot. A badge inside a row that hovers is under the
- *   pointer whenever the row is, so the difference shows up wherever badges are most used.
- *   The numbers are tabular, because a badge nearly always holds a count and a column of counts
- *   that shifts width as it changes is hard to read down. Nothing wraps, and the badge does not
- *   shrink, so a long label pushes the line rather than folding to two and doubling the row's
- *   height. The `status` axis offers `neutral` beside the four statuses, for a label that states a
- *   fact rather than a state, such as the group a page is filed under, and it is listed under
- *   `staticCss` beside them so a page that sets it from data reaches a rule.
+ *   Each declared value resolves to a token, so a theme can shift all of them at once. The looks
+ *   are flat rather than filled because a badge is read and not pressed: a filled look repaints
+ *   under the pointer, which reads as a control that turns out not to be one, and a badge inside a
+ *   hoverable row sits under the pointer whenever the row does. Numerals are tabular, since a badge
+ *   usually carries a count and a column of counts that changes width as it updates is hard to
+ *   scan. The text neither wraps nor shrinks, so a long label widens its line instead of folding
+ *   onto a second one and doubling the row height. The `status` axis adds `neutral` for a label
+ *   stating a category rather than a condition, and every status value is listed under `staticCss`
+ *   so that a page setting the status from data still finds a rule.
  */
 
 import {
@@ -26,8 +23,8 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * Draws a badge on the primary palette in the subtle look at the middle size until a caller says
- * otherwise, set inline so it sits in a line of words.
+ * Declares the badge's base styles and its four variant axes, defaulting to the subtle look at the
+ * md size with the l2 corner on the primary palette.
  */
 export const recipe = defineRecipe({
   base: {

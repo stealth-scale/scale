@@ -94,7 +94,7 @@ describe("locked", () => {
     expect(locked(workspace('    "held": { "not": "a list" },')).size).toBe(0);
   });
 
-  it("returns undefined when the lockfile has no packages", () => {
+  it("returns an empty map when the lockfile lists no packages", () => {
     const root = mkdtempSync(join(tmpdir(), "stealth-locked-"));
 
     writeFileSync(join(root, "bun.lock"), '{ "lockfileVersion": 2 }');
@@ -102,15 +102,15 @@ describe("locked", () => {
     expect(locked(root).size).toBe(0);
   });
 
-  it("ignores an entry naming nothing it can read", () => {
+  it("ignores an entry whose first field is not a string", () => {
     expect(locked(workspace('    "held": [3, "", {}],')).size).toBe(0);
   });
 
-  it("returns undefined when the workspace has no lockfile it recognises", () => {
+  it("returns an empty map when the workspace has no lockfile it recognises", () => {
     expect(locked(mkdtempSync(join(tmpdir(), "stealth-locked-"))).size).toBe(0);
   });
 
-  it("returns undefined when the lockfile does not parse", () => {
+  it("returns an empty map when the lockfile does not parse", () => {
     const root = mkdtempSync(join(tmpdir(), "stealth-locked-"));
 
     writeFileSync(join(root, "bun.lock"), "{ not json");
@@ -130,13 +130,13 @@ describe("locked", () => {
     expect(locked(held).get("wrappy@1.0.2")).toStrictEqual({ integrity: "sha512-abc" });
   });
 
-  it("reads a scoped name whole there too", () => {
+  it("reads a scoped name whole out of a pnpm lockfile", () => {
     const held = pnpm("  '@types/node@26.5.1':\n    resolution: {integrity: sha512-def}\n");
 
     expect(locked(held).get("@types/node@26.5.1")?.integrity).toBe("sha512-def");
   });
 
-  it("records where a package came from when it did not come from the default registry", () => {
+  it("records the tarball a pnpm entry resolves from", () => {
     const held = pnpm(
       "  once@1.4.1:\n    resolution: {tarball: https://codeload.github.com/isaacs/once/tar.gz/0fbb41e}\n",
     );
@@ -146,7 +146,7 @@ describe("locked", () => {
     );
   });
 
-  it("reads past the document pnpm writes about its own build", () => {
+  it("reads the document after the one pnpm writes for its own installation", () => {
     const held = pnpm(
       "  wrappy@1.0.2:\n    resolution: {integrity: sha512-abc}\n",
       "packages:\n  '@pnpm/exe.linux-x64@12.4.1':\n    resolution: {integrity: sha512-self}",
@@ -155,7 +155,7 @@ describe("locked", () => {
     expect(locked(held).get("wrappy@1.0.2")?.integrity).toBe("sha512-abc");
   });
 
-  it("records a git remote", () => {
+  it("records the url a pnpm git entry resolves from", () => {
     const held = pnpm(
       "  held@1.0.0:\n    resolution: {type: git, url: git+ssh://git@github.com/acme/held.git}\n",
     );
@@ -163,7 +163,7 @@ describe("locked", () => {
     expect(locked(held).get("held@1.0.0")?.registry).toBe("git+ssh://git@github.com/acme/held.git");
   });
 
-  it("records where a package came from when the key holds it in place of a version", () => {
+  it("records the resolution when a pnpm key has a reference in place of a version", () => {
     const held = pnpm(
       "  once@github.com/isaacs/once/0fbb41e:\n    resolution: {integrity: sha512-m}\n",
     );
@@ -197,13 +197,13 @@ describe("locked", () => {
     expect(locked(held).size).toBe(0);
   });
 
-  it("ignores an empty document and reads the one that follows", () => {
+  it("reads the document after an empty one", () => {
     const held = pnpm("  wrappy@1.0.2:\n    resolution: {integrity: sha512-abc}\n", "---");
 
     expect(locked(held).get("wrappy@1.0.2")?.integrity).toBe("sha512-abc");
   });
 
-  it("ignores a pnpm key with no separator", () => {
+  it("ignores a pnpm key with no @ past its first character", () => {
     const held = pnpm("  held:\n    resolution: {integrity: sha512-abc}\n");
 
     expect(locked(held).size).toBe(0);
@@ -230,7 +230,7 @@ describe("installedOf", () => {
     expect(installedOf(two, "wrappy", "1.0.2")).toStrictEqual({ integrity: "sha512-one" });
   });
 
-  it("returns nothing for a version the lockfile does not pin", () => {
+  it("returns undefined for a version the lockfile does not pin", () => {
     expect(installedOf(two, "wrappy", "3.0.0")).toBeUndefined();
     expect(installedOf(one, "wrappy", "3.0.0")).toBeUndefined();
   });
@@ -241,7 +241,7 @@ describe("installedOf", () => {
     expect(installedOf(one, "absent")).toBeUndefined();
   });
 
-  it("takes a reference for a package whose manifest states a version", () => {
+  it("returns the single record when the lockfile keys it by a reference", () => {
     const held = locked(
       pnpm("  once@github.com/isaacs/once/0fbb41e:\n    resolution: {integrity: sha512-m}\n"),
     );
@@ -252,7 +252,7 @@ describe("installedOf", () => {
     });
   });
 
-  it("keeps a record written for an alias under the name the alias installs as", () => {
+  it("keys an aliased record by the name the alias installs as", () => {
     const held = locked(pnpm("  alias@npm:real@1.0.0:\n    resolution: {integrity: sha512-a}\n"));
 
     expect(installedOf(held, "alias")).toStrictEqual({

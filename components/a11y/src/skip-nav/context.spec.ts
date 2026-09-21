@@ -8,14 +8,14 @@ import { slotClasses } from "@stealthscale/testing-theme";
 import { withProvider } from "#skip-nav/context.ts";
 
 describe("context", () => {
-  it("draws the link's slot class on the element it binds", () => {
+  it("applies the link slot class to the element it wraps", () => {
     const Probe = withProvider("a", "link");
     const { container } = render(createElement(Probe, null, "Skip"));
 
     expect(slotClasses(container, "skip-nav", "link")).toContain("skip-nav__link");
   });
 
-  it("draws the target's slot class on the element it binds", () => {
+  it("applies the target slot class to the element it wraps", () => {
     const Probe = withProvider("div", "target");
     const { container } = render(createElement(Probe));
 

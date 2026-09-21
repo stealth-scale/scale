@@ -2,9 +2,9 @@
  * Covers the scratch directory's lifetime, its path guard and its two wrappers.
  *
  * @remarks
- *   Every case that builds a workspace by hand removes it again, and each wrapper is checked once
- *   on a return and once on a throw. A case that skipped either would leave a directory in `tmpdir`
- *   that no later run reports.
+ *   Every case that constructs a workspace directly removes it again, and each wrapper is checked
+ *   once on a return and once on a throw. A case that skipped either would leave a directory in
+ *   `tmpdir` that no later run would report.
  */
 
 import { existsSync } from "node:fs";
@@ -14,7 +14,7 @@ import { describe, expect, it } from "vitest";
 import { scratchWorkspace, withScratchWorkspace, withScratchWorkspaceAsync } from "#scratch.ts";
 
 describe("scratchWorkspace", () => {
-  it("creates a directory of its own under the temporary directory", () => {
+  it("creates an empty directory under the system temporary directory", () => {
     const workspace = scratchWorkspace();
 
     expect(workspace.root.startsWith(tmpdir())).toBe(true);
@@ -24,7 +24,7 @@ describe("scratchWorkspace", () => {
     workspace.remove();
   });
 
-  it("writes the files it is given and creates their directories", () => {
+  it("writes each file it is given under the directories its key names", () => {
     const workspace = scratchWorkspace({
       "packages/leaf/src/index.ts": "export {}\n",
       "README.md": "# root\n",
@@ -36,23 +36,46 @@ describe("scratchWorkspace", () => {
     workspace.remove();
   });
 
-  it("overwrites a file on a second write", () => {
+  it("overwrites a file a second write names again", () => {
     const workspace = scratchWorkspace({ "a/c.txt": "two", "b.txt": "one" });
 
     workspace.write({ "a/a.txt": "four", "b.txt": "three" });
 
     expect(workspace.read("b.txt")).toBe("three");
+
+    workspace.remove();
+  });
+
+  it("keeps the files a second write does not name", () => {
+    const workspace = scratchWorkspace({ "a/c.txt": "two", "b.txt": "one" });
+
+    workspace.write({ "a/a.txt": "four", "b.txt": "three" });
+
     expect(workspace.files()).toStrictEqual(["a/a.txt", "a/c.txt", "b.txt"]);
 
     workspace.remove();
   });
 
-  it("resolves a relative path inside the root and throws for one that leaves it", () => {
+  it("resolves a relative path against the workspace root", () => {
     const workspace = scratchWorkspace();
 
     expect(workspace.path("a/b.txt")).toBe(`${workspace.root}/a/b.txt`);
     expect(workspace.path(".")).toBe(workspace.root);
+
+    workspace.remove();
+  });
+
+  it("refuses to resolve a path that leaves the workspace root", () => {
+    const workspace = scratchWorkspace();
+
     expect(() => workspace.path("../outside.txt")).toThrow("leaves the scratch workspace");
+
+    workspace.remove();
+  });
+
+  it("refuses to write a file that leaves the workspace root", () => {
+    const workspace = scratchWorkspace();
+
     expect(() => {
       workspace.write({ "../outside.txt": "" });
     }).toThrow("leaves the scratch workspace");
@@ -60,7 +83,7 @@ describe("scratchWorkspace", () => {
     workspace.remove();
   });
 
-  it("throws when a file to read is missing", () => {
+  it("throws ENOENT when the file being read is absent", () => {
     const workspace = scratchWorkspace();
 
     expect(() => workspace.read("missing.txt")).toThrow("ENOENT");
@@ -68,7 +91,7 @@ describe("scratchWorkspace", () => {
     workspace.remove();
   });
 
-  it("removes the directory and does nothing on a second call", () => {
+  it("deletes the directory and does nothing on a second call", () => {
     const workspace = scratchWorkspace({ "a.txt": "" });
 
     workspace.remove();
@@ -81,7 +104,7 @@ describe("scratchWorkspace", () => {
 });
 
 describe("withScratchWorkspace", () => {
-  it("runs the function against the workspace and returns its result", () => {
+  it("removes the directory after returning the function's result", () => {
     let root = "";
 
     const files = withScratchWorkspace({ "a.txt": "" }, (workspace) => {
@@ -107,7 +130,7 @@ describe("withScratchWorkspace", () => {
 });
 
 describe("withScratchWorkspaceAsync", () => {
-  it("awaits the function and resolves to its result", async () => {
+  it("removes the directory after resolving to the function's result", async () => {
     let root = "";
 
     const files = await withScratchWorkspaceAsync({ "a.txt": "" }, async (workspace) => {

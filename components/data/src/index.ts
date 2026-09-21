@@ -1,7 +1,8 @@
 /**
- * Publishes one value for reading: a figure, an instant, a label, a state. Each component binds a
- * recipe a theme can extend and draws nothing of its own. The recipes reach an application's
- * compiler through the preset under `./theme`, and the components reach its bundle through here.
+ * Publishes this package's components for presenting a single value to a reader. Each binds a
+ * recipe a theme can extend and applies no styling of its own. An application's style compiler
+ * picks those recipes up from the preset at `./theme`; the components themselves come through this
+ * entry point.
  *
  * @packageDocumentation
  */

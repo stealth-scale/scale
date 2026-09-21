@@ -3,32 +3,32 @@ import { describe, expect, it } from "vitest";
 import { stated } from "#stated.ts";
 
 describe("stated", () => {
-  it("keeps every setting a caller set", () => {
+  it("returns every entry when no value is undefined", () => {
     expect(stated({ timeout: 250, value: "https://stealthscale.io" })).toStrictEqual({
       timeout: 250,
       value: "https://stealthscale.io",
     });
   });
 
-  it("drops a setting a caller left unset", () => {
+  it("drops the entry whose value is undefined", () => {
     expect(stated({ timeout: undefined, value: "https://stealthscale.io" })).toStrictEqual({
       value: "https://stealthscale.io",
     });
   });
 
-  it("keeps a setting a caller set to false", () => {
+  it("keeps an entry whose value is false", () => {
     expect(stated({ interactive: false })).toStrictEqual({ interactive: false });
   });
 
-  it("keeps a setting a caller set to null", () => {
+  it("keeps an entry whose value is null", () => {
     expect(stated({ value: null })).toStrictEqual({ value: null });
   });
 
-  it("returns nothing where a caller set nothing", () => {
+  it("returns an empty object when every value is undefined", () => {
     expect(stated({ timeout: undefined })).toStrictEqual({});
   });
 
-  it("returns nothing where it is given nothing", () => {
+  it("returns an empty object for an empty input", () => {
     expect(stated({})).toStrictEqual({});
   });
 });

@@ -25,7 +25,8 @@ export default defineConfig(plain);
 ```
 
 `defineConfig` receives the object exactly as this package exports it, and no layer composes it
-first. Spread it to change a key, and what you write beside the spread replaces the value it set.
+first. Spread it to change a key. A key written after the spread replaces the value this package
+set.
 
 Note: the entry is fixed at `src/index.ts`. A package that publishes more than one subpath extends a
 tier, which reads the entry map out of `package.json` instead.
@@ -46,17 +47,17 @@ global that a test stubbed is put back. `expect.requireAssertions` fails a test 
 nothing. `globals` is off, so a test file imports `describe` and `it` rather than finding them
 ambient. Both settings reject a suite that most runners accept.
 
-The packer writes a `stealth-source` condition into the published export map beside every built
-subpath, naming the TypeScript that subpath was built from. Nothing outside a stealth workspace sets
-that condition, so a consumer installing from a registry resolves past it to the built file.
+`vp pack` writes a `stealth-source` condition into the published `exports` map for every built
+subpath, pointing at the TypeScript that subpath was built from. Nothing outside a stealth workspace
+sets that condition, so a consumer installing from a registry resolves past it to the built file.
 
-Note: `pack` reaches `UserConfig` from the `vite-plus` type declarations. A tsconfig that does not
+Note: the `vite-plus` type declarations declare `pack` on `UserConfig`. A tsconfig that does not
 list `vite-plus` under `types` reports the key as unknown.
 
 ## Coverage and the bill of materials
 
-The `node` tier measures coverage and writes a CycloneDX bill of materials for what it packs. This
-value sets neither key, so a package configured from here builds and tests without either. The
+The `node` tier measures coverage and writes a CycloneDX bill of materials for the files it packs.
+This value sets neither key, so a package configured from here builds and tests without either. The
 `pack`, `resolve`, `ssr` and `test` blocks otherwise agree with the tier, and a specification in
 this package composes the tier and compares all four.
 

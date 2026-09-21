@@ -1,10 +1,9 @@
 /**
- * Publishes the pieces an application builds a router from: the options every router starts from,
- * a compiler that turns declarations into routes, and the way a component reaches a declared route
- * whose path its own types do not know.
+ * Builds an application's router over TanStack Router from declared routes, and resolves a
+ * reference to a declared route whose path a component's types do not know.
  *
- * An application calls the library's `createRouter` itself, so every option the library states
- * stays its own to set.
+ * The application calls `createRouter` itself, so every option TanStack Router exposes stays the
+ * application's to set.
  *
  * @packageDocumentation
  */

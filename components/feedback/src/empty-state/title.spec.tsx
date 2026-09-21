@@ -14,7 +14,7 @@ function panelled(children: ReactNode): ReactElement {
 }
 
 describe("Title", () => {
-  it("conforms as a second-level heading inside the panel it needs above it", () => {
+  it("meets the component contract as an h2 element", () => {
     expect(
       violations(Title, {
         as: true,
@@ -26,7 +26,7 @@ describe("Title", () => {
     ).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule", async () => {
+  it("reports no axe violation holding a heading string", async () => {
     await expect(
       accessibilityViolations(Title, {
         props: { children: "Nothing here yet" },
@@ -35,7 +35,7 @@ describe("Title", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("draws the level a page's own outline asks for", () => {
+  it("renders an h3 when as names one", () => {
     const { container } = render(panelled(<Title as="h3">Nothing here yet</Title>));
 
     expect(slotElement(container, "empty-state", "title").tagName).toBe("H3");

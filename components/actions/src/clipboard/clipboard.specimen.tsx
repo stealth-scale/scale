@@ -1,13 +1,13 @@
 /**
- * Shows the clipboard: a button that copies a link, the same beside a field, the value itself as
- * the control, a control of the page's own, every size, and two timeouts.
+ * Lays out the catalogue page for the clipboard.
  *
  * @remarks
- *   The trigger draws no look of its own, so every scene draws it as the library's button through
- *   `as`, with the button's variants set through its provider because `as` retypes nothing. The
- *   marks are a copy glyph and a check, both decorative, so the indicator hides them and the
- *   machine names the trigger. The words are keys under `clipboard` in the catalogue's namespace,
- *   kept beside this file in `locales/en/specimen/clipboard.json`.
+ *   The trigger carries no styling of its own, so every scene renders it through `as` as the
+ *   library's button and sets that button's variants through its props provider, since `as` does
+ *   not retype the props it forwards. Both glyphs are decorative, so the indicator hides them from
+ *   assistive technology and the machine names the trigger instead. The text comes from keys under
+ *   `clipboard` in the catalogue namespace, held beside this file in
+ *   `locales/en/specimen/clipboard.json`.
  */
 
 import { type ReactElement } from "react";
@@ -21,27 +21,27 @@ import * as Clipboard from "#clipboard/index.ts";
 import { recipe } from "#clipboard/recipe.ts";
 
 /**
- * The link every scene copies.
+ * The string every scene copies.
  */
 const LINK = "https://stealthscale.io/payouts/4109";
 
 /**
- * The path of the check mark, in a 24 unit box.
+ * The check mark, as path data over a 24 unit viewBox.
  */
 const CHECK = "M20 6 9 17l-5-5";
 
 /**
- * The path of the sheet behind the copy glyph's front square, in a 24 unit box.
+ * The rear sheet of the copy glyph, as path data over the same viewBox.
  */
 const SHEET = "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2";
 
 /**
- * The two timeouts the last scene compares, in milliseconds.
+ * The pair of hold durations the final scene contrasts, in milliseconds.
  */
 const TIMEOUTS = [250, 3000] as const;
 
 /**
- * Draws the mark that swaps from two squares to a check while the copy is fresh.
+ * Renders the indicator, trading the stacked squares for a check once a copy lands.
  */
 function Mark(): ReactElement {
   return (
@@ -70,7 +70,7 @@ function Mark(): ReactElement {
 }
 
 /**
- * Draws the button on its own.
+ * Renders a copy button with no field beside it.
  */
 function Alone(): ReactElement {
   const { t } = useWords("clipboard");
@@ -88,7 +88,7 @@ function Alone(): ReactElement {
 }
 
 /**
- * Draws the button beside the field that shows what it copies.
+ * Renders a labelled field with an icon button that copies it.
  */
 function Beside(): ReactElement {
   const { t } = useWords("clipboard");
@@ -111,7 +111,7 @@ function Beside(): ReactElement {
 }
 
 /**
- * Draws the value as the thing pressed.
+ * Renders the value itself as the surface a reader clicks.
  */
 function Value(): ReactElement {
   return (
@@ -127,7 +127,7 @@ function Value(): ReactElement {
 }
 
 /**
- * Draws a control of the page's own from the machine's state.
+ * Renders a button the page builds itself, reading the machine through the consumer.
  */
 function Own(): ReactElement {
   const { t } = useWords("clipboard");
@@ -146,7 +146,7 @@ function Own(): ReactElement {
 }
 
 /**
- * Draws the labelled row at every size.
+ * Renders the labelled row at each size the recipe declares.
  */
 function Sizes(): ReactElement {
   const { t } = useWords("clipboard");
@@ -173,7 +173,7 @@ function Sizes(): ReactElement {
 }
 
 /**
- * Draws two buttons whose marks stay for different lengths of time.
+ * Renders two buttons whose marks persist for different durations.
  */
 function Held(): ReactElement {
   return (
@@ -193,7 +193,7 @@ function Held(): ReactElement {
 }
 
 /**
- * The button on its own.
+ * The scene for a copy button standing alone.
  */
 export const alone: Scene = {
   about: "clipboard.alone.about",
@@ -202,7 +202,7 @@ export const alone: Scene = {
 };
 
 /**
- * Beside a field.
+ * The scene for a copy button next to a field.
  */
 export const beside: Scene = {
   about: "clipboard.beside.about",
@@ -211,7 +211,7 @@ export const beside: Scene = {
 };
 
 /**
- * The value itself.
+ * The scene for the value acting as its own trigger.
  */
 export const value: Scene = {
   about: "clipboard.value.about",
@@ -220,7 +220,7 @@ export const value: Scene = {
 };
 
 /**
- * A control of the page's own.
+ * The scene for a control the page supplies through the consumer.
  */
 export const own: Scene = {
   about: "clipboard.own.about",
@@ -229,7 +229,7 @@ export const own: Scene = {
 };
 
 /**
- * Every size.
+ * The scene comparing the sizes.
  */
 export const sizes: Scene = {
   about: "clipboard.sizes.about",
@@ -238,7 +238,7 @@ export const sizes: Scene = {
 };
 
 /**
- * Two timeouts.
+ * The scene comparing the hold durations.
  */
 export const held: Scene = {
   about: "clipboard.held.about",

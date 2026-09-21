@@ -8,7 +8,7 @@ const BLOCK = {
 };
 
 describe("tokens", () => {
-  it("reports an object with a value as a token", () => {
+  it("returns true for an object with a value property and false for a group or a string", () => {
     expect(isToken({ value: "x" })).toBe(true);
     expect(isToken({ DEFAULT: { value: "x" } })).toBe(false);
     expect(isToken("x")).toBe(false);
@@ -22,25 +22,25 @@ describe("tokens", () => {
     ]);
   });
 
-  it("lists nothing under a value that is not a block", () => {
+  it("returns an empty array when the block is not an object", () => {
     expect(leaves("x")).toStrictEqual([]);
     expect(leaves()).toStrictEqual([]);
   });
 
-  it("reads the node a dotted path reaches", () => {
+  it("resolves a dotted path to its node and returns undefined where the path leaves the block", () => {
     expect(nodeAt(BLOCK, "bg.panel")).toStrictEqual({ value: { _dark: "black", base: "white" } });
     expect(nodeAt(BLOCK, "bg.nope")).toBeUndefined();
     expect(nodeAt(BLOCK, "solid.value.deeper")).toBeUndefined();
   });
 
-  it("reports a path stated outright or as a group's own value", () => {
+  it("returns true for a path that resolves to a token directly or through DEFAULT", () => {
     expect(stated(BLOCK, "solid")).toBe(true);
     expect(stated(BLOCK, "bg")).toBe(true);
     expect(stated(BLOCK, "bg.panel")).toBe(true);
     expect(stated(BLOCK, "bg.nope")).toBe(false);
   });
 
-  it("writes a kebab-case name in camel case", () => {
+  it("returns a kebab-case name in camel case", () => {
     expect(camelCased("button-group")).toBe("buttonGroup");
     expect(camelCased("button")).toBe("button");
     expect(camelCased("h-1")).toBe("h1");

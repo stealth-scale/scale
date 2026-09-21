@@ -1,9 +1,10 @@
 /**
- * Covers where the root is found, which directory is configured, and what the environment holds.
+ * Covers `rooted` and `contextOf`: where the workspace root is found, which directory ends up
+ * configured, and which variables reach the environment.
  *
  * @remarks
- *   Each case lays a repository out in a temporary directory, because the code
- *   under test answers by looking at the file system and has nothing to inject.
+ *   Each case writes a repository into a temporary directory, because the code under test reads
+ *   the file system and takes no injectable dependency.
  */
 
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
@@ -15,20 +16,20 @@ import { describe, expect, it, vi } from "vitest";
 import { contextOf, rooted } from "#context.ts";
 
 /**
- * A development server run, which is the invocation these cases are read under.
+ * The invocation every case passes except the two that vary the command and the mode.
  */
 const SERVING: ConfigEnv = { command: "serve", mode: "development" };
 
 /**
- * Lays a two-level repository out on disk and reports both of its directories.
+ * Writes a repository with a root and one package under `packages/one` to a temporary directory.
  *
  * @remarks
- *   The package below always carries a manifest, so a case that wants a
- *   directory with none has to name one that was never created.
- * @param manifest - What the root manifest declares.
- * @param env - The contents of a `.env` at the root, or nothing to write none.
- * @param own - The contents of a `.env` in the package, or nothing to write
- *   none.
+ *   The package directory always gets a manifest, so a case needing a directory without one names
+ *   a path that was never created.
+ * @param manifest - The contents of the root manifest.
+ * @param env - The contents of a `.env` at the root, or undefined to write none.
+ * @param own - The contents of a `.env` in the package, or undefined to write none.
+ * @returns The package directory as `at` and the repository root as `root`, both absolute.
  */
 function laid(
   manifest: Record<string, unknown>,
@@ -49,91 +50,108 @@ function laid(
 }
 
 /**
- * Lays out a repository whose root manifest declares a workspace.
+ * Writes a repository whose root manifest declares `packages/*` as its workspace.
+ *
+ * @param env - The contents of a `.env` at the root, or undefined to write none.
+ * @param own - The contents of a `.env` in the package, or undefined to write none.
+ * @returns The package directory as `at` and the repository root as `root`, both absolute.
  */
 function workspace(env?: string, own?: string): { readonly at: string; readonly root: string } {
   return laid({ workspaces: ["packages/*"] }, env, own);
 }
 
 describe("context", () => {
-  it("finds the root from a package below it", () => {
+  it("climbs to the root from a package below it", () => {
     const held = workspace();
 
     expect(rooted(held.at)).toBe(held.root);
   });
 
-  it("finds it from the root itself", () => {
+  it("finds the root when it is the directory given", () => {
     const held = workspace();
 
     expect(rooted(held.root)).toBe(held.root);
   });
 
-  it("finds it when the workspace is declared under a key rather than as an array", () => {
+  it("finds the root when workspaces is an object rather than an array", () => {
     const held = laid({ workspaces: { packages: ["packages/*"] } });
 
     expect(rooted(held.at)).toBe(held.root);
   });
 
-  it("ignores a manifest declaring no workspace", () => {
+  it("returns the package directory when no directory above it declares a workspace", () => {
     const held = laid({ name: "root" });
 
     expect(rooted(held.at)).toBe(held.at);
   });
 
-  it("returns where it started when nothing above declares a workspace", () => {
+  it("returns the root directory when it declares no workspace of its own", () => {
     const held = laid({ name: "root" });
 
     expect(rooted(held.root)).toBe(held.root);
   });
 
-  it("reads the variables the repository declares", () => {
+  it("reads a STEALTH_ variable from the root env file", () => {
     const held = workspace("STEALTH_SPECIFIED=stated\n");
 
     expect(contextOf(SERVING, held.at, held.at).env["STEALTH_SPECIFIED"]).toBe("stated");
   });
 
-  it("leaves a variable with neither prefix out", () => {
-    const held = workspace("NOT_PREFIXED=read\nVITE_SHOWN=client\n");
-    const context = contextOf(SERVING, held.at, held.at);
+  it("omits an unprefixed variable declared in an env file", () => {
+    const held = workspace("NOT_PREFIXED=read\n");
+
+    expect(contextOf(SERVING, held.at, held.at).env["NOT_PREFIXED"]).toBeUndefined();
+  });
+
+  it("reads a VITE_ variable from the root env file", () => {
+    const held = workspace("VITE_SHOWN=client\n");
+
+    expect(contextOf(SERVING, held.at, held.at).env["VITE_SHOWN"]).toBe("client");
+  });
+
+  it("omits an unprefixed variable set in the shell", () => {
+    const held = workspace();
 
     vi.stubEnv("REVIEW_CACHE_UNRELATED", "one");
 
-    expect(context.env["NOT_PREFIXED"]).toBeUndefined();
-    expect(context.env["VITE_SHOWN"]).toBe("client");
     expect(contextOf(SERVING, held.at, held.at).env["REVIEW_CACHE_UNRELATED"]).toBeUndefined();
   });
 
-  it("reads the revision and the CI flag the runner sets by name", () => {
+  it("reads GITHUB_SHA from the shell by name", () => {
     const held = workspace();
 
     vi.stubEnv("GITHUB_SHA", "abc123");
-    vi.stubEnv("CI", "true");
 
-    const context = contextOf(SERVING, held.at, held.at);
-
-    expect(context.env["GITHUB_SHA"]).toBe("abc123");
-    expect(context.env["CI"]).toBe("true");
+    expect(contextOf(SERVING, held.at, held.at).env["GITHUB_SHA"]).toBe("abc123");
   });
 
-  it("returns no repository variable when the repository declares none", () => {
+  it("reads CI from the shell by name", () => {
+    const held = workspace();
+
+    vi.stubEnv("CI", "true");
+
+    expect(contextOf(SERVING, held.at, held.at).env["CI"]).toBe("true");
+  });
+
+  it("returns undefined for a STEALTH_ variable the repository declares nowhere", () => {
     const held = workspace();
 
     expect(contextOf(SERVING, held.at, held.at).env["STEALTH_SPECIFIED"]).toBeUndefined();
   });
 
-  it("reads what the package declares", () => {
+  it("reads a STEALTH_ variable from the package env file", () => {
     const held = workspace(undefined, "STEALTH_SPECIFIED=package\n");
 
     expect(contextOf(SERVING, held.at, held.at).env["STEALTH_SPECIFIED"]).toBe("package");
   });
 
-  it("lets the package override the workspace", () => {
+  it("prefers the package value when both env files declare the variable", () => {
     const held = workspace("STEALTH_SPECIFIED=workspace\n", "STEALTH_SPECIFIED=package\n");
 
     expect(contextOf(SERVING, held.at, held.at).env["STEALTH_SPECIFIED"]).toBe("package");
   });
 
-  it("keeps what the workspace declares and the package omits", () => {
+  it("merges a root variable and a package variable into one environment", () => {
     const held = workspace("STEALTH_SHARED=workspace\n", "STEALTH_SPECIFIED=package\n");
     const context = contextOf(SERVING, held.at, held.at);
 
@@ -141,13 +159,13 @@ describe("context", () => {
     expect(context.env["STEALTH_SPECIFIED"]).toBe("package");
   });
 
-  it("keeps the workspace value when the package writes a file naming another", () => {
+  it("keeps a root variable when the package env file declares a different one", () => {
     const held = workspace("STEALTH_SHARED=workspace\n", "STEALTH_OTHER=package\n");
 
     expect(contextOf(SERVING, held.at, held.at).env["STEALTH_SHARED"]).toBe("workspace");
   });
 
-  it("lets the shell override both", () => {
+  it("prefers the shell value over both env files", () => {
     const held = workspace("STEALTH_SPECIFIED=workspace\n", "STEALTH_SPECIFIED=package\n");
 
     vi.stubEnv("STEALTH_SPECIFIED", "shell");
@@ -155,27 +173,33 @@ describe("context", () => {
     expect(contextOf(SERVING, held.at, held.at).env["STEALTH_SPECIFIED"]).toBe("shell");
   });
 
-  it("passes the command and the mode through", () => {
+  it("carries the command Vite was invoked with", () => {
     const held = workspace();
     const context = contextOf({ command: "build", mode: "production" }, held.at, held.at);
 
     expect(context.command).toBe("build");
+  });
+
+  it("carries the mode Vite was invoked with", () => {
+    const held = workspace();
+    const context = contextOf({ command: "build", mode: "production" }, held.at, held.at);
+
     expect(context.mode).toBe("production");
   });
 
-  it("reports where the root is", () => {
+  it("reports the workspace root above the directory being configured", () => {
     const held = workspace();
 
     expect(contextOf(SERVING, held.at, held.at).root).toBe(held.root);
   });
 
-  it("reads the package's own manifest", () => {
+  it("reads the manifest of the directory being configured", () => {
     const held = workspace();
 
     expect(contextOf(SERVING, held.at, held.at).manifest.version).toBe("1.2.3");
   });
 
-  it("returns the workspace as an array when the manifest declares one", () => {
+  it("returns the workspace globs as an array when the manifest declares them", () => {
     const held = laid({ workspaces: ["packages/*"] });
 
     expect(contextOf(SERVING, held.root, held.root).manifest.workspaces).toStrictEqual([
@@ -183,16 +207,18 @@ describe("context", () => {
     ]);
   });
 
-  it("returns undefined when the manifest declares no workspace", () => {
+  it("returns undefined for workspaces when the manifest declares none", () => {
     const held = workspace();
 
     expect(contextOf(SERVING, held.at, held.at).manifest.workspaces).toBeUndefined();
   });
 
   /**
-   * Lays out a repository that declares its workspace in a pnpm file alone.
+   * Writes a repository whose root manifest is empty and whose workspace is declared in
+   * `pnpm-workspace.yaml` alone.
    *
    * @param yaml - The contents of the `pnpm-workspace.yaml` written at the root.
+   * @returns The package directory as `at` and the repository root as `root`, both absolute.
    */
   function pnpm(yaml: string): { readonly at: string; readonly root: string } {
     const held = laid({});
@@ -208,7 +234,7 @@ describe("context", () => {
     expect(rooted(held.at)).toBe(held.root);
   });
 
-  it("passes what that file declares through to the layer", () => {
+  it("returns the globs pnpm-workspace.yaml declares as workspaces", () => {
     const held = pnpm("packages:\n  - examples/*\n  - packages/*\n");
 
     expect(contextOf(SERVING, held.root, held.root).manifest.workspaces).toStrictEqual([
@@ -224,7 +250,7 @@ describe("context", () => {
     expect(contextOf(SERVING, absent, absent).manifest).toStrictEqual({});
   });
 
-  it("returns an empty manifest when the file is not an object", () => {
+  it("returns an empty manifest when package.json parses to null", () => {
     const held = workspace();
 
     writeFileSync(join(held.at, "package.json"), "null");
@@ -232,25 +258,25 @@ describe("context", () => {
     expect(contextOf(SERVING, held.at, held.at).manifest).toStrictEqual({});
   });
 
-  it("takes the declared directory when a package has a config of its own", () => {
+  it("configures the declared directory when it is not the root", () => {
     const held = workspace();
 
     expect(contextOf(SERVING, held.at, held.at).at).toBe(held.at);
   });
 
-  it("keeps it when the command runs at the root", () => {
+  it("configures the declared package when the command runs at the root", () => {
     const held = workspace();
 
     expect(contextOf(SERVING, held.at, held.root).at).toBe(held.at);
   });
 
-  it("takes the working directory when a package has no config of its own", () => {
+  it("configures the working directory when the package there has no config of its own", () => {
     const held = workspace();
 
     expect(contextOf(SERVING, held.root, held.at).at).toBe(held.at);
   });
 
-  it("keeps the root when the command runs in a package with its own config", () => {
+  it("configures the root when the package the command runs in has a config of its own", () => {
     const held = workspace();
 
     writeFileSync(join(held.at, "vite.config.ts"), "export default {};\n");
@@ -258,13 +284,13 @@ describe("context", () => {
     expect(contextOf(SERVING, held.root, held.at).at).toBe(held.root);
   });
 
-  it("keeps the root when it is both declared and where the command runs", () => {
+  it("configures the root when it is both declared and the working directory", () => {
     const held = workspace();
 
     expect(contextOf(SERVING, held.root, held.root).at).toBe(held.root);
   });
 
-  it("keeps the root when the command runs where there is no manifest", () => {
+  it("configures the root when the working directory has no manifest", () => {
     const held = workspace();
     const elsewhere = join(held.root, "docs");
 

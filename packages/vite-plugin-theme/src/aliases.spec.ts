@@ -26,12 +26,15 @@ function reported(files: Readonly<Record<string, string>>): readonly string[] {
 }
 
 describe("aliasedImports", () => {
-  it("reads the patterns every recipe and slot recipe of a contributor states", () => {
+  it("returns the jsx patterns a contributor's recipes declare", () => {
     expect(MATCHED.get("@acme/kit")?.map(String)).toStrictEqual([
       "/Button$/u",
       "/^Card$/u",
       String.raw`/^Card\.Root$/u`,
     ]);
+  });
+
+  it("returns an empty array for a contributor whose theme declares no recipe", () => {
     expect(MATCHED.get("@acme/design")).toStrictEqual([]);
   });
 
@@ -51,11 +54,13 @@ describe("aliasedImports", () => {
     ).toStrictEqual([]);
   });
 
-  it("passes over a direct import and an import of something no recipe matches", () => {
+  it("passes over an import that renames nothing", () => {
+    expect(reported({ "src/page.tsx": 'import { Button } from "@acme/kit";\n' })).toStrictEqual([]);
+  });
+
+  it("passes over an import that renames a name no pattern matches", () => {
     expect(
-      reported({
-        "src/page.tsx": 'import { Button, helper as aid } from "@acme/kit";\n',
-      }),
+      reported({ "src/page.tsx": 'import { helper as aid } from "@acme/kit";\n' }),
     ).toStrictEqual([]);
   });
 
@@ -65,7 +70,15 @@ describe("aliasedImports", () => {
     ).toStrictEqual([]);
   });
 
-  it("reports a type import the same way and reads several imports in one file", () => {
+  it("reports a type import that renames a component", () => {
+    const found = reported({
+      "src/page.tsx": 'import type { Card as Panel } from "@acme/kit";\n',
+    });
+
+    expect(found.map((each) => each.split(":")[1]?.trim().split(" ")[0])).toStrictEqual(["Card"]);
+  });
+
+  it("reports every renaming import of one file in the order they are written", () => {
     const found = reported({
       "src/page.tsx": [
         'import type { Card as Panel } from "@acme/kit";',
@@ -80,7 +93,7 @@ describe("aliasedImports", () => {
     ]);
   });
 
-  it("reads nothing from a file that names no contributor", () => {
+  it("reports nothing for a file that names no contributor", () => {
     expect(reported({ "src/page.tsx": 'import { x } from "./x.ts";\n' })).toStrictEqual([]);
   });
 
@@ -93,7 +106,7 @@ describe("aliasedImports", () => {
     ).toStrictEqual([]);
   });
 
-  it("reads no pattern from a jsx entry that is neither a name nor an expression", () => {
+  it("returns no pattern for a jsx entry that is neither a string nor a regular expression", () => {
     const matched = matchedNames(
       ["@acme/odd"],
       [{ theme: { extend: { recipes: { badge: { jsx: [3, "Badge"] } } } } }],

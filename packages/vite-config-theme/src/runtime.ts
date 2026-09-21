@@ -1,6 +1,6 @@
 /**
- * Adds the runtime generator to whatever plugins the system package's tier already built, and its
- * counterpart to the packer's plugins beside them.
+ * Registers the runtime generator on the system package's plugins, and its counterpart on
+ * `pack.plugins`.
  */
 
 import { type UserConfig } from "vite";
@@ -17,13 +17,13 @@ import { loaded } from "#loaded.ts";
 import { type Generator, type RuntimeOptions } from "#types.ts";
 
 /**
- * Builds the packer's plugin, told where the package is and under which conditions it resolves.
+ * Builds the packer's plugin with the package root and the resolve conditions it needs.
  *
  * @remarks
- *   The Vite plugin learns both from the configuration Vite resolved, in a hook the packer never
- *   runs. The conditions are read from what the presets settled for the server side, which is
- *   where a workspace package resolves to its source, so the packer generates from the preset a
- *   checkout holds and not from the file it is about to write.
+ *   The Vite plugin reads both from the configuration Vite resolved, in a hook `vp pack` never
+ *   runs, so they are passed in here instead. The conditions come from what the presets resolved
+ *   for the server side, where a workspace package resolves to its source. That way `vp pack`
+ *   generates from the preset in the checkout rather than from the file it is about to write.
  */
 async function packing(
   generator: () => Promise<Generator>,
@@ -39,24 +39,23 @@ async function packing(
 }
 
 /**
- * Adds `theme.runtime()` to the plugins of the design-system package, and its packer's
- * counterpart to the packer's plugins.
+ * Adds `theme.runtime()` to the design-system package's plugins, and its counterpart to the
+ * packer's plugins.
  *
  * @remarks
- *   The two plugins share one generator, so the packer's plugin regenerates from the files the
- *   Vite plugin's generation read. Each is constructed when the configuration is composed, so two
- *   calls produce two independent pairs. The packer's plugin is stated by an override rather than
- *   a contribution, because it needs the conditions the presets resolved with, which only an
- *   override is shown.
- * @param stated - The layer names, where the package departs from the defaults the plugin
- *   documents.
+ *   The two plugins share one generator, so the packer's plugin regenerates from the files the Vite
+ *   plugin's generation read. Both are constructed while the configuration is composed, so two
+ *   calls produce two independent pairs. The packer's plugin is declared as an override rather than
+ *   a contribution because it needs the conditions the presets resolved with, and only an override
+ *   receives them.
+ * @param stated - Layer names, where the package departs from the plugin's documented defaults.
  * @returns The plugin contribution and the packer's plugin override.
  */
 export function runtime(stated: RuntimeOptions = {}): readonly Layer[] {
   let generating: Promise<Generator> | undefined;
 
   /**
-   * Builds the generator once, and hands the same one to both plugins.
+   * Builds the generator on the first call and hands the same one to both plugins.
    */
   const generator = (): Promise<Generator> => {
     generating ??= loaded().then((held) => held.theme.generator(stated));

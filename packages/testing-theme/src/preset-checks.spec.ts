@@ -16,7 +16,7 @@ function checked(files: Readonly<Record<string, string>>, preset: Preset): reado
 }
 
 describe("presetViolations", () => {
-  it("passes a preset that registers every recipe file under its own key", () => {
+  it("reports nothing for a preset that registers every recipe file under its class name", () => {
     const preset = definePreset({
       name: "@acme/actions",
       theme: {
@@ -87,7 +87,7 @@ describe("presetViolations", () => {
     ).toStrictEqual(["@acme/actions has no source directory at /nowhere"]);
   });
 
-  it("reports a skip without a reason rather than the check it left out", () => {
+  it("reports a skip without a reason and no violation from a skipped check", () => {
     const preset = definePreset({
       name: "@acme/actions",
       theme: { extend: { recipes: { btn: { className: "button" } } } },

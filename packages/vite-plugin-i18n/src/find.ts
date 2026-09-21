@@ -1,11 +1,12 @@
 /**
- * Locates every `locales/<language>/<namespace>.json` an application and its dependencies ship.
+ * Finds every catalogue file under `locales/<language>/` that an application and its dependencies
+ * ship.
  *
  * @remarks
- *   A namespace is the first path segment under the language. `menu.json` and
+ *   A namespace is the first path segment under the language, so `menu.json` and
  *   `menu/sections/billing.json` both belong to the namespace `menu`, and the second contributes
- *   its keys under `sections.billing`. A namespace is fetched as one module whatever it is split
- *   into.
+ *   its keys under `sections.billing`. A namespace is fetched as one module however many files it
+ *   is split across.
  */
 
 import { existsSync, globSync } from "node:fs";
@@ -15,49 +16,49 @@ import { normalizePath } from "vite";
 import { type Manifest, manifestAt, packageAt, text } from "@stealthscale/vite-plugin-base";
 
 /**
- * One catalogue file, with the language, namespace and package it belongs to.
+ * Describes one catalogue file: its language, its namespace and the package that ships it.
  */
 export interface Catalogue {
   /**
-   * The absolute path of the file, with forward slashes.
+   * Gives the absolute path of the file, with forward slashes.
    */
   readonly file: string;
 
   /**
-   * The BCP 47 tag the directory is named after, such as `en` or `nl-BE`.
+   * Gives the BCP 47 tag the directory is named after, such as `en` or `nl-BE`.
    */
   readonly language: string;
 
   /**
-   * The first path segment under the language, without its extension. `menu.json` and
+   * Gives the first path segment under the language, without its extension. `menu.json` and
    * `menu/sections.json` both give `menu`.
    */
   readonly namespace: string;
 
   /**
-   * True when the application owns the file, false when a package ships it.
+   * Reports whether the application owns the file rather than a package shipping it.
    *
    * @remarks
-   *   The root is the application where its manifest is `private`. A package built or tested on
-   *   its own is the root too, and ships its files the way any package does, so they are not an
-   *   application's.
+   *   The root counts as the application only where its manifest sets `private` to true. A package
+   *   built or tested from its own root gets false, so the check treats its files like a
+   *   dependency's.
    */
   readonly own: boolean;
 
   /**
-   * The name of the package the file came from.
+   * Gives the name of the package the file came from.
    */
   readonly owner: string;
 
   /**
-   * The path below the namespace, joined with dots. `menu/sections/billing.json` gives
+   * Gives the path below the namespace, joined with dots. `menu/sections/billing.json` gives
    * `sections.billing`, and a file that is the namespace itself gives an empty string.
    */
   readonly prefix: string;
 }
 
 /**
- * The directory a package keeps its catalogues in.
+ * Gives the directory a package keeps its catalogues in.
  */
 export const LOCALES = "locales";
 
@@ -67,10 +68,9 @@ export const LOCALES = "locales";
 export const EXTENSION = /\.(?:json|ya?ml)$/u;
 
 /**
- * Returns the namespace a file belongs to.
+ * Returns the namespace a file belongs to, which is its first path segment with any extension
+ * stripped.
  *
- * @remarks
- *   The first path segment, with the extension stripped when the file is the namespace itself.
  * @param relative - The file's path under the language directory.
  */
 export function namespaceOf(relative: string): string {
@@ -80,10 +80,8 @@ export function namespaceOf(relative: string): string {
 }
 
 /**
- * Returns the prefix a file's keys are nested under.
+ * Returns the dotted prefix a file's keys nest under, taken from its path below the namespace.
  *
- * @remarks
- *   The path below the namespace with the extension stripped and each separator replaced by a dot.
  * @param relative - The file's path under the language directory.
  * @returns The prefix, or an empty string when the file is the namespace itself.
  */
@@ -99,7 +97,8 @@ export function prefixOf(relative: string): string {
 }
 
 /**
- * Lists every catalogue file under one directory's `locales`, at any depth.
+ * Lists every catalogue file under one directory's `locales`, at any depth, and nothing where the
+ * directory has no `locales`.
  *
  * @param directory - The package or application directory to search.
  * @param owner - The package name to record on each result.
@@ -130,7 +129,7 @@ function cataloguesIn(directory: string, owner: string, own: boolean): readonly 
 }
 
 /**
- * Returns the scope a package name carries.
+ * Returns the scope part of a package name.
  *
  * @param name - The package name, or undefined when the manifest declares none.
  * @returns The scope such as `@stealthscale`, or undefined for an unscoped name.
@@ -144,8 +143,8 @@ function scopeOf(name: string | undefined): string | undefined {
  *
  * @remarks
  *   `dependencies` and `peerDependencies` both count, because a component package declares its
- *   siblings as peers. The root's `devDependencies` count too, because an example declares the
- *   packages it demonstrates there, and a package the siblings its specimens draw.
+ *   siblings as peers. The root's `devDependencies` count as well, because an application declares
+ *   the packages its examples import and a package declares the siblings its specimens import.
  * @param manifest - The parsed package.json.
  * @param starting - True for the manifest the search starts from.
  */
@@ -160,31 +159,31 @@ function namesIn(manifest: Manifest, starting: boolean): readonly string[] {
 }
 
 /**
- * The state one walk carries: the scopes it follows and the directories it has visited.
+ * Carries the scopes one walk follows and the directories it has already visited.
  */
 interface Walk {
   /**
-   * The scopes whose packages the walk descends into.
+   * Lists the scopes whose packages the walk descends into.
    */
   readonly scopes: ReadonlySet<string>;
 
   /**
-   * The directories already visited, so a package reached twice is read once.
+   * Collects the directories already visited, so a package reached twice is read once.
    */
   readonly seen: Set<string>;
 }
 
 /**
- * One package the walk reached.
+ * Describes one package the walk reached.
  */
 interface Walked {
   /**
-   * The absolute path of the package directory.
+   * Gives the absolute path of the package directory.
    */
   readonly at: string;
 
   /**
-   * The parsed package.json, which the walk read to follow the package at all.
+   * Gives the parsed package.json the walk read to find the package's dependencies.
    */
   readonly manifest: Manifest;
 }
@@ -199,7 +198,8 @@ interface Walked {
  * @param walk - The scopes to follow and the directories already visited.
  * @param starting - True for the directory the search starts from, whose development dependencies
  *   are followed.
- * @returns Each package with its manifest, the starting directory last.
+ * @returns Each package with its manifest, the starting directory last, and nothing for a
+ *   directory already visited or holding no manifest.
  */
 function walked(directory: string, walk: Walk, starting: boolean): readonly Walked[] {
   if (walk.seen.has(directory)) return [];
@@ -219,14 +219,12 @@ function walked(directory: string, walk: Walk, starting: boolean): readonly Walk
 }
 
 /**
- * Returns every catalogue a root can reach, its dependencies' first and its own last.
+ * Lists every catalogue a root can reach, its dependencies' first and its own last.
  *
  * @remarks
- *   When two packages declare the same language and namespace, the one later in the result wins the
- *   merge, which puts the root last. Each package is resolved the way an import of it resolves, so
- *   a workspace link and an installed copy are found alike. The root's files are the application's
- *   own where the root's manifest is `private`. A package built or tested on its own is a package,
- *   and its files count as what it ships.
+ *   Where two packages declare the same language and namespace, the one later in the result wins
+ *   the merge, and the root goes last for that reason. Each package is resolved through Node's
+ *   resolution, so a workspace link and an installed copy are both found.
  * @param root - The application or package directory.
  * @param scopes - The scopes to follow. Defaults to the root's own scope.
  * @returns The catalogues in merge order.

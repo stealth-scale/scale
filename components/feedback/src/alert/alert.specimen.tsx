@@ -1,13 +1,12 @@
 /**
- * Shows the alert: every look in every status, both layouts, every corner at every size, and the
- * motions.
+ * Catalogues the alert across its variants, one scene per axis.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every alert is on the page from the first paint, so `live` is off and no
- *   screen reader is told of forty notices arriving. Each carries the mark, the title, the
- *   description and a control in the aside. The words are keys under `alert` in the catalogue's
- *   namespace, kept beside this file in `locales/en/specimen/alert.json`.
+ *   Each scene enumerates its axis from the recipe, so a value added to the theme appears on the
+ *   page without an edit here. Every alert on the page is rendered with `live="off"`, because the
+ *   whole grid mounts at once and a live region would have a screen reader read out forty notices
+ *   in a row. The copy is keyed under `alert` in the catalogue namespace and stored beside this
+ *   file at `locales/en/specimen/alert.json`.
  */
 
 import { type ReactElement } from "react";
@@ -27,55 +26,55 @@ import * as Alert from "#alert/index.ts";
 import { recipe } from "#alert/recipe.ts";
 
 /**
- * The path of a warning triangle, in a 24 unit box.
+ * The SVG path of a warning triangle, drawn in a 24 unit viewBox.
  */
 const TRIANGLE = "M12 3 2 21h20L12 3zm0 6v6m0 3v.5";
 
 /**
- * The path of a cross, in a 24 unit box.
+ * The SVG path of a cross, drawn in a 24 unit viewBox.
  */
 const CROSS = "M6 6l12 12M18 6 6 18";
 
 /**
- * The axes of the alert's recipe, which the notice reads the status and the look from.
+ * Narrows the recipe's variant map, so that a scene can type a value it reads off one axis.
  */
 type Axes = NonNullable<typeof recipe.variants>;
 
 /**
- * Describes the words of one notice, and the alert it sits in.
+ * The copy of one notice and the variants of the alert it is rendered inside.
  */
 interface NoticeProps {
   /**
-   * The rest of it.
+   * The body text of the notice.
    */
   readonly description: string;
 
   /**
-   * The status the alert reports, which the control that dismisses it is drawn in. The default
-   * status where the alert states none.
+   * The status of the surrounding alert, which the dismiss control is tinted from. Defaults to the
+   * recipe's own default where a scene does not vary this axis.
    */
   readonly status?: ValueOf<Axes, "status">;
 
   /**
-   * What the notice is about.
+   * The headline of the notice.
    */
   readonly title: string;
 
   /**
-   * The look the alert is drawn in, which decides the control's. The default look where the alert
-   * states none.
+   * The variant of the surrounding alert, which selects the dismiss control's. Defaults to the
+   * recipe's own default where a scene does not vary this axis.
    */
   readonly variant?: ValueOf<Axes, "variant">;
 }
 
 /**
- * Draws the mark, the words and the control every alert carries.
+ * Fills the four inner slots of an alert, which every scene on this page shares.
  *
  * @remarks
- *   The control that dismisses the alert takes the alert's status, and its look from the alert's:
- *   solid on a solid alert, where it reads in the contrast ink and its fill is the alert's own, and
- *   ghost on every other, where it reads in the palette's ink beside the title. A neutral ghost
- *   control drew a dark cross on a solid fill.
+ *   The dismiss control inherits the alert's status and derives its own variant from the alert's:
+ *   `solid` on a solid alert, so that it paints the alert's own fill and reads in the contrast
+ *   foreground, and `ghost` everywhere else, so that it reads in the palette foreground the title
+ *   uses. Leaving it ghost throughout put a dark cross on a solid fill.
  */
 function Notice({
   description,
@@ -113,7 +112,7 @@ function Notice({
 }
 
 /**
- * Draws a failed payment in every look in every status.
+ * Renders a failed payment once per variant, crossed against every status.
  */
 function Looks(): ReactElement {
   const { t } = useWords("alert");
@@ -139,7 +138,7 @@ function Looks(): ReactElement {
 }
 
 /**
- * Draws a saved draft in both layouts.
+ * Renders a saved draft under each layout, so that the stacked and inline forms sit side by side.
  */
 function Layouts(): ReactElement {
   const { t } = useWords("alert");
@@ -156,7 +155,7 @@ function Layouts(): ReactElement {
 }
 
 /**
- * Draws a saved draft at every corner at every size.
+ * Renders a saved draft once per radius, crossed against every size.
  */
 function Corners(): ReactElement {
   const { t } = useWords("alert");
@@ -177,7 +176,7 @@ function Corners(): ReactElement {
 }
 
 /**
- * Draws a failed payment entering with every motion.
+ * Renders a failed payment once per entrance animation.
  */
 function Motion(): ReactElement {
   const { t } = useWords("alert");
@@ -194,7 +193,7 @@ function Motion(): ReactElement {
 }
 
 /**
- * Draws the notice with a bar along each edge the theme draws one for.
+ * Renders a saved draft once per edge the rule can be drawn along.
  */
 function Edge(): ReactElement {
   const { t } = useWords("alert");
@@ -211,7 +210,7 @@ function Edge(): ReactElement {
 }
 
 /**
- * Every look in every status.
+ * The scene crossing every variant with every status.
  */
 export const looks: Scene = {
   about: "alert.looks.about",
@@ -220,7 +219,7 @@ export const looks: Scene = {
 };
 
 /**
- * The bar a notice carries along one of its edges.
+ * The scene showing the edge rule.
  */
 export const edge: Scene = {
   about: "alert.edge.about",
@@ -229,7 +228,7 @@ export const edge: Scene = {
 };
 
 /**
- * Both layouts.
+ * The scene comparing the stacked and inline layouts.
  */
 export const layouts: Scene = {
   about: "alert.layouts.about",
@@ -238,7 +237,7 @@ export const layouts: Scene = {
 };
 
 /**
- * Every corner at every size.
+ * The scene crossing every radius with every size.
  */
 export const corners: Scene = {
   about: "alert.corners.about",
@@ -247,7 +246,7 @@ export const corners: Scene = {
 };
 
 /**
- * Every motion.
+ * The scene showing each entrance animation.
  */
 export const motion: Scene = {
   about: "alert.motion.about",

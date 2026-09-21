@@ -1,5 +1,5 @@
 /**
- * How much of a package the suite has to reach, and what is not counted.
+ * Sets how much of a package the suite has to reach, and what is not counted.
  */
 
 import { type Preset, preset } from "@stealthscale/vite-config-core";
@@ -8,7 +8,7 @@ import { FOREIGN, worktreesBelow } from "#ignore/foreign.ts";
 import { GENERATED } from "#ignore/generated.ts";
 
 /**
- * The files counted whether or not a test ever loads them.
+ * The files counted whether or not a test ever loads them, so an unreached file counts as zero.
  */
 const COUNTED = ["**/src/**"];
 
@@ -33,7 +33,7 @@ const UNCOUNTED = [
 ];
 
 /**
- * The share of each counted file a package has to reach.
+ * The thresholds a package has to clear, measured over the package rather than per file.
  *
  * @remarks
  *   Every number is 100, so measuring the package rather than each file changes
@@ -49,7 +49,7 @@ const ENOUGH = {
 };
 
 /**
- * The directory the reports are written to, which the development server leaves unwatched.
+ * Glob over the directory the reports are written to, which the dev server leaves unwatched.
  *
  * @remarks
  *   The engine's default, stated here because the watcher has to know it: a test run beside a
@@ -58,7 +58,7 @@ const ENOUGH = {
 const REPORTS = "**/coverage/**";
 
 /**
- * Measures coverage on every run and holds the package to all of it.
+ * Returns the preset that measures coverage on every run and holds the package to all of it.
  *
  * @remarks
  *   The counter is the engine's own rather than an instrumented build, so what

@@ -18,7 +18,7 @@ function Owned(props: ComponentProps<"button">): ReactElement {
 }
 
 describe("Item", () => {
-  it("writes the class of every value its recipe offers", () => {
+  it("emits a class for every variant value the recipe declares", () => {
     expect(
       boundViolations(
         recipe,
@@ -33,38 +33,43 @@ describe("Item", () => {
     ).toStrictEqual([]);
   });
 
-  it("answers to the id a caller states", () => {
+  it("writes the id attribute when the caller supplies one", () => {
     const { container } = render(grouped(<Item id="cut">Cut</Item>));
 
     expect(slotElement(container, "roving-focus", "item").getAttribute("id")).toBe("cut");
   });
 
-  it("writes no id on the element where a caller states none", () => {
+  it("writes no id attribute when the caller supplies none", () => {
     const { container } = render(grouped(<Item>Cut</Item>));
 
     expect(slotElement(container, "roving-focus", "item").getAttribute("id")).toBeNull();
   });
 
-  it("keeps the id a control drawn as the item writes for itself", () => {
+  it("leaves the id set by a component rendered through as", () => {
     const { container } = render(grouped(<Item as={Owned}>Cut</Item>));
 
     expect(slotElement(container, "roving-focus", "item").getAttribute("id")).toBe("menu");
   });
 
-  it("tells a screen reader that a disabled item is disabled", () => {
+  it("sets aria-disabled on a disabled item", () => {
     const { getByText } = render(grouped(<Item disabled>Cut</Item>));
 
     expect(getByText("Cut").getAttribute("aria-disabled")).toBe("true");
+  });
+
+  it("sets data-disabled on a disabled item", () => {
+    const { getByText } = render(grouped(<Item disabled>Cut</Item>));
+
     expect(getByText("Cut").dataset["disabled"]).toBe("");
   });
 
-  it("marks the item that holds the tab stop", () => {
+  it("sets data-stop on the item holding the tab stop", () => {
     const { getByText } = render(grouped(<Item id="cut">Cut</Item>));
 
     expect(getByText("Cut").dataset["stop"]).toBe("");
   });
 
-  it("hands the element to a caller holding a reference", () => {
+  it("assigns the element to a ref object", () => {
     const held = createRef<HTMLDivElement>();
 
     render(grouped(<Item ref={held}>Cut</Item>));
@@ -72,7 +77,7 @@ describe("Item", () => {
     expect(held.current?.textContent).toBe("Cut");
   });
 
-  it("hands the element to a caller taking it in a callback", () => {
+  it("calls a ref callback with the element", () => {
     const seen: Array<HTMLElement | null> = [];
 
     render(
@@ -90,13 +95,13 @@ describe("Item", () => {
     expect(seen.at(-1)?.textContent).toBe("Cut");
   });
 
-  it("draws the element as names", () => {
+  it("renders the item slot as button when as is button", () => {
     const { container } = render(grouped(<Item as="button">Cut</Item>));
 
     expect(slotElement(container, "roving-focus", "item").tagName).toBe("BUTTON");
   });
 
-  it("throws when it is drawn outside a group", () => {
+  it("throws when rendered outside a root", () => {
     expect(() => render(<Item>Cut</Item>)).toThrow(
       "RovingFocus.Item is drawn inside RovingFocus.Root and nowhere else.",
     );

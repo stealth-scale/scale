@@ -1,12 +1,12 @@
 /**
- * Draws the band a card opens with.
+ * Renders the band a card opens with.
  *
  * @remarks
- *   The element is `div` and carries no role. The title inside it states the heading, so a role
- *   here would announce a grouping that is not one.
- *   The band is a grid of three columns: the indicator, the title block, and the aside. The title
- *   and the description take the middle column on one line each, so a mark on either side spans
- *   both of them without a wrapper the anatomy does not name.
+ *   The element is a `div` with no role: the title inside it supplies the heading, and a role here
+ *   would announce a grouping that does not exist. The band is a three-column grid holding the
+ *   indicator, the title block and the aside. The title and the description take one row each of
+ *   the middle column, so a mark on either side spans both of them without a wrapper the anatomy
+ *   does not name.
  */
 
 import { type ComponentProps } from "react";
@@ -14,11 +14,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#card/context.ts";
 
 /**
- * Stacks the title and whatever sits beside it.
+ * Renders the header slot, holding the title between the marks on either side of it.
  */
 export const Header = withContext("div", "header");
 
 /**
- * Describes what the band takes: everything a styled div takes.
+ * Accepts every prop the styled div takes.
  */
 export type HeaderProps = ComponentProps<typeof Header>;

@@ -1,10 +1,10 @@
 /**
- * Binds the clipboard's recipe to the elements that draw its parts.
+ * Binds the clipboard slot recipe to a React context its parts share.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. Apart from the machine, because the recipe decides how a part
- *   is drawn and the machine decides what it does.
+ *   This sits outside `recipe.ts` because a consuming application's style compiler imports the
+ *   recipe at build time and would pull the React runtime in with it, and outside `machine.ts`
+ *   because appearance and behaviour have no reason to change together.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";
@@ -12,6 +12,7 @@ import { createSlotRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#clipboard/recipe.ts";
 
 /**
- * Binds the recipe once. The root provides the variants and every other part reads them.
+ * Supplies the factory the root publishes the recipe's variants with, and the factory each other
+ * part reads them through.
  */
 export const { withContext, withProvider } = createSlotRecipeContext(recipe);

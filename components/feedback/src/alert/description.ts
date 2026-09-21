@@ -1,12 +1,13 @@
 /**
- * Draws what an alert says after its title.
+ * Renders the supporting text of an alert, after its title.
  *
  * @remarks
- *   The element is `span`, so the title and the description read as one run where the layout puts
- *   them on one line. A description that runs to paragraphs takes `as="div"` and holds them.
- *   The description reads the root's ink rather than the muted one, because an alert's fill is
- *   already the palette's and the contrast gate measured the pair on it. Muting the ink on a solid
- *   alert would drop it below the ratio the gate cleared.
+ *   The default element is a `span`, so that the `inline` layout can set the title and the
+ *   description on one line without nesting block content inside a flex row; a description that
+ *   contains paragraphs takes `as="div"`. The text colour is inherited from the root rather than
+ *   dropped to the muted token, because the root already paints a palette fill and the inherited
+ *   foreground is the one the contrast gate measured against it. Muting it would take a `solid`
+ *   alert below the ratio the gate cleared.
  */
 
 import { type ComponentProps } from "react";
@@ -14,11 +15,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#alert/context.ts";
 
 /**
- * Says the rest of what the alert is about.
+ * Renders the body text of an alert.
  */
 export const Description = withContext("span", "description");
 
 /**
- * Describes what the description takes: everything a styled span takes.
+ * The props of a styled `span`.
  */
 export type DescriptionProps = ComponentProps<typeof Description>;

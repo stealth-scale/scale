@@ -1,8 +1,8 @@
 /**
- * Publishes the system reporting on itself: what is loading, what went wrong, what state a thing
- * is in. Each component binds a recipe a theme can extend and draws nothing of its own. The recipes
- * reach an application's compiler through the preset under `./theme`, and the components reach its
- * bundle through here.
+ * Exposes the components a surface reports its own state with: a notice, an empty result, a
+ * placeholder for content still loading. Each one binds a recipe the theme owns and declares no
+ * styles of its own, so an application installs the recipes through the preset at `./theme` and
+ * imports the components from here.
  *
  * @packageDocumentation
  */

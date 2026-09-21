@@ -3,32 +3,32 @@ import { describe, expect, it } from "vitest";
 import { compoundClass, recipeClass, slotClass, slotVariantClass, variantClass } from "#classes.ts";
 
 describe("classes", () => {
-  it("writes the base class as the class name unchanged", () => {
+  it("returns the class name unchanged as the base class", () => {
     expect(recipeClass("button")).toBe("button");
   });
 
-  it("writes a variant's class from the class name and the value", () => {
+  it("returns the class name and the value for a string variant", () => {
     expect(variantClass("button", "variant", "solid")).toBe("button--solid");
   });
 
-  it("writes a boolean variant's class from the axis at true and nothing at false", () => {
+  it("returns the axis for a boolean variant at true and an empty string at false", () => {
     expect(variantClass("button", "loading", true)).toBe("button--loading");
     expect(variantClass("button", "loading", false)).toBe("");
   });
 
-  it("writes a numeric variant's class", () => {
+  it("returns the class name and the number for a numeric variant", () => {
     expect(variantClass("stack", "gap", 4)).toBe("stack--4");
   });
 
-  it("writes a slot's class from the class name and the slot", () => {
+  it("returns the class name and the slot for a slot", () => {
     expect(slotClass("dialog", "content")).toBe("dialog__content");
   });
 
-  it("writes a slot variant's class on the slot", () => {
+  it("returns the value appended to the slot class for a slot variant", () => {
     expect(slotVariantClass("dialog", "content", "size", "lg")).toBe("dialog__content--lg");
   });
 
-  it("writes a compound's class from the name its recipe gave it", () => {
+  it("returns the class name and the compound name for a compound", () => {
     expect(compoundClass("button", "hero")).toBe("button--hero");
   });
 });

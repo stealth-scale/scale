@@ -1,10 +1,9 @@
 /**
- * Publishes the preset that registers every recipe in this package, for an application's compiler
- * to install.
+ * Registers every recipe in this package as a preset an application's compiler installs.
  *
  * @remarks
- *   The list is written by hand. The package's own specification reports a recipe file the list
- *   leaves out, so no generator runs here.
+ *   The registration list is maintained by hand rather than generated, because this package's own
+ *   spec fails when a recipe file is missing from it.
  */
 
 import { definePreset } from "@stealthscale/theme/authoring";

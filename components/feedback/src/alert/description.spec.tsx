@@ -9,13 +9,13 @@ import { recipe } from "#alert/recipe.ts";
 import { type RootProps } from "#alert/root.tsx";
 
 describe("Description", () => {
-  it("draws a span inside the root it needs above it", () => {
+  it("renders a span for the description slot", () => {
     const { container } = render(alerted(<Description>The card was declined.</Description>));
 
     expect(slotElement(container, "alert", "description").tagName).toBe("SPAN");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("emits a class for every variant value the recipe declares", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "description",
@@ -23,11 +23,11 @@ describe("Description", () => {
     ).toStrictEqual([]);
   });
 
-  it("reads the root's ink rather than the muted one", () => {
+  it("declares color inherit in its base styles", () => {
     expect(recipe.base?.["description"]).toMatchObject({ color: "inherit" });
   });
 
-  it("holds paragraphs where a caller states the element that may", () => {
+  it("renders the element named by as instead of a span", () => {
     const { container } = render(alerted(<Description as="div">Two lines.</Description>));
 
     expect(slotElement(container, "alert", "description").tagName).toBe("DIV");

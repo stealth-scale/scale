@@ -8,41 +8,41 @@ import { Button } from "#button/button.ts";
 import { recipe } from "#button/recipe.ts";
 
 describe("Button", () => {
-  it("conforms as a button element", () => {
+  it("returns no conformance violation for its BUTTON root", () => {
     expect(violations(Button, { as: true, children: true, element: "BUTTON" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule", async () => {
+  it("returns no accessibility violation when it renders a text label", async () => {
     await expect(
       accessibilityViolations(Button, { props: { children: "Save" } }),
     ).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("emits a class for every variant value the recipe declares", () => {
     expect(
       boundViolations(recipe, (props) => render(<Button {...props}>Save</Button>).container),
     ).toStrictEqual([]);
   });
 
-  it("defaults type to button", () => {
+  it("sets type to button when the caller passes none", () => {
     const { container } = render(<Button>Save</Button>);
 
     expect(recipeElement(container, "button").getAttribute("type")).toBe("button");
   });
 
-  it("keeps the type a caller states", () => {
+  it("renders type submit when the caller sets it", () => {
     const { container } = render(<Button type="submit">Save</Button>);
 
     expect(recipeElement(container, "button").getAttribute("type")).toBe("submit");
   });
 
-  it("is disabled when a caller says so", () => {
+  it("marks the element disabled when the disabled prop is set", () => {
     const { container } = render(<Button disabled>Save</Button>);
 
     expect(recipeElement(container, "button").hasAttribute("disabled")).toBe(true);
   });
 
-  it("draws the element as names", () => {
+  it("renders an A element when as is set to a", () => {
     const { container } = render(<Button as="a">Save</Button>);
 
     expect(recipeElement(container, "button").tagName).toBe("A");

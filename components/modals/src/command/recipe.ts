@@ -1,15 +1,13 @@
 /**
- * Defines the styles a command palette is drawn with.
+ * Styles the command palette as a raised panel with a query bar above a scrolling list.
  *
  * @remarks
- *   Seven parts. The root is the panel, the control is the band holding the field and the mark
- *   beside it, the list is what scrolls, the empty line stands where nothing matches, and a
- *   shortcut is the keystroke drawn at the end of a row.
- *   The rows themselves are the listbox's. A palette is a field owning a list, so the list, its
- *   rows and the highlight moving over them all come from that component and this one restyles
- *   none of them.
- *   The field carries no edge of its own. The panel is the edge, and a second one drawn round a
- *   field that fills the panel's width reads as a box inside a box.
+ *   The rows are deliberately absent. A palette is a combobox owning a listbox, so the rows, their
+ *   roles and the active-option highlight all belong to the listbox component and nothing here
+ *   restyles them. The query field carries no border of its own, because the panel already draws
+ *   one and a second border around a field spanning the full width reads as a box inside a box.
+ *   The focus ring is applied to the bar rather than to the field, using `:has(:focus-visible)`, so
+ *   the ring surrounds the field and its glyph together.
  */
 
 import {
@@ -23,7 +21,7 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * Draws a raised palette at the middle size.
+ * The `command` slot recipe over its seven slots, medium by default.
  */
 export const recipe = defineSlotRecipe({
   base: {

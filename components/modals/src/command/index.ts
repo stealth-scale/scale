@@ -1,6 +1,6 @@
 /**
- * Publishes the command palette's four parts, which a caller composes as `Command.Root` holding a
- * field and the list it narrows.
+ * Re-exports the parts of the command palette, which a caller composes as a `Command.Root` around
+ * a `Command.Input` and the `Command.List` it filters.
  */
 
 export { type CommandAction } from "#command/action.ts";

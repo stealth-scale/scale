@@ -1,9 +1,9 @@
 /**
- * Configures the build and the specification run for this package.
+ * Configures the build and the specification run for this package from the value it publishes.
  *
  * @remarks
- *   The package packs under the very value it publishes, so a defect in that value fails this
- *   package's own build before it reaches anything downstream.
+ *   This package packs under its own export, so a defect in that value fails this package's build
+ *   before a consumer installs it.
  */
 
 import { defineConfig } from "vite";

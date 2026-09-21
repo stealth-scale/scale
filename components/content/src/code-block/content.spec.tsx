@@ -9,7 +9,7 @@ import { Content } from "#code-block/content.ts";
 import { recipe } from "#code-block/recipe.ts";
 
 describe("Content", () => {
-  it("conforms as a pre inside the panel it needs above it", () => {
+  it("satisfies the component contract with pre as its default element", () => {
     expect(
       violations(Content, {
         as: true,
@@ -21,7 +21,7 @@ describe("Content", () => {
     ).toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("emits a class for every variant value the recipe declares", () => {
     expect(
       boundViolations(recipe, (props) => render(coded(<Content />, props)).container, {
         slot: "content",
@@ -29,7 +29,7 @@ describe("Content", () => {
     ).toStrictEqual([]);
   });
 
-  it("draws the element as names", () => {
+  it("renders the content slot as div when as is div", () => {
     const { container } = render(coded(<Content as="div" />));
 
     expect(slotElement(container, "code-block", "content").tagName).toBe("DIV");

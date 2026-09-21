@@ -1,5 +1,6 @@
 /**
- * Reads the axes a framed document reports its scene offers, for the pickers over the frame.
+ * Reads the choices a framed document reports for its scene, for the pickers rendered over the
+ * frame.
  */
 
 import { useEffect, useState } from "react";
@@ -7,13 +8,13 @@ import { useEffect, useState } from "react";
 import { type Choice, isReport } from "#framed/report.ts";
 
 /**
- * Reports whether a message came from a document this page frames, at this page's own origin.
+ * Checks that a message came from an iframe this page contains, at this page's own origin.
  *
  * @remarks
- *   Every framed document on the page reports to the same listener, and so does any other window
- *   that can post to this one. A report is read only from a frame this page holds, because that is
- *   the only document whose scene the pickers stand over, and only at the page's own origin,
- *   because the framed catalogue is served by the page's own server.
+ *   Every window that can post to this one hits the same listener, so the message has to be vetted
+ *   before its contents are trusted. An iframe of this document is the only document the pickers
+ *   control, and the same server serves the framed catalogue, so a cross-origin message cannot be
+ *   one of ours.
  */
 function framed(event: MessageEvent): boolean {
   if (event.origin !== window.location.origin) return false;
@@ -24,23 +25,23 @@ function framed(event: MessageEvent): boolean {
 }
 
 /**
- * Reads the axes the frame's document reports its scene offers.
+ * Subscribes to the choices reported by the framed document at a given address.
  *
  * @remarks
- *   Only a report under the frame's own address is read, because every framed document on the
- *   page reports to the same listener. Two frames at one address show one sample, so a report
- *   read by both is right for both. What was reported is kept as the address moves within the
- *   scene, because the scene's axes do not change with the sample picked. A report from a window
- *   the page does not frame, or from another origin, is passed over whatever it carries.
+ *   Every framed document on the page hits the same listener, so reports are filtered down to the
+ *   given address. Two frames at one address show the same sample, so a report from either is
+ *   correct for both. Changing the address within a scene keeps the choices already held, because
+ *   picking a sample does not change what the scene offers. A report from another origin, or from
+ *   a window this document does not frame, is dropped.
  * @param address - The fragment the frame's document is loaded at.
- * @returns The axes, or none until reported.
+ * @returns The choices, or an empty array until the first report arrives.
  */
 export function useChoices(address: string): readonly Choice[] {
   const [choices, setChoices] = useState<readonly Choice[]>([]);
 
   useEffect(() => {
     /**
-     * Keeps the axes a report from a document at this frame's address carries.
+     * Stores the choices from a report at this address, and ignores every other message.
      */
     const onMessage = (event: MessageEvent): void => {
       if (!framed(event) || !isReport(event.data) || event.data.address !== address) return;

@@ -1,9 +1,9 @@
 /**
- * Publishes a body of something for reading: a passage of code, and in time markdown, a diff, a
- * document, a record about a thing. Each component binds a recipe a theme can extend and draws
- * nothing of its own. The recipes reach an application's compiler through the preset under
- * `./theme`, and the components reach its bundle through here. A component with parts is
- * published as a namespace, `CodeBlock.Root`.
+ * Provides the components that present a body of material to read, starting with source code and
+ * extending later to markdown, diffs and documents. Each one binds a recipe a theme can extend and
+ * ships no appearance of its own. An application installs the recipes through the preset at
+ * `./theme` and imports the components from here. A component made of parts is exported as a
+ * namespace, so a caller writes `CodeBlock.Root`.
  *
  * @packageDocumentation
  */

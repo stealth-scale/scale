@@ -1,29 +1,28 @@
 /**
- * Loads the inventory plugin when a plugin is constructed, and not when the configuration is read.
+ * Loads the inventory plugin when the plugin is constructed, rather than when the config is read.
  *
  * @remarks
- *   Vite bundles a configuration file before it runs it, and the bundler resolves every import it
- *   can read, a dynamic one with a literal specifier included. A plugin package that is not built
- *   yet then fails the resolution, and the configuration cannot be read at all, not even for the
- *   task graph that would build the package. A specifier held in a value is one the bundler cannot
- *   read, so the import is left to Node, which resolves it from this module when the plugin is
- *   constructed, wherever the module runs from.
+ *   Vite bundles a config file before running it, and the bundler resolves every import it can
+ *   see, a dynamic import with a literal specifier included. A plugin package that has not been
+ *   built yet fails that resolution, and then the config cannot be read at all, not even by the
+ *   task graph that would have built the package. A specifier held in a variable is one the bundler
+ *   cannot follow, which leaves the import to Node at construction time.
  */
 
 import { located } from "@stealthscale/vite-config-core";
 
 /**
- * The plugin package, named as a value.
+ * The inventory plugin package, held in a variable so the bundler cannot resolve it.
  */
 const PLUGIN = "@stealthscale/vite-plugin-sbom";
 
 /**
- * Loads the inventory plugin package.
+ * Imports the inventory plugin package, resolved from this module.
  *
- * @throws {@link Error} When the plugin package is not built yet.
+ * @throws {@link Error} When the plugin package has not been built yet.
  */
 export function loaded(): Promise<typeof import("@stealthscale/vite-plugin-sbom")> {
-  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- a specifier held in a value is typed by nobody, and the header says why it is held that way
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- a specifier stored in a variable has no type, and the module header states why it is stored that way
   return import(located(PLUGIN, import.meta.url)) as Promise<
     typeof import("@stealthscale/vite-plugin-sbom")
   >;

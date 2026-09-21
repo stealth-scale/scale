@@ -1,9 +1,9 @@
 /**
- * Configures the build and the specification run for this package.
+ * Configures the build and the specification run for this package from the node preset.
  *
  * @remarks
- *   The node preset decides every setting, and this package adds none of its own. The directory it
- *   is handed is the package root, which is what resolves the entry points and the output paths.
+ *   The preset supplies every setting and this package adds none. `defineConfig` resolves the
+ *   entry points and the output paths from the package root it is given.
  */
 
 import { defineConfig } from "@stealthscale/vite-config/preset/node";

@@ -7,7 +7,7 @@ import { Item } from "#roving-focus/item.tsx";
 import { Root, type RootProps } from "#roving-focus/root.tsx";
 
 /**
- * Draws a group of three items, the middle one disabled where the case asks.
+ * Renders a toolbar of three items, optionally disabling the middle one.
  */
 function group(props: { middle?: boolean } & Partial<RootProps> = {}): RootProps["children"] {
   const { middle = false, ...rest } = props;
@@ -24,7 +24,8 @@ function group(props: { middle?: boolean } & Partial<RootProps> = {}): RootProps
 }
 
 /**
- * Draws a group whose first item arrives after the others have registered.
+ * Renders a toolbar whose first item only mounts once a button is clicked, so it registers after
+ * the items that follow it in the document.
  */
 function Late(): ReactElement {
   const [first, setFirst] = useState(false);
@@ -47,7 +48,7 @@ function Late(): ReactElement {
 }
 
 describe("useRovingFocus", () => {
-  it("puts the first item in the tab order and no other", () => {
+  it("sets tabIndex to 0 on the first item and -1 on the rest", () => {
     const { getByText } = render(group());
 
     expect(getByText("One").getAttribute("tabindex")).toBe("0");
@@ -55,7 +56,7 @@ describe("useRovingFocus", () => {
     expect(getByText("Three").getAttribute("tabindex")).toBe("-1");
   });
 
-  it("moves the tab stop to the next item on the arrow that runs along the line", () => {
+  it("moves the tab stop to the next item on ArrowRight", () => {
     const { getByText } = render(group());
 
     fireEvent.keyDown(getByText("One"), { key: "ArrowRight" });
@@ -64,7 +65,7 @@ describe("useRovingFocus", () => {
     expect(getByText("One").getAttribute("tabindex")).toBe("-1");
   });
 
-  it("moves the tab stop back on the arrow that runs the other way", () => {
+  it("moves the tab stop to the previous item on ArrowLeft", () => {
     const { getByText } = render(group());
 
     fireEvent.keyDown(getByText("One"), { key: "ArrowRight" });
@@ -73,7 +74,7 @@ describe("useRovingFocus", () => {
     expect(getByText("One").getAttribute("tabindex")).toBe("0");
   });
 
-  it("claims no arrow that runs across the direction the group moves on", () => {
+  it("ignores ArrowDown when the orientation is horizontal", () => {
     const { getByText } = render(group());
 
     fireEvent.keyDown(getByText("One"), { key: "ArrowDown" });
@@ -81,7 +82,7 @@ describe("useRovingFocus", () => {
     expect(getByText("One").getAttribute("tabindex")).toBe("0");
   });
 
-  it("moves on the arrows that run down the page where the group runs that way", () => {
+  it("moves the tab stop on ArrowDown when the orientation is vertical", () => {
     const { getByText } = render(group({ orientation: "vertical" }));
 
     fireEvent.keyDown(getByText("One"), { key: "ArrowDown" });
@@ -89,7 +90,7 @@ describe("useRovingFocus", () => {
     expect(getByText("Two").getAttribute("tabindex")).toBe("0");
   });
 
-  it("moves on either pair of arrows where the group moves on both", () => {
+  it("moves the tab stop on ArrowDown when the orientation is both", () => {
     const { getByText } = render(group({ orientation: "both" }));
 
     fireEvent.keyDown(getByText("One"), { key: "ArrowDown" });
@@ -97,7 +98,7 @@ describe("useRovingFocus", () => {
     expect(getByText("Two").getAttribute("tabindex")).toBe("0");
   });
 
-  it("stops at the last item where the ends do not join up", () => {
+  it("holds the tab stop on the last item on ArrowRight when wrap is false", () => {
     const { getByText } = render(group());
 
     fireEvent.keyDown(getByText("One"), { key: "End" });
@@ -106,7 +107,7 @@ describe("useRovingFocus", () => {
     expect(getByText("Three").getAttribute("tabindex")).toBe("0");
   });
 
-  it("comes round to the first item where the ends join up", () => {
+  it("returns the tab stop to the first item on ArrowRight when wrap is true", () => {
     const { getByText } = render(group({ wrap: true }));
 
     fireEvent.keyDown(getByText("One"), { key: "End" });
@@ -115,19 +116,24 @@ describe("useRovingFocus", () => {
     expect(getByText("One").getAttribute("tabindex")).toBe("0");
   });
 
-  it("moves the tab stop to each end on Home and End", () => {
+  it("moves the tab stop to the last item on End", () => {
     const { getByText } = render(group());
 
     fireEvent.keyDown(getByText("One"), { key: "End" });
 
     expect(getByText("Three").getAttribute("tabindex")).toBe("0");
+  });
 
+  it("moves the tab stop to the first item on Home", () => {
+    const { getByText } = render(group());
+
+    fireEvent.keyDown(getByText("One"), { key: "End" });
     fireEvent.keyDown(getByText("Three"), { key: "Home" });
 
     expect(getByText("One").getAttribute("tabindex")).toBe("0");
   });
 
-  it("passes the arrows over a disabled item", () => {
+  it("steps over a disabled item when moving the tab stop", () => {
     const { getByText } = render(group({ middle: true }));
 
     fireEvent.keyDown(getByText("One"), { key: "ArrowRight" });
@@ -136,7 +142,7 @@ describe("useRovingFocus", () => {
     expect(getByText("Two").getAttribute("tabindex")).toBe("-1");
   });
 
-  it("claims no key that moves nothing", () => {
+  it("leaves the tab stop where it is on Enter", () => {
     const { getByText } = render(group());
 
     fireEvent.keyDown(getByText("One"), { key: "Enter" });
@@ -144,7 +150,7 @@ describe("useRovingFocus", () => {
     expect(getByText("One").getAttribute("tabindex")).toBe("0");
   });
 
-  it("claims no arrow along the line where the group runs down the page", () => {
+  it("ignores ArrowRight when the orientation is vertical", () => {
     const { getByText } = render(group({ orientation: "vertical" }));
 
     fireEvent.keyDown(getByText("One"), { key: "ArrowRight" });
@@ -152,7 +158,7 @@ describe("useRovingFocus", () => {
     expect(getByText("One").getAttribute("tabindex")).toBe("0");
   });
 
-  it("runs the arrows the other way where the line runs right to left", () => {
+  it("moves the tab stop to the next item on ArrowLeft when the direction is rtl", () => {
     const { getByText } = render(group({ style: { direction: "rtl" } }));
 
     fireEvent.keyDown(getByText("One"), { key: "ArrowLeft" });
@@ -160,7 +166,7 @@ describe("useRovingFocus", () => {
     expect(getByText("Two").getAttribute("tabindex")).toBe("0");
   });
 
-  it("claims no key a modifier is held with", () => {
+  it("leaves the tab stop where it is when a modifier is held with the arrow", () => {
     const { getByText } = render(group());
 
     fireEvent.keyDown(getByText("One"), { ctrlKey: true, key: "ArrowRight" });
@@ -168,7 +174,7 @@ describe("useRovingFocus", () => {
     expect(getByText("One").getAttribute("tabindex")).toBe("0");
   });
 
-  it("claims no key pressed outside its items", () => {
+  it("ignores an arrow whose target lies outside every registered item", () => {
     const { getByRole, getByText } = render(group());
 
     fireEvent.keyDown(getByRole("toolbar"), { key: "ArrowRight" });
@@ -176,7 +182,7 @@ describe("useRovingFocus", () => {
     expect(getByText("One").getAttribute("tabindex")).toBe("0");
   });
 
-  it("moves the tab stop to an item a pointer focuses", () => {
+  it("moves the tab stop to an item that receives focus", () => {
     const { getByText } = render(group());
 
     fireEvent.focus(getByText("Three"));
@@ -184,7 +190,7 @@ describe("useRovingFocus", () => {
     expect(getByText("Three").getAttribute("tabindex")).toBe("0");
   });
 
-  it("leaves the tab stop where it is when a pointer focuses a disabled item", () => {
+  it("leaves the tab stop where it is when a disabled item receives focus", () => {
     const { getByText } = render(group({ middle: true }));
 
     fireEvent.focus(getByText("Two"));
@@ -192,7 +198,7 @@ describe("useRovingFocus", () => {
     expect(getByText("One").getAttribute("tabindex")).toBe("0");
   });
 
-  it("tells a caller the tab stop moved", () => {
+  it("calls onActiveIdChange with the id of the item taking the stop", () => {
     const moved: Array<string | undefined> = [];
     const { getByText } = render(
       group({
@@ -207,7 +213,7 @@ describe("useRovingFocus", () => {
     expect(moved).toContain("two");
   });
 
-  it("follows the order the reader sees rather than the order the items registered", () => {
+  it("orders items by document position when one registers after the items below it", () => {
     const { getByText } = render(<Late />);
 
     fireEvent.click(getByText("Add"));
@@ -216,7 +222,7 @@ describe("useRovingFocus", () => {
     expect(getByText("One").getAttribute("tabindex")).toBe("0");
   });
 
-  it("steps from the first item where the stop is on an item no longer there", () => {
+  it("steps from the first item when activeId names no registered item", () => {
     const { getByText } = render(group({ activeId: "gone" }));
 
     fireEvent.keyDown(getByText("One"), { key: "ArrowRight" });
@@ -224,7 +230,7 @@ describe("useRovingFocus", () => {
     expect(document.activeElement).toBe(getByText("Two"));
   });
 
-  it("holds the tab stop where a caller drives it", () => {
+  it("keeps the tab stop on the item activeId names when the caller controls it", () => {
     const { getByText } = render(group({ activeId: "three" }));
 
     fireEvent.keyDown(getByText("Three"), { key: "Home" });

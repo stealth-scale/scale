@@ -5,50 +5,53 @@ import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/te
 import { recipe } from "#skeleton/recipe.ts";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to move", () => {
     expect(recipeViolations(recipe, { names: ["Skeleton"] })).toStrictEqual([]);
   });
 
-  it("names its class skeleton", () => {
+  it("prefixes its generated classes with skeleton", () => {
     expect(recipe.className).toBe("skeleton");
   });
 
-  it("offers the three axes a skeleton takes", () => {
+  it("declares loading and motion beside radius and nothing else", () => {
     expect(axesOf(recipe)).toStrictEqual(["loading", "motion", "radius"]);
   });
 
-  it("stands in and pulses at the middle corner by default", () => {
+  it("defaults to a loading placeholder that pulses at the l2 radius", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ loading: true, motion: "pulse", radius: "l2" });
   });
 
-  it("offers the three motions", () => {
+  it("accepts none beside the two animated motions", () => {
     expect(valuesOf(recipe, "motion")).toStrictEqual(["none", "pulse", "shimmer"]);
   });
 
-  it("offers the four corners the theme draws", () => {
+  it("accepts every corner step the theme defines", () => {
     expect(valuesOf(recipe, "radius")).toStrictEqual(["full", "l1", "l2", "l3"]);
   });
 
-  it("hides everything inside it while it stands in", () => {
+  it("hides its children and its pseudo-elements while loading", () => {
     expect(recipe.variants?.["loading"]?.["true"]).toMatchObject({
       "&::before, &::after, *": { visibility: "hidden" },
       color: "transparent",
     });
   });
 
-  it("stands in on the neutral palette's muted fill", () => {
+  it("paints the neutral palette's muted fill while loading", () => {
     expect(recipe.variants?.["loading"]?.["true"]).toMatchObject({
       background: "colorPalette.muted",
       colorPalette: "neutral",
     });
   });
 
-  it("fades the content in from the base once it has arrived", () => {
+  it("carries the fade-in animation in its base", () => {
     expect(recipe.base).toStrictEqual({ animationStyle: "fade.in" });
+  });
+
+  it("declares no styles under the false value of loading", () => {
     expect(recipe.variants?.["loading"]).not.toHaveProperty("false");
   });
 
-  it("moves only while it stands in", () => {
+  it("nests every motion under the loading class", () => {
     expect(recipe.variants?.["motion"]).toStrictEqual({
       none: { "&.skeleton--loading_true": { animation: "none" } },
       pulse: { "&.skeleton--loading_true": { animationStyle: "pulse" } },
@@ -63,7 +66,7 @@ describe("recipe", () => {
     });
   });
 
-  it("tracks the tag named Skeleton and not the paragraph of them", () => {
+  it("anchors its jsx pattern so that SkeletonText does not match", () => {
     const [pattern] = recipe.jsx ?? [];
 
     expect(pattern).toStrictEqual(/^Skeleton$/u);

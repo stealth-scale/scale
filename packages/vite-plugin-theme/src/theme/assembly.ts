@@ -4,7 +4,7 @@
  *
  * @remarks
  *   The scan happens once, when the compiler starts. A changed file is handed to the running
- *   compiler on its own afterwards, which is the incremental path the compiler offers.
+ *   compiler one at a time afterwards, which is the incremental path the compiler offers.
  */
 
 import { join, resolve } from "node:path";
@@ -40,21 +40,21 @@ import { distinct, findings } from "#theme/findings.ts";
 import { renderedConfig } from "#theme/rendering.ts";
 
 /**
- * Fixes the file the rendered configuration is written to, under the application's scratch.
+ * File the rendered configuration is written to, under the application's scratch.
  */
 const CONFIG = "stylesheet.config.mjs";
 
 /**
- * Fixes the file a package declares its dependencies in.
+ * File a package declares its dependencies in.
  */
 const MANIFEST = "package.json";
 
 /**
- * Carries everything one assembly produced.
+ * Everything one assembly produced.
  */
 export interface Assembled {
   /**
-   * The started compiler.
+   * Compiler the assembly started.
    */
   compiler: Compiler;
 
@@ -64,23 +64,23 @@ export interface Assembled {
   contributors: readonly Contributor[];
 
   /**
-   * The findings of the assembly: a name two installations share, a compound no published recipe
+   * Findings of the assembly: a name two installations share, a compound no published recipe
    * declares, and an import that renames a component.
    */
   diagnostics: readonly Diagnostic[];
 
   /**
-   * The file each font package the themes named resolved to, or undefined where nothing resolved
-   * it.
+   * File each font package the themes named resolved to, or undefined where nothing on the graph
+   * resolved it.
    */
   fonts: ReadonlyMap<string, string | undefined>;
 
   /**
-   * The source directory of every workspace package the compiler scans, absolute.
+   * Source directory of every workspace package the compiler scans, absolute.
    *
    * @remarks
-   *   A dev server watches its own root and the files it is handed, and a file added to a package
-   *   beside the application is neither, so the directories are handed to the watcher.
+   *   A dev server watches its own root and the files it is handed. A file added to a workspace
+   *   package outside the application is neither, so these directories are handed to the watcher.
    */
   roots: readonly string[];
 
@@ -96,7 +96,7 @@ export interface Assembled {
 }
 
 /**
- * Carries the statement and the presets one importer loaded.
+ * Statement and presets one importer loaded.
  */
 interface Loaded {
   /**
@@ -105,7 +105,7 @@ interface Loaded {
   presets: readonly Published[];
 
   /**
-   * The application's statement.
+   * Application's own statement.
    */
   statement: Statement;
 }
@@ -135,7 +135,7 @@ async function loaded(
 }
 
 /**
- * Lists the globs the compiler scans: the application's own, the source of every workspace
+ * Returns the globs the compiler scans: the application's own, the source of every workspace
  * package on the graph, and the published JavaScript of every installed contributor.
  */
 function scanned(
@@ -158,15 +158,14 @@ function scanned(
 
 /**
  * Loads the statement and every contributor's preset, renders the configuration, starts the
- * compiler and scans everything the application draws with.
+ * compiler and scans every package the application depends on.
  *
  * @remarks
- *   An application that states no theme draws the foundation alone. Every manifest the walk over
- *   the dependencies read is watched beside the statement and the presets, because a package added
- *   to any of them is a package whose own files nothing is watching yet, so the change that
- *   introduces it is the only notice there is. The configuration is rendered and the compiler
- *   started under the application's lock, so a second process in the same checkout reads a
- *   configuration this one has finished writing.
+ *   An application that states no theme compiles the foundation alone. Every manifest the
+ *   dependency walk read is watched along with the statement and the presets, because nothing
+ *   watches the files of a package until a manifest names it. The configuration is rendered and
+ *   the compiler started under the application's lock, so a second process in the same checkout
+ *   reads a configuration this one has finished writing.
  * @throws {@link Error} When the application does not depend on the system package, or the
  *   statement or a preset cannot be loaded.
  */

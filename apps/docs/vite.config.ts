@@ -1,12 +1,13 @@
 /**
- * Builds the catalogue: the React layers, the stylesheet compiler, and the specimen index.
+ * Configures the catalogue application: the React layers, the stylesheet compiler and the specimen
+ * index.
  *
  * @remarks
- *   The patterns reach across the workspace rather than into this directory, because a catalogue
- *   shows the components of the packages beside it and holds none of its own. The React Compiler
- *   runs in the build alone: a build and a preview exercise what ships, and a day of editing runs
- *   without the compile per save. The dev server bundles unless `STEALTH_DEV_SERVER=standard` is
- *   set, which the `dev:standard` script does for the module-per-file server.
+ *   The specimen patterns reach the component packages across the workspace, because this
+ *   application ships no specimen file of its own. The React Compiler runs in the build alone, so a
+ *   build and a preview exercise what ships while a save during development skips the compile pass.
+ *   `STEALTH_DEV_SERVER=standard`, which the `dev:standard` script sets, removes the bundled dev
+ *   server layer.
  */
 
 import { remove, server } from "@stealthscale/vite-config";
@@ -17,7 +18,7 @@ import * as theme from "@stealthscale/vite-config-theme";
 import { defineConfig } from "@stealthscale/vite-config/preset/app";
 
 /**
- * The variable that picks the module-per-file dev server over the bundling one.
+ * Reports whether the environment selects the module-per-file dev server over the bundling one.
  */
 const STANDARD = process.env["STEALTH_DEV_SERVER"] === "standard";
 

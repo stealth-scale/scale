@@ -1,5 +1,6 @@
 /**
- * Holds this package to the contract every plugin package in the repository keeps.
+ * Checks this package's directory and published module against the contract every plugin package
+ * in the repository keeps.
  */
 
 import { join } from "node:path";
@@ -10,7 +11,7 @@ import { violations } from "@stealthscale/testing-config";
 import * as published from "#index.ts";
 
 describe("@stealthscale/vite-plugin-i18n", () => {
-  it("keeps the plugin package contract", async () => {
+  it("reports no violations of the plugin package contract", async () => {
     await expect(
       violations({
         at: join(import.meta.dirname, ".."),

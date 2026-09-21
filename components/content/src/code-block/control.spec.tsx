@@ -9,7 +9,7 @@ import { Control } from "#code-block/control.ts";
 import { recipe } from "#code-block/recipe.ts";
 
 describe("Control", () => {
-  it("conforms as a div inside the panel it needs above it", () => {
+  it("satisfies the component contract with div as its default element", () => {
     expect(
       violations(Control, {
         as: true,
@@ -21,7 +21,7 @@ describe("Control", () => {
     ).toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("emits a class for every variant value the recipe declares", () => {
     expect(
       boundViolations(recipe, (props) => render(coded(<Control />, props)).container, {
         slot: "control",
@@ -29,7 +29,7 @@ describe("Control", () => {
     ).toStrictEqual([]);
   });
 
-  it("holds whatever control a page puts there", () => {
+  it("contains the button a caller places inside it", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "code-block", "control")).toContain(

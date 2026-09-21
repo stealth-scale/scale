@@ -3,13 +3,12 @@
  * registry to trust the release workflow for every public package.
  *
  * @remarks
- *   The plan is printed first and nothing runs without `--yes`, so a run without it is a dry run.
- *   The publish runs through pnpm in the package directory, which resolves the workspace ranges
- *   and asks for the one-time password where the account requires one. The trust runs through npm,
- *   which needs the package on the registry, a login with two-factor authentication and npm 11.15
- *   or later. npm refuses to run inside this workspace because the root manifest names pnpm under
- *   devEngines, so the trust pass runs from a scratch directory outside it.
- *   Usage: `pnpm trust:plan`, or `pnpm trust:apply -- --yes` to run what it printed.
+ *   Nothing runs without `--yes`, so a run without it prints the plan and stops. The publish runs
+ *   through pnpm in the package directory, which resolves the workspace ranges and prompts for the
+ *   one-time password where the account requires one. The trust runs through npm 11.15 or later
+ *   and needs a login with two-factor authentication, and npm refuses to run inside this workspace
+ *   because the root manifest names pnpm under devEngines, so the trust pass runs from a scratch
+ *   directory outside it.
  */
 
 import { mkdtempSync, rmSync } from "node:fs";
@@ -53,12 +52,12 @@ async function trusts(through: Runner, one: Planned, scratch: string): Promise<v
 }
 
 /**
- * Runs the plan for a root, publishing and trusting what it says.
+ * Prints the plan for a root and runs it where the caller asked for it.
  *
  * @param through - The runner the commands go through.
  * @param root - The workspace root.
- * @param yes - Whether to run the plan rather than print it.
- * @returns The plan that was printed, and run where asked.
+ * @param yes - Whether to run the plan after printing it.
+ * @returns The plan that was printed.
  */
 export async function applied(
   through: Runner,
@@ -91,7 +90,7 @@ export async function applied(
 const ROOT = join(import.meta.dirname, "..", "..");
 
 /**
- * Whether the account is logged in to the registry, which every question and every mutation needs.
+ * The result of `pnpm whoami`, which every question to the registry needs to succeed.
  */
 const login = await run("pnpm", ["whoami"], ROOT);
 

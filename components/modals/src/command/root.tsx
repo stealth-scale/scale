@@ -1,15 +1,14 @@
 /**
- * Draws the panel a palette sits in, and holds the actions and what is left of them.
+ * Renders the panel, owns the palette state and reports the action a user runs.
  *
  * @remarks
- *   The palette is a field owning a list rather than a menu. That is the difference a screen reader
- *   hears: a menu is a set of commands a reader walks, and a letter pressed there jumps to a row
- *   rather than narrowing to it, so a person cannot type and walk at once. Typing here moves the
- *   highlight without the field losing focus, which is the pattern the APG names for a field that
- *   owns a list.
- *   Nothing stays marked unless a caller asks. Running a command and picking a value are different
- *   things, and a palette that kept the last command chosen would read it back the next time it
- *   opened as though the page were still doing it.
+ *   The palette is modelled as a combobox rather than a menu, and assistive technology treats the
+ *   two differently. In a menu a letter key jumps to a matching item instead of filtering, so a
+ *   user cannot type and navigate at the same time. Here typing moves the active option while focus
+ *   stays in the input, which is the pattern the APG documents for a combobox owning a listbox.
+ *   Selection is held empty deliberately: running a command is not the same as picking a value, and
+ *   a palette that remembered the last command would announce it as still selected the next time it
+ *   opened.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -21,50 +20,46 @@ import { withProvider } from "#command/context.ts";
 import { CommandProvider, useCommandState } from "#command/state.ts";
 
 /**
- * Draws the panel and sets the variants every part below it reads.
+ * The styled element carrying the recipe's root slot, which resolves the variants for the parts
+ * below it.
  */
 const Panelled = withProvider("div", "root");
 
 /**
- * Says how many matches are left, in English, where a caller states nothing else.
- *
- * @param matches - How many actions are still listed.
- * @returns The line a screen reader says after each keystroke.
+ * Formats the result count in English, used when the caller supplies no formatter of their own.
  */
 function counted(matches: number): string {
   return matches === 1 ? "1 result" : `${String(matches)} results`;
 }
 
 /**
- * Describes what the panel takes.
+ * Props of the palette root, plus everything the styled element accepts.
  */
 export interface RootProps extends Omit<ComponentProps<typeof Panelled>, "onSelect"> {
   /**
-   * Everything the palette can be told to do.
+   * Every command the palette can run.
    */
   readonly actions: readonly CommandAction[];
 
   /**
-   * The words a screen reader says on reaching the list, naming what the palette is for.
+   * The accessible name of the list, required because the palette renders no visible label for it.
    */
   readonly "aria-label": string;
 
   /**
-   * How many matches are left, said out loud after each keystroke.
+   * Formats the announcement made after each keystroke, given the number of remaining matches.
+   * English by default.
    */
   readonly count?: ((matches: number) => string) | undefined;
 
   /**
-   * Hears that an action was chosen, and is handed the value it carries.
+   * Called with the value of the action the user ran.
    */
   readonly onRun?: ((value: string) => void) | undefined;
 }
 
 /**
- * Offers everything a page can be told to do, narrowed by what a person types.
- *
- * @param props - The actions, what the palette is for, and everything a styled div takes.
- * @returns The panel, holding the field and the list.
+ * Lists every action a page offers and narrows the list as the user types.
  */
 export function Root({
   actions,

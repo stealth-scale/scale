@@ -1,10 +1,10 @@
 /**
- * Covers the writes a generator makes: one that leaves an unchanged file alone, one that clears a
- * directory, and one that makes a directory match another.
+ * Covers the three writes a generator makes: skipping an unchanged file, clearing a directory, and
+ * making one directory match another.
  *
  * @remarks
- *   The unreadable-source case takes read permission off a directory, which a process running as
- *   root is not held to. Run the suite as an ordinary user.
+ *   The unreadable-source cases take read permission away, which a process running as root is not
+ *   subject to. Run the suite as an ordinary user.
  */
 
 import { chmodSync, existsSync, statSync, utimesSync } from "node:fs";
@@ -15,7 +15,8 @@ import { withScratchWorkspace } from "@stealthscale/testing";
 import { emptyDir, syncDir, writeIfChanged } from "#fs.ts";
 
 /**
- * Runs a function and returns the message it threw, or an empty string where it returned.
+ * Catches whatever a function throws and returns its message, or an empty string when nothing is
+ * thrown.
  */
 function failing(run: () => void): string {
   try {
@@ -28,7 +29,8 @@ function failing(run: () => void): string {
 }
 
 /**
- * Writes `content` to one file in a scratch workspace holding `files`, and reads the file back.
+ * Writes to one file in a scratch workspace and reports what landed on disk and whether a write
+ * happened at all.
  */
 function written(
   files: Readonly<Record<string, string>>,
@@ -42,7 +44,7 @@ function written(
 }
 
 /**
- * Syncs `from` into `to` in a scratch workspace holding `files`, and lists what is under `to`.
+ * Syncs `from` into `to` in a scratch workspace and lists what ends up under `to`.
  */
 function synced(files: Readonly<Record<string, string>>): readonly string[] {
   return withScratchWorkspace(files, (workspace) => {
@@ -53,11 +55,11 @@ function synced(files: Readonly<Record<string, string>>): readonly string[] {
 }
 
 describe("fs", () => {
-  it("writes a file that does not exist and creates the directories above it", () => {
+  it("writes a file whose directories do not exist yet", () => {
     expect(written({}, "one")).toStrictEqual({ content: "one", wrote: true });
   });
 
-  it("returns false and leaves the file alone when the content is the same", () => {
+  it("returns false without touching a file whose content already matches", () => {
     expect(written({ "a/b/c.txt": "one" }, "one")).toStrictEqual({ content: "one", wrote: false });
   });
 
@@ -65,7 +67,7 @@ describe("fs", () => {
     expect(written({ "a/b/c.txt": "one" }, "two")).toStrictEqual({ content: "two", wrote: true });
   });
 
-  it("leaves no staged file beside the one it wrote", () => {
+  it("removes the temporary file after the rename", () => {
     const files = withScratchWorkspace({ "a/b/c.txt": "one" }, (workspace) => {
       writeIfChanged(workspace.path("a/b/c.txt"), "two");
 
@@ -118,13 +120,13 @@ describe("fs", () => {
     ]);
   });
 
-  it("removes a file the source no longer holds", () => {
+  it("removes a file the source no longer contains", () => {
     expect(synced({ "from/a.txt": "a", "to/a.txt": "a", "to/stale.txt": "" })).toStrictEqual([
       "to/a.txt",
     ]);
   });
 
-  it("removes a directory the source no longer holds", () => {
+  it("removes a directory the source no longer contains", () => {
     const left = withScratchWorkspace(
       { "from/a.txt": "a", "to/gone/deep/stale.txt": "" },
       (workspace) => {
@@ -137,7 +139,7 @@ describe("fs", () => {
     expect(left).toBe(false);
   });
 
-  it("leaves an unchanged file as it was when the source still holds it", () => {
+  it("keeps the modification time of a file the source still contains", () => {
     const past = new Date("2020-01-01T00:00:00Z");
     const modified = withScratchWorkspace({ "from/a.txt": "a", "to/a.txt": "a" }, (workspace) => {
       utimesSync(workspace.path("to/a.txt"), past, past);

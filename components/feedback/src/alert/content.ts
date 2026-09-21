@@ -1,11 +1,12 @@
 /**
- * Draws the band an alert's words sit in.
+ * Renders the text region of an alert, wrapping its title and its description.
  *
  * @remarks
- *   The element is `div` and carries no role. The band lays the title and the description out, in
- *   a column or on one line, whichever the root's `layout` states. It takes the room the mark and
- *   the aside leave, and holds a minimum inline size of zero so a long word wraps inside it rather
- *   than pushing the aside off the end.
+ *   The element is a `div` carrying no ARIA role. It stacks its children or runs them along one
+ *   line according to the root's `layout` variant, and absorbs the space the indicator and the
+ *   aside leave. The minimum inline size of zero is deliberate: a flex item defaults to an
+ *   automatic minimum, so without it a long unbreakable string would push the aside off the end of
+ *   the alert instead of wrapping.
  */
 
 import { type ComponentProps } from "react";
@@ -13,11 +14,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#alert/context.ts";
 
 /**
- * Lays out the title and the description.
+ * Renders the flex container that lays out an alert's title and description.
  */
 export const Content = withContext("div", "content");
 
 /**
- * Describes what the band takes: everything a styled div takes.
+ * The props of a styled `div`.
  */
 export type ContentProps = ComponentProps<typeof Content>;

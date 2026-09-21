@@ -1,9 +1,9 @@
 /**
- * Writes the value in a run of text.
+ * Renders the value inline as text.
  *
  * @remarks
- *   The element is `span`. It writes the machine's value where a caller hands it no children, so a
- *   page shows the value it copies without stating it twice.
+ *   The span falls back to the machine's value when the caller passes no children, so a page can
+ *   display the string it copies without repeating it in two places.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -12,20 +12,20 @@ import { withContext } from "#clipboard/context.ts";
 import { useClipboard } from "#clipboard/machine.ts";
 
 /**
- * Draws the run of text the recipe places.
+ * Renders the valueText slot.
  */
 const Written = withContext("span", "valueText");
 
 /**
- * Describes what the value text takes.
+ * Accepts every prop the styled span takes.
  */
 export type ValueTextProps = ComponentProps<typeof Written>;
 
 /**
- * Shows the value the clipboard copies.
+ * Renders the caller's children, or the machine's value where there are none.
  *
  * @param props - Everything a styled span takes.
- * @returns The run of text, holding the value unless a caller wrote something else.
+ * @returns The span, holding one or the other.
  */
 export function ValueText({ children, ...rest }: ValueTextProps): ReactElement {
   const api = useClipboard();

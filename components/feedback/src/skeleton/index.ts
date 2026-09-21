@@ -1,6 +1,6 @@
 /**
- * Publishes the skeleton: the box standing in for content that has not arrived, and the provider
- * that sets its variants from above.
+ * Exposes the skeleton, the placeholder shown while content is in flight, together with the
+ * provider an ancestor sets its variants through.
  */
 
 export { PropsProvider as SkeletonPropsProvider } from "#skeleton/context.ts";

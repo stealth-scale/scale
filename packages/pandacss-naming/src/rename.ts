@@ -1,15 +1,11 @@
 /**
- * Rewrites a class the compiler wrote, in a stylesheet or at run time, into the scheme.
+ * Rewrites a class the compiler emitted, in a stylesheet or at run time, into the scheme.
  *
  * @remarks
- *   A class is read against every recipe first, because the compiler's variant form and an atomic
- *   class share their characters and only the recipes tell them apart. A recipe claims its own
- *   class, one class per slot, and everything written after two hyphens: a variant is rewritten, a
- *   compound the author named passes through, and a slot named in camel case is written in kebab
- *   case as the runtime writes it. A class no recipe claims is an atomic class where it carries the
- *   separator a declaration is written with, and an author's class otherwise, which is left as the
- *   markup carries it. Where one axis name prefixes another, the longest axis that fits is read, so
- *   `on-off` wins over `on` for `card--on-off-true` whatever their order.
+ *   A class is matched against every recipe before anything else, because the compiler's variant
+ *   form and an atomic class use the same characters and only the recipes tell them apart. Where
+ *   one axis name prefixes another, the longest matching axis wins, so `card--on-off-true`
+ *   resolves to the `on-off` axis whichever order the recipe declares the two in.
  */
 
 import { atomicClass, isAtomic } from "#atomic.ts";
@@ -17,20 +13,25 @@ import { type CompilerConfig, type Recipe, variantClass } from "#recipe.ts";
 import { kebab, sanitise } from "#sanitise.ts";
 
 /**
- * Separates a recipe's class from an axis in the compiler's variant form.
+ * The delimiter the compiler's variant form puts between a recipe's class and an axis.
  */
 const VARIANT = "--";
 
 /**
- * Lists the classes a recipe writes rules under: its own, and one per slot.
+ * Enumerates the classes a recipe writes rules under: the recipe's class, then one class per slot.
+ *
+ * @returns The recipe's own class alone where it declares no slots.
  */
 function owners(recipe: Recipe): string[] {
   return [recipe.className, ...(recipe.slots ?? []).map((slot) => `${recipe.className}__${slot}`)];
 }
 
 /**
- * Rewrites a class one recipe owns.
+ * Rewrites a class against one recipe.
  *
+ * @remarks
+ *   A class that carries the recipe's prefix but names no axis the recipe declares is rewritten as
+ *   an atomic class rather than as a variant of the recipe.
  * @returns The class in the scheme, an empty string for a boolean axis at `false`, or undefined
  *   where the recipe does not own the class.
  */
@@ -55,11 +56,14 @@ function owned(pandaClass: string, recipe: Recipe, config: CompilerConfig): stri
 }
 
 /**
- * Rewrites a class the compiler wrote into the scheme, reading it as a recipe's where a recipe
- * claims it, as an atomic class where it carries the separator, and as an author's otherwise.
+ * Rewrites a class the compiler emitted into the scheme.
  *
- * @returns The class in the scheme, an empty string for a boolean axis at `false`, which no
- *   element carries, or the class as written where no compiler wrote it.
+ * @remarks
+ *   The recipes are tried in the order the configuration declares them, and the first that owns
+ *   the class answers. A class no recipe owns is read as an atomic class where it contains the
+ *   separator, and as an author's own class otherwise.
+ * @returns The class in the scheme, an empty string for a boolean axis at `false`, or the class
+ *   unchanged where the compiler did not emit it.
  */
 export function rename(pandaClass: string, config: CompilerConfig): string {
   for (const recipe of config.recipes) {

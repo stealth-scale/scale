@@ -1,9 +1,9 @@
 /**
- * Binds the empty state's recipe to the elements that draw its parts.
+ * Binds the empty state recipe to the styled elements that render each of its slots.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime.
+ *   The binding sits apart from the recipe because a consuming application's compiler imports the
+ *   recipe at build time and has no use for the runtime this module pulls in.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";
@@ -11,6 +11,7 @@ import { createSlotRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#empty-state/recipe.ts";
 
 /**
- * Binds the recipe once. The root provides the variants and every other part reads them.
+ * Binds the recipe once, so that the root publishes the resolved size and the remaining slots
+ * consume it.
  */
 export const { withContext, withProvider } = createSlotRecipeContext(recipe);

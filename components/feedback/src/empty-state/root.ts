@@ -1,10 +1,11 @@
 /**
- * Draws the panel every other part sits in.
+ * Renders the panel the remaining slots sit inside.
  *
  * @remarks
- *   The element is `div` and carries no role. What an empty state means is in its words, and a
- *   region role on every one of them would make a page of empty panels a page of landmarks. A page
- *   that wants the panel announced states its own role on it.
+ *   The element is a `div` with no ARIA role. The meaning of an empty state is in its title and
+ *   description, and giving each one a landmark role would turn a dashboard of empty panels into a
+ *   list of landmarks a screen reader user has to step past. A surface that does want the panel
+ *   announced sets its own role.
  */
 
 import { type ComponentProps } from "react";
@@ -12,11 +13,11 @@ import { type ComponentProps } from "react";
 import { withProvider } from "#empty-state/context.ts";
 
 /**
- * Draws the panel and sets the size every part below it reads.
+ * Renders the panel and publishes the size the slots below it resolve against.
  */
 export const Root = withProvider("div", "root");
 
 /**
- * Describes what the panel takes.
+ * The size variant and the props of a styled `div`.
  */
 export type RootProps = ComponentProps<typeof Root>;

@@ -1,45 +1,45 @@
 /**
- * Reads what a recipe declares, without rendering anything.
+ * Reads a recipe's declarations without rendering it.
  *
  * @remarks
- *   A recipe is a plain object, so the questions a specification asks of one are answered by
- *   reading it: which variants it offers, what it defaults to, which slots it styles. The readers
- *   are typed structurally and loosely rather than through the authoring types, because those
- *   keep every literal a recipe was written with, and a reader typed against them takes one
- *   recipe and refuses the next.
+ *   A recipe is a plain object, so a specification can read it directly: which variants it offers,
+ *   what it defaults to, which slots it styles. These helpers are typed structurally and loosely
+ *   rather than against the authoring types, because the authoring types preserve every literal a
+ *   recipe was declared with, and a function typed against them accepts one recipe and rejects the
+ *   next.
  */
 
 /**
- * Describes the parts of a recipe a specification asks about.
+ * The parts of a recipe a specification asks about.
  */
 export interface Declared {
   /**
-   * The styles every element the recipe draws starts from.
+   * The styles every element the recipe applies to starts from.
    */
   base?: unknown;
 
   /**
-   * The prefix of every class the recipe emits.
+   * The prefix on every class the recipe emits.
    */
   className: string;
 
   /**
-   * The combinations that draw something no single variant does.
+   * The variant combinations that style what no single variant styles.
    */
   compoundVariants?: readonly unknown[] | undefined;
 
   /**
-   * The variant values a caller gets without asking.
+   * The variant values applied when the caller picks none.
    */
   defaultVariants?: unknown;
 
   /**
-   * The tags the compiler extracts the variants from, as names or patterns.
+   * The tags the compiler extracts variants from, as names or patterns.
    */
   jsx?: ReadonlyArray<RegExp | string> | undefined;
 
   /**
-   * The parts the recipe styles, absent for a recipe that draws one element.
+   * The parts the recipe styles. Absent on a recipe that styles a single element.
    */
   slots?: readonly string[] | undefined;
 
@@ -49,13 +49,13 @@ export interface Declared {
   staticCss?: readonly unknown[] | undefined;
 
   /**
-   * Each variant axis against the values it takes.
+   * The values each variant axis takes, keyed by axis.
    */
   variants?: Readonly<Record<string, unknown>> | undefined;
 }
 
 /**
- * Describes a recipe that styles several parts rather than one element.
+ * A recipe that styles several parts rather than a single element.
  */
 export interface Slotted extends Declared {
   /**
@@ -65,7 +65,7 @@ export interface Slotted extends Declared {
 }
 
 /**
- * Reads the values one variant offers, keyed by value.
+ * Returns one variant's values, keyed by value name.
  *
  * @throws {@link Error} When the recipe offers no variant under that name.
  */
@@ -76,12 +76,12 @@ function offered(recipe: Declared, axis: string): Readonly<Record<string, unknow
     throw new Error(`The recipe ${recipe.className} offers no variant called ${axis}.`);
   }
 
-  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- an object is read by its keys, whatever they hold
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the object is read by its keys, whatever their types
   return values as Readonly<Record<string, unknown>>;
 }
 
 /**
- * Lists the values one variant offers, sorted.
+ * Returns the value names one variant offers, sorted.
  *
  * @throws {@link Error} When the recipe offers no variant under that name.
  */
@@ -90,37 +90,38 @@ export function valuesOf(recipe: Declared, axis: string): readonly string[] {
 }
 
 /**
- * Lists every variant a recipe offers, sorted.
+ * Returns the name of every variant axis a recipe offers, sorted.
  */
 export function axesOf(recipe: Declared): readonly string[] {
   return Object.keys(recipe.variants ?? {}).toSorted();
 }
 
 /**
- * Reads what a recipe draws when nothing is asked for, keyed by axis.
+ * Returns the variant values a recipe applies when the caller picks none, keyed by axis, or an
+ * empty object when it declares no defaults.
  */
 export function defaultsOf(recipe: Declared): Readonly<Record<string, unknown>> {
   const defaults = recipe.defaultVariants;
 
   if (typeof defaults !== "object" || defaults === null) return {};
 
-  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- an object is read by its keys, whatever they hold
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the object is read by its keys, whatever their types
   return defaults as Readonly<Record<string, unknown>>;
 }
 
 /**
- * Lists every slot a slot recipe styles, sorted.
+ * Returns every slot a slot recipe styles, sorted.
  */
 export function slotsOf(recipe: Slotted): readonly string[] {
   return [...recipe.slots].toSorted();
 }
 
 /**
- * Reads what one variant sets one property to, for each of its values in the order given.
+ * Reads one property off each of a variant's values, in the order given.
  *
  * @remarks
- *   Reading the declared values back in a stated order lets a specification assert the shape of a
- *   scale rather than restate its numbers.
+ *   Fixing the order lets a specification assert the shape of a scale, that it rises or that it
+ *   has no repeats, without restating the numbers it is made of.
  * @throws {@link Error} When the recipe offers no variant under that name, or the order names a
  *   value the variant does not offer.
  */
@@ -146,9 +147,9 @@ export function scaleOf(
 }
 
 /**
- * Orders two steps of a scale numerically, so `2.5` comes before `10`.
+ * Compares two scale steps numerically, so `2.5` sorts before `10` rather than after it.
  *
- * @returns A negative number where the first step is the smaller.
+ * @returns A negative number when the first step is the smaller.
  */
 export function byStep(one: unknown, other: unknown): number {
   return Number(one) - Number(other);

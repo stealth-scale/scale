@@ -9,7 +9,7 @@ import { recipe } from "#code-block/recipe.ts";
 import { Title } from "#code-block/title.ts";
 
 describe("Title", () => {
-  it("conforms as a div inside the panel it needs above it", () => {
+  it("satisfies the component contract with div as its default element", () => {
     expect(
       violations(Title, {
         as: true,
@@ -21,7 +21,7 @@ describe("Title", () => {
     ).toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("emits a class for every variant value the recipe declares", () => {
     expect(
       boundViolations(
         recipe,
@@ -33,13 +33,13 @@ describe("Title", () => {
     ).toStrictEqual([]);
   });
 
-  it("carries no heading role because a block of code is not a section of the page", () => {
+  it("sets no role attribute on the title element", () => {
     const { container } = render(coded(<Title>button.tsx</Title>));
 
     expect(slotElement(container, "code-block", "title").hasAttribute("role")).toBe(false);
   });
 
-  it("draws the element as names", () => {
+  it("renders the title slot as span when as is span", () => {
     const { container } = render(coded(<Title as="span">button.tsx</Title>));
 
     expect(slotElement(container, "code-block", "title").tagName).toBe("SPAN");

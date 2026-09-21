@@ -1,9 +1,9 @@
 /**
- * Checks the plan against a stand-in registry, offline.
+ * Covers the release plan against a stand-in registry, with no network.
  *
  * @remarks
- *   The scripts lane is a test project of its own at the workspace root, so the workspace runner
- *   collects this file while the coverage policy, which counts `src/` alone, does not.
+ *   The scripts lane is a test project the workspace root names, so the runner collects this file
+ *   and the coverage policy, which counts `src/` alone, does not.
  */
 
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
@@ -29,13 +29,13 @@ interface Named {
   readonly private?: boolean;
 
   /**
-   * The scripts the manifest declares.
+   * Scripts the manifest declares.
    */
   readonly scripts?: Readonly<Record<string, string>>;
 }
 
 /**
- * Writes a workspace with the members a case names, and answers `pnpm ls` for it.
+ * Writes a workspace of the given members and returns the listing `pnpm ls` would print for it.
  */
 function workspace(named: readonly Named[]): { readonly listing: string; readonly root: string } {
   const root = mkdtempSync(join(tmpdir(), "stealth-trust-"));
@@ -55,7 +55,12 @@ function workspace(named: readonly Named[]): { readonly listing: string; readonl
 }
 
 /**
- * Builds a runner that answers from a table, keyed by the command and its arguments joined.
+ * Builds a runner that answers from a table keyed on the command and its arguments, joined by
+ * spaces.
+ *
+ * @remarks
+ *   A command the table does not list exits 1 with `unplanned call`, so a case that drives an
+ *   unexpected command fails on it rather than on a silent success.
  */
 function answering(table: Readonly<Record<string, Partial<Ran>>>): Runner {
   return (command, args) => {
@@ -65,12 +70,15 @@ function answering(table: Readonly<Record<string, Partial<Ran>>>): Runner {
   };
 }
 
+/**
+ * The trust record `npm trust list` prints for a package this repository publishes.
+ */
 const TRUSTING = JSON.stringify([
   { repository: "stealth-scale/config", workflow: ".github/workflows/release.yml" },
 ]);
 
 describe("members", () => {
-  it("lists every member with whether it builds and whether it is private", async () => {
+  it("lists every member with the flags its manifest declares", async () => {
     const held = workspace([
       { name: "@acme/one", scripts: { build: "vp pack" } },
       { name: "@acme/two", private: true },
@@ -86,19 +94,19 @@ describe("members", () => {
     ]);
   });
 
-  it("ends the plan when the listing cannot be read", async () => {
+  it("rejects when pnpm ls fails", async () => {
     await expect(members(answering({}), "/nowhere")).rejects.toThrow("pnpm ls failed");
   });
 });
 
 describe("published", () => {
-  it("reads a package the registry answers for as published", async () => {
+  it("returns true when npm view exits zero", async () => {
     const run = answering({ "npm view @acme/one name --json": { stdout: '"@acme/one"' } });
 
     await expect(published(run, "@acme/one")).resolves.toBe(true);
   });
 
-  it("reads a 404 as absence", async () => {
+  it("returns false when npm view reports E404", async () => {
     const run = answering({
       "npm view @acme/one name --json": { code: 1, stderr: "npm error code E404" },
     });
@@ -106,7 +114,7 @@ describe("published", () => {
     await expect(published(run, "@acme/one")).resolves.toBe(false);
   });
 
-  it("ends the plan on any other failure rather than counting the package as absent", async () => {
+  it("rejects when npm view fails with anything but a 404", async () => {
     const run = answering({
       "npm view @acme/one name --json": { code: 1, stderr: "npm error code E401 unauthorized" },
     });
@@ -116,26 +124,26 @@ describe("published", () => {
 });
 
 describe("trusted", () => {
-  it("reads a record naming the repository and the workflow as trust", async () => {
+  it("returns true when a record matches the repository's release workflow", async () => {
     const run = answering({ "npm trust list @acme/one --json": { stdout: TRUSTING } });
 
     await expect(trusted(run, "@acme/one")).resolves.toBe(true);
   });
 
-  it("reads a record for another repository as no trust", async () => {
+  it("returns false when every record names another repository", async () => {
     const stdout = JSON.stringify([{ repository: "other/repo", workflow: "release.yml" }]);
     const run = answering({ "npm trust list @acme/one --json": { stdout } });
 
     await expect(trusted(run, "@acme/one")).resolves.toBe(false);
   });
 
-  it("reads a listing the registry refused as no trust", async () => {
+  it("returns false when npm trust list exits non-zero", async () => {
     const run = answering({ "npm trust list @acme/one --json": { code: 1 } });
 
     await expect(trusted(run, "@acme/one")).resolves.toBe(false);
   });
 
-  it("ends the plan on a listing that is no JSON", async () => {
+  it("rejects when npm trust list writes no JSON", async () => {
     const run = answering({
       "npm trust list @acme/one --json": { stdout: "stealth-scale/config release.yml" },
     });
@@ -145,7 +153,7 @@ describe("trusted", () => {
 });
 
 describe("planned", () => {
-  it("plans a publication and a trust for every public member the registry lacks", async () => {
+  it("plans a publish and a trust only for a public member the registry lacks", async () => {
     const held = workspace([
       { name: "@acme/one", scripts: { build: "vp pack" } },
       { name: "@acme/two" },
@@ -165,10 +173,28 @@ describe("planned", () => {
       ["@acme/one", true, true],
       ["@acme/two", false, false],
     ]);
+  });
+
+  it("prints one line per member naming the steps that member needs", async () => {
+    const held = workspace([
+      { name: "@acme/one", scripts: { build: "vp pack" } },
+      { name: "@acme/two" },
+      { name: "@acme/secret", private: true },
+    ]);
+    const plan = await planned(
+      answering({
+        "npm trust list @acme/two --json": { stdout: TRUSTING },
+        "npm view @acme/one name --json": { code: 1, stderr: "E404" },
+        "npm view @acme/two name --json": { stdout: '"@acme/two"' },
+        "pnpm ls -r --depth -1 --json": { stdout: held.listing },
+      }),
+      held.root,
+    );
+
     expect(printed(plan)).toBe("@acme/one: build, publish, trust\n@acme/two: nothing to do");
   });
 
-  it("plans a publication without a build for a member that declares none", async () => {
+  it("plans a publish without a build when the manifest declares no build script", async () => {
     const held = workspace([{ name: "@acme/plain" }]);
     const plan = await planned(
       answering({

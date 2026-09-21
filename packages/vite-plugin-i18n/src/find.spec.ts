@@ -7,10 +7,10 @@ import { APP, WORKSPACE } from "#find.fixtures.ts";
 import { found, namespaceOf, prefixOf } from "#find.ts";
 
 /**
- * Finds the catalogues of the fixture workspace, each as `owner language/namespace`, with the
- * prefix a file is placed under after a colon.
+ * Finds the catalogues of the fixture workspace and formats each as `owner language/namespace`,
+ * with `:prefix` appended where the file has one.
  *
- * @param scopes - The scopes to follow, for a case that wants more than the application's own.
+ * @param scopes - The scopes to follow, for a case that needs more than the application's own.
  * @returns One line per catalogue, in the order found.
  */
 function listed(scopes?: readonly string[]): readonly string[] {
@@ -196,10 +196,25 @@ describe("found", () => {
     withScratchWorkspace(
       {
         "app/locales/en/app.json": '{"x":"y"}',
+        "app/package.json": '{"name":"@house/app","dependencies":{"@house/missing":"1"}}',
+      },
+      (scratch) => {
+        expect(found(join(scratch.root, "app")).map((one) => one.owner)).toStrictEqual([
+          "@house/app",
+        ]);
+      },
+    );
+  });
+
+  it("skips an installed dependency whose manifest is not valid JSON", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(
+      {
+        "app/locales/en/app.json": '{"x":"y"}',
         "app/node_modules/@house/broken/locales/en/broken.json": '{"x":"y"}',
         "app/node_modules/@house/broken/package.json": "{not json",
-        "app/package.json":
-          '{"name":"@house/app","dependencies":{"@house/missing":"1","@house/broken":"1"}}',
+        "app/package.json": '{"name":"@house/app","dependencies":{"@house/broken":"1"}}',
       },
       (scratch) => {
         expect(found(join(scratch.root, "app")).map((one) => one.owner)).toStrictEqual([

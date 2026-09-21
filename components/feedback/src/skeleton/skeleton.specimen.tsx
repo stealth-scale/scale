@@ -1,12 +1,11 @@
 /**
- * Shows the skeleton: the placeholder over its content and the content arrived, every motion, and
- * every corner.
+ * Catalogues the skeleton across its variants, one scene per axis.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every placeholder wraps a tile, so it has a size to take. The words are
- *   keys under `skeleton` in the catalogue's namespace, kept beside this file in
- *   `locales/en/specimen/skeleton.json`.
+ *   Each scene enumerates its axis from the recipe, so a value added to the theme appears on the
+ *   page without an edit here. Every placeholder wraps a tile, because a skeleton takes the box of
+ *   its content and an empty one would collapse. The copy is keyed under `skeleton` in the
+ *   catalogue namespace and stored beside this file at `locales/en/specimen/skeleton.json`.
  */
 
 import { type ReactElement } from "react";
@@ -17,12 +16,12 @@ import { recipe } from "#skeleton/recipe.ts";
 import { Skeleton } from "#skeleton/skeleton.ts";
 
 /**
- * The two answers to a boolean prop.
+ * Both values of a boolean axis, which no recipe enumerates for a caller.
  */
 const EITHER = [false, true] as const;
 
 /**
- * Draws the placeholder over a profile, and the profile once loaded.
+ * Renders a profile tile once behind the placeholder and once revealed.
  */
 function Loading(): ReactElement {
   const { t } = useWords("skeleton");
@@ -39,7 +38,7 @@ function Loading(): ReactElement {
 }
 
 /**
- * Draws the placeholder with every motion.
+ * Renders a profile tile once per motion.
  */
 function Motion(): ReactElement {
   const { t } = useWords("skeleton");
@@ -56,7 +55,7 @@ function Motion(): ReactElement {
 }
 
 /**
- * Draws the placeholder at every corner.
+ * Renders a profile tile once per radius step.
  */
 function Corners(): ReactElement {
   const { t } = useWords("skeleton");
@@ -73,7 +72,7 @@ function Corners(): ReactElement {
 }
 
 /**
- * The placeholder beside the content arrived.
+ * The scene comparing the loading and loaded states.
  */
 export const loading: Scene = {
   about: "skeleton.loading.about",
@@ -82,7 +81,7 @@ export const loading: Scene = {
 };
 
 /**
- * Every motion.
+ * The scene stepping through the motions.
  */
 export const motion: Scene = {
   about: "skeleton.motion.about",
@@ -91,7 +90,7 @@ export const motion: Scene = {
 };
 
 /**
- * Every corner.
+ * The scene stepping through the radius scale.
  */
 export const corners: Scene = {
   about: "skeleton.corners.about",

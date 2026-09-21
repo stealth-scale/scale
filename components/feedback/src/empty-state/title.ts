@@ -1,11 +1,11 @@
 /**
- * Draws the line saying what is not here.
+ * Renders the headline stating what is missing.
  *
  * @remarks
- *   The element is `h2`, because an empty state takes the place of a section's content and its
- *   title takes the place of that section's heading. A page whose outline puts it deeper states
- *   its own level with `as`, since a heading that skips a level reads as a gap in the outline a
- *   screen reader moves through.
+ *   The default element is an `h2`, because an empty state takes the place of a section's content
+ *   and its title takes the place of that section's heading. A page whose outline nests it deeper
+ *   passes its own level through `as`: a heading that skips a level reads as a hole in the outline
+ *   a screen reader user navigates by.
  */
 
 import { type ComponentProps } from "react";
@@ -13,11 +13,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#empty-state/context.ts";
 
 /**
- * Draws the title at the size the panel states.
+ * Renders a semibold heading at the type step the root's size resolves to.
  */
 export const Title = withContext("h2", "title");
 
 /**
- * Describes what the title takes.
+ * The props of a styled `h2`.
  */
 export type TitleProps = ComponentProps<typeof Title>;

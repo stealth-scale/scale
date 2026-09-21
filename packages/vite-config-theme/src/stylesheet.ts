@@ -1,5 +1,5 @@
 /**
- * Adds the stylesheet compiler to whatever plugins an application's tier already built.
+ * Contributes the stylesheet compiler to an application's plugins.
  */
 
 import { contribute, type Contribution } from "@stealthscale/vite-config-core";
@@ -8,19 +8,19 @@ import { loaded } from "#loaded.ts";
 import { type Options } from "#types.ts";
 
 /**
- * The configuration key the plugin joins.
+ * The configuration path the plugin is contributed at.
  */
 const AT = "plugins";
 
 /**
- * Adds `theme.stylesheet()` to the plugins of an application.
+ * Returns the contribution that adds `theme.stylesheet()` to an application's plugins.
  *
  * @remarks
- *   The plugin package is loaded when the plugin is constructed and not when the layer is stated,
- *   so reading the configuration for its metadata loads neither the plugin nor the compiler
- *   behind it. Each composition constructs a plugin instance of its own.
- * @param stated - The parts of the plugin's options a repository departs on. Omitting it compiles
- *   under the defaults the plugin documents.
+ *   The plugin package is imported when the plugin is constructed rather than when the layer is
+ *   declared, so resolving the configuration for metadata alone loads neither the plugin nor the
+ *   compiler behind it. Each composition constructs a plugin instance of its own.
+ * @param stated - The plugin options a repository departs from. Omitting it compiles under the
+ *   defaults the plugin documents.
  */
 export function stylesheet(stated: Options = {}): Contribution {
   return contribute({

@@ -1,23 +1,13 @@
 /**
- * Defines the styles a card is drawn with.
+ * Styles the nine slots of the card.
  *
  * @remarks
- *   Nine parts. The root is the panel, the media bleeds to its edges, and the header lays an
- *   indicator, a title, a description and an aside out on one grid. The content is the band between
- *   the header and the footer, and the footer holds whatever a reader acts on. The root states its
- *   own inset as a property, which the media reads back as a negative margin and the divided bands
- *   read as the room between a rule and the words. Both would otherwise be a length per step, which
- *   is a compound for every pair of the size axis and the axis beside it. The header is a grid
- *   rather than a row of stacks, so an indicator spans both lines of the title block and an aside
- *   sits against the end of the header whatever the block holds. A stack inside a row would need a
- *   wrapper the anatomy does not name. An interactive card draws its ring when the link in its
- *   title takes focus, selecting that link from the root. The compiler's focus utility nested under
- *   a descendant condition asks the card itself to be focus-visible, which a div never is, so the
- *   card drew no ring at all. Selecting the title's link rather than any focus inside keeps a
- *   supplementary control's own ring its own: a button in the footer rings itself and leaves the
- *   card alone. The card once drew its focus ring from `_focusWithin`, because the thing a keyboard
- *   reaches is the link inside the card and not the card. A press handler on the root would leave
- *   the card reachable by pointer alone.
+ *   The root publishes its own inset as a custom property. The media reads it back as a negative
+ *   margin, and a divided band as the space between its rule and its text; writing either as a
+ *   literal length would mean one value per step, and so a compound variant for every pair of the
+ *   size axis and the axis beside it. The header is a single grid rather than a row of stacks, so
+ *   the indicator spans both rows of the title block and the aside stays at the end whatever that
+ *   block holds. Stacks inside a row would need a wrapper the anatomy does not name.
  */
 
 import {
@@ -36,27 +26,28 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * The property the root states its own inset in, which the media and the rules read back.
+ * The custom property carrying the root's inset, which the media and the rules read back.
  */
 const INSET = "--card-inset";
 
 /**
- * The steps a card is drawn at.
+ * The four sizes the card is styled at.
  */
 const STEPS = ["sm", "md", "lg", "xl"] as const;
 
 /**
- * Writes the room the root leaves, taken back.
+ * The negative margin that cancels the root's inset.
  */
 const BLEED = `calc(-1 * var(${INSET}))`;
 
 /**
- * Writes the rule a divided band is separated by.
+ * The border style a divided band is separated by.
  */
 const RULE = { borderColor: "border", borderStyle: "solid" };
 
 /**
- * Draws a card on the panel surface, elevated and medium until a caller says otherwise.
+ * Declares the slot styles and the card's variant axes, defaulting to an elevated panel at the md
+ * size.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -122,16 +113,14 @@ export const recipe = defineSlotRecipe({
   staticCss: [statusEmitted()],
   variants: {
     /**
-     * The pattern drawn behind what the card holds.
+     * The pattern painted behind the card's content.
      *
      * @remarks
-     *   The nine the theme draws, each one a layer style, so a theme that restates a pattern moves
-     *   every card wearing it. They were drawn by the theme and reachable from no component at all
-     *   until this axis named them.
-     *   A pattern paints the root's background image and leaves its fill alone, so it composes with
-     *   every look: a grid behind a panel, dots behind a glass card, stars behind a plain one.
-     *   `aurora` carries the drift that moves it. A gradient that big standing still reads as a
-     *   smear rather than as light, and the animation style holds it back under a reader who asked
+     *   Each of the nine values is a layer style the theme already defines, so restating one in a
+     *   theme moves every card wearing it. A pattern paints the root's background image and leaves
+     *   its fill untouched, which lets it compose with any look: a grid behind a panel, dots behind
+     *   a glass card, stars behind a plain one. `aurora` animates, since a gradient that large
+     *   reads as a smear when it holds still, and its animation style stops for a reader who asked
      *   for less motion.
      */
     backdrop: onSlot("root", {
@@ -155,17 +144,17 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * The light a card is drawn under.
+     * The halo drawn around the card.
      *
      * @remarks
-     *   The glow reads the palette's solid at half strength, so a status or a theme moves it. It
-     *   is the larger of the two the theme draws: the button takes the smaller one, and a spread
-     *   measured against a control reads as a smudge round something the size of a card.
+     *   The glow takes the palette's solid token at half opacity, so a status or a theme carries it
+     *   along. It is the larger of the two glows the theme defines; the button takes the smaller
+     *   one, and a spread measured against a control reads as a smudge around something card-sized.
      */
     effect: onSlot("root", { glow: { layerStyle: "glow.lg" } }),
 
     /**
-     * Whether a rule separates the header and the footer from the band between them.
+     * Whether the header and the footer are ruled off from the content between them.
      */
     divided: {
       true: {
@@ -175,16 +164,19 @@ export const recipe = defineSlotRecipe({
     },
 
     /**
-     * Whether the whole card answers to a pointer, for one whose title holds the link.
+     * Whether the whole card responds to a pointer, for a card whose title holds the link.
      *
      * @remarks
-     *   The link in the title stretches a pseudo-element over the root, which is the card's one
-     *   positioned ancestor, so a press anywhere on the card follows the link while the link alone
-     *   holds the focus and the name.
-     *   The ring is written out rather than taken from `focusVisibleRing`, because the utility
-     *   draws on the element that took the focus and the element that took it here is the link
-     *   inside the title. It names the palette's focus colour directly, the way the utility does,
-     *   so the two rings are one colour.
+     *   The link inside the title stretches a pseudo-element across the root, the card's only
+     *   positioned ancestor, so a click anywhere on the card follows the link while the link itself
+     *   keeps the focus and the accessible name. A click handler on the root would leave the card
+     *   reachable by pointer alone. The ring is written out instead of taken from
+     *   `focusVisibleRing` because that utility styles whichever element took focus: nested under a
+     *   descendant condition it asks the card to be `:focus-visible`, which a div never is, and the
+     *   card then draws no ring at all. Matching the title's link rather than any focus inside also
+     *   keeps a secondary control's ring its own, so a button in the footer rings itself and leaves
+     *   the card alone. The colour is the palette's focus ring named directly, the way the utility
+     *   names it, so the two rings agree.
      */
     interactive: {
       true: {
@@ -207,14 +199,14 @@ export const recipe = defineSlotRecipe({
     },
 
     /**
-     * How the footer's controls are spread across it.
+     * Where the footer's controls sit along the row.
      */
     justify: onSlot("footer", justifyVariants()),
 
     motion: onSlot("root", motionVariants(["fade", "rise", "reveal"])),
 
     /**
-     * Which way the bands run, and which edges the media bleeds to.
+     * The axis the bands run along, which also picks the edges the media bleeds to.
      */
     orientation: {
       horizontal: {
@@ -231,15 +223,12 @@ export const recipe = defineSlotRecipe({
     status: onSlot("root", statusVariants()),
 
     /**
-     * How much room the card leaves round its bands, and how loud the title is set.
-     */
-    /**
-     * How much room the panel leaves round what it holds, and how loud its title is.
+     * The room the panel leaves around its bands, and the weight of its title.
      *
      * @remarks
-     *   The title steps down one from the panel, because a card's title heads a panel rather than a
-     *   section of the page. The smallest card titles at the label role instead: a heading at the
-     *   step under `heading.sm` is body text, and a title set in body text is not a title.
+     *   The title sits one step below the panel's own size, because a card's title heads a panel
+     *   rather than a section of the page. The smallest card takes the label role instead: one step
+     *   under `heading.sm` is body text, and a title set in body text no longer reads as a title.
      */
     size: onSlots({
       root: sizeVariants(
@@ -257,13 +246,13 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * How the panel is drawn.
+     * The treatment of the panel behind the content.
      *
      * @remarks
-     *   The plain look draws no panel at all: no fill, no edge and no shadow, so what the card
-     *   holds stands on whatever is behind it. The card still lays its bands out and still states
-     *   its inset, so a plain card is the anatomy without the surface, which is what a band of
-     *   content that needs a header and a footer but no panel asks for.
+     *   The plain look draws no panel at all: no fill, no border and no shadow, so the content
+     *   stands on whatever is behind it. The card still lays out its bands and still publishes its
+     *   inset, so a plain card is the anatomy without the surface, which is what a stretch of
+     *   content needing a header and a footer but no panel asks for.
      */
     variant: {
       elevated: { root: { borderColor: "transparent", boxShadow: "md" } },

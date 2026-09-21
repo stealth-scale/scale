@@ -15,9 +15,9 @@ import {
 import { mountRoute, mountRouter, routerOver } from "#mount.ts";
 
 /**
- * Draws the list of invoices, and whatever route is open beneath it.
+ * Renders the invoice list and the route open beneath it.
  *
- * @returns The list and the outlet.
+ * @returns The list and its outlet.
  */
 function Invoices(): ReactNode {
   return createElement(
@@ -29,18 +29,18 @@ function Invoices(): ReactNode {
 }
 
 /**
- * Draws one invoice.
+ * Renders one invoice.
  *
- * @returns The invoice.
+ * @returns The invoice element.
  */
 function Invoice(): ReactNode {
   return createElement("article", null, "One invoice");
 }
 
 /**
- * Builds a tree with a list and one invoice beneath it.
+ * Returns a route tree holding the invoice list and one invoice beneath it.
  *
- * @returns The tree.
+ * @returns The assembled route tree.
  */
 function tree(): AnyRoute {
   const root = createAppRootRoute()({ component: Outlet });
@@ -65,17 +65,17 @@ describe("routerOver", () => {
     expect(routerOver(tree(), "/invoices").state.location.pathname).toBe("/invoices");
   });
 
-  it("opens the router at the site root where nothing states a path", () => {
+  it("opens the router at the site root when no path is given", () => {
     expect(routerOver(tree()).state.location.pathname).toBe("/");
   });
 
-  it("builds a router of its own each time", () => {
+  it("returns a new router on each call", () => {
     const built = tree();
 
     expect(routerOver(built)).not.toBe(routerOver(built));
   });
 
-  it("puts the map every link resolves through in the router context", () => {
+  it("puts the route map in the router context", () => {
     const built: { options: { context: RoutesContext } } = routerOver(tree());
 
     expect(built.options.context.routes?.size).toBe(2);
@@ -83,25 +83,25 @@ describe("routerOver", () => {
 });
 
 describe("mountRoute", () => {
-  it("draws the page the path matches", async () => {
+  it("renders the page the path matches", async () => {
     const { result } = await mountRoute(tree(), "/invoices");
 
     expect(result.getByRole("main")).toBeTruthy();
   });
 
-  it("draws a page nested under the one the path names", async () => {
+  it("renders the child route the path names", async () => {
     const { result } = await mountRoute(tree(), "/invoices/42");
 
     expect(result.getByRole("article").textContent).toBe("One invoice");
   });
 
-  it("resolves a link by the id the route is named under", async () => {
+  it("resolves a named route link to its path", async () => {
     const { result } = await mountRoute(tree(), "/invoices");
 
     expect(result.getByRole("link").getAttribute("href")).toBe("/invoices/42");
   });
 
-  it("returns the router the page was drawn from", async () => {
+  it("returns the router the page was rendered from", async () => {
     const { router } = await mountRoute(tree(), "/invoices");
 
     expect(router.state.location.pathname).toBe("/invoices");
@@ -109,19 +109,19 @@ describe("mountRoute", () => {
 });
 
 describe("mountRouter", () => {
-  it("draws the page the router is already on", async () => {
+  it("renders the page the router is already on", async () => {
     const { result } = await mountRouter(routerOver(tree(), "/invoices/42"));
 
     expect(result.getByRole("article").textContent).toBe("One invoice");
   });
 
-  it("navigates before it draws where a path is given", async () => {
+  it("navigates to the path before it renders", async () => {
     const { result } = await mountRouter(routerOver(tree(), "/invoices"), "/invoices/42");
 
     expect(result.getByRole("article").textContent).toBe("One invoice");
   });
 
-  it("leaves the router where it is where no path is given", async () => {
+  it("leaves the router at its location when no path is given", async () => {
     const { router } = await mountRouter(routerOver(tree(), "/invoices"));
 
     expect(router.state.location.pathname).toBe("/invoices");

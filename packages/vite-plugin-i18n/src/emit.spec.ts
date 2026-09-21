@@ -18,10 +18,10 @@ import { APP, WORKSPACE } from "#find.fixtures.ts";
 import { found } from "#find.ts";
 
 /**
- * Writes the module for the fixture workspace.
+ * Generates the catalogues module for the fixture workspace.
  *
- * @param eager - Whether every language is inlined.
- * @returns The module's source.
+ * @param eager - True to inline every language rather than the fallback alone.
+ * @returns The generated module's source.
  */
 function emitted(eager = false): string {
   return withScratchWorkspace(WORKSPACE, (scratch) =>
@@ -30,11 +30,11 @@ function emitted(eager = false): string {
 }
 
 /**
- * Runs a generated module the way a page would, and hands its namespace back.
+ * Imports a generated module as a data URL and returns its namespace object.
  *
  * @remarks
- *   The loaders in the module are functions nothing here calls, so the module runs whatever pair
- *   specifiers it names.
+ *   The loaders are function bodies nothing here calls, so Node never resolves the pair specifiers
+ *   the module names.
  * @param source - The module's source.
  */
 function executed(source: string): Promise<unknown> {
@@ -162,6 +162,15 @@ describe("pairModule", () => {
       expect(pairModule(filesOf(index, "nl", "overlays"))).toBe(
         'export default {"commands":"Opdrachten","nested":{"close":"Sluit {{what}}"},"menu":"Menu"};\n',
       );
+    });
+  });
+
+  it("nests a prefixed file's words inside the default export", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const index = indexed(found(join(scratch.root, APP)));
+
       expect(pairModule(filesOf(index, "en", "site"))).toContain(
         '"legal":{"terms":"Terms of use"}',
       );
@@ -169,8 +178,8 @@ describe("pairModule", () => {
   });
 });
 
-describe("written", () => {
-  it("exports empty arrays when no catalogue was found", () => {
+describe("cataloguesModule", () => {
+  it("exports an empty index when no catalogue was found", () => {
     const source = cataloguesModule(new Map(), "en");
 
     expect(source).toContain("export const languages = [];");
@@ -178,10 +187,13 @@ describe("written", () => {
     expect(source).toContain('export const bundled = {"en":{}};');
   });
 
+  it("exports the fallback language it was given", () => {
+    expect(emitted()).toContain('export const fallback = "en";');
+  });
+
   it("exports every language and namespace found", () => {
     const source = emitted();
 
-    expect(source).toContain('export const fallback = "en";');
     expect(source).toContain('export const languages = ["en","nl"];');
     expect(source).toContain(
       'export const namespaces = ["controls","controls.demo","hooks","overlays","site"];',
@@ -208,25 +220,27 @@ describe("written", () => {
     expect(source).toContain(pairId("nl", "site"));
   });
 
-  it("exports load and catalogues", () => {
-    const source = emitted();
+  it("exports a load function taking a language and a namespace", () => {
+    expect(emitted()).toContain("export async function load(language, namespace)");
+  });
 
-    expect(source).toContain("export async function load(language, namespace)");
-    expect(source).toContain(
+  it("exports the catalogues object the runtime reads", () => {
+    expect(emitted()).toContain(
       "export const catalogues = { bundled, defaults, fallback, languages, load, namespaces };",
     );
   });
 
   it("inlines every language when eager is true", () => {
-    const source = emitted(true);
-
-    expect(source).toContain(
+    expect(emitted(true)).toContain(
       '"nl":{"overlays":{"commands":"Opdrachten","nested":{"close":"Sluit {{what}}"},"menu":"Menu"}',
     );
-    expect(source).toContain("const loaders = {};");
   });
 
-  it("writes a module that runs with no or one or many catalogues whether lazy or eager", async () => {
+  it("writes no loader when eager is true", () => {
+    expect(emitted(true)).toContain("const loaders = {};");
+  });
+
+  it("generates a module that exports catalogues for every index and eager combination", async () => {
     const sources = withScratchWorkspace(WORKSPACE, (scratch) => {
       const catalogues = found(join(scratch.root, APP));
 

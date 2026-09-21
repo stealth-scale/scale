@@ -20,27 +20,27 @@ function item(): Promise<unknown> {
 }
 
 describe("indexed", () => {
-  it("names the layer for the call that built it", () => {
+  it("returns a layer named specimen.indexed", () => {
     expect(indexed({ patterns: PATTERNS }).name).toBe("specimen.indexed");
   });
 
-  it("appends the plugin to the plugins key", () => {
+  it("contributes at the plugins key", () => {
     expect(indexed({ patterns: PATTERNS }).at).toBe("plugins");
   });
 
-  it("states why the layer exists", () => {
+  it("returns a layer with a non-empty because", () => {
     expect(indexed({ patterns: PATTERNS }).because).not.toBe("");
   });
 
-  it("contributes the specimen plugin", async () => {
+  it("resolves the item to a plugin named stealth:specimens", async () => {
     await expect(item()).resolves.toMatchObject({ name: "stealth:specimens" });
   });
 
-  it("constructs the plugin when the configuration is composed and not when the layer is stated", () => {
+  it("leaves item undefined when the layer is stated", () => {
     expect(indexed({ patterns: PATTERNS }).item).toBeUndefined();
   });
 
-  it("builds one plugin instance per call", async () => {
+  it("returns a different plugin instance on each call", async () => {
     await expect(item()).resolves.not.toBe(await item());
   });
 });

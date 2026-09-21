@@ -5,15 +5,15 @@ import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/te
 import { recipe } from "#code-block/recipe.ts";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("reports no violation across the shared recipe checks", () => {
     expect(recipeViolations(recipe, { names: ["CodeBlock"] })).toStrictEqual([]);
   });
 
-  it("names its class code-block", () => {
+  it("sets className to code-block", () => {
     expect(recipe.className).toBe("code-block");
   });
 
-  it("draws the six parts a code block is composed of", () => {
+  it("declares six slots covering the panel the header and the code", () => {
     expect([...recipe.slots].toSorted()).toStrictEqual([
       "code",
       "content",
@@ -24,26 +24,26 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers the one axis a code block takes", () => {
+  it("declares size as its only variant", () => {
     expect(axesOf(recipe)).toStrictEqual(["size"]);
   });
 
-  it("draws the middle size by default", () => {
+  it("defaults size to md", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md" });
   });
 
-  it("offers the two sizes the code role is set at", () => {
+  it("declares md and sm as the values of size", () => {
     expect(valuesOf(recipe, "size")).toStrictEqual(["md", "sm"]);
   });
 
-  it("sets the code in the code role and the title a step down at each size", () => {
+  it("sets the title one step below the code at size md", () => {
     expect(recipe.variants?.["size"]?.["md"]).toMatchObject({
       code: { textStyle: "code.md" },
       title: { textStyle: "label.sm" },
     });
   });
 
-  it("inks each kind of token from the code family the theme states", () => {
+  it("colours a token kind from the matching colour in the code family", () => {
     expect(recipe.base?.["code"]).toMatchObject({
       "& [data-token=keyword]": { color: "code.keyword" },
       "& [data-token=string]": { color: "code.string" },
@@ -51,7 +51,7 @@ describe("recipe", () => {
     });
   });
 
-  it("folds the highlighter's finer kinds into the family's", () => {
+  it("maps a token kind with no colour of its own onto a coarser one", () => {
     expect(recipe.base?.["code"]).toMatchObject({
       "& [data-token=literal]": { color: "code.number" },
       "& [data-token=meta]": { color: "code.comment" },
@@ -60,15 +60,19 @@ describe("recipe", () => {
     });
   });
 
-  it("keeps every space and line break of the passage", () => {
-    expect(recipe.base?.["code"]).toMatchObject({ fontFamily: "mono", whiteSpace: "pre" });
+  it("sets whiteSpace to pre on the code slot", () => {
+    expect(recipe.base?.["code"]).toMatchObject({ whiteSpace: "pre" });
   });
 
-  it("scrolls a long line across the box rather than wrapping it", () => {
+  it("sets fontFamily to mono on the code slot", () => {
+    expect(recipe.base?.["code"]).toMatchObject({ fontFamily: "mono" });
+  });
+
+  it("sets overflowX to auto on the content slot", () => {
     expect(recipe.base?.["content"]).toMatchObject({ overflowX: "auto" });
   });
 
-  it("tracks the tag named CodeBlock and every part under it", () => {
+  it("matches CodeBlock and its dotted parts with its jsx pattern", () => {
     expect(recipe.jsx).toStrictEqual([/^CodeBlock(\.\w+)?$/u]);
   });
 });

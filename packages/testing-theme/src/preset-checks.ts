@@ -2,8 +2,8 @@
  * Checks the preset a component package publishes against the recipe files under its source.
  *
  * @remarks
- *   The preset is written by hand, and a recipe file the list leaves out draws nothing without a
- *   word. The files are read as text for the line that exports the recipe, so the check never
+ *   The preset is written by hand, and a recipe file it leaves out emits no rules and reports no
+ *   error. The files are read as text for the line that exports the recipe, so the check never
  *   evaluates one.
  */
 
@@ -21,37 +21,37 @@ import { camelCased } from "#tokens.ts";
 export type PresetCheck = "preset.keys" | "preset.registered" | "preset.slots";
 
 /**
- * Describes what a preset specification states beside the preset.
+ * Options a preset specification passes alongside the preset.
  */
 export interface PresetChecks {
   /**
-   * The package's source directory, read for every `*.recipe.ts` under it.
+   * Package's source directory, searched for every `*.recipe.ts` under it.
    */
   at: string;
 
   /**
-   * The checks to leave out, each with a reason a reviewer can weigh.
+   * Checks to skip, each against the reason a reviewer can weigh.
    */
   skip?: Readonly<Partial<Record<PresetCheck, string>>> | undefined;
 }
 
 /**
- * Describes one registered recipe as the checks read it.
+ * One registered recipe, as the checks read it.
  */
 interface Registered {
   /**
-   * The prefix of every class it emits, where the recipe states one.
+   * Prefix of every class the recipe emits, where it declares one.
    */
   className?: string | undefined;
 
   /**
-   * The parts it styles, where it is a slot recipe.
+   * Parts the recipe styles, where it is a slot recipe.
    */
   slots?: readonly string[] | undefined;
 }
 
 /**
- * Lists the recipes a preset registers, each with the section it is registered under.
+ * Returns the recipes a preset registers, each with the section it is registered under.
  */
 function registered(
   preset: Preset,
@@ -69,7 +69,7 @@ function registered(
 }
 
 /**
- * Reports a recipe file the preset does not register, and a key no recipe file defines.
+ * Reports every recipe file the preset does not register, and every key no recipe file defines.
  */
 function unregistered(preset: Preset, at: string): readonly string[] {
   const files = recipeFiles(at);
@@ -85,7 +85,7 @@ function unregistered(preset: Preset, at: string): readonly string[] {
 }
 
 /**
- * Reports a recipe registered under a key that is not its class name in camel case.
+ * Reports every recipe registered under a key that is not its class name in camel case.
  */
 function misnamed(preset: Preset): readonly string[] {
   return registered(preset).flatMap(([key, recipe]) =>
@@ -96,7 +96,8 @@ function misnamed(preset: Preset): readonly string[] {
 }
 
 /**
- * Reports a slot recipe under `recipes`, and a recipe without slots under `slotRecipes`.
+ * Reports every slot recipe registered under `recipes`, and every recipe without slots registered
+ * under `slotRecipes`.
  */
 function slotted(preset: Preset): readonly string[] {
   return registered(preset).flatMap(([key, recipe, section]) => {
@@ -120,7 +121,7 @@ function slotted(preset: Preset): readonly string[] {
 type Runner = (preset: Preset, options: PresetChecks) => readonly string[];
 
 /**
- * Maps each check to the call that performs it, in the order they report.
+ * Each check against the call that performs it, in the order they report.
  */
 const RUNNERS: ReadonlyArray<readonly [PresetCheck, Runner]> = [
   ["preset.registered", (preset, options) => unregistered(preset, options.at)],
@@ -129,10 +130,11 @@ const RUNNERS: ReadonlyArray<readonly [PresetCheck, Runner]> = [
 ];
 
 /**
- * Runs every check the specification leaves standing over a preset.
+ * Runs every check the specification does not skip over one preset.
  *
- * @returns Each violation, opening with the check that reported it, or an empty array for a
- *   preset that registers every recipe file once under its own key.
+ * @returns Each violation, prefixed with the check that reported it; one violation on its own
+ *   where the source directory does not exist; an empty array for a preset that registers every
+ *   recipe file once under its class name.
  */
 export function presetViolations(preset: Preset, options: PresetChecks): readonly string[] {
   if (!existsSync(options.at)) return [`${preset.name} has no source directory at ${options.at}`];

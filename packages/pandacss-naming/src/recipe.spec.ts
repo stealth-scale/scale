@@ -16,17 +16,17 @@ describe("recipe", () => {
     expect(variantClass("button", "loading", "true")).toBe("button--loading");
   });
 
-  it("writes nothing for a boolean variant at false", () => {
+  it("returns an empty string for a boolean variant at false", () => {
     expect(variantClass("button", "loading", false)).toBe("");
     expect(variantClass("button", "loading", "false")).toBe("");
   });
 
-  it("writes a camel-case axis and value in kebab-case", () => {
+  it("writes a camel-case axis and value as kebab-case", () => {
     expect(variantClass("card", "bleedEdges", true)).toBe("card--bleed-edges");
     expect(variantClass("button", "size", "extraLarge")).toBe("button--extra-large");
   });
 
-  it("writes a variant on a slot's class", () => {
+  it("writes a variant class from a slot's class", () => {
     expect(variantClass(slotClass("card", "content"), "bleed", true)).toBe("card__content--bleed");
   });
 
@@ -35,7 +35,7 @@ describe("recipe", () => {
     expect(slotClass("card", "contentBody")).toBe("card__content-body");
   });
 
-  it("writes a compound's class from the name its author gave it", () => {
+  it("writes a compound's class from the name the recipe declared", () => {
     expect(compoundClass("button", "expose")).toBe("button--expose");
     expect(compoundClass("card", "exposeAll")).toBe("card--expose-all");
   });

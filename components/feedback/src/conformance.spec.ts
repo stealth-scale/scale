@@ -6,7 +6,7 @@ import { violations } from "@stealthscale/testing-config";
 import * as published from "#index.ts";
 
 describe("@stealthscale/component-feedback", () => {
-  it("keeps the library package contract", async () => {
+  it("satisfies every library package rule including the barrel rules", async () => {
     await expect(
       violations({
         at: join(import.meta.dirname, ".."),

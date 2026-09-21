@@ -1,6 +1,6 @@
 /**
- * Publishes the card's parts, which a caller composes as `Card.Root` holding a media band, a
- * header, a content band and a footer, in that order.
+ * Forms the public surface of the card, whose parts a caller nests under `Card.Root` in the order
+ * media, header, content, footer.
  */
 
 export { Aside, type AsideProps } from "#card/aside.ts";

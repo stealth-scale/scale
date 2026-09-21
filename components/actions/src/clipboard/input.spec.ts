@@ -8,7 +8,7 @@ import { clipped, composed, LINK } from "#clipboard/clipboard.fixtures.tsx";
 import { Input } from "#clipboard/input.tsx";
 
 describe("Input", () => {
-  it("conforms as an input inside the root it needs above it", () => {
+  it("returns no conformance violation for its INPUT slot inside a root", () => {
     expect(
       violations(Input, {
         as: true,
@@ -19,16 +19,19 @@ describe("Input", () => {
     ).toStrictEqual([]);
   });
 
-  it("shows the value read-only", () => {
+  it("renders the machine's value as the field's value", () => {
     render(composed());
 
-    const field = screen.getByLabelText<HTMLInputElement>("Link to the payout");
-
-    expect(field.value).toBe(LINK);
-    expect(field.readOnly).toBe(true);
+    expect(screen.getByLabelText<HTMLInputElement>("Link to the payout").value).toBe(LINK);
   });
 
-  it("selects the whole value on focus", () => {
+  it("marks the field read-only rather than disabled", () => {
+    render(composed());
+
+    expect(screen.getByLabelText<HTMLInputElement>("Link to the payout").readOnly).toBe(true);
+  });
+
+  it("calls select on the field when it receives focus", () => {
     render(composed());
 
     const field = screen.getByLabelText<HTMLInputElement>("Link to the payout");
@@ -39,7 +42,7 @@ describe("Input", () => {
     expect(selected).toHaveBeenCalledExactlyOnceWith();
   });
 
-  it("counts a copy made from the field", async () => {
+  it("sets data-copied on the root when a copy event fires on the field", async () => {
     const { container } = render(composed());
 
     fireEvent.copy(screen.getByLabelText("Link to the payout"));
@@ -48,7 +51,7 @@ describe("Input", () => {
     expect(slotElement(container, "clipboard", "root").dataset["copied"]).toBe("");
   });
 
-  it("follows the value a caller moves", () => {
+  it("updates the field when the root is rerendered with another value", () => {
     const { rerender } = render(composed());
 
     rerender(composed({ value: "4110" }));

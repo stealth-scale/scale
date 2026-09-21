@@ -1,5 +1,6 @@
 /**
- * Builds the alert a part's specification needs above it.
+ * Mounts an alert for the specs of its slots, none of which resolve a variant without a root
+ * above them.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -12,20 +13,21 @@ import { Root, type RootProps } from "#alert/root.tsx";
 import { Title } from "#alert/title.ts";
 
 /**
- * Draws whatever a case wants measured inside the root that states the variants.
+ * Wraps one slot in a default root, giving it the variant context it resolves against.
  *
- * @param children - The part under test.
- * @returns The root, holding it.
+ * @param children - The slot under test.
+ * @returns The root element containing it.
  */
 export function alerted(children: ReactNode): ReactElement {
   return <Root>{children}</Root>;
 }
 
 /**
- * Draws a whole alert, so a case can read what every part did.
+ * Renders every slot of an alert at once, so that a case can assert across all of them.
  *
- * @param props - Whatever the case sets on the root.
- * @returns The six parts composed the way a caller composes them.
+ * @param props - Forwarded to the root, usually the variants under test.
+ * @returns An icon, a title, a description, and a dismiss control, composed as a caller composes
+ *   them.
  */
 export function composed(props: RootProps = {}): ReactElement {
   return (

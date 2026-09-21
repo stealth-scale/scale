@@ -1,12 +1,11 @@
 /**
- * Draws the control a person presses to copy the value.
+ * Renders the button that copies the value.
  *
  * @remarks
- *   The element is `button`, and the machine names it for a screen reader with words that say
- *   whether the copy is fresh. A caller whose trigger carries words of its own states the name
- *   through `aria-label` or through `translations` on the root. The trigger draws no control look.
- *   A caller draws it as the library's button with `as`, so a theme that moves the button moves
- *   this with it.
+ *   The machine supplies the accessible name and swaps it once a copy succeeds. A caller whose
+ *   button carries its own text overrides that through `aria-label`, or through `translations` on
+ *   the root. This slot applies no control styling; pass `as` to render it as the library's button,
+ *   which keeps it in step with every other button in a theme.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -17,20 +16,20 @@ import { withContext } from "#clipboard/context.ts";
 import { useClipboard } from "#clipboard/machine.ts";
 
 /**
- * Draws the control the recipe places in the row.
+ * Renders the trigger slot inside the control row.
  */
 const Pressed = withContext("button", "trigger");
 
 /**
- * Describes what the trigger takes.
+ * Accepts every prop the styled button takes.
  */
 export type TriggerProps = ComponentProps<typeof Pressed>;
 
 /**
- * Copies the value when pressed.
+ * Renders the button, merging the caller's props over the machine's.
  *
  * @param props - Everything a styled button takes.
- * @returns The control, carrying what the machine says it does.
+ * @returns The button, wired to the machine's copy handler and its accessible name.
  */
 export function Trigger(props: TriggerProps): ReactElement {
   const api = useClipboard();

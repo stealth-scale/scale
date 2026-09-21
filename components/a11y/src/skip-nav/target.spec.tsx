@@ -8,29 +8,29 @@ import { SKIP_NAV_TARGET } from "#skip-nav/link.ts";
 import { Target } from "#skip-nav/target.ts";
 
 describe("Target", () => {
-  it("conforms as a div element", () => {
+  it("satisfies the component contract with div as its default element", () => {
     expect(violations(Target, { as: true, children: true, element: "DIV" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule holding a paragraph", async () => {
+  it("reports no axe violation when it wraps a paragraph", async () => {
     await expect(
       accessibilityViolations(Target, { props: { children: <p>One</p> } }),
     ).resolves.toStrictEqual([]);
   });
 
-  it("answers to the fragment the link points at", () => {
+  it("sets id to the default fragment when the caller passes none", () => {
     const { container } = render(<Target />);
 
     expect(slotElement(container, "skip-nav", "target").getAttribute("id")).toBe(SKIP_NAV_TARGET);
   });
 
-  it("holds the focus a fragment sends without joining the tab order", () => {
+  it("sets tabIndex to -1", () => {
     const { container } = render(<Target />);
 
     expect(slotElement(container, "skip-nav", "target").getAttribute("tabindex")).toBe("-1");
   });
 
-  it("draws the element as names", () => {
+  it("renders the target slot as main when as is main", () => {
     const { container } = render(<Target as="main" />);
 
     expect(slotElement(container, "skip-nav", "target").tagName).toBe("MAIN");

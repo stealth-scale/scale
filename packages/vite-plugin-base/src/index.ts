@@ -1,7 +1,6 @@
 /**
- * Publishes the base every bundler plugin in this repository is built on, which
- * runs under Vite, under rolldown, and under anything that accepts a
- * rollup-shaped plugin.
+ * Publishes the foundation every bundler plugin in this repository is built on, for any host that
+ * accepts a rollup plugin.
  *
  * @packageDocumentation
  */

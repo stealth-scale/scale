@@ -9,7 +9,7 @@ import { Label } from "#clipboard/label.tsx";
 import { recipe } from "#clipboard/recipe.ts";
 
 describe("Label", () => {
-  it("conforms as a label inside the root it needs above it", () => {
+  it("returns no conformance violation for its LABEL slot inside a root", () => {
     expect(
       violations(Label, {
         as: true,
@@ -21,23 +21,23 @@ describe("Label", () => {
     ).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule beside the field it names", async () => {
+  it("returns no accessibility violation for a composed clipboard", async () => {
     await expect(accessibilityViolations(() => composed())).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("emits a label-slot class for every variant value the recipe declares", () => {
     expect(
       boundViolations(recipe, (props) => render(composed(props)).container, { slot: "label" }),
     ).toStrictEqual([]);
   });
 
-  it("names the field", () => {
+  it("resolves the input as the element it labels", () => {
     render(composed());
 
     expect(screen.getByLabelText("Link to the payout").tagName).toBe("INPUT");
   });
 
-  it("carries the copied state after a press", async () => {
+  it("sets data-copied on the label once the trigger is clicked", async () => {
     const { container } = render(composed());
     await pressed(screen.getByRole("button"));
 

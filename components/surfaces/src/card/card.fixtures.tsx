@@ -1,5 +1,5 @@
 /**
- * Builds the card a part's specification needs above it.
+ * Assembles the wrappers a card part needs before a case can render it.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -15,20 +15,20 @@ import { Root, type RootProps } from "#card/root.ts";
 import { Title } from "#card/title.ts";
 
 /**
- * Draws whatever a case wants measured inside the root that states the variants.
+ * Renders a tree inside a root carrying the recipe's default variants.
  *
  * @param children - The part under test.
- * @returns The root, holding it.
+ * @returns The root, wrapping the part.
  */
 export function carded(children: ReactNode): ReactElement {
   return <Root>{children}</Root>;
 }
 
 /**
- * Draws a whole card, so a case can read what every band did.
+ * Renders all nine parts under one root.
  *
- * @param props - Whatever the case sets on the root.
- * @returns The nine parts composed the way a caller composes them.
+ * @param props - Overrides for the root, applied over the label reference.
+ * @returns The parts nested as a caller would nest them.
  */
 export function composed(props: RootProps = {}): ReactElement {
   return (

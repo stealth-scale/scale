@@ -1,7 +1,7 @@
 /**
- * Publishes what decides what is drawn and where, and draws nothing itself. No component here
- * renders an element of its own, so the package carries no recipe and no preset, and it reaches an
- * application's bundle through here alone.
+ * Publishes this package's components for deciding what renders and where. None of them renders an
+ * element of its own, so the package ships neither a recipe nor a preset and reaches an
+ * application through this entry point alone.
  *
  * @packageDocumentation
  */

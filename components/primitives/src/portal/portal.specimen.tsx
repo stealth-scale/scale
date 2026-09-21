@@ -1,11 +1,11 @@
 /**
- * Shows the portal: a tile sent into a panel beside where it is written, and one left in place.
+ * Lays out the catalogue page for the portal.
  *
  * @remarks
- *   The portal has no axis, so the scene draws the pair once rather than a matrix. The panel is a
- *   tile held in state, because a portal needs the element it draws into and an element exists
- *   only once it has mounted. The words are keys under `portal` in the catalogue's namespace, kept
- *   beside this file in `locales/en/specimen/portal.json`.
+ *   The portal declares no variants, so the page carries one scene instead of a matrix. The
+ *   destination is a tile kept in state, because a portal needs a real element and an element only
+ *   exists once it has mounted. The text comes from keys under `portal` in the catalogue
+ *   namespace, held beside this file in `locales/en/specimen/portal.json`.
  */
 
 import { type ReactElement, useState } from "react";
@@ -16,7 +16,7 @@ import { type Scene, specimen, Tile, useWords } from "@stealthscale/specimen";
 import { Portal } from "#portal/portal.ts";
 
 /**
- * Draws a panel, a tile sent into it, and a tile left where it is written.
+ * Renders a destination tile, one tile portalled into it, and one tile left where it was written.
  */
 function Placing(): ReactElement {
   const { t } = useWords("portal");
@@ -38,7 +38,7 @@ function Placing(): ReactElement {
 }
 
 /**
- * A tile sent into a panel beside one left in place.
+ * The scene contrasting a portalled tile with a disabled one.
  */
 export const placing: Scene = {
   about: "portal.placing.about",

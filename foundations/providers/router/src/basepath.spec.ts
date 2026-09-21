@@ -3,22 +3,22 @@ import { describe, expect, it } from "vitest";
 import { basepathOf } from "#basepath.ts";
 
 describe("basepathOf", () => {
-  it("mounts at the root when the application is served there", () => {
+  it("returns the root when the base names no path", () => {
     expect(basepathOf("/")).toBe("/");
     expect(basepathOf("")).toBe("/");
   });
 
-  it("takes the path of a path-only base without its trailing slash", () => {
+  it("strips the trailing slash from a path-only base", () => {
     expect(basepathOf("/design/")).toBe("/design");
     expect(basepathOf("/one/two/")).toBe("/one/two");
     expect(basepathOf("/design")).toBe("/design");
   });
 
-  it("mounts at the root when the assets live on another host and nothing says where the documents are", () => {
+  it("returns the root when the base names another host", () => {
     expect(basepathOf("https://cdn.example.test/assets/")).toBe("/");
   });
 
-  it("takes the documents' path over the base whatever the base says", () => {
+  it("returns the documents path when one is given", () => {
     expect(basepathOf("https://cdn.example.test/assets/", "/design/")).toBe("/design");
     expect(basepathOf("/assets/", "/")).toBe("/");
   });

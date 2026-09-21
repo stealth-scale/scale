@@ -1,10 +1,10 @@
 /**
- * Draws the mark above the words.
+ * Renders the icon above an empty state's copy.
  *
  * @remarks
- *   The box is the icon scale at the panel's own size and whatever is drawn inside fills it, so a
- *   caller hands over a glyph without sizing it. A mark says nothing a screen reader needs, the
- *   title beneath it saying the same thing in words, so a caller hides it with `aria-hidden`.
+ *   The box comes from the icon scale at the root's size and any `svg` inside is stretched to fill
+ *   it, so a caller passes a glyph without sizing it. The icon is decorative, since the title
+ *   below it says the same thing in words, and the caller is expected to set `aria-hidden` on it.
  */
 
 import { type ComponentProps } from "react";
@@ -12,11 +12,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#empty-state/context.ts";
 
 /**
- * Draws the mark at the box its size states.
+ * Centres a glyph in a box sized from the root's size, in the muted foreground.
  */
 export const Indicator = withContext("div", "indicator");
 
 /**
- * Describes what the indicator takes.
+ * The props of a styled `div`.
  */
 export type IndicatorProps = ComponentProps<typeof Indicator>;

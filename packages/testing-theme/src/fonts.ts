@@ -35,8 +35,8 @@ function resolves(name: string, from: string): boolean {
  * directory.
  *
  * @remarks
- *   Nothing is reported where no directory is given, as the listing check does. Resolving from the
- *   working directory instead would answer differently depending on where the run was started.
+ *   The check reports nothing where the caller gives no directory, as the listing check does.
+ *   Resolving from the working directory would make the result depend on where the run started.
  */
 export function installed(theme: Theme, at?: string): readonly string[] {
   if (at === undefined) return [];

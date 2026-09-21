@@ -1,10 +1,10 @@
 /**
- * Binds the group's recipe to the parts that draw it.
+ * Connects the slot recipe to React.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. The root carries the orientation, and every item below it reads
- *   its classes from the root through a context.
+ *   This is a separate module from `recipe.ts` so that an application's compiler can read the
+ *   recipe at build time without pulling React in with it. The root resolves the variants and
+ *   publishes them, and each item takes its slot class from there rather than from its own props.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";
@@ -12,6 +12,7 @@ import { createSlotRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#roving-focus/recipe.ts";
 
 /**
- * Binds the recipe once: the root takes the orientation, and each item draws its slot in it.
+ * A single binding of the recipe: `withProvider` wraps the root, `withContext` wraps each slot
+ * beneath it.
  */
 export const { withContext, withProvider } = createSlotRecipeContext(recipe);

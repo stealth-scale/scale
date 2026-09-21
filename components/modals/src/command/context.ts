@@ -1,10 +1,10 @@
 /**
- * Binds the command palette's recipe to the elements that draw its parts.
+ * Connects the slot recipe to React.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. Apart from the state, because the recipe decides how a part is
- *   drawn and the state decides what is left to draw.
+ *   Kept apart from `recipe.ts` so an application's compiler can read the recipe at build time
+ *   without pulling React in with it, and apart from `state.ts` because styling and filtering are
+ *   independent concerns that happen to share a component tree.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";
@@ -12,6 +12,7 @@ import { createSlotRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#command/recipe.ts";
 
 /**
- * Binds the recipe once. The root provides the variants and every other part reads them.
+ * A single binding of the recipe: `withProvider` wraps the root, `withContext` wraps every other
+ * slot beneath it.
  */
 export const { withContext, withProvider } = createSlotRecipeContext(recipe);

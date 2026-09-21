@@ -1,10 +1,10 @@
 /**
- * Compiles a package's own identity into its bundle as literal values.
+ * Substitutes a package's name and version into its bundle as literal values.
  *
  * @remarks
- *   Each constant is substituted textually at build time and costs nothing at
- *   run time. A consumer types them against the declarations this package
- *   publishes under its `./globals` subpath.
+ *   Each constant is replaced in the source text at build time and costs
+ *   nothing at run time. A consumer types them against the declarations this
+ *   package publishes under its `./globals` subpath.
  */
 
 import { type UserConfig } from "vite";
@@ -14,44 +14,47 @@ import { type Context, type Override, override } from "@stealthscale/vite-config
 import { type Packing } from "#pack/settings.ts";
 
 /**
- * Selects which constants are injected beyond the package name and version.
+ * Selects the constants injected on top of the package name and version.
  *
  * @remarks
- *   Both are off unless asked for. A timestamp and a revision each differ
- *   between two builds of the same source, so a repository that needs a
- *   reproducible build opts out by leaving them alone.
+ *   A timestamp and a commit SHA differ between two builds of the same source.
+ *   Both are off unless a repository asks for them, so a build stays
+ *   reproducible by default.
  */
 export interface Injected {
   /**
-   * Injects the moment the configuration was evaluated, as an ISO 8601 string.
+   * Injects `__BUILT_AT__`, the time the configuration was evaluated, as an
+   * ISO 8601 string.
    */
   builtAt?: boolean | undefined;
 
   /**
-   * Injects the revision the build ran against, taken from the environment.
+   * Injects `__COMMIT__`, the commit SHA the build ran against, read from the
+   * environment.
    */
   commit?: boolean | undefined;
 }
 
 /**
- * Reads the revision from whichever variable the runner happens to set.
+ * Reads the commit SHA from whichever variable the CI runner sets.
  *
  * @remarks
- *   GitHub Actions and GitLab CI spell the variable differently, and a
- *   workstation sets neither. An unset environment yields an empty string rather
- *   than an error, so building outside CI still works.
+ *   GitHub Actions sets `GITHUB_SHA` and GitLab CI sets `CI_COMMIT_SHA`. An
+ *   environment with neither yields an empty string, so a build outside CI
+ *   succeeds.
  */
 function commitOf(env: Readonly<Record<string, string>>): string {
   return env["GITHUB_SHA"] ?? env["CI_COMMIT_SHA"] ?? "";
 }
 
 /**
- * Writes the constants for one context, every value JSON-encoded.
+ * Builds the constants for one context, every value JSON-encoded.
  *
  * @remarks
- *   The manifest comes from the context the composer supplies rather than from
- *   disk, and a field the package omits becomes an empty string. Every value is
- *   JSON-encoded, because the substitution replaces source text.
+ *   The manifest comes from the context the composer supplies and not from disk.
+ *   A field the package omits becomes an empty string. The substitution replaces
+ *   source text, so an unencoded value would be spliced in as code rather than
+ *   as a string.
  */
 function constants(context: Context, injected: Injected): Record<string, string> {
   const held: Record<string, string> = {
@@ -66,23 +69,23 @@ function constants(context: Context, injected: Injected): Record<string, string>
 }
 
 /**
- * Writes the constants into one packer configuration, over whatever it defines already.
+ * Merges the constants into one packer configuration, over whatever it defines already.
  */
 function packed(held: Packing | undefined, defined: Record<string, string>): Packing {
   return { ...held, define: { ...held?.define, ...defined } };
 }
 
 /**
- * Injects the package name and version, along with whatever else was asked for.
+ * Defines `__NAME__` and `__VERSION__` for both Vite and the packer, along with whichever optional
+ * constants the caller asks for.
  *
  * @remarks
- *   The constants are written for Vite and for the packer both, because the two substitute
- *   separately: a library packed with a constant Vite alone knew would ship the bare name and
- *   throw at run time. A packer configured as a list of bundles gets the constants on every
- *   bundle. An override rather than a preset, because the packer's list is mapped over rather than
- *   merged into.
+ *   Vite and the packer substitute separately, so the constants are written for both. A library
+ *   packed with a constant Vite alone knew ships the bare identifier and throws at run time. A
+ *   packer configured as an array of bundles gets the constants on every bundle, which only a
+ *   layer reading the composed configuration can do.
  * @returns An override whose name lists the optional constants, so two
- *   configurations asking for different ones stay separately removable.
+ *   configurations asking for different ones can be removed separately.
  */
 export function manifest(injected: Injected = {}): Override {
   return override({
@@ -103,12 +106,11 @@ export function manifest(injected: Injected = {}): Override {
 }
 
 /**
- * Spells the chosen constants out as a suffix for the layer's name.
+ * Formats the chosen optional constants as a suffix for the layer's name.
  *
  * @remarks
- *   A layer is taken back by name, so two of them asking for different constants
- *   have to end up with different names. Choosing none adds no suffix, leaving
- *   the plain name a repository would guess at.
+ *   A layer is removed by name, so two layers asking for different constants
+ *   need different names.
  */
 function asked(injected: Injected): string {
   const held = [

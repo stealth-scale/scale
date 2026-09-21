@@ -1,12 +1,12 @@
 /**
- * Draws the group itself, which holds the tab stop its items move through.
+ * Renders the container that owns the group's tab stop.
  *
  * @remarks
- *   The element is `div` and carries no role of its own, because what a set of controls is called
- *   is the caller's: a toolbar states `role="toolbar"`, a set of tabs states `role="tablist"`. The
- *   orientation reaches three places from one prop: the arrows the group moves on, the way the
- *   items are laid out, and what a screen reader is told, which is stated only where the group
- *   carries a role, because the attribute means nothing on a plain element.
+ *   The element is a `div` with no role of its own, because naming the control set is the caller's
+ *   decision: a toolbar passes `role="toolbar"`, a tab strip passes `role="tablist"`. A single
+ *   `orientation` prop feeds three things, the arrow keys the group responds to, the layout of the
+ *   items, and `aria-orientation`. The attribute is emitted only when the caller has also supplied
+ *   a role, since it carries no meaning on a generic element.
  */
 
 import { type ComponentProps, type ReactElement, type ReactNode } from "react";
@@ -19,16 +19,17 @@ import {
 } from "#roving-focus/use-roving-focus.ts";
 
 /**
- * Draws the element the group is laid out on.
+ * The styled element carrying the recipe's root slot.
  */
 const Shell = withProvider("div", "root");
 
 /**
- * Describes what a group takes beside the variants its recipe offers.
+ * Props of the group container: the focus behaviour below, plus everything the styled element
+ * accepts.
  */
 export interface RootProps extends Omit<ComponentProps<typeof Shell>, "orientation"> {
   /**
-   * Which item holds the tab stop, where something above decides it.
+   * The item holding the tab stop when the caller controls the group.
    */
   activeId?: string | undefined;
 
@@ -38,28 +39,28 @@ export interface RootProps extends Omit<ComponentProps<typeof Shell>, "orientati
   children?: ReactNode | undefined;
 
   /**
-   * Which item Tab first enters, where the group decides for itself.
+   * The item Tab enters first when the group controls itself.
    */
   defaultActiveId?: string | undefined;
 
   /**
-   * Hears that the tab stop moved.
+   * Called after the tab stop moves to another item.
    */
   onActiveIdChange?: ((activeId: string | undefined) => void) | undefined;
 
   /**
-   * Which arrows move focus, which is along the line unless a caller says otherwise.
+   * The axes whose arrows move focus, horizontal unless the caller says otherwise.
    */
   orientation?: Orientation | undefined;
 
   /**
-   * Whether the ends join up.
+   * Whether a step past one end continues at the other.
    */
   wrap?: boolean | undefined;
 }
 
 /**
- * Keeps one tab stop for the items inside it, and moves it under the arrow keys.
+ * Keeps a single tab stop for the items below it and moves that stop on the arrow keys.
  */
 export function Root(props: RootProps): ReactElement {
   const {

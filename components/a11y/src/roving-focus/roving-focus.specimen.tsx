@@ -1,19 +1,17 @@
 /**
- * Shows the roving focus: a toolbar of three controls in every orientation, and one whose ends
- * join.
+ * Catalogue entry for the roving focus group, showing a three-button toolbar in each orientation
+ * and with wrapping on and off.
  *
  * @remarks
- *   The orientations are read off the recipe, so an orientation added to the theme reaches the
- *   page without this file changing. The ends are written out on a board instead, because a
- *   boolean prop is not an axis of the recipe and a board says where each of the two sits.
- *   The controls sit in an attached `Group`, so three of them read as one toolbar rather than as
- *   three buttons that happen to be near each other. The group is drawn inside the root rather
- *   than as it: the root carries the role, the label and the arrows, and both of them state a
- *   direction, so one element bound to both recipes would take two rules for the same property.
- *   An item finds its place in the set through the root's context and not through the document,
- *   so the group between them changes nothing a keyboard does.
- *   What the set does is only seen from the keyboard, so each scene says what to press. The words
- *   are keys under `roving-focus` in the catalogue's namespace, kept beside this file in
+ *   The orientation values come from the recipe, so a value added to the theme appears on the page
+ *   without an edit here. Wrapping is laid out on a board instead, because it is a boolean prop
+ *   rather than a recipe variant and the board labels each of the two cells. The buttons sit in an
+ *   attached `Group` so the three read as one toolbar. The group is nested inside the root rather
+ *   than being the root, because both recipes set a flex direction and binding one element to both
+ *   would leave two rules competing for the same property; items locate themselves through the
+ *   root's context rather than the DOM tree, so the extra element changes nothing about keyboard
+ *   behaviour. The behaviour is only visible from the keyboard, so each scene names the keys to
+ *   press. Copy comes from the `roving-focus` namespace in
  *   `locales/en/specimen/roving-focus.json`.
  */
 
@@ -35,24 +33,23 @@ import { Item, type Orientation, Root, type RootProps } from "#roving-focus/inde
 import { recipe } from "#roving-focus/recipe.ts";
 
 /**
- * The look every control of the toolbar takes, set once above them.
+ * Button props supplied once from above, so every control in the toolbar shares a variant.
  */
 const LOOK = { variant: "outline" } as const;
 
 /**
- * Says which way the attached group runs for a set the arrows move through.
+ * Narrows a group orientation to the two values the attached `Group` accepts.
  *
  * @remarks
- *   A group runs one way or the other, and the arrows run on one axis or both. A set the arrows
- *   move through on both axes still reads along a row, because three controls reach no second
- *   line.
+ *   `Group` has no equivalent of `both`, and three buttons never reach a second line anyway, so
+ *   `both` is rendered as a row.
  */
 function running(orientation: Orientation): "horizontal" | "vertical" {
   return orientation === "vertical" ? "vertical" : "horizontal";
 }
 
 /**
- * Draws the three controls of an editing toolbar.
+ * Renders cut, copy and paste as three items of the group.
  */
 function Controls(): ReactElement {
   const { t } = useWords("roving-focus");
@@ -67,7 +64,7 @@ function Controls(): ReactElement {
 }
 
 /**
- * Draws one toolbar, named by whatever the page is showing.
+ * Renders a labelled toolbar at a given orientation and wrapping setting.
  */
 function Toolbar({
   orientation = "horizontal",
@@ -85,7 +82,7 @@ function Toolbar({
 }
 
 /**
- * Draws the toolbar in every orientation.
+ * Renders one toolbar per orientation the recipe declares.
  */
 function Orientations(): ReactElement {
   return (
@@ -96,7 +93,7 @@ function Orientations(): ReactElement {
 }
 
 /**
- * Draws the toolbar with its ends apart beside one whose ends join.
+ * Renders the toolbar twice, once with wrapping off and once with it on.
  */
 function Wrap(): ReactElement {
   return (
@@ -112,7 +109,7 @@ function Wrap(): ReactElement {
 }
 
 /**
- * Every orientation.
+ * Scene covering each orientation of the group.
  */
 export const orientations: Scene = {
   about: "roving-focus.orientations.about",
@@ -121,7 +118,7 @@ export const orientations: Scene = {
 };
 
 /**
- * The ends apart beside the ends joined.
+ * Scene contrasting a group that stops at its ends with one that wraps.
  */
 export const wrap: Scene = {
   about: "roving-focus.wrap.about",

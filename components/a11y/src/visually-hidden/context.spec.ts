@@ -8,14 +8,14 @@ import { recipeClasses, variantClass } from "@stealthscale/testing-theme";
 import { PropsProvider, withContext } from "#visually-hidden/context.ts";
 
 describe("context", () => {
-  it("draws the recipe's class on an element it binds", () => {
+  it("applies the recipe class to the element withContext wraps", () => {
     const Probe = withContext("div");
     const { container } = render(createElement(Probe, null, "Loading"));
 
     expect(recipeClasses(container, "visually-hidden")).toContain("visually-hidden");
   });
 
-  it("hands a provider's variants to an element below it", () => {
+  it("applies the focusable class when PropsProvider sets it above the element", () => {
     const Probe = withContext("div");
     const { container } = render(
       createElement(

@@ -9,12 +9,12 @@ import { coded, SOURCE } from "#code-block/code-block.fixtures.tsx";
 import { Copy } from "#code-block/copy.tsx";
 
 /**
- * Names the control in both states, so a case can read which one it is in.
+ * Trigger labels for both states, so a case can tell which state the control is in.
  */
 const WORDS = { triggerLabel: (copied: boolean): string => (copied ? "Copied" : "Copy") };
 
 /**
- * Draws the control inside the panel it needs above it, holding the code the panel is given.
+ * Renders the control inside a root carrying the given code.
  */
 function copying(code: string = SOURCE): ReactElement {
   return coded(
@@ -26,32 +26,32 @@ function copying(code: string = SOURCE): ReactElement {
 }
 
 describe("Copy", () => {
-  it("draws the mark it is given at rest", async () => {
+  it("renders its children as the glyph before any press", async () => {
     const { container } = await drawn(copying());
 
     expect(container.textContent).toContain("copy");
   });
 
-  it("draws a control a keyboard reaches", async () => {
+  it("renders its trigger with the button role", async () => {
     await drawn(copying());
 
     expect(screen.getByRole("button")).toBeDefined();
   });
 
-  it("names the control with the words it is given", async () => {
+  it("labels the trigger from the translations it is given", async () => {
     await drawn(copying());
 
     expect(screen.getByRole("button", { name: "Copy" })).toBeDefined();
   });
 
-  it("copies the code the root holds rather than a value of its own", async () => {
+  it("writes the root's code to the clipboard when the trigger is pressed", async () => {
     await drawn(copying());
     await pressed(screen.getByRole("button"));
 
     await expect(navigator.clipboard.readText()).resolves.toBe(SOURCE);
   });
 
-  it("follows the code the root is given rather than one of its own", async () => {
+  it("writes whatever code the root holds rather than a value fixed in the component", async () => {
     const other = "pnpm add @stealthscale/component-content";
 
     await drawn(copying(other));
@@ -60,14 +60,21 @@ describe("Copy", () => {
     await expect(navigator.clipboard.readText()).resolves.toBe(other);
   });
 
-  it("says so for a while after a press", async () => {
+  it("relabels the trigger for the copied state after a press", async () => {
     await drawn(copying());
     await pressed(screen.getByRole("button"));
 
-    expect(screen.getByRole("button", { name: "Copied" }).textContent).toContain("done");
+    expect(screen.getByRole("button", { name: "Copied" })).toBeDefined();
   });
 
-  it("breaks no accessibility rule", async () => {
+  it("swaps in the copied glyph after a press", async () => {
+    await drawn(copying());
+    await pressed(screen.getByRole("button"));
+
+    expect(screen.getByRole("button").textContent).toContain("done");
+  });
+
+  it("reports no axe violation when rendered inside a root", async () => {
     await expect(
       accessibilityViolations(Copy, {
         props: { children: <span>copy</span>, translations: WORDS },

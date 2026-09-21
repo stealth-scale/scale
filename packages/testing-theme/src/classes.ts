@@ -1,14 +1,14 @@
 /**
- * Writes the classes a recipe emits, so a specification asserts on a name it derived rather than
- * one it copied.
+ * Computes the class names a recipe emits, so a specification derives a name instead of repeating
+ * a literal.
  *
  * @remarks
- *   The names follow the naming scheme the build plugin renames the compiler's output into. A
- *   recipe emits its class name for the base rules, the class and two hyphens followed by the
- *   value for a string variant, followed by the axis for a boolean axis at `true`, and nothing at
- *   `false`. A slot recipe emits `<class>__<slot>` for each slot with the variant classes beside
- *   it. A unit test has no compiled stylesheet, so what a component owes its recipe is that the
- *   right class reaches the right element.
+ *   The names follow the scheme the build plugin renames the compiler's output into: the class
+ *   name alone for the base rules, `<class>--<value>` for a string variant, `<class>--<axis>` for a
+ *   boolean axis at `true`, and an empty string at `false`. A slot recipe emits `<class>__<slot>`
+ *   per slot, and a slot's variant classes extend that slot class. A unit test runs without the
+ *   compiled stylesheet, so a check can assert only that the class the recipe emits reaches the
+ *   element.
  */
 
 import { compoundClass, slotClass, variantClass } from "@stealthscale/pandacss-naming";
@@ -16,14 +16,16 @@ import { compoundClass, slotClass, variantClass } from "@stealthscale/pandacss-n
 export { compoundClass, slotClass, variantClass };
 
 /**
- * Writes the class a recipe emits its base rules under, which is its class name unchanged.
+ * Returns the class a recipe emits its base rules under, which is the recipe's class name
+ * unchanged.
  */
 export function recipeClass(className: string): string {
   return className;
 }
 
 /**
- * Writes the class a slot recipe emits for one value of one variant on one slot.
+ * Returns the class a slot recipe emits for one axis value on one slot, which extends that slot's
+ * own class.
  */
 export function slotVariantClass(
   className: string,

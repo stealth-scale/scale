@@ -1,12 +1,11 @@
 /**
- * Finds an import that renames a component the compiler matches by name.
+ * Finds the imports that rename a component the compiler matches by name.
  *
  * @remarks
- *   The compiler extracts the props of a component by matching the element's name against the
- *   patterns a recipe states under `jsx`. An import written as `import { Button as Renamed }`
- *   draws `<Renamed>`, which no pattern matches, so the variants it selects compile to no rule and
- *   the element carries classes with nothing behind them. The compiler cannot see the binding, so
- *   the import is read here and reported.
+ *   The compiler extracts a component's props by matching the element's name against the patterns a
+ *   recipe declares under `jsx`. Import it as `import { Button as Renamed }` and the element
+ *   becomes `<Renamed>`, which no pattern matches, so the variants it selects compile to no rule at
+ *   all. The compiler never resolves the binding, so the import is read here and reported.
  */
 
 import { readFileSync } from "node:fs";
@@ -15,7 +14,7 @@ import { relative } from "node:path";
 import { type Diagnostic } from "#pandacss.ts";
 
 /**
- * Matches a named import, with everything between its braces and the package it imports from.
+ * A named import, capturing everything between its braces and the package it comes from.
  */
 const IMPORTED = /import\s*(?:type\s+)?\{([^}]*)\}\s*from\s*["']([^"']+)["']/gu;
 
@@ -25,26 +24,26 @@ const IMPORTED = /import\s*(?:type\s+)?\{([^}]*)\}\s*from\s*["']([^"']+)["']/gu;
 const RECIPE_FIELDS = ["recipes", "slotRecipes"];
 
 /**
- * Lists the patterns a package's recipes match a component's name against, by package.
+ * The name patterns each package's recipes match a component against, by package.
  */
 export type Matched = ReadonlyMap<string, readonly RegExp[]>;
 
 /**
- * Reads one field of a value where the value is an object, and nothing otherwise.
+ * Reads one field off a value, or undefined where the value is not an object.
  */
 function fieldOf(held: unknown, field: string): unknown {
   return typeof held === "object" && held !== null ? Reflect.get(held, field) : undefined;
 }
 
 /**
- * Lists the values of an object, and nothing for anything else.
+ * Lists the values of an object, and nothing at all for anything else.
  */
 function valuesOf(held: unknown): readonly unknown[] {
   return typeof held === "object" && held !== null ? Object.values(held) : [];
 }
 
 /**
- * Reads one pattern as a recipe states it: a regular expression as it is, and a name as the
+ * Turns a recipe's `jsx` entry into a pattern: a regular expression as it stands, a string as the
  * expression that matches it whole.
  */
 function patternOf(stated: unknown): RegExp | undefined {
@@ -66,7 +65,7 @@ function patternsOf(recipe: unknown): RegExp[] {
 }
 
 /**
- * Reads the patterns every recipe of one preset states under `jsx`.
+ * Reads the patterns every recipe in one preset states under `jsx`.
  */
 function patternsIn(preset: unknown): RegExp[] {
   const extend = fieldOf(fieldOf(preset, "theme"), "extend");
@@ -77,7 +76,7 @@ function patternsIn(preset: unknown): RegExp[] {
 }
 
 /**
- * Reads the patterns every contributor's recipes match a component's name against.
+ * Collects the name patterns every contributor's recipes match against, keyed by contributor.
  *
  * @param names - The contributors' names, in the order their presets were loaded.
  * @param presets - The presets, in the same order.
@@ -87,7 +86,7 @@ export function matchedNames(names: readonly string[], presets: readonly unknown
 }
 
 /**
- * Reads the bindings one import renames, as pairs of the exported and the local name.
+ * Reads the bindings one import renames, as pairs of exported and local name.
  */
 function renamed(specifiers: string): ReadonlyArray<readonly [string, string]> {
   return specifiers
@@ -103,14 +102,14 @@ function renamed(specifiers: string): ReadonlyArray<readonly [string, string]> {
 }
 
 /**
- * Reports whether any pattern matches a name.
+ * Reports whether any of the patterns matches a name.
  */
 function matchesAny(patterns: readonly RegExp[], name: string): boolean {
   return patterns.some((pattern) => pattern.test(name));
 }
 
 /**
- * Writes the diagnostic for one import that renames a component.
+ * Builds the diagnostic for one import that renames a component.
  */
 function aliased(file: string, specifier: string, exported: string, local: string): Diagnostic {
   return {
@@ -150,8 +149,8 @@ function aliasedIn(file: string, text: string, matched: Matched): Diagnostic[] {
  * name.
  *
  * @remarks
- *   A source that names no contributor is passed over without being parsed, so the read costs what
- *   the files that import a contributor cost and nothing for the rest.
+ *   A source whose text mentions no contributor is skipped before the import pattern ever runs over
+ *   it, so most files cost one substring search.
  * @param root - The application's directory, which a file is reported relative to.
  * @param sources - Every file the compiler scanned, absolute.
  * @param matched - The patterns each contributor's recipes state.

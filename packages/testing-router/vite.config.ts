@@ -3,8 +3,7 @@
  *
  * @remarks
  *   The web preset gives each specification a document, and the React layers give it a JSX
- *   transform. Both are needed here because the helpers render a router into a document rather than
- *   inspect a tree.
+ *   transform. The helpers render a router into that document, so both are required.
  */
 
 import * as react from "@stealthscale/vite-config-react";

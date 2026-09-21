@@ -1,12 +1,11 @@
 /**
- * Shows the hidden words: a button whose name is hidden, beside a hidden control that comes into
- * view under focus.
+ * Catalogue entry for `VisuallyHidden`, covering both values of its `focusable` variant.
  *
  * @remarks
- *   The axis is read off the recipe. A button holding a glyph and hidden words is the common
- *   case, so the first cell is one; the second makes the hidden words the control itself. The
- *   words are keys under `visually-hidden` in the catalogue's namespace, kept beside this file
- *   in `locales/en/specimen/visually-hidden.json`.
+ *   The axis is taken from the recipe rather than written by hand. The `false` cell is the common
+ *   case, an icon-only button whose accessible name is hidden text; the `true` cell makes the
+ *   hidden text the control itself, so it can be seen once it takes focus. Copy comes from the
+ *   `visually-hidden` namespace in `locales/en/specimen/visually-hidden.json`.
  */
 
 import { type ReactElement } from "react";
@@ -18,22 +17,22 @@ import { Matrix, type Scene, specimen, useWords } from "@stealthscale/specimen";
 import { VisuallyHidden } from "#visually-hidden/visually-hidden.ts";
 
 /**
- * The two answers to a boolean prop.
+ * Both values of a boolean variant, in the order the matrix draws them.
  */
 const EITHER = [false, true] as const;
 
 /**
- * The look every button of the scene takes, set once above them.
+ * Button props supplied once from above, so both cells share a variant.
  */
 const OUTLINE = { variant: "outline" } as const;
 
 /**
- * The path of a cross, in a 24 unit box.
+ * Path data for a close glyph, drawn against a 24 by 24 viewBox.
  */
 const CROSS = "M6 6l12 12M18 6 6 18";
 
 /**
- * Draws a button whose words are hidden, and hidden words that are a control.
+ * Renders an icon button labelled by hidden text next to a hidden button that appears on focus.
  */
 function Focusable(): ReactElement {
   const { t } = useWords("visually-hidden");
@@ -61,7 +60,7 @@ function Focusable(): ReactElement {
 }
 
 /**
- * Hidden words beside a hidden control.
+ * Scene comparing a hidden label with a hidden control that can take focus.
  */
 export const focusable: Scene = {
   about: "visually-hidden.focusable.about",

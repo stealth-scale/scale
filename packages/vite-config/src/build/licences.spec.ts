@@ -4,11 +4,11 @@ import { describe, expect, it } from "vitest";
 import { licences } from "#build/licences.ts";
 
 describe("licences", () => {
-  it("writes the licence of everything the build bundled", () => {
+  it("sets build.license to true", () => {
     expect((licences().config as UserConfig).build?.license).toBe(true);
   });
 
-  it("names the layer so a repository can remove it", () => {
+  it("names the preset build.licences", () => {
     expect(licences().name).toBe("build.licences");
   });
 });

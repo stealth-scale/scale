@@ -1,10 +1,10 @@
 /**
- * Holds what a palette knows: the actions left after what was typed, and what to say about them.
+ * Tracks the query and the actions still matching it.
  *
  * @remarks
- *   The field and the list both read this and neither owns it. Typing narrows the list, and the
- *   list holds the count the field has to announce, so the two are one piece of state rather than
- *   a message passed between them.
+ *   The input and the list both read this state and neither owns it. Typing filters the list, and
+ *   the size of the filtered list is what the input has to announce, so the two are modelled as one
+ *   piece of state rather than as a message passed between siblings.
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -19,73 +19,71 @@ import { createRequiredContext, useAnnounce, useCallbackRef } from "@stealthscal
 import { type CommandAction, labelOf, valueOf } from "#command/action.ts";
 
 /**
- * Describes what the parts of a palette read.
+ * The value every part of a palette reads from the root.
  */
 export interface CommandState {
   /**
-   * The actions that match what has been typed, in the order they were given.
+   * The actions matching the current query, in the order they were supplied.
    */
   collection: ListCollection<CommandAction>;
 
   /**
-   * The words naming what the palette is for.
+   * The accessible name of the list.
    *
    * @remarks
-   *   Carried here and stated on the list itself. The machine points the list at a label element a
-   *   palette does not draw, so a name set anywhere else resolves to nothing and the list is
-   *   announced as an unnamed one.
+   *   Carried through state and applied directly to the list element. The machine otherwise points
+   *   the list at a label element the palette never renders, so a name set anywhere else resolves
+   *   to nothing and the list is announced without one.
    */
   label: string;
 
   /**
-   * Narrows the list to what matches.
+   * Filters the collection down to the actions matching a query.
    */
   narrow: (typed: string) => void;
 
   /**
-   * The text typed so far, which the field draws.
+   * The query as typed so far, which the input renders.
    */
   typed: string;
 }
 
 /**
- * Hands the palette to the field and the list, and reads it back.
+ * The provider a root renders and the hook each part calls to read the palette state.
  */
 export const [CommandProvider, useCommand] = createRequiredContext<CommandState>("Command");
 
 /**
- * Describes what the palette is built from.
+ * The options the hook takes.
  */
 export interface CommandOptions {
   /**
-   * Everything the palette can be told to do.
+   * Every command the palette can run.
    */
   actions: readonly CommandAction[];
 
   /**
-   * How many matches are left, said out loud after each keystroke. Given the count, answers the
-   * words to say.
+   * Formats the announcement made after each keystroke, given the number of remaining matches.
    */
   count: (matches: number) => string;
 
   /**
-   * The words naming what the palette is for.
+   * The accessible name of the list.
    */
   label: string;
 }
 
 /**
- * Keeps the actions and the text typed, and answers what is left of them.
+ * Filters the actions against the query and announces how many remain.
  *
  * @remarks
- *   The count is announced rather than left to be seen. A field that quietly rewrites the list
- *   under it tells a reader watching the screen everything and a reader listening nothing: they
- *   type, the page reads the letter back, and the eight rows that just became one go unmentioned.
- *   It is said after the list has settled, so the number is the one now on the screen.
- *   Matching folds accents and case the way the locale in force folds them, and an action's own
- *   extra words are matched too, which is what lets `add` find `New document`.
- * @param options - The actions and what to say about how many are left.
- * @returns The palette, as its parts read it.
+ *   The result count is announced rather than left to be noticed. A sighted user watching the list
+ *   shrink from eight rows to one gets that information for free; a screen reader user hears only
+ *   the character they typed. The announcement is made in an effect, after the collection has
+ *   settled, so the number matches what is on screen. Matching folds case and accents according to
+ *   the active locale and also searches each action's extra keywords, which is what lets `add` find
+ *   `New document`.
+ * @returns The state the palette's parts consume.
  */
 export function useCommandState(options: CommandOptions): CommandState {
   const { actions, count, label } = options;

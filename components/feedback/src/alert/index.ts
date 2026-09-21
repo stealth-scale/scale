@@ -1,6 +1,6 @@
 /**
- * Publishes the alert's parts, which a caller composes as `Alert.Root` holding a mark, the words,
- * and whatever a reader does about it.
+ * Exposes the alert, which a caller composes as an `Alert.Root` wrapping an icon, the text, and
+ * any control the reader acts on.
  */
 
 export { Aside, type AsideProps } from "#alert/aside.ts";

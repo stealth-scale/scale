@@ -17,7 +17,7 @@ function resolving(manifest: Parameters<typeof told>[0]): () => unknown {
 }
 
 describe("published", () => {
-  it("builds every subpath resolving through the source condition", () => {
+  it("builds an entry for every subpath naming a source file", () => {
     const held = entry({
       ".": { default: "./dist/index.mjs", "stealth-source": "./src/index.ts" },
       "./preset/web": { default: "./dist/preset/web.mjs", "stealth-source": "./src/preset/web.ts" },
@@ -32,25 +32,25 @@ describe("published", () => {
     });
   });
 
-  it("takes a path a manifest spells without the leading marker", () => {
+  it("accepts a source path written without the leading ./", () => {
     expect(entry({ ".": { "stealth-source": "src/index.ts" } })).toStrictEqual({
       index: "src/index.ts",
     });
   });
 
-  it("ignores a subpath pointing straight at a shipped file", () => {
+  it("skips a subpath pointing at a shipped file", () => {
     const held = entry({ ".": { "stealth-source": "./src/index.ts" }, "./globals": "./g.d.ts" });
 
     expect(held).toStrictEqual({ index: "src/index.ts" });
   });
 
-  it("ignores a subpath that resolves to nothing", () => {
+  it("skips a subpath whose value is null", () => {
     const held = entry({ ".": { "stealth-source": "./src/index.ts" }, "./nothing": null });
 
     expect(held).toStrictEqual({ index: "src/index.ts" });
   });
 
-  it("keeps the same name whatever it found", () => {
+  it("names the preset pack.published", () => {
     expect(published().name).toBe("pack.published");
   });
 
@@ -58,13 +58,13 @@ describe("published", () => {
     expect(resolving({ manifest: { name: "held" } })).toThrow(/found no exports/u);
   });
 
-  it("throws for an export map with nothing it could build", () => {
+  it("throws when no subpath names a source file", () => {
     expect(resolving({ manifest: { exports: { "./thing": "./thing.json" } } })).toThrow(
       /found nothing to build/u,
     );
   });
 
-  it("contributes nothing for a workspace root", () => {
+  it("returns an empty configuration for a workspace root", () => {
     const held = resolving({
       at: "/repository",
       manifest: { workspaces: ["packages/*"] },
@@ -74,7 +74,7 @@ describe("published", () => {
     expect(held()).toStrictEqual({});
   });
 
-  it("contributes nothing for a root even when a package below uses the root config", () => {
+  it("returns an empty configuration for a root that declares an export map", () => {
     const held = resolving({
       at: "/repository",
       manifest: { exports: {}, workspaces: [] },
@@ -84,7 +84,7 @@ describe("published", () => {
     expect(held()).toStrictEqual({});
   });
 
-  it("builds a package standing alone as its own root from its export map", () => {
+  it("builds every entry for a package standing alone in a repository", () => {
     const held = resolving({
       at: "/alone",
       manifest: {
@@ -102,7 +102,7 @@ describe("published", () => {
     });
   });
 
-  it("throws for a package standing alone that declares no exports", () => {
+  it("throws for a package standing alone that declares no export map", () => {
     expect(resolving({ at: "/alone", manifest: { name: "alone" }, root: "/alone" })).toThrow(
       /found no exports/u,
     );

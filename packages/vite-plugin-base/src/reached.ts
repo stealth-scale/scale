@@ -1,10 +1,9 @@
 /**
- * Recovers the installed packages that stand behind a finished module graph.
+ * Resolves a finished module graph back to the installed packages it came from.
  *
  * @remarks
- *   Every reader here answers undefined, or an empty result, where the file
- *   system refuses. A build never fails because one dependency shipped an
- *   unreadable manifest or a directory nobody can list.
+ *   Every filesystem read here returns undefined or an empty result on failure. An unreadable
+ *   manifest or a directory that cannot be listed costs the caller a detail, never the build.
  */
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
@@ -13,22 +12,20 @@ import { dirname, join, sep } from "node:path";
 import { type Bundling } from "#plugin.ts";
 
 /**
- * A parsed package.json, held as it was read rather than as a known shape.
+ * A package.json parsed into a plain object, with nothing assumed about its fields.
  *
  * @remarks
- *   Somebody else authored the document, so no field is guaranteed to exist or
- *   to hold the type its name suggests. A caller reaches a field through a
- *   reader that checks, such as {@link text}.
+ *   The file belongs to another package, so a field can be missing or hold a type its name does not
+ *   suggest. Read fields through a checked accessor such as {@link text}.
  */
 export type Manifest = Readonly<Record<string, unknown>>;
 
 /**
- * Answers the value of a manifest field when that field holds a string.
+ * Reads a manifest field, accepting it only when its value is a string.
  *
  * @remarks
- *   A field holding a number, an object or null reads the same as a field that
- *   is absent. A caller that has to tell the two apart indexes the manifest
- *   itself.
+ *   A field holding a number, an object or null is indistinguishable here from a field that is
+ *   absent. Index the manifest directly to tell those cases apart.
  */
 export function text(manifest: Manifest, field: string): string | undefined {
   const held = manifest[field];
@@ -37,25 +34,25 @@ export function text(manifest: Manifest, field: string): string | undefined {
 }
 
 /**
- * One installed package a build imported from, and what it imported in turn.
+ * One installed package the build imported from, together with the packages it imported in turn.
  *
  * @remarks
- *   Two installs of one name are two entries, because a build can bundle both
- *   and a consumer has to account for each copy separately.
+ *   Two installs of the same name are two entries. A build can bundle both, and a consumer has to
+ *   account for each copy separately.
  */
 export interface Reached {
   /**
-   * The package's own directory, absolute.
+   * Absolute path to the package's directory.
    */
   at: string;
 
   /**
-   * The directories of the packages this one imported from.
+   * Directories of the packages this one imports from.
    */
   dependsOn: ReadonlySet<string>;
 
   /**
-   * The package.json parsed out of that directory.
+   * The package.json parsed from that directory.
    */
   manifest: Manifest;
 
@@ -66,12 +63,11 @@ export interface Reached {
 }
 
 /**
- * Walks up from a file to the directory of the package that holds it.
+ * Walks up from a file to the directory of the package that contains it.
  *
  * @remarks
- *   The nearest package.json above the file wins, so one nested inside a
- *   package's own source hides the package around it. The walk gives up at the
- *   file system root and answers undefined there.
+ *   The nearest package.json above the file wins, so one nested inside a package's source shadows
+ *   the package around it. The walk stops at the filesystem root and returns undefined.
  */
 export function owning(from: string): string | undefined {
   for (let at = dirname(from); ;) {
@@ -86,12 +82,11 @@ export function owning(from: string): string | undefined {
 }
 
 /**
- * Parses the package.json sitting in one directory.
+ * Parses the package.json in one directory.
  *
  * @remarks
- *   A missing file, JSON that does not parse, and a document parsing to
- *   anything but an object all answer undefined. A directory holding no package
- *   and one holding a broken package are not told apart.
+ *   A missing file, malformed JSON, and a document that parses to anything but an object all return
+ *   undefined. A directory with no package and one with a broken package look the same to a caller.
  */
 export function manifestAt(at: string): Manifest | undefined {
   try {
@@ -109,25 +104,25 @@ export function manifestAt(at: string): Manifest | undefined {
  * Reports whether a module path runs through an installed package.
  *
  * @remarks
- *   The test splits the path into segments, so a directory called
- *   `node_modules_old` is not mistaken for an install. A file the repository
- *   itself owns is the subject of a build rather than a component of it.
+ *   The test compares whole path segments, so a directory named `node_modules_old` is not mistaken
+ *   for an install. Source from the repository itself is the subject of the build, not a component
+ *   of it.
  */
 function installed(id: string): boolean {
   return id.split(sep).includes("node_modules");
 }
 
 /**
- * Matches the file names a package ships its licence text under.
+ * Filename pattern for licence text, covering `LICENSE`, `LICENCE.md`, `COPYING` and their like.
  */
 const LICENCES = /^(?:licen[cs]e|copying)(?:\..*)?$/iu;
 
 /**
- * One licence file a package ships, with the text it carries.
+ * One licence file shipped in a package, paired with its contents.
  */
 export interface Licensed {
   /**
-   * The file name exactly as it sits in the package directory.
+   * The filename exactly as it appears in the package directory.
    */
   named: string;
 
@@ -138,12 +133,12 @@ export interface Licensed {
 }
 
 /**
- * Collects the licence files a package ships, together with their contents.
+ * Reads the licence files a package ships.
  *
  * @remarks
- *   Only the package's top directory is listed, so a licence filed in a
- *   subdirectory is passed over. A directory that cannot be listed yields an
- *   empty array, which reads the same as a package shipping no licence at all.
+ *   Only the package's top directory is listed, so a licence filed in a subdirectory is missed. A
+ *   directory that cannot be listed yields an empty array, indistinguishable from a package that
+ *   ships no licence at all.
  */
 export function licensed(at: string): readonly Licensed[] {
   try {
@@ -156,31 +151,31 @@ export function licensed(at: string): readonly Licensed[] {
 }
 
 /**
- * A package part-way through the crawl, whose dependency set still grows.
+ * A package's entry part-way through the crawl, while its dependency set is still growing.
  *
  * @remarks
- *   This carries the fields of {@link Reached} with a mutable set. The map is
- *   filled through this shape and handed out through the readonly one, so a
- *   caller cannot add a dependency the graph never showed.
+ *   The same fields as {@link Reached}, with a mutable set. The map is filled through this shape and
+ *   returned through the readonly one, so a caller cannot add an edge the module graph never
+ *   showed.
  */
 interface Made {
   /**
-   * The directory holding this package's manifest.
+   * Directory holding this package's manifest.
    */
   at: string;
 
   /**
-   * The directories imported from, added as the crawl meets them.
+   * Directories imported from, added as the crawl reaches them.
    */
   dependsOn: Set<string>;
 
   /**
-   * The manifest, parsed once when the package was first met.
+   * The manifest, parsed once when the package was first seen.
    */
   manifest: Manifest;
 
   /**
-   * The name read out of that manifest.
+   * The name read from that manifest.
    */
   named: string;
 }
@@ -189,23 +184,20 @@ interface Made {
  * Gathers every installed package a finished build imported from.
  *
  * @remarks
- *   The answer comes from the graph rather than from any manifest. A manifest
- *   names what was asked for, including what the bundler went on to drop, and
- *   says nothing about what arrived through another package, the way
- *   `scheduler` arrives through React.
+ *   The result comes from the module graph, not from any manifest. A manifest declares what was
+ *   asked for, including code the bundler dropped, and omits anything that arrives as another
+ *   package's dependency, such as `scheduler` under React.
  * @returns Each package the build reached, keyed by its own directory.
  */
 export function reached(bundling: Bundling): ReadonlyMap<string, Reached> {
   const held = new Map<string, Made>();
 
   /**
-   * Records the package a module belongs to, or finds the record already made.
+   * Returns the entry for the package a module belongs to, creating it the first time.
    *
    * @remarks
-   *   A module outside node_modules, one with no manifest above it, and one
-   *   whose manifest declares no name all answer undefined and stay out of the
-   *   result. A package met a second time is handed back rather than parsed
-   *   again.
+   *   A module outside node_modules, one with no manifest above it, and one whose manifest declares
+   *   no name all return undefined and stay out of the result.
    */
   function entry(id: string): Made | undefined {
     if (!installed(id)) return undefined;

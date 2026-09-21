@@ -47,7 +47,7 @@ function driven(returning?: unknown): Driven {
 }
 
 describe("hook", () => {
-  it("hands the configuration to configResolved", async () => {
+  it("calls configResolved with the configuration", async () => {
     const one = driven();
 
     await configured(one.plugin, { command: "build", root: "/pkg" });
@@ -55,7 +55,7 @@ describe("hook", () => {
     expect(one.calls).toStrictEqual([[{ command: "build", root: "/pkg" }]]);
   });
 
-  it("throws when the plugin has no such hook", async () => {
+  it("throws when the plugin declares no such hook", async () => {
     await expect(configured({ name: "stealth:bare" }, { root: "/pkg" })).rejects.toThrow(
       "stealth:bare has no configResolved hook",
     );
@@ -82,13 +82,13 @@ describe("hook", () => {
     expect(one.bound).toStrictEqual([context]);
   });
 
-  it("returns the id resolveId answered with", async () => {
+  it("returns the id resolveId returned", async () => {
     await expect(resolved(driven("/pkg/a.css").plugin, "a.css", "/pkg/b.ts")).resolves.toBe(
       "/pkg/a.css",
     );
   });
 
-  it("returns the id inside an object resolveId answered with", async () => {
+  it("returns the id field of an object resolveId returned", async () => {
     await expect(resolved(driven({ id: "/pkg/a.css" }).plugin, "a.css")).resolves.toBe(
       "/pkg/a.css",
     );
@@ -98,7 +98,7 @@ describe("hook", () => {
     await expect(resolved(driven(null).plugin, "a.css")).resolves.toBeUndefined();
   });
 
-  it("hands the specifier and the importer to resolveId", async () => {
+  it("calls resolveId with the arguments a bundler passes", async () => {
     const one = driven();
 
     await resolved(one.plugin, "a.css", "/pkg/b.ts");
@@ -106,11 +106,11 @@ describe("hook", () => {
     expect(one.calls).toStrictEqual([["a.css", "/pkg/b.ts", {}]]);
   });
 
-  it("returns the code load answered with", async () => {
+  it("returns the code load returned", async () => {
     await expect(loaded(driven("@layer a;").plugin, "/pkg/a.css")).resolves.toBe("@layer a;");
   });
 
-  it("returns the code inside an object load answered with", async () => {
+  it("returns the code field of an object load returned", async () => {
     await expect(loaded(driven({ code: "@layer a;" }).plugin, "/pkg/a.css")).resolves.toBe(
       "@layer a;",
     );
@@ -120,19 +120,26 @@ describe("hook", () => {
     await expect(loaded(driven().plugin, "/pkg/a.css")).resolves.toBeUndefined();
   });
 
-  it("binds the context as this in load where one is given and a fresh one where none is", async () => {
+  it("binds the context as this in load when one is given", async () => {
     const one = driven();
     const context = hookContext();
 
     await loaded(one.plugin, "/pkg/a.css", context);
-    await loaded(one.plugin, "/pkg/a.css");
 
     expect(one.bound[0]).toBe(context);
-    expect(one.bound[1]).toMatchObject({ environment: { config: { command: "serve" } } });
-    expect(one.bound[1]).not.toBe(context);
   });
 
-  it("returns the code transform wrote back", async () => {
+  it("binds a fresh serving context as this in load when none is given", async () => {
+    const one = driven();
+    const context = hookContext();
+
+    await loaded(one.plugin, "/pkg/a.css");
+
+    expect(one.bound[0]).toMatchObject({ environment: { config: { command: "serve" } } });
+    expect(one.bound[0]).not.toBe(context);
+  });
+
+  it("returns the code transform returned", async () => {
     const one = driven({ code: "@layer a;\n.x{}", map: null });
 
     await expect(transformed(one.plugin, hookContext(), "@layer a;", "/pkg/a.css")).resolves.toBe(
@@ -141,7 +148,7 @@ describe("hook", () => {
     expect(one.calls).toStrictEqual([["@layer a;", "/pkg/a.css", {}]]);
   });
 
-  it("returns undefined when transform passes on the module", async () => {
+  it("returns undefined when transform returns nothing", async () => {
     await expect(
       transformed(driven().plugin, hookContext(), "@layer a;", "/pkg/a.css"),
     ).resolves.toBeUndefined();
@@ -156,7 +163,7 @@ describe("hook", () => {
     expect(one.bound).toStrictEqual([context]);
   });
 
-  it("hands the file and its content to hotUpdate", async () => {
+  it("calls hotUpdate with an update describing the changed file", async () => {
     const one = driven();
     const context = hookContext();
 
@@ -169,7 +176,7 @@ describe("hook", () => {
     await expect((update as { read: () => Promise<string> }).read()).resolves.toBe("@layer b;");
   });
 
-  it("reads an empty file when hotUpdate is given no content", async () => {
+  it("resolves read to an empty string when updated is given no content", async () => {
     const one = driven();
 
     await updated(one.plugin, hookContext(), "/pkg/a.css");
@@ -179,7 +186,7 @@ describe("hook", () => {
     await expect((update as { read: () => Promise<string> }).read()).resolves.toBe("");
   });
 
-  it("hands a new file to hotUpdate as created with its content", async () => {
+  it("calls hotUpdate with a create update for the new file", async () => {
     const one = driven();
 
     await created(one.plugin, hookContext(), "/pkg/new.css", "@layer c;");
@@ -190,7 +197,7 @@ describe("hook", () => {
     await expect((update as { read: () => Promise<string> }).read()).resolves.toBe("@layer c;");
   });
 
-  it("hands a deleted file to hotUpdate with a read that rejects", async () => {
+  it("calls hotUpdate with a delete update whose read rejects", async () => {
     const one = driven();
 
     await removed(one.plugin, hookContext(), "/pkg/gone.css");
@@ -203,7 +210,7 @@ describe("hook", () => {
     );
   });
 
-  it("hands the file and the event to watchChange with the context as this", async () => {
+  it("calls watchChange with the arguments a bundler passes", async () => {
     const one = driven();
     const context = hookContext([], "build");
 
@@ -242,12 +249,17 @@ describe("hookContext", () => {
     expect(context.warned).toStrictEqual(["one"]);
   });
 
-  it("answers for a graphed id and for no other", () => {
+  it("returns a module for an id the graph was built with", () => {
     const context = hookContext(["/pkg/a.css"]);
 
     expect(context.environment.moduleGraph.getModuleById("/pkg/a.css")).toStrictEqual({
       id: "/pkg/a.css",
     });
+  });
+
+  it("returns undefined for an id the graph was not built with", () => {
+    const context = hookContext(["/pkg/a.css"]);
+
     expect(context.environment.moduleGraph.getModuleById("/pkg/b.css")).toBeUndefined();
   });
 
@@ -259,20 +271,23 @@ describe("hookContext", () => {
     expect(context.invalidated).toStrictEqual(["/pkg/a.css"]);
   });
 
-  it("answers serve as the command when none is given", () => {
+  it("sets the command to serve when none is given", () => {
     expect(hookContext().environment.config.command).toBe("serve");
   });
 
-  it("answers the command it was built for", () => {
+  it("sets the command it was built with", () => {
     expect(hookContext([], "build").environment.config.command).toBe("build");
   });
 
-  it("bundles under a build and serves a module per file otherwise", () => {
+  it("sets isBundled to true under a build", () => {
     expect(hookContext([], "build").environment.config.isBundled).toBe(true);
+  });
+
+  it("sets isBundled to false under a dev server", () => {
     expect(hookContext().environment.config.isBundled).toBe(false);
   });
 
-  it("bundles under a server where the specification says so", () => {
+  it("sets isBundled to true under a dev server when the caller states it", () => {
     expect(hookContext([], "serve", true).environment.config.isBundled).toBe(true);
   });
 });

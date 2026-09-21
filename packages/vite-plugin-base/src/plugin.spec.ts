@@ -1,10 +1,9 @@
 /**
- * Covers what a plugin receives when a bundler runs it.
+ * Covers the arguments a plugin's write step receives when a bundler runs it.
  *
  * @remarks
- *   The hooks are called directly rather than through a build, because the
- *   thing under test is the wiring between them and a real build would supply
- *   it.
+ *   The hooks are called directly rather than through a build, because the subject is the wiring
+ *   between them and a real build would supply that wiring itself.
  */
 
 import { describe, expect, it } from "vitest";
@@ -12,12 +11,11 @@ import { describe, expect, it } from "vitest";
 import { type Bundling, plugin } from "#plugin.ts";
 
 /**
- * Stands in for the build a bundler binds while it generates a bundle.
+ * A minimal stand-in for the build a bundler binds while generating a bundle.
  *
  * @remarks
- *   Only the three members these checks touch are present, and the cast hides
- *   the rest of the context. A check that reaches for a fourth member reads
- *   undefined instead of failing at the type.
+ *   Only the three members these checks call are present, and the cast hides the rest of the
+ *   context. A check reaching for a fourth member reads undefined rather than failing at the type.
  */
 function building(): Bundling {
   return {
@@ -28,14 +26,13 @@ function building(): Bundling {
 }
 
 /**
- * Drives a plugin through the hooks a bundler would call, in bundler order.
+ * Calls a plugin's hooks in the order a bundler would call them.
  *
  * @remarks
- *   Leaving the root out skips `configResolved` altogether, which is how a
- *   build that resolves no configuration reaches `generateBundle`.
+ *   Leaving the root out skips `configResolved` altogether, which is how a build that resolves no
+ *   configuration reaches `generateBundle`.
  * @param held - The plugin under test.
- * @param root - The directory the bundler resolved, or nothing to skip the
- *   resolution hook.
+ * @param root - The directory the bundler resolved, or nothing to skip the resolution hook.
  */
 function running(held: ReturnType<typeof plugin>, root?: string): void {
   const hooks = held as unknown as {
@@ -49,11 +46,11 @@ function running(held: ReturnType<typeof plugin>, root?: string): void {
 }
 
 describe("plugin", () => {
-  it("names the plugin as the bundler reports it", () => {
+  it("returns a plugin carrying the name it was given", () => {
     expect(plugin({ name: "stealth:probe", writes: () => {} }).name).toBe("stealth:probe");
   });
 
-  it("passes the build as an argument", () => {
+  it("passes the build to the write step", () => {
     let held: unknown;
 
     running(plugin({ name: "probe", writes: (bundling) => void (held = bundling) }));
@@ -61,7 +58,7 @@ describe("plugin", () => {
     expect(held).toBeDefined();
   });
 
-  it("gives a plugin the directory the bundler resolved", () => {
+  it("passes the directory the bundler resolved to the write step", () => {
     let held = "";
 
     running(
@@ -72,7 +69,7 @@ describe("plugin", () => {
     expect(held).toBe("/repository/packages/one");
   });
 
-  it("falls back to the working directory when the bundler resolves no config", () => {
+  it("passes the working directory to the write step when the bundler resolves no configuration", () => {
     let held = "";
 
     running(plugin({ name: "probe", writes: (_bundling, at) => void (held = at) }));

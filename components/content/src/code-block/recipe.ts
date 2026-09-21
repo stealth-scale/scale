@@ -1,20 +1,15 @@
 /**
- * States what a code block is: a panel holding a passage of code set in the code role, headed by
- * what the code is and whatever controls act on it, with each kind of token in its own ink.
+ * Styles a code block as a bordered panel with a header bar above a scrolling monospaced passage,
+ * coloured one shade per token kind.
  *
  * @remarks
- *   Six parts. The root is the panel, the header runs across its top holding the title and the
- *   control, the control holds whatever a page puts there, such as a clipboard trigger drawn as a
- *   button, the content is the box the code scrolls in, and the code is the passage itself. The
- *   panel is drawn in the dark mode whatever the page is in, which the root writes as an
- *   attribute, so every value here is a semantic token and resolves to the mode the panel is in:
- *   the page's surface, its ink, its lines and the code family for the tokens. A theme that moves
- *   its modes moves every code block.
- *   A token's kind is written as a data attribute by the code part, and the rules here read it,
- *   each from the code family the theme states: a keyword, a string, a number, a function, a type,
- *   a tag, an attribute and a comment in the theme's own inks for them, a change in the red or the
- *   green of the diff it is. The highlighter's finer kinds fold into those: a literal reads as a
- *   number, a property as an attribute, a selector as a type, and meta as a comment.
+ *   Every value here is a semantic token, so the whole recipe resolves against whichever colour
+ *   mode the root pins the panel to, and a theme that moves its modes moves every code block with
+ *   it. The token colours select on the `data-token` attribute the code part writes and draw from
+ *   the theme's `code` family, with diff additions and removals taking their own colours. The
+ *   highlighter's finer classes are folded into that coarse set: a literal takes the number
+ *   colour, a property the attribute colour, a selector the type colour, and meta the comment
+ *   colour.
  */
 
 import {
@@ -27,12 +22,12 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * The steps a code block is set at, which read the code role at the same step.
+ * The two size steps the block offers, matching the steps of the theme's code text styles.
  */
 const STEPS = ["sm", "md"] as const;
 
 /**
- * Inks each kind of token, selected by the attribute the code part writes.
+ * The colour rule for each token kind, keyed on the attribute the code part writes.
  */
 const INKS: SystemStyleObject = {
   "& [data-token=attr]": { color: "code.attr" },
@@ -55,7 +50,7 @@ const INKS: SystemStyleObject = {
 };
 
 /**
- * Draws a code block at the middle size until a caller says otherwise.
+ * The `code-block` slot recipe over its six slots, medium by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -90,7 +85,7 @@ export const recipe = defineSlotRecipe({
   slots: ["root", "header", "title", "control", "content", "code"],
   variants: {
     /**
-     * How big the code is set, which the header reads a step down.
+     * The text size of the code, with the title set one step below it.
      */
     size: onSlots({
       code: sizeVariants((size) => ({ textStyle: `code.${size}` }), STEPS),

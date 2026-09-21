@@ -36,85 +36,99 @@ function page(scenes: readonly unknown[]): unknown {
 }
 
 describe("Page", () => {
-  it("heads the page with its title", async () => {
+  it("renders the entry title as the level 1 heading", async () => {
     const { getByRole } = await drawn(<Page entry={entry(page([]))} />);
 
     expect(getByRole("heading", { level: 1 }).textContent).toBe("Badge");
   });
 
-  it("opens with the sentence the page declares", async () => {
+  it("renders the about text the entry declares", async () => {
     const { getByText } = await drawn(<Page entry={entry(page([]), "A small label.")} />);
 
     expect(getByText("A small label.")).toBeDefined();
   });
 
-  it("writes no opening where the page declares none", async () => {
+  it("renders no about text when the entry declares none", async () => {
     const { container } = await drawn(<Page entry={entry(page([]))} />);
 
     expect(container.textContent).toBe("BadgeDataExamples0Props");
   });
 
-  it("states no trail where the page was placed under nothing", async () => {
+  it("renders no back link when back is absent", async () => {
     const { queryByRole } = await drawn(<Page entry={entry(page([]))} />);
 
     expect(queryByRole("link")).toBeNull();
   });
 
-  it("draws each scene the page lists", async () => {
+  it("renders each scene the page lists", async () => {
     const { getByText } = await drawn(<Page entry={entry(page([SIZES]))} />);
 
     expect(getByText("drawn")).toBeDefined();
   });
 
-  it("draws a scene as a section of the page", async () => {
+  it("renders a scene as a region named after its title", async () => {
     const { getByRole } = await drawn(<Page entry={entry(page([SIZES]))} />);
 
     expect(getByRole("region", { name: "Sizes" })).toBeDefined();
   });
 
-  it("heads a scene with its title", async () => {
+  it("renders a scene title as a level 2 heading", async () => {
     const { getByRole } = await drawn(<Page entry={entry(page([SIZES]))} />);
 
     expect(getByRole("heading", { level: 2 }).textContent).toBe("Sizes");
   });
 
-  it("anchors each scene by its worded title", async () => {
+  it("sets a scene region id to the slug of its title", async () => {
     const looks = { draw: marked, title: "Looks and sizes" };
     const { getByRole } = await drawn(<Page entry={entry(page([looks]))} />);
 
     expect(getByRole("region", { name: "Looks and sizes" }).id).toBe("looks-and-sizes");
   });
 
-  it("lists the scenes in a rail beside the page", async () => {
+  it("links each scene from the on-this-page navigation", async () => {
     const { getByRole } = await drawn(<Page entry={entry(page([SIZES]))} />);
     const rail = getByRole("navigation", { name: "On this page" });
 
     expect(rail.querySelector("a")?.getAttribute("href")).toBe("#sizes");
   });
 
-  it("draws no rail beside a page with no scenes", async () => {
+  it("renders no on-this-page navigation for a page with no scenes", async () => {
     const { queryByRole } = await drawn(<Page entry={entry(page([]))} />);
 
     expect(queryByRole("navigation", { name: "On this page" })).toBeNull();
   });
 
-  it("resolves the title, the opening and a scene's words through the namespace named", async () => {
+  it("resolves the entry title through the namespace the entry names", async () => {
     const keyed = { about: "rail.ungrouped", draw: marked, title: "rail.label" };
     const named = { ...entry(page([keyed]), "page.back", "specimen"), title: "index.title" };
-    const { getByRole, getByText } = await drawn(<Page entry={named} />);
+    const { getByRole } = await drawn(<Page entry={named} />);
 
     expect(getByRole("heading", { level: 1 }).textContent).toBe("Components");
+  });
+
+  it("resolves a scene title through the namespace the entry names", async () => {
+    const keyed = { about: "rail.ungrouped", draw: marked, title: "rail.label" };
+    const named = { ...entry(page([keyed]), "page.back", "specimen"), title: "index.title" };
+    const { getByRole } = await drawn(<Page entry={named} />);
+
     expect(getByRole("heading", { level: 2 }).textContent).toBe("Components");
+  });
+
+  it("resolves a scene about text through the namespace the entry names", async () => {
+    const keyed = { about: "rail.ungrouped", draw: marked, title: "rail.label" };
+    const named = { ...entry(page([keyed]), "page.back", "specimen"), title: "index.title" };
+    const { getByText } = await drawn(<Page entry={named} />);
+
     expect(getByText("Other")).toBeDefined();
   });
 
-  it("opens a scene with the sentence it declares", async () => {
+  it("renders the about text a scene declares", async () => {
     const { getByText } = await drawn(<Page entry={entry(page([SIZES]))} />);
 
     expect(getByText("Every step.")).toBeDefined();
   });
 
-  it("draws the code spans of a sentence as code", async () => {
+  it("renders a backtick span of an about text as a code element", async () => {
     const looks = { about: "The `glass` look.", draw: marked, title: "Looks" };
     const { container } = await drawn(<Page entry={entry(page([looks]), "One `size`.")} />);
 
@@ -123,34 +137,40 @@ describe("Page", () => {
     ).toStrictEqual(["size", "glass"]);
   });
 
-  it("stands a scene's component on a stage inside its section", async () => {
+  it("renders a scene inside the card of its section", async () => {
     const { container, getByText } = await drawn(<Page entry={entry(page([SIZES]))} />);
 
     expect(slotElement(container, "card", "root").contains(getByText("drawn"))).toBe(true);
   });
 
-  it("writes no opening for a scene that declares none", async () => {
+  it("renders no about text for a scene that declares none", async () => {
     const quiet = { draw: marked, title: "Sizes" };
     const { queryByText } = await drawn(<Page entry={entry(page([quiet]))} />);
 
     expect(queryByText("Every step.")).toBeNull();
   });
 
-  it("draws no scene for a module that declares no page", async () => {
+  it("renders no scene for a module that declares no page", async () => {
     const { container } = await drawn(<Page entry={entry({})} />);
 
     expect(container.textContent).toBe("BadgeDataExamples0Props");
   });
 
-  it("says why the module failed to load and offers a reload under the head", async () => {
+  it("renders the failure message when the module rejects", async () => {
     const broken: Indexed = { ...entry({}), load: () => Promise.reject(new Error("gone")) };
     const { getByRole } = await drawn(<Page entry={broken} />);
 
     expect(getByRole("alert").textContent).toBe("This page could not be loaded: gone");
+  });
+
+  it("renders a reload button when the module rejects", async () => {
+    const broken: Indexed = { ...entry({}), load: () => Promise.reject(new Error("gone")) };
+    const { getByRole } = await drawn(<Page entry={broken} />);
+
     expect(getByRole("button", { name: "Reload the page" })).toBeDefined();
   });
 
-  it("leaves the page alone when it is taken off the screen before the module arrives", () => {
+  it("unmounts without throwing while the module is pending", () => {
     const { unmount } = render(<Page entry={entry(page([SIZES]))} />);
 
     expect(() => {
@@ -158,7 +178,7 @@ describe("Page", () => {
     }).not.toThrow();
   });
 
-  it("keeps quiet when the module fails after the page has left the screen", async () => {
+  it("unmounts without throwing when the module rejects afterwards", async () => {
     const broken: Indexed = { ...entry({}), load: () => Promise.reject(new Error("gone")) };
     const { unmount } = render(<Page entry={broken} />);
 
@@ -167,7 +187,7 @@ describe("Page", () => {
     await expect(broken.load()).rejects.toThrow("gone");
   });
 
-  it("redraws the page with the module a hot update replaced its own with", async () => {
+  it("renders the scenes of the module a hot update supplies", async () => {
     const { queryAllByText } = await drawn(<Page entry={entry(page([]))} />);
     const added = { ...SIZES, title: "Added" };
 
@@ -182,21 +202,21 @@ describe("Page", () => {
     expect(queryAllByText("Added")).not.toHaveLength(0);
   });
 
-  it("opens with the statement the page declares", async () => {
+  it("renders the import statement the page declares", async () => {
     const stated = { default: { id: "data/badge", imports: STATEMENT, scenes: [SIZES] } };
     const { container } = await drawn(<Page entry={entry(stated)} />);
 
     expect(slotElement(container, "code-block", "code").textContent).toBe(STATEMENT);
   });
 
-  it("folds the source a scene carries under its stage", async () => {
+  it("renders a source disclosure for a scene that declares source", async () => {
     const carried = { ...SIZES, source: '<Badge size="sm" />' };
     const { getByRole } = await drawn(<Page entry={entry(page([carried]))} />);
 
     expect(getByRole("button", { name: "Source" })).toBeDefined();
   });
 
-  it("draws a scene carrying no source without one", async () => {
+  it("renders no source disclosure for a scene that declares none", async () => {
     const { getByText, queryByRole } = await drawn(<Page entry={entry(page([SIZES]))} />);
 
     expect(getByText("drawn")).toBeDefined();

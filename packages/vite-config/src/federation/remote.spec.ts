@@ -4,25 +4,25 @@ import { remote } from "#federation/remote.ts";
 import { told } from "#vite.fixtures.ts";
 
 describe("remote", () => {
-  it("appends to the plugin list rather than replacing whatever else is there", () => {
+  it("targets plugins", () => {
     expect(remote({ exposes: {}, name: "one" }).at).toBe("plugins");
   });
 
-  it("adds the plugins the bundler builds the entry from", async () => {
+  it("resolves itemOf to a plugin when a module is exposed", async () => {
     await expect(
       remote({ exposes: { "./A": "./src/a.ts" }, name: "one" }).itemOf?.(told()),
     ).resolves.toBeDefined();
   });
 
-  it("gives a reason that tells a remote from a published package", () => {
+  it("sets because to a reason naming run time", () => {
     expect(remote({ exposes: {}, name: "one" }).because).toContain("run time");
   });
 
-  it("names the remote", () => {
+  it("names the contribution federation.remote with the remote name", () => {
     expect(remote({ exposes: {}, name: "dashboards" }).name).toBe("federation.remote(dashboards)");
   });
 
-  it("takes a shared list", async () => {
+  it("resolves itemOf to a plugin when shared is given", async () => {
     const held = remote({ exposes: {}, name: "one", shared: { react: { singleton: true } } });
 
     await expect(held.itemOf?.(told())).resolves.toBeDefined();

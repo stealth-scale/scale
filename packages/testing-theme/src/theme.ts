@@ -1,12 +1,12 @@
 /**
- * Reads what a theme states: a color resolved through every reference it names, the palettes it
- * fills, the recipes it extends and the font packages it names.
+ * Reads a theme's declarations: colors resolved through the references they name, the palettes the
+ * theme fills, the recipes it extends, and the font packages it pulls in.
  *
  * @remarks
- *   A theme states a reference where it means a step of a ramp or another semantic token, and a
- *   theme built on another states only what differs. Reading a value therefore follows the
- *   reference through the theme's own tokens and then through the preset the theme is layered on,
- *   which the caller names, because a theme layered on another base resolves against other scales.
+ *   A theme writes a reference wherever it means a step of a ramp or another semantic token, and a
+ *   theme built on another only declares what differs. Resolving a value therefore follows the
+ *   reference through the theme's own tokens and then through the preset it is layered on. The
+ *   caller supplies that preset: the same theme over a different base resolves to different colors.
  */
 
 import { type Mode, oklab, type Preset, type Theme } from "@stealthscale/theme/authoring";
@@ -15,32 +15,30 @@ import { type Declared } from "#recipe.ts";
 import { nodeAt } from "#tokens.ts";
 
 /**
- * Describes the preset a theme is layered on, for the scales a reference names and the theme does
- * not restate.
+ * The base a theme's references resolve against, for scales the theme itself does not restate.
  */
 export interface Resolving {
   /**
-   * The preset beneath the theme, or nothing where the theme states every scale itself.
+   * The preset underneath the theme. Left out when the theme declares every scale itself.
    */
   base?: Preset | undefined;
 }
 
 /**
- * Fixes the key a group's own value is written under, which a reference naming the group alone
- * points at.
+ * The key a token group's own value is written under, and what a reference to the bare group
+ * resolves to.
  */
 const ITSELF = "DEFAULT";
 
 /**
- * Reads one key off a value the config types leave loose.
+ * Reads one property off a config value whose type is too loose to index.
  */
 function at(value: unknown, name: string): unknown {
   return typeof value === "object" && value !== null ? Reflect.get(value, name) : undefined;
 }
 
 /**
- * Walks a path into a block of tokens, and takes the group's own value where the path stops at a
- * group.
+ * Walks a dotted path into a block of tokens, taking DEFAULT when the path lands on a group.
  */
 function walked(block: unknown, path: readonly string[]): unknown {
   const node = nodeAt(block, path.join("."));
@@ -49,17 +47,18 @@ function walked(block: unknown, path: readonly string[]): unknown {
 }
 
 /**
- * Reads the color tokens a theme states, or nothing where it states none.
+ * Picks the color semantic tokens out of a theme, or undefined when it declares none.
  */
 export function colorsOf(theme: Theme): unknown {
   return at(theme.variant.semanticTokens, "colors");
 }
 
 /**
- * Finds the token a reference points at: the theme's own ramps first, then its semantic tokens,
- * then the base preset's ramps and semantic tokens.
+ * Looks a reference up in the theme's ramps, then its semantic tokens, then the same two on the
+ * base preset.
  *
- * @returns The token, or undefined where the reference names no color token anywhere.
+ * @returns The token, or undefined when none of the four holds it, or when the reference is not a
+ *   color reference at all.
  */
 function pointed(theme: Theme, reference: string, base: Preset | undefined): unknown {
   const [category, ...path] = reference.slice(1, -1).split(".");
@@ -77,13 +76,13 @@ function pointed(theme: Theme, reference: string, base: Preset | undefined): unk
 }
 
 /**
- * Reads a token's value in one mode, following every reference to the color it names.
+ * Resolves a token's value in one mode, following references until it reaches a color.
  *
  * @remarks
- *   A reference that comes back round to one already followed stops the walk, so two tokens naming
- *   each other read as a dangling reference rather than as a stack overflow.
- * @returns The color as written, or undefined where the token states no value in that mode or a
- *   reference on the way points nowhere.
+ *   A chain that comes back to a reference it has already followed stops there, so two tokens
+ *   pointing at each other resolve to undefined rather than blowing the stack.
+ * @returns The color as written, or undefined when the token has no value in that mode or a
+ *   reference along the chain points at nothing.
  */
 export function resolved(
   theme: Theme,
@@ -92,7 +91,7 @@ export function resolved(
   options: Resolving = {},
 ): string | undefined {
   /**
-   * Follows one value, remembering the references already passed on this chain.
+   * Resolves one value, carrying the references already followed on this chain.
    */
   function follow(token: unknown, followed: ReadonlySet<string>): string | undefined {
     const stated = at(token, "value") ?? token;
@@ -109,12 +108,12 @@ export function resolved(
 }
 
 /**
- * Reads the color a dotted path names in one mode, or undefined where it cannot be resolved.
+ * Resolves the color a dotted path names in one mode, or undefined when it resolves to nothing.
  *
  * @remarks
- *   A path the theme states is read from the theme, with a group read at its own value. A path
- *   the theme leaves to the preset beneath it is resolved as a reference, which the resolver
- *   follows into that preset.
+ *   Paths the theme declares are read straight off the theme, taking DEFAULT where the path lands
+ *   on a group. Paths the theme leaves to the preset beneath it are turned back into a reference,
+ *   which the resolver then follows into that preset.
  */
 export function colorAt(
   theme: Theme,
@@ -132,9 +131,10 @@ export function colorAt(
 }
 
 /**
- * Reads the OKLab lightness of the color a dotted path names in one mode.
+ * Resolves the color a dotted path names in one mode and takes its OKLab lightness.
  *
- * @returns The lightness, or undefined where the color cannot be resolved or read.
+ * @returns The lightness, or undefined when the path resolves to nothing or the color will not
+ *   parse.
  */
 export function lightnessAt(
   theme: Theme,
@@ -148,12 +148,12 @@ export function lightnessAt(
 }
 
 /**
- * Fixes the role that makes a group of colors a palette rather than a family of surfaces or inks.
+ * The role that marks a group of colors as a palette rather than a family of surfaces or inks.
  */
 const FILL = "solid";
 
 /**
- * Lists every palette a theme fills, sorted, which is every group of colors with a solid fill.
+ * Lists the palettes a theme fills, sorted: every color group that declares a solid.
  */
 export function palettesOf(theme: Theme): readonly string[] {
   const colors = colorsOf(theme);
@@ -164,15 +164,14 @@ export function palettesOf(theme: Theme): readonly string[] {
 }
 
 /**
- * Maps every recipe the presets register to the key it is registered under, slot recipes among
- * them.
+ * Collects the recipes the given presets register, slot recipes included, keyed by registration
+ * key.
  *
  * @remarks
- *   A preset is what a component package publishes for the compiler, so this is the same list an
- *   application installs. A theme specification hands it to `violations` as `options.recipes`,
- *   which then checks the theme's extensions against the recipes a workspace really publishes
- *   rather than against a list of names written out by hand. An entry without a class name is a
- *   theme's own extension rather than a recipe, and is left out.
+ *   A preset is what a component package hands the compiler, so this is the same set of recipes an
+ *   application installs. A theme spec passes the result to `violations` as `options.recipes`,
+ *   which checks the theme's extensions against what the workspace actually publishes. Entries
+ *   without a class name are a theme's own extensions rather than recipes, and are skipped.
  * @param presets - The preset of each package whose recipes the theme may extend.
  */
 export function publishedRecipes(
@@ -196,7 +195,7 @@ export function publishedRecipes(
 }
 
 /**
- * Lists the recipe keys a theme's own preset extends, sorted, slot recipes among them.
+ * Lists the recipe keys a theme's preset extends, sorted, slot recipes included.
  */
 export function extendedRecipes(theme: Theme): readonly string[] {
   const extend = theme.preset.theme?.extend;
@@ -208,7 +207,7 @@ export function extendedRecipes(theme: Theme): readonly string[] {
 }
 
 /**
- * Lists the packages a theme takes its font faces from, sorted.
+ * Lists the packages a theme draws its font faces from, sorted.
  */
 export function fontsOf(theme: Theme): readonly string[] {
   return [...theme.fonts].toSorted();

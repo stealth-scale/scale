@@ -1,5 +1,5 @@
 /**
- * Says why a part of the catalogue could not be loaded, and offers the one recovery a reader has.
+ * Renders the failure notice for a part of the catalogue that could not be loaded.
  */
 
 import { type ReactElement } from "react";
@@ -11,39 +11,37 @@ import { Text } from "@stealthscale/component-typography";
 import { useWords } from "#words.ts";
 
 /**
- * Describes what the notice takes.
+ * Describes the props {@link Failed} accepts.
  */
 export interface FailedProps {
   /**
-   * Why the load failed, shown as its message.
+   * The error the load rejected with. Its message is rendered as the reason.
    */
   readonly failure: Error;
 
   /**
-   * The key of the sentence that says what could not be loaded, which takes the reason.
+   * The translation key of the failure text, which interpolates the reason.
    */
   readonly said: "page.failed" | "props.failed";
 }
 
 /**
- * Reloads the document, which is what fetches a release's chunks again after a deployment.
+ * Reloads the document, so the browser fetches the chunks of the release now served.
  */
 function reloaded(): void {
   globalThis.location.reload();
 }
 
 /**
- * Draws the failure as a sentence with the reason, and a button that reloads the page.
+ * Renders the failure message and a button that reloads the document.
  *
  * @remarks
- *   A chunk the page asked for and a deployment no longer serves fails the import, and the import
- *   is not tried again: the document caches the failure for the chunk's address. Reloading the
- *   document is the one thing that fetches the release now being served, so the notice offers it
- *   and does nothing on its own. A page that reloads itself when a fetch fails loops while the
- *   network is down or the deployment is bad, and a reader who pressed the button once knows what
- *   happened when the page comes back the same.
- * @param props - The failure and which sentence says what failed.
- * @returns The notice.
+ *   The browser caches a failed dynamic import against the chunk's address and never retries it,
+ *   so a chunk the current deployment does not serve fails every later import. A reload is the only
+ *   recovery, and the component offers it instead of reloading by itself: an automatic reload
+ *   loops while the network is down or the deployment is broken.
+ * @param props - The error to report and the key naming which text to render.
+ * @returns The failure message and the reload button.
  */
 export function Failed({ failure, said }: FailedProps): ReactElement {
   const { t } = useWords();

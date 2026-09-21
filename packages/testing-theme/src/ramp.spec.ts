@@ -9,37 +9,38 @@ import { foundationTheme, paletteTheme } from "#theme.fixtures.ts";
 type Colors = NonNullable<Tokens["colors"]>;
 
 /**
- * Builds a theme whose color tokens are the block handed in.
+ * Returns a theme whose color tokens are the block passed in.
  */
 function drawn(colors: Colors): Theme {
   return { ...paletteTheme(), name: "drawn", variant: { tokens: { colors } } };
 }
 
 /**
- * Keys three steps of one ramp by the colors handed in.
+ * Builds a ramp of three numbered steps from the three colors given.
  */
 function three(first: string, second: string, third: string): Colors {
   return { 100: { value: first }, 200: { value: second }, 300: { value: third } };
 }
 
 describe("ramp", () => {
-  it("lists every hue ramp of the foundation with its steps ascending", () => {
-    const ramps = rampsOf(foundationTheme());
+  it("lists one ramp for every hue the foundation declares", () => {
+    expect(rampsOf(foundationTheme()).map(({ path }) => path)).toStrictEqual([...HUES]);
+  });
 
-    expect(ramps.map(({ path }) => path)).toStrictEqual([...HUES]);
-    expect(ramps[0]?.steps.map(([step]) => step)).toStrictEqual([
+  it("lists the steps of a foundation ramp from 50 to 950", () => {
+    expect(rampsOf(foundationTheme())[0]?.steps.map(([step]) => step)).toStrictEqual([
       50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950,
     ]);
   });
 
-  it("passes over a ramp whose steps carry transparency", () => {
+  it("lists no ramp whose steps declare transparency", () => {
     const ramps = rampsOf(foundationTheme());
 
     expect(ramps.map(({ path }) => path)).not.toContain("blackAlpha");
     expect(ramps.map(({ path }) => path)).not.toContain("whiteAlpha");
   });
 
-  it("lists a dark ramp nested under the light one by its own path", () => {
+  it("lists a dark ramp nested under the light one at the nested path", () => {
     const light = three("oklch(90% 0.05 260)", "oklch(60% 0.15 260)", "oklch(30% 0.1 260)");
     const dark = three("oklch(30% 0.1 260)", "oklch(60% 0.15 260)", "oklch(90% 0.05 260)");
 
@@ -59,7 +60,7 @@ describe("ramp", () => {
     ]);
   });
 
-  it("passes over a group with fewer than three numbered steps", () => {
+  it("lists no group with fewer than three numbered steps", () => {
     const colors = {
       accent: { 100: { value: "#eee" }, 900: { value: "#111" }, DEFAULT: { value: "#888" } },
       white: { value: "#fff" },
@@ -68,7 +69,7 @@ describe("ramp", () => {
     expect(rampsOf(drawn(colors))).toStrictEqual([]);
   });
 
-  it("lists no ramp for a theme that states no color tokens", () => {
+  it("lists no ramp for a theme that declares no color tokens", () => {
     expect(rampsOf({ ...paletteTheme(), variant: {} })).toStrictEqual([]);
     expect(rampsOf({ ...paletteTheme(), variant: { tokens: {} } })).toStrictEqual([]);
   });
@@ -78,11 +79,14 @@ describe("ramp", () => {
       [1, 2],
       [2, 3],
     ]);
+  });
+
+  it("pairs nothing when the values number fewer than two", () => {
     expect(consecutive([1])).toStrictEqual([]);
     expect(consecutive([])).toStrictEqual([]);
   });
 
-  it("passes the foundation's ramps as monotonic in lightness", () => {
+  it("reports no turn in lightness for the foundation's ramps", () => {
     expect(monotonic(foundationTheme())).toStrictEqual([]);
   });
 
@@ -108,7 +112,7 @@ describe("ramp", () => {
     ]);
   });
 
-  it("allows two consecutive steps at one lightness", () => {
+  it("reports nothing for two consecutive steps at one lightness", () => {
     const theme = drawn({
       blue: three("oklch(90% 0.05 260)", "oklch(50% 0.15 260)", "oklch(50% 0.15 260)"),
     });
@@ -116,13 +120,13 @@ describe("ramp", () => {
     expect(monotonic(theme)).toStrictEqual([]);
   });
 
-  it("reports a step it cannot read instead of measuring round it", () => {
+  it("reports only that a step cannot be read when its color does not parse", () => {
     const theme = drawn({ blue: three("oklch(90% 0.05 260)", "nope", "oklch(30% 0.1 260)") });
 
     expect(monotonic(theme)).toStrictEqual(["drawn blue step 200 cannot be read"]);
   });
 
-  it("passes the foundation's ramps as holding one hue each", () => {
+  it("reports no hue drift for the foundation's ramps", () => {
     expect(hue(foundationTheme(), THRESHOLDS)).toStrictEqual([]);
   });
 
@@ -134,6 +138,13 @@ describe("ramp", () => {
     expect(hue(theme, THRESHOLDS)).toStrictEqual([
       "drawn blue step 200 drifts 130 degrees from the ramp's hue, above 45",
     ]);
+  });
+
+  it("reports nothing when the threshold allows the drift", () => {
+    const theme = drawn({
+      blue: three("oklch(90% 0.1 260)", "oklch(60% 0.15 30)", "oklch(30% 0.1 260)"),
+    });
+
     expect(hue(theme, { ...THRESHOLDS, hue: 180 })).toStrictEqual([]);
   });
 
@@ -154,22 +165,29 @@ describe("ramp", () => {
     expect(hue(theme, THRESHOLDS)).toStrictEqual([]);
   });
 
-  it("leaves a step it cannot read out of the hue measurement", () => {
+  it("leaves a step that cannot be read out of the hue measurement", () => {
     const theme = drawn({ teal: three("oklch(90% 0.1 180)", "nope", "oklch(30% 0.1 180)") });
 
     expect(hue(theme, THRESHOLDS)).toStrictEqual([]);
   });
 
-  it("reports a step outside the sRGB gamut", () => {
+  it("lists the ramp and step that fall outside the sRGB gamut", () => {
     const theme = drawn({
       green: three("oklch(90% 0.05 150)", "oklch(60% 0.3 150)", "oklch(30% 0.05 150)"),
     });
 
     expect(outsideGamut(theme)).toStrictEqual(["green step 200"]);
+  });
+
+  it("reports a step outside the sRGB gamut against the theme's name", () => {
+    const theme = drawn({
+      green: three("oklch(90% 0.05 150)", "oklch(60% 0.3 150)", "oklch(30% 0.05 150)"),
+    });
+
     expect(gamut(theme)).toStrictEqual(["drawn green step 200 is outside sRGB"]);
   });
 
-  it("passes a ramp inside the gamut and a step it cannot read", () => {
+  it("reports nothing for a ramp inside the gamut with a step that cannot be read", () => {
     const theme = drawn({ gray: three("#eeeeee", "nope", "#111111") });
 
     expect(gamut(theme)).toStrictEqual([]);

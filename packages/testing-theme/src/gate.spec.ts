@@ -9,7 +9,7 @@ const RUNNERS = [
 ] as const;
 
 describe("gated", () => {
-  it("opens every violation with the check that reported it", () => {
+  it("prefixes every violation with the name of the check that reported it", () => {
     expect(gated(RUNNERS, {})).toStrictEqual([
       "one: first thing",
       "three: second thing",
@@ -17,13 +17,13 @@ describe("gated", () => {
     ]);
   });
 
-  it("leaves out a check the specification skips", () => {
+  it("runs no check the skip option names", () => {
     expect(gated(RUNNERS, { skip: { three: "measured in the browser instead" } })).toStrictEqual([
       "one: first thing",
     ]);
   });
 
-  it("reports a skip that gives no reason before anything a check found", () => {
+  it("reports a skip with a blank reason before the violations", () => {
     expect(gated(RUNNERS, { skip: { one: "  " } })).toStrictEqual([
       "skip of one gives no reason",
       "three: second thing",
@@ -31,7 +31,7 @@ describe("gated", () => {
     ]);
   });
 
-  it("reports nothing for a gate whose every check is quiet", () => {
+  it("returns an empty array when every check reports no violation", () => {
     expect(gated([["two", (): readonly string[] => []]], {})).toStrictEqual([]);
   });
 });

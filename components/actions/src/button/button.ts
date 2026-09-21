@@ -1,12 +1,12 @@
 /**
- * Draws a button through its recipe.
+ * Renders a button through the button recipe.
  *
  * @remarks
- *   The element is `button`, which the browser focuses, presses with Space and Enter, and names
- *   from its content. `type` defaults to `button`, because the platform's default is `submit`
- *   and a button inside a form would send it. The component adds no ink, no size and no shape.
- *   All of that is the recipe's, so a theme moves every button by extending it. A caller changes
- *   the element with `as`, for a link drawn as a button.
+ *   A native `button` element already gets focus, Space and Enter activation, and an accessible
+ *   name from its content, so none of that is reimplemented here. The component contributes no
+ *   colour, size or shape of its own; the recipe owns all of it, so extending the recipe restyles
+ *   every button in a theme. Pass `as` to swap the element, for instance an anchor that looks like
+ *   a button.
  */
 
 import { type ComponentProps } from "react";
@@ -14,12 +14,12 @@ import { type ComponentProps } from "react";
 import { withContext } from "#button/context.ts";
 
 /**
- * Draws a button in a look, a size and a status, square where it holds one glyph.
+ * Renders a `button` element styled by the recipe, with `type` fixed to `button` so that placing
+ * one inside a form does not submit it.
  */
 export const Button = withContext("button", { defaultProps: { type: "button" } });
 
 /**
- * Describes what a button takes: the variants its recipe offers, and everything a styled button
- * element takes.
+ * Combines the recipe's variants with every prop a `button` element accepts.
  */
 export type ButtonProps = ComponentProps<typeof Button>;

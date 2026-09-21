@@ -7,52 +7,52 @@ import { composed, palette, typed } from "#command/command.fixtures.tsx";
 import { Input } from "#command/input.tsx";
 
 describe("Input", () => {
-  it("draws a field inside the band the palette states", () => {
+  it("renders an input element for the input slot", () => {
     const { container } = render(palette(<Input aria-label="Type a command" />));
 
     expect(slotElement(container, "command", "input").tagName).toBe("INPUT");
   });
 
-  it("draws no mark where a caller hands none over", () => {
+  it("renders no indicator element when the indicator prop is absent", () => {
     const { container } = render(palette(<Input aria-label="Type a command" />));
 
     expect(container.querySelector("[data-part=indicator]")).toBeNull();
   });
 
-  it("draws the mark a caller hands over", () => {
+  it("renders the indicator prop inside the indicator slot", () => {
     const { container } = render(palette(<Input aria-label="Type a command" indicator="s" />));
 
     expect(slotElement(container, "command", "indicator").textContent).toBe("s");
   });
 
-  it("keeps the mark out of the accessibility tree", () => {
+  it("sets aria-hidden on the indicator", () => {
     const { container } = render(palette(<Input aria-label="Type a command" indicator="s" />));
 
     expect(slotElement(container, "command", "indicator").getAttribute("aria-hidden")).toBe("true");
   });
 
-  it("narrows the list to what was typed", async () => {
+  it("drops the rows whose labels do not contain the query", async () => {
     render(composed());
     await typed(screen.getByRole("textbox"), "inv");
 
     expect(screen.getAllByRole("option")).toHaveLength(1);
   });
 
-  it("finds an action by the words added to it", async () => {
+  it("keeps a row whose keywords contain the query but whose label does not", async () => {
     render(composed());
     await typed(screen.getByRole("textbox"), "add");
 
     expect(screen.getByRole("option", { name: /New document/u })).toBeTruthy();
   });
 
-  it("folds case so a reader typing in lower case still finds a row", async () => {
+  it("keeps a row whose label differs from the query only in case", async () => {
     render(composed());
     await typed(screen.getByRole("textbox"), "REPORTS");
 
     expect(screen.getByRole("option", { name: "Reports" })).toBeTruthy();
   });
 
-  it("draws what was typed", async () => {
+  it("shows the query in the field after it is typed", async () => {
     render(composed());
     await typed(screen.getByRole("textbox"), "inv");
 

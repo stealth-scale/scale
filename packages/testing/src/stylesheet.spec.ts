@@ -24,12 +24,12 @@ const CSS = `
 `;
 
 describe("declared", () => {
-  it("reads what a selector declares a property as", () => {
+  it("returns the value a selector declares for a property", () => {
     expect(declared(CSS, ":where(:root, :host)", "--colors-bg")).toBe("white");
     expect(declared(CSS, ".button", "border-radius")).toBe("var(--radii-l2)");
   });
 
-  it("reads a selector that carries the characters a pattern reads as syntax", () => {
+  it("matches a selector containing regular expression syntax characters", () => {
     expect(
       declared(
         CSS,
@@ -39,17 +39,17 @@ describe("declared", () => {
     ).toBe("near-black");
   });
 
-  it("reads a selector wherever it sits in a list", () => {
+  it("matches a selector at any position in a selector list", () => {
     expect(declared(CSS, "[data-theme=abyss]:where(:root)", "--colors-bg")).toBe("deep");
     expect(declared(CSS, "[data-theme=abyss] :where(:root)", "--colors-bg")).toBe("deep");
   });
 
-  it("returns nothing for a selector that declares the property nowhere", () => {
+  it("returns undefined when no rule declares the property", () => {
     expect(declared(CSS, ".button", "color")).toBeUndefined();
     expect(declared(CSS, ".missing", "color")).toBeUndefined();
   });
 
-  it("does not read a property out of a rule a longer selector opens", () => {
+  it("returns undefined when only a longer selector opens the rule", () => {
     expect(declared(CSS, ".button--size", "padding")).toBeUndefined();
   });
 });

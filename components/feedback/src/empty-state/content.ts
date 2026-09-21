@@ -1,5 +1,5 @@
 /**
- * Draws the column the mark and the words are centred in.
+ * Renders the centred column holding an empty state's icon and copy.
  */
 
 import { type ComponentProps } from "react";
@@ -7,11 +7,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#empty-state/context.ts";
 
 /**
- * Centres what it holds, in a column, at the gap its size states.
+ * Stacks and centres its children, spaced by the gap the root's size resolves to.
  */
 export const Content = withContext("div", "content");
 
 /**
- * Describes what the content takes.
+ * The props of a styled `div`.
  */
 export type ContentProps = ComponentProps<typeof Content>;

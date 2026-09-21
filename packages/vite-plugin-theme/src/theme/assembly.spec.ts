@@ -125,13 +125,13 @@ async function compiled(workspace: ScratchWorkspace): Promise<string> {
 }
 
 describe("assemble", () => {
-  it("draws the first theme where no attribute is set", async () => {
+  it("applies the first theme where no attribute is set", async () => {
     const css = await withScratchWorkspaceAsync(APP, compiled);
 
     expect(declared(css, ".button", "letter-spacing")).toBe("0.01em");
   });
 
-  it("draws every theme under the attribute that switches to it with the first included", async () => {
+  it("scopes every theme under the attribute that switches to it with the first included", async () => {
     const css = await withScratchWorkspaceAsync(APP, compiled);
 
     expect(
@@ -186,7 +186,7 @@ describe("assemble", () => {
     ).toBe("0.06em");
   });
 
-  it("draws a theme's token values under its attribute", async () => {
+  it("emits a theme's token values under its attribute", async () => {
     const files = {
       ...APP,
       "themes/abyss.ts": theme(
@@ -215,7 +215,7 @@ describe("assemble", () => {
     expect(declared(css, "[data-theme=abyss]", "--colors-brand")).toBe("#222");
   });
 
-  it("draws the first theme's token values where no attribute is set", async () => {
+  it("emits the first theme's token values where no attribute is set", async () => {
     const files = {
       ...APP,
       "themes/fathom.ts": theme(
@@ -345,7 +345,7 @@ describe("assemble", () => {
     ).toBe("16px");
   });
 
-  it("scopes a derived theme's own and inherited extensions under its attribute", async () => {
+  it("scopes every level of a derived theme under its attribute", async () => {
     const files = {
       ...APP,
       "theme.config.ts": [
@@ -381,7 +381,7 @@ describe("assemble", () => {
     expect(css).toMatch(/\[data-theme=deep\] \.button:not\([^)]*\)\s*\{[^}]*font-weight/u);
   });
 
-  it("draws a theme's new value once that theme is edited", async () => {
+  it("compiles a theme's new value after that theme is edited", async () => {
     const css = await withScratchWorkspaceAsync(APP, async (workspace) => {
       await compiled(workspace);
       workspace.write({ "themes/abyss.ts": theme("abyss", tracking("0.3em")) });
@@ -398,7 +398,7 @@ describe("assemble", () => {
     ).toBe("0.3em");
   });
 
-  it("stops scoping a theme that no longer extends anything", async () => {
+  it("emits no scoped rule for a theme that extends nothing", async () => {
     const files = {
       ...APP,
       "themes/abyss.ts": 'export const abyss = { fonts: [], name: "abyss", variant: {} };\n',
@@ -462,7 +462,7 @@ describe("assemble", () => {
     expect(declared(css, ".p-17px", "padding")).toBe("17px");
   });
 
-  it("reports a contributor installed twice and compiles the first", async () => {
+  it("keeps one contributor per name when a package is installed twice", async () => {
     const files = {
       ...APP,
       ...packageFiles(
@@ -535,7 +535,7 @@ describe("assemble", () => {
     expect(found).toStrictEqual(["naming/aliased-import src/page.tsx"]);
   });
 
-  it("draws the foundation alone where the application states no theme", async () => {
+  it("compiles the foundation alone where the application states no theme", async () => {
     const files = { ...APP, "theme.config.ts": 'export default { static: "*" };\n' };
     const css = await withScratchWorkspaceAsync(files, compiled);
 
@@ -544,7 +544,7 @@ describe("assemble", () => {
     expect(declared(css, ".button", "letter-spacing")).toBe("0em");
   });
 
-  it("lists the source directory of every workspace package and no installed one", async () => {
+  it("lists the source directory of every workspace package", async () => {
     const roots = await withScratchWorkspaceAsync(LINKED, async (workspace) => {
       linked(workspace);
 

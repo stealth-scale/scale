@@ -1,5 +1,5 @@
 /**
- * Builds the tree over the catalogue, and the router over the tree.
+ * Builds the catalogue's route tree and the router mounted over it.
  */
 
 import {
@@ -19,20 +19,19 @@ import { COMPILED, FRAME, MOUNTED } from "#catalogue.ts";
 import { Frame } from "#frame.tsx";
 
 /**
- * Builds the tree.
+ * Constructs a route tree holding the site root and every compiled catalogue route.
  *
  * @remarks
- *   A function rather than a module constant, because calling it twice returns two trees that
- *   share no route, which is what lets a specification build one without navigating the page
- *   beside it. The site root sends a reader to the catalogue, because this application draws
- *   nothing else yet.
- * @returns The tree a router is built from.
+ *   Each call constructs a fresh tree, so a specification builds one without sharing route state
+ *   with the tree the page is mounted from. The route at `/` redirects to the catalogue, the only
+ *   section this application serves.
+ * @returns The root route, with every child route attached.
  */
 export function buildTree(): AnyRoute {
   const root = createAppRootRoute()({ component: Outlet });
   const home = createRoute({
     beforeLoad: () => {
-      // The library's own redirect, which is a response rather than an Error subclass.
+      // TanStack Router signals a redirect with a value that is not an Error subclass.
       // eslint-disable-next-line typescript/only-throw-error -- see above
       throw redirect({ to: `/${MOUNTED}` });
     },
@@ -47,13 +46,12 @@ export function buildTree(): AnyRoute {
 }
 
 /**
- * Builds the router, mounted under the path the application is served at.
+ * Constructs the router for the catalogue, mounted under the path the application is served at.
  *
  * @remarks
- *   The base path is derived from the base the bundler was given, so a deployment under a prefix
- *   such as `/design/` routes its deep links, and a deployment whose assets live on another host
- *   still routes at the root of its own origin.
- * @returns The router.
+ *   `basepathOf` derives the mount point from the base the bundler was given, so a deployment
+ *   under a prefix such as `/design/` resolves its deep links against that prefix.
+ * @returns A router over a freshly built route tree.
  */
 export function routed(): ReturnType<typeof createRouter<AnyRoute>> {
   const tree = buildTree();

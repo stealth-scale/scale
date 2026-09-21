@@ -1,8 +1,9 @@
 /**
- * Publishes many of a thing: the lists, tables and grids that render a set of records. Each
- * component binds a recipe a theme can extend and draws nothing of its own. The recipes reach an
- * application's compiler through the preset under `./theme`, and the components reach its bundle
- * through here. A component with parts is published as a namespace, `Table.Root`.
+ * Components that render a set of records: listboxes, tables, grids, transfer lists and a status
+ * matrix. Every component takes its styling from a slot recipe that a theme can override, and
+ * carries no styling of its own. An application installs the recipes by adding the preset at
+ * `./theme` to its compiler configuration, and imports the components from here. A component built
+ * from parts is exported as a namespace, so its root is `Table.Root`.
  *
  * @packageDocumentation
  */

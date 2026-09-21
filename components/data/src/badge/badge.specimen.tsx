@@ -1,11 +1,10 @@
 /**
- * Shows the badge: every look at every size, every status in every look, and every corner at
- * every size on a count.
+ * Lays out the catalogue page for the badge.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. The words are keys under `badge` in the catalogue's namespace, kept
- *   beside this file in `locales/en/specimen/badge.json`.
+ *   Each scene reads its axis values from the recipe, so a value added to the theme appears here
+ *   without an edit to this file. The text comes from keys under `badge` in the catalogue
+ *   namespace, held beside this file in `locales/en/specimen/badge.json`.
  */
 
 import { type ReactElement } from "react";
@@ -16,17 +15,17 @@ import { Badge } from "#badge/badge.ts";
 import { recipe } from "#badge/recipe.ts";
 
 /**
- * Every look the recipe draws.
+ * The variant values two of the scenes iterate over.
  */
 const LOOKS = valuesOf(recipe, "variant");
 
 /**
- * Every size the recipe draws.
+ * The size values two of the scenes iterate over.
  */
 const SIZES = valuesOf(recipe, "size");
 
 /**
- * Draws a draft label in every look at every size.
+ * Renders a matrix of every look against every size.
  */
 function Looks(): ReactElement {
   const { t } = useWords("badge");
@@ -43,7 +42,7 @@ function Looks(): ReactElement {
 }
 
 /**
- * Draws a live label in every status in every look.
+ * Renders a matrix of every status against every look.
  */
 function Statuses(): ReactElement {
   const { t } = useWords("badge");
@@ -60,7 +59,7 @@ function Statuses(): ReactElement {
 }
 
 /**
- * Draws a count at every corner at every size.
+ * Renders a matrix of every corner against every size, on a numeric label.
  */
 function Corners(): ReactElement {
   return (
@@ -75,7 +74,7 @@ function Corners(): ReactElement {
 }
 
 /**
- * Every look at every size.
+ * The scene crossing the looks with the sizes.
  */
 export const looks: Scene = {
   about: "badge.looks.about",
@@ -84,7 +83,7 @@ export const looks: Scene = {
 };
 
 /**
- * Every status in every look.
+ * The scene crossing the statuses with the looks.
  */
 export const statuses: Scene = {
   about: "badge.statuses.about",
@@ -93,7 +92,7 @@ export const statuses: Scene = {
 };
 
 /**
- * Every corner at every size.
+ * The scene crossing the corners with the sizes.
  */
 export const corners: Scene = {
   about: "badge.corners.about",

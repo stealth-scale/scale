@@ -64,7 +64,7 @@ const ARGUMENTS: Arguments = {
 };
 
 describe("@stealthscale/vite-config", () => {
-  it("keeps the config package contract", async () => {
+  it("reports no violations of the config package contract", async () => {
     await expect(
       violations({
         arguments: ARGUMENTS,

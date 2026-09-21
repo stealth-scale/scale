@@ -1,12 +1,12 @@
 /**
- * Plans what publishing and trusting every package of this workspace would take, and does nothing.
+ * Works out which public packages of this workspace need publishing and which need the release
+ * workflow trusted, and runs neither step.
  *
  * @remarks
- *   The plan is read from the workspace itself, through the package manager's own listing, so a
- *   package added under any workspace glob is planned without this file changing. Only an answer
- *   the registry gives outright decides whether a package is published: a registry that cannot be
- *   reached, or refuses the question, ends the plan rather than counting the package as absent.
- *   `apply.ts` prints the plan and, with `--yes`, runs it.
+ *   The members come from `pnpm ls`, so a package added under any workspace glob is planned
+ *   without this file changing. Only a definite answer from the registry decides whether a package
+ *   is published: a registry that cannot be reached, or that refuses the question, ends the plan.
+ *   `apply.ts` prints the plan and runs it with `--yes`.
  */
 
 import { readFileSync } from "node:fs";
@@ -15,99 +15,101 @@ import { join } from "node:path";
 import { type Runner } from "./run.ts";
 
 /**
- * The repository whose release workflow the registry is asked to trust.
+ * Identifies the repository whose release workflow the registry is asked to trust.
  */
 export const REPO = "stealth-scale/config";
 
 /**
- * The workflow file the registry is asked to trust, under the repository's `.github/workflows`.
+ * Identifies the workflow file the registry is asked to trust, under the repository's
+ * `.github/workflows`.
  */
 export const FILE = "release.yml";
 
 /**
- * One member of the workspace, as the package manager lists it.
+ * Describes one workspace member, as the package manager lists it and its manifest declares it.
  */
 export interface Member {
   /**
-   * Whether the manifest declares a `build` script, which a publication runs first.
+   * Reports whether the manifest declares a `build` script, which a publication runs first.
    */
   readonly builds: boolean;
 
   /**
-   * The package name.
+   * Gives the package name.
    */
   readonly name: string;
 
   /**
-   * The package directory, absolute.
+   * Gives the absolute path of the package directory.
    */
   readonly path: string;
 
   /**
-   * Whether the manifest marks the package private, which keeps it off the registry.
+   * Reports whether the manifest marks the package private, which keeps it off the registry.
    */
   readonly private: boolean;
 }
 
 /**
- * The plan's decision for one public member.
+ * Records the plan's decision for one public member.
  */
 export interface Planned {
   /**
-   * The member.
+   * Gives the member the decision applies to.
    */
   readonly member: Member;
 
   /**
-   * Whether the package has to be published first, because the registry does not have it.
+   * Reports whether the package has to be published first, because the registry does not have it.
    */
   readonly publish: boolean;
 
   /**
-   * Whether the registry has to be asked to trust the workflow, because it does not yet.
+   * Reports whether the registry still has to be asked to trust the workflow.
    */
   readonly trust: boolean;
 }
 
 /**
- * One row of the package manager's listing.
+ * Describes one row of the package manager's listing.
  */
 interface Listed {
   /**
-   * The package name, absent for a directory with no manifest name.
+   * Gives the package name, absent for a directory whose manifest declares none.
    */
   readonly name?: string | undefined;
 
   /**
-   * The package directory, absolute.
+   * Gives the absolute path of the package directory.
    */
   readonly path: string;
 }
 
 /**
- * Reports whether a parsed value is a row of the listing.
+ * Returns true when a parsed value carries the path a listing row needs, and narrows it to
+ * {@link Listed}.
  */
 function isListed(one: unknown): one is Listed {
   return typeof one === "object" && one !== null && typeof Reflect.get(one, "path") === "string";
 }
 
 /**
- * The two facts a member's manifest adds to the listing.
+ * Carries the two facts a member's manifest adds to its listing row.
  */
 interface Declared {
   /**
-   * Whether the manifest declares a `build` script.
+   * Reports whether the manifest declares a `build` script.
    */
   readonly builds: boolean;
 
   /**
-   * Whether the manifest marks the package private.
+   * Reports whether the manifest marks the package private.
    */
   readonly private: boolean;
 }
 
 /**
- * Reads whether a parsed manifest marks the package private, and whether it declares a build.
+ * Reads package.json in a directory for its `build` script and its `private` flag.
  */
 function manifestOf(path: string): Declared {
   const held: unknown = JSON.parse(readFileSync(join(path, "package.json"), "utf8"));
@@ -121,7 +123,7 @@ function manifestOf(path: string): Declared {
 }
 
 /**
- * Joins one row of the listing with what its manifest declares.
+ * Builds a member from one listing row and the manifest at its path.
  */
 function memberOf(one: Listed): Member {
   const declared = manifestOf(one.path);
@@ -135,9 +137,9 @@ function memberOf(one: Listed): Member {
 }
 
 /**
- * Lists every member of the workspace, through the package manager's own listing.
+ * Lists every named workspace member except the root, as `pnpm ls` reports them.
  *
- * @throws {@link Error} When the listing cannot be read.
+ * @throws {@link Error} When `pnpm ls` exits non-zero, with its code and its standard error.
  */
 export async function members(run: Runner, root: string): Promise<readonly Member[]> {
   const ran = await run("pnpm", ["ls", "-r", "--depth", "-1", "--json"], root);
@@ -153,11 +155,12 @@ export async function members(run: Runner, root: string): Promise<readonly Membe
 }
 
 /**
- * Asks the registry whether it has a package under a name.
+ * Asks the registry whether a package exists under a name.
  *
  * @remarks
- *   Only a `404` is read as absence. Any other failure, an expired login, a network the registry
- *   cannot be reached over, a rate limit, is not an answer, and the question ends the plan.
+ *   Only a `404` counts as absence. An expired login, an unreachable network and a rate limit say
+ *   nothing either way, and ending the plan there beats planning a publish over a package the
+ *   registry already has.
  * @throws {@link Error} When the registry gives no answer either way.
  */
 export async function published(run: Runner, name: string): Promise<boolean> {
@@ -170,7 +173,7 @@ export async function published(run: Runner, name: string): Promise<boolean> {
 }
 
 /**
- * Reports whether one record the registry listed trusts the repository's workflow.
+ * Returns true when one record from the registry names this repository and its release workflow.
  */
 function trusts(one: unknown): boolean {
   if (typeof one !== "object" || one === null) return false;
@@ -185,13 +188,13 @@ function trusts(one: unknown): boolean {
 }
 
 /**
- * Reads whether the registry already trusts the repository's workflow for a package.
+ * Asks the registry whether it already trusts the repository's workflow for a package.
  *
  * @remarks
- *   The records are read as the registry's own JSON, and a listing that is not JSON ends the
- *   plan: a line grepped out of prose would read a record that mentions the repository as one
- *   that trusts it.
- * @throws {@link Error} When the listing cannot be read as records.
+ *   A command that exits non-zero counts as no trust. A listing that is not JSON ends the plan
+ *   instead, because matching the repository name against prose would count a record that merely
+ *   mentions the repository as trust.
+ * @throws {@link Error} When the listing is not JSON, with the first 200 characters of it.
  */
 export async function trusted(run: Runner, name: string): Promise<boolean> {
   const ran = await run("npm", ["trust", "list", name, "--json"]);
@@ -212,9 +215,12 @@ export async function trusted(run: Runner, name: string): Promise<boolean> {
 }
 
 /**
- * Plans every public member: whether it has to be published, and whether the registry has to be
- * asked to trust the workflow.
+ * Decides for every public member whether to publish it and whether to ask the registry to trust
+ * the workflow.
  *
+ * @remarks
+ *   A package the registry does not have is planned for both steps, since trust is granted on a
+ *   name the registry already knows.
  * @throws {@link Error} When a question to the registry gets no answer.
  */
 export async function planned(run: Runner, root: string): Promise<readonly Planned[]> {
@@ -235,7 +241,7 @@ export async function planned(run: Runner, root: string): Promise<readonly Plann
 }
 
 /**
- * Writes the plan as one line per member.
+ * Formats the plan as one line per member, naming the steps it needs or that it needs none.
  */
 export function printed(plan: readonly Planned[]): string {
   return plan

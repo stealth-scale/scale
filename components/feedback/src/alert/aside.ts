@@ -1,12 +1,11 @@
 /**
- * Draws what sits against the end of an alert.
+ * Renders the trailing slot of an alert, against its inline end.
  *
  * @remarks
- *   The element is `div` and holds what a reader does about the alert: a control that dismisses
- *   it, a link to what went wrong, a retry.
- *   A control here is named by the caller, and the name says what it acts on. `Dismiss` alone is
- *   read out of context by a screen reader moving control to control, where `Dismiss this warning`
- *   is not.
+ *   The element is a `div` holding whatever the user can act on: a dismiss control, a link to the
+ *   failing resource, a retry. Labelling such a control is the caller's responsibility and the
+ *   label should name its target, because a screen reader user moving from control to control
+ *   encounters `Dismiss` with none of the surrounding context that would disambiguate it.
  */
 
 import { type ComponentProps } from "react";
@@ -14,11 +13,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#alert/context.ts";
 
 /**
- * Sets whatever a reader does about the alert against its end.
+ * Renders the trailing region of an alert, centred across the row and sized to its own contents.
  */
 export const Aside = withContext("div", "aside");
 
 /**
- * Describes what the band takes: everything a styled div takes.
+ * The props of a styled `div`.
  */
 export type AsideProps = ComponentProps<typeof Aside>;

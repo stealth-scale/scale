@@ -5,23 +5,23 @@ import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/te
 import { recipe } from "#badge/recipe.ts";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("styles Badge from tokens a theme can override", () => {
     expect(recipeViolations(recipe, { names: ["Badge"] })).toStrictEqual([]);
   });
 
-  it("names its class badge", () => {
+  it("sets className to badge", () => {
     expect(recipe.className).toBe("badge");
   });
 
-  it("offers the four axes a badge takes", () => {
+  it("declares four variant axes", () => {
     expect(axesOf(recipe)).toStrictEqual(["radius", "size", "status", "variant"]);
   });
 
-  it("draws the middle size in the subtle look at the middle corner by default", () => {
+  it("defaults to the subtle look at the md size with the l2 corner", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ radius: "l2", size: "md", variant: "subtle" });
   });
 
-  it("offers the eight sizes every component shares", () => {
+  it("declares eight size values from xs to 4xl", () => {
     expect(valuesOf(recipe, "size")).toStrictEqual([
       "2xl",
       "3xl",
@@ -34,7 +34,7 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers the five flat looks", () => {
+  it("declares five look values", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual([
       "outline",
       "plain",
@@ -44,11 +44,11 @@ describe("recipe", () => {
     ]);
   });
 
-  it("leaves the ghost look out because a badge repaints under no pointer", () => {
+  it("omits ghost from the look values", () => {
     expect(valuesOf(recipe, "variant")).not.toContain("ghost");
   });
 
-  it("offers the four statuses and the neutral palette", () => {
+  it("declares neutral alongside the four status values", () => {
     expect(valuesOf(recipe, "status")).toStrictEqual([
       "error",
       "info",
@@ -58,24 +58,24 @@ describe("recipe", () => {
     ]);
   });
 
-  it("emits every status whether or not a page writes it", () => {
+  it("lists all five status values under staticCss", () => {
     expect(recipe.staticCss).toStrictEqual([
       { status: ["info", "success", "warning", "error"] },
       { status: ["neutral"] },
     ]);
   });
 
-  it("offers the four corners the theme draws", () => {
+  it("declares four radius values", () => {
     expect(valuesOf(recipe, "radius")).toStrictEqual(["full", "l1", "l2", "l3"]);
   });
 
-  it("reads the tag scale rather than the control scale at every size", () => {
+  it("takes the md height from the tag scale rather than the control scale", () => {
     expect(recipe.variants?.["size"]?.["md"]).toMatchObject({
       height: "calc({sizes.tag.md} * var(--density, 1))",
     });
   });
 
-  it("tracks every tag whose name ends in Badge", () => {
+  it("matches JSX tag names ending in Badge", () => {
     expect(recipe.jsx).toStrictEqual([/Badge$/u]);
   });
 });

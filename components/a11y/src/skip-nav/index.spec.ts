@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#skip-nav/index.ts";
 
 describe("index", () => {
-  it("names every export and nothing beside it", () => {
+  it("limits its runtime exports to Link SKIP_NAV_TARGET and Target", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual(["Link", "SKIP_NAV_TARGET", "Target"]);
   });
 
-  it("publishes neither the recipe nor the binding", () => {
+  it("exports no name prefixed with recipe with use or PropsProvider", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {

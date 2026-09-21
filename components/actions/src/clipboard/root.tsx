@@ -1,9 +1,11 @@
 /**
- * Draws the frame the label, the field and the trigger sit in, and runs the machine they share.
+ * Renders the container holding the label, the field and the trigger, and runs the machine they
+ * share.
  *
  * @remarks
- *   The element is `div` and carries no role. A clipboard is a value and the button that copies
- *   it, and each of those carries its own meaning.
+ *   The container is a plain `div` with no ARIA role. A clipboard is a value plus a button that
+ *   copies it, and each of those already carries its own semantics, so a role on the wrapper would
+ *   tell a screen reader nothing.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -17,25 +19,25 @@ import {
 } from "#clipboard/machine.ts";
 
 /**
- * Draws the frame and sets the variants every part below it reads.
+ * Renders the root slot and publishes the recipe's variants to the parts below it.
  */
 const Framed = withProvider("div", "root");
 
 /**
- * Describes what the root takes: the machine's options, the recipe's variants, and the element's.
+ * Merges the machine's settings with the props of the styled div.
  *
  * @remarks
- *   The element's own `id` and `dir` are left out, because the machine states both. Its
- *   `defaultValue` is left out too, because the machine's own is the value the parts copy.
+ *   `id` and `dir` are dropped from the element's props because the machine owns both, and
+ *   `defaultValue` because the machine's is the value the parts copy.
  */
 export interface RootProps
   extends ClipboardOptions, Omit<ComponentProps<typeof Framed>, "defaultValue" | "dir" | "id"> {}
 
 /**
- * Copies a value when its trigger is pressed and says so for a while.
+ * Starts a clipboard machine and renders the container its parts read from.
  *
- * @param props - The machine's options, the recipe's variants and the element's props together.
- * @returns The frame, holding the parts, under the running machine.
+ * @param props - The machine's settings, the recipe's variants and the div's props in one object.
+ * @returns The container, with the connected api in context for the parts.
  */
 export function Root(props: RootProps): ReactElement {
   const [options, rest] = splitClipboardProps(props);

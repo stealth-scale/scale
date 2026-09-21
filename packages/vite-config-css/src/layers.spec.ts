@@ -1,5 +1,5 @@
 /**
- * Covers what a package extending a tier gets back from the call.
+ * Covers the layers the call returns to a package extending a tier.
  */
 
 import { describe, expect, it } from "vitest";
@@ -7,11 +7,11 @@ import { describe, expect, it } from "vitest";
 import { layers } from "#layers.ts";
 
 describe("layers", () => {
-  it("composes to the check named for the call a consumer wrote", () => {
+  it("returns one layer named css.check", () => {
     expect(layers().map((one) => one.name)).toStrictEqual(["css.check"]);
   });
 
-  it("passes the repository's own options through to the check", () => {
+  it("returns one layer when the caller states globs", () => {
     expect(() => layers({ also: ["**/*.module.css"] })).not.toThrow();
     expect(layers({ except: ["vendor/**"] })).toHaveLength(1);
   });

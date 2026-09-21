@@ -1,10 +1,10 @@
 /**
- * Binds the blockquote's recipe to the parts that draw it.
+ * Runtime wiring between the blockquote's slot recipe and its React parts.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. The root carries the variants, and every part below it reads
- *   its classes from the root through a context.
+ *   This is a separate module from the recipe because a consuming application's compiler reads the
+ *   recipe at build time, when no React runtime exists. Keeping the two apart means the recipe can
+ *   be imported by the compiler without dragging the component code along.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";
@@ -12,6 +12,8 @@ import { createSlotRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#blockquote/recipe.ts";
 
 /**
- * Binds the recipe once: the root takes the variants, and each part draws its slot in them.
+ * Element wrappers for the recipe's slots. `withProvider` builds the root, which accepts the
+ * variant props and publishes the resolved slot classes on a context; `withContext` builds each
+ * remaining part, which reads its own class off that context.
  */
 export const { withContext, withProvider } = createSlotRecipeContext(recipe);

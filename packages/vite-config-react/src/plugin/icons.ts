@@ -1,18 +1,16 @@
 /**
- * Rewrites an import from the icon set's root into one import per icon file, so a document loads
- * the icons it draws and not the two thousand the root exports.
+ * Rewrites a named import from the icon set's root into one import per icon file.
  *
  * @remarks
- *   A build tree-shakes the root down to the icons a page draws, but a dev server does not: in
- *   middleware mode the root is pre-bundled whole, five megabytes for every document that imports
- *   one icon, and in full bundle mode the vendor chunk carries every icon, because that mode does
- *   not shake. The set publishes one module per icon under `dist/esm/icons`, named in kebab case,
- *   and every alias the root exports has a file of its own, so the file an identifier stands for
- *   is a spelling rule rather than a table. The rewrite reads the import declarations off the
- *   bundler's own parse of the source, so a string or a comment that looks like an import is left
- *   as written, replaces each declaration's own range, keeps the line count, and leaves an
- *   identifier alone where no icon file answers to it, which is how the root's own helpers and its
- *   types stay on the root import.
+ *   The root exports about two thousand icons. A production build tree-shakes it down to the ones
+ *   a document renders. A dev server does not. In middleware mode Vite pre-bundles the root whole,
+ *   five megabytes for a document that imports one icon, and in full bundle mode the whole set
+ *   lands in the vendor chunk. The set publishes one module per icon under `dist/esm/icons`, named
+ *   in kebab case, with a file for every alias the root exports, so the file name follows from the
+ *   identifier and needs no lookup table. The rewrite reads declarations off the bundler's own
+ *   parse, so a string or a comment that looks like an import is left alone, and it replaces each
+ *   declaration in place to keep the line count. An identifier with no icon file keeps its root
+ *   import, which is how the root's helpers and its type exports keep working.
  */
 
 import { type Plugin } from "vite";
@@ -20,81 +18,81 @@ import { type Plugin } from "vite";
 import { contribute, type Contribution } from "@stealthscale/vite-config";
 
 /**
- * The package the icons are imported from.
+ * The package whose named exports this plugin redirects.
  */
 const ROOT = "lucide-react";
 
 /**
- * Where the package keeps one module per icon.
+ * The directory in that package holding one module per icon.
  */
 const ICONS = `${ROOT}/dist/esm/icons/`;
 
 /**
- * The file kinds the rewrite reads, with the language each is parsed as.
+ * Matches a source file's extension, capturing the language to parse it as.
  */
 const SOURCE = /\.([jt]sx?)(?:$|\?)/u;
 
 /**
- * The files the rewrite leaves alone.
+ * Matches a path under node_modules. The transform skips those files.
  */
 const UNTOUCHED = /\/node_modules\//u;
 
 /**
- * Where the rewrite is contributed.
+ * The configuration key the plugin is contributed at.
  */
 const AT = "plugins";
 
 /**
- * The languages the parser reads a source as.
+ * The languages the parser accepts.
  */
 export type Language = "js" | "jsx" | "ts" | "tsx";
 
 /**
- * The languages, as a set the file's extension is looked up in.
+ * The same languages as a set, for testing an extension against.
  */
 const LANGUAGES: ReadonlySet<string> = new Set(["js", "jsx", "ts", "tsx"]);
 
 /**
- * A node of the parsed source, with the range it covers.
+ * A parsed node, with the source range it covers.
  */
 interface Node {
   /**
-   * The offset the node ends at, exclusive.
+   * Offset one past the node's last character.
    */
   readonly end: number;
 
   /**
-   * The offset the node starts at.
+   * Offset of the node's first character.
    */
   readonly start: number;
 
   /**
-   * The node's kind.
+   * Kind of node, as the parser labels it.
    */
   readonly type: string;
 }
 
 /**
- * The name the root exports, as an identifier or as a string literal.
+ * The export a specifier refers to, written as an identifier or as a string literal.
  */
 interface Imported {
   /**
-   * The identifier, where the import names one.
+   * Identifier, where the import writes one.
    */
   readonly name?: string | undefined;
 
   /**
-   * The string, where the import names the export as one.
+   * String literal, where the import quotes the export name instead.
    */
   readonly value?: unknown;
 }
 
 /**
- * The name the importing file binds.
+ * A binding the importing file introduces.
  */
 interface Local {
   /**
-   * The identifier.
+   * Identifier bound in the importing file.
    */
   readonly name: string;
 }
@@ -104,7 +102,7 @@ interface Local {
  */
 interface Source {
   /**
-   * The specifier, as written.
+   * Specifier, as written in the source.
    */
   readonly value: unknown;
 }
@@ -114,17 +112,17 @@ interface Source {
  */
 interface Specifier extends Node {
   /**
-   * The name the root exports, for a named import.
+   * Export the name refers to, on a named import.
    */
   readonly imported?: Imported | undefined;
 
   /**
-   * Whether the name is imported for its type alone.
+   * `"type"` where this specifier alone imports a type.
    */
   readonly importKind?: string | undefined;
 
   /**
-   * The name the importing file binds.
+   * Name the importing file binds it to.
    */
   readonly local: Local;
 }
@@ -134,47 +132,47 @@ interface Specifier extends Node {
  */
 interface Declaration extends Node {
   /**
-   * Whether the whole declaration imports types alone.
+   * `"type"` where the whole declaration imports types.
    */
   readonly importKind?: string | undefined;
 
   /**
-   * The module the declaration imports from.
+   * Module imported from.
    */
   readonly source: Source;
 
   /**
-   * The names the declaration binds.
+   * Bindings the declaration introduces.
    */
   readonly specifiers: readonly Specifier[];
 }
 
 /**
- * A parsed source: the statements it holds.
+ * The parse result, as the bundler's parser returns it.
  */
 export interface Parsed {
   /**
-   * The statements, in order.
+   * Top-level statements, in source order.
    */
   readonly body: readonly Node[];
 }
 
 /**
- * Parses a source into the statements it holds, the way the bundler's own parser does.
+ * Parses a source into its statements, the way the bundler's own parser does.
  */
 export type Parse = (code: string, language: Language) => Parsed;
 
 /**
- * One name an import binds: what the root exports it as, and what the file binds it to.
+ * One imported name: what the root exports it as, and what the file calls it.
  */
 interface Bound {
   /**
-   * The name the root exports.
+   * Name the root exports.
    */
   readonly exported: string;
 
   /**
-   * The name the importing file binds, which is the exported name unless the import renames it.
+   * Name the importing file binds, equal to the exported name unless the import renames it.
    */
   readonly local: string;
 }
@@ -201,19 +199,18 @@ function isDigit(character: string): boolean {
 }
 
 /**
- * Spells the icon file an exported name stands for.
+ * Returns the icon file an exported name resolves to.
  *
  * @remarks
- *   The root exports every icon under three names, `Smartphone`, `SmartphoneIcon` and
- *   `LucideSmartphone`, and every one of them spells the same file once the affix is dropped. The
- *   file's name is the icon's, in parts joined by hyphens, and the exported name is those parts
- *   with the first letter of each raised. So a part starts at a capital that follows a small
- *   letter or a digit, or that is followed by a small letter, which is what tells `AArrowDown`
- *   apart from `Axis3D`. A part starts at a digit that follows a letter, unless the part it is in
- *   started with a digit, which is what keeps `2x2` together in `Grid2x2` while `Grid2X2` spells
- *   `grid-2-x-2`. The set publishes a file under every one of those spellings.
- * @param exported - The name the root exports.
- * @returns The file's name, without its extension.
+ *   The set exports each icon under three names, `Smartphone`, `SmartphoneIcon` and
+ *   `LucideSmartphone`. Stripping the affix leaves all three with the same parts, and the file
+ *   name is those parts joined by hyphens. Two rules place the boundaries. A capital starts a part
+ *   when a lowercase letter or a digit precedes it, or when a lowercase letter follows it, and
+ *   that second test is what splits the leading pair of `AArrowDown`. A digit starts a part only
+ *   when its part did not already begin with one, which resolves `Grid2x2` to `grid-2x2` and
+ *   `Grid2X2` to `grid-2-x-2`.
+ * @param exported - Name the root exports.
+ * @returns The file name, without its extension.
  */
 export function fileOf(exported: string): string {
   const bare = exported.replace(/^Lucide/u, "").replace(/Icon$/u, "");
@@ -242,19 +239,21 @@ export function fileOf(exported: string): string {
 }
 
 /**
- * Reports whether a capital starts a part: it follows a small letter or a digit, or a small
- * letter follows it, and it is not the first letter.
+ * Reports whether a capital letter starts a part of the file name.
+ *
+ * @param before - Character to its left, empty at the start of the name.
+ * @param after - Character to its right, empty at the end of the name.
  */
 function startsAtCapital(before: string, after: string): boolean {
   return before !== "" && (isSmall(before) || isDigit(before) || isSmall(after));
 }
 
 /**
- * Reports whether a statement is an import of named values from the root.
+ * Reports whether a statement imports values from the root by name.
  *
  * @remarks
- *   A default or a namespace import of the root is left as written, and so is a declaration that
- *   imports types alone, which the bundler drops itself.
+ *   A default or namespace import binds the whole set under one name, which per-icon files cannot
+ *   stand in for. A type-only declaration never reaches the bundle, so there is nothing to save.
  */
 function fromRoot(node: Node): node is Declaration {
   if (node.type !== "ImportDeclaration") return false;
@@ -271,14 +270,15 @@ function fromRoot(node: Node): node is Declaration {
 }
 
 /**
- * Reports whether a file's extension names a language the parser reads.
+ * Reports whether an extension is one of the languages the parser reads.
  */
 function isLanguage(found: string): found is Language {
   return LANGUAGES.has(found);
 }
 
 /**
- * Reads the language a file is parsed as off its name.
+ * Returns the language to parse a file as, taken from its extension, or undefined for a file the
+ * transform does not read.
  */
 function languageOf(id: string): Language | undefined {
   const found = SOURCE.exec(id)?.[1] ?? "";
@@ -287,14 +287,19 @@ function languageOf(id: string): Language | undefined {
 }
 
 /**
- * Spells the name the root exports, whether the import wrote it as an identifier or as a string.
+ * Returns the export name a specifier refers to, whether the import wrote it as an identifier or
+ * as a string literal.
  */
 function exportedOf(one: Specifier): string {
   return one.imported?.name ?? String(one.imported?.value);
 }
 
 /**
- * Reads the names one declaration binds to values, leaving its type-only specifiers out.
+ * Returns the value bindings of one declaration, dropping its type-only specifiers.
+ *
+ * @remarks
+ *   Type-only specifiers are dropped because the output feeds the bundler, which erases types
+ *   itself, and never the type checker.
  */
 function bound(declaration: Declaration): readonly Bound[] {
   return declaration.specifiers
@@ -303,15 +308,14 @@ function bound(declaration: Declaration): readonly Bound[] {
 }
 
 /**
- * Writes the statements that replace one import: an import per icon, and the root import for
- * whatever value stays on it, on one line, padded to the lines the original took. An import that
- * binds no icon is left as written.
+ * Returns the statements that replace one import declaration, on a single line padded back to the
+ * declaration's line count.
  *
  * @remarks
- *   A type-only specifier is dropped rather than kept, because what is rewritten here is what the
- *   bundler runs and never what the type checker reads, and an import left with types alone is
- *   kept by the transform as an import of the root for its side effects, which loads the whole
- *   set again.
+ *   The padding keeps every later line at the offset the author wrote it at, which the transform
+ *   depends on because it reports no source map. A declaration that resolves no icon file is
+ *   returned unchanged: stripping its specifiers would leave a side-effect import of the root,
+ *   which loads the whole set again.
  */
 function rewritten(
   original: string,
@@ -330,27 +334,27 @@ function rewritten(
 }
 
 /**
- * Spells one bound name the way the import wrote it.
+ * Returns one binding spelled as an import specifier, with `as` where the import renamed it.
  */
 function spelled(one: Bound): string {
   return one.exported === one.local ? one.exported : `${one.exported} as ${one.local}`;
 }
 
 /**
- * Lists the import declarations of the root in one source.
+ * Returns every named import of the root in one source.
  */
 function declared(code: string, language: Language, parse: Parse): readonly Declaration[] {
   return parse(code, language).body.filter((node) => fromRoot(node));
 }
 
 /**
- * Rewrites every named import from the root in one file's source.
+ * Redirects every named root import in one file to the icon modules behind it.
  *
- * @param code - The source.
- * @param answers - Says whether an exported name has an icon file of its own.
- * @param parse - The parser the declarations are read with.
- * @param language - The language the source is parsed as.
- * @returns The rewritten source, or null where the file imports nothing from the root.
+ * @param code - File's contents, as the bundler handed them over.
+ * @param answers - Reports whether an exported name has an icon module of its own.
+ * @param parse - Parser the declarations are read with.
+ * @param language - Language the source is parsed as.
+ * @returns The rewritten source, or null where nothing in it changed.
  */
 export function iconized(
   code: string,
@@ -377,14 +381,12 @@ export function iconized(
 }
 
 /**
- * Builds the plugin that rewrites the imports.
+ * Builds the plugin that performs the redirect.
  *
  * @remarks
- *   Whether a name has a file is asked of the bundler's resolver once per name and remembered,
- *   so a file that imports three icons costs three resolutions the first time and none after. The
- *   source is parsed by the bundler's own parser, once per file that names the root, and the
- *   rewrite keeps every line where it was, so a location the bundler reports for the file still
- *   names the line the author wrote.
+ *   Each exported name is resolved once and the answer cached for the life of the plugin, so a
+ *   name costs one resolution on the first file that imports it and none afterwards. A name the
+ *   set publishes no module for resolves to null, and that answer is cached too.
  */
 function plugin(): Plugin {
   const answered = new Map<string, boolean>();
@@ -394,8 +396,7 @@ function plugin(): Plugin {
     name: "react.plugin.icons",
 
     /**
-     * Rewrites the imports of a source file that imports from the root, having asked the
-     * resolver about each name it has not met before.
+     * Resolves the icon modules a source needs, then returns it with its root imports rewritten.
      */
     async transform(code, id) {
       const language = languageOf(id);
@@ -403,7 +404,7 @@ function plugin(): Plugin {
       if (language === undefined || UNTOUCHED.test(id) || !code.includes(ROOT)) return null;
 
       /**
-       * Parses through the bundler's own parser, told the file's language.
+       * Parses a source through the bundler's parser, at the language of the file being read.
        */
       const parse: Parse = (source, lang) => this.parse(source, { lang });
       const names = declared(code, language, parse).flatMap((one) => bound(one));
@@ -432,9 +433,9 @@ function plugin(): Plugin {
 }
 
 /**
- * Imports each icon a file draws from the icon file that publishes it rather than from the root.
+ * Contributes the redirect to the bundler's plugin list.
  *
- * @returns The contribution, under the name of the call that produced it.
+ * @returns A contribution carrying the plugin and the reason it is configured.
  */
 export function icons(): Contribution {
   return contribute({

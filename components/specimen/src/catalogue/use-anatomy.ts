@@ -1,5 +1,5 @@
 /**
- * Loads what a page's components accept, the first time a reader asks to see it.
+ * Loads what a page's components accept, the first time the props band is opened.
  */
 
 import { useEffect, useState } from "react";
@@ -12,23 +12,24 @@ import { type Indexed } from "#catalogue/types.ts";
  */
 export interface Anatomised {
   /**
-   * Why the props could not be read, or nothing where they were read or are still loading.
+   * The error the props loader rejected with. Undefined while the loader is pending and after it
+   * resolves.
    */
   readonly failure: Error | undefined;
 
   /**
-   * Every part of the page, its props split by kind, or nothing until they have loaded.
+   * Every part of the page, its props split by kind. Undefined until the loader resolves.
    */
   readonly parts: readonly Part[] | undefined;
 }
 
 /**
- * The answer before anything was asked for, and while the props are loading.
+ * The result returned before the loader is called and while it is pending.
  */
 const PENDING: Anatomised = { failure: undefined, parts: undefined };
 
 /**
- * Turns whatever a rejected loader carried into an error a reader can be shown.
+ * Converts the reason a rejected loader supplied into an Error.
  */
 function failed(reason: unknown): Error {
   return reason instanceof Error ? reason : new Error(String(reason));
@@ -38,15 +39,14 @@ function failed(reason: unknown): Error {
  * Returns what the page's components accept, loading it once.
  *
  * @remarks
- *   The index holds the props behind a loader rather than in the entry, because what one page's
- *   components accept runs to tens of kilobytes and a rail that lists a hundred pages would carry
- *   all of it. The loader is called while the panel that shows them is open and not before.
- *   A page the index holds no loader for has no parts, which is an answer: there is nothing to
- *   show. A page whose props fail to load is another matter, and the failure is handed back as
- *   what it is, so a reader sees that the table is missing rather than that it is empty.
- * @param entry - The entry the index holds for the page.
- * @param wanted - Whether a reader is looking at the props.
- * @returns The parts, or the failure, or neither until they have loaded.
+ *   The index puts a page's props behind a loader instead of in the entry, because one page's
+ *   props run to tens of kilobytes and a rail listing a hundred pages would otherwise fetch all of
+ *   them. The loader is called while the props band is open and not before. An entry with no
+ *   loader resolves to an empty array, which is an answer. A loader that rejects is reported as
+ *   its error, so the caller can tell a missing table from an empty one.
+ * @param entry - The index entry for the page.
+ * @param wanted - Whether the props band is open.
+ * @returns The parts, the error the loader rejected with, or neither while the loader is pending.
  */
 export function useAnatomy(entry: Indexed, wanted: boolean): Anatomised {
   const [held, setHeld] = useState<Anatomised>(PENDING);

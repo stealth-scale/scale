@@ -6,7 +6,7 @@ import { type Anatomy, type Indexed } from "#catalogue/types.ts";
 import { useAnatomy } from "#catalogue/use-anatomy.ts";
 
 /**
- * What one page's components accept, as the reader hands it over.
+ * One page's anatomy, in the shape the props loader resolves to.
  */
 const ANATOMY: Anatomy = {
   dropped: { ButtonProps: { conditions: 4, foreign: 9 } },
@@ -37,16 +37,23 @@ function indexed(props?: Indexed["props"]): Indexed {
 }
 
 describe("useAnatomy", () => {
-  it("reads nothing while nobody is looking at the props", () => {
+  it("calls no loader when wanted is false", () => {
     const load = vi.fn(() => Promise.resolve(ANATOMY));
     const page = indexed(load);
-    const { result } = renderHook(() => useAnatomy(page, false));
+
+    renderHook(() => useAnatomy(page, false));
 
     expect(load).not.toHaveBeenCalled();
+  });
+
+  it("returns no parts when wanted is false", () => {
+    const page = indexed(() => Promise.resolve(ANATOMY));
+    const { result } = renderHook(() => useAnatomy(page, false));
+
     expect(result.current.parts).toBeUndefined();
   });
 
-  it("reads the props once a reader looks at them", async () => {
+  it("returns the parts when wanted is true", async () => {
     expect.hasAssertions();
 
     const page = indexed(() => Promise.resolve(ANATOMY));
@@ -57,7 +64,7 @@ describe("useAnatomy", () => {
     });
   });
 
-  it("reads the props once and not on every render", async () => {
+  it("calls the loader once across rerenders", async () => {
     expect.hasAssertions();
 
     const load = vi.fn(() => Promise.resolve(ANATOMY));
@@ -83,7 +90,7 @@ describe("useAnatomy", () => {
     });
   });
 
-  it("answers with no parts at all for a page the index holds no props for", async () => {
+  it("returns an empty array when the entry has no props loader", async () => {
     expect.hasAssertions();
 
     const page = indexed();
@@ -94,7 +101,7 @@ describe("useAnatomy", () => {
     });
   });
 
-  it("keeps nothing for a page taken off the screen before the props arrive", async () => {
+  it("returns no parts when the loader resolves after unmount", async () => {
     const held: { resolve?: (anatomy: Anatomy) => void } = {};
     const pending = new Promise<Anatomy>((resolve) => {
       held.resolve = resolve;
@@ -111,7 +118,7 @@ describe("useAnatomy", () => {
     expect(result.current.parts).toBeUndefined();
   });
 
-  it("reports why the props failed to load rather than answering with no parts", async () => {
+  it("returns the failure when the loader rejects", async () => {
     expect.hasAssertions();
 
     const page = indexed(() => Promise.reject(new Error("no props")));
@@ -120,11 +127,22 @@ describe("useAnatomy", () => {
     await waitFor(() => {
       expect(result.current.failure?.message).toBe("no props");
     });
+  });
+
+  it("returns no parts when the loader rejects", async () => {
+    expect.hasAssertions();
+
+    const page = indexed(() => Promise.reject(new Error("no props")));
+    const { result } = renderHook(() => useAnatomy(page, true));
+
+    await waitFor(() => {
+      expect(result.current.failure).toBeDefined();
+    });
 
     expect(result.current.parts).toBeUndefined();
   });
 
-  it("reports a rejection that is no error by what it said", async () => {
+  it("converts a rejection that is no Error into an Error with the value as its message", async () => {
     expect.hasAssertions();
 
     // eslint-disable-next-line typescript/prefer-promise-reject-errors -- a loader that fails with something other than an error is what the case covers
@@ -136,7 +154,7 @@ describe("useAnatomy", () => {
     });
   });
 
-  it("keeps nothing for a page taken off the screen before the props fail", async () => {
+  it("returns no failure when the loader rejects after unmount", async () => {
     const held: { reject?: (reason: Error) => void } = {};
     const pending = new Promise<Anatomy>((_, reject) => {
       held.reject = reject;

@@ -19,7 +19,7 @@ function refusing(): Promise<Loaded> {
 }
 
 describe("plugged", () => {
-  it("passes the options to the plugin and returns what it built", async () => {
+  it("returns the plugin the loader built from the options", async () => {
     const held = (await plugged(STATED, loading)) as unknown as {
       name: string;
       options: typeof STATED;
@@ -29,17 +29,17 @@ describe("plugged", () => {
     expect(held.options).toStrictEqual(STATED);
   });
 
-  it("throws naming what to install when the package cannot be resolved", async () => {
+  it("throws naming the package to install when the loader rejects", async () => {
     await expect(plugged(STATED, () => Promise.reject(new Error("not installed")))).rejects.toThrow(
       /@module-federation\/vite installed/u,
     );
   });
 
-  it("resolves the real package when it is given no loader", async () => {
+  it("resolves the installed package when load is absent", async () => {
     await expect(plugged(STATED)).resolves.toBeDefined();
   });
 
-  it("rethrows the plugin's own error rather than reporting a missing install", async () => {
+  it("throws the plugin's own error when the plugin rejects the options", async () => {
     await expect(plugged(STATED, refusing)).rejects.toThrow("remotes must be an object");
   });
 });

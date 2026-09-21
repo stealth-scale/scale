@@ -28,7 +28,7 @@ function one<Block>(held: Block | Block[] | undefined): Block {
 }
 
 describe("vite-config-plain", () => {
-  it("publishes its source under the condition the shared tsconfig switches on", () => {
+  it("sets devExports to the custom condition the shared tsconfig declares", () => {
     const at = createRequire(import.meta.url).resolve(
       "@stealthscale/vite-config-typescript/base.json",
     );
@@ -39,7 +39,7 @@ describe("vite-config-plain", () => {
     expect(plain.pack).toMatchObject({ exports: { devExports: "stealth-source" } });
   });
 
-  it("composes what the node tier composes apart from the bill of materials and coverage", async () => {
+  it("declares the same blocks the node tier composes apart from coverage", async () => {
     const held = await tier();
     const composed = one(held.pack);
 
@@ -55,7 +55,7 @@ describe("vite-config-plain", () => {
     expect(held.ssr).toStrictEqual(plain.ssr);
   });
 
-  it("packs the barrel as one entry with its declarations checked", () => {
+  it("packs src/index.ts as the only entry with dts attw and publint enabled", () => {
     expect(one(plain.pack)).toMatchObject({
       attw: true,
       dts: true,
@@ -64,7 +64,7 @@ describe("vite-config-plain", () => {
     });
   });
 
-  it("reads its own workspace as source on both sides", () => {
+  it("lists stealth-source first in the client and the server conditions", () => {
     expect(plain.resolve?.conditions?.[0]).toBe("stealth-source");
     expect(plain.ssr?.resolve?.conditions?.[0]).toBe("stealth-source");
   });

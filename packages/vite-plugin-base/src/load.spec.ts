@@ -1,12 +1,13 @@
 /**
- * Covers an import through Vite of a workspace package linked into a scratch workspace.
+ * Covers importing a workspace package through Vite, symlinked into a scratch workspace the way a
+ * real install links it.
  *
  * @remarks
- *   The package publishes its source under one condition and a built copy under `default`, so
- *   which copy answers tells whether the conditions reached the resolver. The condition is written
- *   first in the export map, because a resolver takes the first condition that matches. The source
- *   imports a Node built-in, which the runner externalises, and the statement reaches the package
- *   twice, so the file list is measured on both.
+ *   The fixture package publishes its source under a custom condition and a built copy under
+ *   `default`, so which copy comes back is the signal for whether the conditions reached the
+ *   resolver. The condition is written first in the export map, because a resolver takes the first
+ *   match. The source imports a Node built-in, which the runner externalises, and the statement
+ *   reaches the package down two paths, so the same fixture also exercises the file list.
  */
 
 import { mkdirSync, symlinkSync } from "node:fs";
@@ -18,19 +19,19 @@ import { manifest, type ScratchWorkspace, withScratchWorkspaceAsync } from "@ste
 import { imported, importer } from "#load.ts";
 
 /**
- * The condition the linked package publishes its source under.
+ * The export condition the fixture package publishes its source under.
  */
 const SOURCE = "acme-source";
 
 /**
- * The module the statement resolves to, read for the copy of the package it imported.
+ * The shape of the statement module, whose `from` names the copy of the package that resolved.
  */
 interface Statement {
   default: { from: string };
 }
 
 /**
- * An application depending on a linked package that publishes source and a built copy.
+ * An application depending on a package that publishes both its source and a built copy.
  */
 const TREE = {
   "package.json": manifest({ dependencies: { "@acme/kit": "workspace:*" }, name: "@acme/app" }),
@@ -48,8 +49,8 @@ const TREE = {
 };
 
 /**
- * Runs a function against the tree with the package linked into node_modules, the way a workspace
- * install links it, and returns what the function produced.
+ * Runs a function against {@link TREE} with the package symlinked into `node_modules`, the way a
+ * workspace install links it.
  */
 function linked<Result>(run: (workspace: ScratchWorkspace) => Promise<Result>): Promise<Result> {
   return withScratchWorkspaceAsync(TREE, (workspace) => {
@@ -60,8 +61,23 @@ function linked<Result>(run: (workspace: ScratchWorkspace) => Promise<Result>): 
   });
 }
 
-describe("imported", () => {
-  it("resolves a linked package to its source under the stated condition", async () => {
+/**
+ * Imports the statement under the source condition and returns the files behind it, relative to
+ * the workspace root.
+ */
+function behindStatement(): Promise<readonly string[]> {
+  return linked(async (workspace) => {
+    const { files } = await imported<Statement>(workspace.path("src/statement.ts"), {
+      conditions: [SOURCE, "node"],
+      root: workspace.root,
+    });
+
+    return files.map((file) => file.slice(workspace.root.length + 1));
+  });
+}
+
+describe("load", () => {
+  it("resolves a linked package to its source when conditions names that condition", async () => {
     const { module } = await linked((workspace) =>
       imported<Statement>(workspace.path("src/statement.ts"), {
         conditions: [SOURCE, "node"],
@@ -72,7 +88,7 @@ describe("imported", () => {
     expect(module.default.from).toBe("source");
   });
 
-  it("resolves a linked package to its default target when no condition is stated", async () => {
+  it("resolves a linked package under its default condition when conditions is absent", async () => {
     const { module } = await linked((workspace) =>
       imported<Statement>(workspace.path("src/statement.ts"), { root: workspace.root }),
     );
@@ -80,20 +96,21 @@ describe("imported", () => {
     expect(module.default.from).toBe("dist");
   });
 
-  it("lists each file behind the module once with its own first and no built-in", async () => {
-    const files = await linked(async (workspace) => {
-      const { files: read } = await imported<Statement>(workspace.path("src/statement.ts"), {
-        conditions: [SOURCE, "node"],
-        root: workspace.root,
-      });
-
-      return read.map((file) => file.slice(workspace.root.length + 1));
-    });
-
-    expect(files).toStrictEqual(["src/statement.ts", "packages/kit/src/index.ts", "src/other.ts"]);
+  it("lists the files behind a module in the order the runner reached them", async () => {
+    await expect(behindStatement()).resolves.toStrictEqual([
+      "src/statement.ts",
+      "packages/kit/src/index.ts",
+      "src/other.ts",
+    ]);
   });
 
-  it("imports a bare specifier from the root", async () => {
+  it("lists a file once when two modules import it", async () => {
+    const files = await behindStatement();
+
+    expect(files.filter((file) => file === "packages/kit/src/index.ts")).toHaveLength(1);
+  });
+
+  it("imports a package by its bare specifier rather than by file path", async () => {
     const { module } = await linked((workspace) =>
       imported<{ from: string }>("@acme/kit", {
         conditions: [SOURCE, "node"],
@@ -104,7 +121,7 @@ describe("imported", () => {
     expect(module.from).toBe("source");
   });
 
-  it("imports a module Node provides and lists no file for it", async () => {
+  it("returns no files for a module the runner externalises", async () => {
     const { files, module } = await linked((workspace) =>
       imported<{ sep: string }>("node:path", { root: workspace.root }),
     );
@@ -113,13 +130,13 @@ describe("imported", () => {
     expect(files).toStrictEqual([]);
   });
 
-  it("rejects when the specifier does not resolve", async () => {
+  it("rejects with an error naming the specifier when nothing resolves it", async () => {
     await expect(
       linked((workspace) => imported("@acme/absent", { root: workspace.root })),
     ).rejects.toThrow("@acme/absent");
   });
 
-  it("imports through the dev server's runner when one is running", async () => {
+  it("imports through the dev server's ssr environment when it is runnable", async () => {
     const seen = await linked(async (workspace) => {
       const file = workspace.path("src/statement.ts");
       const server = await createServer({
@@ -162,7 +179,7 @@ describe("imported", () => {
     expect(module.default.from).toBe("source");
   });
 
-  it("imports several modules through one importer until it is closed", async () => {
+  it("imports a second module through an importer already used once", async () => {
     const seen = await linked(async (workspace) => {
       const through = await importer({ conditions: [SOURCE, "node"], root: workspace.root });
 
@@ -179,7 +196,7 @@ describe("imported", () => {
     expect(seen).toStrictEqual(["source", "source"]);
   });
 
-  it("leaves the dev server's environment running when its importer is closed", async () => {
+  it("keeps the dev server's environment usable after an importer over it is closed", async () => {
     const seen = await linked(async (workspace) => {
       const file = workspace.path("src/statement.ts");
       const server = await createServer({

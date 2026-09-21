@@ -1,5 +1,5 @@
 /**
- * Checks the departures a repository takes from the house formatting rules.
+ * Covers the departures a repository can take from the house formatting rules.
  */
 
 import { describe, expect, it } from "vitest";
@@ -12,16 +12,18 @@ import { GENERATED } from "#ignore/generated.ts";
 import { readBack } from "#preset/preset.fixtures.ts";
 
 /**
- * The directory the config under test claims to be configuring.
+ * Directory the configuration under test configures.
  */
 const AT = import.meta.dirname;
 
 /**
- * Composes a set of layers and hands back the import order they settled on.
+ * Composes the layers and returns the import order they resolved to.
  *
  * @remarks
- *   A group is an override, so it only shows its work once the whole config has
- *   resolved. Reading the layer on its own would show nothing.
+ *   A group is an override, so it applies only once the whole configuration has resolved. Reading
+ *   the layer on its own returns nothing.
+ * @param layers - The layers to compose, the ones under test last.
+ * @returns The resolved `fmt.sortImports` settings.
  */
 async function sorted(layers: readonly unknown[]): Promise<Record<string, unknown>> {
   const held = await readBack(defineConfig(AT, { extends: layers as never }));
@@ -30,44 +32,49 @@ async function sorted(layers: readonly unknown[]): Promise<Record<string, unknow
 }
 
 describe("departure", () => {
-  it("contributes one glob at a time", () => {
+  it("returns one contribution per glob", () => {
     const held = skip({ because: "vendored", files: ["a/**", "b/**"] });
 
     expect(held.map((one) => one.item)).toStrictEqual(["a/**", "b/**"]);
   });
 
-  it("names each contribution for the glob it skips", () => {
+  it("names a skip contribution fmt.skip(glob)", () => {
     expect(skip({ because: "vendored", files: ["a/**"] })[0]?.name).toBe("fmt.skip(a/**)");
   });
 
-  it("appends rather than replaces", () => {
+  it("targets fmt.ignorePatterns with every skip contribution", () => {
     for (const held of skip({ because: "vendored", files: ["a/**"] })) {
       expect(held.at).toBe("fmt.ignorePatterns");
     }
   });
 
-  it("keeps the reason with the contribution", () => {
+  it("carries the reason skip() was given", () => {
     expect(skip({ because: "vendored", files: ["a/**"] })[0]?.because).toBe("vendored");
   });
 
-  it("leaves alone exactly what every other tool walks past", () => {
+  it("contributes every glob in GENERATED", () => {
     expect(generated().map((one) => one.item)).toStrictEqual([...GENERATED]);
   });
 
-  it("counts another scope as internal alongside the house default", async () => {
+  it("appends the prefix to internalPattern after the house scope", async () => {
     const held = await sorted([imports(), ...own({ because: "ours", patterns: ["@acme/"] })]);
 
     expect(held["internalPattern"]).toStrictEqual(["@stealthscale/", "@acme/"]);
   });
 
-  it("names each owned scope and keeps the reason with it", () => {
+  it("names an own contribution fmt.own(prefix)", () => {
     const [held] = own({ because: "a second scope", patterns: ["@acme/"] });
 
     expect(held?.name).toBe("fmt.own(@acme/)");
+  });
+
+  it("carries the reason own() was given", () => {
+    const [held] = own({ because: "a second scope", patterns: ["@acme/"] });
+
     expect(held?.because).toBe("a second scope");
   });
 
-  it("puts a contributed group at the top of the order", async () => {
+  it("sorts a contributed group above every existing group", async () => {
     const held = await sorted([
       imports(),
       group({ because: "renders", name: "react", patterns: ["^react$"] }),
@@ -76,7 +83,7 @@ describe("departure", () => {
     expect((held["groups"] as string[])[0]).toBe("react");
   });
 
-  it("defines the group as well as naming it", async () => {
+  it("defines the contributed group in customGroups", async () => {
     const held = await sorted([
       imports(),
       group({ because: "renders", name: "react", patterns: ["^react$"] }),
@@ -89,7 +96,7 @@ describe("departure", () => {
     expect(defined[0]).toStrictEqual({ elementNamePattern: ["^react$"], groupName: "react" });
   });
 
-  it("keeps the order it was given underneath", async () => {
+  it("keeps the existing groups beneath the contributed one", async () => {
     const held = await sorted([
       imports(),
       group({ because: "renders", name: "react", patterns: ["^react$"] }),
@@ -98,7 +105,7 @@ describe("departure", () => {
     expect((held["groups"] as unknown[]).at(-1)).toBe("unknown");
   });
 
-  it("lets two modules each add a group and keeps both defined", async () => {
+  it("defines both groups when two layers each add one", async () => {
     const held = await sorted([
       imports(),
       group({ because: "renders", name: "react", patterns: ["^react$"] }),
@@ -111,13 +118,13 @@ describe("departure", () => {
     expect(held["groups"]).toContain("router");
   });
 
-  it("throws when nothing above it sorts imports", async () => {
+  it("rejects when no layer above it sorts imports", async () => {
     await expect(
       sorted([group({ because: "renders", name: "react", patterns: ["^react$"] })]),
     ).rejects.toThrow("nothing above it sorts imports");
   });
 
-  it("adds the first group where nothing has defined one yet", async () => {
+  it("adds the first group when customGroups is absent", async () => {
     const held = await readBack(
       defineConfig(AT, {
         extends: [

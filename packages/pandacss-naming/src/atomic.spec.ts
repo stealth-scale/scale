@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { atomicClass, conditionsOf } from "#atomic.ts";
 
-describe("atomicClass", () => {
+describe("atomic", () => {
   it.each([
     { give: "layerStyle-dim.others", want: "layer-style-dim-others" },
     { give: "textStyle-body.md", want: "text-style-body-md" },
@@ -39,7 +39,7 @@ describe("atomicClass", () => {
     expect(atomicClass(give, "_")).toBe(want);
   });
 
-  it("splits at the equals sign under that separator", () => {
+  it("splits the utility from its value at the equals separator", () => {
     expect(atomicClass("grid-ar={sizes.32}", "=")).toBe("grid-ar-sizes-32");
   });
 
@@ -53,7 +53,7 @@ describe("atomicClass", () => {
     );
   });
 
-  it("rewrites the utility under a raw condition", () => {
+  it("rewrites the utility of a class whose condition is raw", () => {
     expect(atomicClass("[&_>_*]:grid-ar_{sizes.32}", "_")).toBe("[&_>_*]:grid-ar-sizes-32");
   });
 
@@ -62,23 +62,23 @@ describe("atomicClass", () => {
     expect(atomicClass("button--lg", "-")).toBe("button--lg");
   });
 
-  it("writes a slot named in camel case in kebab-case", () => {
+  it("rewrites a camel-case slot name as kebab-case", () => {
     expect(atomicClass("card__contentBody", "_")).toBe("card__content-body");
     expect(atomicClass("card__contentBody--lg", "-")).toBe("card__content-body--lg");
   });
 
-  it("returns an empty string for an empty class", () => {
+  it("returns an empty string when the class is empty", () => {
     expect(atomicClass("", "_")).toBe("");
   });
 
-  it("lists the conditions of a class outer to inner with a raw one in its brackets", () => {
+  it("returns each condition of a class from the outermost inward", () => {
     expect(conditionsOf("md:[@media_(min-width:_40rem)]:c-green")).toStrictEqual([
       "md",
       "[@media_(min-width:_40rem)]",
     ]);
   });
 
-  it("lists no condition for a class without one", () => {
+  it("returns an empty array when the class declares no condition", () => {
     expect(conditionsOf("c-red")).toStrictEqual([]);
   });
 });

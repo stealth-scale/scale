@@ -1,5 +1,5 @@
 /**
- * Reports what an assembly found wrong: a contributor installed twice, a theme compound no
+ * Reports the faults an assembly found: a contributor installed twice, a theme compound no
  * published recipe declares, and an import that renames a component the compiler matches by name.
  */
 
@@ -10,11 +10,11 @@ import { publishedCompounds, unmatchedCompounds } from "#scope.ts";
 import { type Theme } from "#statement.ts";
 
 /**
- * Carries the contributors an assembly keeps and what it reported about the rest.
+ * The contributors an assembly keeps, with the diagnostics raised for the rest.
  */
 export interface Distinct {
   /**
-   * One diagnostic per contributor a kept one shares a name with.
+   * One diagnostic per contributor that duplicates a kept one's name.
    */
   diagnostics: readonly Diagnostic[];
 
@@ -25,13 +25,13 @@ export interface Distinct {
 }
 
 /**
- * Keeps one contributor per name, and reports every further installation of a name.
+ * Keeps one contributor per name and reports every further installation of that name.
  *
  * @remarks
  *   Two installed versions of one package are two contributors under one name, and the compiler
- *   would install two presets that state the same vocabulary. The first is kept, which is the one
- *   the application resolves from its own manifest, and the other is reported as an error, because
- *   a page drawn from one and a component compiled against the other is a page drawn wrong.
+ *   would install two presets declaring the same vocabulary. The first is kept, being the one the
+ *   application resolves from its own manifest. The second is an error, because a component
+ *   compiled against one version and styled by the other gets no rules at all.
  */
 export function distinct(found: readonly Contributor[]): Distinct {
   const kept: Contributor[] = [];
@@ -57,7 +57,7 @@ export function distinct(found: readonly Contributor[]): Distinct {
 }
 
 /**
- * Carries what the findings are read from.
+ * The inputs the findings are read from.
  */
 export interface Examined {
   /**
@@ -82,7 +82,7 @@ export interface Examined {
   root: string;
 
   /**
-   * Every file the compiler scanned, absolute.
+   * Every file the compiler scanned, as absolute paths.
    */
   sources: readonly string[];
 
@@ -93,7 +93,7 @@ export interface Examined {
 }
 
 /**
- * Reports every theme compound no published recipe declares a compound for.
+ * Reports every theme compound that no published recipe declares.
  */
 function unmatched(themes: readonly Theme[], published: readonly unknown[]): Diagnostic[] {
   return unmatchedCompounds(themes, publishedCompounds(published)).map((line) => ({
@@ -106,8 +106,8 @@ function unmatched(themes: readonly Theme[], published: readonly unknown[]): Dia
 }
 
 /**
- * Reports what an assembly found wrong with the themes and the sources: a compound no published
- * recipe declares, and an import that renames a component.
+ * Reports the faults in an assembly's themes and sources: a compound no published recipe declares,
+ * and an import that renames a component.
  */
 export function findings(examined: Examined): readonly Diagnostic[] {
   const matched = matchedNames(

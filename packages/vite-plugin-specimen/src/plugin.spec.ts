@@ -115,11 +115,11 @@ function updating(
 }
 
 describe("plugin", () => {
-  it("names itself for the factory that built it", () => {
+  it("returns a plugin named stealth:specimens", () => {
     expect(specimens({ patterns: PATTERNS }).name).toBe("stealth:specimens");
   });
 
-  it("keeps the watcher off a coverage report", () => {
+  it("ignores the coverage directory in the server watcher", () => {
     const plugin = specimens({ patterns: PATTERNS });
     const held: unknown = Reflect.apply(hookOf(plugin, "config"), undefined, [
       {},
@@ -129,7 +129,7 @@ describe("plugin", () => {
     expect(held).toMatchObject({ server: { watch: { ignored: ["**/coverage/**"] } } });
   });
 
-  it("puts every page and what it reaches in one chunk and every page's props in another", async () => {
+  it("returns one code-splitting group per chunk", async () => {
     const held = await serving(TREE, async (plugin, scratch) => {
       await loaded(plugin, RESOLVED);
 
@@ -149,7 +149,17 @@ describe("plugin", () => {
     });
   });
 
-  it("adds no group to an output stated as several", () => {
+  it("adds no code-splitting group under a dev server", () => {
+    const plugin = specimens({ patterns: PATTERNS });
+    const held: unknown = Reflect.apply(hookOf(plugin, "config"), undefined, [
+      {},
+      { command: "serve", mode: "development" },
+    ]);
+
+    expect(held).toStrictEqual({ server: { watch: { ignored: ["**/coverage/**"] } } });
+  });
+
+  it("adds no code-splitting group when the output is an array", () => {
     const plugin = specimens({ patterns: PATTERNS });
     const held: unknown = Reflect.apply(hookOf(plugin, "config"), undefined, [
       { build: { rolldownOptions: { output: [{}, {}] } } },
@@ -159,19 +169,19 @@ describe("plugin", () => {
     expect(held).toStrictEqual({ server: { watch: { ignored: ["**/coverage/**"] } } });
   });
 
-  it("resolves the index specifier to an identifier of its own", async () => {
+  it("resolves the index specifier to its resolved identifier", async () => {
     await expect(resolved(specimens({ patterns: PATTERNS }), ID)).resolves.toBe(RESOLVED);
   });
 
-  it("declines any other specifier", async () => {
+  it("returns undefined for any other specifier", async () => {
     await expect(resolved(specimens({ patterns: PATTERNS }), "react")).resolves.toBeUndefined();
   });
 
-  it("serves the index as an exported list of pages", async () => {
+  it("serves an index module exporting pages", async () => {
     await expect(index()).resolves.toMatch(/export const pages/u);
   });
 
-  it("makes a listed specimen accept its own hot update and report the page it declares", async () => {
+  it("appends a hot update accept handler to a listed specimen", async () => {
     const held = await serving(TREE, async (plugin, scratch) => {
       await loaded(plugin, RESOLVED);
 
@@ -202,7 +212,7 @@ describe("plugin", () => {
     await expect(index()).resolves.toMatch(/package: "@kit\/data"/u);
   });
 
-  it("answers a bundler that hands the update no environment nothing", async () => {
+  it("returns undefined when the hot update hook has no environment", async () => {
     const held = await withScratchWorkspaceAsync(kit(), async (scratch) => {
       const plugin = await reading(scratch);
 
@@ -223,7 +233,7 @@ describe("plugin", () => {
     expect(held).toBeUndefined();
   });
 
-  it("reads a typed file afresh after a bundling server reports it changed", async () => {
+  it("reads a typed file again when a bundled environment reports it changed", async () => {
     const held = await withScratchWorkspaceAsync(kit(), async (scratch) => {
       const plugin = await reading(scratch);
       const file = scratch.path("src/badge/badge.ts");
@@ -239,7 +249,7 @@ describe("plugin", () => {
     expect(held).toContain('"probe"');
   });
 
-  it("leaves a typed file to the hot update where the server serves a module per file", async () => {
+  it("reads no typed file again when the environment is not bundled", async () => {
     const held = await withScratchWorkspaceAsync(kit(), async (scratch) => {
       const plugin = await reading(scratch);
       const file = scratch.path("src/badge/badge.ts");
@@ -255,13 +265,13 @@ describe("plugin", () => {
     expect(held).not.toContain('"probe"');
   });
 
-  it("returns nothing for a module it does not own", async () => {
+  it("returns undefined for a module this plugin does not serve", async () => {
     const held = await serving(TREE, (plugin) => loaded(plugin, "virtual:other"));
 
     expect(held).toBeUndefined();
   });
 
-  it("lists the stamp as a file the index watches", async () => {
+  it("adds the stamp to the files the index watches", async () => {
     const watched = await serving(TREE, async (plugin) => {
       const context = hookContext();
 
@@ -274,7 +284,7 @@ describe("plugin", () => {
     expect(watched[0]?.endsWith("/index")).toBe(true);
   });
 
-  it("rewrites the stamp when a specimen appears under a server that bundles", async () => {
+  it("rewrites the stamp when a specimen appears in a bundled environment", async () => {
     const stamps = await serving(TREE, async (plugin, scratch) => {
       const context = hookContext();
 
@@ -297,7 +307,7 @@ describe("plugin", () => {
     expect(stamps.after).not.toBe(stamps.before);
   });
 
-  it("rewrites the stamp when a specimen disappears under a server that bundles", async () => {
+  it("rewrites the stamp when a specimen disappears in a bundled environment", async () => {
     const stamps = await serving(TREE, async (plugin, scratch) => {
       const context = hookContext();
 
@@ -319,7 +329,7 @@ describe("plugin", () => {
     expect(stamps.after).not.toBe(stamps.before);
   });
 
-  it("leaves the stamp alone when a scene changed under a server that bundles", async () => {
+  it("leaves the stamp alone when a scene changed in a bundled environment", async () => {
     const stamps = await serving(TREE, async (plugin, scratch) => {
       const context = hookContext();
 
@@ -342,7 +352,7 @@ describe("plugin", () => {
     expect(stamps.after).toBe(stamps.before);
   });
 
-  it("rewrites the stamp when an edit changed the metadata a page declares under a server that bundles", async () => {
+  it("rewrites the stamp when a page changed its declared metadata in a bundled environment", async () => {
     const stamps = await serving(TREE, async (plugin, scratch) => {
       const context = hookContext();
 
@@ -365,7 +375,7 @@ describe("plugin", () => {
     expect(stamps.after).not.toBe(stamps.before);
   });
 
-  it("leaves the stamp alone under a server that serves a module per file", async () => {
+  it("leaves the stamp alone when the environment is not bundled", async () => {
     const stamps = await serving(TREE, async (plugin, scratch) => {
       const context = hookContext();
 
@@ -427,7 +437,7 @@ describe("plugin", () => {
     expect(held).toBeUndefined();
   });
 
-  it("reaches nothing of its own when a file it lists no page for changed", async () => {
+  it("returns undefined when a file the index lists no page for changed", async () => {
     const held = await serving(TREE, async (plugin, scratch) => {
       await loaded(plugin, RESOLVED);
 
@@ -441,7 +451,7 @@ describe("plugin", () => {
     await expect(index({ "src/a.ts": "" })).rejects.toThrow(/matched no file/u);
   });
 
-  it("carries a props loader on every page of the index", async () => {
+  it("writes a props loader onto every page of the index", async () => {
     const held = await withScratchWorkspaceAsync(kit(), async (scratch) => {
       const plugin = await reading(scratch);
 
@@ -451,7 +461,7 @@ describe("plugin", () => {
     expect(held).toMatch(/props: \(\) => import\("virtual:specimen-props\/badge"\)/u);
   });
 
-  it("serves what a page's components accept", async () => {
+  it("serves the parts a page's components accept", async () => {
     const held = await withScratchWorkspaceAsync(kit(), async (scratch) => {
       const plugin = await reading(scratch);
 
@@ -463,7 +473,7 @@ describe("plugin", () => {
     expect(held).toMatch(/export const parts = \{"BadgeProps"/u);
   });
 
-  it("serves what each part resolves to that no table draws", async () => {
+  it("serves the dropped counts for each part", async () => {
     const held = await withScratchWorkspaceAsync(kit(), async (scratch) => {
       const plugin = await reading(scratch);
 
@@ -475,13 +485,13 @@ describe("plugin", () => {
     expect(held).toMatch(/export const dropped = \{"BadgeProps": \{"conditions": 2/u);
   });
 
-  it("resolves a props specifier to an identifier of its own", async () => {
+  it("resolves a props specifier to itself", async () => {
     await expect(
       resolved(specimens({ patterns: PATTERNS, props: {} }), `${PROPS}badge`),
     ).resolves.toBe(`${PROPS}badge`);
   });
 
-  it("declines a props module when the repository reads no props", async () => {
+  it("returns undefined for a props module when the plugin reads no props", async () => {
     const held = await withScratchWorkspaceAsync(kit(), async (scratch) => {
       const plugin = specimens({ patterns: PATTERNS });
 
@@ -507,7 +517,7 @@ describe("plugin", () => {
     expect(held).toHaveLength(1);
   });
 
-  it("reloads nothing for a file the index refused while reading props", async () => {
+  it("reloads a loaded props module when the index refused another specimen", async () => {
     const broken = { ...kit(), "src/broken.specimen.tsx": "export default 1;\n" };
     const held = await withScratchWorkspaceAsync(broken, async (scratch) => {
       const plugin = await reading(scratch);
@@ -534,7 +544,7 @@ describe("plugin", () => {
     expect(closed).toBeUndefined();
   });
 
-  it("stops without complaint when no compiler was started", async () => {
+  it("returns undefined when the bundle closes with no compiler started", async () => {
     const closed = await withScratchWorkspaceAsync(kit(), async (scratch) => {
       const plugin = await reading(scratch);
 

@@ -1,5 +1,5 @@
 /**
- * Gathers the plugins under the name a configuration calls them by.
+ * Groups the theme plugins under the namespace a configuration imports them by.
  */
 
 export { type Generator, generator, packed, runtime } from "#theme/runtime.ts";

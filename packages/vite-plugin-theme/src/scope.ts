@@ -1,143 +1,146 @@
 /**
- * Scopes a theme's extensions to the attribute that switches to it.
+ * Rewrites a theme's extensions so they only apply while the theme attribute selects that theme.
  *
  * @remarks
- *   A theme's token values reach the page as custom properties, which a selector redefines. Its
- *   recipe extensions and its compositions reach the page as declarations inside a rule, which no
- *   selector can touch. Nesting each under `[data-theme=<name>] &` gives the compiler a second rule
- *   to emit: `[data-theme=abyss] .button--variant-solid` carries one attribute more than the rule
- *   it extends, so it wins while the attribute is set and matches nothing while it is not. Only the
- *   declarations a theme states are emitted, so the cost follows the theme rather than the size of
- *   the recipe layer.
+ *   Tokens switch themes without help: they compile to custom properties and a selector can
+ *   redefine them. Recipe extensions and compositions cannot. They compile to declarations inside a
+ *   rule, and no selector reaches into a rule. Nesting each one under `[data-theme=<name>] &` makes
+ *   the compiler emit a second rule carrying one attribute more than the rule it extends, so it
+ *   wins while the attribute is set and matches nothing while it is not. Only the declarations a
+ *   theme actually states are emitted, so the added CSS scales with the theme and not with the
+ *   recipe layer.
  */
 
 import { THEME_ATTRIBUTE } from "#options.ts";
 
 /**
- * Carries whatever an extension states about how something is drawn.
+ * A style object as the compiler reads one: CSS properties against their values, nested selectors
+ * against the styles beneath them.
  */
 type Styles = Readonly<Record<string, unknown>>;
 
 /**
- * One entry of an extension's compound variants: the axes it applies to, and the styles it applies.
+ * One entry of a recipe's `compoundVariants`: the variant values to match on, and the styles to
+ * apply where they all match.
  */
 export interface Compound {
   /**
-   * An axis and the value it has to hold.
+   * The value this axis has to take for the compound to apply. A list matches any value in it.
    */
   [axis: string]: unknown;
 
   /**
-   * The class the compound's styles are emitted under. A published recipe names its own, and a
-   * theme's compound takes the class of the published compound for the same selection.
+   * The class to emit the styles under. Without one the compiler derives a class from the
+   * selection.
    */
   className?: string | undefined;
 
   /**
-   * The styles it applies where every axis it names matches.
+   * The styles to apply, keyed by slot where the recipe styles more than one element.
    */
   css?: Styles | undefined;
 }
 
 /**
- * Lists the compounds every published recipe declares, by recipe key, for the class each is
- * emitted under.
+ * Every compound the published recipes declare, keyed by recipe under the same keys the compiler
+ * uses.
  */
 export interface Compounds {
   /**
-   * The compounds of each recipe that draws one element, by key.
+   * The compounds of each recipe that styles one element.
    */
   recipes: Readonly<Record<string, readonly Compound[]>>;
 
   /**
-   * The compounds of each recipe that draws several parts, by key, one per slot each styles.
+   * The compounds of each slot recipe.
    */
   slotRecipes: Readonly<Record<string, readonly Compound[]>>;
 }
 
 /**
- * Describes what a theme changes about one recipe.
+ * A theme's override of one recipe. Only the parts it names change; the rest falls through to the
+ * published recipe.
  */
 export interface Extension {
   /**
-   * The styles it changes for every instance.
+   * The styles to merge into every instance of the recipe.
    */
   base?: Styles | undefined;
 
   /**
-   * The styles it changes for a combination of variants.
+   * The styles to merge into the selections these compounds match.
    */
   compoundVariants?: readonly Compound[] | undefined;
 
   /**
-   * The styles it changes for one value of one axis, by axis and then by value.
+   * The styles to merge into one value of one axis, keyed by axis and then by value.
    */
   variants?: Readonly<Record<string, Readonly<Record<string, Styles>>>> | undefined;
 }
 
 /**
- * Groups the extensions a theme makes, as the preset holding them exposes them.
+ * The five kinds of `theme.extend` entry this module knows how to scope.
  *
  * @remarks
- *   A composition is a text, layer or animation style: a tree of names whose leaves hold a
- *   `value`, and it is scoped by nesting each value under the attribute. A theme's tokens,
- *   keyframes and global styles are not extensions: the compiler switches tokens through the
- *   attribute on its own, and a keyframe or a global style has no rule to nest under it, so only
- *   the first theme's apply.
+ *   Tokens, keyframes and global styles are left out deliberately, because none of them can be
+ *   scoped this way. The compiler already switches tokens on the attribute. Keyframes and global
+ *   styles have no rule to nest a selector inside, so whichever theme compiles first reaches the
+ *   page and the rest never do.
  */
 export interface Extensions {
   /**
-   * Animation styles, by name.
+   * The animation styles to add, keyed by name.
    */
   animationStyles?: Styles | undefined;
 
   /**
-   * Layer styles, by name.
+   * The layer styles to add, keyed by name.
    */
   layerStyles?: Styles | undefined;
 
   /**
-   * Extensions to recipes that draw one element, by key.
+   * The overrides for recipes that style one element, keyed by recipe.
    */
   recipes?: Readonly<Record<string, Extension>> | undefined;
 
   /**
-   * Extensions to recipes that draw several elements, by key.
+   * The overrides for slot recipes, keyed by recipe.
    */
   slotRecipes?: Readonly<Record<string, Extension>> | undefined;
 
   /**
-   * Text styles, by name.
+   * The text styles to add, keyed by name.
    */
   textStyles?: Styles | undefined;
 }
 
 /**
- * Describes a preset as a theme is written into one, read for its extensions and for the preset
- * beneath it.
+ * The part of a preset this module reads: the extensions it declares and the presets nested under
+ * it.
  *
  * @remarks
- *   Declared here rather than imported. The package that writes these is one an application
- *   bundles, and such a package may not name a build tool, so the two agree structurally.
+ *   Declared here rather than imported from the compiler. A theme package ships into an
+ *   application's bundle and so must not depend on a build tool, which leaves structural agreement
+ *   as the only contract the two can share.
  */
 export interface SwitchablePreset {
   /**
-   * The name the compiler reports the preset by.
+   * The preset's name, as the compiler reports it in diagnostics.
    */
   name?: string | undefined;
 
   /**
-   * The presets it is built on. A theme derived from another nests that theme's preset here.
+   * The presets this one builds on, a parent theme's preset among them.
    */
   presets?: readonly unknown[] | undefined;
 
   /**
-   * The additions the preset makes.
+   * The preset's additions to the compiler's theme.
    */
   theme?:
     | {
         /**
-         * Everything the preset adds rather than replaces.
+         * The additions to merge into what the presets beneath declare, rather than replace it.
          */
         extend?: Extensions | undefined;
       }
@@ -145,84 +148,89 @@ export interface SwitchablePreset {
 }
 
 /**
- * Describes a theme, read for its name and the extensions its preset carries.
+ * The part of a theme this module reads: the attribute value that selects it and the preset
+ * carrying its extensions.
  */
 export interface Switchable {
   /**
-   * The name a page switches to the theme by, which is the value of the attribute.
+   * The attribute value that switches the page to this theme.
    */
   name: string;
 
   /**
-   * The preset whose additions hold the theme's extensions.
+   * The preset declaring the theme's extensions, with a parent theme's preset nested under it
+   * where the theme derives from another.
    */
   preset?: SwitchablePreset | undefined;
 }
 
 /**
- * Carries one theme's extensions, each nested under the attribute that switches to the theme.
+ * One level of one theme's extensions, rewritten to apply only under that theme's selector.
  */
 export interface ScopedPreset {
   /**
-   * The name the compiler reports the preset by.
+   * The preset's name, as the compiler reports it in diagnostics.
    */
   name: string;
 
   /**
-   * The extensions. A token stated here would install unconditionally, so none is.
+   * The scoped extensions. Tokens never appear here, because the compiler would install them
+   * whatever the attribute reads.
    */
   theme: {
     /**
-     * Everything the preset adds rather than replaces.
+     * The additions to merge into what the presets beneath declare, rather than replace it.
      */
     extend: Extensions;
   };
 }
 
 /**
- * One set of extensions along a theme's lineage.
+ * One set of extensions from a theme's lineage, together with where it came from.
  */
 interface Level {
   /**
-   * The extensions stated at this level.
+   * The recipe and composition overrides declared at this level.
    */
   extensions: Extensions;
 
   /**
-   * Whether the level came from a theme beneath the one being scoped.
+   * True where the level came from a theme beneath the one being scoped.
    */
   inherited: boolean;
 
   /**
-   * The name the compiler reports the preset holding this level by.
+   * The name of the preset that declared the level, where it gives one.
    */
   name: string | undefined;
 }
 
 /**
- * Lists the keys of a compound that are not axes.
+ * The two compound keys that are not axes. Every other key counts towards the selection the
+ * compound matches.
  */
 const UNMATCHED = new Set(["className", "css"]);
 
 /**
- * The compounds of no recipe, for a theme scoped without the published presets.
+ * Empty compound tables, for a caller that has not read the published presets. Nothing adopts a
+ * class.
  */
 const NONE: Compounds = { recipes: {}, slotRecipes: {} };
 
 /**
- * Reports whether a value is a style object.
+ * Narrows a value to a style object, which structurally means any non-null object.
  */
 function isStyles(value: unknown): value is Styles {
   return typeof value === "object" && value !== null;
 }
 
 /**
- * Writes one value of a selection in the form two authors writing the same selection share.
+ * Puts one selection value into the form two authors of the same selection both produce.
  *
  * @remarks
- *   A compound that lists several values of one axis matches any of them, so the list is a set
- *   and its order says nothing. It is sorted, so `["sm", "lg"]` and `["lg", "sm"]` read as one
- *   selection.
+ *   An axis given a list matches any value in it, so the list is really a set. Sorting it makes
+ *   `["sm", "lg"]` and `["lg", "sm"]` compare equal. Anything that is not a list is already
+ *   canonical.
  */
 function canonical(value: unknown): unknown {
   return Array.isArray(value)
@@ -231,7 +239,8 @@ function canonical(value: unknown): unknown {
 }
 
 /**
- * Writes the selection a compound matches on, for equality with another's.
+ * Keys a compound by the selection it matches. Two compounds share a key when they match on the
+ * same axes and values, and differ otherwise.
  */
 function selectionOf(compound: Compound): string {
   return JSON.stringify(
@@ -243,8 +252,12 @@ function selectionOf(compound: Compound): string {
 }
 
 /**
- * Finds the class a published recipe emits its compound for one selection under, for one slot
- * where the recipe draws several parts.
+ * Finds the class a published recipe emits for one selection, or undefined where it declares no
+ * compound for that selection.
+ *
+ * @remarks
+ *   A `slot` narrows the search to a published compound that styles that slot. A recipe styling one
+ *   element passes none.
  */
 function classOf(
   published: readonly Compound[],
@@ -259,8 +272,8 @@ function classOf(
 }
 
 /**
- * Restricts a theme's compound to one slot, under the class the published recipe emits that
- * slot's compound under where it has one.
+ * Builds the per-slot half of a theme's compound: the same axes, the styles for one slot, and the
+ * published class where there is one.
  */
 function forSlot(
   axes: Compound,
@@ -272,14 +285,15 @@ function forSlot(
 }
 
 /**
- * Gives a theme's compound the class the published recipe emits its own compound for the same
- * selection under, so the theme's styles reach the element under that class.
+ * Splits one theme compound into the compounds it has to compile to, each adopting the class the
+ * published recipe already emits for the same selection.
  *
  * @remarks
- *   The compiler takes one class per compound and applies it to every slot the compound styles,
- *   so a theme's compound over a slot recipe is split per slot it styles, as the recipe's own was,
- *   and each part takes that slot's class. A compound no published compound matches is left as it
- *   is: the compiler names it, and the testing kit reports it.
+ *   The compiler emits one class per compound and writes it on every slot that compound styles. A
+ *   theme's compound over a slot recipe therefore has to split, one compound per slot, so each part
+ *   can take the class of the published compound covering that slot. Where nothing published
+ *   matches, the compound passes through and the compiler names it.
+ * @returns One compound for a recipe that styles one element, and one per styled slot otherwise.
  */
 function adopted(
   compound: Compound,
@@ -302,11 +316,11 @@ function adopted(
 }
 
 /**
- * Nests styles under a selector, inside each slot where a slot name carries them.
+ * Wraps styles in a selector so they apply only under it.
  *
  * @remarks
- *   A slot recipe keys its styles by slot, so the selector goes inside each slot: one wrapping the
- *   map would put slot names where the compiler expects properties.
+ *   A slot recipe keys its styles by slot, so the selector has to go inside each slot. Wrapping the
+ *   whole map would leave slot names where the compiler expects CSS properties.
  */
 function nested(held: Styles, slotted: boolean, selector: string): Styles {
   if (!slotted) return { [selector]: held };
@@ -320,7 +334,7 @@ function nested(held: Styles, slotted: boolean, selector: string): Styles {
 }
 
 /**
- * Nests the styles of one compound variant, keeping the axes it matches on as they are.
+ * Puts one compound variant's styles under the selector and leaves the axes it matches on alone.
  */
 function nestedCompound(compound: Compound, slotted: boolean, selector: string): Compound {
   const { css, ...axes } = compound;
@@ -329,8 +343,8 @@ function nestedCompound(compound: Compound, slotted: boolean, selector: string):
 }
 
 /**
- * Rewrites one extension so everything it states applies only under a selector, with each of its
- * compounds under the class the published recipe emits the same selection under.
+ * Rewrites one extension: base, variant and compound styles all move under the selector, and each
+ * compound adopts the published class for its selection.
  */
 function scoped(
   extension: Extension,
@@ -370,7 +384,8 @@ function scoped(
 }
 
 /**
- * Rewrites every extension in one map so each applies only under a selector.
+ * Scopes every extension in one map of recipes, matching each against the published compounds for
+ * its key.
  */
 function all(
   held: Readonly<Record<string, Extension>>,
@@ -387,13 +402,12 @@ function all(
 }
 
 /**
- * Nests one node of a composition tree under a selector: a leaf's value is nested, and a group is
- * walked.
+ * Scopes one node of a composition tree, whether it is a leaf or a group of them.
  *
  * @remarks
- *   A leaf is a node whose `value` is a style object. A group holds leaves and groups under names,
- *   `DEFAULT` among them, and is walked rather than nested so the compiler still sees the tree.
- *   Anything that is not an object is left as it is.
+ *   A text, layer or animation style is a tree of names whose leaves carry their styles under
+ *   `value`. A node without such an object is a group, so it gets walked rather than nested and the
+ *   compiler still reads a tree. Anything that is not an object passes through untouched.
  */
 function composition(node: unknown, selector: string): unknown {
   if (!isStyles(node)) return node;
@@ -404,7 +418,7 @@ function composition(node: unknown, selector: string): unknown {
 }
 
 /**
- * Nests every value of a composition tree under a selector.
+ * Walks a composition tree and scopes every leaf under it.
  */
 function compositions(held: Styles, selector: string): Styles {
   return Object.fromEntries(
@@ -413,7 +427,7 @@ function compositions(held: Styles, selector: string): Styles {
 }
 
 /**
- * Rewrites one level's extensions so everything they state applies only under a selector.
+ * Scopes one level's extensions, sending each kind of entry to the rewrite it needs.
  */
 function scopedExtensions(
   extensions: Extensions,
@@ -436,7 +450,7 @@ function scopedExtensions(
 }
 
 /**
- * Reads the compounds every recipe of one map declares, by key, beside the ones read already.
+ * Appends each recipe's compounds to whatever has already been collected for that recipe.
  */
 function compoundsOf(
   held: Readonly<Record<string, Extension>> | undefined,
@@ -448,22 +462,22 @@ function compoundsOf(
 }
 
 /**
- * Collects the compounds of every published recipe while the presets are read.
+ * The mutable accumulator {@link gathered} fills in place as it walks the presets.
  */
 interface Gathering {
   /**
-   * The compounds of each recipe that draws one element, by key.
+   * The compounds collected so far for each recipe that styles one element.
    */
   recipes: Record<string, readonly Compound[]>;
 
   /**
-   * The compounds of each recipe that draws several parts, by key.
+   * The compounds collected so far for each slot recipe.
    */
   slotRecipes: Record<string, readonly Compound[]>;
 }
 
 /**
- * Reads the compounds one preset and every preset nested under it declare, the nested ones first.
+ * Collects the compounds of one preset and everything nested under it, nested presets first.
  */
 function gathered(preset: unknown, into: Gathering): void {
   if (!isPreset(preset)) return;
@@ -475,14 +489,14 @@ function gathered(preset: unknown, into: Gathering): void {
 }
 
 /**
- * Reads the compounds every published preset declares, for the class each is emitted under.
+ * Collects the compounds every published preset declares, so a theme's compound can adopt the class
+ * the compiler already emits for the same selection.
  *
  * @remarks
- *   Read structurally, as a theme's preset is, so the plugin depends on no design-system package.
- *   A recipe two presets declare contributes the compounds of both, as the compiler merges them,
- *   and a preset nested under another contributes its compounds before the preset above it, in
- *   the order the compiler installs them.
- * @param presets - Every preset installed before the themes: the packages' and the application's
+ *   The presets are read structurally, which keeps the plugin free of any design-system dependency.
+ *   A recipe two presets declare contributes the compounds of both, and a nested preset contributes
+ *   first, matching the order the compiler installs them.
+ * @param presets - Every preset installed ahead of the themes: the packages' and the application's
  *   own.
  */
 export function publishedCompounds(presets: readonly unknown[]): Compounds {
@@ -494,7 +508,8 @@ export function publishedCompounds(presets: readonly unknown[]): Compounds {
 }
 
 /**
- * Lists the slots one compound styles, or one unnamed slot for a recipe that draws one element.
+ * The slots one compound styles. A recipe that styles one element yields a single undefined slot,
+ * so a caller can loop over either kind.
  */
 function slotsOf(compound: Compound, slotted: boolean): ReadonlyArray<string | undefined> {
   if (!slotted) return [undefined];
@@ -503,7 +518,7 @@ function slotsOf(compound: Compound, slotted: boolean): ReadonlyArray<string | u
 }
 
 /**
- * Lists every compound of one map of extensions that no published compound matches.
+ * Finds the compounds in one map of extensions that no published compound matches.
  */
 function unmatchedIn(
   theme: string,
@@ -525,13 +540,13 @@ function unmatchedIn(
 }
 
 /**
- * Lists every compound a theme states for a selection no published recipe declares a compound
- * for, as one line naming the theme, the recipe, the slot and the selection.
+ * Reports every theme compound written against a selection no published recipe declares, one line
+ * each naming the theme, the recipe, the slot and the selection.
  *
  * @remarks
- *   The runtime writes the class of the published compound alone, so a theme's compound for a
- *   selection the recipe does not declare compiles to a rule no element ever carries. A compound
- *   the theme names a class for itself is left out: the author decided.
+ *   The runtime only ever writes the class of the published compound, so a theme's compound for an
+ *   undeclared selection compiles to a rule no element matches. A compound that names its own class
+ *   is left out, because the author picked that class.
  */
 export function unmatchedCompounds(
   themes: readonly Switchable[],
@@ -547,7 +562,7 @@ export function unmatchedCompounds(
 }
 
 /**
- * Reports whether a nested preset is one this module can read.
+ * Narrows a nested preset to one this module can read structurally.
  *
  * @remarks
  *   The compiler also takes a preset by name or as a promise, and a theme nests neither.
@@ -557,12 +572,13 @@ function isPreset(held: unknown): held is SwitchablePreset {
 }
 
 /**
- * Reads every set of extensions a theme carries, its ancestors' first and its own last.
+ * Flattens a theme's preset chain into one level per set of extensions, ancestors first and the
+ * theme itself last.
  *
  * @remarks
- *   A derived theme nests its parent's preset beneath its own, and the compiler installs the
- *   nested one first, so an extension the child restates wins over its parent's. The same order
- *   is kept here.
+ *   A derived theme nests its parent's preset beneath its own, and the compiler installs the nested
+ *   one first, so an extension the child restates wins over its parent's. This keeps the same
+ *   order.
  */
 function lineage(preset: SwitchablePreset | undefined, inherited = false): readonly Level[] {
   if (preset === undefined) return [];
@@ -576,17 +592,15 @@ function lineage(preset: SwitchablePreset | undefined, inherited = false): reado
 }
 
 /**
- * Writes the selector one theme's rules are nested under: inside that theme, and not inside
- * another theme nested within it.
+ * Builds the selector that reaches an element under one theme and stops at the boundary of any
+ * theme nested inside it.
  *
  * @remarks
- *   The attribute alone would carry a theme's rules through a subtree switched to another theme.
- *   A theme's tokens stop at such a boundary, because the inner element redeclares them, but its
- *   rules do not: a button inside Ink inside Regatta was drawn in Ink's colors and Regatta's
- *   capitals. The exclusion names the same attribute twice, so it reads as "under this theme, with
- *   no theme in between", which is what a reader means by the theme a thing is in. A theme nested
- *   in itself is excluded as well, which is right: the inner element is the one that owns it.
- * @param name - The theme's name, as a page writes it in the attribute.
+ *   The attribute on its own still matches inside a subtree switched to another theme. Tokens stop
+ *   at that boundary because the inner element redeclares them, and rules have no equivalent.
+ *   Naming the attribute a second time in the exclusion admits only an element with no theme in
+ *   between, which also stops a theme nested inside itself.
+ * @param name - The theme's name, as a page writes it into the attribute.
  */
 function scopeFor(name: string): string {
   const own = `[${THEME_ATTRIBUTE}=${name}]`;
@@ -595,15 +609,14 @@ function scopeFor(name: string): string {
 }
 
 /**
- * Builds the presets that make one theme's extensions apply while a page is switched to it.
+ * Scopes one theme's extensions into presets the compiler can install.
  *
  * @remarks
- *   One preset per level of the theme's lineage rather than one merged here, so that the compiler
- *   merges them the way it merges the unscoped chain and nothing here restates how. A level that
- *   extends nothing produces no preset.
- * @param theme - The theme to scope.
+ *   The compiler already merges presets, so each level of the lineage becomes a preset of its own
+ *   and no merge is repeated here. A level that extends nothing produces no preset.
+ * @param theme - The theme whose extensions are being scoped.
  * @param compounds - The compounds the published recipes declare, whose classes the theme's
- *   compounds for the same selections take.
+ *   compounds adopt for the same selections.
  * @returns One preset per level that extends anything, oldest ancestor first.
  */
 export function scopedPreset(
@@ -628,12 +641,11 @@ export function scopedPreset(
 }
 
 /**
- * Builds the presets that make every theme's extensions switch, the first theme included.
+ * Scopes every theme's extensions, the first theme included.
  *
  * @remarks
- *   The first theme's extensions are also in the unscoped rules, which is what makes it the theme
- *   that applies while no attribute is set. Scoping it as well is what lets a subtree inside
- *   another theme switch back to it.
+ *   The first theme's extensions are also emitted unscoped, so that theme applies while no
+ *   attribute is set. Scoping it as well lets a subtree inside another theme switch back to it.
  */
 export function scopedPresets(
   themes: readonly Switchable[],

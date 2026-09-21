@@ -28,7 +28,7 @@ describe("reportDiagnostics", () => {
     expect(heard.said).toStrictEqual([]);
   });
 
-  it("counts an error and a warning and not an information", () => {
+  it("excludes an info diagnostic from the count", () => {
     const heard = collected();
     const found = [said("error"), said("warning"), said("info")];
 
@@ -52,7 +52,7 @@ describe("reportDiagnostics", () => {
     expect(heard.said[0]).toContain("error PANDA1: a recipe went unread");
   });
 
-  it("writes the file when the compiler knew one", () => {
+  it("writes the file when the diagnostic names one", () => {
     const heard = collected();
 
     reportDiagnostics(
@@ -64,7 +64,7 @@ describe("reportDiagnostics", () => {
     expect(heard.said[0]).toContain("(src/button.recipe.ts)");
   });
 
-  it("writes the help the compiler offered after a dash", () => {
+  it("writes the help after a dash when the diagnostic offers one", () => {
     const heard = collected();
 
     reportDiagnostics(
@@ -76,13 +76,16 @@ describe("reportDiagnostics", () => {
     expect(heard.said[0]).toContain("— name the slot");
   });
 
-  it("tells a run holding an error from one holding warnings alone", () => {
-    expect(hasErrors([said("warning"), said("info")])).toBe(false);
+  it("returns true from hasErrors when one diagnostic is an error", () => {
     expect(hasErrors([said("warning"), said("error")])).toBe(true);
+  });
+
+  it("returns false from hasErrors when no diagnostic is an error", () => {
+    expect(hasErrors([said("warning"), said("info")])).toBe(false);
     expect(hasErrors([])).toBe(false);
   });
 
-  it("writes neither a file nor a help when the compiler offered neither", () => {
+  it("writes neither a file nor a help when the diagnostic offers neither", () => {
     const heard = collected();
 
     reportDiagnostics([said("warning")], "the stylesheet", heard.report);

@@ -9,7 +9,7 @@ import { Header } from "#code-block/header.ts";
 import { recipe } from "#code-block/recipe.ts";
 
 describe("Header", () => {
-  it("conforms as a div inside the panel it needs above it", () => {
+  it("satisfies the component contract with div as its default element", () => {
     expect(
       violations(Header, {
         as: true,
@@ -21,7 +21,7 @@ describe("Header", () => {
     ).toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("emits a class for every variant value the recipe declares", () => {
     expect(
       boundViolations(recipe, (props) => render(coded(<Header />, props)).container, {
         slot: "header",
@@ -29,7 +29,7 @@ describe("Header", () => {
     ).toStrictEqual([]);
   });
 
-  it("draws the element as names", () => {
+  it("renders the header slot as header when as is header", () => {
     const { container } = render(coded(<Header as="header" />));
 
     expect(slotElement(container, "code-block", "header").tagName).toBe("HEADER");

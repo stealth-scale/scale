@@ -13,47 +13,47 @@ import page from "#button/button.specimen.tsx";
 import { recipe } from "#button/recipe.ts";
 
 describe("recipe", () => {
-  it("draws every axis it offers on its own page", () => {
+  it("covers every variant axis in the scenes of its specimen page", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("shows no source naming a value the recipe no longer offers", () => {
+  it("leaves no scene referring to a variant value the recipe has dropped", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("carries the source a reader copies on every scene it builds", () => {
+  it("attaches a source snippet to every scene generated from axes", () => {
     const built = page.scenes.filter((scene) => scene.axes !== undefined);
 
     expect(built.every((scene) => scene.source !== undefined)).toBe(true);
   });
 
-  it("writes that source with every prop the cell is drawn with", () => {
+  it("includes the props of the rendered cell in the snippet", () => {
     const statuses = page.scenes.find((scene) => scene.axes?.[0] === "status");
 
     expect(statuses?.source).toContain('<Button status="info" variant="solid">');
   });
 
-  it("puts the import above the block", () => {
+  it("prefixes the snippet with the package import line", () => {
     const statuses = page.scenes.find((scene) => scene.axes?.[0] === "status");
 
     expect(statuses?.source).toContain('import { Button } from "@stealthscale/component-actions";');
   });
 
-  it("writes the source of a scene it did not build off the same sample", () => {
+  it("derives the snippet of a hand-written scene from the sample it renders", () => {
     const stated = page.scenes.find((scene) => scene.title === "button.pressed.title");
 
     expect(stated?.source).toContain('<Button aria-pressed variant="solid">');
   });
 
-  it("writes no value a theme cannot move", () => {
+  it("styles Button and IconButton from tokens a theme can override", () => {
     expect(recipeViolations(recipe, { names: ["Button", "IconButton"] })).toStrictEqual([]);
   });
 
-  it("names its class button", () => {
+  it("sets className to button", () => {
     expect(recipe.className).toBe("button");
   });
 
-  it("offers the six axes a button takes", () => {
+  it("declares six variant axes", () => {
     expect(axesOf(recipe)).toStrictEqual([
       "effect",
       "elevation",
@@ -64,11 +64,11 @@ describe("recipe", () => {
     ]);
   });
 
-  it("draws the middle size in the solid look when nothing is asked for", () => {
+  it("defaults size to md and variant to solid", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md", variant: "solid" });
   });
 
-  it("offers the eight control sizes", () => {
+  it("declares eight size values from xs to 4xl", () => {
     expect(valuesOf(recipe, "size")).toStrictEqual([
       "2xl",
       "3xl",
@@ -81,7 +81,7 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers the six looks and the glass", () => {
+  it("declares glass alongside the six shared look values", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual([
       "ghost",
       "glass",
@@ -93,7 +93,7 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers the four statuses and the neutral palette", () => {
+  it("declares neutral alongside the four status values", () => {
     expect(valuesOf(recipe, "status")).toStrictEqual([
       "error",
       "info",
@@ -103,7 +103,7 @@ describe("recipe", () => {
     ]);
   });
 
-  it("emits the square and every status whether or not a page writes them", () => {
+  it("lists the square shape and all five status values under staticCss", () => {
     expect(recipe.staticCss).toStrictEqual([
       { shape: ["square"] },
       { status: ["info", "success", "warning", "error"] },
@@ -111,38 +111,41 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers the square shape", () => {
+  it("declares square as the only shape value", () => {
     expect(valuesOf(recipe, "shape")).toStrictEqual(["square"]);
   });
 
-  it("offers a glow that holds still and one that breathes", () => {
+  it("declares glow and pulse as the effect values", () => {
     expect(valuesOf(recipe, "effect")).toStrictEqual(["glow", "pulse"]);
   });
 
-  it("states the shadow's colour on the breathing glow so the keyframe has one to read", () => {
+  it("sets boxShadowColor on the pulse effect beside its animation style", () => {
     expect(recipe.variants?.["effect"]?.["pulse"]).toStrictEqual({
       animationStyle: "pulse-glow",
       boxShadowColor: "colorPalette.solid/50",
     });
   });
 
-  it("ripples under every press and holds its box still", () => {
+  it("applies the ripple layer style in its base", () => {
     expect(recipe.base).toMatchObject({ layerStyle: "ripple" });
+  });
+
+  it("declares no _active styles in its base", () => {
     expect(recipe.base).not.toHaveProperty("_active");
   });
 
-  it("offers a raised and a floating elevation", () => {
+  it("declares raised and floating as the elevation values", () => {
     expect(valuesOf(recipe, "elevation")).toStrictEqual(["floating", "raised"]);
   });
 
-  it("drops the shadow of an elevated button as it is pressed", () => {
+  it("lowers each elevation's shadow by one step under _active", () => {
     expect(scaleOf(recipe, "elevation", "_active", ["raised", "floating"])).toStrictEqual([
       { boxShadow: "none" },
       { boxShadow: "sm" },
     ]);
   });
 
-  it("clears the inset a leading mark takes off a square button", () => {
+  it("zeroes the inline padding of a square whose first child is an svg", () => {
     expect(recipe.compoundVariants?.[0]).toStrictEqual({
       className: "button--squared",
       css: { "&:has(> svg:first-child)": { paddingInline: "0" } },
@@ -150,7 +153,7 @@ describe("recipe", () => {
     });
   });
 
-  it("fills a quiet look that is on with the subtle fill against the attributes that say so", () => {
+  it("backs the four unfilled looks with colorPalette.subtle under _pressed and _currentPage", () => {
     expect(recipe.compoundVariants?.[1]).toStrictEqual({
       className: "button--on",
       css: {
@@ -169,7 +172,7 @@ describe("recipe", () => {
     });
   });
 
-  it("fills a look drawn in the subtle fill with the muted fill while it is on", () => {
+  it("backs the subtle and surface looks with colorPalette.muted instead", () => {
     expect(recipe.compoundVariants?.[2]).toStrictEqual({
       className: "button--on-deeper",
       css: {
@@ -188,9 +191,12 @@ describe("recipe", () => {
     });
   });
 
-  it("marks a solid button that is on with a line inside its own edge", () => {
-    expect(recipe.compoundVariants).toHaveLength(4);
+  it("declares no _pressed styles in its base", () => {
     expect(recipe.base?.["_pressed"]).toBeUndefined();
+  });
+
+  it("gives the solid look an inset shadow under _pressed and _currentPage", () => {
+    expect(recipe.compoundVariants).toHaveLength(4);
     expect(recipe.compoundVariants?.at(-1)).toStrictEqual({
       className: "button--on-marked",
       css: {
@@ -201,7 +207,7 @@ describe("recipe", () => {
     });
   });
 
-  it("tracks every tag whose name ends in Button", () => {
+  it("matches JSX tag names ending in Button", () => {
     expect(recipe.jsx).toStrictEqual([/Button$/u]);
   });
 });

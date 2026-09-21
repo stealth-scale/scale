@@ -1,12 +1,12 @@
 /**
- * Draws the passage of code, each token in its kind.
+ * Renders the highlighted source text.
  *
  * @remarks
- *   The element is `code`. The passage is read off the root and cut into tokens by the
- *   highlighter, which runs where it is called and knows the language from its name, so the code
- *   is coloured on its first paint. Each token that has a kind is drawn in a `span` carrying it
- *   as `data-token`, which the recipe reads for its ink, and a token with none is drawn as text.
- *   A language the highlighter does not know is drawn as plain text.
+ *   The element is a `code`. The text and the language come from the root, and the highlighter
+ *   runs synchronously during render, so the code is coloured on first paint rather than after a
+ *   round trip. Every token the highlighter classifies becomes a `span` carrying the class as
+ *   `data-token`, which the recipe selects on for colour; an unclassified token is emitted as a
+ *   bare text node. A language the highlighter does not recognise yields plain text.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -17,20 +17,17 @@ import { withContext } from "#code-block/context.ts";
 import { useCode } from "#code-block/state.ts";
 
 /**
- * Draws the passage at the size the root states.
+ * The styled element carrying the recipe's code slot.
  */
 const Passage = withContext("code", "code");
 
 /**
- * Describes what the passage takes.
+ * Props accepted by `Code`, which are the props of a styled `code` element.
  */
 export type CodeProps = ComponentProps<typeof Passage>;
 
 /**
- * Sets the code the root holds, token by token.
- *
- * @param props - Everything a styled code element takes.
- * @returns The passage, one span per token that has a kind.
+ * Tokenises the code held by the root and renders one span per classified token.
  */
 export function Code(props: CodeProps): ReactElement {
   const { code, language } = useCode();

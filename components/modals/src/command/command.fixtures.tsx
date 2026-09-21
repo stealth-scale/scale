@@ -1,5 +1,5 @@
 /**
- * Builds the command palette a part's specification needs above it.
+ * Supplies the root every part has to be rendered inside, and a helper for driving the field.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -15,11 +15,7 @@ import { List } from "#command/list.tsx";
 import { Root, type RootProps } from "#command/root.tsx";
 
 /**
- * Draws whatever a case wants measured inside the panel that holds the palette.
- *
- * @param children - The part under test.
- * @param props - Whatever the case sets on the panel.
- * @returns The panel, holding it.
+ * Wraps the part under test in a root carrying the fixture actions.
  */
 export function palette(
   children: ReactNode,
@@ -33,11 +29,7 @@ export function palette(
 }
 
 /**
- * Types into a palette's field and waits for the list to settle.
- *
- * @param field - The field to type into.
- * @param text - What to type.
- * @returns Nothing. The caller reads the screen.
+ * Sets the field to a query and waits for the filtered list and its announcement to settle.
  */
 export async function typed(field: HTMLElement, text: string): Promise<void> {
   fireEvent.change(field, { target: { value: text } });
@@ -45,10 +37,7 @@ export async function typed(field: HTMLElement, text: string): Promise<void> {
 }
 
 /**
- * Draws a whole palette, so a case can type into it and read what is left.
- *
- * @param props - Whatever the case sets on the panel.
- * @returns The parts composed the way a caller composes them.
+ * Renders every part of the palette arranged the way a caller arranges them.
  */
 export function composed(props: Omit<RootProps, "actions" | "aria-label"> = {}): ReactElement {
   return (

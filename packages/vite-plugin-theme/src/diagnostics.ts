@@ -1,11 +1,10 @@
 /**
- * Hands what the compiler found to the bundler, which puts a message in front of the person
- * running the build.
+ * Reports the compiler's diagnostics through the bundler's warning channel.
  *
  * @remarks
- *   The compiler reports what it could not make sense of, such as a recipe it could not read or a
- *   token nothing defines, and returns the list beside whatever it managed to compile. Left unread,
- *   each one is a rule missing from the stylesheet and nothing said about it.
+ *   The compiler returns its diagnostics alongside whatever it compiled, so a recipe it could not
+ *   read or a token nothing defines is a rule missing from the stylesheet. Unreported, that rule
+ *   goes missing with nothing said about it.
  */
 
 import { type Diagnostic } from "#pandacss.ts";
@@ -14,38 +13,38 @@ import { type Diagnostic } from "#pandacss.ts";
  * Delivers one message to the person running the build.
  *
  * @remarks
- *   The bundler's own `warn`, taken as a function rather than as its context, so a specification
- *   drives the reporter without a bundler.
+ *   The plugin passes the bundler's `warn`, bound to its context. A specification passes a
+ *   function of its own, so the reporter runs without a bundler.
  */
 export type Report = (message: string) => void;
 
 /**
- * Tells which compile a run of diagnostics belongs to.
+ * The compile a run of diagnostics belongs to, as it reads in the message.
  */
 export type Stage = "the class names" | "the contributors" | "the design system" | "the stylesheet";
 
 /**
- * Reports whether any diagnostic is an error, which is one the compiler could not compile past.
+ * Returns true when any diagnostic is an error, which is one the compiler could not compile past.
  */
 export function hasErrors(diagnostics: readonly Diagnostic[]): boolean {
   return diagnostics.some((held) => held.severity === "error");
 }
 
 /**
- * Lists the severities worth interrupting somebody for.
+ * The severities the plugin reports as a warning.
  *
  * @remarks
- *   `info` is the compiler narrating its own work, which belongs in the build log and not in a
- *   warning.
+ *   The compiler emits `info` for its own progress, which belongs in the build log rather than in
+ *   a warning.
  */
 const LOUD: ReadonlySet<string> = new Set(["error", "warning"]);
 
 /**
- * Writes one diagnostic as a line somebody can act on.
+ * Formats one diagnostic as a single line carrying its severity, code, message, file and help.
  *
  * @remarks
- *   The compiler's own formatter draws a frame around the source span, which reads well in a
- *   terminal the compiler owns and badly inside a bundler's warning.
+ *   The compiler's own formatter frames the source span, which reads well in its own terminal
+ *   output and badly inside a bundler's warning.
  */
 function lineOf(held: Diagnostic): string {
   const where = held.file === undefined ? "" : ` (${held.file})`;
@@ -55,12 +54,14 @@ function lineOf(held: Diagnostic): string {
 }
 
 /**
- * Reports every diagnostic worth reading as one message, and says nothing where there is none.
+ * Reports every error and warning of one compile as a single message, and reports nothing where
+ * there is neither.
  *
  * @remarks
- *   One message rather than one per diagnostic, because a mistake in a configuration produces the
- *   same diagnostic a dozen times, and a dozen warnings is a wall somebody scrolls past.
- * @returns How many diagnostics were reported.
+ *   One message rather than one per diagnostic, because a single mistake in a configuration
+ *   produces the same diagnostic a dozen times and a dozen warnings hides the rest of the log. An
+ *   `info` diagnostic is dropped rather than reported.
+ * @returns How many diagnostics were reported, which is the count the message opens with.
  */
 export function reportDiagnostics(
   diagnostics: readonly Diagnostic[],

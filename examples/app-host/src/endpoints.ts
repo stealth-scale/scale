@@ -1,36 +1,40 @@
 /**
- * Discovers where the applications this host loads are deployed, while it is running.
+ * Resolves the URLs of the remote applications this host loads, at startup rather than at build
+ * time.
  *
  * @remarks
- *   A URL compiled into a bundle pins that bundle to one environment, so promoting it means
- *   building again and shipping an artefact nobody tested. Reading the URLs at startup instead
- *   leaves the artefact the same in every environment, and only the file served beside it differs.
+ *   A remote URL compiled into the bundle pins that bundle to one environment, so promoting it
+ *   means building again and shipping an artefact nobody tested. Reading the URLs at startup keeps
+ *   one artefact valid in every environment, and only the file the deployment serves differs.
  */
 
 import { registerRemotes } from "@module-federation/runtime";
 
 /**
- * Locates one application a host may load.
+ * One remote application and the URL its entry module is served from.
  */
 export interface Endpoint {
   /**
-   * The URL the browser fetches the application's entry module from.
+   * The URL the browser fetches the remote's entry module from.
    */
   entry: string;
 
   /**
-   * The name the bundler resolved this application's imports against.
+   * The name the build resolved this remote's imports against, and the name it is registered under
+   * again here.
    */
   name: string;
 }
 
 /**
- * Accepts an entry that carries both a name and a URL, and rejects every other shape.
+ * Validates one parsed entry of the remotes file.
  *
  * @remarks
- *   The deployment serves this file and the build never sees it, so nothing guarantees its
- *   contents. A half-formed entry is dropped rather than registered, because a registration
- *   holding undefined fails much later at an import that never mentions the file.
+ *   The deployment serves this file and the build never validates it, so nothing guarantees its
+ *   contents. Registering an incomplete entry fails much later, at an import that does not mention
+ *   the file.
+ * @returns The endpoint when the value carries `entry` and `name` as strings, and undefined for
+ *   every other shape.
  */
 function endpoint(held: unknown): Endpoint | undefined {
   if (typeof held !== "object" || held === null) return undefined;
@@ -42,18 +46,18 @@ function endpoint(held: unknown): Endpoint | undefined {
 }
 
 /**
- * The file a deployment serves beside the application's documents to say where the remotes are.
+ * Name of the file a deployment serves to declare where its remotes are.
  */
 const REMOTES = "remotes.json";
 
 /**
- * Locates the remotes file from the base the bundler was given.
+ * Builds the path the remotes file is fetched from, out of the base the bundler was given.
  *
  * @remarks
- *   The file is served beside the application's documents, on the application's own origin. A
- *   path-only base says where those are, so the file sits under that path. A base naming another
- *   host says where the assets are and nothing about the documents, so the file is read from the
- *   root of the application's origin.
+ *   The deployment serves the file alongside the application's documents, on the application's
+ *   origin. A path-only base gives the path those documents are served under, so the file resolves
+ *   under that path. A base naming another host locates the assets and constrains the documents in
+ *   no way, so the file resolves at the root of the application's origin.
  * @param base - The base the bundler was given, which is `import.meta.env.BASE_URL` in a page.
  * @returns The path the file is fetched from, on the application's origin.
  */
@@ -64,15 +68,16 @@ export function where(base: string): string {
 }
 
 /**
- * Fetches the file a deployment serves beside this application and lists the endpoints it names.
+ * Fetches the remotes file, parses it, and keeps the entries that are complete.
  *
  * @remarks
- *   An empty result covers three cases a caller cannot tell apart: a file naming nothing, a file
- *   holding something other than an array, and a file whose every entry was half-formed. A file
- *   the deployment does not serve at all is the one case that raises.
- * @param from - Where the deployment serves the file, resolved against this application's origin.
- * @returns Each endpoint the file names, in the order it named them.
- * @throws {@link Error} When the deployment answers the request with anything but a success status.
+ *   An empty array covers three cases the caller cannot distinguish: a file declaring no endpoint,
+ *   a file that parses to something other than an array, and a file whose every entry is
+ *   incomplete. Only a response reporting failure throws.
+ * @param from - The path the remotes file is fetched from, on this application's origin.
+ * @returns Each complete endpoint the file declares, in the order it declares them.
+ * @throws {@link Error} When the response reports anything but a success status. The message names
+ *   the path and the status.
  */
 export async function endpoints(from: string): Promise<readonly Endpoint[]> {
   const answered = await fetch(from);
@@ -92,13 +97,15 @@ export async function endpoints(from: string): Promise<readonly Endpoint[]> {
 }
 
 /**
- * Points each name the build declared at the URL the deployment serves it from.
+ * Registers every endpoint with the federation runtime as an ES module remote, under the name the
+ * build declared.
  *
  * @remarks
- *   Every one of these names is registered already, with whatever URL the build defaulted to, and
- *   this overwrites it. Nothing imports from a remote until that has happened, because an import
- *   reached first is fetched from the default, which on a deployment is a machine that is not
- *   there.
+ *   The build registered each of these names already, with the URL it defaulted to, and `force`
+ *   overwrites that registration. The host imports nothing from a remote before this call, because
+ *   an import reached first resolves against the default URL, which on a deployment names a machine
+ *   that is not there.
+ * @param held - The endpoints to register, which is the result of {@link endpoints}.
  */
 export function join(held: readonly Endpoint[]): void {
   registerRemotes(

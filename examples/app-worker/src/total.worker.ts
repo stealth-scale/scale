@@ -1,11 +1,10 @@
 /**
- * Answers a message carrying a run of amounts with the total of that run.
+ * Posts back the total of the amounts each request message holds.
  *
  * @remarks
- *   One message in produces one message out, and the worker keeps no state between them, so two
- *   runs may be in flight at once. Each reply carries the number its request came with, so the
- *   page tells the two apart. A run mixing currencies throws inside the handler, which posts
- *   nothing and surfaces as an error event on the worker rather than as a reply.
+ *   The worker keeps no state between messages, so two requests may be in flight at once, and each
+ *   reply echoes the id of its request. A run mixing currencies throws inside the handler, which
+ *   posts nothing and surfaces as an error event on the worker.
  */
 
 /// <reference lib="webworker" />

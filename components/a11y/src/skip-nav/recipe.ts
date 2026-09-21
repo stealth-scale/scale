@@ -1,18 +1,17 @@
 /**
- * States what a way past the navigation is: a link a keyboard reaches first and an eye sees only
- * while focus is on it, and the place on the page it jumps to.
+ * Styles a skip link that is clipped until it takes focus, and the target it jumps to.
  *
  * @remarks
- *   The link is hidden the way the hidden text is hidden, and comes into view under focus, so a
- *   reader tabbing into the page meets it and a reader who never tabs never sees it. The target
- *   states nothing but its own class, because a page decides what it looks like and the target's
- *   whole job is to be somewhere focus can land.
+ *   The link uses the same `srOnly` clipping as the hidden text component and cancels it under
+ *   `:focus-visible`, so a keyboard user meets it on the first Tab and everyone else never sees
+ *   it. The target sets only a scroll margin, because a page decides its own appearance and the
+ *   target exists purely to give focus somewhere to land below a sticky header.
  */
 
 import { defineSlotRecipe, dense } from "@stealthscale/theme/authoring";
 
 /**
- * Draws the link over the top of the page while focus is on it, and leaves the target alone.
+ * The `skip-nav` slot recipe over a link and a target, with no variants.
  */
 export const recipe = defineSlotRecipe({
   base: {
