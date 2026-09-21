@@ -1,5 +1,23 @@
 # @stealthscale/vite-plugin-base
 
+## 0.3.0
+
+### Minor Changes
+
+- [#43](https://github.com/stealth-scale/scale/pull/43) [`ea7263b`](https://github.com/stealth-scale/scale/commit/ea7263ba8a41ef6bca751d5982194c6cec0824a7) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - Add `withLock`, which holds a lock directory across processes with a recorded owner, a grace and a
+  wait, and `scratchDir`, which names a plugin's scratch outside the workspace. Write a generated file
+  through a staged rename, and stop a directory sync on a source that cannot be listed. Resolve an
+  export map in Node's order, walk `node_modules` to a package's real directory, and key a lockfile by
+  `name@version` with `installedOf` picking the record an installation matches. Cut a lockfile key at
+  the first `@` past its opening character, so an alias and an address with a credential stay whole on
+  the version's side.
+
+- [#40](https://github.com/stealth-scale/scale/pull/40) [`725cf7e`](https://github.com/stealth-scale/scale/commit/725cf7eb750c998e795e546db2809009e6c3c2b5) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - vite-plugin-base: add quoted
+  
+  - `quoted(text)` writes a string as a JavaScript string literal: JSON's escaping, plus the line and
+    paragraph separators as unicode escapes, which JSON leaves bare and a code scanner reads as
+    unsanitised code. `literal()` writes every string and key through it.
+
 ## 0.2.0
 
 ### Minor Changes

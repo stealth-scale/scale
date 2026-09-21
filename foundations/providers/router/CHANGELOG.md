@@ -1,5 +1,20 @@
 # @stealthscale/provider-router
 
+## 0.2.0
+
+### Minor Changes
+
+- [#43](https://github.com/stealth-scale/scale/pull/43) [`9c2af0c`](https://github.com/stealth-scale/scale/commit/9c2af0cbd07058744c266740ee1188f46eaa6a3f) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - Add `basepathOf`, which derives the path a router mounts under from the base the bundler was given:
+  a path-only base gives its path without the trailing slash, and a base naming another host gives the
+  root unless the documents' path is named.
+
+- [#38](https://github.com/stealth-scale/scale/pull/38) [`345722c`](https://github.com/stealth-scale/scale/commit/345722c508064b16202cb9363668b44352f7a706) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - provider-router: move the window in one step on navigation
+  
+  - `routerDefaults` states `scrollRestorationBehavior: "instant"`. The library moved the window with
+    the page's own scroll behaviour, and the foundation sets `html { scroll-behavior: smooth }` for a
+    link into the page, so a page opened from a scrolled one glided to the top. A link into the page
+    keeps the smooth scroll.
+
 ## 0.1.0
 
 ### Minor Changes

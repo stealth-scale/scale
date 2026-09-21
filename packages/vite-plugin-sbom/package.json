@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/vite-plugin-sbom",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Writes a CycloneDX bill of materials from the modules a build reached.",
   "keywords": [
     "cyclonedx",

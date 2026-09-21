@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/component-primitives",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Decides what is drawn and where, and draws nothing itself.",
   "keywords": [
     "components",

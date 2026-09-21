@@ -1,5 +1,68 @@
 # @stealthscale/vite-config-react
 
+## 0.9.0
+
+### Minor Changes
+
+- [#35](https://github.com/stealth-scale/scale/pull/35) [`b588ff3`](https://github.com/stealth-scale/scale/commit/b588ff39d85f40125c2665be19124d208d485ae9) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - vite-config-react: fail a test that updates a component outside act
+  
+  - React reports an update made outside `act` on `console.error`. A passing run wrote it to stderr,
+    no gate read it, and the runner does not always print it, so grepping a captured run reported none
+    while the warnings were still being emitted.
+  - The shared setup file now records that one message and throws in `afterEach`, naming the
+    component. A test that renders a component built on a state machine and asserts before the machine
+    settles is reading a half-drawn tree, which is a defect rather than noise.
+  - Only that message is caught. A specification that drives a component into throwing makes React
+    report the throw the same way, and that is a case rather than a fault.
+  
+  vite-config: excuse a fixture from the cap on dependencies
+  
+  - `lint.composed` turns `import/max-dependencies` off for `**/*.fixtures.ts` and
+    `**/*.fixtures.tsx`, beside `lint.barrelled` and under a reason of its own.
+  - A fixture builds the component its specifications measure, so it imports every part that component
+    is composed of. Its count is the size of the component rather than a sign that one module does too
+    much, and a fixture held to the cap pushes the composition back into the specifications that were
+    meant to share it.
+
+- [#43](https://github.com/stealth-scale/scale/pull/43) [`53c8e11`](https://github.com/stealth-scale/scale/commit/53c8e11d08212900f3edbd9bfb68685f7f1bf02e) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - Load `@mdx-js/rollup` when the MDX plugin is constructed rather than when the package is imported,
+  so a repository that compiles no document imports the tier with the optional peer absent, and a
+  repository that states the layer without the peer is told which package to install. Read the icon
+  imports off the bundler's own parse of the source instead of matching text, so a string, a comment
+  or a template that looks like an import is left as written.
+
+- [#38](https://github.com/stealth-scale/scale/pull/38) [`832064c`](https://github.com/stealth-scale/scale/commit/832064cb73b2d437c496f551b26202ca96cdd954) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - vite-config-react: import each icon from its own file
+  
+  - `react.layers()` carries `plugin.icons()`, which rewrites a named import from `lucide-react` into
+    one import per icon file under `dist/esm/icons`, before anything else reads the source. A build
+    tree-shakes the root down to the icons a page draws, but a dev server does not: the
+    module-per-file server pre-bundles the root whole, five megabytes for every document that imports
+    one icon, and the bundling server carries every icon in its vendor chunk. The catalogue's vendor
+    chunk holds six icons and 1.4 MB now, rather than 1849 and 4.3 MB.
+  - The file an identifier stands for is a spelling rule, checked against the resolver once per name:
+    `Grid2X2Icon` is `grid-2-x-2` and `Grid2x2` is `grid-2x2`, and the set publishes a file under
+    every alias. A name no icon file answers to, and a type, stay on the root import or are dropped,
+    so `createLucideIcon` and `LucideIcon` still resolve.
+  
+  vite-config-react: leave a specimen out of the refresh transform
+  
+  - A `*.specimen.tsx` file is excluded from the React plugin's refresh transform. Its JSX still
+    compiles, because the plugin sets the JSX transform for every file in its configuration. A
+    specimen exports scenes and constants beside its components, which the refresh runtime read as a
+    module it could not refresh and invalidated on every edit, undoing the boundary the specimen
+    plugin gives the file.
+  
+  vite-config-react: compile under a build alone where asked
+  
+  - `react.layers({ compiler: "build" })`, or `compiler: { only: "build" }`, runs the React Compiler
+    under a build and leaves a dev server's transforms to the JSX plugin. The compiler is most of what
+    a cold dev transform costs, 1.7 seconds of a catalogue page's 2.2. What a package gives up is the
+    compiler's reading of its components while it edits them, so the default keeps it on.
+
+### Patch Changes
+
+- Updated dependencies [[`b588ff3`](https://github.com/stealth-scale/scale/commit/b588ff39d85f40125c2665be19124d208d485ae9), [`808c86b`](https://github.com/stealth-scale/scale/commit/808c86be6484d08a16b059d7d31680c5929257b4), [`ab77490`](https://github.com/stealth-scale/scale/commit/ab774905ada897d5d8912490a2e6a98294f31057), [`832064c`](https://github.com/stealth-scale/scale/commit/832064cb73b2d437c496f551b26202ca96cdd954), [`10e17cb`](https://github.com/stealth-scale/scale/commit/10e17cbabdb003f4b911834221df7bf04d975fe5)]:
+  - @stealthscale/vite-config@0.7.0
+
 ## 0.8.0
 
 ### Minor Changes

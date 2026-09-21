@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/testing-theme",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Lists every part of the theme contract a theme, a recipe or a preset breaks, and reads what a recipe declares and what a rendered component drew.",
   "keywords": [
     "accessibility",

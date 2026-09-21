@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/component-modals",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Draws what the page waits for: a dialog, a drawer, a palette, a tour.",
   "keywords": [
     "components",

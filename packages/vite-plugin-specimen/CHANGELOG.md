@@ -1,5 +1,94 @@
 # @stealthscale/vite-plugin-specimen
 
+## 0.2.0
+
+### Minor Changes
+
+- [#43](https://github.com/stealth-scale/scale/pull/43) [`ee9bec3`](https://github.com/stealth-scale/scale/commit/ee9bec31de357f6b26e79e755b6c2ee86159102e) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - List a stamp file as a file the index watches, and rewrite it from `watchChange` under a server that
+  bundles when a specimen appears, disappears or changes the metadata it declares, so the index is
+  generated again on the next rebuild without a restart. Import the compiler's type through the types
+  module, so a catalogue that reads no props loads no compiler.
+
+- [#43](https://github.com/stealth-scale/scale/pull/43) [`c578d12`](https://github.com/stealth-scale/scale/commit/c578d12f4f26dbedd2b60f4bada00f4f4458ebf1) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - Write every page and what it reaches beyond the entry into one `pages` chunk, and every page's props
+  into one `props` chunk, rather than a chunk per page and one per page's props. A chunk per page put
+  a module several pages share in the first page's chunk, which every other page's chunk then
+  imported, and most page chunks were under two kilobytes gzipped.
+
+- [#34](https://github.com/stealth-scale/scale/pull/34) [`e94c22a`](https://github.com/stealth-scale/scale/commit/e94c22a6c39e1c13d8f99b46334ae8ecc7b65192) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - vite-plugin-specimen: classify a dependency's declaration as an option
+  
+  - A property declared by a package the component's package depends on at run time is an option, the
+    transitive dependencies included. A menu root keeps 31 properties instead of five: its four
+    variants, and the 27 options the state machine and the packages it depends on declare.
+  - A peer is not walked, so the rendering library's attributes and the foundation's style props stay
+    under `dropped.foreign`.
+  - The index build reads each package directory's manifest once per build when it names the package a
+    specimen belongs to.
+  
+  vite-plugin-specimen: carry the namespace a page names its catalogue by
+  
+  - A page that states `namespace` as a literal in its `specimen()` call carries it into the index as
+    `Indexed.namespace`, empty where it states none, so a catalogue resolves the page's words in the
+    namespace they are keys in.
+  
+  vite-plugin-specimen: drop the fragments module and the syntax tree behind it
+  
+  - `virtual:specimen-fragments/<id>`, `Fragments` and `Indexed.fragments` are gone, with the slicer
+    and the scope walker that built them. A page states its own import line and each scene its own
+    source, so nothing needs the file's syntax tree. The plugin parses the metadata out of the source
+    text as it always did.
+  - The package sheds 550 lines of implementation and 473 of specification, and a catalogue makes one
+    request per page rather than two.
+  
+  vite-plugin-specimen: give a specimen a hot update boundary of its own
+  
+  - Every listed specimen the plugin transforms accepts its own hot update and dispatches `UPDATED`
+    (`specimen:updated`) on the window with the page's identifier and the module that replaced the old
+    one. A specimen exports scenes and constants beside its components, so the refresh runtime could
+    not accept an edit to it, and every save ran the application's own modules again. The catalogue
+    kit listens for the event and redraws the page in place.
+  - The index and the props modules are resolved to their specifiers as written, with no NUL in front,
+    because a server that bundles registers a module reached through a dynamic import under its
+    identifier and loads a module behind a NUL as nothing.
+  - A server that bundles runs no hot update hook, so a change to a typed file restarts the compiler
+    from `watchChange` where the environment says it bundles, and the modules are left to the bundler.
+  
+  vite-plugin-specimen: name a page's chunk after the page
+  
+  - The plugin names the chunk a page's module is bundled into after the page,
+    `actions-button-[hash].js`, so a page opens with one request rather than two. The props keep a
+    chunk of their own, loaded where somebody opens them. The catalogue's build writes 185 chunks
+    rather than 262.
+  - `Indexed.source`, the file's text as one string, is gone. No catalogue read it, and it cost a
+    chunk per page that no browser ever asked for.
+  
+  vite-plugin-specimen: write a page's path relative to the root wherever the file is
+  
+  - `Indexed.path` is written relative to the project root whether or not the root holds the file,
+    `../../components/actions/src/button/button.specimen.tsx` for a catalogue beside the packages it
+    shows. A file outside the root kept its absolute path before, and the index is shipped, so a built
+    catalogue carried the directory layout of the machine it was built on.
+  
+  vite-plugin-specimen: name a page's props chunk after the page
+  
+  - A props module is bundled into a chunk named `<page>-props`, `actions-button-props-[hash].js`,
+    rather than one the bundler named after the last segment of the module's identifier, which called
+    two pages' props `text` and `menu`.
+  - Every string written into a generated module goes through `quoted()` from `vite-plugin-base`,
+    which escapes the line and paragraph separators JSON leaves bare.
+  
+  vite-plugin-specimen: include a page chunk's dependencies recursively
+  
+  - The page chunk group sets `includeDependenciesRecursively: true`, so the modules only the page
+    reaches, its icons among them, are bundled into the page's chunk. Without it the bundler left a
+    stub chunk under the page's own name that held those modules and re-exported the page, and the two
+    chunks imported each other. A table the page built at module level from an icon in the stub read
+    `undefined`, because the stub's binding was hoisted and not yet evaluated.
+
+### Patch Changes
+
+- Updated dependencies [[`ea7263b`](https://github.com/stealth-scale/scale/commit/ea7263ba8a41ef6bca751d5982194c6cec0824a7), [`725cf7e`](https://github.com/stealth-scale/scale/commit/725cf7eb750c998e795e546db2809009e6c3c2b5)]:
+  - @stealthscale/vite-plugin-base@0.3.0
+
 ## 0.1.0
 
 ### Minor Changes

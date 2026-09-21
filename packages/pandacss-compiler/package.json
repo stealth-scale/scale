@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/pandacss-compiler",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Renames a compiled Panda CSS stylesheet and its generated runtime into the readable scheme.",
   "keywords": [
     "class-names",

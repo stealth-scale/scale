@@ -1,5 +1,19 @@
 # @stealthscale/testing
 
+## 0.4.0
+
+### Minor Changes
+
+- [#43](https://github.com/stealth-scale/scale/pull/43) [`ee9bec3`](https://github.com/stealth-scale/scale/commit/ee9bec31de357f6b26e79e755b6c2ee86159102e) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - Bind a fresh serving context to `loaded` where a specification gives none, so a plugin that lists a
+  file to watch while loading runs under a specification that asks nothing about the watching. Add the
+  `changed`, `created`, `removed` and `updated` drivers, the hook context with its command and
+  bundling flag, and the asynchronous scratch workspace.
+
+- [#38](https://github.com/stealth-scale/scale/pull/38) [`832064c`](https://github.com/stealth-scale/scale/commit/832064cb73b2d437c496f551b26202ca96cdd954) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - testing: bind a context in the load driver
+  
+  - `loaded(plugin, id, context)` binds the context as `this` when one is given, for a plugin that
+    watches a file while loading a module. Nothing is bound where it is absent, as before.
+
 ## 0.3.0
 
 ### Minor Changes
