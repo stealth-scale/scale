@@ -52,7 +52,13 @@ import { catalogues } from "virtual:i18n";
 
 `catalogues` carries the languages and namespaces found, the fallback language's words inlined so
 the first paint has them, and a loader that fetches any other language's namespace as one module.
-Set `eager` to inline every language and fetch nothing.
+Set `eager` to inline every language and fetch nothing. A workspace with no catalogue at all gets
+empty lists and an empty loader table, and the module runs.
+
+Each module lists the catalogue files it read as files to watch, so a bundler that rebuilds on a
+watched file's change rebuilds the module. The catalogues module also lists a stamp file the plugin
+rewrites whenever a language or a namespace appears or disappears, because a directory handed to a
+watcher says nothing about a file appearing under it.
 
 Add the types with a triple-slash directive from a file the project already compiles.
 
@@ -82,9 +88,16 @@ A plural form is checked against any form of the same key, and may write the cou
 
 ## Hot updates
 
-On a dev server a changed catalogue is sent to the page as an `i18n:catalogue` event carrying the
-pair merged afresh. The foundation replaces the words in place, so the page keeps its state. A
-catalogue appearing or disappearing regenerates the types as well.
+On a dev server that serves a module per file, a changed catalogue is sent to the page as an
+`i18n:catalogue` event carrying the pair merged afresh. The foundation replaces the words in place,
+so the page keeps its state, and the types are written again for a key or a placeholder the edit
+added. A file joining a namespace that exists is pushed the same way. A language or a namespace
+appearing or disappearing changes the set a running page holds, so the catalogues module is handed
+back for a reload rather than pushed.
+
+A dev server that bundles runs no hot update hook. There, a change to a catalogue rebuilds the
+modules that listed it, a language or a namespace appearing rewrites the stamp the catalogues module
+listed, and the types are written again from `watchChange`. A watching build follows the same path.
 
 ## Licence
 

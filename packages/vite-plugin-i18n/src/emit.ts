@@ -193,6 +193,9 @@ export function pairModule(files: readonly Catalogue[]): string {
 /**
  * Generates the loader table: one dynamic import per pair, so a namespace costs one request.
  *
+ * @remarks
+ *   Every entry ends in its own comma, so a table with no language and a language with no
+ *   namespace both close as an object rather than as a bare comma.
  * @param index - The indexed catalogues.
  * @returns The table as JavaScript source.
  */
@@ -200,13 +203,13 @@ function loaders(index: CatalogueIndex): string {
   const languages = [...index.entries()].map(([language, byNamespace]) => {
     const imports = [...byNamespace.keys()].map(
       (namespace) =>
-        `    ${JSON.stringify(namespace)}: () => import(${JSON.stringify(pairId(language, namespace))})`,
+        `    ${JSON.stringify(namespace)}: () => import(${JSON.stringify(pairId(language, namespace))}),`,
     );
 
-    return `  ${JSON.stringify(language)}: {\n${imports.join(",\n")},\n  }`;
+    return `  ${JSON.stringify(language)}: {\n${imports.join("\n")}\n  },`;
   });
 
-  return `{\n${languages.join(",\n")},\n}`;
+  return languages.length === 0 ? "{}" : `{\n${languages.join("\n")}\n}`;
 }
 
 /**

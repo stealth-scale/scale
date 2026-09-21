@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import { withScratchWorkspace } from "@stealthscale/testing";
 
 import { APP, WORKSPACE } from "#find.fixtures.ts";
-import { configured, MODULE, updated } from "#plugin.fixtures.ts";
+import { configured, loading, MODULE, updated } from "#plugin.fixtures.ts";
 import { EVENT, ID } from "#plugin.ts";
 
 describe("hotUpdate", () => {
@@ -41,7 +41,7 @@ describe("hotUpdate", () => {
     });
   });
 
-  it("sends the new pair when a catalogue is added", () => {
+  it("hands the catalogues module back for a reload when a language appears", () => {
     expect.hasAssertions();
 
     withScratchWorkspace(WORKSPACE, (scratch) => {
@@ -52,12 +52,36 @@ describe("hotUpdate", () => {
 
       const { answered, invalidated, sent } = updated(plugin, file, "create");
 
-      expect(invalidated).toStrictEqual([MODULE]);
+      expect(answered).toStrictEqual([MODULE]);
+      expect(invalidated).toStrictEqual([]);
+      expect(sent).toStrictEqual([]);
+    });
+  });
+
+  it("sends the merged pair when a file joins a namespace that exists", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const plugin = configured(scratch);
+      const file = join(scratch.root, APP, "locales/en/site/more.json");
+
+      scratch.write({ [`${APP}/locales/en/site/more.json`]: '{"more":"More"}' });
+
+      const { answered, sent } = updated(plugin, file, "create");
+
       expect(answered).toStrictEqual([]);
       expect(sent).toStrictEqual([
         [
           EVENT,
-          { language: "de", namespace: "site", words: { welcome: "Willkommen bei {{name}}" } },
+          {
+            language: "en",
+            namespace: "site",
+            words: {
+              legal: { terms: "Terms of use" },
+              more: { more: "More" },
+              welcome: "Welcome to {{name}}",
+            },
+          },
         ],
       ]);
     });
@@ -72,7 +96,7 @@ describe("hotUpdate", () => {
       scratch.write({ [`${APP}/locales/de/site.json`]: '{"welcome":"Willkommen bei {{name}}"}' });
       updated(plugin, join(scratch.root, APP, "locales/de/site.json"), "create");
 
-      expect(plugin.load(`\0${ID}`)).toContain('export const languages = ["de","en","nl"];');
+      expect(loading(plugin, `\0${ID}`)).toContain('export const languages = ["de","en","nl"];');
     });
   });
 
@@ -167,6 +191,37 @@ describe("hotUpdate", () => {
     });
   });
 
+  it("hands nothing back for a reload when a language appears and the module was never imported", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const plugin = configured(scratch);
+
+      scratch.write({ [`${APP}/locales/de/site.json`]: '{"welcome":"Willkommen bei {{name}}"}' });
+
+      const answered = plugin.hotUpdate.call(
+        {
+          environment: {
+            hot: { send: vi.fn() },
+            moduleGraph: { getModuleById: () => {} },
+          },
+        },
+        {
+          file: join(scratch.root, APP, "locales/de/site.json"),
+          modules: [],
+          read: () => "",
+          // A hot update carries the server, which nothing this plugin does reads.
+          // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
+          server: {} as HotUpdateOptions["server"],
+          timestamp: 0,
+          type: "create",
+        },
+      );
+
+      expect(answered).toStrictEqual([]);
+    });
+  });
+
   it("sends the whole namespace when a nested YAML file changes", () => {
     expect.hasAssertions();
 
@@ -198,7 +253,7 @@ describe("hotUpdate", () => {
       const plugin = configured(scratch);
 
       expect(plugin.resolveId("virtual:i18n/nl/overlays")).toBe("\0virtual:i18n/nl/overlays");
-      expect(plugin.load("\0virtual:i18n/nl/overlays")).toBe(
+      expect(loading(plugin, "\0virtual:i18n/nl/overlays")).toBe(
         'export default {"commands":"Opdrachten","nested":{"close":"Sluit {{what}}"},"menu":"Menu"};\n',
       );
     });
@@ -208,7 +263,9 @@ describe("hotUpdate", () => {
     expect.hasAssertions();
 
     withScratchWorkspace(WORKSPACE, (scratch) => {
-      expect(configured(scratch).load("\0virtual:i18n/de/overlays")).toBe("export default {};\n");
+      expect(loading(configured(scratch), "\0virtual:i18n/de/overlays")).toBe(
+        "export default {};\n",
+      );
     });
   });
 
@@ -239,7 +296,7 @@ describe("hotUpdate", () => {
       const { invalidated } = updated(plugin, file);
 
       expect(invalidated).toStrictEqual([MODULE]);
-      expect(plugin.load(`\0${ID}`)).toContain('"welcome":"Hello, {{name}}"');
+      expect(loading(plugin, `\0${ID}`)).toContain('"welcome":"Hello, {{name}}"');
     });
   });
 });
