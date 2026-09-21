@@ -42,7 +42,9 @@ hundreds of manifests to find no catalogue in any of them. Pass `scopes` to foll
 
 Packages are read deepest first and the application last, so where two name the same language and
 namespace the application's words win. A package is resolved the way its import is, so a workspace
-link and an installed copy are found alike.
+link and an installed copy are found alike. The root is the application where its manifest is
+`private`. A package built or tested on its own is a package, and its own files count as what it
+ships.
 
 ## virtual:i18n
 
@@ -82,6 +84,9 @@ A build fails on any of three faults:
 - One owner declaring a key in two files.
 
 A dev server reports all three and keeps serving.
+
+An application may override a key a package ships and may not add one to that package's namespace,
+because a key nobody defines is a typo. A package under its own root adds what it ships.
 
 A plural form is checked against any form of the same key, and may write the count out in words:
 `één pagina` is accepted against `{{count}} page`. Every other placeholder is still required.

@@ -73,6 +73,17 @@ describe("found", () => {
     });
   });
 
+  it("sets own to false when the root is a package", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(
+      { "kit/locales/en/kit.json": '{"go":"Go"}', "kit/package.json": '{"name":"@house/kit"}' },
+      (scratch) => {
+        expect(found(join(scratch.root, "kit")).map((one) => one.own)).toStrictEqual([false]);
+      },
+    );
+  });
+
   it("skips a package outside the application's scope", () => {
     expect(listed()).not.toContain("outsider en/outsider");
   });

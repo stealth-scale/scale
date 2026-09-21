@@ -35,7 +35,12 @@ export interface Catalogue {
   readonly namespace: string;
 
   /**
-   * True when the application owns the file, false when a dependency ships it.
+   * True when the application owns the file, false when a package ships it.
+   *
+   * @remarks
+   *   The root is the application where its manifest is `private`. A package built or tested on
+   *   its own is the root too, and ships its files the way any package does, so they are not an
+   *   application's.
    */
   readonly own: boolean;
 
@@ -139,13 +144,13 @@ function scopeOf(name: string | undefined): string | undefined {
  *
  * @remarks
  *   `dependencies` and `peerDependencies` both count, because a component package declares its
- *   siblings as peers. The application's `devDependencies` count too, because an example declares
- *   the packages it demonstrates there.
+ *   siblings as peers. The root's `devDependencies` count too, because an example declares the
+ *   packages it demonstrates there, and a package the siblings its specimens draw.
  * @param manifest - The parsed package.json.
- * @param own - True for the application's own manifest.
+ * @param starting - True for the manifest the search starts from.
  */
-function namesIn(manifest: Manifest, own: boolean): readonly string[] {
-  const fields = ["dependencies", "peerDependencies", ...(own ? ["devDependencies"] : [])];
+function namesIn(manifest: Manifest, starting: boolean): readonly string[] {
+  const fields = ["dependencies", "peerDependencies", ...(starting ? ["devDependencies"] : [])];
 
   return fields.flatMap((field) => {
     const declared = manifest[field];
@@ -192,10 +197,11 @@ interface Walked {
  *   engine would read hundreds of manifests and find no catalogue in any of them.
  * @param directory - The directory to start from.
  * @param walk - The scopes to follow and the directories already visited.
- * @param own - True for the application's own directory.
+ * @param starting - True for the directory the search starts from, whose development dependencies
+ *   are followed.
  * @returns Each package with its manifest, the starting directory last.
  */
-function walked(directory: string, walk: Walk, own: boolean): readonly Walked[] {
+function walked(directory: string, walk: Walk, starting: boolean): readonly Walked[] {
   if (walk.seen.has(directory)) return [];
   walk.seen.add(directory);
 
@@ -203,7 +209,7 @@ function walked(directory: string, walk: Walk, own: boolean): readonly Walked[] 
 
   if (manifest === undefined) return [];
 
-  const below = namesIn(manifest, own)
+  const below = namesIn(manifest, starting)
     .filter((name) => walk.scopes.has(scopeOf(name) ?? ""))
     .map((name) => packageAt(name, directory))
     .filter((at) => at !== undefined)
@@ -213,25 +219,32 @@ function walked(directory: string, walk: Walk, own: boolean): readonly Walked[] 
 }
 
 /**
- * Returns every catalogue an application can reach, its dependencies' first and its own last.
+ * Returns every catalogue a root can reach, its dependencies' first and its own last.
  *
  * @remarks
  *   When two packages declare the same language and namespace, the one later in the result wins the
- *   merge, which puts the application last. Each package is resolved the way an import of it
- *   resolves, so a workspace link and an installed copy are found alike.
- * @param root - The application directory.
- * @param scopes - The scopes to follow. Defaults to the application's own scope.
+ *   merge, which puts the root last. Each package is resolved the way an import of it resolves, so
+ *   a workspace link and an installed copy are found alike. The root's files are the application's
+ *   own where the root's manifest is `private`. A package built or tested on its own is a package,
+ *   and its files count as what it ships.
+ * @param root - The application or package directory.
+ * @param scopes - The scopes to follow. Defaults to the root's own scope.
  * @returns The catalogues in merge order.
  */
 export function found(root: string, scopes?: readonly string[]): readonly Catalogue[] {
-  const own = manifestAt(root);
-  const named = own === undefined ? undefined : text(own, "name");
+  const manifest = manifestAt(root);
+  const named = manifest === undefined ? undefined : text(manifest, "name");
+  const application = manifest?.["private"] === true;
   const walk: Walk = {
     scopes: new Set(scopes ?? [scopeOf(named)].filter((scope) => scope !== undefined)),
     seen: new Set(),
   };
 
   return walked(root, walk, true).flatMap((one) =>
-    cataloguesIn(one.at, text(one.manifest, "name") ?? basename(one.at), one.at === root),
+    cataloguesIn(
+      one.at,
+      text(one.manifest, "name") ?? basename(one.at),
+      application && one.at === root,
+    ),
   );
 }
