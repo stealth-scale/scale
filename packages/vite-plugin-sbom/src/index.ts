@@ -15,6 +15,7 @@ import { rolldownVersion, version } from "vite";
 import {
   type Bundling,
   type Installed,
+  installedOf,
   licensed,
   locked,
   type Manifest,
@@ -130,6 +131,33 @@ function installedFrom(manifest: Manifest): string | undefined {
 }
 
 /**
+ * Strips what a provenance URL carries that identifies nobody's package: a credential in front of
+ * the host, and every query parameter after the path.
+ *
+ * @remarks
+ *   An installer writes the address it fetched from as it was given, and a private registry is
+ *   given a token in the address or after the question mark. The document is read by whoever reads
+ *   the deployment, so the address is written without either. The fragment is kept, because a
+ *   version control address names its commit there. An address that is no URL, such as a `github:`
+ *   shorthand, is written as it was.
+ */
+function sanitized(held: string): string {
+  let url: URL;
+
+  try {
+    url = new URL(held);
+  } catch {
+    return held;
+  }
+
+  url.username = "";
+  url.password = "";
+  url.search = "";
+
+  return url.href;
+}
+
+/**
  * Decides the package URL qualifier that records where a package was fetched from.
  *
  * @remarks
@@ -152,8 +180,8 @@ function qualifiers(manifest: Manifest, installed?: Installed): null | Record<st
   }
 
   return /^(?:git[+:]|ssh:|github:|gitlab:|bitbucket:)|\.git(?:#|$)/u.test(held)
-    ? { vcs_url: held }
-    : { repository_url: held };
+    ? { vcs_url: sanitized(held) }
+    : { repository_url: sanitized(held) };
 }
 
 /**
@@ -274,7 +302,7 @@ function toolchain(
     const held = manifest === undefined ? undefined : components.makeComponent(manifest);
 
     if (held !== undefined && manifest !== undefined) {
-      identify(held, manifest, installed.get(named));
+      identify(held, manifest, installedOf(installed, named, text(manifest, "version")));
       bom.metadata.tools.components.add(held);
     }
   }
@@ -325,7 +353,9 @@ function described(
  * @remarks
  *   Components go in on the first pass and edges on the second, because an edge often points at a
  *   package the first pass has not created a component for yet. A package the builder declines to
- *   describe, such as one whose manifest names nothing, takes every edge touching it with it.
+ *   describe, such as one whose manifest names nothing, takes every edge touching it with it. Each
+ *   package is matched to the lockfile by its name and the version its own manifest states, so two
+ *   installed versions of one name each get their own digest and source.
  */
 function inventory(
   bom: Models.Bom,
@@ -340,7 +370,7 @@ function inventory(
 
     if (held === undefined) continue;
 
-    identify(held, one.manifest, installed.get(one.named));
+    identify(held, one.manifest, installedOf(installed, one.named, text(one.manifest, "version")));
     evidence(held, at);
     made.set(at, held);
     bom.components.add(held);
