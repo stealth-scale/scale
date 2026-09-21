@@ -13,6 +13,7 @@
     "build": "vp build",
     "check": "vp check",
     "dev": "vp dev",
+    "dev:standard": "STEALTH_DEV_SERVER=standard vp dev",
     "test": "vp test"
   },
   "dependencies": {

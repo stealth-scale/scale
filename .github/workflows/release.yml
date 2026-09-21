@@ -48,9 +48,14 @@ jobs:
           commit-message: "chore: bump every package and write the changelogs"
           pr-title: "chore: release"
 
-  pack:
+  ci:
     if: needs.select-mode.outputs.mode == 'publish'
     needs: select-mode
+    uses: ./.github/workflows/ci.yml
+
+  pack:
+    if: needs.select-mode.outputs.mode == 'publish'
+    needs: [select-mode, ci]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:

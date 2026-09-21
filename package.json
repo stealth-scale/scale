@@ -5,11 +5,17 @@
   "description": "Builds, checks, tests and releases every stealthscale package.",
   "type": "module",
   "scripts": {
-    "bootstrap": "pnpm -r --filter '{foundations/*}' --filter '{packages/*}' --filter '{components/*}' --filter '{themes/*}' run build",
+    "bootstrap": "pnpm -r --filter '{packages/vite-config*}...' run build",
     "dom": "node scripts/catalogue/dom.ts",
+    "focus": "vp test --run --coverage.enabled=false",
+    "gate:bootstrap": "node scripts/gates/bootstrap.ts",
     "prepare": "lefthook install",
     "ready": "pnpm run bootstrap && vp run ci",
-    "shot": "node scripts/catalogue/shot.ts"
+    "shot": "node scripts/catalogue/shot.ts",
+    "trust:apply": "node scripts/trust/apply.ts",
+    "trust:plan": "node scripts/trust/plan.ts",
+    "trust:test": "vp test --run --project scripts",
+    "watch": "vp test --coverage.enabled=false"
   },
   "devDependencies": {
     "@changesets/changelog-github": "catalog:",
@@ -41,7 +47,8 @@
     "playwright": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vite-plus": "catalog:"
+    "vite-plus": "catalog:",
+    "vitest": "catalog:"
   },
   "devEngines": {
     "packageManager": {

@@ -41,4 +41,6 @@ export default defineConfig(import.meta.dirname, {
     exampleAppWorker,
     exampleLibUi,
   ],
+
+  test: { projects: ["scripts"] },
 });

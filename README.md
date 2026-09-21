@@ -216,15 +216,24 @@ pnpm install
 pnpm run ready
 ```
 
-`ready` runs `bootstrap` and then `vp run ci`. `bootstrap` packs every package under `packages/` in
-dependency order. Every example and every package imports the configuration by name and resolves
-through `dist`, exactly as a repository installing from npm does. A clean checkout has no `dist`
-yet.
+`ready` runs `bootstrap` and then `vp run ci`. `bootstrap` packs the configuration packages and
+every workspace package they depend on, in dependency order: nineteen of the ninety, which is what
+the task runner needs to read every configuration and construct the plugins a build runs. Every
+example and every package imports the configuration by name and resolves through `dist`, exactly as
+a repository installing from npm does. A clean checkout has no `dist` yet, and the task graph builds
+everything else once, in one run. `pnpm gate:bootstrap` proves that from a checkout with no built
+output, and proves that a second run of the graph hits the cache on every task.
 
 After the bootstrap, `vp run ci` runs `vp run -r build`, then `vp check`, then `vp test --run`. The
 task runs all three every time. A green run means all three passed. Put a flag for the runner before
 the task name. Anything after the task name goes to the task. `vp run -v ci` is verbose, while
 `vp run ci -v` passes `-v` to `vp test`.
+
+`pnpm focus` runs the tests of the package it is run in once with coverage off, and `pnpm watch`
+keeps them running. The coverage policy stays with `vp test` and the gate. `pnpm trust:plan` reads
+the workspace and the registry and prints what publishing and trusting every public package would
+take, `pnpm trust:apply --yes` runs that plan, and `pnpm trust:test` checks the planner against a
+stand-in registry offline.
 
 [CONTRIBUTING.md](CONTRIBUTING.md) covers the pull request, the changeset and the three standards
 under [docs/standards/](docs/standards/). The [architecture decision records](docs/adr/) record what
