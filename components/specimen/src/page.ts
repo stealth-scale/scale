@@ -116,6 +116,16 @@ export interface Specimen {
   id: string;
 
   /**
+   * The statement a reader copies first, which the page opens with. No import line when absent.
+   *
+   * @remarks
+   *   Written out rather than read off the file's own imports, because a page imports the
+   *   catalogue's kit and its icons beside the components it shows, and no rule separates the two
+   *   reliably. A page whose scenes share one sample states the sample's imports here.
+   */
+  imports?: string;
+
+  /**
    * The catalogue namespace the page's words are keys in: the title, the opening, and each
    * scene's title and opening. The catalogue's own, `specimen`, when absent.
    *

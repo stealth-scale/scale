@@ -7,7 +7,7 @@ import { type ReactElement } from "react";
 
 import { Import } from "#catalogue/page-import.tsx";
 import { SceneSection } from "#catalogue/page-scene.tsx";
-import { type Fragments, type Indexed } from "#catalogue/types.ts";
+import { type Indexed } from "#catalogue/types.ts";
 import { type Scene } from "#page.ts";
 
 /**
@@ -40,14 +40,14 @@ export interface BodyProps {
   readonly entry: Indexed;
 
   /**
-   * Each scene's source and the components the page imports, or nothing until they are loaded.
-   */
-  readonly fragments: Fragments | undefined;
-
-  /**
    * The path the application serves the framed page at, or nothing where it serves none.
    */
   readonly framed?: string | undefined;
+
+  /**
+   * The statement the page opens with, or nothing where it declares none.
+   */
+  readonly imports?: string | undefined;
 
   /**
    * The scenes, in the order they are on the page.
@@ -56,29 +56,16 @@ export interface BodyProps {
 }
 
 /**
- * Reads one scene's source out of the loaded fragments: the text, `null` where the index cut none
- * for the scene, or undefined until the fragments have loaded.
+ * Draws the import line and the scenes, for the page body its caller draws round them.
  *
  * @remarks
- *   A scene's source is keyed by the title the specimen declared, before wording, because the
- *   plugin cuts the source by the literal it finds in the file.
- *   A scene carrying its own is read first and waits for nothing. A built scene writes its own,
- *   because the plugin finds no declaration to cut for one.
+ *   Each scene carries its own source, which the scene either writes out or is built with. A scene
+ *   that carries none is drawn without a source control.
  */
-function sourceOf(fragments: Fragments | undefined, scene: Scene): null | string | undefined {
-  if (scene.source !== undefined) return scene.source;
-  if (fragments === undefined) return undefined;
-
-  return fragments.fragments[scene.title] ?? null;
-}
-
-/**
- * Draws the import line and the scenes, for the page body its caller draws round them.
- */
-export function Body({ entry, fragments, framed, scenes }: BodyProps): ReactElement {
+export function Body({ entry, framed, imports, scenes }: BodyProps): ReactElement {
   return (
     <>
-      <Import names={fragments?.imported ?? []} package={entry.package} />
+      <Import imports={imports} package={entry.package} />
       {scenes.map(({ id, scene }, position) => (
         <SceneSection
           framed={framed}
@@ -88,7 +75,7 @@ export function Body({ entry, fragments, framed, scenes }: BodyProps): ReactElem
           page={entry.id}
           position={position}
           scene={scene}
-          source={sourceOf(fragments, scene)}
+          source={scene.source ?? null}
         />
       ))}
     </>

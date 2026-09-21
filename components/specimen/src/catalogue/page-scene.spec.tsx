@@ -38,6 +38,7 @@ function sectioned(scene: Scene = SIZES, namespace = "", framed?: string): React
           page="actions/button"
           position={2}
           scene={scene}
+          source={scene.source ?? null}
         />
       </Page.Body>
     </Page.Root>

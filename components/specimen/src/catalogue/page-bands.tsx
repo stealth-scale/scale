@@ -13,7 +13,7 @@ import { Body, type Listed } from "#catalogue/page-body.tsx";
 import { PropsBody } from "#catalogue/page-props.tsx";
 import { Sections } from "#catalogue/page-sections.tsx";
 import { PageTabs } from "#catalogue/page-tabs.tsx";
-import { type Fragments, type Indexed } from "#catalogue/types.ts";
+import { type Indexed } from "#catalogue/types.ts";
 import { useAnatomy } from "#catalogue/use-anatomy.ts";
 
 /**
@@ -36,14 +36,14 @@ export interface BandsProps {
   readonly entry: Indexed;
 
   /**
-   * Each scene's source and the components the page imports, or nothing until they are loaded.
-   */
-  readonly fragments: Fragments | undefined;
-
-  /**
    * The path the application serves the framed page at, or nothing where it serves none.
    */
   readonly framed?: string | undefined;
+
+  /**
+   * The statement the page opens with, or nothing where it declares none.
+   */
+  readonly imports?: string | undefined;
 
   /**
    * The scenes, in the order they are on the page.
@@ -71,10 +71,10 @@ export interface BandsProps {
  *   otherwise carry all of it. Their panel is drawn empty until then, rather than drawn saying it
  *   is still reading: a hidden panel that says so is a line every reading of the page carries and
  *   nobody ever sees.
- * @param props - The head of the page, the entry, the sources, and the scenes.
+ * @param props - The head of the page, the entry, the import line, and the scenes.
  * @returns The page, its strip, and the open band.
  */
-export function Bands({ children, entry, fragments, framed, scenes }: BandsProps): ReactElement {
+export function Bands({ children, entry, framed, imports, scenes }: BandsProps): ReactElement {
   const [band, setBand] = useState<Band>(BANDS.examples);
   const { parts } = useAnatomy(entry, band === BANDS.props);
 
@@ -89,7 +89,7 @@ export function Bands({ children, entry, fragments, framed, scenes }: BandsProps
       {children}
       <PageTabs {...(parts === undefined ? {} : { parts: parts.length })} scenes={scenes.length} />
       <Tabs.Content as={Page.Body} value={BANDS.examples}>
-        <Body entry={entry} fragments={fragments} framed={framed} scenes={scenes} />
+        <Body entry={entry} framed={framed} imports={imports} scenes={scenes} />
       </Tabs.Content>
       <Tabs.Content as={Page.Body} value={BANDS.props}>
         {band === BANDS.props ? <PropsBody parts={parts} /> : null}

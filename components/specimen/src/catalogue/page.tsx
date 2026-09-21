@@ -5,7 +5,7 @@
 
 import { type ReactElement } from "react";
 
-import { useLoadedPage } from "#catalogue/loaded.ts";
+import { useDeclared } from "#catalogue/loaded.ts";
 import { Bands } from "#catalogue/page-bands.tsx";
 import { Header } from "#catalogue/page-header.tsx";
 import { slugOf } from "#catalogue/slug.ts";
@@ -34,17 +34,17 @@ export interface PageProps {
 }
 
 /**
- * Loads the page's scenes and their sources, and draws them.
+ * Loads the page's scenes and draws them.
  *
  * @remarks
- *   The module and the sources are loaded through `useLoadedPage`, which also keeps what a hot
- *   update replaces, and the scenes are drawn once the module arrives; a page whose sources fail
- *   to load draws its scenes without them.
+ *   The module is loaded through `useDeclared`, which also keeps what a hot update replaces, and
+ *   the scenes are drawn once the module arrives. Each scene carries whatever source it shows, so
+ *   nothing beside the module is loaded for the page.
  *   Each scene is anchored by its worded title, so the rail beside the page points at it and the
  *   address of a section reads as its title does.
  */
 export function Page({ back, entry, framed }: PageProps): ReactElement {
-  const { fragments, page } = useLoadedPage(entry);
+  const page = useDeclared(entry);
   const word = useWording(entry.namespace);
   const scenes = (page?.scenes ?? []).map((scene) => ({
     id: slugOf(word(scene.title)),
@@ -53,7 +53,7 @@ export function Page({ back, entry, framed }: PageProps): ReactElement {
   }));
 
   return (
-    <Bands entry={entry} fragments={fragments} framed={framed} scenes={scenes}>
+    <Bands entry={entry} framed={framed} imports={page?.imports} scenes={scenes}>
       <Header back={back} entry={entry} />
     </Bands>
   );

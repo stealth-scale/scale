@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { UPDATED as DISPATCHED } from "@stealthscale/vite-plugin-specimen";
 
-import { fragmentsOf, type Update, UPDATED, useUpdated } from "#catalogue/updated.ts";
+import { type Update, UPDATED, useUpdated } from "#catalogue/updated.ts";
 
 function Listening({
   id,
@@ -89,21 +89,5 @@ describe("useUpdated", () => {
 
     expect(first).not.toHaveBeenCalled();
     expect(last).toHaveBeenCalledWith({ id: "data/badge", module: {} });
-  });
-});
-
-describe("fragmentsOf", () => {
-  it("reads the fragments and the imported names out of a module loaded again", () => {
-    expect(fragmentsOf({ fragments: { Sizes: "a" }, imported: ["Badge"] })).toStrictEqual({
-      fragments: { Sizes: "a" },
-      imported: ["Badge"],
-    });
-  });
-
-  it("answers nothing for a module of another shape", () => {
-    expect(fragmentsOf(null)).toBeUndefined();
-    expect(fragmentsOf({ fragments: {} })).toBeUndefined();
-    expect(fragmentsOf({ fragments: "a", imported: [] })).toBeUndefined();
-    expect(fragmentsOf({ fragments: {}, imported: "Badge" })).toBeUndefined();
   });
 });

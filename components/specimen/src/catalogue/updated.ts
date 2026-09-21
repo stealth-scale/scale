@@ -13,25 +13,17 @@
 
 import { useEffect, useRef } from "react";
 
-import { type Fragments } from "#catalogue/types.ts";
-import { isRecord, isWorded } from "#guards.ts";
+import { isRecord } from "#guards.ts";
 
 /**
- * The event the index dispatches on the window when a page's module or its fragments were
- * replaced.
+ * The event the index dispatches on the window when a page's module was replaced.
  */
 export const UPDATED = "specimen:updated";
 
 /**
- * Describes what the event carries: the page, and the module or the fragments that replaced the
- * old ones.
+ * Describes what the event carries: the page, and the module that replaced the old one.
  */
 export interface Update {
-  /**
-   * The page's fragments as loaded again, where the fragments were replaced.
-   */
-  readonly fragments?: unknown;
-
   /**
    * The page's identifier.
    */
@@ -48,29 +40,6 @@ export interface Update {
  */
 function isUpdate(detail: unknown): detail is Update {
   return isRecord(detail) && typeof detail["id"] === "string";
-}
-
-/**
- * Reports whether a value is a record of snippets.
- */
-function isSnippets(value: unknown): value is Readonly<Record<string, string>> {
-  return isRecord(value) && Object.values(value).every((snippet) => typeof snippet === "string");
-}
-
-/**
- * Reads a page's fragments out of a module loaded again, or nothing where the module is not one.
- *
- * @param module - The module the index loaded again for the page's fragments.
- * @returns The fragments, or undefined.
- */
-export function fragmentsOf(module: unknown): Fragments | undefined {
-  if (!isRecord(module)) return undefined;
-
-  const { fragments, imported } = module;
-
-  return isSnippets(fragments) && isWorded(imported)
-    ? { fragments, imported: [...imported] }
-    : undefined;
 }
 
 /**

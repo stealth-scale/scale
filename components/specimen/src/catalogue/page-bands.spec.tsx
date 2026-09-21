@@ -31,7 +31,7 @@ function indexed(reads = true): Indexed {
  */
 function banded(reads = true): ReactElement {
   return (
-    <Bands entry={indexed(reads)} fragments={undefined} scenes={[]}>
+    <Bands entry={indexed(reads)} scenes={[]}>
       <p>{"The head of the page"}</p>
     </Bands>
   );
