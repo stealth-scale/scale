@@ -9,9 +9,10 @@ type Refining = Parameters<Override["refine"]>[0];
 
 interface Group {
   entriesAware?: boolean;
+  minShareCount?: number;
   name: string;
   priority?: number;
-  tags: readonly string[];
+  tags?: readonly string[];
   test?: RegExp;
 }
 
@@ -93,10 +94,25 @@ describe("chunks", () => {
     );
   });
 
-  it("takes only what the entry reaches statically", () => {
-    for (const group of splitting().groups) {
-      expect(group.tags).toStrictEqual(["$initial"]);
-    }
+  it("takes only what the entry reaches statically into the initial chunks", () => {
+    const tagged = Object.fromEntries(splitting().groups.map((group) => [group.name, group.tags]));
+
+    expect(tagged).toStrictEqual({
+      framework: ["$initial"],
+      library: ["$initial"],
+      shared: undefined,
+      vendor: ["$initial"],
+    });
+  });
+
+  it("collects what several routes reach and the entry does not into one chunk", () => {
+    const shared = splitting().groups.find((group) => group.name === "shared");
+
+    expect(shared).toMatchObject({ minShareCount: 2, priority: 3 });
+    expect(shared?.test?.test("/r/node_modules/.pnpm/@zag-js+core@1/node_modules/x.js")).toBe(true);
+    expect(shared?.test?.test("/r/components/forms/src/switch/root.tsx")).toBe(true);
+    expect(shared?.test?.test("/r/apps/docs/src/routes.tsx")).toBe(false);
+    expect(splitting(SERVING).groups.map((group) => group.name)).not.toContain("shared");
   });
 
   it("groups nothing per entry and places a module by its own path alone", () => {
@@ -116,7 +132,7 @@ describe("chunks", () => {
     });
 
     expect(refined.groups[0]).toBe(named);
-    expect(refined.groups.map((group) => group.name)).toHaveLength(4);
+    expect(refined.groups.map((group) => group.name)).toHaveLength(5);
   });
 
   it("keeps whatever else the build output already held", () => {

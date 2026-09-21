@@ -139,7 +139,9 @@ and refuses a Node built-in at the pack through `pack.builtins()`, so a library 
 fails where the import is written rather than in the browser. The refusal follows the platform in
 effect: a package on the web tier that states `pack.platform("node")` over it is refused nothing.
 `build.chunks()` claims no module of the application's own: each entry keeps what it reaches, so two
-pages of one build run their own bootstrap.
+pages of one build run their own bootstrap. What several lazily loaded routes reach and the entry
+does not goes into one `shared` chunk, fetched once, rather than into the chunk of whichever route
+the bundler met first.
 
 ## Layers
 
