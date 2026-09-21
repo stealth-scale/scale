@@ -24,7 +24,7 @@ import {
   written,
 } from "#emit.ts";
 import { found, roots } from "#found.ts";
-import { components, fragments } from "#fragments.ts";
+import { sliced } from "#fragments.ts";
 import { FRAGMENTS, ID, type Options, PROPS } from "#options.ts";
 
 /**
@@ -213,7 +213,9 @@ async function generated(
 
     loading.addWatchFile(path);
 
-    return fragmented(fragments(file), components(file), page);
+    const { fragments, imported } = sliced(file);
+
+    return fragmented(fragments, imported, page);
   }
 
   if (!id.startsWith(RESOLVED_PROPS) || state.reading === undefined) return undefined;
@@ -280,15 +282,28 @@ async function reread(
 }
 
 /**
+ * The suffix a page's props chunk is named with, after the page.
+ */
+const PROPS_CHUNK = "-props";
+
+/**
  * Chooses the chunk a module is written into: the page's, for a page's module and its fragments,
- * and none for any other module, which the bundler places as it would have.
+ * the page's props chunk for its props, and none for any other module, which the bundler places
+ * as it would have.
  *
  * @remarks
  *   The name is the page's identifier with its slashes turned into hyphens, so a chunk reads as
- *   the page it holds, `actions-button-[hash].js`.
+ *   the page it holds, `actions-button-[hash].js`, and the props chunk as the page's props,
+ *   `actions-button-props-[hash].js`. Named rather than left to the bundler, which names a
+ *   module by the last segment of its identifier and so called two pages' props `text` and `menu`.
  */
 function chunkOf(indexing: Indexing, id: string): null | string {
   const bare = id.replace(/\?.*$/su, "");
+
+  if (bare.startsWith(RESOLVED_PROPS)) {
+    return `${bare.slice(RESOLVED_PROPS.length).replaceAll("/", "-")}${PROPS_CHUNK}`;
+  }
+
   const page = bare.startsWith(RESOLVED_FRAGMENTS)
     ? bare.slice(RESOLVED_FRAGMENTS.length)
     : pageOf(indexing, bare);

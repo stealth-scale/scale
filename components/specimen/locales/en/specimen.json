@@ -31,14 +31,12 @@
   },
   "props": {
     "accepts": "Accepts",
-    "axes": "The axes a theme moves on {{part}}",
     "dropped": "{{conditions}} styling conditions and {{foreign}} properties from elsewhere are not listed.",
     "fallback": "Falls back to",
     "loading": "Reading what the parts accept.",
     "name": "Prop",
     "none": "Nothing was read for this page.",
-    "says": "What it does",
-    "set": "The props a page sets on {{part}}"
+    "says": "What it does"
   },
   "rail": {
     "clear": "Clear the filter",

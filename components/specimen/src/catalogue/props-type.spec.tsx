@@ -92,4 +92,22 @@ describe("PropsType", () => {
       "Lift",
     ]);
   });
+
+  it("leaves a longer identifier that starts with a name alone", async () => {
+    const { container, getAllByRole } = await drawn(
+      <PropsType accepts="Lifted | Lift | LiftStep" shows={[LIFT]} />,
+    );
+
+    expect(getAllByRole("button").map((one) => one.textContent)).toStrictEqual(["Lift"]);
+    expect(container.textContent).toMatch(/^Lifted \| Lift.* \| LiftStep$/u);
+  });
+
+  it("opens the longer of two names where one starts with the other", async () => {
+    const lifted: Shown = { ...LIFT, name: "kit.Lifted" };
+    const { getAllByRole } = await drawn(
+      <PropsType accepts="Record<Lift, Lifted>" shows={[LIFT, lifted]} />,
+    );
+
+    expect(getAllByRole("button").map((one) => one.textContent)).toStrictEqual(["Lift", "Lifted"]);
+  });
 });

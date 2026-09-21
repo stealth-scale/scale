@@ -38,9 +38,10 @@ export interface Device {
 export const PHONE: Size = { min: 320, name: "phone" };
 
 /**
- * The height each device is given, keyed by the name of its width.
+ * The height each device is given, keyed by the name of its width, until an application states
+ * its own through `Placing.heights`.
  */
-const HEIGHTS: Readonly<Record<string, number>> = {
+export const HEIGHTS: Readonly<Record<string, number>> = {
   "2xl": 864,
   lg: 768,
   md: 1024,
@@ -70,12 +71,17 @@ export function widthsOf(sizes: readonly Size[]): readonly Size[] {
  *
  * @param width - The width in force, in pixels, or nothing for the window.
  * @param sizes - The theme's breakpoints, as the viewport lists them.
+ * @param heights - The height per width name, or nothing for the catalogue's own.
  * @returns The device, or undefined.
  */
-export function deviceOf(width: number | undefined, sizes: readonly Size[]): Device | undefined {
+export function deviceOf(
+  width: number | undefined,
+  sizes: readonly Size[],
+  heights: Readonly<Record<string, number>> = HEIGHTS,
+): Device | undefined {
   const size = widthsOf(sizes).find((one) => one.min === width);
 
   if (size === undefined) return undefined;
 
-  return { height: HEIGHTS[size.name] ?? HEIGHT, name: size.name, width: size.min };
+  return { height: heights[size.name] ?? HEIGHT, name: size.name, width: size.min };
 }

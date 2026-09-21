@@ -1,14 +1,41 @@
 /**
- * Covers what `literal` writes, and what it refuses.
+ * Covers what `literal` and `quoted` write, and what `literal` refuses.
  */
 
 import { describe, expect, it } from "vitest";
 
-import { literal } from "#serialize.ts";
+import { literal, quoted } from "#serialize.ts";
+
+/**
+ * The line separator and the paragraph separator, which JSON writes bare.
+ */
+const SEPARATED = `a${String.fromCodePoint(0x2028)}b${String.fromCodePoint(0x2029)}c`;
+
+/**
+ * The same, as a string literal writes it: each separator as a unicode escape.
+ */
+const ESCAPED = `"a${String.raw`\u`}2028b${String.raw`\u`}2029c"`;
+
+describe("quoted", () => {
+  it("writes a string with its quotes escaped", () => {
+    expect(quoted('say "hi"')).toBe(String.raw`"say \"hi\""`);
+  });
+
+  it("escapes the line and paragraph separators JSON leaves bare", () => {
+    const written = quoted(SEPARATED);
+
+    expect(written).toBe(ESCAPED);
+    expect(JSON.parse(written)).toBe(SEPARATED);
+  });
+});
 
 describe("literal", () => {
   it("writes a string with its quotes escaped", () => {
     expect(literal('say "hi"')).toBe(String.raw`"say \"hi\""`);
+  });
+
+  it("writes a string and a key with the separators escaped", () => {
+    expect(literal({ [SEPARATED]: SEPARATED })).toBe(`{${ESCAPED}: ${ESCAPED}}`);
   });
 
   it("writes a number and a boolean as they are", () => {

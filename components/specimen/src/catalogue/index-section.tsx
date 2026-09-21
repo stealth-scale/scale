@@ -6,10 +6,10 @@ import { type ReactElement } from "react";
 
 import { Grid } from "@stealthscale/component-layout";
 import { Section } from "@stealthscale/component-screen";
-import { useTranslation } from "@stealthscale/provider-i18n";
 
 import { type Group } from "#catalogue/grouped.ts";
 import { EntryCard } from "#catalogue/index-card.tsx";
+import { useGroupName } from "#catalogue/wording.ts";
 
 /**
  * Describes what one group's section takes.
@@ -31,16 +31,12 @@ export interface GroupSectionProps {
  *   measure every other card has rather than one card across the page.
  */
 export function GroupSection({ group }: GroupSectionProps): ReactElement {
-  const { t } = useTranslation("specimen");
+  const named = useGroupName();
 
   return (
     <Section.Root>
       <Section.Header>
-        <Section.Title>
-          {group.name === ""
-            ? t("rail.ungrouped")
-            : t(`groups.${group.name}`, { defaultValue: group.name })}
-        </Section.Title>
+        <Section.Title>{named(group.name)}</Section.Title>
       </Section.Header>
       <Section.Body>
         <Grid.Root columns="fill-xs" gap="md">

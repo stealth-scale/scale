@@ -22,4 +22,4 @@ export {
   reached,
   text,
 } from "#reached.ts";
-export { literal } from "#serialize.ts";
+export { literal, quoted } from "#serialize.ts";

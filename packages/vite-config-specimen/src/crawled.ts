@@ -3,18 +3,9 @@
  */
 
 import { deps } from "@stealthscale/vite-config";
-import { type Contribution, named } from "@stealthscale/vite-config-core";
+import { type Contribution } from "@stealthscale/vite-config-core";
 
-/**
- * Renames one crawl entry so its layer name identifies this package.
- *
- * @remarks
- *   A layer is named for the call a consumer wrote, and a consumer writes `crawled` rather than
- *   `deps.crawl`.
- */
-function renamed(contribution: Contribution): Contribution {
-  return named(contribution.name.replace("deps.crawl", "specimen.crawled"), contribution);
-}
+import { renamed } from "#specimens.ts";
 
 /**
  * Appends every specimen, and the application's own HTML, to the dependency scan's entries.
@@ -34,5 +25,5 @@ export function crawled(patterns: readonly string[]): readonly Contribution[] {
         "its dependencies would be discovered by the first page opened and cost a reload",
       files: ["**/*.html", ...patterns],
     })
-    .map((contribution) => renamed(contribution));
+    .map((contribution) => renamed(contribution, "deps.crawl", "specimen.crawled"));
 }

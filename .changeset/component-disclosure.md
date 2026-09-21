@@ -71,3 +71,9 @@ component-disclosure: add ItemMark, ItemLines, ItemDescription and ItemCommand t
 - A checkbox `Menu.OptionItem` keeps the menu open on select. A radio item closes it.
   `closeOnSelect` overrides either.
 - `Menu.Indicator` no longer rotates when the menu opens.
+
+component-disclosure: split a root's props over a copy
+
+- `Collapsible.Root`, `Menu.Root`, `Popover.Root`, `Tabs.Root` and `Tooltip.Root` split their props
+  through `splitEnumerable` from `@stealthscale/hooks`. Rendered with a `key`, each logged React's
+  `key is not a prop` warning and spread `key` onto its element in development.

@@ -125,11 +125,18 @@ describe("plugin", () => {
         name(scratch.path("src/badge.specimen.tsx")),
         name(`${scratch.path("src/badge.specimen.tsx")}?rolldown-lazy=1`),
         name(`${FRAGMENTS}data/badge`),
+        name(`${PROPS}data/badge`),
         name(scratch.path("src/other.ts")),
       ];
     });
 
-    expect(named).toStrictEqual(["data-badge", "data-badge", "data-badge", null]);
+    expect(named).toStrictEqual([
+      "data-badge",
+      "data-badge",
+      "data-badge",
+      "data-badge-props",
+      null,
+    ]);
   });
 
   it("resolves the index specifier to an identifier of its own", async () => {
@@ -384,7 +391,7 @@ describe("plugin", () => {
       return (await loaded(plugin, `${PROPS}badge`)) ?? "";
     });
 
-    expect(held).toMatch(/export const dropped = \{"BadgeProps":\{"conditions":2/u);
+    expect(held).toMatch(/export const dropped = \{"BadgeProps": \{"conditions": 2/u);
   });
 
   it("resolves a props specifier to an identifier of its own", async () => {

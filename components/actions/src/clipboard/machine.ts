@@ -15,7 +15,7 @@ import * as clipboard from "@zag-js/clipboard";
 import { normalizeProps, useMachine } from "@zag-js/react";
 import { createSplitProps } from "@zag-js/utils";
 
-import { createRequiredContext } from "@stealthscale/hooks";
+import { createRequiredContext, splitEnumerable } from "@stealthscale/hooks";
 
 import { stated } from "#stated.ts";
 
@@ -63,4 +63,6 @@ export function useClipboardMachine(options: ClipboardOptions): ClipboardApi {
  *   included, and the root names the id after the split, so the split is built here over the same
  *   key list with every setting optional.
  */
-export const splitClipboardProps = createSplitProps<ClipboardOptions>(clipboard.props);
+export const splitClipboardProps = splitEnumerable(
+  createSplitProps<ClipboardOptions>(clipboard.props),
+);

@@ -7,12 +7,12 @@ import { type ReactElement } from "react";
 
 import { NavList } from "@stealthscale/component-navigation";
 import { Sidebar } from "@stealthscale/component-screen";
-import { useTranslation } from "@stealthscale/provider-i18n";
 import { type RouteDeclaration, useDeclaredRoute } from "@stealthscale/provider-router";
 
 import { type Group, grouped } from "#catalogue/grouped.ts";
 import { Branch } from "#catalogue/rail-branch.tsx";
 import { useWordings } from "#catalogue/wording.ts";
+import { useWords } from "#words.ts";
 
 /**
  * Describes what the rail takes.
@@ -83,7 +83,7 @@ function matching(
  *   query no page matches leaves the sidebar's empty line in place of the list.
  */
 export function Rail({ declarations, query }: RailProps): ReactElement {
-  const { t } = useTranslation("specimen");
+  const { t } = useWords();
   const word = useWordings();
   const typed = wanted(query);
   const groups = matching(grouped(declarations), typed, word);

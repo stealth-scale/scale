@@ -2,9 +2,10 @@
  * Holds which of a scene's two panels is open, and runs the audit one of them shows.
  */
 
-import { type RefObject, useCallback, useState } from "react";
+import { type RefObject, useState } from "react";
 
 import { type Audit, audited } from "#catalogue/audited.ts";
+import { useSettings } from "#catalogue/settings.ts";
 
 /**
  * Selects the panel a reader has open, or neither.
@@ -42,6 +43,15 @@ export interface Panels {
 }
 
 /**
+ * Reads which panel is open from whether each of the two has anything to show.
+ */
+function opened(audit: boolean, source: boolean): Open {
+  if (audit) return "audit";
+
+  return source ? "source" : "none";
+}
+
+/**
  * Returns which panel is open, the last audit, and the two ways to change either.
  *
  * @remarks
@@ -52,10 +62,13 @@ export interface Panels {
  *   effect, which draws the page once with the control pressed and no panel under it.
  *   A clean audit opens no panel. It has one thing to say and the footer says it, so a panel would
  *   be a card's height of room holding one line a reader has already read.
- *   The audit is run again on every asking rather than kept, because a scene holds state and a
- *   reader who has opened a menu or typed into a field wants the audit of what is on the screen. A
- *   run against nothing does not start: the element is filled once the scene is drawn, so a control
- *   pressed before then reports nothing rather than auditing the whole document.
+ *   The audit is run again on every press that finds its panel closed, rather than kept, because a
+ *   scene holds state and a reader who has opened a menu or typed into a field wants the audit of
+ *   what is on the screen. A press that finds the panel open closes it. A run against nothing does
+ *   not start: the element is filled once the scene is drawn, so a control pressed before then
+ *   reports nothing rather than auditing the whole document.
+ *   The rules come from the catalogue's settings, so an application states them once for every
+ *   page.
  * @param stage - The element the scene was drawn into.
  * @returns The open panel, the last audit, and the two ways to change either.
  */
@@ -64,45 +77,44 @@ export function usePanels(stage: RefObject<HTMLElement | null>): Panels {
   const [asked, setAsked] = useState(false);
   const [audit, setAudit] = useState<Audit | undefined>();
   const [running, setRunning] = useState(false);
+  const { audit: rules } = useSettings();
+  const open = opened(asked && (audit?.findings.length ?? 0) > 0, source);
 
-  const toggleSource = useCallback((): void => {
+  /**
+   * Opens the source, or closes it, closing the audit either way.
+   */
+  const toggleSource = (): void => {
     setAsked(false);
     setSource((held) => !held);
-  }, []);
+  };
 
-  const toggleAudit = useCallback((): void => {
-    setAsked((held) => !held);
+  /**
+   * Closes the audit where it is open, and runs it afresh where it is not.
+   */
+  const toggleAudit = (): void => {
+    if (open === "audit") {
+      setAsked(false);
+
+      return;
+    }
+
     setSource(false);
 
     const element = stage.current;
 
-    if (asked || element === null) return;
+    if (element === null) return;
 
+    setAsked(true);
     setRunning(true);
 
     void (async (): Promise<void> => {
       try {
-        setAudit(await audited(element));
+        setAudit(await audited(element, { rules }));
       } finally {
         setRunning(false);
       }
     })();
-  }, [asked, stage]);
-
-  return {
-    audit,
-    open: opened(asked && (audit?.findings.length ?? 0) > 0, source),
-    running,
-    toggleAudit,
-    toggleSource,
   };
-}
 
-/**
- * Reads which panel is open from whether each of the two has anything to show.
- */
-function opened(audit: boolean, source: boolean): Open {
-  if (audit) return "audit";
-
-  return source ? "source" : "none";
+  return { audit, open, running, toggleAudit, toggleSource };
 }

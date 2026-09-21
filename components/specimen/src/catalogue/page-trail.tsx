@@ -5,8 +5,9 @@
 import { type ReactElement } from "react";
 
 import { Page } from "@stealthscale/component-screen";
-import { useTranslation } from "@stealthscale/provider-i18n";
 import { createLink, useRouteHref } from "@stealthscale/provider-router";
+
+import { useWords } from "#words.ts";
 
 /**
  * Draws the page's trail over the router's link, so the way back navigates without a reload.
@@ -33,7 +34,7 @@ export interface TrailProps {
  *   router would otherwise say the trail is the current page on each of them.
  */
 export function Trail({ to }: TrailProps): ReactElement {
-  const { t } = useTranslation("specimen");
+  const { t } = useWords();
 
   return (
     <Page.Context>

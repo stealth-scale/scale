@@ -8,6 +8,7 @@
  */
 
 export { createRequiredContext, type ProvidedProps } from "#create-required-context.ts";
+export { splitEnumerable, type Splitter } from "#split-enumerable.ts";
 export { type AnnouncePoliteness, speakable, useAnnounce } from "#use-announce.ts";
 export { useCallbackRef } from "#use-callback-ref.ts";
 export { useCoarsePointer } from "#use-coarse-pointer.ts";

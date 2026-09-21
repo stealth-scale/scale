@@ -7,6 +7,7 @@ import { createContext, useContext } from "react";
 
 import { useViewport } from "@stealthscale/provider-viewport";
 
+import { useSettings } from "#catalogue/settings.ts";
 import { type Device, deviceOf } from "#device/devices.ts";
 
 /**
@@ -84,13 +85,15 @@ export function useScene(): SceneAddress | undefined {
  * decides, outside a page, or where the application serves no framed page.
  *
  * @remarks
- *   The width is the viewport's, which the switcher in an application's bar sets.
+ *   The width is the viewport's, which the switcher in an application's bar sets, and the height
+ *   is the one the catalogue's settings give that width.
  * @returns The device and the scene, or undefined.
  */
 export function useDevice(): Held | undefined {
   const { sizes, width } = useViewport();
+  const { heights } = useSettings();
   const scene = useScene();
-  const device = deviceOf(width, sizes);
+  const device = deviceOf(width, sizes, heights);
 
   if (scene?.path === undefined || device === undefined) return undefined;
 

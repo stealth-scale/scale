@@ -6,7 +6,8 @@ import { type ReactElement } from "react";
 
 import { Toc } from "@stealthscale/component-navigation";
 import { Page } from "@stealthscale/component-screen";
-import { useTranslation } from "@stealthscale/provider-i18n";
+
+import { useWords } from "#words.ts";
 
 /**
  * Describes one section as the rail lists it.
@@ -45,7 +46,7 @@ export interface ContentsProps {
  *   once the page reaches its end.
  */
 export function Contents({ of }: ContentsProps): ReactElement {
-  const { t } = useTranslation("specimen");
+  const { t } = useWords();
   const listed = of.map((heading) => ({
     item: { depth: 2, value: heading.id },
     title: heading.title,

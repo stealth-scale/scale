@@ -13,7 +13,7 @@
 import * as listbox from "@zag-js/listbox";
 import { normalizeProps, useMachine } from "@zag-js/react";
 
-import { createRequiredContext } from "@stealthscale/hooks";
+import { createRequiredContext, splitEnumerable } from "@stealthscale/hooks";
 
 import { stated } from "#stated.ts";
 
@@ -74,4 +74,4 @@ export function useListboxMachine(options: listbox.Props): ListboxApi {
  *   The machine states which props are its own, so the root never lists them and never drifts from
  *   the version it is built against.
  */
-export const splitListboxProps = listbox.splitProps;
+export const splitListboxProps = splitEnumerable(listbox.splitProps);

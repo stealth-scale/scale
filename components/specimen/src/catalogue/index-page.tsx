@@ -5,11 +5,11 @@
 import { type ReactElement } from "react";
 
 import { Page } from "@stealthscale/component-screen";
-import { useTranslation } from "@stealthscale/provider-i18n";
 import { type RouteDeclaration } from "@stealthscale/provider-router";
 
 import { grouped } from "#catalogue/grouped.ts";
 import { GroupSection } from "#catalogue/index-section.tsx";
+import { useWords } from "#words.ts";
 
 /**
  * Describes what the index takes.
@@ -27,7 +27,7 @@ export interface IndexProps {
  * page under it.
  */
 export function Index({ declarations }: IndexProps): ReactElement {
-  const { t } = useTranslation("specimen");
+  const { t } = useWords();
 
   return (
     <Page.Root>

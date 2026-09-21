@@ -81,3 +81,9 @@ component-navigation: underline a link in running text
   under a tighter theme measured 20.5 pixels with 2.9 between rows.
 - The branch's mark names `rotate` as the property it turns in, and the contents indicator holds
   still for a reader who asked for less motion.
+
+component-navigation: split a root's props over a copy
+
+- `NavList.Branch` and `Toc.Root` split their props through `splitEnumerable` from
+  `@stealthscale/hooks`. Rendered with a `key`, each logged React's `key is not a prop` warning and
+  spread `key` onto its element in development.

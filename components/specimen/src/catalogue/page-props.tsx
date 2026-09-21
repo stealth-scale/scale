@@ -7,12 +7,12 @@ import { type ReactElement } from "react";
 
 import { Stack } from "@stealthscale/component-layout";
 import { Text } from "@stealthscale/component-typography";
-import { useTranslation } from "@stealthscale/provider-i18n";
 
 import { PartSection } from "#catalogue/page-part.tsx";
 import { type Part } from "#catalogue/parted.ts";
 import { slugOf } from "#catalogue/slug.ts";
 import { type Dropped } from "#catalogue/types.ts";
+import { useWords } from "#words.ts";
 
 /**
  * Describes what the props take.
@@ -55,7 +55,7 @@ function dropped(parts: readonly Part[]): Dropped {
  * @returns The sections, or the line that stands in for them.
  */
 export function PropsBody({ parts }: PropsBodyProps): ReactElement {
-  const { t } = useTranslation("specimen");
+  const { t } = useWords();
 
   if (parts === undefined) return <Text tone="muted">{t("props.loading")}</Text>;
   if (parts.length === 0) return <Text tone="muted">{t("props.none")}</Text>;

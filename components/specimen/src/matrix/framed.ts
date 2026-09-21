@@ -7,7 +7,7 @@ import { type ReactNode } from "react";
 
 import { useFramed } from "#framed/context.ts";
 import { type Choice, useReportedChoices } from "#framed/report.ts";
-import { type Axis, nameOf } from "#matrix/axis.ts";
+import { ABSENT, type Axis, nameOf } from "#matrix/axis.ts";
 
 /**
  * Lists each value of an axis the way its cell is captioned, as the part of a pick the axis sets.
@@ -46,10 +46,7 @@ export function useFramedCell<Value, Other>(
   const value = axis.of[pick.value ?? 0];
 
   if (value === undefined) return null;
-  if (across === undefined) {
-    // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the second argument stands for the absent axis, which the type states as undefined
-    return drawn(value, undefined as Other);
-  }
+  if (across === undefined) return drawn(value, ABSENT);
 
   const other = across.of[pick.across ?? 0];
 

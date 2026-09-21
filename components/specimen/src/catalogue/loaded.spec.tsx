@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { drawn } from "@stealthscale/testing-react";
 
-import { useLoadedPage } from "#catalogue/loaded.ts";
+import { useDeclared, useLoadedPage } from "#catalogue/loaded.ts";
 import { type Indexed } from "#catalogue/types.ts";
 import { UPDATED } from "#catalogue/updated.ts";
 
@@ -34,6 +34,12 @@ function Loading({ of }: { readonly of: Indexed }): ReactElement {
       {fragments?.imported.join(",") ?? "no fragments"}
     </output>
   );
+}
+
+function Declaring({ of }: { readonly of: Indexed | undefined }): ReactElement {
+  const page = useDeclared(of);
+
+  return <output>{page?.scenes.map((scene) => scene.title).join(",") ?? "no page"}</output>;
 }
 
 /**
@@ -120,5 +126,36 @@ describe("useLoadedPage", () => {
     updated({ fragments: { fragments: {}, imported: ["Chip"] } });
 
     expect(container.textContent).toBe("Sizes|Chip");
+  });
+});
+
+describe("useDeclared", () => {
+  it("holds nothing while no entry is named", () => {
+    const { container } = render(<Declaring of={undefined} />);
+
+    expect(container.textContent).toBe("no page");
+  });
+
+  it("shows nothing rather than the page before it once the entry moves on", async () => {
+    const first = entry(() => Promise.resolve({ default: { id: "data/badge", scenes: [SIZES] } }));
+    const { container, rerender } = await drawn(<Declaring of={first} />);
+
+    expect(container.textContent).toBe("Sizes");
+
+    const held: { settle?: (module: unknown) => void } = {};
+    const pending = new Promise<unknown>((resolve) => {
+      held.settle = resolve;
+    });
+
+    rerender(<Declaring of={entry(() => pending)} />);
+
+    expect(container.textContent).toBe("no page");
+
+    await act(async () => {
+      held.settle?.({ default: { id: "data/badge", scenes: [] } });
+      await Promise.resolve();
+    });
+
+    expect(container.textContent).toBe("");
   });
 });

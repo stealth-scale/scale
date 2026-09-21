@@ -215,3 +215,9 @@ component-collections: add StatusMatrix
   rendered.
 - The grid is sized to its content rather than the container and overflows the scroll box when it
   does not fit. Rows with `group` set are rendered as one `tbody` per heading.
+
+component-collections: split the listbox root's props over a copy
+
+- `Listbox.Root` splits its props through `splitEnumerable` from `@stealthscale/hooks`, the way
+  every other root built on a state machine does, so a `key` React defines on its props in
+  development never reaches the machine's splitter.

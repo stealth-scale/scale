@@ -12,7 +12,12 @@
  *   and turning the rule off to keep a scene green is how a component ships with one.
  */
 
-import { type AxeResults, type ImpactValue, type Result, type RunOptions } from "axe-core";
+import {
+  type AxeResults,
+  type ImpactValue,
+  type Result,
+  type RunOptions,
+} from "#catalogue/types.ts";
 
 /**
  * Selects how badly a rule was broken, as axe rates it.
@@ -60,7 +65,7 @@ const UNRATED = 4;
  *   Each name is a rule axe knows. It rejects a run that names one it does not, so a rule renamed
  *   between versions takes every audit down rather than quietly staying on.
  */
-const RULES: RunOptions = {
+export const RULES: RunOptions = {
   rules: {
     "aria-roledescription": { enabled: true },
     bypass: { enabled: false },
@@ -169,17 +174,34 @@ async function engined(): Promise<Engine> {
 }
 
 /**
+ * Describes what an audit is run with beyond the element.
+ */
+export interface Auditing {
+  /**
+   * The engine to run. Axe, loaded on the first run, where absent.
+   */
+  readonly engine?: Engine | undefined;
+
+  /**
+   * The run options handed to the engine. The catalogue's own, {@link RULES}, where absent.
+   */
+  readonly rules?: RunOptions | undefined;
+}
+
+/**
  * Audits one element and returns what the audit came to.
  *
  * @remarks
- *   The engine is a parameter so that a caller can hand over one of their own. Left out, axe is
- *   loaded here and used, which is what every caller in the catalogue does.
+ *   The engine is an option so that a caller can hand over one of their own. Left out, axe is
+ *   loaded here and used, which is what every caller in the catalogue does. The rules are an
+ *   option for the same reason: an application states its own through `Placing.audit`, and the
+ *   catalogue's own run where it states none.
  * @param element - The element the scene was drawn into.
- * @param engine - The engine to run, or nothing for axe.
+ * @param auditing - The engine and the rules, either of which may be left out.
  * @returns The rules broken, worst first, and how many rules passed.
  */
-export async function audited(element: Element, engine?: Engine): Promise<Audit> {
-  const run = await (engine ?? (await engined()))(element, RULES);
+export async function audited(element: Element, auditing: Auditing = {}): Promise<Audit> {
+  const run = await (auditing.engine ?? (await engined()))(element, auditing.rules ?? RULES);
 
   return {
     findings: run.violations

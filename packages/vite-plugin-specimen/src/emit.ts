@@ -4,7 +4,7 @@
 
 import { relative } from "node:path";
 
-import { manifestAt, owning, text } from "@stealthscale/vite-plugin-base";
+import { literal, manifestAt, owning, quoted, text } from "@stealthscale/vite-plugin-base";
 
 import { type Anatomy, type Read, type Source } from "#contract.ts";
 import { FRAGMENTS, PROPS, UPDATED } from "#options.ts";
@@ -113,13 +113,13 @@ export function ownerOf(path: string, owners: Owners = new Map()): string {
  */
 function loaders(result: Read, propped: boolean): readonly string[] {
   if (isRefused(result)) {
-    return [`    load: () => Promise.reject(new Error(${JSON.stringify(result.wrong)})),`];
+    return [`    load: () => Promise.reject(new Error(${quoted(result.wrong)})),`];
   }
 
   return [
-    `    fragments: () => import(${JSON.stringify(`${FRAGMENTS}${result.id}`)}),`,
-    `    load: () => import(${JSON.stringify(result.path)}),`,
-    ...(propped ? [`    props: () => import(${JSON.stringify(`${PROPS}${result.id}`)}),`] : []),
+    `    fragments: () => import(${quoted(`${FRAGMENTS}${result.id}`)}),`,
+    `    load: () => import(${quoted(result.path)}),`,
+    ...(propped ? [`    props: () => import(${quoted(`${PROPS}${result.id}`)}),`] : []),
   ];
 }
 
@@ -148,7 +148,7 @@ function metadata(result: Read, root: string, owners: Owners): readonly string[]
         title: result.title,
       };
 
-  return Object.entries(fields).map(([key, value]) => `    ${key}: ${JSON.stringify(value)},`);
+  return Object.entries(fields).map(([key, value]) => `    ${key}: ${quoted(value)},`);
 }
 
 /**
@@ -228,11 +228,11 @@ export function written(listed: ReadonlyMap<string, Listed>): string {
  * @returns The statement, on one line, ending in a newline.
  */
 export function accepting(page: string, key: "fragments" | "module"): string {
-  const detail = `{ ${key}: replaced, id: ${JSON.stringify(page)} }`;
+  const detail = `{ ${key}: replaced, id: ${quoted(page)} }`;
 
   return (
     "if (import.meta.hot) import.meta.hot.accept((replaced) => { if (replaced !== undefined) " +
-    `window.dispatchEvent(new CustomEvent(${JSON.stringify(UPDATED)}, { detail: ${detail} })); });\n`
+    `window.dispatchEvent(new CustomEvent(${quoted(UPDATED)}, { detail: ${detail} })); });\n`
   );
 }
 
@@ -250,7 +250,7 @@ export function fragmented(
   page: string,
 ): string {
   return (
-    `export const fragments = ${JSON.stringify(snippets)};\nexport const imported = ${JSON.stringify(names)};\n` +
+    `export const fragments = ${literal(snippets)};\nexport const imported = ${literal(names)};\n` +
     accepting(page, "fragments")
   );
 }
@@ -262,9 +262,9 @@ export function fragmented(
  */
 export function anatomised(anatomy: Anatomy): string {
   return [
-    `export const dropped = ${JSON.stringify(anatomy.dropped)};`,
-    `export const parts = ${JSON.stringify(anatomy.parts)};`,
-    `export const shapes = ${JSON.stringify(anatomy.shapes)};`,
+    `export const dropped = ${literal(anatomy.dropped)};`,
+    `export const parts = ${literal(anatomy.parts)};`,
+    `export const shapes = ${literal(anatomy.shapes)};`,
     "",
   ].join("\n");
 }

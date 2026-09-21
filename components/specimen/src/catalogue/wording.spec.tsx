@@ -3,12 +3,18 @@ import { type ReactElement } from "react";
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { useWording, useWordings } from "#catalogue/wording.ts";
+import { useGroupName, useWording, useWordings } from "#catalogue/wording.ts";
 
 function Worded({ named, of }: { named: string | undefined; of: string }): ReactElement {
   const word = useWording(named);
 
   return <output>{word(of)}</output>;
+}
+
+function Grouped({ of }: { of: string }): ReactElement {
+  const named = useGroupName();
+
+  return <output>{named(of)}</output>;
 }
 
 function Wordings({ named, of }: { named: string | undefined; of: string }): ReactElement {
@@ -52,5 +58,19 @@ describe("useWording", () => {
     const { getByRole } = render(<Worded named={undefined} of="A plain title" />);
 
     expect(getByRole("status").textContent).toBe("A plain title");
+  });
+});
+
+describe("useGroupName", () => {
+  it("heads a group nobody translated by its name", () => {
+    const { getByRole } = render(<Grouped of="Actions" />);
+
+    expect(getByRole("status").textContent).toBe("Actions");
+  });
+
+  it("heads the pages that name no group with the catalogue's own words", () => {
+    const { getByRole } = render(<Grouped of="" />);
+
+    expect(getByRole("status").textContent).toBe("Other");
   });
 });

@@ -18,7 +18,7 @@ import { useEffect, useId } from "react";
 import * as menu from "@zag-js/menu";
 import { normalizeProps, useMachine } from "@zag-js/react";
 
-import { createRequiredContext } from "@stealthscale/hooks";
+import { createRequiredContext, splitEnumerable } from "@stealthscale/hooks";
 
 import { type MenuVariants } from "#menu/variants.ts";
 import { stated } from "#stated.ts";
@@ -110,7 +110,7 @@ export const [ItemProvider, useMenuItem] = createRequiredContext<MenuItemState>(
  *   The machine states which props are its own, so the root never lists them and never drifts from
  *   the version it is built against.
  */
-export const splitMenuProps = menu.splitProps;
+export const splitMenuProps = splitEnumerable(menu.splitProps);
 
 /**
  * Starts the machine and connects it.

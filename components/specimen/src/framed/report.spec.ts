@@ -98,4 +98,26 @@ describe("useReportedChoices", () => {
 
     restore();
   });
+
+  it("posts once for two renders whose axes hold the same", () => {
+    const { posted, restore } = framed();
+    const { rerender } = render(createElement(Offering, { choices: CHOICES }));
+
+    rerender(createElement(Offering, { choices: CHOICES.map((choice) => ({ ...choice })) }));
+
+    expect(posted).toHaveBeenCalledTimes(1);
+
+    restore();
+  });
+
+  it("posts again once the axes hold something else", () => {
+    const { posted, restore } = framed();
+    const { rerender } = render(createElement(Offering, { choices: CHOICES }));
+
+    rerender(createElement(Offering, { choices: [{ names: ["a"], part: "sample" }] }));
+
+    expect(posted).toHaveBeenCalledTimes(2);
+
+    restore();
+  });
 });

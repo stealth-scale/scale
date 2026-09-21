@@ -16,7 +16,7 @@ import { useId } from "react";
 import { normalizeProps, useMachine } from "@zag-js/react";
 import * as toc from "@zag-js/toc";
 
-import { createRequiredContext } from "@stealthscale/hooks";
+import { createRequiredContext, splitEnumerable } from "@stealthscale/hooks";
 
 import { stated } from "#stated.ts";
 
@@ -52,7 +52,7 @@ export const [ApiProvider, useToc] = createRequiredContext<TocApi>("Toc");
  *   The machine states which props are its own, so the root never lists them and never drifts from
  *   the version it is built against.
  */
-export const splitTocProps = toc.splitProps;
+export const splitTocProps = splitEnumerable(toc.splitProps);
 
 /**
  * Starts the machine and connects it.

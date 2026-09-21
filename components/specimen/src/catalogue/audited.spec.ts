@@ -1,7 +1,7 @@
 import { type AxeResults } from "axe-core";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { audited, type Engine } from "#catalogue/audited.ts";
+import { audited, type Engine, RULES } from "#catalogue/audited.ts";
 
 /**
  * A fragment that breaks three rules: two axe rates critical and one it rates serious.
@@ -88,26 +88,47 @@ describe("audited", () => {
   });
 
   it("leaves a rule axe rated at nothing unrated", async () => {
-    const { findings } = await audited(document.body, answering(broke(null)));
+    const { findings } = await audited(document.body, { engine: answering(broke(null)) });
 
     expect(findings[0]?.impact).toBeUndefined();
   });
 
   it("sorts a rule axe left unrated under every rule it rated", async () => {
-    const { findings } = await audited(document.body, answering(broke(null), broke("minor")));
+    const { findings } = await audited(document.body, {
+      engine: answering(broke(null), broke("minor")),
+    });
 
     expect(findings.map((finding) => finding.rule)).toStrictEqual(["minor", "unrated"]);
   });
 
   it("falls back to the rule's own words where axe writes none about an element", async () => {
-    const { findings } = await audited(document.body, answering(broke("minor")));
+    const { findings } = await audited(document.body, { engine: answering(broke("minor")) });
 
     expect(findings[0]?.on[0]?.says).toBe("the rule's words");
   });
 
   it("reads the line axe writes about an element where it writes one", async () => {
-    const { findings } = await audited(document.body, answering(broke("minor", "name it")));
+    const { findings } = await audited(document.body, {
+      engine: answering(broke("minor", "name it")),
+    });
 
     expect(findings[0]?.on[0]?.says).toBe("name it");
+  });
+
+  it("hands the engine the catalogue's own rules where a caller states none", async () => {
+    const engine = vi.fn<Engine>(answering());
+
+    await audited(document.body, { engine });
+
+    expect(engine).toHaveBeenCalledWith(document.body, RULES);
+  });
+
+  it("hands the engine the rules a caller states instead", async () => {
+    const engine = vi.fn<Engine>(answering());
+    const rules = { rules: { region: { enabled: true } } };
+
+    await audited(document.body, { engine, rules });
+
+    expect(engine).toHaveBeenCalledWith(document.body, rules);
   });
 });

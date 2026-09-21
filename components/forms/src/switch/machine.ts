@@ -15,7 +15,7 @@ import { useId } from "react";
 import { normalizeProps, useMachine } from "@zag-js/react";
 import * as toggle from "@zag-js/switch";
 
-import { createRequiredContext } from "@stealthscale/hooks";
+import { createRequiredContext, splitEnumerable } from "@stealthscale/hooks";
 
 import { stated } from "#stated.ts";
 
@@ -66,4 +66,4 @@ export function useSwitchMachine(options: SwitchOptions): SwitchApi {
  *   The machine states which props are its own, so the root never lists them and never drifts from
  *   the version it is built against.
  */
-export const splitSwitchProps = toggle.splitProps;
+export const splitSwitchProps = splitEnumerable(toggle.splitProps);

@@ -6,10 +6,10 @@ import { type ReactElement } from "react";
 
 import { VisuallyHidden } from "@stealthscale/component-a11y";
 import { Section } from "@stealthscale/component-screen";
-import { useTranslation } from "@stealthscale/provider-i18n";
 
 import { Code } from "#catalogue/code.tsx";
 import { importOf } from "#catalogue/imports.ts";
+import { useWords } from "#words.ts";
 
 /**
  * Describes what the import line takes.
@@ -38,7 +38,7 @@ export interface ImportProps {
  * @returns The section, or nothing.
  */
 export function Import({ names, package: from }: ImportProps): null | ReactElement {
-  const { t } = useTranslation("specimen");
+  const { t } = useWords();
 
   if (from === "" || names.length === 0) return null;
 

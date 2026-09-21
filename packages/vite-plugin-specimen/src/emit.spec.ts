@@ -146,9 +146,21 @@ describe("emit", () => {
 
   it("writes the fragments as one exported record beside the imported names that accepts its own update", () => {
     expect(fragmented({ Sizes: "const a = 1;" }, ["Badge"], "data/badge")).toBe(
-      'export const fragments = {"Sizes":"const a = 1;"};\nexport const imported = ["Badge"];\n' +
+      'export const fragments = {"Sizes": "const a = 1;"};\nexport const imported = ["Badge"];\n' +
         accepting("data/badge", "fragments"),
     );
+  });
+
+  it("escapes a separator JSON leaves bare in a snippet and in a listing", () => {
+    const separated = `a${String.fromCodePoint(0x2028)}b`;
+    const escaped = `"a${String.raw`\u`}2028b"`;
+    const source = `export default specimen({ about: ${JSON.stringify(separated)}, id: "x", scenes: [] });`;
+    const held = listings({ command: "serve", root: "/root" }, [
+      { path: "/root/x.specimen.tsx", text: source },
+    ]);
+
+    expect(fragmented({ Sizes: separated }, [], "data/badge")).toContain(`"Sizes": ${escaped}`);
+    expect(written(held)).toContain(`about: ${escaped}`);
   });
 
   it("names the package whose manifest sits nearest above a file", () => {

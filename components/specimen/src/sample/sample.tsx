@@ -3,9 +3,10 @@
  * sits in.
  */
 
-import { createElement, Fragment, type ReactElement } from "react";
+import { type ReactElement } from "react";
 
 import { Caption } from "#caption.tsx";
+import { bare } from "#framed/bare.ts";
 import { useFramed } from "#framed/context.ts";
 import { type Display, useDisplay } from "#sample/display.ts";
 import { Body, Head, Root, type RootProps } from "#sample/parts.ts";
@@ -64,9 +65,7 @@ export function Sample({
   const shown: Display = useDisplay({ place, variant });
   const framed = useFramed() !== undefined;
 
-  // A fragment built by hand, because what is drawn is the specimen's own and a sample in a frame
-  // adds no element round it.
-  if (framed) return createElement(Fragment, null, children);
+  if (framed) return bare(children);
 
   return (
     <Root

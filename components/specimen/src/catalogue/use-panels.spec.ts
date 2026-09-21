@@ -1,6 +1,9 @@
+import { createElement } from "react";
+
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { DEFAULTS, type Settings, SettingsProvider } from "#catalogue/settings.ts";
 import { usePanels } from "#catalogue/use-panels.ts";
 
 /**
@@ -92,6 +95,47 @@ describe("usePanels", () => {
     });
 
     expect(result.current.open).toBe("none");
+  });
+
+  it("runs the audit again on the press after a clean one", async () => {
+    expect.hasAssertions();
+
+    const stage = staged();
+    const { result } = renderHook(() => usePanels(stage));
+
+    act(() => {
+      result.current.toggleAudit();
+    });
+    await waitFor(() => {
+      expect(result.current.audit).toBeDefined();
+    });
+    stage.current?.insertAdjacentHTML("beforeend", BROKEN);
+    act(() => {
+      result.current.toggleAudit();
+    });
+
+    await waitFor(() => {
+      expect(result.current.open).toBe("audit");
+    });
+  });
+
+  it("holds the scene to the rules the settings state", async () => {
+    expect.hasAssertions();
+
+    const settings: Settings = { ...DEFAULTS, audit: { runOnly: ["image-alt"] } };
+    const { result } = renderHook(() => usePanels(staged(BROKEN)), {
+      wrapper: ({ children }) => createElement(SettingsProvider, { value: settings }, children),
+    });
+
+    act(() => {
+      result.current.toggleAudit();
+    });
+
+    await waitFor(() => {
+      expect(result.current.audit?.findings.map((finding) => finding.rule)).toStrictEqual([
+        "image-alt",
+      ]);
+    });
   });
 
   it("shuts the audit when asked again", async () => {

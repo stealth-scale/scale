@@ -32,17 +32,35 @@ export type Namespace = typeof NAMESPACE;
 export type Prefix = Exclude<KeyPrefix<Namespace>, undefined>;
 
 /**
+ * Reads the catalogue's own words, which the catalogue's parts draw the chrome with.
+ *
+ * @returns `t` bound to the namespace, with the instance and whether the words are ready.
+ */
+export function useWords(): UseTranslationResponse<Namespace, undefined>;
+
+/**
  * Reads the catalogue's words under one prefix, so a page names where its words are once and
  * reads each by the rest of its key.
  *
- * @remarks
- *   A hook rather than a reading, so a language switched under a running page reaches every scene
- *   that called it.
  * @param prefix - Where the words are: `button`.
  * @returns `t` bound to the prefix, with the instance and whether the words are ready.
  */
 export function useWords<Under extends Prefix>(
   prefix: Under,
-): UseTranslationResponse<Namespace, Under> {
+): UseTranslationResponse<Namespace, Under>;
+
+/**
+ * Reads the catalogue's words, under a prefix where a caller names one.
+ *
+ * @remarks
+ *   A hook rather than a reading, so a language switched under a running page reaches every scene
+ *   that called it. The catalogue's own parts call it with no prefix, so the namespace is named
+ *   here and nowhere else.
+ * @param prefix - Where the words are: `button`. Nothing for the catalogue's own words.
+ * @returns `t` bound to the prefix, with the instance and whether the words are ready.
+ */
+export function useWords<Under extends Prefix>(
+  prefix?: Under,
+): UseTranslationResponse<Namespace, undefined | Under> {
   return useTranslation(NAMESPACE, { keyPrefix: prefix });
 }

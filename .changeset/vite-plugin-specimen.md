@@ -65,6 +65,17 @@ vite-plugin-specimen: write a page's path relative to the root wherever the file
   shows. A file outside the root kept its absolute path before, and the index is shipped, so a built
   catalogue carried the directory layout of the machine it was built on.
 
+vite-plugin-specimen: name a page's props chunk after the page
+
+- A props module is bundled into a chunk named `<page>-props`, `actions-button-props-[hash].js`,
+  rather than one the bundler named after the last segment of the module's identifier, which called
+  two pages' props `text` and `menu`.
+- A page's fragments and its imported names come from one parse of the file rather than two.
+- Every string written into a generated module goes through `quoted()` from `vite-plugin-base`,
+  which escapes the line and paragraph separators JSON leaves bare.
+- `client.d.ts` declares `imported` on a fragments module, which the module has exported since the
+  names were listed.
+
 vite-plugin-specimen: include a page chunk's dependencies recursively
 
 - The page chunk group sets `includeDependenciesRecursively: true`, so the modules only the page

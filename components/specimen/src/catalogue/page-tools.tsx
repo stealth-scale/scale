@@ -7,7 +7,6 @@ import { type ReactElement, type RefObject, useId } from "react";
 
 import { Card } from "@stealthscale/component-surfaces";
 import { Text } from "@stealthscale/component-typography";
-import { useTranslation } from "@stealthscale/provider-i18n";
 
 import { Code } from "#catalogue/code.tsx";
 import { Findings } from "#catalogue/page-audit.tsx";
@@ -15,6 +14,7 @@ import { Checks } from "#catalogue/page-checks.tsx";
 import { Opens } from "#catalogue/page-opens.tsx";
 import { Rated } from "#catalogue/page-rated.tsx";
 import { usePanels } from "#catalogue/use-panels.ts";
+import { useWords } from "#words.ts";
 
 /**
  * Describes what the footer takes.
@@ -55,7 +55,7 @@ export interface ToolsProps {
  * @returns The footer, and the open panel.
  */
 export function Tools({ code, stage, title }: ToolsProps): ReactElement {
-  const { t } = useTranslation("specimen");
+  const { t } = useWords();
   const { audit, open, running, toggleAudit, toggleSource } = usePanels(stage);
   const id = useId();
 

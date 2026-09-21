@@ -15,16 +15,15 @@
  *   sits on the card that holds the frame.
  */
 
-import { type ReactElement, useEffect, useState, useSyncExternalStore } from "react";
+import { type ReactElement, useEffect, useSyncExternalStore } from "react";
 
-import { declared } from "#catalogue/declared.ts";
+import { useDeclared } from "#catalogue/loaded.ts";
 import { type Indexed } from "#catalogue/types.ts";
-import { useUpdated } from "#catalogue/updated.ts";
 import { type Address, readAddress } from "#framed/address.ts";
 import { FRAMED_ATTRIBUTE } from "#framed/attribute.ts";
 import { FramedProvider } from "#framed/context.ts";
 import { Pane } from "#framed/pane.ts";
-import { type Frame, type Scene, type Specimen } from "#page.ts";
+import { type Frame, type Scene } from "#page.ts";
 
 /**
  * Describes what the framed page takes.
@@ -62,66 +61,6 @@ function absent(): string {
 }
 
 /**
- * Pairs a loaded page with the entry it was loaded for, so a page loaded for one entry is never
- * read as another's.
- */
-interface Loaded {
-  /**
-   * The entry the page was loaded for.
-   */
-  readonly entry: Indexed;
-
-  /**
-   * The page as declared, or nothing where it failed to load.
-   */
-  readonly page: Specimen | undefined;
-}
-
-/**
- * Loads the page a sample's address names, once the address settles on a page.
- *
- * @remarks
- *   The page is kept beside the entry it was loaded for and read back only while the entry is
- *   the same, so a change of address shows nothing rather than the page before it, without a
- *   state reset in the effect.
- * @returns The page as declared, or nothing until it has loaded or where it fails.
- */
-function useLoaded(entry: Indexed | undefined): Specimen | undefined {
-  const [loaded, setLoaded] = useState<Loaded | undefined>();
-
-  useEffect(() => {
-    let watching = true;
-
-    /**
-     * Loads the module and keeps what it declares, unless the address has moved on.
-     */
-    async function open(named: Indexed): Promise<void> {
-      try {
-        const module = await named.load();
-
-        if (watching) setLoaded({ entry: named, page: declared(module) });
-      } catch {
-        if (watching) setLoaded({ entry: named, page: undefined });
-      }
-    }
-
-    if (entry !== undefined) void open(entry);
-
-    return (): void => {
-      watching = false;
-    };
-  }, [entry]);
-
-  useUpdated(entry?.id ?? "", (update) => {
-    if (entry !== undefined && update.module !== undefined) {
-      setLoaded({ entry, page: declared(update.module) });
-    }
-  });
-
-  return loaded !== undefined && loaded.entry === entry ? loaded.page : undefined;
-}
-
-/**
  * Says how a scene meets the window: at its edges for one that fills the window, whatever frame
  * it meets its card with, and otherwise the way it meets its card.
  */
@@ -154,7 +93,7 @@ export function Framed({ pages }: FramedProps): null | ReactElement {
   const fragment = useSyncExternalStore(subscribe, snapshot, absent);
   const address: Address | undefined = readAddress(fragment);
   const entry = pages.find((page) => page.id === address?.page);
-  const page = useLoaded(entry);
+  const page = useDeclared(entry);
   const scene = address === undefined ? undefined : page?.scenes[address.scene];
 
   useMarked();

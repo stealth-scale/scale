@@ -7,12 +7,11 @@ import { type ReactElement } from "react";
 
 import { Badge } from "@stealthscale/component-data";
 import { Page } from "@stealthscale/component-screen";
-import { useTranslation } from "@stealthscale/provider-i18n";
 
 import { marked } from "#catalogue/marked.tsx";
 import { Trail } from "#catalogue/page-trail.tsx";
 import { type Indexed } from "#catalogue/types.ts";
-import { useWording } from "#catalogue/wording.ts";
+import { useGroupName, useWording } from "#catalogue/wording.ts";
 
 /**
  * Describes what the head of a page takes.
@@ -40,7 +39,7 @@ export interface HeaderProps {
  *   of the words around it rather than in the primary palette a badge draws a count in.
  */
 export function Header({ back, entry }: HeaderProps): ReactElement {
-  const { t } = useTranslation("specimen");
+  const named = useGroupName();
   const word = useWording(entry.namespace);
 
   return (
@@ -50,7 +49,7 @@ export function Header({ back, entry }: HeaderProps): ReactElement {
       {entry.group === "" ? null : (
         <Page.Meta>
           <Badge size="sm" status="neutral">
-            {t(`groups.${entry.group}`, { defaultValue: entry.group })}
+            {named(entry.group)}
           </Badge>
         </Page.Meta>
       )}

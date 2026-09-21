@@ -7,7 +7,8 @@ import { type ReactElement } from "react";
 import { CodeXmlIcon } from "lucide-react";
 
 import { Button } from "@stealthscale/component-actions";
-import { useTranslation } from "@stealthscale/provider-i18n";
+
+import { useWords } from "#words.ts";
 
 /**
  * Describes what the control takes.
@@ -39,7 +40,7 @@ export interface OpensProps {
  * @returns The control.
  */
 export function Opens({ id, onPress, open }: OpensProps): ReactElement {
-  const { t } = useTranslation("specimen");
+  const { t } = useWords();
 
   return (
     <Button

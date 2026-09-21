@@ -8,18 +8,39 @@ import { XIcon } from "lucide-react";
 
 import { SearchInput } from "@stealthscale/component-forms";
 import { AppShell, Sidebar } from "@stealthscale/component-screen";
-import { useHotkey } from "@stealthscale/provider-hotkeys";
-import { useTranslation } from "@stealthscale/provider-i18n";
+import { type Hotkey, useHotkey } from "@stealthscale/provider-hotkeys";
+
+import { useWords } from "#words.ts";
 
 /**
- * The name the shell panel holding the rail is drawn under.
+ * The name the shell panel holding the rail is drawn under, unless a caller names another.
  */
 const NAVBAR = "navbar";
 
 /**
- * The keys that put the reader in the field, as the platform's modifier and K.
+ * The keys that put the reader in the field, as the platform's modifier and K, unless a caller
+ * names others.
  */
-const SHORTCUT = "Mod+K";
+const SHORTCUT: Hotkey = "Mod+K";
+
+/**
+ * The modifier the hotkeys provider reads as the platform's own: Control on most platforms and
+ * Command on a Mac.
+ */
+const MOD = "Mod";
+
+/**
+ * Writes a shortcut the way `aria-keyshortcuts` takes it: the platform's modifier spelt out as
+ * both keys it stands for, so a screen reader announces the one its platform has.
+ *
+ * @param shortcut - The shortcut, as the hotkeys provider reads it.
+ * @returns The shortcut once per modifier it stands for, separated by spaces.
+ */
+function announced(shortcut: string): string {
+  if (!shortcut.includes(MOD)) return shortcut;
+
+  return ["Control", "Meta"].map((key) => shortcut.replaceAll(MOD, key)).join(" ");
+}
 
 /**
  * Describes what the search takes.
@@ -29,6 +50,18 @@ export interface RailSearchProps {
    * Hears the words each time they change.
    */
   readonly onValueChange: (query: string) => void;
+
+  /**
+   * The name of the shell panel the rail is drawn in, which the shortcut opens where the shell has
+   * folded it over the page. `navbar` when absent.
+   */
+  readonly panel?: string | undefined;
+
+  /**
+   * The keys that put the reader in the field from anywhere on the page, as the hotkeys provider
+   * reads them. `Mod+K` when absent.
+   */
+  readonly shortcut?: Hotkey | undefined;
 
   /**
    * The words the rail is narrowed by.
@@ -48,11 +81,16 @@ export interface RailSearchProps {
  *   microtask, because the shell takes the reader into the panel in an effect of its own that runs
  *   after this one, and a move made before it would be undone by it.
  */
-export function RailSearch({ onValueChange, value }: RailSearchProps): ReactElement {
-  const { t } = useTranslation("specimen");
+export function RailSearch({
+  onValueChange,
+  panel: named = NAVBAR,
+  shortcut = SHORTCUT,
+  value,
+}: RailSearchProps): ReactElement {
+  const { t } = useWords();
   const box = useRef<HTMLDivElement>(null);
   const pending = useRef(false);
-  const panel = AppShell.useAppShellPanel(NAVBAR);
+  const panel = AppShell.useAppShellPanel(named);
   const open = panel?.open ?? true;
 
   useEffect(() => {
@@ -64,7 +102,7 @@ export function RailSearch({ onValueChange, value }: RailSearchProps): ReactElem
     });
   }, [open]);
 
-  useHotkey(SHORTCUT, () => {
+  useHotkey(shortcut, () => {
     if (open) {
       box.current?.querySelector("input")?.focus();
 
@@ -78,7 +116,7 @@ export function RailSearch({ onValueChange, value }: RailSearchProps): ReactElem
   return (
     <Sidebar.Search ref={box}>
       <SearchInput
-        aria-keyshortcuts="Control+K Meta+K"
+        aria-keyshortcuts={announced(shortcut)}
         aria-label={t("rail.filter")}
         clearIndicator={<XIcon aria-hidden size="1em" />}
         clearLabel={t("rail.clear")}
