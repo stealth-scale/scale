@@ -4,12 +4,16 @@
  * page that runs right to left.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without this
- *   file changing. Every menu holds the same rows: a group with keystrokes, a row that undoes
- *   something, a row that stays on, a set to pick one of, and a submenu, so a look is judged on
- *   everything a menu draws. Each positioner sits in a portal, because the card a scene is drawn in
- *   clips what it holds and a menu that has to fit the card is no menu. The words are keys under
- *   `menu` in the catalogue's namespace, kept beside this file in `locales/en/specimen/menu.json`.
+ *   The axis scenes are generated from the recipe, so a value added to it reaches the page without
+ *   this file changing. Five scenes are written by hand, because each turns something the recipe
+ *   declares no axis for: where the machine opens the menu, how many rows it holds, what opens it,
+ *   which side a submenu takes, and which way the page reads.
+ *   Every menu holds the same rows: a group with keystrokes, a row that undoes something, a row
+ *   that stays on, a set to pick one of, and a submenu, so a look is judged on everything a menu
+ *   draws. The rows carry marks on some and none on others, which is what the gutter lines up.
+ *   Each positioner sits in a portal, because the card a scene is drawn in clips what it holds and
+ *   a menu that has to fit the card is no menu. The words are keys under `menu` in the catalogue's
+ *   namespace, kept beside this file in `locales/en/specimen/menu.json`.
  */
 
 import { type ReactElement, type ReactNode, useState } from "react";
@@ -30,11 +34,27 @@ import {
 
 import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
 import { Portal } from "@stealthscale/component-primitives";
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { Matrix, type Scene, scenesOf, specimen, useWords } from "@stealthscale/specimen";
 import { type Scale } from "@stealthscale/theme/authoring";
 
 import * as Menu from "#menu/index.ts";
 import { recipe } from "#menu/recipe.ts";
+
+/**
+ * The call site every generated scene's source snippet is built from.
+ */
+const SAMPLE = {
+  children: [
+    "<Menu.Trigger as={Button}>Actions</Menu.Trigger>",
+    "<Menu.Positioner>",
+    "  <Menu.Content>",
+    '    <Menu.Item value="release">Release the payout</Menu.Item>',
+    "  </Menu.Content>",
+    "</Menu.Positioner>",
+  ].join("\n"),
+  imports: 'import { Menu } from "@stealthscale/component-disclosure";',
+  name: "Menu.Root",
+};
 
 /**
  * The six placements a menu is asked to open at.
@@ -191,38 +211,33 @@ function Rows(): ReactElement {
 }
 
 /**
- * Draws the menu in every look.
+ * Draws the menu behind its control, in whatever the scene hands over.
  */
-function Looks(): ReactElement {
+function Opened(props: Menu.RootProps): ReactElement {
   return (
-    <Matrix knob="variant" of={valuesOf(recipe, "variant")}>
-      {(variant) => (
-        <Menu.Root variant={variant}>
-          <Opener />
-          <Rows />
-        </Menu.Root>
-      )}
-    </Matrix>
+    <Menu.Root {...props}>
+      <Opener />
+      <Rows />
+    </Menu.Root>
   );
 }
 
 /**
- * Draws the menu with every highlight at every size.
+ * Draws the menu and its control at one size.
+ *
+ * @remarks
+ *   The size is stated on the control as well as on the menu. A menu at one size behind a control
+ *   at another drew the rows stepping while the button stayed put, which reads as two components
+ *   rather than one.
  */
-function Highlights(): ReactElement {
+function Sized({ size, ...rest }: Menu.RootProps): ReactElement {
+  const stated = size === undefined ? {} : { size };
+
   return (
-    <Matrix
-      across={{ knob: "size", of: valuesOf(recipe, "size") }}
-      knob="highlight"
-      of={valuesOf(recipe, "highlight")}
-    >
-      {(highlight, size) => (
-        <Menu.Root highlight={highlight} size={size}>
-          <Opener size={size} />
-          <Rows />
-        </Menu.Root>
-      )}
-    </Matrix>
+    <Menu.Root {...stated} {...rest}>
+      <Opener {...stated} />
+      <Rows />
+    </Menu.Root>
   );
 }
 
@@ -444,20 +459,6 @@ function RightToLeft(): ReactElement {
 }
 
 /**
- * Every look.
- */
-export const looks: Scene = { about: "menu.looks.about", draw: Looks, title: "menu.looks.title" };
-
-/**
- * Every highlight at every size.
- */
-export const highlights: Scene = {
-  about: "menu.highlights.about",
-  draw: Highlights,
-  title: "menu.highlights.title",
-};
-
-/**
  * Where the menu opens.
  */
 export const placements: Scene = {
@@ -501,9 +502,22 @@ export const rtl: Scene = { about: "menu.rtl.about", draw: RightToLeft, title: "
 
 export default specimen({
   about: "menu.about",
-  group: "Disclosure",
-  id: "disclosure/menu",
+  id: "components/disclosure/menu",
   imports: 'import { Menu } from "@stealthscale/component-disclosure";',
-  scenes: [looks, highlights, placements, long, over, everything, submenus, rtl],
+  scenes: [
+    ...scenesOf<Menu.RootProps>(recipe, {
+      axes: { highlight: { across: "size", draw: (props) => <Sized {...props} /> } },
+      draw: (props) => <Opened {...props} />,
+      namespace: "menu",
+      order: ["variant", "highlight", "inset"],
+      sample: SAMPLE,
+    }),
+    placements,
+    long,
+    over,
+    everything,
+    submenus,
+    rtl,
+  ],
   title: "menu.title",
 });

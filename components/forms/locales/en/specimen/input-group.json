@@ -1,6 +1,6 @@
 {
   "about": "Draws a field with a mark at one end or both: a currency symbol, a unit, a glyph, or a control.",
-  "alignment": {
+  "align": {
     "about": "The marks on the middle of the field, and at its start, for a control that runs to several lines.",
     "title": "Alignment"
   },
@@ -9,7 +9,7 @@
     "about": "A mark at the start, at the end, and at both. The field reserves room where a mark is, so the typing never runs underneath.",
     "title": "Marks"
   },
-  "sizes": {
+  "size": {
     "about": "Every size, with both marks.",
     "title": "Sizes"
   },

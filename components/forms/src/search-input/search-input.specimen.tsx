@@ -2,19 +2,20 @@
  * Shows the search field: every size, each holding a query so the control that empties it shows.
  *
  * @remarks
- *   The axis is read off the recipe, so a size added to the theme reaches the page without this
- *   file changing. The control's glyph is a cross drawn here. The words are keys under
- *   `search-input` in the catalogue's namespace, kept beside this file in
+ *   The scene is generated from the recipe, so a size added to the theme reaches the page without
+ *   this file changing. Every field is drawn holding a query, because the control that empties one
+ *   is only there while there is something to empty. The control's glyph is a cross drawn here. The
+ *   words are keys under `search-input` in the catalogue's namespace, kept beside this file in
  *   `locales/en/specimen/search-input.json`.
  */
 
 import { type ReactElement } from "react";
 
 import { Icon } from "@stealthscale/component-typography";
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
 import { recipe } from "#search-input/recipe.ts";
-import { SearchInput } from "#search-input/search-input.tsx";
+import { SearchInput, type SearchInputProps } from "#search-input/search-input.tsx";
 
 /**
  * The path of a cross, in a 24 unit box.
@@ -22,44 +23,42 @@ import { SearchInput } from "#search-input/search-input.tsx";
 const CROSS = "M6 6l12 12M18 6 6 18";
 
 /**
- * Draws the field at every size.
+ * The call site every scene's source snippet is generated from.
  */
-function Sizes(): ReactElement {
+const SAMPLE = {
+  imports: 'import { SearchInput } from "@stealthscale/component-forms";',
+  name: "SearchInput",
+};
+
+/**
+ * Draws the field holding a query, so the control that empties it is drawn beside it.
+ */
+function Searched(props: SearchInputProps): ReactElement {
   const { t } = useWords("search-input");
 
   return (
-    <Matrix knob="size" of={valuesOf(recipe, "size")}>
-      {(size) => (
-        <SearchInput
-          aria-label={t("search")}
-          clearIndicator={
-            <Icon viewBox="0 0 24 24">
-              <path d={CROSS} fill="none" stroke="currentColor" strokeWidth="2" />
-            </Icon>
-          }
-          clearLabel={t("clear")}
-          defaultValue={t("query")}
-          size={size}
-        />
-      )}
-    </Matrix>
+    <SearchInput
+      aria-label={t("search")}
+      clearIndicator={
+        <Icon viewBox="0 0 24 24">
+          <path d={CROSS} fill="none" stroke="currentColor" strokeWidth="2" />
+        </Icon>
+      }
+      clearLabel={t("clear")}
+      defaultValue={t("query")}
+      {...props}
+    />
   );
 }
 
-/**
- * Every size.
- */
-export const sizes: Scene = {
-  about: "search-input.sizes.about",
-  draw: Sizes,
-  title: "search-input.sizes.title",
-};
-
 export default specimen({
   about: "search-input.about",
-  group: "Forms",
-  id: "forms/search-input",
+  id: "components/forms/search-input",
   imports: 'import { SearchInput } from "@stealthscale/component-forms";',
-  scenes: [sizes],
+  scenes: scenesOf<SearchInputProps>(recipe, {
+    draw: (props) => <Searched {...props} />,
+    namespace: "search-input",
+    sample: SAMPLE,
+  }),
   title: "search-input.title",
 });

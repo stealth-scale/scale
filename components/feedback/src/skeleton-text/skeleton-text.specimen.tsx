@@ -2,9 +2,12 @@
  * Catalogues the placeholder paragraph at three line counts and under every motion.
  *
  * @remarks
- *   The motion values are enumerated from the skeleton recipe the bars are bound to, not from
- *   this component's own, which declares no variants. The line count is a prop rather than a
- *   variant, so the three counts are written out here. The cells are stacked in a column because
+ *   Both scenes are written by hand. This component's own recipe declares no axis, so there is
+ *   nothing to generate a scene from, and its specification still asks what the page covers, so an
+ *   axis added to it fails that check until this page draws it.
+ *   The motion values are enumerated from the skeleton recipe the bars are bound to, which is where
+ *   that axis lives. The line count is a prop rather than a variant, so the three counts are
+ *   written out here. The cells are stacked in a column because
  *   the bars take the full width they are given. The scene titles are keyed under `skeleton-text`
  *   in the catalogue namespace and stored beside this file at
  *   `locales/en/specimen/skeleton-text.json`.
@@ -64,8 +67,7 @@ export const motion: Scene = {
 
 export default specimen({
   about: "skeleton-text.about",
-  group: "Feedback",
-  id: "feedback/skeleton-text",
+  id: "components/feedback/skeleton-text",
   imports: 'import { SkeletonText } from "@stealthscale/component-feedback";',
   scenes: [lines, motion],
   title: "skeleton-text.title",

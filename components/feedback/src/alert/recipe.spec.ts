@@ -1,12 +1,28 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
+import page from "#alert/alert.specimen.tsx";
 import { recipe } from "#alert/recipe.ts";
 
 const PARTS = ["root", "indicator", "content", "title", "description", "aside"];
 
 describe("recipe", () => {
+  it("covers every variant axis in the scenes of its specimen page", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("attaches a source snippet to every scene generated from axes", () => {
+    const built = page.scenes.filter((scene) => scene.axes !== undefined);
+
+    expect(built.every((scene) => scene.source !== undefined)).toBe(true);
+  });
+
   it("references a token on every value a theme has to be able to move", () => {
     expect(
       recipeViolations(recipe, {

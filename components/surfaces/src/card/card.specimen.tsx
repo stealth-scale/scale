@@ -152,8 +152,7 @@ export const pressable: Scene = {
 
 export default specimen({
   about: "card.about",
-  group: "Surfaces",
-  id: "surfaces/card",
+  id: "components/surfaces/card",
   imports: 'import { Card } from "@stealthscale/component-surfaces";',
   scenes: [
     ...scenesOf<Card.RootProps>(recipe, {

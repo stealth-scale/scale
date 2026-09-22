@@ -1,10 +1,20 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
+import page from "#code-block/code-block.specimen.tsx";
 import { recipe } from "#code-block/recipe.ts";
 
 describe("recipe", () => {
+  it("covers every variant axis in the scenes of its specimen page", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
   it("reports no violation across the shared recipe checks", () => {
     expect(recipeViolations(recipe, { names: ["CodeBlock"] })).toStrictEqual([]);
   });

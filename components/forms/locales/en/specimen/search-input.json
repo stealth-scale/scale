@@ -3,7 +3,7 @@
   "clear": "Clear the search",
   "query": "unpaid invoices",
   "search": "Search invoices",
-  "sizes": {
+  "size": {
     "about": "Every size, each holding a query so the control that empties it shows.",
     "title": "Sizes"
   },

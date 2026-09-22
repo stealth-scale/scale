@@ -2,8 +2,8 @@
  * Shows the application shell: every look, both ways of scrolling, and the hairlines beside none.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every shell holds the same parts: a header with the navigation's trigger,
+ *   The scenes are generated from the recipe, so a value added to it reaches the page without this
+ *   file changing. Every shell holds the same parts: a header with the navigation's trigger,
  *   a navbar holding a sidebar, the page, an aside, and a footer. A shell is the height of the
  *   window, so each cell is a screen and the cells run down the page, and every scene says it
  *   fills the window, so a device shows a shell at the window's edges. The words are keys under
@@ -14,16 +14,25 @@
 import { type ReactElement } from "react";
 
 import { NavList } from "@stealthscale/component-navigation";
-import { Matrix, type Scene, specimen, Tile, useWords, valuesOf } from "@stealthscale/specimen";
+import { scenesOf, specimen, Tile, useWords } from "@stealthscale/specimen";
 
 import * as AppShell from "#app-shell/index.ts";
 import { recipe } from "#app-shell/recipe.ts";
 import * as Sidebar from "#sidebar/index.ts";
 
 /**
- * The two answers to a boolean prop.
+ * The call site every scene's source snippet is generated from.
  */
-const EITHER = [false, true] as const;
+const SAMPLE = {
+  children: [
+    "<AppShell.Header>…</AppShell.Header>",
+    "<AppShell.Body>",
+    "  <AppShell.Main>…</AppShell.Main>",
+    "</AppShell.Body>",
+  ].join("\n"),
+  imports: 'import { AppShell } from "@stealthscale/component-screen";',
+  name: "AppShell.Root",
+};
 
 /**
  * Draws the parts every shell holds.
@@ -71,85 +80,31 @@ function Application(): ReactElement {
 }
 
 /**
- * Draws the shell in every look.
+ * Draws the whole application inside whatever the scene hands over.
  */
-function Looks(): ReactElement {
+function Shell(props: AppShell.RootProps): ReactElement {
   return (
-    <Matrix direction="column" knob="variant" of={valuesOf(recipe, "variant")}>
-      {(variant) => (
-        <AppShell.Root variant={variant}>
-          <Application />
-        </AppShell.Root>
-      )}
-    </Matrix>
+    <AppShell.Root {...props}>
+      <Application />
+    </AppShell.Root>
   );
 }
-
-/**
- * Draws the shell scrolling each way.
- */
-function Scroll(): ReactElement {
-  return (
-    <Matrix direction="column" knob="scroll" of={valuesOf(recipe, "scroll")}>
-      {(scroll) => (
-        <AppShell.Root scroll={scroll}>
-          <Application />
-        </AppShell.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the shell with its hairlines and without.
- */
-function Divided(): ReactElement {
-  return (
-    <Matrix direction="column" knob="divided" of={EITHER}>
-      {(divided) => (
-        <AppShell.Root divided={divided}>
-          <Application />
-        </AppShell.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Every look.
- */
-export const looks: Scene = {
-  about: "app-shell.looks.about",
-  draw: Looks,
-  title: "app-shell.looks.title",
-  viewport: true,
-};
-
-/**
- * Both ways of scrolling.
- */
-export const scroll: Scene = {
-  about: "app-shell.scroll.about",
-  draw: Scroll,
-  title: "app-shell.scroll.title",
-  viewport: true,
-};
-
-/**
- * Hairlines beside none.
- */
-export const divided: Scene = {
-  about: "app-shell.divided.about",
-  draw: Divided,
-  title: "app-shell.divided.title",
-  viewport: true,
-};
 
 export default specimen({
   about: "app-shell.about",
-  group: "Screen",
-  id: "screen/app-shell",
+  id: "components/screen/app-shell",
   imports: 'import { AppShell, Sidebar } from "@stealthscale/component-screen";',
-  scenes: [looks, scroll, divided],
+  scenes: scenesOf<AppShell.RootProps>(recipe, {
+    axes: {
+      divided: { direction: "column" },
+      scroll: { direction: "column" },
+      variant: { direction: "column" },
+    },
+    draw: (props) => <Shell {...props} />,
+    namespace: "app-shell",
+    order: ["variant", "scroll", "divided"],
+    sample: SAMPLE,
+    viewport: true,
+  }),
   title: "app-shell.title",
 });

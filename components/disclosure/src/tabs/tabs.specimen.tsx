@@ -3,28 +3,43 @@
  * strip they do not fill, and the strip run down the side.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every set holds the same three panels with the first open. The words are
- *   keys under `tabs` in the catalogue's namespace, kept beside this file in
- *   `locales/en/specimen/tabs.json`.
+ *   The axis scenes are generated from the recipe, so a value added to it reaches the page without
+ *   this file changing. The orientation scene is written by hand, because which way the strip runs
+ *   is the machine's setting rather than an axis of the recipe.
+ *   Every set holds the same three panels with the first open. The words are keys under `tabs` in
+ *   the catalogue's namespace, kept beside this file in `locales/en/specimen/tabs.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { Matrix, type Scene, scenesOf, specimen, useWords, written } from "@stealthscale/specimen";
 
 import * as Tabs from "#tabs/index.ts";
 import { recipe } from "#tabs/recipe.ts";
 
 /**
- * The two answers to a boolean prop.
- */
-const EITHER = [false, true] as const;
-
-/**
  * The two ways the strip can run.
  */
 const ORIENTATIONS = ["horizontal", "vertical"] as const;
+
+/**
+ * The panel a set opens on.
+ */
+const OPEN = "overview";
+
+/**
+ * The call site every scene's source snippet is generated from.
+ */
+const SAMPLE = {
+  children: [
+    "<Tabs.List>",
+    '  <Tabs.Trigger value="overview">Overview</Tabs.Trigger>',
+    "</Tabs.List>",
+    '<Tabs.Content value="overview">What the account holds.</Tabs.Content>',
+  ].join("\n"),
+  imports: 'import { Tabs } from "@stealthscale/component-disclosure";',
+  name: "Tabs.Root",
+};
 
 /**
  * Draws the strip and the three panels every set holds.
@@ -48,52 +63,25 @@ function Account(): ReactElement {
 }
 
 /**
- * Draws the set in every look at every size.
+ * Draws the set open on its first panel, in whatever the scene hands over.
  */
-function Looks(): ReactElement {
+function Opened(props: Tabs.RootProps): ReactElement {
   return (
-    <Matrix
-      across={{ knob: "size", of: valuesOf(recipe, "size") }}
-      knob="variant"
-      of={valuesOf(recipe, "variant")}
-    >
-      {(variant, size) => (
-        <Tabs.Root defaultValue="overview" size={size} variant={variant}>
-          <Account />
-        </Tabs.Root>
-      )}
-    </Matrix>
+    <Tabs.Root defaultValue={OPEN} {...props}>
+      <Account />
+    </Tabs.Root>
   );
 }
 
 /**
- * Draws the set with its controls taking what they need, and sharing the strip.
+ * Draws the set in the enclosed look, which is where a fitted strip is readable.
+ *
+ * @remarks
+ *   The controls of the enclosed look carry an edge each, so the width they take shows. In the
+ *   plain look a strip of controls sharing the width and one taking what it needs read alike.
  */
-function Fitted(): ReactElement {
-  return (
-    <Matrix direction="column" knob="fitted" of={EITHER}>
-      {(fitted) => (
-        <Tabs.Root defaultValue="overview" fitted={fitted} variant="enclosed">
-          <Account />
-        </Tabs.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the set with its controls at every place in the strip.
- */
-function Distribution(): ReactElement {
-  return (
-    <Matrix direction="column" knob="justify" of={valuesOf(recipe, "justify")}>
-      {(justify) => (
-        <Tabs.Root defaultValue="overview" justify={justify}>
-          <Account />
-        </Tabs.Root>
-      )}
-    </Matrix>
-  );
+function Enclosed(props: Tabs.RootProps): ReactElement {
+  return <Opened variant="enclosed" {...props} />;
 }
 
 /**
@@ -102,52 +90,38 @@ function Distribution(): ReactElement {
 function Orientation(): ReactElement {
   return (
     <Matrix knob="orientation" of={ORIENTATIONS}>
-      {(orientation) => (
-        <Tabs.Root defaultValue="overview" orientation={orientation}>
-          <Account />
-        </Tabs.Root>
-      )}
+      {(orientation) => <Opened orientation={orientation} />}
     </Matrix>
   );
 }
 
 /**
- * Every look at every size.
- */
-export const looks: Scene = { about: "tabs.looks.about", draw: Looks, title: "tabs.looks.title" };
-
-/**
- * Taking what they need beside sharing the strip.
- */
-export const fitted: Scene = {
-  about: "tabs.fitted.about",
-  draw: Fitted,
-  title: "tabs.fitted.title",
-};
-
-/**
- * Every share of the strip.
- */
-export const distribution: Scene = {
-  about: "tabs.distribution.about",
-  draw: Distribution,
-  title: "tabs.distribution.title",
-};
-
-/**
- * The strip run each way.
+ * The hand-written scene for the way the strip runs.
  */
 export const orientation: Scene = {
   about: "tabs.orientation.about",
   draw: Orientation,
+  source: written(SAMPLE, { defaultValue: OPEN, orientation: "vertical" }),
   title: "tabs.orientation.title",
 };
 
 export default specimen({
   about: "tabs.about",
-  group: "Disclosure",
-  id: "disclosure/tabs",
+  id: "components/disclosure/tabs",
   imports: 'import { Tabs } from "@stealthscale/component-disclosure";',
-  scenes: [looks, fitted, distribution, orientation],
+  scenes: [
+    ...scenesOf<Tabs.RootProps>(recipe, {
+      axes: {
+        fitted: { direction: "column", draw: (props) => <Enclosed {...props} /> },
+        justify: { direction: "column" },
+        variant: { across: "size" },
+      },
+      draw: (props) => <Opened {...props} />,
+      namespace: "tabs",
+      order: ["variant", "fitted", "justify"],
+      sample: SAMPLE,
+    }),
+    orientation,
+  ],
   title: "tabs.title",
 });

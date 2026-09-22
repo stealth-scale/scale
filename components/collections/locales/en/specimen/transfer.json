@@ -15,16 +15,16 @@
   },
   "lantern": "Lantern",
   "lanternOf": "Held pending a customs count",
-  "moving": {
-    "about": "Two lists, and what moves between them. Each side is an ordinary list of several; what makes it a transfer is the pair of controls, which are off while nothing on their side is picked so neither ever does nothing. Both sides keep room for every row there is, so the pair stays still as rows cross between them.",
-    "title": "Moving rows between two lists"
-  },
   "nothing": "Nothing has crossed over yet",
   "nothingHere": "Nothing here.",
   "pebble": "Pebble",
   "pebbleOf": "Settles weekly, in sterling",
   "quartz": "Quartz",
   "quartzOf": "Closed, kept for the record",
+  "size": {
+    "about": "Two lists, and what moves between them, at every size. Each side is an ordinary list of several; what makes it a transfer is the pair of controls, which are off while nothing on their side is picked so neither ever does nothing. Both sides keep room for every row there is, so the pair stays still as rows cross between them. The size sets the height of a side, the gap between the parts and the mark inside a control.",
+    "title": "Moving rows between two lists"
+  },
   "take": "Take what is picked",
   "title": "Transfer"
 }

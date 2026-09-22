@@ -1,16 +1,12 @@
 {
   "about": "Draws a heading, in a heading role, an ink, an effect and a motion, at the level `as` names.",
   "display": {
-    "about": "The theme's loudest role, at the three sizes it reaches.",
+    "about": "The theme's loudest role, off and on at the size it is drawn for. The role reaches the three loudest sizes, which the size scene climbs.",
     "title": "Display"
   },
-  "effects": {
+  "effect": {
     "about": "The two effects a heading can carry: a gradient across the words, and a shine that passes over them.",
     "title": "Effects"
-  },
-  "inks": {
-    "about": "Every ink. The inverted one is for a dark surface and reads as nothing on the page.",
-    "title": "Inks"
   },
   "motion": {
     "about": "How a heading enters the page.",
@@ -19,11 +15,15 @@
   "quarterly": "Quarterly report",
   "release": "Release notes",
   "settings": "Account settings",
-  "sizes": {
+  "size": {
     "about": "Every size, from a caption to a page title. The size states the heading's prominence rather than its level, which `as` names.",
     "title": "Sizes"
   },
   "title": "Heading",
+  "tone": {
+    "about": "Every ink. The inverted one is for a dark surface and reads as nothing on the page.",
+    "title": "Inks"
+  },
   "truncate": {
     "about": "A heading cut to one line beside one left to wrap.",
     "title": "Truncate"

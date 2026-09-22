@@ -2,24 +2,35 @@
  * Shows the section: both looks at every size, and the heading beside the body as an annotation.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every section holds the same block: a title, a description, one action
- *   and a body. The title is drawn as an `h3`, under the scene's own `h2`. The words are keys
- *   under `section` in the catalogue's namespace, kept beside this file in
- *   `locales/en/specimen/section.json`.
+ *   The scenes are generated from the recipe, so a value added to it reaches the page without this
+ *   file changing. The size is crossed with the look, because the pair reads as a grid rather than
+ *   as two lists, and the annotation runs down the page, because the heading beside the body takes
+ *   the whole width to show.
+ *   Every section holds the same block: a title, a description, one action and a body. The title is
+ *   drawn as an `h3`, under the scene's own `h2`. The words are keys under `section` in the
+ *   catalogue's namespace, kept beside this file in `locales/en/specimen/section.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Matrix, type Scene, specimen, Tile, useWords, valuesOf } from "@stealthscale/specimen";
+import { scenesOf, specimen, Tile, useWords } from "@stealthscale/specimen";
 
 import * as Section from "#section/index.ts";
 import { recipe } from "#section/recipe.ts";
 
 /**
- * The two answers to a boolean prop.
+ * The call site every scene's source snippet is generated from.
  */
-const EITHER = [false, true] as const;
+const SAMPLE = {
+  children: [
+    "<Section.Header>",
+    "  <Section.Title>Payment methods</Section.Title>",
+    "</Section.Header>",
+    "<Section.Body>…</Section.Body>",
+  ].join("\n"),
+  imports: 'import { Section } from "@stealthscale/component-screen";',
+  name: "Section.Root",
+};
 
 /**
  * Draws the block every section holds.
@@ -44,62 +55,40 @@ function Payment(): ReactElement {
 }
 
 /**
- * Draws the section in both looks at every size.
+ * Draws the section in whatever the scene hands over.
  */
-function Looks(): ReactElement {
+function Held(props: Section.RootProps): ReactElement {
   return (
-    <Matrix
-      across={{ knob: "size", of: valuesOf(recipe, "size") }}
-      knob="variant"
-      of={valuesOf(recipe, "variant")}
-    >
-      {(variant, size) => (
-        <Section.Root size={size} variant={variant}>
-          <Payment />
-        </Section.Root>
-      )}
-    </Matrix>
+    <Section.Root {...props}>
+      <Payment />
+    </Section.Root>
   );
 }
 
 /**
- * Draws the section with its heading above the body and beside it.
+ * Draws the section on a surface, which is what the annotation is read against.
+ *
+ * @remarks
+ *   The plain look draws no box, so a heading moved beside the body has no edge to sit against and
+ *   the two columns read as one block of text.
  */
-function Annotated(): ReactElement {
-  return (
-    <Matrix direction="column" knob="annotated" of={EITHER}>
-      {(annotated) => (
-        <Section.Root annotated={annotated} variant="surface">
-          <Payment />
-        </Section.Root>
-      )}
-    </Matrix>
-  );
+function Raised(props: Section.RootProps): ReactElement {
+  return <Held variant="surface" {...props} />;
 }
-
-/**
- * Both looks at every size.
- */
-export const looks: Scene = {
-  about: "section.looks.about",
-  draw: Looks,
-  title: "section.looks.title",
-};
-
-/**
- * The heading above beside the heading alongside.
- */
-export const annotated: Scene = {
-  about: "section.annotated.about",
-  draw: Annotated,
-  title: "section.annotated.title",
-};
 
 export default specimen({
   about: "section.about",
-  group: "Screen",
-  id: "screen/section",
+  id: "components/screen/section",
   imports: 'import { Section } from "@stealthscale/component-screen";',
-  scenes: [looks, annotated],
+  scenes: scenesOf<Section.RootProps>(recipe, {
+    axes: {
+      annotated: { direction: "column", draw: (props) => <Raised {...props} /> },
+      variant: { across: "size" },
+    },
+    draw: (props) => <Held {...props} />,
+    namespace: "section",
+    order: ["variant", "annotated"],
+    sample: SAMPLE,
+  }),
   title: "section.title",
 });

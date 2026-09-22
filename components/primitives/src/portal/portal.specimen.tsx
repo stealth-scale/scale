@@ -2,7 +2,9 @@
  * Lays out the catalogue page for the portal.
  *
  * @remarks
- *   The portal declares no variants, so the page carries one scene instead of a matrix. The
+ *   The portal ships no recipe at all: it moves nodes and draws nothing. There is no axis to
+ *   generate a scene from and no recipe specification to ask what this page covers, so the one
+ *   scene is written by hand and stays that way. The
  *   destination is a tile kept in state, because a portal needs a real element and an element only
  *   exists once it has mounted. The text comes from keys under `portal` in the catalogue
  *   namespace, held beside this file in `locales/en/specimen/portal.json`.
@@ -48,8 +50,7 @@ export const placing: Scene = {
 
 export default specimen({
   about: "portal.about",
-  group: "Primitives",
-  id: "primitives/portal",
+  id: "components/primitives/portal",
   imports: 'import { Portal } from "@stealthscale/component-primitives";',
   scenes: [placing],
   title: "portal.title",

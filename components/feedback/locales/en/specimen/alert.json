@@ -1,29 +1,29 @@
 {
   "about": "Draws a notice about something a reader needs to know: a mark, the words, and whatever they do about it.",
-  "corners": {
-    "about": "Every corner at every size.",
-    "title": "Corners and sizes"
-  },
   "declined": "The card was declined and nothing was charged.",
   "dismiss": "Dismiss this notice",
   "edge": {
-    "about": "A bar in the status colour along each edge the theme draws one for.",
+    "about": "A rule in the palette's solid colour along one edge. The end edge is logical, so it draws on the right under left-to-right writing and on the left under right-to-left. Unset by default, and a theme that moves the palette moves the rule with it.",
     "title": "Edges"
   },
   "failed": "Payment failed",
-  "layouts": {
-    "about": "The words stacked under their title, and the words inline with it.",
+  "layout": {
+    "about": "The words stacked under their title, and the words wrapped onto a shared baseline with it.",
     "title": "Layouts"
   },
-  "looks": {
-    "about": "Every look in every status. The status is said in the title's words, because the mark is hidden from a screen reader.",
-    "title": "Looks and statuses"
-  },
   "motion": {
-    "about": "How the notice enters the page.",
+    "about": "How the notice enters the page. A reader who asked for less motion is given the notice without it.",
     "title": "Motion"
+  },
+  "radius": {
+    "about": "Every corner at every size. The two are crossed because a corner reads against the padding beside it rather than on its own.",
+    "title": "Corners and sizes"
   },
   "restored": "Your draft was restored from Tuesday.",
   "saved": "Changes saved",
-  "title": "Alert"
+  "title": "Alert",
+  "variant": {
+    "about": "Every fill in every status. A status points the palette at the semantic palette of its name and sets nothing else, so the fill decides how that palette is drawn. The status is said in the title's words, because the mark is hidden from a screen reader.",
+    "title": "Looks and statuses"
+  }
 }

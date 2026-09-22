@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
 import { NUMERIC, recipe } from "#table/recipe.ts";
+import page from "#table/table.specimen.tsx";
 
 const PARTS = [
   "scroller",
@@ -21,6 +23,14 @@ const PARTS = [
 ];
 
 describe("recipe", () => {
+  it("covers every variant axis in the scenes of its specimen page", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
   it("writes no value a theme cannot move", () => {
     expect(
       recipeViolations(recipe, {

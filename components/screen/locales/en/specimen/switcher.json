@@ -2,10 +2,6 @@
   "about": "Draws the control that names what is being worked in and opens the list of what else could be.",
   "account": "Account",
   "acme": "Acme",
-  "alone": {
-    "about": "Anywhere else, a control the width of its words: the mark, the name and the sign, with the detail dropped. The catalogue's own bar draws three of these in a toolbar.",
-    "title": "On its own"
-  },
   "billing": "Billing",
   "enterprise": "Enterprise",
   "fathom": "Fathom",
@@ -15,14 +11,14 @@
     "title": "At the head of a sidebar"
   },
   "invoices": "Invoices",
-  "looks": {
-    "about": "Every look at every size. Press a control and the list opens beneath it.",
-    "title": "Looks and sizes"
-  },
   "members": "Members",
   "new": "New workspace",
   "oldBooks": "Old Books",
   "overview": "Overview",
+  "placement": {
+    "about": "Where the control is placed, which decides how wide it is. At the head of a sidebar it is a row the width of the column, so the name and the detail have the column to read in. Anywhere else it takes the width of its words and the detail is dropped: the catalogue’s own bar draws three of these in a toolbar.",
+    "title": "Placements"
+  },
   "platform": "Platform",
   "pro": "Pro plan",
   "profile": "Profile",
@@ -31,5 +27,9 @@
   "suspended": "Suspended",
   "title": "Switcher",
   "trial": "Trial, 12 days left",
+  "variant": {
+    "about": "Every look at every size. Press a control and the list opens beneath it.",
+    "title": "Looks and sizes"
+  },
   "workspace": "Workspace"
 }

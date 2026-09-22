@@ -14,7 +14,23 @@ import { type ReactElement } from "react";
 
 import { CheckIcon, CopyIcon } from "lucide-react";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { Matrix, type Scene, scenesOf, specimen, useWords } from "@stealthscale/specimen";
+
+/**
+ * The call site the generated scene's source snippet is built from.
+ */
+const SAMPLE = {
+  children: [
+    "<CodeBlock.Header>",
+    "  <CodeBlock.Title>send.tsx</CodeBlock.Title>",
+    "</CodeBlock.Header>",
+    "<CodeBlock.Content>",
+    "  <CodeBlock.Code />",
+    "</CodeBlock.Content>",
+  ].join("\n"),
+  imports: 'import { CodeBlock } from "@stealthscale/component-content";',
+  name: "CodeBlock.Root",
+};
 
 import * as CodeBlock from "#code-block/index.ts";
 import { recipe } from "#code-block/recipe.ts";
@@ -100,22 +116,18 @@ function File(): ReactElement {
 }
 
 /**
- * Renders the same source once per size the recipe declares.
+ * Draws the same source, headed by its file name, in whatever the scene hands over.
  */
-function Sizes(): ReactElement {
+function Sized(props: CodeBlock.RootProps): ReactElement {
   return (
-    <Matrix knob="size" of={valuesOf(recipe, "size")}>
-      {(size) => (
-        <CodeBlock.Root code={FILE} language="tsx" size={size}>
-          <CodeBlock.Header>
-            <CodeBlock.Title>send.tsx</CodeBlock.Title>
-          </CodeBlock.Header>
-          <CodeBlock.Content>
-            <CodeBlock.Code />
-          </CodeBlock.Content>
-        </CodeBlock.Root>
-      )}
-    </Matrix>
+    <CodeBlock.Root {...props} code={FILE} language="tsx">
+      <CodeBlock.Header>
+        <CodeBlock.Title>send.tsx</CodeBlock.Title>
+      </CodeBlock.Header>
+      <CodeBlock.Content>
+        <CodeBlock.Code />
+      </CodeBlock.Content>
+    </CodeBlock.Root>
   );
 }
 
@@ -177,15 +189,6 @@ export const file: Scene = {
 };
 
 /**
- * Scene covering the size variant.
- */
-export const sizes: Scene = {
-  about: "code-block.sizes.about",
-  draw: Sizes,
-  title: "code-block.sizes.title",
-};
-
-/**
  * Scene covering highlighting across three languages.
  */
 export const languages: Scene = {
@@ -215,9 +218,18 @@ export const modes: Scene = {
 
 export default specimen({
   about: "code-block.about",
-  group: "Content",
-  id: "content/code-block",
+  id: "components/content/code-block",
   imports: 'import { CodeBlock } from "@stealthscale/component-content";',
-  scenes: [file, sizes, languages, plain, modes],
+  scenes: [
+    file,
+    ...scenesOf<CodeBlock.RootProps>(recipe, {
+      draw: (props) => <Sized {...props} />,
+      namespace: "code-block",
+      sample: SAMPLE,
+    }),
+    languages,
+    plain,
+    modes,
+  ],
   title: "code-block.title",
 });

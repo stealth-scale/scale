@@ -2,86 +2,80 @@
  * Shows the container: every measure, and the gutter beside a flush edge.
  *
  * @remarks
- *   Every axis is read off the recipe, so a measure added to the theme reaches the page without
- *   this file changing. The cells run down the page, because a measure is only readable against
- *   the whole width of the column and a row of containers would give each a sliver. The content
- *   is a tile, so the measure the container holds it to can be read off the tile's width. The
- *   words are keys under `container` in the catalogue's namespace, kept beside this file in
+ *   The scenes are generated from the recipe, so a measure added to the theme reaches the page
+ *   without this file changing. The cells run down the page, because a measure is only readable
+ *   against the whole width of the column and a row of containers would give each a sliver. The
+ *   content is a tile, so the measure the container holds it to can be read off the tile's width.
+ *   The words are keys under `container` in the catalogue's namespace, kept beside this file in
  *   `locales/en/specimen/container.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Matrix, type Scene, specimen, Tile, useWords, valuesOf } from "@stealthscale/specimen";
+import { scenesOf, specimen, Tile, useWords } from "@stealthscale/specimen";
 
-import { Container } from "#container/container.ts";
+import { Container, type ContainerProps } from "#container/container.ts";
 import { recipe } from "#container/recipe.ts";
 
 /**
- * The two answers to a boolean prop.
+ * The call site every scene's source snippet is generated from.
  */
-const EITHER = [false, true] as const;
+const SAMPLE = {
+  children: "<p>Running text at the measure it is read at.</p>",
+  imports: 'import { Container } from "@stealthscale/component-layout";',
+  name: "Container",
+};
 
 /**
- * Draws a line of text held to every measure.
+ * Draws a line of text held to whatever measure the scene hands over.
  */
-function Measures(): ReactElement {
+function Measured(props: ContainerProps): ReactElement {
   const { t } = useWords("container");
 
   return (
-    <Matrix direction="column" knob="size" of={valuesOf(recipe, "size")}>
-      {(size) => (
-        <Container size={size}>
-          <Tile>{t("prose")}</Tile>
-        </Container>
-      )}
-    </Matrix>
+    <Container {...props}>
+      <Tile>{t("prose")}</Tile>
+    </Container>
   );
 }
 
 /**
- * Draws a page holding a container with its gutter, and one flush to the page's edges.
+ * Draws a page holding a container, so the gutter is the room between the page and the content.
+ *
+ * @remarks
+ *   The gutter is only visible against something the container sits inside, so the outer tile
+ *   stands for the page. A flush container takes the gutter away and its content meets that edge.
  */
-function Gutter(): ReactElement {
+function Gutter(props: ContainerProps): ReactElement {
   const { t } = useWords("container");
 
   return (
-    <Matrix direction="column" knob="flush" of={EITHER}>
-      {(flush) => (
-        <Tile>
-          {t("page")}
-          <Container flush={flush} size="sm">
-            <Tile>{t("settings")}</Tile>
-          </Container>
-        </Tile>
-      )}
-    </Matrix>
+    <Tile>
+      {t("page")}
+      <Container {...props}>
+        <Tile>{t("settings")}</Tile>
+      </Container>
+    </Tile>
   );
 }
-
-/**
- * Every measure.
- */
-export const measures: Scene = {
-  about: "container.measures.about",
-  draw: Measures,
-  title: "container.measures.title",
-};
-
-/**
- * The gutter beside a flush edge.
- */
-export const gutter: Scene = {
-  about: "container.gutter.about",
-  draw: Gutter,
-  title: "container.gutter.title",
-};
 
 export default specimen({
   about: "container.about",
-  group: "Layout",
-  id: "layout/container",
+  id: "components/layout/container",
   imports: 'import { Container } from "@stealthscale/component-layout";',
-  scenes: [measures, gutter],
+  scenes: scenesOf<ContainerProps>(recipe, {
+    axes: {
+      flush: {
+        direction: "column",
+        draw: (props) => <Gutter {...props} />,
+        with: { size: "sm" },
+      },
+      size: { direction: "column" },
+    },
+    draw: (props) => <Measured {...props} />,
+    namespace: "container",
+    order: ["size", "flush"],
+    sample: SAMPLE,
+  }),
   title: "container.title",
 });

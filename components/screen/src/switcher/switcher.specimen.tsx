@@ -9,8 +9,10 @@
  *   with the sidebar's own groups and foot under it, because a switcher on a bare page has nothing
  *   to read as a control among; the toolbar placement is what the catalogue's own bar draws, above
  *   every page. Each positioner sits in a portal, because the card a scene is drawn in clips what
- *   it holds. The words are keys under `switcher` in the catalogue's namespace, kept beside this
- *   file in `locales/en/specimen/switcher.json`.
+ *   it holds. A block's own heading in the sidebar is drawn as an `h3` under the scene's own `h2`,
+ *   so the two groups the sidebar lists do not read as sections of this page. The words are keys
+ *   under `switcher` in the catalogue's namespace, kept beside this file in
+ *   `locales/en/specimen/switcher.json`.
  */
 
 import { Fragment, type ReactElement, useState } from "react";
@@ -31,11 +33,25 @@ import { Menu } from "@stealthscale/component-disclosure";
 import { NavList } from "@stealthscale/component-navigation";
 import { Portal } from "@stealthscale/component-primitives";
 import { Span } from "@stealthscale/component-typography";
-import { Matrix, Room, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { Room, type Scene, scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
 import * as Sidebar from "#sidebar/index.ts";
 import * as Switcher from "#switcher/index.ts";
 import { recipe } from "#switcher/recipe.ts";
+
+/**
+ * The call site every generated scene's source snippet is built from.
+ */
+const SAMPLE = {
+  children: [
+    '<Switcher.Trigger label="Workspace">…</Switcher.Trigger>',
+    "<Menu.Positioner>",
+    "  <Menu.Content>…</Menu.Content>",
+    "</Menu.Positioner>",
+  ].join("\n"),
+  imports: 'import { Switcher } from "@stealthscale/component-screen";',
+  name: "Switcher.Root",
+};
 
 /**
  * The keys of the four workspaces every switcher lists, each with the key of its detail and
@@ -149,7 +165,7 @@ function Destinations(): ReactElement {
         <Fragment key={group}>
           {at === 0 ? null : <Sidebar.Separator />}
           <Sidebar.Nav>
-            <Sidebar.NavLabel>{t(group)}</Sidebar.NavLabel>
+            <Sidebar.NavLabel as="h3">{t(group)}</Sidebar.NavLabel>
             <NavList.Root>
               {links.map(([destination, Mark], index) => (
                 <NavList.Item key={destination}>
@@ -190,25 +206,14 @@ function Head(): ReactElement {
 }
 
 /**
- * Draws the switcher on its own, the width of its words.
+ * Draws the switcher in the subtle look, which is what a placement is read against.
+ *
+ * @remarks
+ *   The plain look draws no box, so a control the width of a column and one the width of its words
+ *   read alike. The look scene is the one that turns the look itself.
  */
-function Alone(): ReactElement {
-  return <Switching placement="toolbar" variant="subtle" />;
-}
-
-/**
- * Draws the switcher in every look at every size.
- */
-function Looks(): ReactElement {
-  return (
-    <Matrix
-      across={{ knob: "size", of: valuesOf(recipe, "size") }}
-      knob="variant"
-      of={valuesOf(recipe, "variant")}
-    >
-      {(variant, size) => <Switching size={size} variant={variant} />}
-    </Matrix>
-  );
+function Placed(props: Switcher.RootProps): ReactElement {
+  return <Switching variant="subtle" {...props} />;
 }
 
 /**
@@ -220,28 +225,21 @@ export const head: Scene = {
   title: "switcher.head.title",
 };
 
-/**
- * On its own.
- */
-export const alone: Scene = {
-  about: "switcher.alone.about",
-  draw: Alone,
-  title: "switcher.alone.title",
-};
-
-/**
- * Every look at every size.
- */
-export const looks: Scene = {
-  about: "switcher.looks.about",
-  draw: Looks,
-  title: "switcher.looks.title",
-};
-
 export default specimen({
   about: "switcher.about",
-  group: "Screen",
-  id: "screen/switcher",
-  scenes: [head, alone, looks],
+  id: "components/screen/switcher",
+  scenes: [
+    head,
+    ...scenesOf<Switcher.RootProps>(recipe, {
+      axes: {
+        placement: { draw: (props) => <Placed {...props} /> },
+        variant: { across: "size" },
+      },
+      draw: (props) => <Switching {...props} />,
+      namespace: "switcher",
+      order: ["placement", "variant"],
+      sample: SAMPLE,
+    }),
+  ],
   title: "switcher.title",
 });

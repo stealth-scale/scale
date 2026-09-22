@@ -3,15 +3,16 @@
  * the motions.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every quotation carries the icon, the content and the caption, so each
- *   scene shows the whole figure. The words are keys under `blockquote` in the catalogue's
- *   namespace, kept beside this file in `locales/en/specimen/blockquote.json`.
+ *   The scenes are generated from the recipe, so an axis added to it reaches the page without this
+ *   file changing. The status is crossed with the look, because a status points the palette and a
+ *   look decides how much of the palette is drawn. Every quotation carries the icon, the content
+ *   and the caption, so each scene shows the whole figure. The words are keys under `blockquote` in
+ *   the catalogue's namespace, kept beside this file in `locales/en/specimen/blockquote.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
 import * as Blockquote from "#blockquote/index.ts";
 import { recipe } from "#blockquote/recipe.ts";
@@ -22,7 +23,19 @@ import { recipe } from "#blockquote/recipe.ts";
 const MARKS = "M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z";
 
 /**
- * Draws the quotation's icon, content and caption.
+ * The call site every scene's source snippet is generated from.
+ */
+const SAMPLE = {
+  children: [
+    "<Blockquote.Content>Perfection is reached…</Blockquote.Content>",
+    "<Blockquote.Caption>Antoine de Saint-Exupéry</Blockquote.Caption>",
+  ].join("\n"),
+  imports: 'import { Blockquote } from "@stealthscale/component-typography";',
+  name: "Blockquote.Root",
+};
+
+/**
+ * Draws the quotation's icon, content and caption, which every scene shows whole.
  */
 function Figure(): ReactElement {
   const { t } = useWords("blockquote");
@@ -39,110 +52,29 @@ function Figure(): ReactElement {
 }
 
 /**
- * Draws the quotation in every look in every status.
+ * Draws the whole figure in whatever the scene hands over.
  */
-function Looks(): ReactElement {
+function Quoted(props: Blockquote.RootProps): ReactElement {
   return (
-    <Matrix
-      across={{ knob: "status", of: valuesOf(recipe, "status") }}
-      knob="variant"
-      of={valuesOf(recipe, "variant")}
-    >
-      {(variant, status) => (
-        <Blockquote.Root status={status} variant={variant}>
-          <Figure />
-        </Blockquote.Root>
-      )}
-    </Matrix>
+    <Blockquote.Root {...props}>
+      <Figure />
+    </Blockquote.Root>
   );
 }
-
-/**
- * Draws the quotation at every size.
- */
-function Sizes(): ReactElement {
-  return (
-    <Matrix knob="size" of={valuesOf(recipe, "size")}>
-      {(size) => (
-        <Blockquote.Root size={size}>
-          <Figure />
-        </Blockquote.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the quotation at every place in a width.
- */
-function Distribution(): ReactElement {
-  return (
-    <Matrix direction="column" knob="justify" of={valuesOf(recipe, "justify")}>
-      {(justify) => (
-        <Blockquote.Root justify={justify}>
-          <Figure />
-        </Blockquote.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the quotation entering with every motion.
- */
-function Motion(): ReactElement {
-  return (
-    <Matrix knob="motion" of={valuesOf(recipe, "motion")}>
-      {(motion) => (
-        <Blockquote.Root motion={motion}>
-          <Figure />
-        </Blockquote.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Every look in every status.
- */
-export const looks: Scene = {
-  about: "blockquote.looks.about",
-  draw: Looks,
-  title: "blockquote.looks.title",
-};
-
-/**
- * Every size.
- */
-export const sizes: Scene = {
-  about: "blockquote.sizes.about",
-  draw: Sizes,
-  title: "blockquote.sizes.title",
-};
-
-/**
- * Every place in a width.
- */
-export const distribution: Scene = {
-  about: "blockquote.distribution.about",
-  draw: Distribution,
-  title: "blockquote.distribution.title",
-};
-
-/**
- * Every motion.
- */
-export const motion: Scene = {
-  about: "blockquote.motion.about",
-  draw: Motion,
-  title: "blockquote.motion.title",
-};
 
 export default specimen({
   about: "blockquote.about",
-  group: "Typography",
-  id: "typography/blockquote",
+  id: "components/typography/blockquote",
   imports: 'import { Blockquote } from "@stealthscale/component-typography";',
-  scenes: [looks, sizes, distribution, motion],
+  scenes: scenesOf<Blockquote.RootProps>(recipe, {
+    axes: {
+      justify: { direction: "column" },
+      variant: { across: "status" },
+    },
+    draw: (props) => <Quoted {...props} />,
+    namespace: "blockquote",
+    order: ["variant", "size", "justify", "motion"],
+    sample: SAMPLE,
+  }),
   title: "blockquote.title",
 });

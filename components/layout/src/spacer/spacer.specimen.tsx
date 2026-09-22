@@ -2,9 +2,11 @@
  * Shows the spacer: a heading pushed to one end of a row and its action to the other.
  *
  * @remarks
- *   The spacer has no axis, so the scene draws the one arrangement it is for rather than a
- *   matrix. The words are keys under `spacer` in the catalogue's namespace, kept beside this file
- *   in `locales/en/specimen/spacer.json`.
+ *   The recipe states no axis, so the page has nothing to generate a scene from and draws the one
+ *   arrangement the component is for. The recipe's specification still asks what the page covers,
+ *   so an axis added to the spacer fails that check until this page draws it. The words are keys
+ *   under `spacer` in the catalogue's namespace, kept beside this file in
+ *   `locales/en/specimen/spacer.json`.
  */
 
 import { type ReactElement } from "react";
@@ -40,8 +42,7 @@ export const room: Scene = {
 
 export default specimen({
   about: "spacer.about",
-  group: "Layout",
-  id: "layout/spacer",
+  id: "components/layout/spacer",
   imports: 'import { Spacer, Stack } from "@stealthscale/component-layout";',
   scenes: [room],
   title: "spacer.title",

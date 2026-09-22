@@ -4,8 +4,13 @@
  * in it at all.
  *
  * @remarks
+ *   The size scene is generated from the recipe, so a step added to the theme reaches the page
+ *   without this file changing. The other four are written by hand, because a column nobody ran, a
+ *   grid a reader picks from and a grid holding nothing are what the component is handed rather
+ *   than axes of the recipe.
  *   Every scene draws the same six services against the same three regions, so a reader comparing
- *   two scenes is reading one change rather than two grids.
+ *   two scenes is reading one change rather than two grids. The sizes run down the page, because a
+ *   grid of three columns beside another reads as one grid of six.
  *   The words are keys under `status-matrix` in the catalogue's namespace, kept beside this file in
  *   `locales/en/specimen/status-matrix.json`.
  */
@@ -21,15 +26,7 @@ import {
   XIcon,
 } from "lucide-react";
 
-import {
-  Board,
-  Matrix,
-  Sample,
-  type Scene,
-  specimen,
-  useWords,
-  valuesOf,
-} from "@stealthscale/specimen";
+import { Board, Sample, type Scene, scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
 import {
   type MatrixCell,
@@ -53,6 +50,14 @@ const SERVICES = [
  * The regions every grid draws across the top.
  */
 const REGIONS = ["EU", "US", "APAC"];
+
+/**
+ * The call site the generated scene's source snippet is built from.
+ */
+const SAMPLE = {
+  imports: 'import { StatusMatrix } from "@stealthscale/component-collections";',
+  name: "StatusMatrix",
+};
 
 /**
  * Every crossing the grids read, written as a row, a column and a state.
@@ -169,17 +174,6 @@ function Health({
 }
 
 /**
- * Draws the grid at every size.
- */
-function Looks(): ReactElement {
-  return (
-    <Matrix direction="column" knob="size" of={valuesOf(recipe, "size")}>
-      {(size) => <Health size={size} />}
-    </Matrix>
-  );
-}
-
-/**
  * Draws the grid with every crossing measured.
  */
 function Measured(): ReactElement {
@@ -245,15 +239,6 @@ function Plain(): ReactElement {
 }
 
 /**
- * Every size.
- */
-export const looks: Scene = {
-  about: "status-matrix.looks.about",
-  draw: Looks,
-  title: "status-matrix.looks.title",
-};
-
-/**
  * Every crossing measured.
  */
 export const measured: Scene = {
@@ -291,9 +276,19 @@ export const plain: Scene = {
 
 export default specimen({
   about: "status-matrix.about",
-  group: "Collections",
-  id: "collections/status-matrix",
+  id: "components/collections/status-matrix",
   imports: 'import { StatusMatrix } from "@stealthscale/component-collections";',
-  scenes: [looks, measured, gapped, picking, plain],
+  scenes: [
+    ...scenesOf<HealthProps>(recipe, {
+      axes: { size: { direction: "column" } },
+      draw: (props) => <Health {...props} />,
+      namespace: "status-matrix",
+      sample: SAMPLE,
+    }),
+    measured,
+    gapped,
+    picking,
+    plain,
+  ],
   title: "status-matrix.title",
 });

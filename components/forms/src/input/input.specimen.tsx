@@ -3,17 +3,27 @@
  * page puts it in.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every field is named with `aria-label`, because a field with no name is
- *   announced as `edit text` and nothing more. The words are keys under `input` in the
- *   catalogue's namespace, kept beside this file in `locales/en/specimen/input.json`.
+ *   The axis scenes are generated from the recipe, so a value added to it reaches the page without
+ *   this file changing. The states scene is written by hand, because a page sets those three as
+ *   attributes on the element and the recipe declares no axis for them.
+ *   Every field is named with `aria-label`, because a field with no name is announced as `edit
+ *   text` and nothing more. The words are keys under `input` in the catalogue's namespace, kept
+ *   beside this file in `locales/en/specimen/input.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import {
+  Matrix,
+  type Scene,
+  scenesOf,
+  specimen,
+  useWords,
+  valuesOf,
+  written,
+} from "@stealthscale/specimen";
 
-import { Input } from "#input/input.ts";
+import { Input, type InputProps } from "#input/input.ts";
 import { recipe } from "#input/recipe.ts";
 
 /**
@@ -22,36 +32,34 @@ import { recipe } from "#input/recipe.ts";
 const STATES = ["default", "disabled", "readOnly", "invalid"] as const;
 
 /**
- * Every look the recipe draws.
+ * Every look the recipe draws, which the states are crossed with.
  */
 const LOOKS = valuesOf(recipe, "variant");
 
 /**
- * Draws a search field in every look at every size.
+ * The call site every scene's source snippet is generated from.
  */
-function Looks(): ReactElement {
+const SAMPLE = {
+  imports: 'import { Input } from "@stealthscale/component-forms";',
+  name: "Input",
+};
+
+/**
+ * Draws a search field, which is what a look and a size are read against.
+ */
+function Search(props: InputProps): ReactElement {
   const { t } = useWords("input");
 
-  return (
-    <Matrix across={{ knob: "size", of: valuesOf(recipe, "size") }} knob="variant" of={LOOKS}>
-      {(variant, size) => <Input aria-label={t("search")} size={size} variant={variant} />}
-    </Matrix>
-  );
+  return <Input aria-label={t("search")} {...props} />;
 }
 
 /**
- * Draws an address field in every status in every look.
+ * Draws an address field, which is what a status is read against.
  */
-function Statuses(): ReactElement {
+function Address(props: InputProps): ReactElement {
   const { t } = useWords("input");
 
-  return (
-    <Matrix across={{ knob: "variant", of: LOOKS }} knob="status" of={valuesOf(recipe, "status")}>
-      {(status, variant) => (
-        <Input aria-label={t("email")} placeholder={t("email")} status={status} variant={variant} />
-      )}
-    </Matrix>
-  );
+  return <Input aria-label={t("email")} placeholder={t("email")} {...props} />;
 }
 
 /**
@@ -77,37 +85,31 @@ function States(): ReactElement {
 }
 
 /**
- * Every look at every size.
- */
-export const looks: Scene = {
-  about: "input.looks.about",
-  draw: Looks,
-  title: "input.looks.title",
-};
-
-/**
- * Every status in every look.
- */
-export const statuses: Scene = {
-  about: "input.statuses.about",
-  draw: Statuses,
-  title: "input.statuses.title",
-};
-
-/**
- * Every state in every look.
+ * The hand-written scene for the states a page puts a field in.
  */
 export const states: Scene = {
   about: "input.states.about",
   draw: States,
+  source: written(SAMPLE, { disabled: true, variant: "outline" }),
   title: "input.states.title",
 };
 
 export default specimen({
   about: "input.about",
-  group: "Forms",
-  id: "forms/input",
+  id: "components/forms/input",
   imports: 'import { Input } from "@stealthscale/component-forms";',
-  scenes: [looks, statuses, states],
+  scenes: [
+    ...scenesOf<InputProps>(recipe, {
+      axes: {
+        status: { across: "variant", draw: (props) => <Address {...props} /> },
+        variant: { across: "size" },
+      },
+      draw: (props) => <Search {...props} />,
+      namespace: "input",
+      order: ["variant", "status"],
+      sample: SAMPLE,
+    }),
+    states,
+  ],
   title: "input.title",
 });

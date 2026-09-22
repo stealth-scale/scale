@@ -139,8 +139,7 @@ export const disabled: Scene = {
 
 export default specimen({
   about: "button.about",
-  group: "Actions",
-  id: "actions/button",
+  id: "components/actions/button",
   imports: 'import { Button, IconButton } from "@stealthscale/component-actions";',
   scenes: [
     ...scenesOf<ButtonProps>(recipe, {

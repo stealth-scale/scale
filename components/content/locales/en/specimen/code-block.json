@@ -18,7 +18,7 @@
     "about": "A passage with no language named is set as it was written, in the code role, with no token coloured.",
     "title": "Plain text"
   },
-  "sizes": {
+  "size": {
     "about": "The two sizes the code role is set at. The header reads a step down from the code.",
     "title": "Sizes"
   },

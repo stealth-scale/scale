@@ -2,8 +2,13 @@
  * Shows the sidebar: every look at every size, and the column collapsed to a rail.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every column holds the same three bands: a head naming the workspace, a
+ *   The look scene is generated from the recipe, so a value added to it reaches the page without
+ *   this file changing. The rail scene is written by hand, because collapsing the column is a prop
+ *   the root takes rather than an axis, and the bands inside have to be told of it too.
+ *   A block's own heading is drawn as an `h3` under the scene's own `h2`. Left at its own level,
+ *   the sixteen columns of one scene put thirty-two headings into the page's outline beside the two
+ *   the page has.
+ *   Every column holds the same three bands: a head naming the workspace, a
  *   search and two blocks of destinations, and a foot naming who is signed in. The words are keys
  *   under `sidebar` in the catalogue's namespace, kept beside this file in
  *   `locales/en/specimen/sidebar.json`.
@@ -14,7 +19,7 @@ import { type ReactElement } from "react";
 import { SearchInput } from "@stealthscale/component-forms";
 import { NavList } from "@stealthscale/component-navigation";
 import { Icon, Span } from "@stealthscale/component-typography";
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { Matrix, type Scene, scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
 import * as Sidebar from "#sidebar/index.ts";
 import { recipe } from "#sidebar/recipe.ts";
@@ -23,6 +28,19 @@ import { recipe } from "#sidebar/recipe.ts";
  * The two answers to a boolean prop.
  */
 const EITHER = [false, true] as const;
+
+/**
+ * The call site the generated scene's source snippet is built from.
+ */
+const SAMPLE = {
+  children: [
+    "<Sidebar.Header>…</Sidebar.Header>",
+    "<Sidebar.Content>…</Sidebar.Content>",
+    "<Sidebar.Footer>…</Sidebar.Footer>",
+  ].join("\n"),
+  imports: 'import { Sidebar } from "@stealthscale/component-screen";',
+  name: "Sidebar.Root",
+};
 
 /**
  * The paths of the four marks, one per destination, each in a 24 unit box.
@@ -87,7 +105,7 @@ function Bands({ iconic = false }: BandsProps): ReactElement {
           <SearchInput aria-label={t("search")} size="sm" />
         </Sidebar.Search>
         <Sidebar.Nav>
-          <Sidebar.NavLabel>{t("workspace")}</Sidebar.NavLabel>
+          <Sidebar.NavLabel as="h3">{t("workspace")}</Sidebar.NavLabel>
           <Sidebar.NavAction>{t("add")}</Sidebar.NavAction>
           <NavList.Root iconic={iconic}>
             <NavList.Item>
@@ -107,7 +125,7 @@ function Bands({ iconic = false }: BandsProps): ReactElement {
         </Sidebar.Nav>
         <Sidebar.Separator />
         <Sidebar.Nav>
-          <Sidebar.NavLabel>{t("account")}</Sidebar.NavLabel>
+          <Sidebar.NavLabel as="h3">{t("account")}</Sidebar.NavLabel>
           <NavList.Root iconic={iconic}>
             <NavList.Item>
               <NavList.Link href="#profile">
@@ -130,21 +148,13 @@ function Bands({ iconic = false }: BandsProps): ReactElement {
 }
 
 /**
- * Draws the column in every look at every size.
+ * Draws the column in whatever the scene hands over.
  */
-function Looks(): ReactElement {
+function Column(props: Sidebar.RootProps): ReactElement {
   return (
-    <Matrix
-      across={{ knob: "size", of: valuesOf(recipe, "size") }}
-      knob="variant"
-      of={valuesOf(recipe, "variant")}
-    >
-      {(variant, size) => (
-        <Sidebar.Root size={size} variant={variant}>
-          <Bands />
-        </Sidebar.Root>
-      )}
-    </Matrix>
+    <Sidebar.Root {...props}>
+      <Bands />
+    </Sidebar.Root>
   );
 }
 
@@ -164,15 +174,6 @@ function Iconic(): ReactElement {
 }
 
 /**
- * Every look at every size.
- */
-export const looks: Scene = {
-  about: "sidebar.looks.about",
-  draw: Looks,
-  title: "sidebar.looks.title",
-};
-
-/**
  * The column beside the rail.
  */
 export const iconic: Scene = {
@@ -183,9 +184,16 @@ export const iconic: Scene = {
 
 export default specimen({
   about: "sidebar.about",
-  group: "Screen",
-  id: "screen/sidebar",
+  id: "components/screen/sidebar",
   imports: 'import { Sidebar } from "@stealthscale/component-screen";',
-  scenes: [looks, iconic],
+  scenes: [
+    ...scenesOf<Sidebar.RootProps>(recipe, {
+      axes: { variant: { across: "size" } },
+      draw: (props) => <Column {...props} />,
+      namespace: "sidebar",
+      sample: SAMPLE,
+    }),
+    iconic,
+  ],
   title: "sidebar.title",
 });

@@ -1,17 +1,17 @@
 {
   "about": "Draws a table of records.",
   "account": "Account",
-  "alignment": {
+  "align": {
     "about": "Where a cell's words sit against a row taller than one line. It tells nothing apart on a table of single lines, so this one carries a note that wraps.",
     "title": "Alignment"
+  },
+  "banded": {
+    "about": "The column names on a fill of their own. Worth turning on for a reference rather than for a table of figures, and worth it above all on a page of a dozen tables one under another, where the fill is what tells a reader where one ends and the next begins.",
+    "title": "Banded names"
   },
   "bridge": "Bridge Ledger",
   "bridgeNote": "Held for a customs count, released on the second of the month",
   "caption": "Payouts raised this quarter",
-  "corners": {
-    "about": "Every corner of the surface a table sits on.",
-    "title": "Corners"
-  },
   "due": "Due",
   "gathered": {
     "about": "Rows gathered into a section per heading, and a table holding nothing at all. A section is a `tbody` of its own and its heading states `rowgroup` as its scope, so the rows under it answer to it rather than the columns.",
@@ -21,13 +21,13 @@
   },
   "halden": "Halden & Co",
   "haldenNote": "Settles nightly",
-  "layouts": {
+  "interactive": {
+    "about": "Rows that answer a pointer, for a table whose rows lead somewhere. A row that lights under the pointer and leads nowhere is a row a reader tries to press.",
+    "title": "Rows that respond"
+  },
+  "layout": {
     "about": "Columns sized to their contents, and columns sharing the width evenly. A fixed layout is what a table needs before its columns can be held still while it scrolls.",
     "title": "Layouts"
-  },
-  "looks": {
-    "about": "Both looks at every size. A table is read rather than looked at, so the size is the decision that matters most.",
-    "title": "Looks and sizes"
   },
   "month": "Month",
   "nothing": "No payouts to show",
@@ -38,16 +38,20 @@
     "about": "A name that spans the columns under it, over a second row naming each one. A spanning name states `colgroup` as its scope rather than `col`, which is what tells a screen reader that every column beneath answers to it.",
     "title": "Names that span columns"
   },
-  "ruled": {
+  "radius": {
+    "about": "Every corner of the surface a table sits on.",
+    "title": "Corners"
+  },
+  "rules": {
     "about": "The rules a table is drawn with: between the rows, between the columns as well, or none at all. The rule under the column names is drawn whichever way the rest are.",
     "title": "Rules"
   },
   "settled": "Settled",
   "held": "Held",
   "queued": "Queued",
-  "rows": {
-    "about": "Rows as they are, striped, and responding to a pointer. A stripe helps an eye track across a wide table and fights the hover on a narrow one.",
-    "title": "Rows"
+  "striped": {
+    "about": "Every other row tinted, which helps an eye track across a wide table and fights the hover on a narrow one.",
+    "title": "Striped rows"
   },
   "runs": {
     "about": "A name that spans the rows under it, for a table of several records per account. A spanning name states `rowgroup` as its scope, and the rule between the groups is what a reader counts by.",
@@ -69,6 +73,10 @@
   },
   "amount": "Amount",
   "title": "Table",
+  "variant": {
+    "about": "Both looks at every size. A table is read rather than looked at, so the size is the decision that matters most.",
+    "title": "Looks and sizes"
+  },
   "week": "Week",
   "weekAt": "Week {{at}}",
   "total": "Total",

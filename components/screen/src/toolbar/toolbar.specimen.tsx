@@ -2,8 +2,8 @@
  * Shows the toolbar: every look at every size, and every corner of an outlined row.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every row holds the same controls: a primary filter, a secondary export,
+ *   The scenes are generated from the recipe, so a value added to it reaches the page without this
+ *   file changing. Every row holds the same controls: a primary filter, a secondary export,
  *   a tertiary column picker behind a separator, the folded control at the end, and a search that
  *   covers the row once it is narrow. The rows run down the page, because a row folds on its own
  *   width and a cell of a grid would fold every one. The words are keys under `toolbar` in the
@@ -14,11 +14,24 @@ import { type ReactElement } from "react";
 
 import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
 import { SearchInput } from "@stealthscale/component-forms";
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { scenesOf, specimen, useWords } from "@stealthscale/specimen";
 import { type Scale } from "@stealthscale/theme/authoring";
 
 import * as Toolbar from "#toolbar/index.ts";
 import { recipe } from "#toolbar/recipe.ts";
+
+/**
+ * The call site every scene's source snippet is generated from.
+ */
+const SAMPLE = {
+  children: [
+    "<Toolbar.Start>",
+    "  <Toolbar.Action as={Button}>Filter</Toolbar.Action>",
+    "</Toolbar.Start>",
+  ].join("\n"),
+  imports: 'import { Toolbar } from "@stealthscale/component-screen";',
+  name: "Toolbar.Root",
+};
 
 /**
  * Describes what the controls of a row are told.
@@ -68,66 +81,41 @@ function Controls({ size }: ControlsProps): ReactElement {
 }
 
 /**
- * Draws the row in every look at every size.
+ * Draws the row with its controls at the row's own step.
  */
-function Looks(): ReactElement {
+function Row({ size = "md", ...rest }: Toolbar.RootProps): ReactElement {
   const { t } = useWords("toolbar");
 
   return (
-    <Matrix
-      across={{ knob: "size", of: valuesOf(recipe, "size") }}
-      knob="variant"
-      of={valuesOf(recipe, "variant")}
-    >
-      {(variant, size) => (
-        <Toolbar.Root aria-label={t("invoices")} size={size} variant={variant}>
-          <Controls size={size} />
-        </Toolbar.Root>
-      )}
-    </Matrix>
+    <Toolbar.Root size={size} {...rest} aria-label={t("invoices")}>
+      <Controls size={size} />
+    </Toolbar.Root>
   );
 }
 
 /**
- * Draws an outlined row at every corner.
+ * Draws an outlined row, which is what a corner is read against.
+ *
+ * @remarks
+ *   The plain row draws no edge, so a corner set on it has nothing to round.
  */
-function Corners(): ReactElement {
-  const { t } = useWords("toolbar");
-
-  return (
-    <Matrix direction="column" knob="radius" of={valuesOf(recipe, "radius")}>
-      {(radius) => (
-        <Toolbar.Root aria-label={t("invoices")} radius={radius} variant="outline">
-          <Controls size="md" />
-        </Toolbar.Root>
-      )}
-    </Matrix>
-  );
+function Outlined(props: Toolbar.RootProps): ReactElement {
+  return <Row variant="outline" {...props} />;
 }
-
-/**
- * Every look at every size.
- */
-export const looks: Scene = {
-  about: "toolbar.looks.about",
-  draw: Looks,
-  title: "toolbar.looks.title",
-};
-
-/**
- * Every corner.
- */
-export const corners: Scene = {
-  about: "toolbar.corners.about",
-  draw: Corners,
-  title: "toolbar.corners.title",
-};
 
 export default specimen({
   about: "toolbar.about",
-  group: "Screen",
-  id: "screen/toolbar",
+  id: "components/screen/toolbar",
   imports: 'import { Toolbar } from "@stealthscale/component-screen";',
-  scenes: [looks, corners],
+  scenes: scenesOf<Toolbar.RootProps>(recipe, {
+    axes: {
+      radius: { direction: "column", draw: (props) => <Outlined {...props} /> },
+      variant: { across: "size", direction: "column" },
+    },
+    draw: (props) => <Row {...props} />,
+    namespace: "toolbar",
+    order: ["variant", "radius"],
+    sample: SAMPLE,
+  }),
   title: "toolbar.title",
 });

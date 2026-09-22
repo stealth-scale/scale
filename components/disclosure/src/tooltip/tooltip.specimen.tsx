@@ -2,17 +2,18 @@
  * Shows the tooltip: both looks at every size, and the box on each side of its control.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every box stays closed until a pointer rests on its control or the
- *   keyboard reaches it, because a page of open tooltips would cover each other. The words are
- *   keys under `tooltip` in the catalogue's namespace, kept beside this file in
- *   `locales/en/specimen/tooltip.json`.
+ *   The axis scenes are generated from the recipe, so a value added to it reaches the page without
+ *   this file changing. The placement scene is written by hand, because which side a box opens on
+ *   is the machine's positioning rather than an axis of the recipe.
+ *   Every box stays closed until a pointer rests on its control or the keyboard reaches it, because
+ *   a page of open tooltips would cover each other. The words are keys under `tooltip` in the
+ *   catalogue's namespace, kept beside this file in `locales/en/specimen/tooltip.json`.
  */
 
 import { type ReactElement } from "react";
 
 import { Button } from "@stealthscale/component-actions";
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { Matrix, type Scene, scenesOf, specimen, useWords, written } from "@stealthscale/specimen";
 
 import * as Tooltip from "#tooltip/index.ts";
 import { recipe } from "#tooltip/recipe.ts";
@@ -21,6 +22,25 @@ import { recipe } from "#tooltip/recipe.ts";
  * The four sides a box can open on.
  */
 const SIDES = ["top", "right", "bottom", "left"] as const;
+
+/**
+ * The delay a page waits before a box opens, short enough that a reader does not wait for it.
+ */
+const DELAY = 100;
+
+/**
+ * The call site every scene's source snippet is generated from.
+ */
+const SAMPLE = {
+  children: [
+    "<Tooltip.Trigger as={Button}>Save</Tooltip.Trigger>",
+    "<Tooltip.Positioner>",
+    "  <Tooltip.Content>Saves without closing</Tooltip.Content>",
+    "</Tooltip.Positioner>",
+  ].join("\n"),
+  imports: 'import { Tooltip } from "@stealthscale/component-disclosure";',
+  name: "Tooltip.Root",
+};
 
 /**
  * Draws the control and the box every tooltip holds.
@@ -44,21 +64,13 @@ function Hint(): ReactElement {
 }
 
 /**
- * Draws the tooltip in both looks at every size.
+ * Draws the tooltip in whatever the scene hands over.
  */
-function Looks(): ReactElement {
+function Hinted(props: Tooltip.RootProps): ReactElement {
   return (
-    <Matrix
-      across={{ knob: "size", of: valuesOf(recipe, "size") }}
-      knob="variant"
-      of={valuesOf(recipe, "variant")}
-    >
-      {(variant, size) => (
-        <Tooltip.Root openDelay={100} size={size} variant={variant}>
-          <Hint />
-        </Tooltip.Root>
-      )}
-    </Matrix>
+    <Tooltip.Root openDelay={DELAY} {...props}>
+      <Hint />
+    </Tooltip.Root>
   );
 }
 
@@ -68,38 +80,33 @@ function Looks(): ReactElement {
 function Placement(): ReactElement {
   return (
     <Matrix knob="placement" of={SIDES}>
-      {(placement) => (
-        <Tooltip.Root openDelay={100} positioning={{ placement }}>
-          <Hint />
-        </Tooltip.Root>
-      )}
+      {(placement) => <Hinted positioning={{ placement }} />}
     </Matrix>
   );
 }
 
 /**
- * Both looks at every size.
- */
-export const looks: Scene = {
-  about: "tooltip.looks.about",
-  draw: Looks,
-  title: "tooltip.looks.title",
-};
-
-/**
- * Each side of the control.
+ * The hand-written scene for the side a box opens on.
  */
 export const placement: Scene = {
   about: "tooltip.placement.about",
   draw: Placement,
+  source: written(SAMPLE, { positioning: { placement: "top" } }),
   title: "tooltip.placement.title",
 };
 
 export default specimen({
   about: "tooltip.about",
-  group: "Disclosure",
-  id: "disclosure/tooltip",
+  id: "components/disclosure/tooltip",
   imports: 'import { Tooltip } from "@stealthscale/component-disclosure";',
-  scenes: [looks, placement],
+  scenes: [
+    ...scenesOf<Tooltip.RootProps>(recipe, {
+      axes: { variant: { across: "size" } },
+      draw: (props) => <Hinted {...props} />,
+      namespace: "tooltip",
+      sample: SAMPLE,
+    }),
+    placement,
+  ],
   title: "tooltip.title",
 });

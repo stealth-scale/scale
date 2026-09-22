@@ -3,22 +3,29 @@
  * states, the alignment against a long label, and a settings row.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. The words are keys under `switch` in the catalogue's namespace, kept
- *   beside this file in `locales/en/specimen/switch.json`.
+ *   The axis scenes are generated from the recipe, so a value added to it reaches the page without
+ *   this file changing. The states scene is written by hand, because off, on and out of reach are
+ *   two attributes a page sets on the element and the recipe declares no axis for either.
+ *   Every switch the recipe's own axes turn is drawn thrown on, because a track that is off shows
+ *   the look's ground and not its fill. The words are keys under `switch` in the catalogue's
+ *   namespace, kept beside this file in `locales/en/specimen/switch.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Matrix, Room, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import {
+  Matrix,
+  Room,
+  type Scene,
+  scenesOf,
+  specimen,
+  useWords,
+  valuesOf,
+  written,
+} from "@stealthscale/specimen";
 
 import * as Switch from "#switch/index.ts";
 import { recipe } from "#switch/recipe.ts";
-
-/**
- * The two answers to a boolean prop.
- */
-const EITHER = [false, true] as const;
 
 /**
  * The states a switch can be in: off, on, and out of reach.
@@ -26,9 +33,23 @@ const EITHER = [false, true] as const;
 const STATES = ["off", "on", "disabled"] as const;
 
 /**
- * Every look the recipe draws.
+ * Every look the recipe draws, which the states are crossed with.
  */
 const LOOKS = valuesOf(recipe, "variant");
+
+/**
+ * The call site every scene's source snippet is generated from.
+ */
+const SAMPLE = {
+  children: [
+    "<Switch.Label>Dark mode</Switch.Label>",
+    "<Switch.Control>",
+    "  <Switch.Thumb />",
+    "</Switch.Control>",
+  ].join("\n"),
+  imports: 'import { Switch } from "@stealthscale/component-forms";',
+  name: "Switch.Root",
+};
 
 /**
  * Draws the track with its thumb.
@@ -42,56 +63,50 @@ function Track(): ReactElement {
 }
 
 /**
- * Draws the switch thrown on in every look at every size.
+ * Draws the switch thrown on, labelled for the setting it stands for.
  */
-function Looks(): ReactElement {
+function Thrown(props: Switch.RootProps): ReactElement {
   const { t } = useWords("switch");
 
   return (
-    <Matrix across={{ knob: "size", of: valuesOf(recipe, "size") }} knob="variant" of={LOOKS}>
-      {(variant, size) => (
-        <Switch.Root defaultChecked size={size} variant={variant}>
-          <Switch.Label>{t("dark")}</Switch.Label>
-          <Track />
-        </Switch.Root>
-      )}
-    </Matrix>
+    <Switch.Root defaultChecked {...props}>
+      <Switch.Label>{t("dark")}</Switch.Label>
+      <Track />
+    </Switch.Root>
   );
 }
 
 /**
- * Draws the switch thrown on in every status in every look.
+ * Draws a settings row, which is what a spread row is read against.
  */
-function Statuses(): ReactElement {
+function Setting(props: Switch.RootProps): ReactElement {
   const { t } = useWords("switch");
 
   return (
-    <Matrix across={{ knob: "variant", of: LOOKS }} knob="status" of={valuesOf(recipe, "status")}>
-      {(status, variant) => (
-        <Switch.Root defaultChecked status={status} variant={variant}>
-          <Switch.Label>{t("dark")}</Switch.Label>
-          <Track />
-        </Switch.Root>
-      )}
-    </Matrix>
+    <Switch.Root {...props}>
+      <Switch.Label>{t("notifications")}</Switch.Label>
+      <Track />
+    </Switch.Root>
   );
 }
 
 /**
- * Draws the switch thrown on at every corner.
+ * Draws the switch against a label that runs to more than one line.
+ *
+ * @remarks
+ *   The row stands in a room at the smallest measure, which is what makes the label wrap: given a
+ *   cell of the catalogue it sat on one line, and the two places read the same.
  */
-function Corners(): ReactElement {
+function Signed(props: Switch.RootProps): ReactElement {
   const { t } = useWords("switch");
 
   return (
-    <Matrix knob="radius" of={valuesOf(recipe, "radius")}>
-      {(radius) => (
-        <Switch.Root defaultChecked radius={radius}>
-          <Switch.Label>{t("dark")}</Switch.Label>
-          <Track />
-        </Switch.Root>
-      )}
-    </Matrix>
+    <Room size="xs">
+      <Switch.Root {...props}>
+        <Track />
+        <Switch.Label>{t("long")}</Switch.Label>
+      </Switch.Root>
+    </Room>
   );
 }
 
@@ -118,106 +133,33 @@ function States(): ReactElement {
 }
 
 /**
- * Draws the switch against a long label at both places.
- *
- * @remarks
- *   Each row stands in a room at the smallest measure, which is what makes the label run to a
- *   second line: given a cell of the catalogue it sat on one, and the two places read the same.
- */
-function Alignment(): ReactElement {
-  const { t } = useWords("switch");
-
-  return (
-    <Matrix knob="align" of={valuesOf(recipe, "align")}>
-      {(align) => (
-        <Room size="xs">
-          <Switch.Root align={align}>
-            <Track />
-            <Switch.Label>{t("long")}</Switch.Label>
-          </Switch.Root>
-        </Room>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws a row that takes what it needs beside a settings row.
- */
-function Spread(): ReactElement {
-  const { t } = useWords("switch");
-
-  return (
-    <Matrix direction="column" knob="spread" of={EITHER}>
-      {(spread) => (
-        <Switch.Root spread={spread}>
-          <Switch.Label>{t("notifications")}</Switch.Label>
-          <Track />
-        </Switch.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Every look at every size.
- */
-export const looks: Scene = {
-  about: "switch.looks.about",
-  draw: Looks,
-  title: "switch.looks.title",
-};
-
-/**
- * Every status in every look.
- */
-export const statuses: Scene = {
-  about: "switch.statuses.about",
-  draw: Statuses,
-  title: "switch.statuses.title",
-};
-
-/**
- * Every corner.
- */
-export const corners: Scene = {
-  about: "switch.corners.about",
-  draw: Corners,
-  title: "switch.corners.title",
-};
-
-/**
- * Every state in every look.
+ * The hand-written scene for off, on and out of reach.
  */
 export const states: Scene = {
   about: "switch.states.about",
   draw: States,
+  source: written(SAMPLE, { defaultChecked: true, disabled: true }),
   title: "switch.states.title",
-};
-
-/**
- * Both places against a long label.
- */
-export const alignment: Scene = {
-  about: "switch.alignment.about",
-  draw: Alignment,
-  title: "switch.alignment.title",
-};
-
-/**
- * A row beside a settings row.
- */
-export const spread: Scene = {
-  about: "switch.spread.about",
-  draw: Spread,
-  title: "switch.spread.title",
 };
 
 export default specimen({
   about: "switch.about",
-  group: "Forms",
-  id: "forms/switch",
+  id: "components/forms/switch",
   imports: 'import { Switch } from "@stealthscale/component-forms";',
-  scenes: [looks, statuses, corners, states, alignment, spread],
+  scenes: [
+    ...scenesOf<Switch.RootProps>(recipe, {
+      axes: {
+        align: { draw: (props) => <Signed {...props} /> },
+        spread: { direction: "column", draw: (props) => <Setting {...props} /> },
+        status: { across: "variant" },
+        variant: { across: "size" },
+      },
+      draw: (props) => <Thrown {...props} />,
+      namespace: "switch",
+      order: ["variant", "status", "radius", "align", "spread"],
+      sample: SAMPLE,
+    }),
+    states,
+  ],
   title: "switch.title",
 });

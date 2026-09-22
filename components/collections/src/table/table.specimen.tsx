@@ -4,10 +4,11 @@
  * and the three ways names are held in view while a table scrolls.
  *
  * @remarks
- *   Every scene draws `Table.Simple` from one list of columns, which is what a caller reaches for,
- *   and every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. The two scenes that span names compose the parts instead, because a name
- *   spanning rows is the shape a list of columns does not describe.
+ *   The axis scenes are generated from the recipe, so a value added to it reaches the page without
+ *   this file changing. Every one of them draws `Table.Simple` from one list of columns, which is
+ *   what a caller reaches for. The two scenes that span names compose the parts instead, because a
+ *   name spanning rows is the shape a list of columns does not describe, and the scene that
+ *   gathers rows into sections is handed a grouping rather than a variant.
  *   Every table holds the same three accounts and closes on a total, because a table of figures
  *   with nothing summing them is half a table.
  *   The words are keys under `table` in the catalogue's namespace, kept beside this file in
@@ -18,22 +19,29 @@ import { type ReactElement, type ReactNode, useId } from "react";
 
 import {
   Board,
-  Matrix,
   Room,
   Sample,
   type Scene,
+  scenesOf,
   specimen,
   useWords,
-  valuesOf,
 } from "@stealthscale/specimen";
 
 import * as Table from "#table/index.ts";
 import { recipe } from "#table/recipe.ts";
 
 /**
- * The ways the rows can be drawn beside the rows as they are.
+ * Describes what a generated scene hands its drawing, which is every axis the recipe offers.
  */
-const ROWS = ["default", "striped", "interactive"] as const;
+type Drawn = Omit<Table.SimpleProps<Account>, "columns" | "rows" | "rowToKey">;
+
+/**
+ * The call site every generated scene's source snippet is built from.
+ */
+const SAMPLE = {
+  imports: 'import { Table } from "@stealthscale/component-collections";',
+  name: "Table.Simple",
+};
 
 /**
  * Describes one account a table draws.
@@ -166,33 +174,26 @@ function Payouts({
 }
 
 /**
- * Draws the accounts in both looks at every size.
+ * Draws the accounts without the state each is in, which is what a narrow cell holds.
+ *
+ * @remarks
+ *   Three columns rather than four. Most axes turn something the rules, the corners or the stripes
+ *   show on any table, and a cell of the catalogue holds three columns without the figures
+ *   wrapping. The surface look is stated because an axis drawn on a table with no edge has nothing
+ *   to draw on.
  */
-function Looks(): ReactElement {
-  return (
-    <Matrix
-      across={{ knob: "size", of: valuesOf(recipe, "size") }}
-      direction="column"
-      knob="variant"
-      of={valuesOf(recipe, "variant")}
-    >
-      {(variant, size) => <Payouts size={size} variant={variant} />}
-    </Matrix>
-  );
+function Brief(props: Drawn): ReactElement {
+  return <Payouts brief variant="surface" {...props} />;
 }
 
 /**
  * Draws the accounts with a note that wraps, so the alignment tells itself apart.
  */
-function Alignment(): ReactElement {
+function Noted(props: Drawn): ReactElement {
   return (
-    <Matrix knob="align" of={valuesOf(recipe, "align")}>
-      {(align) => (
-        <Room size="sm">
-          <Payouts align={align} noted variant="surface" />
-        </Room>
-      )}
-    </Matrix>
+    <Room size="sm">
+      <Payouts noted variant="surface" {...props} />
+    </Room>
   );
 }
 
@@ -204,74 +205,36 @@ function Alignment(): ReactElement {
  *   reads none of the rows below. A width on a column is where that is stated, which is once for
  *   the table rather than once on the first cell of every row.
  */
-function Layouts(): ReactElement {
+function Laid({ layout, ...rest }: Drawn): ReactElement {
   const { t } = useWords("table");
   const rows = useAccounts();
+  const stated = layout === undefined ? {} : { layout };
+
+  if (layout !== "fixed") {
+    return (
+      <Room size="sm">
+        <Payouts variant="surface" {...stated} {...rest} />
+      </Room>
+    );
+  }
 
   return (
-    <Matrix direction="column" knob="layout" of={valuesOf(recipe, "layout")}>
-      {(layout) => (
-        <Room size="sm">
-          {layout === "auto" ? (
-            <Payouts layout={layout} variant="surface" />
-          ) : (
-            <Table.Simple<Account>
-              caption={t("caption")}
-              columns={[
-                { key: "name", label: t("account"), rowHeader: true, width: "40%" },
-                { key: "state", label: t("state"), width: "35%" },
-                { key: "amount", label: t("amount"), numeric: true, width: "25%" },
-              ]}
-              layout={layout}
-              rows={rows}
-              rowToKey={(row) => row.key}
-              total={(column) => summed(column, t("totals"))}
-              variant="surface"
-            />
-          )}
-        </Room>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the surface at every corner.
- */
-function Corners(): ReactElement {
-  return (
-    <Matrix knob="radius" of={valuesOf(recipe, "radius")}>
-      {(radius) => <Payouts brief radius={radius} variant="surface" />}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the table with every set of rules it offers.
- */
-function Ruled(): ReactElement {
-  return (
-    <Matrix knob="rules" of={valuesOf(recipe, "rules")}>
-      {(rules) => <Payouts brief rules={rules} variant="surface" />}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the rows each way they can be drawn.
- */
-function Rows(): ReactElement {
-  return (
-    <Matrix knob="rows" of={ROWS}>
-      {(rows) => (
-        <Payouts
-          brief
-          interactive={rows === "interactive"}
-          striped={rows === "striped"}
-          variant="surface"
-        />
-      )}
-    </Matrix>
+    <Room size="sm">
+      <Table.Simple<Account>
+        caption={t("caption")}
+        columns={[
+          { key: "name", label: t("account"), rowHeader: true, width: "40%" },
+          { key: "state", label: t("state"), width: "35%" },
+          { key: "amount", label: t("amount"), numeric: true, width: "25%" },
+        ]}
+        rows={rows}
+        rowToKey={(row) => row.key}
+        total={(column) => summed(column, t("totals"))}
+        variant="surface"
+        {...stated}
+        {...rest}
+      />
+    </Room>
   );
 }
 
@@ -486,56 +449,6 @@ function StickyBoth(): ReactElement {
 }
 
 /**
- * Both looks at every size.
- */
-export const looks: Scene = {
-  about: "table.looks.about",
-  draw: Looks,
-  title: "table.looks.title",
-};
-
-/**
- * Every alignment.
- */
-export const alignment: Scene = {
-  about: "table.alignment.about",
-  draw: Alignment,
-  title: "table.alignment.title",
-};
-
-/**
- * Both layouts.
- */
-export const layouts: Scene = {
-  about: "table.layouts.about",
-  draw: Layouts,
-  title: "table.layouts.title",
-};
-
-/**
- * Every corner.
- */
-export const corners: Scene = {
-  about: "table.corners.about",
-  draw: Corners,
-  title: "table.corners.title",
-};
-
-/**
- * Every set of rules.
- */
-export const ruled: Scene = {
-  about: "table.ruled.about",
-  draw: Ruled,
-  title: "table.ruled.title",
-};
-
-/**
- * The rows each way.
- */
-export const rows: Scene = { about: "table.rows.about", draw: Rows, title: "table.rows.title" };
-
-/**
  * A name spanning the columns under it.
  */
 export const quarters: Scene = {
@@ -560,9 +473,16 @@ export const gathered: Scene = {
 
 /**
  * The column names held while the table scrolls down.
+ *
+ * @remarks
+ *   Stated rather than generated, and so are the two below it. Each of the three needs a sentence
+ *   of its own about what is held and why the box has to have a measure before anything sticks to
+ *   it, which one scene crossing the two axes could not carry. Each names the axis it draws, so the
+ *   check that asks what a page covers still finds both drawn.
  */
 export const stickyHeader: Scene = {
   about: "table.stickyHeader.about",
+  axes: ["stickyHeader"],
   draw: StickyHeader,
   title: "table.stickyHeader.title",
 };
@@ -572,6 +492,7 @@ export const stickyHeader: Scene = {
  */
 export const stickyColumn: Scene = {
   about: "table.stickyColumn.about",
+  axes: ["stickyColumn"],
   draw: StickyColumn,
   title: "table.stickyColumn.title",
 };
@@ -581,22 +502,31 @@ export const stickyColumn: Scene = {
  */
 export const stickyBoth: Scene = {
   about: "table.stickyBoth.about",
+  axes: ["stickyColumn", "stickyHeader"],
   draw: StickyBoth,
   title: "table.stickyBoth.title",
 };
 
 export default specimen({
   about: "table.about",
-  group: "Collections",
-  id: "collections/table",
+  id: "components/collections/table",
   imports: 'import { Table } from "@stealthscale/component-collections";',
   scenes: [
-    looks,
-    alignment,
-    layouts,
-    corners,
-    ruled,
-    rows,
+    ...scenesOf<Drawn>(recipe, {
+      axes: {
+        align: { draw: (props) => <Noted {...props} /> },
+        layout: { direction: "column", draw: (props) => <Laid {...props} /> },
+        variant: { across: "size", direction: "column" },
+      },
+      draw: (props) => <Brief {...props} />,
+      namespace: "table",
+      order: ["variant", "align", "layout", "radius", "rules", "striped", "banded", "interactive"],
+      sample: SAMPLE,
+      skip: {
+        stickyColumn: "drawn by the three scenes at the foot of the page, which state what is held",
+        stickyHeader: "drawn by the three scenes at the foot of the page, which state what is held",
+      },
+    }),
     quarters,
     runs,
     gathered,

@@ -3,19 +3,38 @@
  * reader down three headed passages.
  *
  * @remarks
- *   The size axis is read off the recipe, so a step added to the theme reaches the page without
- *   this file changing. The words are keys under `toc` in the catalogue's namespace, kept beside
- *   this file in `locales/en/specimen/toc.json`.
+ *   The size scene is generated from the recipe, so a step added to the theme reaches the page
+ *   without this file changing. The following scene is written by hand, because what the mark
+ *   follows is the headings on the page rather than an axis of the recipe.
+ *   The sized rails list headings no passage on the page carries, so the mark stays on the heading
+ *   the scene put it on rather than moving as a reader scrolls. The passages the following rail
+ *   tracks are headed as `h3`, under the scene's own `h2`, so three passages drawn to be scrolled
+ *   past do not read as three sections of this page. The words are keys under `toc` in the
+ *   catalogue's namespace, kept beside this file in `locales/en/specimen/toc.json`.
  */
 
 import { type ReactElement } from "react";
 
 import { Heading, Text } from "@stealthscale/component-typography";
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { type Scene, scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
 import * as Toc from "#toc/index.ts";
 import { type TocItem } from "#toc/machine.ts";
 import { recipe } from "#toc/recipe.ts";
+
+/**
+ * The call site the generated scene's source snippet is built from.
+ */
+const SAMPLE = {
+  children: [
+    "<Toc.Title>On this page</Toc.Title>",
+    "<Toc.List>",
+    "  <Toc.Item item={item}>…</Toc.Item>",
+    "</Toc.List>",
+  ].join("\n"),
+  imports: 'import { Toc } from "@stealthscale/component-navigation";',
+  name: "Toc.Root",
+};
 
 /**
  * The headings the sized rails list, which no passage on the page carries, so the mark stays
@@ -79,14 +98,10 @@ function Rail({ items, size }: RailProps): ReactElement {
 }
 
 /**
- * Draws the rail at every size, the mark on the second heading.
+ * Draws a rail over headings no passage on the page carries, so the mark stays where it is put.
  */
-function Sizes(): ReactElement {
-  return (
-    <Matrix knob="size" of={valuesOf(recipe, "size")}>
-      {(size) => <Rail items={LISTED} size={size} />}
-    </Matrix>
-  );
+function Listed(props: Pick<RailProps, "size">): ReactElement {
+  return <Rail items={LISTED} {...props} />;
 }
 
 /**
@@ -101,7 +116,7 @@ function Following(): ReactElement {
       <Rail items={PASSAGES} />
       {PASSAGES.map((item) => (
         <div key={item.value}>
-          <Heading id={item.value} size="md">
+          <Heading as="h3" id={item.value} size="md">
             {t(`headings.${item.value}`)}
           </Heading>
           <Text>{t("passage")}</Text>
@@ -110,11 +125,6 @@ function Following(): ReactElement {
     </>
   );
 }
-
-/**
- * Every size.
- */
-export const sizes: Scene = { about: "toc.sizes.about", draw: Sizes, title: "toc.sizes.title" };
 
 /**
  * A rail following the reader.
@@ -127,9 +137,15 @@ export const following: Scene = {
 
 export default specimen({
   about: "toc.about",
-  group: "Navigation",
-  id: "navigation/toc",
+  id: "components/navigation/toc",
   imports: 'import { Toc } from "@stealthscale/component-navigation";',
-  scenes: [sizes, following],
+  scenes: [
+    ...scenesOf<Pick<RailProps, "size">>(recipe, {
+      draw: (props) => <Listed {...props} />,
+      namespace: "toc",
+      sample: SAMPLE,
+    }),
+    following,
+  ],
   title: "toc.title",
 });

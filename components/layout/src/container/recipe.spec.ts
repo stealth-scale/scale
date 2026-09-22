@@ -1,10 +1,20 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
+import page from "#container/container.specimen.tsx";
 import { recipe } from "#container/recipe.ts";
 
 describe("recipe", () => {
+  it("covers every variant axis in the scenes of its specimen page", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
   it("writes no value a theme cannot move", () => {
     expect(recipeViolations(recipe, { names: ["Container"] })).toStrictEqual([]);
   });

@@ -1,6 +1,6 @@
 {
   "about": "Lays controls along one direction, a semantic gap apart or attached into one control with several parts.",
-  "alignment": {
+  "align": {
     "about": "Where controls of different heights sit across the flow.",
     "title": "Alignment"
   },
@@ -10,17 +10,17 @@
     "title": "Dim"
   },
   "discard": "Discard",
-  "distribution": {
-    "about": "How the room left over along the flow is shared, in a group stretched to the width of a column.",
-    "title": "Distribution"
-  },
-  "gaps": {
+  "gap": {
     "about": "Every gap a group offers, which an attached group ignores.",
     "title": "Gaps"
   },
   "grow": {
     "about": "Children that share the room evenly rather than taking what each needs.",
     "title": "Grow"
+  },
+  "justify": {
+    "about": "How the room left over along the flow is shared, in a group stretched to the width of a column.",
+    "title": "Distribution"
   },
   "maybe": "Maybe",
   "month": "Month",

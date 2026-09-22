@@ -19,7 +19,7 @@
     "about": "A control the page draws itself, reading the state and the copy method off the machine. Reach for this where the trigger is not a plain button, or where the words change with the state.",
     "title": "Your own control"
   },
-  "sizes": {
+  "size": {
     "about": "The labelled row at every size. The size steps the label and the gaps, and the field and the button read their own size beside it.",
     "title": "Sizes"
   },

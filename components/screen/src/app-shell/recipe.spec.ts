@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
+import page from "#app-shell/app-shell.specimen.tsx";
 import { PANEL_RAIL, PANEL_SIZE, recipe, STICKY_OFFSET, STICKY_TOP } from "#app-shell/recipe.ts";
 
 /**
@@ -21,6 +23,14 @@ const PARTS = [
 ];
 
 describe("recipe", () => {
+  it("covers every variant axis in the scenes of its specimen page", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
   it("writes no value a theme cannot move", () => {
     expect(recipeViolations(recipe, { names: ["AppShell"], parts: PARTS })).toStrictEqual([]);
   });

@@ -3,15 +3,18 @@
  * the motions.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. A marker that counts is drawn on an ordered list, so the numbers mean
- *   something. The words are keys under `list` in the catalogue's namespace, kept beside this
- *   file in `locales/en/specimen/list.json`.
+ *   The scenes are generated from the recipe, so an axis added to it reaches the page without this
+ *   file changing. Each axis carries the entries it reads best against: three groceries where the
+ *   axis turns the marker, the gap or the motion, entries that draw their own mark where it turns
+ *   the look, and one entry long enough to wrap where it places that mark.
+ *   A marker that counts is drawn on an ordered list, so the numbers mean something. The words are
+ *   keys under `list` in the catalogue's namespace, kept beside this file in
+ *   `locales/en/specimen/list.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Matrix, Room, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { Room, scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
 import * as List from "#list/index.ts";
 import { recipe } from "#list/recipe.ts";
@@ -30,6 +33,19 @@ const COUNTING = new Set([
 ]);
 
 /**
+ * The call site every scene's source snippet is generated from.
+ */
+const SAMPLE = {
+  children: [
+    "<List.Item>Milk</List.Item>",
+    "<List.Item>Bread</List.Item>",
+    "<List.Item>Butter</List.Item>",
+  ].join("\n"),
+  imports: 'import { List } from "@stealthscale/component-typography";',
+  name: "List.Root",
+};
+
+/**
  * Draws three groceries as plain entries.
  */
 function Groceries(): ReactElement {
@@ -45,146 +61,96 @@ function Groceries(): ReactElement {
 }
 
 /**
- * Draws the list with the browser's marker and as a plain list with its own mark.
+ * Draws the groceries under whatever the scene hands over.
  */
-function Looks(): ReactElement {
-  const { t } = useWords("list");
-
+function Shopping(props: List.RootProps): ReactElement {
   return (
-    <Matrix knob="variant" of={valuesOf(recipe, "variant")}>
-      {(variant) => (
-        <List.Root variant={variant}>
-          <List.Item>
-            {variant === "plain" ? <List.Indicator>✓</List.Indicator> : null}
-            {t("milk")}
-          </List.Item>
-          <List.Item>
-            {variant === "plain" ? <List.Indicator>✓</List.Indicator> : null}
-            {t("bread")}
-          </List.Item>
-          <List.Item>
-            {variant === "plain" ? <List.Indicator>✗</List.Indicator> : null}
-            {t("butter")}
-          </List.Item>
-        </List.Root>
-      )}
-    </Matrix>
+    <List.Root {...props}>
+      <Groceries />
+    </List.Root>
   );
 }
 
 /**
- * Draws the groceries under every marker.
- */
-function Markers(): ReactElement {
-  return (
-    <Matrix knob="marker" of={valuesOf(recipe, "marker")}>
-      {(marker) => (
-        <List.Root as={COUNTING.has(marker) ? "ol" : "ul"} marker={marker}>
-          <Groceries />
-        </List.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the groceries at every gap.
- */
-function Gaps(): ReactElement {
-  return (
-    <Matrix knob="gap" of={valuesOf(recipe, "gap")}>
-      {(gap) => (
-        <List.Root gap={gap}>
-          <Groceries />
-        </List.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws a plain entry running to more than one line, with its mark at every place.
+ * Draws the groceries under the marker the scene hands over, on the element that marker needs.
  *
  * @remarks
- *   Each entry stands in a room at the smallest measure, which is what makes it run to a second
+ *   A marker that counts belongs on an ordered list, so the numbers stand for the order of the
+ *   entries rather than decorating them.
+ */
+function Marked({ marker, ...rest }: List.RootProps): ReactElement {
+  const counting = typeof marker === "string" && COUNTING.has(marker);
+
+  return (
+    <Shopping as={counting ? "ol" : "ul"} {...(marker === undefined ? {} : { marker })} {...rest} />
+  );
+}
+
+/**
+ * Draws the groceries, the plain look carrying a mark of its own on each entry.
+ *
+ * @remarks
+ *   The mark is drawn for the plain look alone. The browser's marker already draws one, and an
+ *   entry carrying both reads as two lists laid over each other.
+ */
+function Checked({ variant, ...rest }: List.RootProps): ReactElement {
+  const { t } = useWords("list");
+  const own = variant === "plain";
+
+  return (
+    <List.Root {...(variant === undefined ? {} : { variant })} {...rest}>
+      <List.Item>
+        {own ? <List.Indicator>✓</List.Indicator> : null}
+        {t("milk")}
+      </List.Item>
+      <List.Item>
+        {own ? <List.Indicator>✓</List.Indicator> : null}
+        {t("bread")}
+      </List.Item>
+      <List.Item>
+        {own ? <List.Indicator>✗</List.Indicator> : null}
+        {t("butter")}
+      </List.Item>
+    </List.Root>
+  );
+}
+
+/**
+ * Draws a plain entry running to more than one line, with its own mark beside it.
+ *
+ * @remarks
+ *   The entry stands in a room at the smallest measure, which is what makes it run to a second
  *   line: given a cell of the catalogue it sat on one, and the three places read the same.
  */
-function Alignment(): ReactElement {
+function Wrapped(props: List.RootProps): ReactElement {
   const { t } = useWords("list");
 
   return (
-    <Matrix knob="align" of={valuesOf(recipe, "align")}>
-      {(align) => (
-        <Room size="xs">
-          <List.Root align={align} variant="plain">
-            <List.Item>
-              <List.Indicator>✓</List.Indicator>
-              {t("note")}
-            </List.Item>
-          </List.Root>
-        </Room>
-      )}
-    </Matrix>
+    <Room size="xs">
+      <List.Root variant="plain" {...props}>
+        <List.Item>
+          <List.Indicator>✓</List.Indicator>
+          {t("note")}
+        </List.Item>
+      </List.Root>
+    </Room>
   );
 }
-
-/**
- * Draws the groceries entering with every motion.
- */
-function Motion(): ReactElement {
-  return (
-    <Matrix knob="motion" of={valuesOf(recipe, "motion")}>
-      {(motion) => (
-        <List.Root motion={motion}>
-          <Groceries />
-        </List.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Both looks.
- */
-export const looks: Scene = { about: "list.looks.about", draw: Looks, title: "list.looks.title" };
-
-/**
- * Every marker.
- */
-export const markers: Scene = {
-  about: "list.markers.about",
-  draw: Markers,
-  title: "list.markers.title",
-};
-
-/**
- * Every gap.
- */
-export const gaps: Scene = { about: "list.gaps.about", draw: Gaps, title: "list.gaps.title" };
-
-/**
- * Every place for a plain entry's mark.
- */
-export const alignment: Scene = {
-  about: "list.alignment.about",
-  draw: Alignment,
-  title: "list.alignment.title",
-};
-
-/**
- * Every motion.
- */
-export const motion: Scene = {
-  about: "list.motion.about",
-  draw: Motion,
-  title: "list.motion.title",
-};
 
 export default specimen({
   about: "list.about",
-  group: "Typography",
-  id: "typography/list",
+  id: "components/typography/list",
   imports: 'import { List } from "@stealthscale/component-typography";',
-  scenes: [looks, markers, gaps, alignment, motion],
+  scenes: scenesOf<List.RootProps>(recipe, {
+    axes: {
+      align: { draw: (props) => <Wrapped {...props} /> },
+      marker: { draw: (props) => <Marked {...props} /> },
+      variant: { draw: (props) => <Checked {...props} /> },
+    },
+    draw: (props) => <Shopping {...props} />,
+    namespace: "list",
+    order: ["variant", "marker", "gap", "align", "motion"],
+    sample: SAMPLE,
+  }),
   title: "list.title",
 });

@@ -3,15 +3,18 @@
  * the states a page puts it in.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every group holds the same delivery form: a legend, a helper text, two
- *   fields and an error text. The words are keys under `fieldset` in the catalogue's namespace,
- *   kept beside this file in `locales/en/specimen/fieldset.json`.
+ *   The axis scenes are generated from the recipe, so a value added to it reaches the page without
+ *   this file changing. The states scene is written by hand, because out of reach and wrong are two
+ *   props a page sets on the root and the recipe declares no axis for either.
+ *   Every group holds the same delivery form: a legend, a helper text, two fields and an error
+ *   text. The status scene is drawn wrong, because a status is what the error text is painted from.
+ *   The words are keys under `fieldset` in the catalogue's namespace, kept beside this file in
+ *   `locales/en/specimen/fieldset.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { Matrix, type Scene, scenesOf, specimen, useWords, written } from "@stealthscale/specimen";
 
 import * as Field from "#field/index.ts";
 import * as Fieldset from "#fieldset/index.ts";
@@ -21,6 +24,19 @@ import { recipe } from "#fieldset/recipe.ts";
  * The states a page puts a group in, beside the group as it is.
  */
 const STATES = ["default", "disabled", "invalid"] as const;
+
+/**
+ * The call site every scene's source snippet is generated from.
+ */
+const SAMPLE = {
+  children: [
+    "<Fieldset.Legend>Delivery</Fieldset.Legend>",
+    "<Fieldset.HelperText>We deliver on weekdays.</Fieldset.HelperText>",
+    "<Field.Root>…</Field.Root>",
+  ].join("\n"),
+  imports: 'import { Fieldset } from "@stealthscale/component-forms";',
+  name: "Fieldset.Root",
+};
 
 /**
  * Draws the parts of the delivery group.
@@ -46,48 +62,21 @@ function Delivery(): ReactElement {
 }
 
 /**
- * Draws the group at every size.
+ * Draws the delivery group in whatever the scene hands over.
  */
-function Sizes(): ReactElement {
+function Grouped(props: Fieldset.RootProps): ReactElement {
   return (
-    <Matrix knob="size" of={valuesOf(recipe, "size")}>
-      {(size) => (
-        <Fieldset.Root size={size}>
-          <Delivery />
-        </Fieldset.Root>
-      )}
-    </Matrix>
+    <Fieldset.Root {...props}>
+      <Delivery />
+    </Fieldset.Root>
   );
 }
 
 /**
- * Draws the group in both orientations.
+ * Draws a group that is wrong, which is what a status is read against.
  */
-function Orientations(): ReactElement {
-  return (
-    <Matrix direction="column" knob="orientation" of={valuesOf(recipe, "orientation")}>
-      {(orientation) => (
-        <Fieldset.Root orientation={orientation}>
-          <Delivery />
-        </Fieldset.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws a group that is wrong in every status.
- */
-function Statuses(): ReactElement {
-  return (
-    <Matrix knob="status" of={valuesOf(recipe, "status")}>
-      {(status) => (
-        <Fieldset.Root invalid status={status}>
-          <Delivery />
-        </Fieldset.Root>
-      )}
-    </Matrix>
-  );
+function Wrong(props: Fieldset.RootProps): ReactElement {
+  return <Grouped invalid {...props} />;
 }
 
 /**
@@ -106,46 +95,31 @@ function States(): ReactElement {
 }
 
 /**
- * Every size.
- */
-export const sizes: Scene = {
-  about: "fieldset.sizes.about",
-  draw: Sizes,
-  title: "fieldset.sizes.title",
-};
-
-/**
- * Both orientations.
- */
-export const orientations: Scene = {
-  about: "fieldset.orientations.about",
-  draw: Orientations,
-  title: "fieldset.orientations.title",
-};
-
-/**
- * Every status.
- */
-export const statuses: Scene = {
-  about: "fieldset.statuses.about",
-  draw: Statuses,
-  title: "fieldset.statuses.title",
-};
-
-/**
- * Every state.
+ * The hand-written scene for the states a page puts a group in.
  */
 export const states: Scene = {
   about: "fieldset.states.about",
   draw: States,
+  source: written(SAMPLE, { disabled: true }),
   title: "fieldset.states.title",
 };
 
 export default specimen({
   about: "fieldset.about",
-  group: "Forms",
-  id: "forms/fieldset",
+  id: "components/forms/fieldset",
   imports: 'import { Field, Fieldset } from "@stealthscale/component-forms";',
-  scenes: [sizes, orientations, statuses, states],
+  scenes: [
+    ...scenesOf<Fieldset.RootProps>(recipe, {
+      axes: {
+        orientation: { direction: "column" },
+        status: { draw: (props) => <Wrong {...props} /> },
+      },
+      draw: (props) => <Grouped {...props} />,
+      namespace: "fieldset",
+      order: ["size", "orientation", "status"],
+      sample: SAMPLE,
+    }),
+    states,
+  ],
   title: "fieldset.title",
 });

@@ -15,7 +15,7 @@
   },
   "onThisPage": "On this page",
   "passage": "A short passage under the heading, long enough to give the page something to scroll past.",
-  "sizes": {
+  "size": {
     "about": "Every size, with the mark on the second heading and a heading one level in indented under the one above it.",
     "title": "Sizes"
   },

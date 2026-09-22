@@ -8,10 +8,6 @@
   },
   "footer": "Footer",
   "invoices": "Invoices",
-  "looks": {
-    "about": "Every look. Plain sets the page against the ground; inset raises the page as a card on a muted ground; floating raises the contents of each panel instead.",
-    "title": "Looks"
-  },
   "navigation": "Navigation",
   "overview": "Overview",
   "page": "The page",
@@ -19,5 +15,9 @@
     "about": "The page scrolling inside a shell the height of the window, and the document growing under bars that stick.",
     "title": "Scroll"
   },
-  "title": "App shell"
+  "title": "App shell",
+  "variant": {
+    "about": "Every look. Plain sets the page against the ground; inset raises the page as a card on a muted ground; floating raises the contents of each panel instead.",
+    "title": "Looks"
+  }
 }

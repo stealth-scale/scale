@@ -9,7 +9,7 @@
   "none": "No command matches",
   "overview": "Go to overview",
   "settings": "Go to settings",
-  "sizes": {
+  "size": {
     "about": "Every size. Type into a field to narrow the list, and move down it with the arrows.",
     "title": "Sizes"
   },

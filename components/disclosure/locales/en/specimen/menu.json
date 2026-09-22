@@ -14,21 +14,21 @@
     "title": "Everything a region's menu holds"
   },
   "export": "Export",
-  "highlights": {
+  "highlight": {
     "about": "Every highlight at every size, on the row the reader is on. Open a menu and move down it.",
     "title": "Highlights and sizes"
   },
   "hold": "Hold",
+  "inset": {
+    "about": "The gutter every row is indented by, off and on. The gutter is the room a mark takes, kept on rows that carry none, so a menu holding some of each reads as one column of words rather than two ragged ones.",
+    "title": "Gutter"
+  },
   "json": "JSON",
   "keepTop": "Keep at the top",
   "ledger": "Ledger",
   "long": {
     "about": "A list longer than the room under its control. The panel is held to the height the engine measured, so it scrolls rather than running off the page, and the highlighted row is scrolled into view, so holding an arrow key walks past the fold.",
     "title": "A list too long for the screen"
-  },
-  "looks": {
-    "about": "Every look. Press a control and the rows open beneath it: a group with keystrokes, a row that undoes something, a row that stays on, a set to pick one of, and a submenu.",
-    "title": "Looks"
   },
   "moveTo": "Move to",
   "notify": "Notify the account",
@@ -61,6 +61,10 @@
   "thisWeek": "This week",
   "title": "Menu",
   "two": "Two",
+  "variant": {
+    "about": "Every look. Press a control and the rows open beneath it: a group with keystrokes, a row that undoes something, a row that stays on, a set to pick one of, and a submenu.",
+    "title": "Looks"
+  },
   "void": "Void",
   "window": "Window"
 }

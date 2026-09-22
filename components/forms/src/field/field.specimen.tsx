@@ -3,15 +3,20 @@
  * states a page puts it in.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every field carries the same parts: a label with the required mark, the
- *   control, the helper text, the counter and the error text. The words are keys under `field` in
- *   the catalogue's namespace, kept beside this file in `locales/en/specimen/field.json`.
+ *   The axis scenes are generated from the recipe, so a value added to it reaches the page without
+ *   this file changing. The states scene is written by hand, because required, disabled, read only
+ *   and wrong are four props a page sets on the root and the recipe declares no axis for any of
+ *   them.
+ *   Every field carries the same parts: a label with the required mark, the control, the helper
+ *   text, the counter and the error text. Every field the recipe's own axes turn is drawn required,
+ *   so the mark has something to draw, and the status scene is drawn wrong, because a status is
+ *   what the error text and the mark are painted from. The words are keys under `field` in the
+ *   catalogue's namespace, kept beside this file in `locales/en/specimen/field.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { Matrix, type Scene, scenesOf, specimen, useWords, written } from "@stealthscale/specimen";
 
 import * as Field from "#field/index.ts";
 import { recipe } from "#field/recipe.ts";
@@ -20,6 +25,19 @@ import { recipe } from "#field/recipe.ts";
  * The states a page puts a field in, beside the field as it is.
  */
 const STATES = ["default", "required", "disabled", "readOnly", "invalid"] as const;
+
+/**
+ * The call site every scene's source snippet is generated from.
+ */
+const SAMPLE = {
+  children: [
+    "<Field.Label>Email</Field.Label>",
+    '<Field.Control type="email" />',
+    "<Field.HelperText>We only write about invoices.</Field.HelperText>",
+  ].join("\n"),
+  imports: 'import { Field } from "@stealthscale/component-forms";',
+  name: "Field.Root",
+};
 
 /**
  * Draws every part of an email field.
@@ -42,48 +60,21 @@ function Parts(): ReactElement {
 }
 
 /**
- * Draws the field at every size.
+ * Draws a required field, so the mark beside the label has something to draw.
  */
-function Sizes(): ReactElement {
+function Required(props: Field.RootProps): ReactElement {
   return (
-    <Matrix knob="size" of={valuesOf(recipe, "size")}>
-      {(size) => (
-        <Field.Root required size={size}>
-          <Parts />
-        </Field.Root>
-      )}
-    </Matrix>
+    <Field.Root required {...props}>
+      <Parts />
+    </Field.Root>
   );
 }
 
 /**
- * Draws the field in both orientations.
+ * Draws a field that is wrong, which is what a status is read against.
  */
-function Orientations(): ReactElement {
-  return (
-    <Matrix direction="column" knob="orientation" of={valuesOf(recipe, "orientation")}>
-      {(orientation) => (
-        <Field.Root orientation={orientation} required>
-          <Parts />
-        </Field.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws a field that is wrong in every status.
- */
-function Statuses(): ReactElement {
-  return (
-    <Matrix knob="status" of={valuesOf(recipe, "status")}>
-      {(status) => (
-        <Field.Root invalid required status={status}>
-          <Parts />
-        </Field.Root>
-      )}
-    </Matrix>
-  );
+function Wrong(props: Field.RootProps): ReactElement {
+  return <Required invalid {...props} />;
 }
 
 /**
@@ -107,46 +98,31 @@ function States(): ReactElement {
 }
 
 /**
- * Every size.
- */
-export const sizes: Scene = {
-  about: "field.sizes.about",
-  draw: Sizes,
-  title: "field.sizes.title",
-};
-
-/**
- * Both orientations.
- */
-export const orientations: Scene = {
-  about: "field.orientations.about",
-  draw: Orientations,
-  title: "field.orientations.title",
-};
-
-/**
- * Every status.
- */
-export const statuses: Scene = {
-  about: "field.statuses.about",
-  draw: Statuses,
-  title: "field.statuses.title",
-};
-
-/**
- * Every state.
+ * The hand-written scene for the states a page puts a field in.
  */
 export const states: Scene = {
   about: "field.states.about",
   draw: States,
+  source: written(SAMPLE, { invalid: true, required: true }),
   title: "field.states.title",
 };
 
 export default specimen({
   about: "field.about",
-  group: "Forms",
-  id: "forms/field",
+  id: "components/forms/field",
   imports: 'import { Field } from "@stealthscale/component-forms";',
-  scenes: [sizes, orientations, statuses, states],
+  scenes: [
+    ...scenesOf<Field.RootProps>(recipe, {
+      axes: {
+        orientation: { direction: "column" },
+        status: { draw: (props) => <Wrong {...props} /> },
+      },
+      draw: (props) => <Required {...props} />,
+      namespace: "field",
+      order: ["size", "orientation", "status"],
+      sample: SAMPLE,
+    }),
+    states,
+  ],
   title: "field.title",
 });

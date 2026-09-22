@@ -1,18 +1,14 @@
 {
   "about": "Draws a list of rows a person picks from, with the keys the ARIA pattern calls for.",
-  "across": {
-    "about": "The rows run along a line rather than down one, and the arrows follow them. A row takes the width of its own words, and the list scrolls sideways where the words outrun the room.",
-    "title": "Across rather than down"
-  },
   "all": "All clients",
   "available": "Available",
   "chosen": "Chosen",
   "clear": "Clear the filter",
   "clients": "Clients",
   "closed": "Closed",
-  "corners": {
-    "about": "Every corner of the list.",
-    "title": "Corners"
+  "columns": {
+    "about": "Rows in columns rather than one after another, at every count. A grid collection is what changes the keys: all four arrows move the highlight, so a reader crosses the tiles the way they see them rather than walking a whole row to reach the one below. The count is told to the collection and to the recipe together, because the arrows reach a tile's neighbours through the one and a reader sees them through the other.",
+    "title": "A grid of tiles"
   },
   "fathom": "Fathom",
   "fathomOf": "Settles nightly, in euro",
@@ -23,7 +19,7 @@
     "title": "Grouped"
   },
   "held": "Held",
-  "highlights": {
+  "highlight": {
     "about": "Every highlight, on the row the keys are on. Move down a list with the arrows.",
     "title": "Highlights"
   },
@@ -32,10 +28,6 @@
   "locked": {
     "about": "A row that cannot be picked. It is still drawn and still read out, because a reader who cannot see it has no way to learn the option exists, and the arrows pass over it.",
     "title": "A row that cannot be picked"
-  },
-  "looks": {
-    "about": "Every look at every size.",
-    "title": "Looks and sizes"
   },
   "consignment": "Consignment {{at}}",
   "consignments": "Consignments ({{count}})",
@@ -63,9 +55,9 @@
   },
   "pebble": "Pebble",
   "pebbleOf": "Settles weekly, in sterling",
-  "picked": {
-    "about": "How a picked row is marked. Plain leans on the mark at the row's end alone, which is the one to check a long list against: a row that is on but drawn like the rest is a row nobody finds again.",
-    "title": "Picked rows"
+  "orientation": {
+    "about": "The rows down a line, and along one with the arrows following them. Along a line a row takes the width of its own words, and the list scrolls sideways where the words outrun the room.",
+    "title": "Down and across"
   },
   "quartz": "Quartz",
   "quartzOf": "Closed, kept for the record",
@@ -80,9 +72,13 @@
   "pick": "Pick a client",
   "ports": "Ports",
   "take": "Take what is picked",
-  "tiles": {
-    "about": "Rows in columns rather than one after another. A grid collection is what changes the keys: all four arrows move the highlight, so a reader crosses the tiles the way they see them rather than walking a whole row to reach the one below.",
-    "title": "A grid of tiles"
+  "radius": {
+    "about": "Every corner of the list.",
+    "title": "Corners"
+  },
+  "selected": {
+    "about": "How a picked row is marked. Plain leans on the mark at the row's end alone, which is the one to check a long list against: a row that is on but drawn like the rest is a row nobody finds again.",
+    "title": "Picked rows"
   },
   "triggered": {
     "about": "The same list inside a popover, for a page with no room to hold it open. A listbox is worth reaching for where the options are worth showing; put behind a trigger it is doing a select's job, and a select is the better answer unless the rows need this much room.",
@@ -91,6 +87,10 @@
   "takeAll": "Take all",
   "takeNone": "Take none",
   "title": "Listbox",
+  "variant": {
+    "about": "Every look at every size.",
+    "title": "Looks and sizes"
+  },
   "whole": {
     "about": "Press the row above the list to turn the whole list on, and again to clear it. Part of the way through it draws a part-checked mark rather than an empty one, so the row says how much of the list is on rather than only whether it was pressed. It counts off the list it is in, so a narrowed list is counted as narrowed.",
     "title": "Select all"

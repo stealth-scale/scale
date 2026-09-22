@@ -1,198 +1,124 @@
 /**
- * Shows the heading: every size, every ink, both effects, the motions and a line cut short.
+ * Shows the heading: every size, the display role, every ink, both effects, the motions and a line
+ * cut short.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every heading here is drawn as an `h3`, under the scene's own `h2`, so the
- *   page's outline stays in order whatever size a heading takes. The words are keys under
- *   `heading` in the catalogue's namespace, kept beside this file in
+ *   The scenes are generated from the recipe, so an axis added to it reaches the page without this
+ *   file changing. Every heading is drawn as an `h3`, under the scene's own `h2`, so the page's
+ *   outline stays in order whatever size a heading takes.
+ *   Each axis carries the title it reads best against, and the three axes that show nothing at the
+ *   middle size are held at the loudest one: the display role, the effects and the gradient all
+ *   need the words large enough to carry them. The display role turns off and on at one size
+ *   rather than climbing the three sizes it reaches, because the axis is the role and the size axis
+ *   has a scene of its own.
+ *   The words are keys under `heading` in the catalogue's namespace, kept beside this file in
  *   `locales/en/specimen/heading.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Matrix, Room, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { Room, scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
-import { Heading } from "#heading/heading.ts";
+import { Heading, type HeadingProps } from "#heading/heading.ts";
 import { recipe } from "#heading/recipe.ts";
 
 /**
- * The two answers to a boolean prop.
+ * The call site every scene's source snippet is generated from.
  */
-const EITHER = [false, true] as const;
+const SAMPLE = {
+  children: "Quarterly report",
+  imports: 'import { Heading } from "@stealthscale/component-typography";',
+  name: "Heading",
+};
 
 /**
- * Draws a title at every size.
+ * Draws the title of a report, which is what a size is read against.
  */
-function Sizes(): ReactElement {
+function Report(props: HeadingProps): ReactElement {
   const { t } = useWords("heading");
 
   return (
-    <Matrix knob="size" of={valuesOf(recipe, "size")}>
-      {(size) => (
-        <Heading as="h3" size={size}>
-          {t("quarterly")}
-        </Heading>
-      )}
-    </Matrix>
+    <Heading as="h3" {...props}>
+      {t("quarterly")}
+    </Heading>
   );
 }
 
 /**
- * Draws a title in every ink.
+ * Draws the title of a settings page, which is what an ink is read against.
  */
-function Inks(): ReactElement {
+function Settings(props: HeadingProps): ReactElement {
   const { t } = useWords("heading");
 
   return (
-    <Matrix knob="tone" of={valuesOf(recipe, "tone")}>
-      {(tone) => (
-        <Heading as="h3" tone={tone}>
-          {t("settings")}
-        </Heading>
-      )}
-    </Matrix>
+    <Heading as="h3" {...props}>
+      {t("settings")}
+    </Heading>
   );
 }
 
 /**
- * Draws a title with each effect.
+ * Draws a greeting, which is what the loudest role and its effects are read against.
  */
-function Effects(): ReactElement {
+function Greeting(props: HeadingProps): ReactElement {
   const { t } = useWords("heading");
 
   return (
-    <Matrix knob="effect" of={valuesOf(recipe, "effect")}>
-      {(effect) => (
-        <Heading as="h3" effect={effect} size="2xl">
-          {t("welcome")}
-        </Heading>
-      )}
-    </Matrix>
+    <Heading as="h3" {...props}>
+      {t("welcome")}
+    </Heading>
   );
 }
 
 /**
- * Draws a title entering with every motion.
+ * Draws the title of a release, which is what a motion is read against.
  */
-function Motion(): ReactElement {
+function Release(props: HeadingProps): ReactElement {
   const { t } = useWords("heading");
 
   return (
-    <Matrix knob="motion" of={valuesOf(recipe, "motion")}>
-      {(motion) => (
-        <Heading as="h3" motion={motion}>
-          {t("release")}
-        </Heading>
-      )}
-    </Matrix>
+    <Heading as="h3" {...props}>
+      {t("release")}
+    </Heading>
   );
 }
 
 /**
- * Draws a long title cut to one line beside one left to wrap.
+ * Draws a long title, cut to the line or left to wrap.
  *
  * @remarks
- *   Each title stands in a room at the large measure, because the two read the same until the
- *   width runs out, and a cell of the catalogue gave a title of eighty characters the whole page.
+ *   The title stands in a room at the large measure, because a heading cut short and one left to
+ *   wrap read the same until the width runs out, and a cell of the catalogue gave a title of eighty
+ *   characters the whole page.
  */
-/**
- * The three steps the display role reaches, which are the loudest three of the size axis.
- */
-const DISPLAYED = ["2xl", "3xl", "4xl"] as const;
-
-/**
- * Draws the title in the display role at the three sizes the role reaches.
- */
-function Display(): ReactElement {
+function Winding(props: HeadingProps): ReactElement {
   const { t } = useWords("heading");
 
   return (
-    <Matrix direction="column" knob="size" of={DISPLAYED}>
-      {(size) => (
-        <Heading as="h3" display size={size}>
-          {t("welcome")}
-        </Heading>
-      )}
-    </Matrix>
+    <Room size="lg">
+      <Heading as="h3" {...props}>
+        {t("winding")}
+      </Heading>
+    </Room>
   );
 }
-
-function Truncate(): ReactElement {
-  const { t } = useWords("heading");
-
-  return (
-    <Matrix direction="column" knob="truncate" of={EITHER}>
-      {(truncate) => (
-        <Room size="lg">
-          <Heading as="h3" truncate={truncate}>
-            {t("winding")}
-          </Heading>
-        </Room>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Every size.
- */
-export const sizes: Scene = {
-  about: "heading.sizes.about",
-  draw: Sizes,
-  title: "heading.sizes.title",
-};
-
-/**
- * The display role at the three sizes it reaches.
- */
-export const display: Scene = {
-  about: "heading.display.about",
-  draw: Display,
-  title: "heading.display.title",
-};
-
-/**
- * Every ink.
- */
-export const inks: Scene = {
-  about: "heading.inks.about",
-  draw: Inks,
-  title: "heading.inks.title",
-};
-
-/**
- * Both effects.
- */
-export const effects: Scene = {
-  about: "heading.effects.about",
-  draw: Effects,
-  title: "heading.effects.title",
-};
-
-/**
- * Every motion.
- */
-export const motion: Scene = {
-  about: "heading.motion.about",
-  draw: Motion,
-  title: "heading.motion.title",
-};
-
-/**
- * A line cut short beside one left to wrap.
- */
-export const truncate: Scene = {
-  about: "heading.truncate.about",
-  draw: Truncate,
-  title: "heading.truncate.title",
-};
 
 export default specimen({
   about: "heading.about",
-  group: "Typography",
-  id: "typography/heading",
+  id: "components/typography/heading",
   imports: 'import { Heading } from "@stealthscale/component-typography";',
-  scenes: [sizes, display, inks, effects, motion, truncate],
+  scenes: scenesOf<HeadingProps>(recipe, {
+    axes: {
+      display: { draw: (props) => <Greeting {...props} />, with: { size: "2xl" } },
+      effect: { draw: (props) => <Greeting {...props} />, with: { size: "2xl" } },
+      motion: { draw: (props) => <Release {...props} /> },
+      tone: { draw: (props) => <Settings {...props} /> },
+      truncate: { direction: "column", draw: (props) => <Winding {...props} /> },
+    },
+    draw: (props) => <Report {...props} />,
+    namespace: "heading",
+    order: ["size", "display", "tone", "effect", "motion", "truncate"],
+    sample: SAMPLE,
+  }),
   title: "heading.title",
 });

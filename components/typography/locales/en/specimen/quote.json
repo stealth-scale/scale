@@ -3,10 +3,6 @@
   "after": " and moved on.",
   "before": "She called it",
   "claim": "a measured claim",
-  "inks": {
-    "about": "The quotation in every ink, inside a line of ordinary words.",
-    "title": "Inks"
-  },
   "marks": {
     "about": "The marks the browser draws, and none where the text already holds its punctuation.",
     "title": "Marks"
@@ -15,5 +11,9 @@
     "about": "How the quotation enters the line.",
     "title": "Motion"
   },
-  "title": "Quote"
+  "title": "Quote",
+  "tone": {
+    "about": "The quotation in every ink, inside a line of ordinary words.",
+    "title": "Inks"
+  }
 }

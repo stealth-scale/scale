@@ -1,12 +1,12 @@
 {
   "about": "Draws a key a reader is asked to press, as a keycap in a look, a size and the palette of its status.",
-  "looks": {
-    "about": "Every look at every size.",
-    "title": "Looks and sizes"
-  },
-  "statuses": {
+  "status": {
     "about": "Every status in every look.",
     "title": "Statuses"
   },
-  "title": "Kbd"
+  "title": "Kbd",
+  "variant": {
+    "about": "Every look at every size.",
+    "title": "Looks and sizes"
+  }
 }

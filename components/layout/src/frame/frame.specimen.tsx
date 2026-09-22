@@ -43,8 +43,7 @@ function Hillside(props: FrameProps): ReactElement {
 
 export default specimen({
   about: "frame.about",
-  group: "Layout",
-  id: "layout/frame",
+  id: "components/layout/frame",
   imports: 'import { Frame } from "@stealthscale/component-layout";',
   scenes: scenesOf<FrameProps>(recipe, {
     axes: {

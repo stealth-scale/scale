@@ -14,7 +14,22 @@ import { type ReactElement } from "react";
 
 import { Input, InputPropsProvider } from "@stealthscale/component-forms";
 import { Icon } from "@stealthscale/component-typography";
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { Matrix, type Scene, scenesOf, specimen, useWords } from "@stealthscale/specimen";
+
+/**
+ * The call site the generated scene's source snippet is built from.
+ */
+const SAMPLE = {
+  children: [
+    "<Clipboard.Label>Share link</Clipboard.Label>",
+    "<Clipboard.Control>",
+    "  <Clipboard.Input as={Input} />",
+    "  <Clipboard.Trigger as={IconButton}>…</Clipboard.Trigger>",
+    "</Clipboard.Control>",
+  ].join("\n"),
+  imports: 'import { Clipboard } from "@stealthscale/component-actions";',
+  name: "Clipboard.Root",
+};
 
 import { Button, ButtonPropsProvider, IconButton } from "#button/index.ts";
 import * as Clipboard from "#clipboard/index.ts";
@@ -146,29 +161,30 @@ function Own(): ReactElement {
 }
 
 /**
- * Renders the labelled row at each size the recipe declares.
+ * Draws the labelled row: the field holding the link, and the control that copies it.
+ *
+ * @remarks
+ *   The size is handed to the field and the control as well as to the row, because the row's own
+ *   axis moves the label and the gap and the two controls inside take their own. A row at one size
+ *   around a field at another drew a label that stepped while the box stayed put.
  */
-function Sizes(): ReactElement {
+function Labelled({ size = "md", ...rest }: Clipboard.RootProps): ReactElement {
   const { t } = useWords("clipboard");
 
   return (
-    <Matrix knob="size" of={valuesOf(recipe, "size")}>
-      {(size) => (
-        <Clipboard.Root size={size} value={LINK}>
-          <Clipboard.Label>{t("label")}</Clipboard.Label>
-          <Clipboard.Control>
-            <InputPropsProvider value={{ size }}>
-              <Clipboard.Input as={Input} />
-            </InputPropsProvider>
-            <ButtonPropsProvider value={{ size, variant: "outline" }}>
-              <Clipboard.Trigger as={IconButton}>
-                <Mark />
-              </Clipboard.Trigger>
-            </ButtonPropsProvider>
-          </Clipboard.Control>
-        </Clipboard.Root>
-      )}
-    </Matrix>
+    <Clipboard.Root size={size} value={LINK} {...rest}>
+      <Clipboard.Label>{t("label")}</Clipboard.Label>
+      <Clipboard.Control>
+        <InputPropsProvider value={{ size }}>
+          <Clipboard.Input as={Input} />
+        </InputPropsProvider>
+        <ButtonPropsProvider value={{ size, variant: "outline" }}>
+          <Clipboard.Trigger as={IconButton}>
+            <Mark />
+          </Clipboard.Trigger>
+        </ButtonPropsProvider>
+      </Clipboard.Control>
+    </Clipboard.Root>
   );
 }
 
@@ -229,15 +245,6 @@ export const own: Scene = {
 };
 
 /**
- * The scene comparing the sizes.
- */
-export const sizes: Scene = {
-  about: "clipboard.sizes.about",
-  draw: Sizes,
-  title: "clipboard.sizes.title",
-};
-
-/**
  * The scene comparing the hold durations.
  */
 export const held: Scene = {
@@ -248,10 +255,20 @@ export const held: Scene = {
 
 export default specimen({
   about: "clipboard.about",
-  group: "Actions",
-  id: "actions/clipboard",
+  id: "components/actions/clipboard",
   imports:
     'import { Button, ButtonPropsProvider, Clipboard, IconButton } from "@stealthscale/component-actions";',
-  scenes: [alone, beside, value, own, sizes, held],
+  scenes: [
+    alone,
+    beside,
+    value,
+    own,
+    ...scenesOf<Clipboard.RootProps>(recipe, {
+      draw: (props) => <Labelled {...props} />,
+      namespace: "clipboard",
+      sample: SAMPLE,
+    }),
+    held,
+  ],
   title: "clipboard.title",
 });

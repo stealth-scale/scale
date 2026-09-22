@@ -1,10 +1,20 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, recipeViolations, slotsOf } from "@stealthscale/testing-theme";
 
 import { recipe } from "#skip-nav/recipe.ts";
+import page from "#skip-nav/skip-nav.specimen.tsx";
 
 describe("recipe", () => {
+  it("covers every variant axis in the scenes of its specimen page", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
   it("reports no violation across the shared recipe checks", () => {
     expect(recipeViolations(recipe, { names: ["SkipNav.Link", "SkipNav.Target"] })).toStrictEqual(
       [],

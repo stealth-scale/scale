@@ -3,7 +3,7 @@
   "copy": "Copy",
   "cut": "Cut",
   "editing": "Editing",
-  "orientations": {
+  "orientation": {
     "about": "Which arrows move the stop: across, down, or either way. Reach a set with Tab and press an arrow.",
     "title": "Orientations"
   },

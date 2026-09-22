@@ -13,10 +13,6 @@
     "title": "A gap outranks a pass"
   },
   "legend": "States",
-  "looks": {
-    "about": "Every step the grid is read at. A matrix is scanned rather than read, so the step decides how many rows fit on one screen.",
-    "title": "Sizes"
-  },
   "measured": {
     "about": "Every crossing measured, gathered into a section per team, closing on the worst state along each row. Nothing in the grid is pressable and nothing in it is a tab stop, because no caller is listening for a crossing. Hover a crossing to light its row and its column.",
     "title": "Every crossing measured"
@@ -36,6 +32,10 @@
     "title": "Without sections"
   },
   "rolling": "Rolling out",
+  "size": {
+    "about": "Every step the grid is read at. A matrix is scanned rather than read, so the step decides how many rows fit on one screen.",
+    "title": "Sizes"
+  },
   "skipped": "Not applicable",
   "slow": "Degraded",
   "title": "Status matrix",

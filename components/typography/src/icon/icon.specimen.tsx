@@ -2,24 +2,23 @@
  * Shows the icon: every size, every ink, every motion, and a pointing mark mirrored.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. The artwork is two paths drawn here, an arrow and a star, in a 24 unit
- *   box. Every icon is labelled, because the page shows the artwork and a screen reader should
- *   hear what it is. The words are keys under `icon` in the catalogue's namespace, kept beside
- *   this file in `locales/en/specimen/icon.json`.
+ *   The scenes are generated from the recipe, so an axis added to it reaches the page without this
+ *   file changing. The artwork is two paths drawn here, an arrow and a star, in a 24 unit box. The
+ *   star carries the three axes that turn how a mark is drawn, and the arrow carries the mirror,
+ *   because a mark that does not point shows nothing when it turns around. The axes that show
+ *   nothing at the inherited size are held at the large one, which is the size a mark drawn on its
+ *   own is read at.
+ *   Every icon is labelled, because the page shows the artwork and a screen reader should hear what
+ *   it is. The words are keys under `icon` in the catalogue's namespace, kept beside this file in
+ *   `locales/en/specimen/icon.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
-import { Icon } from "#icon/icon.ts";
+import { Icon, type IconProps } from "#icon/icon.ts";
 import { recipe } from "#icon/recipe.ts";
-
-/**
- * The two answers to a boolean prop.
- */
-const EITHER = [false, true] as const;
 
 /**
  * The path of an arrow pointing right, in a 24 unit box.
@@ -32,118 +31,54 @@ const ARROW = "M5 12h14m-6-6 6 6-6 6";
 const STAR = "m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z";
 
 /**
- * Draws the star at every size.
+ * The call site every scene's source snippet is generated from.
  */
-function Sizes(): ReactElement {
-  const { t } = useWords("icon");
-
-  return (
-    <Matrix knob="size" of={valuesOf(recipe, "size")}>
-      {(size) => (
-        <Icon aria-hidden={false} aria-label={t("star")} size={size} viewBox="0 0 24 24">
-          <path d={STAR} />
-        </Icon>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the star in every ink.
- */
-function Inks(): ReactElement {
-  const { t } = useWords("icon");
-
-  return (
-    <Matrix knob="tone" of={valuesOf(recipe, "tone")}>
-      {(tone) => (
-        <Icon aria-hidden={false} aria-label={t("star")} size="lg" tone={tone} viewBox="0 0 24 24">
-          <path d={STAR} />
-        </Icon>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the star with every motion.
- */
-function Motion(): ReactElement {
-  const { t } = useWords("icon");
-
-  return (
-    <Matrix knob="motion" of={valuesOf(recipe, "motion")}>
-      {(motion) => (
-        <Icon
-          aria-hidden={false}
-          aria-label={t("star")}
-          motion={motion}
-          size="lg"
-          viewBox="0 0 24 24"
-        >
-          <path d={STAR} />
-        </Icon>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the arrow as it is and mirrored.
- */
-function Mirrored(): ReactElement {
-  const { t } = useWords("icon");
-
-  return (
-    <Matrix knob="mirrored" of={EITHER}>
-      {(mirrored) => (
-        <Icon
-          aria-hidden={false}
-          aria-label={t("arrow")}
-          mirrored={mirrored}
-          size="lg"
-          viewBox="0 0 24 24"
-        >
-          <path d={ARROW} fill="none" stroke="currentColor" strokeWidth="2" />
-        </Icon>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Every size.
- */
-export const sizes: Scene = { about: "icon.sizes.about", draw: Sizes, title: "icon.sizes.title" };
-
-/**
- * Every ink.
- */
-export const inks: Scene = { about: "icon.inks.about", draw: Inks, title: "icon.inks.title" };
-
-/**
- * Every motion.
- */
-export const motion: Scene = {
-  about: "icon.motion.about",
-  draw: Motion,
-  title: "icon.motion.title",
+const SAMPLE = {
+  children: '<path d="m12 3 2.7 5.6…" />',
+  imports: 'import { Icon } from "@stealthscale/component-typography";',
+  name: "Icon",
 };
 
 /**
- * A pointing mark, as it is and mirrored.
+ * Draws the star, which is a mark that shows nothing when it turns around.
  */
-export const mirrored: Scene = {
-  about: "icon.mirrored.about",
-  draw: Mirrored,
-  title: "icon.mirrored.title",
-};
+function Star(props: IconProps): ReactElement {
+  const { t } = useWords("icon");
+
+  return (
+    <Icon aria-hidden={false} aria-label={t("star")} viewBox="0 0 24 24" {...props}>
+      <path d={STAR} />
+    </Icon>
+  );
+}
+
+/**
+ * Draws the arrow, which is a mark that points and is turned around in a right-to-left page.
+ */
+function Arrow(props: IconProps): ReactElement {
+  const { t } = useWords("icon");
+
+  return (
+    <Icon aria-hidden={false} aria-label={t("arrow")} viewBox="0 0 24 24" {...props}>
+      <path d={ARROW} fill="none" stroke="currentColor" strokeWidth="2" />
+    </Icon>
+  );
+}
 
 export default specimen({
   about: "icon.about",
-  group: "Typography",
-  id: "typography/icon",
+  id: "components/typography/icon",
   imports: 'import { Icon } from "@stealthscale/component-typography";',
-  scenes: [sizes, inks, motion, mirrored],
+  scenes: scenesOf<IconProps>(recipe, {
+    axes: {
+      mirrored: { draw: (props) => <Arrow {...props} />, with: { size: "lg" } },
+      motion: { with: { size: "lg" } },
+      tone: { with: { size: "lg" } },
+    },
+    draw: (props) => <Star {...props} />,
+    namespace: "icon",
+    order: ["size", "tone", "motion", "mirrored"],
+    sample: SAMPLE,
+  }),
   title: "icon.title",
 });

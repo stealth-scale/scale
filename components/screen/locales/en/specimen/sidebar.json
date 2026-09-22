@@ -9,14 +9,14 @@
     "title": "Iconic"
   },
   "invoices": "Invoices",
-  "looks": {
-    "about": "Every look at every size.",
-    "title": "Looks and sizes"
-  },
   "overview": "Overview",
   "profile": "Profile",
   "search": "Search",
   "signedIn": "Signed in as Ada",
   "title": "Sidebar",
+  "variant": {
+    "about": "Every look at every size.",
+    "title": "Looks and sizes"
+  },
   "workspace": "Workspace"
 }

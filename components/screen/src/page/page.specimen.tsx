@@ -1,10 +1,10 @@
 /**
- * Shows the page: every measure, every size, every gutter, both alignments, and the header ruled
- * off beside a page left whole.
+ * Shows the page: every measure, every size, every gutter, both alignments, the header ruled off
+ * beside a page left whole, and the actions folded.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every page holds the same header, a trail, a title, a description and
+ *   The scenes are generated from the recipe, so a value added to it reaches the page without this
+ *   file changing. Every page holds the same header, a trail, a title, a description and
  *   three actions with the folded control, over a body. The title is drawn as an `h3`, under the
  *   scene's own `h2`, because the catalogue's page already holds the `h1`. The cells run down the
  *   page, because a page fills the width it is given. The words are keys under `page` in the
@@ -13,15 +13,24 @@
 
 import { type ReactElement } from "react";
 
-import { Matrix, type Scene, specimen, Tile, useWords, valuesOf } from "@stealthscale/specimen";
+import { scenesOf, specimen, Tile, useWords } from "@stealthscale/specimen";
 
 import * as Page from "#page/index.ts";
 import { recipe } from "#page/recipe.ts";
 
 /**
- * The two answers to a boolean prop.
+ * The call site every scene's source snippet is generated from.
  */
-const EITHER = [false, true] as const;
+const SAMPLE = {
+  children: [
+    "<Page.Header>",
+    "  <Page.Title>Invoices</Page.Title>",
+    "</Page.Header>",
+    "<Page.Body>…</Page.Body>",
+  ].join("\n"),
+  imports: 'import { Page } from "@stealthscale/component-screen";',
+  name: "Page.Root",
+};
 
 /**
  * Draws the header and the body every page holds.
@@ -49,126 +58,75 @@ function Invoices(): ReactElement {
 }
 
 /**
- * Draws the page at every measure.
+ * Draws the page in whatever the scene hands over.
  */
-function Measures(): ReactElement {
+function Paged(props: Page.RootProps): ReactElement {
   return (
-    <Matrix direction="column" knob="measure" of={valuesOf(recipe, "measure")}>
-      {(measure) => (
-        <Page.Root measure={measure}>
-          <Invoices />
-        </Page.Root>
-      )}
-    </Matrix>
+    <Page.Root {...props}>
+      <Invoices />
+    </Page.Root>
   );
 }
 
 /**
- * Draws the page at every size.
+ * Draws the page held to the narrow measure, which is what an alignment moves it in.
+ *
+ * @remarks
+ *   A page as wide as the room it is given sits at both places alike. The measure is what leaves
+ *   room beside the bands for the alignment to move them in.
  */
-function Sizes(): ReactElement {
-  return (
-    <Matrix direction="column" knob="size" of={valuesOf(recipe, "size")}>
-      {(size) => (
-        <Page.Root size={size}>
-          <Invoices />
-        </Page.Root>
-      )}
-    </Matrix>
-  );
+function Narrow(props: Page.RootProps): ReactElement {
+  return <Paged measure="narrow" {...props} />;
 }
 
 /**
- * Draws the page at every gutter.
+ * Draws the page with a line of meta beside the title, which is what the fold moves.
+ *
+ * @remarks
+ *   The fold is about where the meta goes: unfolded it shares the title's row, folded it takes a
+ *   row of its own under it. A header with no meta in it reads the same either way, so this is the
+ *   one drawing that carries some.
  */
-function Gutters(): ReactElement {
+function Metaed(props: Page.RootProps): ReactElement {
+  const { t } = useWords("page");
+
   return (
-    <Matrix direction="column" knob="gutter" of={valuesOf(recipe, "gutter")}>
-      {(gutter) => (
-        <Page.Root gutter={gutter}>
-          <Invoices />
-        </Page.Root>
-      )}
-    </Matrix>
+    <Page.Root {...props}>
+      <Page.Header>
+        <Page.Trail href="#home">{t("home")}</Page.Trail>
+        <Page.Title as="h3">{t("april")}</Page.Title>
+        <Page.Meta>{t("raised")}</Page.Meta>
+        <Page.Description>{t("everything")}</Page.Description>
+        <Page.Actions>
+          <Page.Action priority="primary">{t("export")}</Page.Action>
+          <Page.Action priority="tertiary">{t("archive")}</Page.Action>
+          <Page.Folded>{t("more")}</Page.Folded>
+        </Page.Actions>
+      </Page.Header>
+      <Page.Body>
+        <Tile>{t("body")}</Tile>
+      </Page.Body>
+    </Page.Root>
   );
 }
-
-/**
- * Draws the page with its bands at both places.
- */
-function Alignment(): ReactElement {
-  return (
-    <Matrix direction="column" knob="align" of={valuesOf(recipe, "align")}>
-      {(align) => (
-        <Page.Root align={align} measure="narrow">
-          <Invoices />
-        </Page.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the page ruled and whole.
- */
-function Divided(): ReactElement {
-  return (
-    <Matrix direction="column" knob="divided" of={EITHER}>
-      {(divided) => (
-        <Page.Root divided={divided}>
-          <Invoices />
-        </Page.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Every measure.
- */
-export const measures: Scene = {
-  about: "page.measures.about",
-  draw: Measures,
-  title: "page.measures.title",
-};
-
-/**
- * Every size.
- */
-export const sizes: Scene = { about: "page.sizes.about", draw: Sizes, title: "page.sizes.title" };
-
-/**
- * Every gutter.
- */
-export const gutters: Scene = {
-  about: "page.gutters.about",
-  draw: Gutters,
-  title: "page.gutters.title",
-};
-
-/**
- * Both alignments.
- */
-export const alignment: Scene = {
-  about: "page.alignment.about",
-  draw: Alignment,
-  title: "page.alignment.title",
-};
-
-/**
- * Ruled beside whole.
- */
-export const divided: Scene = {
-  about: "page.divided.about",
-  draw: Divided,
-  title: "page.divided.title",
-};
 
 export default specimen({
   about: "page.about",
-  group: "Screen",
-  id: "screen/page",
+  id: "components/screen/page",
   imports: 'import { Page } from "@stealthscale/component-screen";',
-  scenes: [measures, sizes, gutters, alignment, divided],
+  scenes: scenesOf<Page.RootProps>(recipe, {
+    axes: {
+      align: { direction: "column", draw: (props) => <Narrow {...props} /> },
+      divided: { direction: "column" },
+      folded: { direction: "column", draw: (props) => <Metaed {...props} /> },
+      gutter: { direction: "column" },
+      measure: { direction: "column" },
+      size: { direction: "column" },
+    },
+    draw: (props) => <Paged {...props} />,
+    namespace: "page",
+    order: ["measure", "size", "gutter", "align", "divided", "folded"],
+    sample: SAMPLE,
+  }),
   title: "page.title",
 });

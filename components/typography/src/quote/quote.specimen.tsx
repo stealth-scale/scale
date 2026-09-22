@@ -3,101 +3,52 @@
  * line of ordinary words.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. The words are keys under `quote` in the catalogue's namespace, kept
- *   beside this file in `locales/en/specimen/quote.json`.
+ *   The scenes are generated from the recipe, so an axis added to it reaches the page without this
+ *   file changing. The quotation sits in a paragraph, because a quoted run is read against the
+ *   words around it. The words are keys under `quote` in the catalogue's namespace, kept beside
+ *   this file in `locales/en/specimen/quote.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
-import { Quote } from "#quote/quote.ts";
+import { Quote, type QuoteProps } from "#quote/quote.ts";
 import { recipe } from "#quote/recipe.ts";
 import { Text } from "#text/text.ts";
 
 /**
- * Draws the quotation with the browser's marks and without.
+ * The call site every scene's source snippet is generated from.
  */
-function Marks(): ReactElement {
-  const { t } = useWords("quote");
-
-  return (
-    <Matrix knob="marks" of={valuesOf(recipe, "marks")}>
-      {(marks) => (
-        <Text>
-          {t("before")} <Quote marks={marks}>{t("claim")}</Quote>
-          {t("after")}
-        </Text>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the quotation in every ink.
- */
-function Inks(): ReactElement {
-  const { t } = useWords("quote");
-
-  return (
-    <Matrix knob="tone" of={valuesOf(recipe, "tone")}>
-      {(tone) => (
-        <Text>
-          {t("before")} <Quote tone={tone}>{t("claim")}</Quote>
-          {t("after")}
-        </Text>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the quotation entering with every motion.
- */
-function Motion(): ReactElement {
-  const { t } = useWords("quote");
-
-  return (
-    <Matrix knob="motion" of={valuesOf(recipe, "motion")}>
-      {(motion) => (
-        <Text>
-          {t("before")} <Quote motion={motion}>{t("claim")}</Quote>
-          {t("after")}
-        </Text>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Both answers to the marks.
- */
-export const marks: Scene = {
-  about: "quote.marks.about",
-  draw: Marks,
-  title: "quote.marks.title",
+const SAMPLE = {
+  children: "a measured claim",
+  imports: 'import { Quote } from "@stealthscale/component-typography";',
+  name: "Quote",
 };
 
 /**
- * Every ink.
+ * Draws the quotation inside a line of ordinary words.
  */
-export const inks: Scene = { about: "quote.inks.about", draw: Inks, title: "quote.inks.title" };
+function Quoted(props: QuoteProps): ReactElement {
+  const { t } = useWords("quote");
 
-/**
- * Every motion.
- */
-export const motion: Scene = {
-  about: "quote.motion.about",
-  draw: Motion,
-  title: "quote.motion.title",
-};
+  return (
+    <Text>
+      {t("before")} <Quote {...props}>{t("claim")}</Quote>
+      {t("after")}
+    </Text>
+  );
+}
 
 export default specimen({
   about: "quote.about",
-  group: "Typography",
-  id: "typography/quote",
+  id: "components/typography/quote",
   imports: 'import { Quote, Text } from "@stealthscale/component-typography";',
-  scenes: [marks, inks, motion],
+  scenes: scenesOf<QuoteProps>(recipe, {
+    draw: (props) => <Quoted {...props} />,
+    namespace: "quote",
+    order: ["marks", "tone", "motion"],
+    sample: SAMPLE,
+  }),
   title: "quote.title",
 });

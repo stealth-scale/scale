@@ -3,157 +3,83 @@
  * motions and the mask.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. A scene whose paragraph needs a measure runs its cells down the page. The
- *   words are keys under `text` in the catalogue's namespace, kept beside this file in
- *   `locales/en/specimen/text.json`.
+ *   The scenes are generated from the recipe, so an axis added to it reaches the page without this
+ *   file changing. The weight is crossed with the ink, because a weight is only readable against
+ *   the ink it is set in. Each axis carries the words it reads best against: a sentence where the
+ *   axis turns the size, the ink or the motion, and a passage of several lines where it turns the
+ *   alignment, the cut or the mask, because none of those three shows itself on one line. A scene
+ *   whose paragraph needs a measure runs its cells down the page. The words are keys under `text`
+ *   in the catalogue's namespace, kept beside this file in `locales/en/specimen/text.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
 import { recipe } from "#text/recipe.ts";
-import { Text } from "#text/text.ts";
+import { Text, type TextProps } from "#text/text.ts";
 
 /**
- * The two answers to a boolean prop.
+ * The call site every scene's source snippet is generated from.
  */
-const EITHER = [false, true] as const;
-
-/**
- * Draws a sentence at every size.
- */
-function Sizes(): ReactElement {
-  const { t } = useWords("text");
-
-  return (
-    <Matrix knob="size" of={valuesOf(recipe, "size")}>
-      {(size) => <Text size={size}>{t("reminder")}</Text>}
-    </Matrix>
-  );
-}
-
-/**
- * Draws a sentence in every ink at every weight.
- */
-function Inks(): ReactElement {
-  const { t } = useWords("text");
-
-  return (
-    <Matrix
-      across={{ knob: "weight", of: valuesOf(recipe, "weight") }}
-      knob="tone"
-      of={valuesOf(recipe, "tone")}
-    >
-      {(tone, weight) => (
-        <Text tone={tone} weight={weight}>
-          {t("note")}
-        </Text>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws a paragraph at every alignment.
- */
-function Alignment(): ReactElement {
-  const { t } = useWords("text");
-
-  return (
-    <Matrix direction="column" knob="align" of={valuesOf(recipe, "align")}>
-      {(align) => <Text align={align}>{t("passage")}</Text>}
-    </Matrix>
-  );
-}
-
-/**
- * Draws a paragraph cut to one line beside one left to wrap.
- */
-function Truncate(): ReactElement {
-  const { t } = useWords("text");
-
-  return (
-    <Matrix direction="column" knob="truncate" of={EITHER}>
-      {(truncate) => <Text truncate={truncate}>{t("passage")}</Text>}
-    </Matrix>
-  );
-}
-
-/**
- * Draws a sentence entering with every motion.
- */
-function Motion(): ReactElement {
-  const { t } = useWords("text");
-
-  return (
-    <Matrix knob="motion" of={valuesOf(recipe, "motion")}>
-      {(motion) => <Text motion={motion}>{t("summary")}</Text>}
-    </Matrix>
-  );
-}
-
-/**
- * Draws a paragraph faded out at its foot.
- */
-function Mask(): ReactElement {
-  const { t } = useWords("text");
-
-  return (
-    <Matrix direction="column" knob="mask" of={valuesOf(recipe, "mask")}>
-      {(mask) => <Text mask={mask}>{t("passage")}</Text>}
-    </Matrix>
-  );
-}
-
-/**
- * Every size.
- */
-export const sizes: Scene = { about: "text.sizes.about", draw: Sizes, title: "text.sizes.title" };
-
-/**
- * Every ink at every weight.
- */
-export const inks: Scene = { about: "text.inks.about", draw: Inks, title: "text.inks.title" };
-
-/**
- * Every alignment.
- */
-export const alignment: Scene = {
-  about: "text.alignment.about",
-  draw: Alignment,
-  title: "text.alignment.title",
+const SAMPLE = {
+  children: "The deployment finished at 14:02.",
+  imports: 'import { Text } from "@stealthscale/component-typography";',
+  name: "Text",
 };
 
 /**
- * A line cut short beside one left to wrap.
+ * Draws a sentence, which is what a size, an ink or a motion is read against.
  */
-export const truncate: Scene = {
-  about: "text.truncate.about",
-  draw: Truncate,
-  title: "text.truncate.title",
-};
+function Sentence(props: TextProps): ReactElement {
+  const { t } = useWords("text");
+
+  return <Text {...props}>{t("reminder")}</Text>;
+}
 
 /**
- * Every motion.
+ * Draws a short note, which is what a weight is read against beside its ink.
  */
-export const motion: Scene = {
-  about: "text.motion.about",
-  draw: Motion,
-  title: "text.motion.title",
-};
+function Note(props: TextProps): ReactElement {
+  const { t } = useWords("text");
+
+  return <Text {...props}>{t("note")}</Text>;
+}
 
 /**
- * The mask.
+ * Draws a passage of several lines, which is what an alignment, a cut or a mask needs to show.
  */
-export const mask: Scene = { about: "text.mask.about", draw: Mask, title: "text.mask.title" };
+function Passage(props: TextProps): ReactElement {
+  const { t } = useWords("text");
+
+  return <Text {...props}>{t("passage")}</Text>;
+}
+
+/**
+ * Draws a summary, which is what a motion is read against.
+ */
+function Summary(props: TextProps): ReactElement {
+  const { t } = useWords("text");
+
+  return <Text {...props}>{t("summary")}</Text>;
+}
 
 export default specimen({
   about: "text.about",
-  group: "Typography",
-  id: "typography/text",
+  id: "components/typography/text",
   imports: 'import { Text } from "@stealthscale/component-typography";',
-  scenes: [sizes, inks, alignment, truncate, motion, mask],
+  scenes: scenesOf<TextProps>(recipe, {
+    axes: {
+      align: { direction: "column", draw: (props) => <Passage {...props} /> },
+      mask: { direction: "column", draw: (props) => <Passage {...props} /> },
+      motion: { draw: (props) => <Summary {...props} /> },
+      tone: { across: "weight", draw: (props) => <Note {...props} /> },
+      truncate: { direction: "column", draw: (props) => <Passage {...props} /> },
+    },
+    draw: (props) => <Sentence {...props} />,
+    namespace: "text",
+    order: ["size", "tone", "align", "truncate", "motion", "mask"],
+    sample: SAMPLE,
+  }),
   title: "text.title",
 });

@@ -2,7 +2,9 @@
  * Catalogue entry for the skip link and the target it jumps to.
  *
  * @remarks
- *   The recipe has no variants, so there is one scene and no matrix. The scene generates its own
+ *   The recipe declares no axis, so there is nothing to generate a scene from and the one scene is
+ *   written by hand. Its specification still asks what this page covers, so an axis added to the
+ *   recipe fails that check until this page draws it. The scene generates its own
  *   fragment id rather than taking the default, because the catalogue shell already renders a skip
  *   link aimed at the default target and a second link to the same place would be a duplicate
  *   control. Copy comes from the `skip-nav` namespace in `locales/en/specimen/skip-nav.json`.
@@ -43,8 +45,7 @@ export const pair: Scene = {
 
 export default specimen({
   about: "skip-nav.about",
-  group: "Accessibility",
-  id: "a11y/skip-nav",
+  id: "components/a11y/skip-nav",
   imports: 'import { SkipNav } from "@stealthscale/component-a11y";',
   scenes: [pair],
   title: "skip-nav.title",

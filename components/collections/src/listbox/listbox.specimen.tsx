@@ -5,8 +5,12 @@
  * in columns, the list behind a trigger, ten thousand rows, and a list narrowed by a field.
  *
  * @remarks
- *   Every scene draws `Listbox.Simple`, which is what a caller reaches for, and every axis is read
- *   off the recipe, so a value added to the theme reaches the page without this file changing.
+ *   The axis scenes are generated from the recipe, so a value added to it reaches the page without
+ *   this file changing. Every scene draws `Listbox.Simple`, which is what a caller reaches for.
+ *   Ten scenes are written by hand, because each turns something the recipe declares no axis for:
+ *   how a set is picked, a whole list turned on at once, a set held from outside, what a row holds
+ *   beside its name, groups, a locked row, a summary, the list behind a trigger, ten thousand rows,
+ *   and a narrowing field.
  *   Every list holds the same four clients and starts with one row already picked, because a mark
  *   nobody can see says nothing about how the mark is drawn.
  *   A list of one takes a check at the end of the picked row. A list of several takes a box at the
@@ -31,14 +35,27 @@ import {
   Room,
   Sample,
   type Scene,
+  scenesOf,
   specimen,
   useWords,
-  valuesOf,
 } from "@stealthscale/specimen";
 
 import { useFilter, useGridCollection, useListCollection } from "#collection/index.ts";
 import * as Listbox from "#listbox/index.ts";
 import { recipe } from "#listbox/recipe.ts";
+
+/**
+ * Describes what a generated scene hands its drawing, which is every axis the recipe offers.
+ */
+type Drawn = Omit<Listbox.SimpleProps<Client>, "collection">;
+
+/**
+ * The call site every generated scene's source snippet is built from.
+ */
+const SAMPLE = {
+  imports: 'import { Listbox } from "@stealthscale/component-collections";',
+  name: "Listbox.Simple",
+};
 
 /**
  * The three ways a list is picked from.
@@ -209,29 +226,21 @@ function Clients({
 }
 
 /**
- * Draws the list in every look at every size.
+ * Draws the list as the page's own drawing: rows, a label, and two of them already picked.
  */
-function Looks(): ReactElement {
-  return (
-    <Matrix
-      across={{ knob: "size", of: valuesOf(recipe, "size") }}
-      knob="variant"
-      of={valuesOf(recipe, "variant")}
-    >
-      {(variant, size) => <Clients size={size} variant={variant} />}
-    </Matrix>
-  );
+function Listed(props: Drawn): ReactElement {
+  return <Clients {...props} />;
 }
 
 /**
- * Draws every way a picked row is marked.
+ * Draws the list on a surface, which is what an axis needs to have something to draw on.
+ *
+ * @remarks
+ *   The plain look draws no box, so a corner, a highlight or the mark on a picked row has no ground
+ *   to show against. The look scene is the one that turns the look itself.
  */
-function Picked(): ReactElement {
-  return (
-    <Matrix knob="selected" of={valuesOf(recipe, "selected")}>
-      {(selected) => <Clients selected={selected} variant="surface" />}
-    </Matrix>
-  );
+function Raised(props: Drawn): ReactElement {
+  return <Clients variant="surface" {...props} />;
 }
 
 /**
@@ -252,24 +261,17 @@ function Modes(): ReactElement {
 }
 
 /**
- * Draws the list with every highlight.
+ * Draws the rows running along a line or down one, each with a line of explanation.
+ *
+ * @remarks
+ *   The room is stated because a row of rows takes whatever width it is given, and the line under
+ *   each name is what shows a row keeping its own measure as the list turns.
  */
-function Highlights(): ReactElement {
+function Turned(props: Drawn): ReactElement {
   return (
-    <Matrix knob="highlight" of={valuesOf(recipe, "highlight")}>
-      {(highlight) => <Clients highlight={highlight} variant="surface" />}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the list at every corner.
- */
-function Corners(): ReactElement {
-  return (
-    <Matrix knob="radius" of={valuesOf(recipe, "radius")}>
-      {(radius) => <Clients radius={radius} variant="surface" />}
-    </Matrix>
+    <Room size="sm">
+      <Clients explained variant="surface" {...props} />
+    </Room>
   );
 }
 
@@ -378,18 +380,7 @@ function Summarised(): ReactElement {
 }
 
 /**
- * Draws the rows running along a line rather than down one.
- */
-function Across(): ReactElement {
-  return (
-    <Room size="sm">
-      <Clients explained orientation="horizontal" variant="surface" />
-    </Room>
-  );
-}
-
-/**
- * The ports the grid of tiles draws, four to a row.
+ * The ports the grid of tiles draws.
  */
 const PORTS = [
   "NLRTM",
@@ -407,21 +398,22 @@ const PORTS = [
 ];
 
 /**
- * How many columns the grid of tiles runs in.
- *
- * @remarks
- *   The collection and the recipe are told the same count, because the arrows reach a tile's
- *   neighbours through the collection and a reader sees them through the recipe.
+ * How many columns a grid of tiles runs in where the scene states no count.
  */
 const COLUMNS = "4";
 
 /**
  * Draws tiles in columns, which all four arrows cross.
+ *
+ * @remarks
+ *   The collection and the recipe are told the same count, because the arrows reach a tile's
+ *   neighbours through the collection and a reader sees them through the recipe. A count told to
+ *   one and not the other is a grid whose arrows walk somewhere the eye does not.
  */
-function Tiles(): ReactElement {
+function Tiles({ columns = COLUMNS, ...rest }: Drawn): ReactElement {
   const { t } = useWords("listbox");
   const { collection } = useGridCollection<Client>({
-    columnCount: Number(COLUMNS),
+    columnCount: Number(columns),
     itemToString: (port) => port.name,
     itemToValue: (port) => port.id,
     rows: PORTS.map((id) => ({ id, name: id })),
@@ -432,12 +424,13 @@ function Tiles(): ReactElement {
       <Listbox.Simple<Client>
         boxed
         collection={collection}
-        columns={COLUMNS}
+        columns={columns}
         defaultValue={PORTS.slice(0, 2)}
         label={t("ports")}
         mark={<CheckIcon size="100%" />}
         selectionMode="multiple"
         variant="surface"
+        {...rest}
       />
     </Room>
   );
@@ -527,48 +520,12 @@ function Narrowing(): ReactElement {
 }
 
 /**
- * Every look at every size.
- */
-export const looks: Scene = {
-  about: "listbox.looks.about",
-  draw: Looks,
-  title: "listbox.looks.title",
-};
-
-/**
- * Every way a picked row is marked.
- */
-export const picked: Scene = {
-  about: "listbox.picked.about",
-  draw: Picked,
-  title: "listbox.picked.title",
-};
-
-/**
  * One row, several, or several the way a file manager does it.
  */
 export const modes: Scene = {
   about: "listbox.modes.about",
   draw: Modes,
   title: "listbox.modes.title",
-};
-
-/**
- * Every highlight.
- */
-export const highlights: Scene = {
-  about: "listbox.highlights.about",
-  draw: Highlights,
-  title: "listbox.highlights.title",
-};
-
-/**
- * Every corner.
- */
-export const corners: Scene = {
-  about: "listbox.corners.about",
-  draw: Corners,
-  title: "listbox.corners.title",
 };
 
 /**
@@ -626,24 +583,6 @@ export const summarised: Scene = {
 };
 
 /**
- * The rows running along a line.
- */
-export const across: Scene = {
-  about: "listbox.across.about",
-  draw: Across,
-  title: "listbox.across.title",
-};
-
-/**
- * Rows in columns rather than one after another.
- */
-export const tiles: Scene = {
-  about: "listbox.tiles.about",
-  draw: Tiles,
-  title: "listbox.tiles.title",
-};
-
-/**
  * The list inside a popover.
  */
 export const triggered: Scene = {
@@ -672,23 +611,30 @@ export const narrowing: Scene = {
 
 export default specimen({
   about: "listbox.about",
-  group: "Collections",
-  id: "collections/listbox",
+  id: "components/collections/listbox",
   imports: 'import { Listbox } from "@stealthscale/component-collections";',
   scenes: [
-    looks,
-    picked,
+    ...scenesOf<Drawn>(recipe, {
+      axes: {
+        columns: { direction: "column", draw: (props) => <Tiles {...props} /> },
+        highlight: { draw: (props) => <Raised {...props} /> },
+        orientation: { direction: "column", draw: (props) => <Turned {...props} /> },
+        radius: { draw: (props) => <Raised {...props} /> },
+        selected: { draw: (props) => <Raised {...props} /> },
+        variant: { across: "size" },
+      },
+      draw: (props) => <Listed {...props} />,
+      namespace: "listbox",
+      order: ["variant", "selected", "highlight", "radius", "orientation", "columns"],
+      sample: SAMPLE,
+    }),
     modes,
     whole,
     outside,
-    highlights,
-    corners,
     rows,
     grouped,
     locked,
     summarised,
-    across,
-    tiles,
     triggered,
     many,
     narrowing,
