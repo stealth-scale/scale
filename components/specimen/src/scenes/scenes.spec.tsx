@@ -177,4 +177,27 @@ describe("scenesOf", () => {
   it("builds nothing for a recipe that offers no axes", () => {
     expect(scenesOf({}, { draw, namespace: "probe" })).toStrictEqual([]);
   });
+
+  it("fills the window on every scene where the page asks for it", () => {
+    const scenes = scenesOf(RECIPE, { draw, namespace: "probe", viewport: true });
+
+    expect(scenes.map((scene) => scene.viewport)).toStrictEqual([true, true, true]);
+  });
+
+  it("fills the window on the one axis that asks for it", () => {
+    const scenes = scenesOf(RECIPE, {
+      axes: { variant: { viewport: true } },
+      draw,
+      namespace: "probe",
+      order: ["variant"],
+    });
+
+    expect(scenes.map((scene) => scene.viewport)).toStrictEqual([true, undefined, undefined]);
+  });
+
+  it("leaves the window alone where neither the page nor the axis asks", () => {
+    const [scene] = scenesOf(RECIPE, { draw, namespace: "probe" });
+
+    expect(scene).not.toHaveProperty("viewport");
+  });
 });

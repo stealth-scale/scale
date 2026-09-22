@@ -70,6 +70,12 @@ export interface AxisScene<Props> {
   readonly sample?: Snippet | undefined;
 
   /**
+   * Whether the cells fill the window they are drawn in. Taken from the page where the axis states
+   * nothing.
+   */
+  readonly viewport?: boolean | undefined;
+
+  /**
    * The props held fixed while this axis turns, for an axis invisible without them.
    *
    * @remarks
@@ -126,6 +132,16 @@ export interface ScenesOptions<Props> {
    * The axes that get no scene, each against the reason.
    */
   readonly skip?: Readonly<Record<string, string>> | undefined;
+
+  /**
+   * Whether every scene fills the window it is drawn in.
+   *
+   * @remarks
+   *   For a component that is the window: a shell is the height of what holds it, so room round it
+   *   would push it past the window's foot. An axis states it for itself where only one of them
+   *   needs it.
+   */
+  readonly viewport?: boolean | undefined;
 }
 
 /**
@@ -186,6 +202,38 @@ function firstOf<Props>(
     [axis]: turning(recipe, axis)[0],
     ...(across === undefined ? {} : { [across]: turning(recipe, across)[0] }),
   };
+}
+
+/**
+ * Writes the scene one axis becomes: the words it is read under, the axes it draws, the drawing,
+ * and the source and the window where the page or the axis states them.
+ *
+ * @remarks
+ *   A member the page states nothing for is left off rather than written as undefined, because a
+ *   scene is read for whether it carries one at all.
+ * @typeParam Props - The props the component takes.
+ */
+function sceneOf<Props>(
+  recipe: Axed,
+  options: ScenesOptions<Props>,
+  axis: string,
+  draw: () => ReactElement,
+): Scene {
+  const stated = options.axes?.[axis];
+  const across = stated?.across;
+  const source = written(stated?.sample ?? options.sample, firstOf(recipe, axis, stated));
+  const viewport = stated?.viewport ?? options.viewport;
+  const scene: Scene = {
+    about: `${options.namespace}.${axis}.about`,
+    axes: across === undefined ? [axis] : [axis, across],
+    draw,
+    title: `${options.namespace}.${axis}.title`,
+  };
+
+  if (source !== undefined) scene.source = source;
+  if (viewport !== undefined) scene.viewport = viewport;
+
+  return scene;
 }
 
 /**
@@ -255,16 +303,6 @@ export function scenesOf<Props extends object>(
       });
     }
 
-    const source = written(stated?.sample ?? options.sample, firstOf(recipe, axis, stated));
-    const scene: Scene = {
-      about: `${options.namespace}.${axis}.about`,
-      axes: across === undefined ? [axis] : [axis, across],
-      draw: Turned,
-      title: `${options.namespace}.${axis}.title`,
-    };
-
-    if (source !== undefined) scene.source = source;
-
-    return scene;
+    return sceneOf(recipe, options, axis, Turned);
   });
 }
