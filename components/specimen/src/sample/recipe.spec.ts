@@ -21,13 +21,21 @@ describe("recipe", () => {
     expect(axesOf(recipe)).toStrictEqual(["place", "span", "variant"]);
   });
 
-  it("fits the drawing and draws no box when nothing is asked for", () => {
-    expect(defaultsOf(recipe)).toStrictEqual({ place: "fit", variant: "plain" });
+  it("starts the drawing and draws no box when nothing is asked for", () => {
+    expect(defaultsOf(recipe)).toStrictEqual({ place: "start", variant: "plain" });
   });
 
-  it("takes the width of what it holds until a caller asks for the cell", () => {
-    expect(recipe.variants?.place?.fit).toStrictEqual({ body: { inlineSize: "fit-content" } });
-    expect(recipe.variants?.place?.center?.body).toMatchObject({ inlineSize: "full" });
+  it("offers four places and no value that sizes the box to its drawing", () => {
+    expect(valuesOf(recipe, "place")).toStrictEqual(["center", "end", "start", "stretch"]);
+  });
+
+  it("gives the box the whole cell at every place", () => {
+    expect(recipe.variants?.place).toMatchObject({
+      center: { body: { inlineSize: "full" } },
+      end: { body: { inlineSize: "full" } },
+      start: { body: { inlineSize: "full" } },
+      stretch: { body: { inlineSize: "full" } },
+    });
   });
 
   it("draws no fill no edge and no room in the plain look", () => {

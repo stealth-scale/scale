@@ -1,35 +1,43 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { Text } from "@stealthscale/component-typography";
 import { accessibilityViolations } from "@stealthscale/testing-react";
 import { recipeClasses } from "@stealthscale/testing-theme";
 
-import { Caption } from "#caption.tsx";
+import { CAPTION, captioned } from "#caption.tsx";
 
-describe("Caption", () => {
-  it("draws the value it was given", () => {
-    expect(render(<Caption>sm</Caption>).container.textContent).toBe("sm");
+/**
+ * Draws a caption the way a part that carries one draws it: the look on the line, the words in it.
+ */
+function Captioned({ knob }: { readonly knob?: string }): ReturnType<typeof Text> {
+  return <Text {...CAPTION}>{captioned("sm", knob)}</Text>;
+}
+
+describe("captioned", () => {
+  it("writes the value it was given", () => {
+    expect(render(<Captioned />).container.textContent).toBe("sm");
   });
 
   it("writes the prop before the value when one is given", () => {
-    expect(render(<Caption knob="size">sm</Caption>).container.textContent).toBe("size = sm");
+    expect(render(<Captioned knob="size" />).container.textContent).toBe("size = sm");
   });
 
-  it("draws the value in an element of its own", () => {
-    const { container } = render(<Caption knob="size">sm</Caption>);
+  it("writes the value in an element of its own", () => {
+    const { container } = render(<Captioned knob="size" />);
 
     expect(container.querySelector("span")?.textContent).toBe("sm");
   });
 
-  it("draws the line as the library's paragraph", () => {
-    const { container } = render(<Caption>sm</Caption>);
+  it("draws the value as the library's text", () => {
+    const { container } = render(<Captioned />);
 
     expect(recipeClasses(container, "text")).toContain("text");
   });
 
   it("breaks no accessibility rule", async () => {
     await expect(
-      accessibilityViolations(Caption, { props: { children: "sm", knob: "size" } }),
+      accessibilityViolations(Captioned, { props: { knob: "size" } }),
     ).resolves.toStrictEqual([]);
   });
 });

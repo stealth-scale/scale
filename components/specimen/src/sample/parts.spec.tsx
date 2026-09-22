@@ -17,8 +17,8 @@ function rooted(children: ReactNode): ReactElement {
 }
 
 const PARTS = [
-  ["caption", Head],
-  ["body", Body],
+  ["caption", "P", Head],
+  ["body", "DIV", Body],
 ] as const;
 
 describe("parts", () => {
@@ -40,13 +40,13 @@ describe("parts", () => {
   });
 
   it.each(PARTS)(
-    "conforms as a div element for the %s inside the root it needs above it",
-    (slot, Part) => {
+    "conforms as the %s slot on a %s element inside the root it needs above it",
+    (slot, element, Part) => {
       expect(
         violations(Part, {
           as: true,
           children: true,
-          element: "DIV",
+          element,
           subject: (container) => slotElement(container, "sample", slot),
           wrapper: rooted,
         }),

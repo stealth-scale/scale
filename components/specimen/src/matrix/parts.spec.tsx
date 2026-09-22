@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import { violations } from "@stealthscale/testing-react";
 import { boundViolations, slotElement } from "@stealthscale/testing-theme";
 
-import { Cell, Grid, Head, Label, Root, Row, Side } from "#matrix/parts.ts";
+import { Cell, Column, Grid, Head, Label, Root, Row, Side } from "#matrix/parts.ts";
 import { recipe } from "#matrix/recipe.ts";
 
 /**
@@ -17,12 +17,13 @@ function rooted(children: ReactNode): ReactElement {
 }
 
 const PARTS = [
-  ["grid", Grid],
-  ["head", Head],
-  ["row", Row],
-  ["side", Side],
-  ["cell", Cell],
-  ["label", Label],
+  ["grid", "DIV", Grid],
+  ["head", "DIV", Head],
+  ["row", "DIV", Row],
+  ["side", "P", Side],
+  ["cell", "DIV", Cell],
+  ["cell", "P", Column],
+  ["label", "P", Label],
 ] as const;
 
 describe("parts", () => {
@@ -44,13 +45,13 @@ describe("parts", () => {
   });
 
   it.each(PARTS)(
-    "conforms as a div element for the %s inside the root it needs above it",
-    (slot, Part) => {
+    "conforms as the %s slot on a %s element inside the root it needs above it",
+    (slot, element, Part) => {
       expect(
         violations(Part, {
           as: true,
           children: true,
-          element: "DIV",
+          element,
           subject: (container) => slotElement(container, "matrix", slot),
           wrapper: rooted,
         }),

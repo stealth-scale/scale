@@ -9,16 +9,15 @@
  *   The looks are written here from semantic tokens rather than read off the theme's flat layer
  *   styles. Every flat look states an ink, and a sample holds whatever a specimen puts in it, so a
  *   look that moved the ink would move the ink of the component being shown.
- *   The place axis says how wide the box is and where the drawing sits in it. It fits the drawing
- *   until a caller asks for more, because a box is there to frame a component and a box wider than
- *   the component frames the room beside it instead: a toolbar of three controls in a box that
- *   filled a grid column read as a control adrift in a panel. The other four fill the cell, which
- *   is what a column of boxes the same width asks for, and place the drawing in it.
- *   Fitting is also what keeps a matrix of a control at every size on one card. A control that
- *   fills whatever it is given asks its column for the width it would take stretched, so eight
- *   fields drawn at `start` asked for more than the card holds and the last three fell off the
- *   edge. A scene whose component should reach the far side of its column states `place="start"`
- *   itself.
+ *   The place axis says where the drawing sits in the cell. The box fills the cell whatever the
+ *   value, and the value places the drawing inside it.
+ *   No value shrinks the box to the drawing. A box sized to its content is a containing block the
+ *   width of that content, so a component that measures itself against the room it is given has
+ *   nothing to measure against: the container drawn at every one of its fourteen measures came out
+ *   at one width on 2026-09-22, the width of the sentence inside it. The earlier default fitted
+ *   the drawing, to keep a box drawn round a toolbar from framing the room beside it, and no page
+ *   in the library ever drew a box round a sample. A page that wants one back wants it on the look
+ *   that draws the box, not on the place.
  *   The span is for a sample laid out on a board, which is the library's grid. A sample outside a
  *   grid is unaffected by it.
  */
@@ -49,7 +48,7 @@ const ROOM: SystemStyleObject = {
 };
 
 /**
- * Draws a sample with nothing round it, at the start of its box, until a caller says otherwise.
+ * Draws a sample with nothing round it, at the start of its cell, until a caller says otherwise.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -69,17 +68,16 @@ export const recipe = defineSlotRecipe({
     },
   },
   className: "sample",
-  defaultVariants: { place: "fit", variant: "plain" },
+  defaultVariants: { place: "start", variant: "plain" },
   jsx: [/^Sample$/u],
   slots: ["root", "caption", "body"],
   variants: {
     /**
-     * How wide the box is, and where the drawing sits in it.
+     * Where the drawing sits in the cell.
      */
     place: {
       center: { body: { inlineSize: "full", justifyContent: "center" } },
       end: { body: { inlineSize: "full", justifyContent: "flex-end" } },
-      fit: { body: { inlineSize: "fit-content" } },
       start: { body: { inlineSize: "full", justifyContent: "flex-start" } },
       stretch: { body: { alignItems: "stretch", flexDirection: "column", inlineSize: "full" } },
     },
