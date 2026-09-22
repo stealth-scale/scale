@@ -18,9 +18,10 @@ import { useWording } from "#catalogue/wording.ts";
  */
 export interface PageProps {
   /**
-   * Id of the route the back link leads to. No back link where it is absent.
+   * Id of the route the catalogue hangs under, which the trail is built from. No trail where it is
+   * absent.
    */
-  readonly back?: string | undefined;
+  readonly catalogue?: string | undefined;
 
   /**
    * Index entry for the page.
@@ -44,7 +45,7 @@ export interface PageProps {
  *   section reads as its title. A module that rejects leaves the header in place and reports the
  *   failure under it.
  */
-export function Page({ back, entry, framed }: PageProps): ReactElement {
+export function Page({ catalogue, entry, framed }: PageProps): ReactElement {
   const { failure, page } = useDeclared(entry);
   const word = useWording(entry.namespace);
   const scenes = (page?.scenes ?? []).map((scene) => ({
@@ -56,7 +57,7 @@ export function Page({ back, entry, framed }: PageProps): ReactElement {
   return (
     <Bands entry={entry} framed={framed} imports={page?.imports} scenes={scenes}>
       <>
-        <Header back={back} entry={entry} />
+        <Header catalogue={catalogue} entry={entry} />
         {failure === undefined ? null : <Failed failure={failure} said="page.failed" />}
       </>
     </Bands>

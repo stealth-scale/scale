@@ -17,6 +17,7 @@ describe("index", () => {
       "indexId",
       "parted",
       "routeId",
+      "useCatalogueMark",
     ]);
   });
 });

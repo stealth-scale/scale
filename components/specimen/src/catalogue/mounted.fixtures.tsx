@@ -89,12 +89,17 @@ export const THERE = "test.there";
  * resolves an id through the route map has the map to resolve it through.
  *
  * @param element - The part under test, drawn at `/here`.
+ * @param beside - Further routes the part resolves ids through, such as the levels a trail names.
  * @returns The render, and the router the part was drawn from.
  */
-export function onRoute(element: ReactElement): Promise<Mounted> {
+export function onRoute(
+  element: ReactElement,
+  beside: readonly RouteDeclaration[] = [],
+): Promise<Mounted> {
   const compiled: readonly RouteDeclaration[] = [
     { component: () => element, id: HERE, path: "/here" },
     { component: () => null, id: THERE, path: "/there" },
+    ...beside,
   ];
   const root = createAppRootRoute()({ component: Outlet });
 

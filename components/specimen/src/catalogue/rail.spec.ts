@@ -18,13 +18,13 @@ describe("Rail", () => {
   it("draws one navigation landmark for the whole catalogue", async () => {
     const { result } = await mountRoute(treeOver(GROUPED), "/docs/actions/button");
 
-    expect(result.getAllByRole("navigation", { name: "Components" })).toHaveLength(1);
+    expect(result.getAllByRole("navigation", { name: "Catalogue" })).toHaveLength(1);
   });
 
   it("names the landmark out of the catalogue rather than the key", async () => {
     const { result } = await mountRoute(treeOver(GROUPED), "/docs/actions/button");
 
-    expect(result.getByRole("navigation", { name: "Components" })).toBeDefined();
+    expect(result.getByRole("navigation", { name: "Catalogue" })).toBeDefined();
   });
 
   it("draws every group the declarations carry as a branch", async () => {

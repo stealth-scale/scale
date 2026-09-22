@@ -67,5 +67,52 @@ export function useGroupName(): (name: string) => string {
   const { t } = useTranslation(NAMESPACE);
 
   return (name) =>
-    name === "" ? t("rail.ungrouped") : t(`${GROUPS}.${name}`, { defaultValue: name });
+    name === "" ? t("rail.ungrouped") : t(`${GROUPS}.${name}.title`, { defaultValue: name });
+}
+
+/**
+ * Returns the sentence a group's own index opens with.
+ *
+ * @remarks
+ *   Looked up beside the heading as `groups.<name>.about`, and empty where nobody wrote one, so a
+ *   group gains a sentence by having one written rather than by an edit here.
+ * @returns A function from a group's name to its sentence, empty where it has none.
+ */
+export function useGroupAbout(): (name: string) => string {
+  const { t } = useTranslation(NAMESPACE);
+
+  return (name) => (name === "" ? "" : t(`${GROUPS}.${name}.about`, { defaultValue: "" }));
+}
+
+/**
+ * The prefix a section's heading is looked up under in the catalogue's namespace.
+ */
+const SECTIONS = "sections";
+
+/**
+ * Returns the words a section is headed with.
+ *
+ * @remarks
+ *   Read the same way a group is, as `sections.<name>` with the name itself where no entry exists.
+ *   A section is the first segment of a page's address, so the entry is what turns `components`
+ *   into the word a reader sees and what a catalogue in another language translates.
+ * @returns A function from a section's name to its heading, empty for a page in no section.
+ */
+export function useSectionName(): (name: string) => string {
+  const { t } = useTranslation(NAMESPACE);
+
+  return (name) => (name === "" ? "" : t(`${SECTIONS}.${name}.title`, { defaultValue: name }));
+}
+
+/**
+ * Returns the sentence a section's own index opens with.
+ *
+ * @remarks
+ *   Looked up beside the heading as `sections.<name>.about`, and empty where nobody wrote one.
+ * @returns A function from a section's name to its sentence, empty where it has none.
+ */
+export function useSectionAbout(): (name: string) => string {
+  const { t } = useTranslation(NAMESPACE);
+
+  return (name) => (name === "" ? "" : t(`${SECTIONS}.${name}.about`, { defaultValue: "" }));
 }

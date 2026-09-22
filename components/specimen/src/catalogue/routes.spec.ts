@@ -14,6 +14,16 @@ const LISTED = [entry("actions/button", "Actions", "Button"), entry("portal", ""
 const PLACED = { id: "docs.components", layout: ["docs.frame"], path: "components" };
 
 /**
+ * A page an application wrote under a section of its own, filed under no group inside it.
+ */
+const GUIDE: RouteDeclaration = {
+  component: () => null,
+  id: "docs.guides.start",
+  navigation: { label: "Getting started", section: "guides" },
+  path: "guides/start",
+};
+
+/**
  * Calls the button's page component the way React would, without mounting it, so a case reads
  * the element the page is wrapped in.
  */
@@ -89,6 +99,26 @@ describe("declarations", () => {
     });
   });
 
+  it("files a page under the first segment of its address where it declares no group", () => {
+    expect(
+      declarations([entry("actions/button", "", "Button")], PLACED)[2]?.navigation,
+    ).toMatchObject({ group: "actions" });
+  });
+
+  it("stands an index above a section an application wrote a page under", () => {
+    expect(declarations([], { ...PLACED, beside: [GUIDE] }).map((one) => one.id)).toContain(
+      "docs.components.guides",
+    );
+  });
+
+  it("stands no index above a group inside a section nobody filed a page under", () => {
+    expect(
+      declarations([], { ...PLACED, beside: [GUIDE] }).filter((one) =>
+        one.id.startsWith("docs.components.guides."),
+      ),
+    ).toStrictEqual([]);
+  });
+
   it("nests a page the application wrote under the catalogue where it names no parent", () => {
     const beside = [written("docs.theming", "Theming", "Overview")];
 
@@ -108,7 +138,7 @@ describe("declarations", () => {
   it("opens the index at the catalogue's path", async () => {
     const { result } = await mountRoute(treeOver(LISTED), "/docs");
 
-    expect(result.getByRole("heading", { level: 1 }).textContent).toBe("Components");
+    expect(result.getByRole("heading", { level: 1 }).textContent).toBe("Catalogue");
   });
 
   it("opens a page at its path under the catalogue's", async () => {
@@ -120,21 +150,19 @@ describe("declarations", () => {
   it("draws every page inside the frame the catalogue was placed in", async () => {
     const { result } = await mountRoute(treeOver(LISTED), "/docs/actions/button");
 
-    expect(result.getByRole("navigation", { name: "Components" })).toBeDefined();
+    expect(result.getByRole("navigation", { name: "Catalogue" })).toBeDefined();
   });
 
   it("leads a page back to the index", async () => {
     const { result } = await mountRoute(treeOver(LISTED), "/docs/actions/button");
 
-    expect(result.getByRole("link", { name: "Components" }).getAttribute("href")).toBe("/docs");
+    expect(result.getByRole("link", { name: "Catalogue" }).getAttribute("href")).toBe("/docs");
   });
 
   it("does not call the trail the current page on a page under the index", async () => {
     const { result } = await mountRoute(treeOver(LISTED), "/docs/actions/button");
 
-    expect(
-      result.getByRole("link", { name: "Components" }).getAttribute("aria-current"),
-    ).toBeNull();
+    expect(result.getByRole("link", { name: "Catalogue" }).getAttribute("aria-current")).toBeNull();
   });
 
   it("opens a page the application wrote at its path under the catalogue's", async () => {

@@ -3,15 +3,15 @@
  * destinations with a branch per group, narrowed to the pages a query names.
  */
 
-import { type ReactElement } from "react";
+import { Fragment, type ReactElement, useId } from "react";
 
 import { NavList } from "@stealthscale/component-navigation";
 import { Sidebar } from "@stealthscale/component-screen";
 import { type RouteDeclaration, useDeclaredRoute } from "@stealthscale/provider-router";
 
-import { type Group, grouped } from "#catalogue/grouped.ts";
+import { grouped, type Section } from "#catalogue/grouped.ts";
 import { Branch } from "#catalogue/rail-branch.tsx";
-import { useWordings } from "#catalogue/wording.ts";
+import { useSectionName, useWordings } from "#catalogue/wording.ts";
 import { useWords } from "#words.ts";
 
 /**
@@ -50,20 +50,25 @@ function wanted(query: string | undefined): string {
  *   language filters on the words they can see.
  */
 function matching(
-  groups: readonly Group[],
+  sections: readonly Section[],
   query: string,
   word: (namespace: string | undefined, key: string) => string,
-): readonly Group[] {
-  if (query === "") return groups;
+): readonly Section[] {
+  if (query === "") return sections;
 
-  return groups
-    .map((group) => ({
-      name: group.name,
-      pages: group.pages.filter((page) =>
-        word(page.entry.namespace, page.entry.label).toLocaleLowerCase().includes(query),
-      ),
+  return sections
+    .map((section) => ({
+      groups: section.groups
+        .map((group) => ({
+          name: group.name,
+          pages: group.pages.filter((page) =>
+            word(page.entry.namespace, page.entry.label).toLocaleLowerCase().includes(query),
+          ),
+        }))
+        .filter((group) => group.pages.length > 0),
+      name: section.name,
     }))
-    .filter((group) => group.pages.length > 0);
+    .filter((section) => section.groups.length > 0);
 }
 
 /**
@@ -81,30 +86,58 @@ function matching(
  *   the page being read is tinted a step off the sidebar's ground and set semibold, which the
  *   list's own default draws, so it reads as the row a reader is on without a mark of its own. A
  *   query no page matches leaves the sidebar's empty line in place of the list.
+ *   A section is a heading over a list rather than a branch that opens, because every page under it
+ *   is one a reader reaches and a disclosure that is always open is a click that says nothing. The
+ *   heading names its own list through `aria-labelledby`, so the relationship is one a screen
+ *   reader reports rather than one the eye infers from what sits above what.
  */
 export function Rail({ declarations, query }: RailProps): ReactElement {
   const { t } = useWords();
   const word = useWordings();
+  const sectionName = useSectionName();
+  const headings = useId();
   const typed = wanted(query);
-  const groups = matching(grouped(declarations), typed, word);
+  const sections = matching(grouped(declarations), typed, word);
   const current = useDeclaredRoute()?.id;
-  const opened = groups.find((group) => group.pages.some((page) => page.id === current))?.name;
+  const opened = sections
+    .flatMap((section) => section.groups.map((group) => ({ group, section })))
+    .find(({ group }) => group.pages.some((page) => page.id === current));
+  const key = `${opened?.section.name ?? ""}/${opened?.group.name ?? ""}/${typed}`;
+
+  if (sections.length === 0) {
+    return (
+      <Sidebar.Nav aria-label={t("rail.label")}>
+        <Sidebar.Empty>{t("rail.empty")}</Sidebar.Empty>
+      </Sidebar.Nav>
+    );
+  }
 
   return (
     <Sidebar.Nav aria-label={t("rail.label")}>
-      {groups.length === 0 ? (
-        <Sidebar.Empty>{t("rail.empty")}</Sidebar.Empty>
-      ) : (
-        <NavList.Root key={`${opened ?? ""}/${typed}`} size="md">
-          {groups.map((group) => (
-            <Branch
-              group={group}
-              holdsCurrent={typed !== "" || group.name === opened}
-              key={group.name}
-            />
-          ))}
-        </NavList.Root>
-      )}
+      {sections.map((section) => {
+        const headed = section.name === "" ? undefined : `${headings}-${section.name}`;
+
+        return (
+          <Fragment key={section.name}>
+            {headed === undefined ? null : (
+              <Sidebar.NavHeading id={headed}>{sectionName(section.name)}</Sidebar.NavHeading>
+            )}
+            <NavList.Root
+              {...(headed === undefined ? {} : { "aria-labelledby": headed })}
+              key={key}
+              size="md"
+            >
+              {section.groups.map((group) => (
+                <Branch
+                  group={group}
+                  holdsCurrent={typed !== "" || group.name === opened?.group.name}
+                  key={group.name}
+                />
+              ))}
+            </NavList.Root>
+          </Fragment>
+        );
+      })}
     </Sidebar.Nav>
   );
 }

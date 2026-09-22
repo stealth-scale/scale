@@ -36,6 +36,7 @@ describe("index", () => {
       "specimen",
       "stale",
       "uncovered",
+      "useCatalogueMark",
       "useWords",
       "valuesOf",
       "widthsOf",

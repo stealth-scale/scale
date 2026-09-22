@@ -84,6 +84,10 @@ export interface SceneSectionProps {
  *   card's edges.
  *   The scene's address is put in scope, so the staging can show the scene in a device when a
  *   reader picks one, at the address a frame loads it at.
+ *   The card is drawn as the section's body rather than inside one, so the two are one element and
+ *   the document carries no div that means nothing to a reader. The card is the part written in
+ *   the source, because a part reads the variants written on it and the look is the card's. The
+ *   body is a div, which is also the element the card was being drawn as before.
  */
 export function SceneSection({
   framed,
@@ -109,14 +113,12 @@ export function SceneSection({
             <Section.Description>{marked(word(scene.about))}</Section.Description>
           )}
         </Section.Header>
-        <Section.Body>
-          <Card.Root as="div" variant={SURFACE[frame]}>
-            <Staged frame={frame} ref={stage}>
-              <scene.draw />
-            </Staged>
-            <Tools code={source} stage={stage} title={title} />
-          </Card.Root>
-        </Section.Body>
+        <Card.Root as={Section.Body} variant={SURFACE[frame]}>
+          <Staged frame={frame} ref={stage}>
+            <scene.draw />
+          </Staged>
+          <Tools code={source} stage={stage} title={title} />
+        </Card.Root>
       </Section.Root>
     </SceneProvider>
   );

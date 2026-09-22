@@ -21,7 +21,11 @@ import { useWords } from "#words.ts";
  */
 export interface ToolsProps {
   /**
-   * The scene's source, or `null` where the index cut none for it.
+   * The line a reader copies, or `null` where the scene has none.
+   *
+   * @remarks
+   *   The generator writes the line from the sample a page states. A scene written by hand without
+   *   a sample has no line, and the footer says so rather than opening on nothing.
    */
   readonly code: null | string;
 

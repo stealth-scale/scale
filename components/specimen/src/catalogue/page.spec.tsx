@@ -51,7 +51,7 @@ describe("Page", () => {
   it("renders no about text when the entry declares none", async () => {
     const { container } = await drawn(<Page entry={entry(page([]))} />);
 
-    expect(container.textContent).toBe("BadgeDataExamples0Props");
+    expect(container.textContent).toBe("BadgeExamples0Props");
   });
 
   it("renders no back link when back is absent", async () => {
@@ -103,7 +103,7 @@ describe("Page", () => {
     const named = { ...entry(page([keyed]), "page.back", "specimen"), title: "index.title" };
     const { getByRole } = await drawn(<Page entry={named} />);
 
-    expect(getByRole("heading", { level: 1 }).textContent).toBe("Components");
+    expect(getByRole("heading", { level: 1 }).textContent).toBe("Catalogue");
   });
 
   it("resolves a scene title through the namespace the entry names", async () => {
@@ -111,7 +111,7 @@ describe("Page", () => {
     const named = { ...entry(page([keyed]), "page.back", "specimen"), title: "index.title" };
     const { getByRole } = await drawn(<Page entry={named} />);
 
-    expect(getByRole("heading", { level: 2 }).textContent).toBe("Components");
+    expect(getByRole("heading", { level: 2 }).textContent).toBe("Catalogue");
   });
 
   it("resolves a scene about text through the namespace the entry names", async () => {
@@ -153,7 +153,7 @@ describe("Page", () => {
   it("renders no scene for a module that declares no page", async () => {
     const { container } = await drawn(<Page entry={entry({})} />);
 
-    expect(container.textContent).toBe("BadgeDataExamples0Props");
+    expect(container.textContent).toBe("BadgeExamples0Props");
   });
 
   it("renders the failure message when the module rejects", async () => {

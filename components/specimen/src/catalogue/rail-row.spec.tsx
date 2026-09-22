@@ -23,7 +23,7 @@ describe("Row", () => {
       </NavList.Root>,
     );
 
-    expect(result.getByRole("link", { name: "Components" })).toBeDefined();
+    expect(result.getByRole("link", { name: "Catalogue" })).toBeDefined();
   });
 
   it("addresses the page the id names", async () => {

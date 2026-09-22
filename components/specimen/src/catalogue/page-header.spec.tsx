@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest";
 
 import { Page } from "@stealthscale/component-screen";
 import { drawn } from "@stealthscale/testing-react";
-import { slotElement } from "@stealthscale/testing-theme";
 
 import { Header } from "#catalogue/page-header.tsx";
 import { type Indexed } from "#catalogue/types.ts";
@@ -49,14 +48,8 @@ describe("Header", () => {
     expect(container.querySelector(".page__description")).toBeNull();
   });
 
-  it("names the group the page is filed under beside the title", async () => {
+  it("leaves the group to the trail rather than naming it beside the title", async () => {
     const { container } = await drawn(headed(entry()));
-
-    expect(slotElement(container, "page", "meta").textContent).toBe("Data");
-  });
-
-  it("names no group beside the title of a page filed under none", async () => {
-    const { container } = await drawn(headed(entry("", "")));
 
     expect(container.querySelector(".page__meta")).toBeNull();
   });
@@ -71,8 +64,8 @@ describe("Header", () => {
     const named = { ...entry("page.back", "Data", "specimen"), title: "index.title" };
     const { getByRole, getByText } = await drawn(headed(named));
 
-    expect(getByRole("heading", { level: 1 }).textContent).toBe("Components");
-    expect(getByText("Components", { selector: "p" })).toBeDefined();
+    expect(getByRole("heading", { level: 1 }).textContent).toBe("Catalogue");
+    expect(getByText("Catalogue", { selector: "p" })).toBeDefined();
   });
 
   it("draws the code spans of the opening as code", async () => {

@@ -33,6 +33,12 @@ export interface Entry {
    * absent.
    */
   readonly namespace?: string | undefined;
+
+  /**
+   * The heading the rail lists the group under. Listed under no heading of its own where it is
+   * absent.
+   */
+  readonly section?: string | undefined;
 }
 
 /**
@@ -66,11 +72,13 @@ export function entryOf(declaration: RouteDeclaration): Entry | undefined {
   const about = stringAt(entry, "about");
   const group = stringAt(entry, "group");
   const namespace = stringAt(entry, "namespace");
+  const section = stringAt(entry, "section");
 
   return {
     ...(about === undefined ? {} : { about }),
     ...(group === undefined ? {} : { group }),
     label,
     ...(namespace === undefined || namespace === "" ? {} : { namespace }),
+    ...(section === undefined ? {} : { section }),
   };
 }

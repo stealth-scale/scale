@@ -4,6 +4,7 @@
 
 import { Outlet, type RouteDeclaration } from "@stealthscale/provider-router";
 
+import { entryOf } from "#catalogue/entry.ts";
 import { Index } from "#catalogue/index-page.tsx";
 import { Page } from "#catalogue/page.tsx";
 import { SettingsProvider, settled } from "#catalogue/settings.ts";
@@ -15,6 +16,143 @@ import { framedDeclaration, type Framing } from "#framed/route.tsx";
  * never collide.
  */
 export const NAMED = "specimen";
+
+/**
+ * The path a catalogue is placed at when it is the whole site.
+ */
+const ROOT = "/";
+
+/**
+ * Describes one group of one section, which the index above a page is built for.
+ */
+interface Filing {
+  /**
+   * The group, which the index is headed with.
+   */
+  readonly group: string;
+
+  /**
+   * The section the group sits under, which its address starts with.
+   */
+  readonly section: string;
+}
+
+/**
+ * Returns the id of the index listing one section, or one group of one section.
+ */
+export function underId(id: string, section: string, group?: string): string {
+  return group === undefined ? `${id}.${section}` : `${id}.${section}.${group}`;
+}
+
+/**
+ * Builds the index routes that stand at the addresses above a page: one per section, and one per
+ * group of a section.
+ *
+ * @remarks
+ *   A reader who trims a page's address to the section it is in gets what that section holds,
+ *   rather than nothing. The addresses exist in the identifiers already, so the routes are read
+ *   off the pages rather than declared: a section nobody writes a page under gets no index, and one
+ *   that gains a page gets one without an edit here.
+ */
+function above(
+  listed: readonly RouteDeclaration[],
+  id: string,
+  nesting: Readonly<Record<string, unknown>>,
+): readonly RouteDeclaration[] {
+  const groups = new Map<string, Filing>();
+  const sections = new Set<string>();
+
+  for (const declaration of listed) {
+    const entry = entryOf(declaration);
+    const section = entry?.section;
+    const group = entry?.group;
+
+    if (entry === undefined || section === undefined || section === "") continue;
+
+    sections.add(section);
+
+    if (group !== undefined && group !== "") groups.set(`${section}/${group}`, { group, section });
+  }
+
+  /**
+   * Returns the pages of one section, or of one group of it.
+   */
+  function within(section: string, group?: string): readonly RouteDeclaration[] {
+    return listed.filter((one) => {
+      const entry = entryOf(one);
+
+      return entry?.section === section && (group === undefined || entry.group === group);
+    });
+  }
+
+  const sectioned = [...sections].map((section) =>
+    Object.assign(
+      {
+        component: () => <Index catalogue={id} declarations={within(section)} section={section} />,
+        id: underId(id, section),
+        path: section,
+      },
+      nesting,
+    ),
+  );
+  const grouping = [...groups].map(([path, { group, section }]) =>
+    Object.assign(
+      {
+        component: () => (
+          <Index
+            catalogue={id}
+            declarations={within(section, group)}
+            group={group}
+            section={section}
+          />
+        ),
+        id: underId(id, section, group),
+        path,
+      },
+      nesting,
+    ),
+  );
+
+  return [...sectioned, ...grouping];
+}
+
+/**
+ * Describes where a rail files a page: under a heading, and under a heading over that.
+ */
+interface Filed {
+  /**
+   * The branch the rail opens onto the page, absent where the address names none.
+   */
+  readonly group?: string | undefined;
+
+  /**
+   * The heading the branch sits under, absent where the address names none.
+   */
+  readonly section?: string | undefined;
+}
+
+/**
+ * Reads the section and the group a page's identifier files it under.
+ *
+ * @remarks
+ *   Read here rather than in the rail, because the rail is handed route identifiers and a route
+ *   identifier is the page's with its slashes turned into dots. Read from the address rather than
+ *   declared, so a page cannot state a heading its own address contradicts. A page states its
+ *   group where it is written by hand, and that is what this leaves alone.
+ *   The index writes a group it found nothing for as an empty string rather than leaving it out,
+ *   so an empty one is what "the file declares none" looks like here.
+ * @param page - The page as the index found it.
+ * @returns The section and the group, each absent where the address names none.
+ */
+function filedAt(page: Indexed): Filed {
+  const parts = page.id.split("/");
+
+  if (page.group !== "") return { group: page.group };
+  if (parts.length >= 3) return { group: parts[1], section: parts[0] };
+  if (parts.length === 2) return { group: parts[0] };
+
+  return {};
+}
 
 /**
  * Describes where an application puts the catalogue: the route it hangs under, the frame it is
@@ -104,6 +242,9 @@ function under(one: RouteDeclaration, id: string): RouteDeclaration {
  *   The route the catalogue hangs under draws the router's outlet and nothing else, because a route
  *   with children is what puts them all under one path and one frame. The index is that route's own
  *   index route, so the catalogue's path opens the index and a page's path opens the page.
+ *   A catalogue placed at the root gets no such route. Its own path and its index's would both be
+ *   `/`, which is one address and cannot be two routes, so the pages and the index hang off the
+ *   root directly and the frame the placing names groups them instead.
  *   A page's component is a closure over the entry rather than a lazy import, because every page
  *   is the same component against different data. The page's own module is still loaded only when
  *   somebody opens it, by the loader the index put on the entry. A page's path carries no leading
@@ -122,29 +263,38 @@ export function declarations(
   const { audit, beside = [], framed, heights, id, layout, path } = placing;
   const index = indexId(id);
   const settings = settled({ audit, heights });
+  const rooted = path === ROOT;
+  const framing = layout === undefined ? {} : { layout };
+  const nesting = rooted ? framing : { parent: id };
   const listed: readonly RouteDeclaration[] = [
     ...pages.map((page) => ({
       component: () => (
         <SettingsProvider value={settings}>
-          <Page back={index} entry={page} framed={framed?.path} />
+          <Page catalogue={id} entry={page} framed={framed?.path} />
         </SettingsProvider>
       ),
       id: routeId(page.id),
       navigation: {
         about: page.about,
-        group: page.group,
         label: page.title,
         namespace: page.namespace,
+        ...filedAt(page),
       },
-      parent: id,
+      ...nesting,
       path: page.id,
     })),
     ...beside.map((one) => under(one, id)),
   ];
 
   return [
-    { component: Outlet, id, ...(layout === undefined ? {} : { layout }), path },
-    { component: () => <Index declarations={listed} />, id: index, parent: id, path: "/" },
+    ...(rooted ? [] : [{ component: Outlet, id, ...framing, path }]),
+    {
+      component: () => <Index declarations={listed} />,
+      id: index,
+      ...(rooted ? framing : { parent: id }),
+      path: ROOT,
+    },
+    ...above(listed, id, nesting),
     ...listed,
     ...(framed === undefined ? [] : [framedDeclaration(pages, framed)]),
   ];
