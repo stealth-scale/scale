@@ -221,12 +221,34 @@ function stamped(state: State): void {
 }
 
 /**
+ * Declares the stamp as a file a generated module depends on, writing it where it is absent.
+ *
+ * @remarks
+ *   The stamp is the only way a server that bundles reaches a module this plugin generated. That
+ *   server reports a change to `watchChange`, which is handed a configuration and no module graph
+ *   and so can invalidate nothing itself. It writes a new stamp instead, and the bundler loads
+ *   every module that declared the stamp again.
+ *   Both generated modules declare it. The index is regenerated when the listing changes, and a
+ *   page's props when the compiler was restarted, which is what an edit to a file it reads does.
+ */
+function stamps(state: State, loading: Loading): void {
+  if (!existsSync(stampOf(state))) stamped(state);
+
+  loading.addWatchFile(stampOf(state));
+}
+
+/**
  * Brings a server that bundles up to date with one changed file.
  *
  * @remarks
  *   The watch change hook passes a path and no reader, so the change is given a reader that opens
  *   the file itself. Only an edit is ever read, which is why a deleted path never reaches the file
  *   system.
+ *   A new stamp is written for either of two changes, because each leaves a generated module
+ *   holding what a file no longer says. A change to the listing is the index's. A change to a file
+ *   the compiler reads is a page's props: the compiler is restarted so the next read is fresh, and
+ *   without a new stamp nothing ever asks for that read and the props a reader sees are the ones
+ *   the server generated when it started.
  */
 async function bundled(
   state: State,
@@ -234,11 +256,11 @@ async function bundled(
   file: string,
   type: Changed["type"],
 ): Promise<void> {
-  await restarted(state, file);
+  const reopened = await restarted(state, file);
 
   const changed: Changed = { file, read: () => readFileSync(file, "utf8"), type };
 
-  if (await reindexes(state, patterns, changed)) stamped(state);
+  if ((await reindexes(state, patterns, changed)) || reopened) stamped(state);
 }
 
 /**
@@ -274,9 +296,7 @@ async function generated(
 
     state.last = listings(state.resolved, files, state.reading !== undefined);
 
-    if (!existsSync(stampOf(state))) stamped(state);
-
-    loading.addWatchFile(stampOf(state));
+    stamps(state, loading);
 
     return written(state.last);
   }
@@ -286,6 +306,7 @@ async function generated(
   const path = pathOf(state, id.slice(RESOLVED_PROPS.length));
   const { compiler } = await import("#anatomy/compiler.ts");
 
+  stamps(state, loading);
   state.opening ??= compiler(state.resolved.root);
 
   return anatomised((await state.opening).anatomyOf(path, state.reading));

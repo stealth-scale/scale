@@ -249,6 +249,46 @@ describe("plugin", () => {
     expect(held).toContain('"probe"');
   });
 
+  it("adds the stamp to the files a page's props watch", async () => {
+    const watched = await withScratchWorkspaceAsync(kit(), async (scratch) => {
+      const plugin = await reading(scratch);
+      const context = hookContext();
+
+      await loaded(plugin, RESOLVED);
+      await loaded(plugin, `${PROPS}badge`, context);
+
+      return context.watched;
+    });
+
+    expect(watched).toHaveLength(1);
+    expect(watched[0]?.endsWith("/index")).toBe(true);
+  });
+
+  it("rewrites the stamp when a bundled environment reports a typed file changed", async () => {
+    const stamps = await withScratchWorkspaceAsync(kit(), async (scratch) => {
+      const plugin = await reading(scratch);
+      const context = hookContext();
+
+      await loaded(plugin, RESOLVED);
+      await loaded(plugin, `${PROPS}badge`, context);
+
+      const stamp = context.watched[0] ?? "";
+      const before = readFileSync(stamp, "utf8");
+
+      scratch.write({ "src/badge/badge.ts": probed(scratch.read("src/badge/badge.ts")) });
+      await changed(
+        plugin,
+        hookContext([], "serve", true),
+        scratch.path("src/badge/badge.ts"),
+        "update",
+      );
+
+      return { after: readFileSync(stamp, "utf8"), before };
+    });
+
+    expect(stamps.after).not.toBe(stamps.before);
+  });
+
   it("reads no typed file again when the environment is not bundled", async () => {
     const held = await withScratchWorkspaceAsync(kit(), async (scratch) => {
       const plugin = await reading(scratch);
@@ -329,7 +369,7 @@ describe("plugin", () => {
     expect(stamps.after).not.toBe(stamps.before);
   });
 
-  it("leaves the stamp alone when a scene changed in a bundled environment", async () => {
+  it("leaves the stamp alone when a scene changed and no props have been read", async () => {
     const stamps = await serving(TREE, async (plugin, scratch) => {
       const context = hookContext();
 
