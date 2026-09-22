@@ -7,10 +7,24 @@ import { type ReactElement } from "react";
 
 import { Toolbar } from "@stealthscale/component-screen";
 import { useTranslation } from "@stealthscale/provider-i18n";
+import { css } from "@stealthscale/theme";
 
+import { Brand } from "#chrome/brand.tsx";
 import { Opener } from "#chrome/opener.tsx";
-import { Sections } from "#chrome/sections.tsx";
+import { SectionLink } from "#chrome/section-link.tsx";
 import { Switches } from "#chrome/switches.tsx";
+
+/**
+ * The room that sets the brand apart from the sections beside it.
+ *
+ * @remarks
+ *   The bar's own gap is the one between the controls of a bar, and at that gap the brand read as
+ *   the first of the sections. The room is written on the brand rather than drawn by a row of its
+ *   own. A row inside a band is a second flex container laying out what the band lays out already,
+ *   and it put a div in the document that a reader is told nothing by. Beside the band's own gap
+ *   it comes to the extra large gap the brand stood at before.
+ */
+const named = css({ marginInlineEnd: "gap.lg" });
 
 /**
  * Draws the bar's contents as the library's toolbar, the brand and the sections at the start and
@@ -31,7 +45,8 @@ export function Bar(): ReactElement {
     <Toolbar.Root aria-label={t("frame.bar")} size="md">
       <Toolbar.Start>
         <Toolbar.Item aria-label={t("frame.navigation")} as={Opener} />
-        <Sections />
+        <Toolbar.Item as={Brand} className={named} />
+        <Toolbar.Item as={SectionLink} />
       </Toolbar.Start>
       <Toolbar.End>
         <Switches />

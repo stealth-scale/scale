@@ -40,11 +40,29 @@ describe("Bar", () => {
     expect(result.getByRole("link", { name: "Stealth Scale" })).toBeDefined();
   });
 
+  it("draws the brand and the sections as items of the band itself", async () => {
+    const result = await opened("/components/actions/button");
+    const row = result.getByRole("toolbar", { name: "Docs" });
+    const brand = within(row).getByRole("link", { name: "Stealth Scale" });
+    const section = within(row).getByRole("link", { name: "Catalogue" });
+
+    expect(brand.parentElement).toBe(section.parentElement);
+    expect(brand.parentElement?.classList.contains("toolbar__start")).toBe(true);
+  });
+
+  it("stands the brand a gap apart from the sections beside it", async () => {
+    const result = await opened("/components/actions/button");
+    const row = result.getByRole("toolbar", { name: "Docs" });
+    const brand = within(row).getByRole("link", { name: "Stealth Scale" });
+
+    expect(brand.className).toContain("me-gap-lg");
+  });
+
   it("draws the link to the catalogue", async () => {
     const result = await opened("/components/actions/button");
     const row = result.getByRole("toolbar", { name: "Docs" });
 
-    expect(within(row).getByRole("link", { name: "Components" })).toBeDefined();
+    expect(within(row).getByRole("link", { name: "Catalogue" })).toBeDefined();
   });
 
   it("names the control that opens the navigation in words a glyph cannot say", async () => {

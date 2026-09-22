@@ -7,15 +7,13 @@ import {
   basepathOf,
   compileRoutes,
   createAppRootRoute,
-  createRoute,
   createRouter,
   Outlet,
-  redirect,
   routeMap,
   routerOptions,
 } from "@stealthscale/provider-router";
 
-import { COMPILED, FRAME, MOUNTED } from "#catalogue.ts";
+import { COMPILED, FRAME } from "#catalogue.ts";
 import { Frame } from "#frame.tsx";
 
 /**
@@ -23,26 +21,14 @@ import { Frame } from "#frame.tsx";
  *
  * @remarks
  *   Each call constructs a fresh tree, so a specification builds one without sharing route state
- *   with the tree the page is mounted from. The route at `/` redirects to the catalogue, the only
- *   section this application serves.
+ *   with the tree the page is mounted from. The catalogue is served at the root, so a page's
+ *   address is its identifier and this application adds no segment of its own.
  * @returns The root route, with every child route attached.
  */
 export function buildTree(): AnyRoute {
   const root = createAppRootRoute()({ component: Outlet });
-  const home = createRoute({
-    beforeLoad: () => {
-      // TanStack Router signals a redirect with a value that is not an Error subclass.
-      // eslint-disable-next-line typescript/only-throw-error -- see above
-      throw redirect({ to: `/${MOUNTED}` });
-    },
-    getParentRoute: () => root,
-    path: "/",
-  });
 
-  return root.addChildren([
-    home,
-    ...compileRoutes(COMPILED, { layouts: { [FRAME]: Frame }, parent: root }),
-  ]);
+  return root.addChildren(compileRoutes(COMPILED, { layouts: { [FRAME]: Frame }, parent: root }));
 }
 
 /**

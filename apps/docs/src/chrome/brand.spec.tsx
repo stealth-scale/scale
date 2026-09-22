@@ -8,13 +8,11 @@ describe("Brand", () => {
   it("leads to the index", async () => {
     const result = await opened("/components/actions/button");
 
-    expect(result.getByRole("link", { name: "Stealth Scale" }).getAttribute("href")).toBe(
-      "/components",
-    );
+    expect(result.getByRole("link", { name: "Stealth Scale" }).getAttribute("href")).toBe("/");
   });
 
   it("says it is the current page on the index", async () => {
-    const result = await opened("/components");
+    const result = await opened("/");
 
     expect(result.getByRole("link", { name: "Stealth Scale" }).getAttribute("aria-current")).toBe(
       "page",

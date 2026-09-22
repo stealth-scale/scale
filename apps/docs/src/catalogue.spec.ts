@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { CATALOGUE, COMPILED, FRAME, FRAMED, INDEX, MOUNTED } from "#catalogue.ts";
+import { COMPILED, FRAME, FRAMED, INDEX } from "#catalogue.ts";
 
 describe("COMPILED", () => {
-  it("hangs the catalogue under its route at its path inside the frame", () => {
-    expect(COMPILED[0]).toMatchObject({ id: CATALOGUE, layout: [FRAME], path: MOUNTED });
+  it("opens the index at the site root inside the frame", () => {
+    expect(COMPILED[0]).toMatchObject({ id: INDEX, layout: [FRAME], path: "/" });
+  });
+
+  it("hangs the catalogue under no route of its own", () => {
+    expect(COMPILED.map((one) => one.id)).not.toContain("docs.components");
   });
 
   it("serves the framed page at the root in no frame", () => {
@@ -15,11 +19,14 @@ describe("COMPILED", () => {
     expect(framed).not.toHaveProperty("parent");
   });
 
-  it("names the index after the route", () => {
-    expect(COMPILED[1]?.id).toBe(INDEX);
+  it("holds one page per specimen the build indexed", () => {
+    expect(COMPILED.map((one) => one.id)).toContain("specimen.components.actions.button");
   });
 
-  it("holds one page per specimen the build indexed", () => {
-    expect(COMPILED.map((one) => one.id)).toContain("specimen.actions.button");
+  it("stands an index at the address above a page", () => {
+    const paths = COMPILED.map((one) => one.path);
+
+    expect(paths).toContain("components");
+    expect(paths).toContain("components/actions");
   });
 });

@@ -23,13 +23,16 @@ export const CATALOGUE = "docs.components";
 export const INDEX = indexId(CATALOGUE);
 
 /**
- * The path the catalogue is served under.
+ * The path the catalogue is served under, which is the site's own root.
  *
  * @remarks
- *   This application's choice: the declarations carry no leading slash, so moving this moves every
- *   address with it.
+ *   A page's address is its identifier and nothing else, so `components/feedback/alert` is served
+ *   at `/components/feedback/alert`. Mounting the catalogue under a path of this application's
+ *   choosing would put that segment in two places, and the two would disagree the first time
+ *   either moved. A section the catalogue gains later, `guides` beside `components`, is served by
+ *   the same root without this file learning about it.
  */
-export const MOUNTED = "components";
+export const MOUNTED = "/";
 
 /**
  * The path a device loads one sample at: a page with no frame round it, at the root.

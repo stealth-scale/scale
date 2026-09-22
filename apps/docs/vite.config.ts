@@ -3,6 +3,9 @@
  * index.
  *
  * @remarks
+ *   The specimen patterns reach the component and foundation packages across the workspace, so a
+ *   page written beside a foundation is listed under its own section without this file changing.
+ *   A foundation is one level deep or two, `theme` and `providers/router`, so both are matched.
  *   The specimen patterns reach the component packages across the workspace, because this
  *   application ships no specimen file of its own. The React Compiler runs in the build alone, so a
  *   build and a preview exercise what ships while a save during development skips the compile pass.
@@ -27,7 +30,14 @@ export default defineConfig(import.meta.dirname, {
     react.layers({ compiler: "build" }),
     i18n.layers(),
     theme.stylesheet(),
-    specimen.catalogue({ patterns: ["../../components/*/src/**/*.specimen.tsx"], props: {} }),
+    specimen.catalogue({
+      patterns: [
+        "../../components/*/src/**/*.specimen.tsx",
+        "../../foundations/*/src/**/*.specimen.tsx",
+        "../../foundations/*/*/src/**/*.specimen.tsx",
+      ],
+      props: {},
+    }),
     server.port(4100),
     ...(STANDARD
       ? [

@@ -9,18 +9,18 @@ import { opened } from "#app.fixtures.tsx";
  * Finds the link in the bar, apart from the page's trail of the same name.
  */
 function linked(result: RenderResult): HTMLElement {
-  return within(result.getByRole("toolbar")).getByRole("link", { name: "Components" });
+  return within(result.getByRole("toolbar")).getByRole("link", { name: "Catalogue" });
 }
 
 describe("SectionLink", () => {
   it("leads to the index", async () => {
     const result = await opened("/components/actions/button");
 
-    expect(linked(result).getAttribute("href")).toBe("/components");
+    expect(linked(result).getAttribute("href")).toBe("/");
   });
 
   it("says it is the current page on the index", async () => {
-    const result = await opened("/components");
+    const result = await opened("/");
 
     expect(linked(result).getAttribute("aria-current")).toBe("page");
   });

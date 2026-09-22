@@ -7,8 +7,9 @@ import { type ComponentProps, type ReactElement } from "react";
 import { Button } from "@stealthscale/component-actions";
 import { useTranslation } from "@stealthscale/provider-i18n";
 import { createLink, useRouteHref } from "@stealthscale/provider-router";
+import { useCatalogueMark } from "@stealthscale/specimen";
 
-import { INDEX } from "#catalogue.ts";
+import { CATALOGUE, INDEX } from "#catalogue.ts";
 
 /**
  * Draws the button over the router's link, so it leads to the catalogue without a reload and says
@@ -28,6 +29,9 @@ export type SectionLinkProps = Omit<ComponentProps<typeof Section>, "children" |
  *   The element is an anchor drawn in the ghost look, so it reads as a place to go rather than as
  *   an action, and the recipe fills it while it names the page being read. The toolbar's item
  *   draws this through `as`, so the row's tab stop lands on the anchor.
+ *   Whether the reader is inside the catalogue is the catalogue's own answer, because the route
+ *   ids it declares are its own. It is handed over as the value the attribute takes rather than as
+ *   an answer this reads, so the attribute is written once either way.
  * @param props - The row's tab stop and everything else an anchor takes.
  * @returns The anchor, in the button's look.
  */
@@ -35,8 +39,16 @@ export function SectionLink(props: SectionLinkProps): ReactElement {
   const { t } = useTranslation("docs");
 
   return (
-    <Section as="a" size="sm" status="neutral" to={useRouteHref(INDEX)} variant="ghost" {...props}>
-      {t("frame.components")}
+    <Section
+      aria-current={useCatalogueMark(CATALOGUE)}
+      as="a"
+      size="sm"
+      status="neutral"
+      to={useRouteHref(INDEX)}
+      variant="ghost"
+      {...props}
+    >
+      {t("frame.catalogue")}
     </Section>
   );
 }

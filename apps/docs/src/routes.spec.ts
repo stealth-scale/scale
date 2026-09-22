@@ -13,19 +13,31 @@ describe("buildTree", () => {
     expect(found).toContain("/_docs.frame/components/actions/button");
   });
 
-  it("sends the site root to the catalogue", async () => {
+  it("serves the catalogue at the site root rather than under a path of its own", async () => {
     const router = routerOver(buildTree());
 
     await router.navigate({ to: "/" });
     await router.load();
 
-    expect(router.state.location.pathname).toBe("/components");
+    expect(router.state.location.pathname).toBe("/");
   });
 
-  it("opens the index at the catalogue's path", async () => {
+  it("opens the index at the site root", async () => {
+    const result = await opened("/");
+
+    expect(result.getByRole("heading", { level: 1 }).textContent).toBe("Catalogue");
+  });
+
+  it("opens the index of a section at the section's path", async () => {
     const result = await opened("/components");
 
     expect(result.getByRole("heading", { level: 1 }).textContent).toBe("Components");
+  });
+
+  it("opens the index of a group at the group's path", async () => {
+    const result = await opened("/components/actions");
+
+    expect(result.getByRole("heading", { level: 1 }).textContent).toBe("Actions");
   });
 
   it("opens a page the build indexed at its path under the catalogue's", async () => {
