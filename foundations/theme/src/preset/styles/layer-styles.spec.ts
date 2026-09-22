@@ -44,27 +44,44 @@ describe("layerStyles", () => {
     expect(tokenAt(layerStyles, "ripple")).toMatchObject({
       _active: {
         _after: {
+          backgroundSize: "var(--ripple-start, 30%) var(--ripple-start, 30%)",
           opacity: "0.12",
-          transform: "translate(-50%, -50%) scale(var(--ripple-scale, 3))",
         },
       },
       _after: {
-        aspectRatio: "1",
-        background: "radial-gradient(closest-side, currentColor 75%, transparent 100%)",
-        clipPath: "inset(0 round inherit)",
-        left: "var(--ripple-x, 50%)",
+        backgroundImage:
+          "radial-gradient(circle closest-side, currentColor 0 70%, transparent 100%)",
+        backgroundPosition: "var(--ripple-x, 50%) var(--ripple-y, 50%)",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "var(--ripple-scale, 170%) var(--ripple-scale, 170%)",
         opacity: "0",
-        top: "var(--ripple-y, 50%)",
-        transform: "translate(-50%, -50%) scale(0.3)",
-        width: "100%",
       },
       position: "relative",
     });
   });
 
-  it("clips the ripple to its own box rather than hiding the control's overflow", () => {
+  it("states the press with no transition at all", () => {
+    expect(tokenAt(layerStyles, "ripple")).toMatchObject({
+      _active: { _after: { transition: "none" } },
+    });
+  });
+
+  it("carries both the opacity and the size out over the release", () => {
+    const written = JSON.stringify(tokenAt(layerStyles, "ripple"));
+
+    expect(written).toContain("opacity calc(var(--ripple-pace) * {durations.slower})");
+    expect(written).toContain("background-size calc(var(--ripple-pace) * {durations.slower})");
+  });
+
+  it("cuts the ripple back to the control's corner without hiding its overflow", () => {
     expect(tokenAt(layerStyles, "ripple")).not.toHaveProperty("overflow");
-    expect(JSON.stringify(tokenAt(layerStyles, "ripple"))).toContain("inset(0 round inherit)");
+    expect(tokenAt(layerStyles, "ripple")).toMatchObject({
+      _after: { borderRadius: "inherit", inset: "0" },
+    });
+  });
+
+  it("names no clip at all", () => {
+    expect(JSON.stringify(tokenAt(layerStyles, "ripple"))).not.toContain("clipPath");
   });
 
   it("draws a solid fill in the palette with its hover inside it", () => {
