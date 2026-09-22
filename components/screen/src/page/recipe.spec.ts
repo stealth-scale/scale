@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
+import page from "#page/page.specimen.tsx";
 import { GUTTER, MEASURE, recipe } from "#page/recipe.ts";
 
 /**
@@ -31,6 +33,14 @@ const PARTS = [
 ];
 
 describe("recipe", () => {
+  it("covers every variant axis in the scenes of its specimen page", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
   it("writes no value a theme cannot move", () => {
     expect(recipeViolations(recipe, { names: ["Page"], parts: PARTS })).toStrictEqual([]);
   });
@@ -90,7 +100,14 @@ describe("recipe", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["header"]).toStrictEqual({
       paddingBlockEnd: "calc({spacing.gap.md} * var(--density, 1))",
       paddingBlockStart: "calc({spacing.inset.md} * var(--density, 1))",
+      rowGap: "calc({spacing.gap.sm} * var(--density, 1))",
     });
+  });
+
+  it("parts the rows of the head by a gap a step below the size", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["header"]?.["rowGap"]).toBe(
+      "calc({spacing.gap.sm} * var(--density, 1))",
+    );
   });
 
   it("sets the context a text step below the page", () => {

@@ -199,6 +199,15 @@ export const recipe = defineSlotRecipe({
       "&[data-sticky]": { ...STUCK, insetBlockEnd: "0", insetBlockStart: "auto" },
       gridArea: "footer",
     },
+    /**
+     * The three rows of the head: what stands above the title, the title's own row, and the
+     * opening under it.
+     *
+     * @remarks
+     *   The rows are parted by a gap a step below the size, because a trail, a title and a
+     *   sentence are three things rather than one block of text, and flush against each other they
+     *   read as one. The columns are not: what sits beside the title belongs on its line.
+     */
     header: {
       ...BAND,
       "&[data-sticky]": STUCK,
@@ -378,6 +387,7 @@ export const recipe = defineSlotRecipe({
         (size) => ({
           paddingBlockEnd: dense(`{spacing.gap.${size}}`),
           paddingBlockStart: dense(`{spacing.inset.${size}}`),
+          rowGap: dense(`{spacing.gap.${below(size)}}`),
         }),
         STEPS,
       ),
