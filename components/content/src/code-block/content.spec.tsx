@@ -34,4 +34,16 @@ describe("Content", () => {
 
     expect(slotElement(container, "code-block", "content").tagName).toBe("DIV");
   });
+
+  it("takes a tab stop, so the arrows can scroll a line wider than the panel", () => {
+    const { container } = render(coded(<Content />));
+
+    expect(slotElement(container, "code-block", "content").tabIndex).toBe(0);
+  });
+
+  it("leaves the tab stop to a caller who states one", () => {
+    const { container } = render(coded(<Content tabIndex={-1} />));
+
+    expect(slotElement(container, "code-block", "content").tabIndex).toBe(-1);
+  });
 });
