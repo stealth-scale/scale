@@ -2,24 +2,28 @@
 
 Two commands that open a page of the catalogue in a browser and read it back, for building and
 checking components. Both run straight from the shell under Node 26, which strips the types, so
-there is nothing to build. Both need a catalogue that is already serving, on port 4100 unless
-`--port` names another, which is how the earlier library on 5178 is read for a comparison.
+there is nothing to build. Both need a catalogue that is already serving, at `http://localhost:4100`
+unless `--base` names another, which is how the earlier library on 5178 is read for a comparison and
+how a deployed catalogue is read at all.
 
 ```bash
-pnpm shot -p actions/button -t asphalt,prism -m light,dark
-pnpm dom -p actions/button -s looks --tree --depth 4
+pnpm shot -p components/actions/button -t asphalt,prism -m light,dark
+pnpm dom -p components/actions/button -s variant --tree --depth 4
 ```
+
+A page is named by its identifier, which is also its address: `components/actions/button` is the
+page declared under that identifier and served at `/components/actions/button`.
 
 `pnpm shot --help` and `pnpm dom --help` list every option.
 
-## Where a page is read
+## Targeting
 
-Both commands share the targeting. A theme, a colour mode, a width or a page can be named more than
-once with commas, and the command runs every combination.
+Both commands take the same options for what to read. A theme, a colour mode, a width or a page can
+be named more than once with commas, and the command runs every combination.
 
 | Option             | What it does                                                           |
 | ------------------ | ---------------------------------------------------------------------- |
-| `-p, --page`       | The page under `/components`, such as `actions/button`                 |
+| `-p, --page`       | The page's identifier, such as `components/actions/button`             |
 | `-s, --scene`      | A scene's title, part of it, or its number on the page                 |
 | `-t, --theme`      | A theme, written into the page's settings before it loads              |
 | `-m, --mode`       | `light` or `dark`, written the same way and set on the browser         |
@@ -31,9 +35,9 @@ once with commas, and the command runs every combination.
 | `--reduced-motion` | Read the page as someone who asked for less motion                     |
 | `--forced-colors`  | Read the page in a forced colours mode                                 |
 | `-b, --browser`    | `chromium`, `firefox` or `webkit`, `firefox` by default                |
-| `--port`           | The catalogue's port, 4100 by default                                  |
+| `--base`           | Where the catalogue is served, `http://localhost:4100` by default      |
 
-The defaults are the catalogue as it is read: a 4K screen at 125% scaling, in Firefox.
+By default both commands read a 4K screen at 125% scaling, in Firefox.
 
 ## Capturing
 
@@ -50,21 +54,22 @@ the theme, the mode and the width.
 
 A control is put in a state the way a reader would put it there: hovered by the pointer, focused
 from the keyboard with Tab, held down with the pointer. Animations are held still while capturing,
-so two captures of one thing lay over each other. A scene narrows and `--element` picks within it,
-so `[data-recipe=toolbar]` under a scene is the scene's toolbar and not the catalogue's own bar;
-without a scene a selector reaches the whole document, which is how the chrome is captured.
+so two captures of one thing lay over each other. A scene narrows the search and `--element` picks
+within it, so `[data-recipe=toolbar]` under a scene finds the scene's toolbar rather than the
+catalogue's own bar. A selector with no scene named searches the whole document, which is how the
+chrome is captured.
 
 ```bash
-pnpm shot -p actions/button -e "[data-recipe=button]" --state rest,hover,focus,active -b chromium
-pnpm shot -p disclosure/menu --open "[data-recipe=menu] button" -e "[role=menu]"
-pnpm shot -p layout/stack -s gaps -w 420,1024,3072
+pnpm shot -p components/actions/button -e "[data-recipe=button]" --state rest,hover,focus,active -b chromium
+pnpm shot -p components/disclosure/menu --open "[data-recipe=menu] button" -e "[role=menu]"
+pnpm shot -p components/layout/stack -s gaps -w 420,1024,3072
 ```
 
 A semicolon between two selectors presses both, the first before the second is looked for. A control
 inside a panel is reached that way, and so is a band of a page that another tab draws.
 
 ```bash
-pnpm shot -p disclosure/menu --open '[role=tab]:last-of-type; [data-scope=popover][data-part=trigger]'
+pnpm shot -p components/disclosure/menu --open '[role=tab]:last-of-type; [data-scope=popover][data-part=trigger]'
 ```
 
 `--press` types once `--open` has pressed something. A component is then read part way through a
@@ -72,7 +77,7 @@ keyboard journey rather than at rest. A star repeats a key. One press says nothi
 twelfth does, and a reader crosses a long list by keeping the key down.
 
 ```bash
-pnpm shot -p collections/listbox --open "#too-many-rows-to-draw [role=option]" --press "ArrowDown*14"
+pnpm shot -p components/collections/listbox --open "#too-many-rows-to-draw [role=option]" --press "ArrowDown*14"
 ```
 
 ## Reading
@@ -103,10 +108,10 @@ once anything else is read the outline shrinks to the scenes and the console err
 `--rules` reads the browser's devtools protocol and needs `--browser chromium`.
 
 ```bash
-pnpm dom -p actions/button -s looks --rules "[data-recipe=button]" -b chromium
-pnpm dom -p actions/button -s looks --css "[data-recipe=button]" --state hover -b chromium
-pnpm dom -p forms/field --axe
-pnpm dom -p actions/button --tokens -t asphalt -j > /tmp/asphalt.json
-pnpm dom -p actions/button --tokens -t prism -j > /tmp/prism.json
+pnpm dom -p components/actions/button -s variant --rules "[data-recipe=button]" -b chromium
+pnpm dom -p components/actions/button -s variant --css "[data-recipe=button]" --state hover -b chromium
+pnpm dom -p components/forms/field --axe
+pnpm dom -p components/actions/button --tokens -t asphalt -j > /tmp/asphalt.json
+pnpm dom -p components/actions/button --tokens -t prism -j > /tmp/prism.json
 diff /tmp/asphalt.json /tmp/prism.json
 ```

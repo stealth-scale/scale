@@ -52,6 +52,11 @@ const TAB_LIMIT = 400;
  */
 export interface Target {
   /**
+   * Where the catalogue is served, which a page's identifier resolves against.
+   */
+  readonly base: string;
+
+  /**
    * The browser to open it in.
    */
   readonly browser: (typeof BROWSERS)[number];
@@ -80,14 +85,9 @@ export interface Target {
   readonly open?: string | undefined;
 
   /**
-   * The page's path under `/components`, such as `actions/button`.
+   * The page's address, which is its identifier, such as `components/actions/button`.
    */
   readonly page: string;
-
-  /**
-   * The port the catalogue's server listens on.
-   */
-  readonly port: number;
 
   /**
    * Keys to type once the page is open, so a reading shows what the keyboard does. Commas separate
@@ -157,10 +157,17 @@ export function launched(name: (typeof BROWSERS)[number]): Promise<Browser> {
 }
 
 /**
- * Builds the address of a page.
+ * Builds the address of a page, resolving its identifier against the catalogue it is read from.
+ *
+ * @remarks
+ *   A base rather than a port, so a catalogue served anywhere is readable: a container, another
+ *   machine, or a deployment under a prefix. A base is given a trailing slash before the page is
+ *   resolved against it, because `new URL` drops the last segment of one without.
  */
 export function addressOf(target: Target): string {
-  return `http://localhost:${String(target.port)}/components/${target.page}`;
+  const base = target.base.endsWith("/") ? target.base : `${target.base}/`;
+
+  return new URL(target.page, base).href;
 }
 
 /**

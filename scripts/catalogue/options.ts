@@ -14,9 +14,9 @@ import { parseArgs, type ParseArgsConfig } from "node:util";
 import { BROWSERS, MODES, type Target } from "./browse.ts";
 
 /**
- * The port the catalogue's own dev server listens on.
+ * Where the catalogue's own dev server serves it.
  */
-const PORT = 4100;
+const BASE = "http://localhost:4100";
 
 /**
  * The viewport a 4K screen at 125% scaling shows, which is the one the catalogue is read on.
@@ -27,6 +27,7 @@ const VIEWPORT = { height: 1080, scale: 1.0, width: 1920 };
  * The options both commands take.
  */
 export const SHARED = {
+  base: { default: BASE, type: "string" },
   browser: { default: "firefox", short: "b", type: "string" },
   "forced-colors": { default: false, type: "boolean" },
   height: { default: String(VIEWPORT.height), type: "string" },
@@ -34,7 +35,6 @@ export const SHARED = {
   mode: { default: "", short: "m", type: "string" },
   open: { default: "", type: "string" },
   page: { default: "", short: "p", type: "string" },
-  port: { default: String(PORT), type: "string" },
   press: { default: "", type: "string" },
   "reduced-motion": { default: false, type: "boolean" },
   scale: { default: String(VIEWPORT.scale), type: "string" },
@@ -59,7 +59,7 @@ export const SHARED_HELP = [
   "      --reduced-motion  read the page as someone who asked for less motion",
   "      --forced-colors   read the page in a forced colours mode",
   "  -b, --browser <name>  chromium, firefox or webkit, firefox by default",
-  "      --port <port>     the catalogue's port, 4100 by default",
+  "      --base <url>      where the catalogue is served, http://localhost:4100 by default",
   "  -h, --help            this",
 ];
 
@@ -125,6 +125,19 @@ function counted(name: string, value: string): number {
 }
 
 /**
+ * Reads where the catalogue is served, rejecting anything a page cannot resolve against.
+ *
+ * @throws {@link Error} When the value is no absolute URL, naming the option.
+ */
+function based(value: string): string {
+  try {
+    return new URL(value).href;
+  } catch {
+    throw new Error("--base takes an absolute URL, such as http://localhost:4100");
+  }
+}
+
+/**
  * Picks one of a list of names.
  *
  * @throws {@link Error} When the value is none of them, naming the option and the names.
@@ -183,11 +196,11 @@ function sharedOf(values: Values): Omit<Target, "mode" | "page" | "theme" | "wid
   const press = stringAt(values, "press");
 
   return {
+    base: based(stringAt(values, "base")),
     browser: named("browser", stringAt(values, "browser"), BROWSERS),
     forcedColors: flagAt(values, "forced-colors"),
     height: counted("height", stringAt(values, "height")),
     open: open === "" ? undefined : open,
-    port: counted("port", stringAt(values, "port")),
     press: press === "" ? undefined : press,
     reducedMotion: flagAt(values, "reduced-motion"),
     scale: counted("scale", stringAt(values, "scale")),
