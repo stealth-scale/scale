@@ -19,6 +19,7 @@ import { type ReactElement, type ReactNode, useId } from "react";
 
 import {
   Board,
+  landmarked,
   Room,
   Sample,
   type Scene,
@@ -404,7 +405,7 @@ function Held({ stickyColumn = false, stickyHeader = false }: HeldProps): ReactE
   return (
     <Room size="sm">
       <Table.Simple
-        aria-label={t("caption")}
+        aria-label={landmarked(t("caption"), { stickyColumn, stickyHeader })}
         columns={[
           { key: "week", label: t("week"), rowHeader: true, width: "7rem" },
           ...MONTHS.map((month) => ({

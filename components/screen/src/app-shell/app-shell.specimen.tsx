@@ -36,6 +36,12 @@ const SAMPLE = {
 
 /**
  * Draws the parts every shell holds.
+ *
+ * @remarks
+ *   The page, the panel beside it, the bar under it and the block of destinations are each drawn
+ *   as a `div`. A document holds one `main`, and this page draws eight shells, so eight of them
+ *   cannot be `main` whatever they are named. The rest follow for the same reason: a panel beside
+ *   a page that is not the page is a complementary region attached to nothing.
  */
 function Application(): ReactElement {
   const { t } = useWords("app-shell");
@@ -50,7 +56,7 @@ function Application(): ReactElement {
           <Sidebar.Root variant="subtle">
             <Sidebar.Header>{t("acme")}</Sidebar.Header>
             <Sidebar.Content>
-              <Sidebar.Nav aria-label={t("navigation")}>
+              <Sidebar.Nav as="div">
                 <NavList.Root>
                   <NavList.Item>
                     <NavList.Link aria-current="page" href="#overview">
@@ -65,14 +71,14 @@ function Application(): ReactElement {
             </Sidebar.Content>
           </Sidebar.Root>
         </AppShell.Navbar>
-        <AppShell.Main>
+        <AppShell.Main as="div">
           <Tile>{t("page")}</Tile>
         </AppShell.Main>
-        <AppShell.Aside aria-label={t("detail")}>
+        <AppShell.Aside as="div">
           <Tile>{t("detail")}</Tile>
         </AppShell.Aside>
       </AppShell.Body>
-      <AppShell.Footer>
+      <AppShell.Footer as="div">
         <Tile>{t("footer")}</Tile>
       </AppShell.Footer>
     </>

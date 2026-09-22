@@ -56,10 +56,16 @@ function Payment(): ReactElement {
 
 /**
  * Draws the section in whatever the scene hands over.
+ *
+ * @remarks
+ *   The root is drawn as a `div`. A section names itself from its own title, so every drawing on
+ *   this page would be a landmark called `Payment methods` and a reader moving by landmark would
+ *   hear the one name a dozen times. The page cannot vary the name without varying the title,
+ *   which is the drawing itself.
  */
 function Held(props: Section.RootProps): ReactElement {
   return (
-    <Section.Root {...props}>
+    <Section.Root as="div" {...props}>
       <Payment />
     </Section.Root>
   );

@@ -93,6 +93,9 @@ interface BandsProps {
  *   the words stayed and were cut at the square's edge. The lists are told what the column is
  *   told, because a list measures nothing and the sidebar's own rules reach its headings, its
  *   search and its actions alone.
+ *   Each block is drawn as a `div`. A block is a `nav` named by its own heading, so every column
+ *   on this page would draw one landmark called `Workspace` and another called `Account`, and a
+ *   reader moving by landmark would hear each name a dozen times over.
  */
 function Bands({ iconic = false }: BandsProps): ReactElement {
   const { t } = useWords("sidebar");
@@ -104,7 +107,7 @@ function Bands({ iconic = false }: BandsProps): ReactElement {
         <Sidebar.Search>
           <SearchInput aria-label={t("search")} size="sm" />
         </Sidebar.Search>
-        <Sidebar.Nav>
+        <Sidebar.Nav as="div">
           <Sidebar.NavLabel as="h3">{t("workspace")}</Sidebar.NavLabel>
           <Sidebar.NavAction>{t("add")}</Sidebar.NavAction>
           <NavList.Root iconic={iconic}>
@@ -124,7 +127,7 @@ function Bands({ iconic = false }: BandsProps): ReactElement {
           </NavList.Root>
         </Sidebar.Nav>
         <Sidebar.Separator />
-        <Sidebar.Nav>
+        <Sidebar.Nav as="div">
           <Sidebar.NavLabel as="h3">{t("account")}</Sidebar.NavLabel>
           <NavList.Root iconic={iconic}>
             <NavList.Item>

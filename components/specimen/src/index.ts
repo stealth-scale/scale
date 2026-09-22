@@ -20,6 +20,7 @@ export * from "#catalogue/index.ts";
 export { type CoverageOptions, uncovered } from "#covered.ts";
 export * from "#device/index.ts";
 export * from "#framed/index.ts";
+export { landmarked } from "#landmark.ts";
 export * from "#matrix/index.ts";
 export { type Frame, FRAMES, scene, type Scene, specimen, type Specimen } from "#page.ts";
 export * from "#room/index.ts";

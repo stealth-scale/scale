@@ -28,6 +28,7 @@ describe("index", () => {
       "framedDeclaration",
       "grouped",
       "indexId",
+      "landmarked",
       "nameOf",
       "parted",
       "routeId",

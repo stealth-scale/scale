@@ -74,6 +74,11 @@ interface RailProps {
 /**
  * Draws one rail over a set of headings, each row worded from the heading's key, with the mark on
  * the second heading.
+ *
+ * @remarks
+ *   The root is drawn as a `div`. A rail is a `nav` named by its own title, so every drawing on
+ *   this page would be a landmark called `On this page`, and so is the catalogue's own rail beside
+ *   them.
  */
 function Rail({ items, size }: RailProps): ReactElement {
   const { t } = useWords("toc");
@@ -81,7 +86,7 @@ function Rail({ items, size }: RailProps): ReactElement {
   const sized = size === undefined ? {} : { size };
 
   return (
-    <Toc.Root defaultActiveIds={[items[1]?.value ?? ""]} items={[...items]} {...sized}>
+    <Toc.Root as="div" defaultActiveIds={[items[1]?.value ?? ""]} items={[...items]} {...sized}>
       <Toc.Title>{t("onThisPage")}</Toc.Title>
       <Toc.List>
         <Toc.Indicator />

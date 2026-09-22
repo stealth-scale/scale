@@ -4,6 +4,7 @@
   "home": "Home",
   "invoices": "Invoices",
   "title": "Breadcrumb",
+  "trail": "Trail",
   "variant": {
     "about": "Both looks at every size. The last crumb is not a link and is the one at full strength.",
     "title": "Looks and sizes"

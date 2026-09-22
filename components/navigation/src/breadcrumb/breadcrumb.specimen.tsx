@@ -11,7 +11,7 @@
 
 import { type ReactElement } from "react";
 
-import { scenesOf, specimen, useWords } from "@stealthscale/specimen";
+import { landmarked, scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
 import * as Breadcrumb from "#breadcrumb/index.ts";
 import { recipe } from "#breadcrumb/recipe.ts";
@@ -38,12 +38,17 @@ const SAMPLE = {
 
 /**
  * Draws a trail of three crumbs, the last of them the page being read.
+ *
+ * @remarks
+ *   Each trail names itself for the values it was drawn at. The root is a `nav`, so a page drawing
+ *   ten of them draws ten landmarks, and ten called `Breadcrumb` are ten a reader moving by
+ *   landmark cannot tell apart.
  */
 function Trail(props: Breadcrumb.RootProps): ReactElement {
   const { t } = useWords("breadcrumb");
 
   return (
-    <Breadcrumb.Root {...props}>
+    <Breadcrumb.Root aria-label={landmarked(t("trail"), props)} {...props}>
       <Breadcrumb.List>
         <Breadcrumb.Item>
           <Breadcrumb.Link href="#home">{t("home")}</Breadcrumb.Link>
