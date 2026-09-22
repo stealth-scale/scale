@@ -2,18 +2,20 @@
  * Defines the styles a sidebar is drawn with.
  *
  * @remarks
- *   Ten parts. The root is the column, the header and footer are the bands that stay put, and the
- *   content between them is what scrolls. A nav is a block of destinations under a heading, with an
- *   action beside it. The search narrows what the blocks hold, and the empty line stands where the
- *   search finds nothing. The content scrolls rather than the column, so a switcher at the head and
- *   an account at the foot stay where a reader left them however long the list of destinations is.
- *   `iconic` collapses the sidebar to a rail of marks. Every heading and the search go, because a
- *   heading with nothing under it that a reader can read says nothing, and the destinations keep
- *   their words out of sight so a screen reader still names each one. The sidebar states nothing
- *   about how wide it is: the shell around it decides that, and this reads the state.
+ *   Eleven parts. The root is the column, the header and footer are the bands that stay put, and
+ *   the content between them is what scrolls. A nav is a block of destinations under a label, with
+ *   an action beside it, and a heading over each list the block holds. The search narrows what the
+ *   blocks hold, and the empty line stands where the search finds nothing. The content scrolls
+ *   rather than the column, so a switcher at the head and an account at the foot stay where a
+ *   reader left them however long the list of destinations is. `iconic` collapses the sidebar to a
+ *   rail of marks. Every heading and the search go, because a heading with nothing under it that a
+ *   reader can read says nothing, and the destinations keep their words out of sight so a screen
+ *   reader still names each one. The sidebar states nothing about how wide it is: the shell around
+ *   it decides that, and this reads the state.
  */
 
 import {
+  below,
   defineSlotRecipe,
   dense,
   divider,
@@ -46,6 +48,15 @@ export const recipe = defineSlotRecipe({
     header: { flexShrink: "0" },
     nav: { display: "flex", flexDirection: "column", minInlineSize: "0" },
     navAction: { flexShrink: "0", [ICONIC]: { display: "none" }, marginInlineStart: "auto" },
+    navHeading: {
+      ...truncate(),
+      alignItems: "center",
+      color: "fg.subtle",
+      display: "flex",
+      fontWeight: "medium",
+      [ICONIC]: { srOnly: true },
+      textTransform: "uppercase",
+    },
     navLabel: {
       ...truncate(),
       alignItems: "center",
@@ -74,6 +85,7 @@ export const recipe = defineSlotRecipe({
     "footer",
     "nav",
     "navLabel",
+    "navHeading",
     "navAction",
     "search",
     "empty",
@@ -101,6 +113,15 @@ export const recipe = defineSlotRecipe({
         ["sm", "md", "lg"],
       ),
       nav: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), ["sm", "md", "lg"]),
+      navHeading: sizeVariants(
+        (size) => ({
+          marginBlockEnd: `calc(${dense(`{spacing.gap.${size}}`)} * -0.5)`,
+          paddingBlock: dense("{spacing.gap.xs}"),
+          paddingInline: dense(`{spacing.inset.${below(below(size))}}`),
+          textStyle: "label.xs",
+        }),
+        ["sm", "md", "lg"],
+      ),
       navLabel: sizeVariants(
         (size) => ({
           blockSize: dense(`{sizes.tag.${size}}`),

@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
 import { recipe } from "#sidebar/recipe.ts";
+import page from "#sidebar/sidebar.specimen.tsx";
 
 /**
  * The parts a sidebar draws, which the check is handed to read the slots by.
@@ -14,6 +16,7 @@ const PARTS = [
   "footer",
   "nav",
   "navLabel",
+  "navHeading",
   "navAction",
   "search",
   "empty",
@@ -21,6 +24,14 @@ const PARTS = [
 ];
 
 describe("recipe", () => {
+  it("covers every variant axis in the scenes of its specimen page", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
   it("writes no value a theme cannot move", () => {
     expect(recipeViolations(recipe, { names: ["Sidebar"], parts: PARTS })).toStrictEqual([]);
   });
@@ -29,7 +40,7 @@ describe("recipe", () => {
     expect(recipe.className).toBe("sidebar");
   });
 
-  it("styles the ten parts a sidebar draws", () => {
+  it("styles the eleven parts a sidebar draws", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
   });
 

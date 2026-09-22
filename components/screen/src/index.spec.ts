@@ -37,6 +37,7 @@ describe("index", () => {
       "Header",
       "Nav",
       "NavAction",
+      "NavHeading",
       "NavLabel",
       "Root",
       "Search",
