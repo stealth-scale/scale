@@ -12,9 +12,12 @@
  *   control that stayed on and did nothing is one a reader presses twice before believing it.
  *   The controls come from this package rather than from the button package, which keeps the
  *   collections off every other component package. They are the one element a transfer adds.
+ *   The size is handed to the frame, which is the part the recipe states every step on. Without it
+ *   the recipe's size axis was unreachable: every part was written for each step of the scale and
+ *   no caller could select one.
  */
 
-import { type ReactElement, type ReactNode } from "react";
+import { type ComponentProps, type ReactElement, type ReactNode } from "react";
 
 import { withContext, withProvider } from "#transfer/context.ts";
 import { Control } from "#transfer/control.tsx";
@@ -93,6 +96,12 @@ export interface TransferProps<Row> {
   readonly rows: readonly Row[];
 
   /**
+   * How much room the pair takes: the height of a side, the gap between the parts, and the mark
+   * inside a control.
+   */
+  readonly size?: ComponentProps<typeof Framed>["size"];
+
+  /**
    * Reads out as the name of the control that takes rows across.
    */
   readonly takeLabel: string;
@@ -128,6 +137,7 @@ export function Transfer<Row>({
   nothing,
   offeredTitle,
   rows,
+  size,
   takeLabel,
   takeMark,
   takenTitle,
@@ -143,7 +153,7 @@ export function Transfer<Row>({
   };
 
   return (
-    <Framed>
+    <Framed {...(size === undefined ? {} : { size })}>
       <Side
         {...shared}
         collection={crossing.offered}

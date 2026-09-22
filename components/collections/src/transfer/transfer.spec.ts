@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { drawn, pressed } from "@stealthscale/testing-react";
-import { slotClass, slotElement } from "@stealthscale/testing-theme";
+import { slotClass, slotElement, slotVariantClass } from "@stealthscale/testing-theme";
 
 import { moving } from "#transfer/transfer.fixtures.tsx";
 
@@ -127,5 +127,21 @@ describe("Transfer", () => {
     const side = slotElement(container, "listbox", "content");
 
     expect(side.style.minBlockSize).toBe("calc(var(--listbox-row) * 3)");
+  });
+
+  it("draws the frame at the step a caller asks for", async () => {
+    const { container } = await drawn(moving({ size: "sm" }));
+
+    expect(slotElement(container, "transfer", "root").classList).toContain(
+      slotVariantClass("transfer", "root", "size", "sm"),
+    );
+  });
+
+  it("draws the frame at the recipe's own step where a caller asks for none", async () => {
+    const { container } = await drawn(moving());
+
+    expect(slotElement(container, "transfer", "root").classList).toContain(
+      slotVariantClass("transfer", "root", "size", "md"),
+    );
   });
 });
