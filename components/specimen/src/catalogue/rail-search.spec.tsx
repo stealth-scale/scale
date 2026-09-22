@@ -15,9 +15,11 @@ import { RailSearch } from "#catalogue/rail-search.tsx";
  */
 function Searched({
   panel,
+  railed = false,
   shortcut,
 }: {
   readonly panel?: string;
+  readonly railed?: boolean;
   readonly shortcut?: Hotkey;
 }): ReactElement {
   const [query, setQuery] = useState("");
@@ -38,6 +40,13 @@ function Searched({
                 value={query}
               />
             </Sidebar.Header>
+            {railed ? (
+              <Sidebar.Content>
+                <Sidebar.Nav aria-label="Catalogue">
+                  <a href="/components/actions/button">Button</a>
+                </Sidebar.Nav>
+              </Sidebar.Content>
+            ) : null}
           </Sidebar.Root>
         </AppShell.Navbar>
         <AppShell.Main>
@@ -147,6 +156,32 @@ describe("RailSearch", () => {
     expect(screen.getByRole("button", { name: "Navigation" }).getAttribute("aria-expanded")).toBe(
       "true",
     );
+    expect(document.activeElement).toBe(screen.getByRole("searchbox"));
+  });
+
+  it("takes the reader into the rail on the down arrow", () => {
+    render(<Searched railed />);
+
+    fireEvent.keyDown(screen.getByRole("searchbox"), { key: "ArrowDown" });
+
+    expect(document.activeElement).toBe(screen.getByRole("link", { name: "Button" }));
+  });
+
+  it("leaves the reader in the field where the query left no rail", () => {
+    render(<Searched />);
+
+    screen.getByRole("searchbox").focus();
+    fireEvent.keyDown(screen.getByRole("searchbox"), { key: "ArrowDown" });
+
+    expect(document.activeElement).toBe(screen.getByRole("searchbox"));
+  });
+
+  it("leaves a key that is not the down arrow alone", () => {
+    render(<Searched railed />);
+
+    screen.getByRole("searchbox").focus();
+    fireEvent.keyDown(screen.getByRole("searchbox"), { key: "ArrowUp" });
+
     expect(document.activeElement).toBe(screen.getByRole("searchbox"));
   });
 });

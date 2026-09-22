@@ -2,7 +2,7 @@
  * Draws the field that narrows the rail to the pages whose words a reader types.
  */
 
-import { type ReactElement, useEffect, useRef } from "react";
+import { type KeyboardEvent, type ReactElement, useEffect, useRef } from "react";
 
 import { XIcon } from "lucide-react";
 
@@ -28,6 +28,28 @@ const SHORTCUT: Hotkey = "Mod+K";
  * Command on a Mac.
  */
 const MOD = "Mod";
+
+/**
+ * Selects the sidebar the field is drawn in, which is where the rail it narrows is drawn too.
+ */
+const SIDEBAR = "[data-recipe=sidebar]";
+
+/**
+ * Selects a row of the rail within the sidebar: a destination, or the row a group opens from.
+ */
+const FIRST_ROW = "nav :is(a, button)";
+
+/**
+ * Returns the first row of the rail the field narrows, or null where the query left none.
+ *
+ * @remarks
+ *   Read from the sidebar around the field rather than handed down, because the rail and the field
+ *   are siblings an application composes and neither holds the other. The sidebar is the nearest
+ *   thing holding both, and the field is always drawn inside one.
+ */
+function firstRowOf(field: HTMLElement): HTMLElement | null {
+  return field.ownerDocument.querySelector<HTMLElement>(`${SIDEBAR} ${FIRST_ROW}`);
+}
 
 /**
  * Writes a shortcut the way `aria-keyshortcuts` takes it: the platform's modifier spelt out as
@@ -80,6 +102,10 @@ export interface RailSearchProps {
  *   shortcut opens the panel first and moves focus once the field is on screen. That move waits a
  *   microtask, because the shell takes the reader into the panel in an effect of its own that runs
  *   after this one, and a move made before it would be undone by it.
+ *   The down arrow takes the reader from the field into the rail, and the rail's own arrows carry
+ *   them from there. A reader who has just narrowed the list to three pages is looking at those
+ *   three pages, and Tab would stop on the control that empties the field before reaching any of
+ *   them.
  */
 export function RailSearch({
   onValueChange,
@@ -113,6 +139,20 @@ export function RailSearch({
     panel?.setOpen(true);
   });
 
+  /**
+   * Takes the reader from the field into the rail on the down arrow.
+   */
+  const entered = (event: KeyboardEvent<HTMLInputElement>): void => {
+    if (event.key !== "ArrowDown") return;
+
+    const row = firstRowOf(event.currentTarget);
+
+    if (row === null) return;
+
+    row.focus();
+    event.preventDefault();
+  };
+
   return (
     <Sidebar.Search ref={box}>
       <SearchInput
@@ -120,6 +160,7 @@ export function RailSearch({
         aria-label={t("rail.filter")}
         clearIndicator={<XIcon aria-hidden size="1em" />}
         clearLabel={t("rail.clear")}
+        onKeyDown={entered}
         onValueChange={onValueChange}
         placeholder={t("rail.filter")}
         size="sm"
