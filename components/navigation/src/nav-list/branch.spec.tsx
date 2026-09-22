@@ -7,7 +7,7 @@ import { slotElement } from "@stealthscale/testing-theme";
 import { Branch } from "#nav-list/branch.tsx";
 import { Content } from "#nav-list/content.tsx";
 import { branched } from "#nav-list/nav-list.fixtures.tsx";
-import { Root } from "#nav-list/root.ts";
+import { Root } from "#nav-list/root.tsx";
 import { Trigger } from "#nav-list/trigger.tsx";
 
 describe("Branch", () => {

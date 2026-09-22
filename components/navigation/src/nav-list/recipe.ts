@@ -41,9 +41,10 @@ import {
  * @remarks
  *   The binding writes one class per part, `nav-list__action`, and stamps no attribute naming the
  *   part. A rule that selects another part therefore selects the class, and builds it from this
- *   constant so the two cannot drift.
+ *   constant so the two cannot drift. The keyboard reads the same constant to find the rows, for
+ *   the same reason.
  */
-const CLASS = "nav-list";
+export const CLASS = "nav-list";
 
 /**
  * Selects the control at the end of a row from a rule written on the row.

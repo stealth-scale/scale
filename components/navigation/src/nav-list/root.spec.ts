@@ -6,7 +6,7 @@ import { boundViolations, slotElement } from "@stealthscale/testing-theme";
 
 import { composed } from "#nav-list/nav-list.fixtures.tsx";
 import { recipe } from "#nav-list/recipe.ts";
-import { type RootProps } from "#nav-list/root.ts";
+import { type RootProps } from "#nav-list/root.tsx";
 
 describe("Root", () => {
   it("breaks no accessibility rule holding rows and a branch", async () => {
