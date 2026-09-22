@@ -121,8 +121,8 @@ export function Side<Row>({
               {collection.stringifyItem(row)}
             </Listbox.Row>
           ))}
-          {nothing === undefined ? null : <Listbox.Empty>{nothing}</Listbox.Empty>}
         </Listbox.Content>
+        {nothing === undefined ? null : <Listbox.Empty>{nothing}</Listbox.Empty>}
       </Listbox.Root>
     </Held>
   );

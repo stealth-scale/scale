@@ -217,6 +217,12 @@ function boxed<Row>({ "aria-label": named, label, tall }: SimpleProps<Row>): Con
 /**
  * Draws a whole listbox from what it is told about the list.
  *
+ * @remarks
+ *   The label, the field, the row that turns the whole list on and the line it says when it has
+ *   none all stand outside the element holding the rows. That element carries `role="listbox"`,
+ *   which admits an option and a group and nothing else, so a field or a button inside it is markup
+ *   a screen reader is entitled to ignore. It is also where the surface is drawn and what scrolls,
+ *   which is why the four of them stay put while the rows move.
  * @typeParam Row - What one row holds.
  * @param props - The rows, what each one draws, and what stands above and below them.
  * @returns The list, holding its label, its field, its rows and what it says when it has none.
@@ -241,9 +247,9 @@ export function Simple<Row>(props: SimpleProps<Row>): ReactElement {
   return (
     <Root {...root} collection={collection}>
       {label === undefined ? null : <Label>{label}</Label>}
+      {narrowing === undefined ? null : <Input {...narrowed(narrowing)} />}
+      {selectAll === undefined ? null : <SelectAll>{selectAll}</SelectAll>}
       <Content {...boxed(props)}>
-        {narrowing === undefined ? null : <Input {...narrowed(narrowing)} />}
-        {selectAll === undefined ? null : <SelectAll>{selectAll}</SelectAll>}
         {tall === undefined ? (
           listed(props, collection.items)
         ) : (
@@ -251,8 +257,8 @@ export function Simple<Row>(props: SimpleProps<Row>): ReactElement {
             {({ first, last }) => listed(props, collection.items.slice(first, last))}
           </Window>
         )}
-        {empty === undefined ? null : <Empty>{empty}</Empty>}
       </Content>
+      {empty === undefined ? null : <Empty>{empty}</Empty>}
       {summary === undefined ? null : <ValueText placeholder={summary} />}
     </Root>
   );

@@ -4,7 +4,7 @@ import { fireEvent, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { drawn, pressed } from "@stealthscale/testing-react";
-import { slotElement } from "@stealthscale/testing-theme";
+import { slotClass, slotElement } from "@stealthscale/testing-theme";
 
 import { COLLECTION, type Row } from "#listbox/rows.fixtures.ts";
 import { Simple, type SimpleProps } from "#listbox/simple.tsx";
@@ -136,5 +136,22 @@ describe("Simple", () => {
     expect([...slotElement(container, "listbox", "content").classList].join(" ")).toContain(
       "surface",
     );
+  });
+
+  it("holds nothing but rows inside the element that carries the list role", async () => {
+    expect.hasAssertions();
+
+    const { container } = await drawn(
+      whole({
+        empty: "Nothing here.",
+        narrowing: { onNarrow: vi.fn<(typed: string) => void>() },
+        selectAll: "All",
+      }),
+    );
+    const held = slotElement(container, "listbox", "content");
+
+    for (const part of ["empty", "input", "selectAll"]) {
+      expect(held.querySelector(`.${slotClass("listbox", part)}`)).toBeNull();
+    }
   });
 });
