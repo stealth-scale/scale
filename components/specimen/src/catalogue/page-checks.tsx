@@ -47,8 +47,10 @@ export interface ChecksProps {
  *   It is a disclosure only once there is something to disclose. Until the first run there is no
  *   panel, so it states neither `aria-expanded` nor a panel to control and announces itself as the
  *   plain control it is.
- *   The words say what it is doing while it runs. An audit of a large scene takes long enough for a
- *   reader to press again, and a control that looked unchanged would be pressed twice.
+ *   Its words never change. It reports a run by going off and by stating `aria-busy`, both from
+ *   the first frame, which is what turns a second press away and what a screen reader hears. Words
+ *   that said the run was under way changed and changed back inside a frame on most scenes, and
+ *   the control read as flinching rather than as reporting.
  * @param props - The panel it opens, its state, and what to tell on a press.
  * @returns The control.
  */
@@ -57,6 +59,7 @@ export function Checks({ id, onPress, open, ran, running }: ChecksProps): ReactE
 
   return (
     <Button
+      aria-busy={running}
       disabled={running}
       onClick={onPress}
       size="sm"
@@ -65,7 +68,7 @@ export function Checks({ id, onPress, open, ran, running }: ChecksProps): ReactE
       {...(ran ? { "aria-controls": id, "aria-expanded": open } : {})}
     >
       <AccessibilityIcon aria-hidden size="1em" />
-      {t(running ? "audit.running" : "audit.check")}
+      {t("audit.check")}
     </Button>
   );
 }

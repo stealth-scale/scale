@@ -6,7 +6,6 @@
     "clean": "Nothing found, against {{count}} rule",
     "clean_other": "Nothing found, against {{count}} rules",
     "rule": "Read the {{rule}} rule",
-    "running": "Auditing",
     "unrated": "unrated"
   },
   "code": {

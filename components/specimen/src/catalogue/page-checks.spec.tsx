@@ -29,16 +29,22 @@ describe("Checks", () => {
     expect(getByRole("button", { name: "Audit" })).toBeDefined();
   });
 
-  it("says what it is doing while it runs", async () => {
+  it("keeps its words while it runs", async () => {
     const { getByRole } = await drawn(checking({ running: true }));
 
-    expect(getByRole("button", { name: "Auditing" })).toBeDefined();
+    expect(getByRole("button", { name: "Audit" })).toBeDefined();
   });
 
   it("takes no press while it runs", async () => {
     const { getByRole } = await drawn(checking({ running: true }));
 
     expect(getByRole("button").hasAttribute("disabled")).toBe(true);
+  });
+
+  it("says it is busy from the first frame of a run", async () => {
+    const { getByRole } = await drawn(checking({ running: true }));
+
+    expect(getByRole("button").getAttribute("aria-busy")).toBe("true");
   });
 
   it("controls nothing before an audit has run", async () => {

@@ -113,7 +113,7 @@ export function SceneSection({
             <Section.Description>{marked(word(scene.about))}</Section.Description>
           )}
         </Section.Header>
-        <Card.Root as={Section.Body} variant={SURFACE[frame]}>
+        <Card.Root as={Section.Body} justify="between" variant={SURFACE[frame]}>
           <Staged frame={frame} ref={stage}>
             <scene.draw />
           </Staged>

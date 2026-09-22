@@ -48,13 +48,13 @@ function flawed(): ReactElement {
 }
 
 describe("Tools", () => {
-  it("offers the source and the audit", async () => {
+  it("offers the audit at the start and the source at the end", async () => {
     const { getAllByRole } = await drawn(carded());
 
-    expect(getAllByRole("button").map((one) => one.textContent)).toStrictEqual(["Source", "Audit"]);
+    expect(getAllByRole("button").map((one) => one.textContent)).toStrictEqual(["Audit", "Source"]);
   });
 
-  it("says so where the index cut no source for the scene", async () => {
+  it("says so where the scene carries no source", async () => {
     const { getByText } = await drawn(carded(null));
 
     expect(getByText("No source for this scene")).toBeDefined();

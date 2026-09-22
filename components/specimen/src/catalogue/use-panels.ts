@@ -69,6 +69,10 @@ function opened(audit: boolean, source: boolean): Open {
  *   reports nothing rather than auditing the whole document.
  *   The rules come from the catalogue's settings, so an application states them once for every
  *   page.
+ *   A run reports itself by holding its control off and nothing else. Most scenes audit in a frame
+ *   or two, so anything the footer changed while a run was under way changed back inside one and
+ *   read as the footer flinching. The last report is left standing for the same reason: it is
+ *   replaced when the new one arrives rather than cleared and drawn again.
  * @param stage - The element the scene was drawn into.
  * @returns The open panel, the last audit, and the two ways to change either.
  */
