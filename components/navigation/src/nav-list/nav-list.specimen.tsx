@@ -89,12 +89,15 @@ function Rows(): ReactElement {
 
 /**
  * Draws the rows in whatever the scene hands over.
+ *
+ * @remarks
+ *   The list is drawn on its own, without the `nav` a caller names the set with. A page holding
+ *   nineteen of these would hold nineteen landmarks of one name, and the landmark is the sidebar's
+ *   to draw rather than the list's.
  */
 function Listed(props: NavList.RootProps): ReactElement {
-  const { t } = useWords("nav-list");
-
   return (
-    <NavList.Root aria-label={t("main")} as="nav" {...props}>
+    <NavList.Root {...props}>
       <Rows />
     </NavList.Root>
   );

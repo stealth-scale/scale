@@ -1,3 +1,5 @@
+import { createElement } from "react";
+
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
@@ -33,9 +35,15 @@ describe("Root", () => {
     expect(screen.queryByRole("navigation")).toBeNull();
   });
 
-  it("draws the landmark as names", () => {
-    render(composed({ "aria-label": "Main", as: "nav" }));
+  it("draws the list element a caller names instead", () => {
+    const { container } = render(composed({ as: "ol" }));
 
-    expect(screen.getByRole("navigation", { name: "Main" })).toBeTruthy();
+    expect(slotElement(container, "nav-list", "root").tagName).toBe("OL");
+  });
+
+  it("leaves the rows in a list where a caller draws the landmark round it", async () => {
+    await expect(
+      accessibilityViolations(() => createElement("nav", { "aria-label": "Main" }, composed())),
+    ).resolves.toStrictEqual([]);
   });
 });

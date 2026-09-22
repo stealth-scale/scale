@@ -3,8 +3,11 @@
  *
  * @remarks
  *   The element is `ul`, so a screen reader counts the destinations and says how many there are.
- *   The list carries no landmark of its own. A page holds more than one of these, and the landmark
- *   belongs to whatever names the set: a sidebar's `nav`, a page's own, or a caller's `as="nav"`.
+ *   The list states no landmark of its own. A page draws more than one of these, and the landmark
+ *   belongs to whatever names the set: a sidebar's `nav`, a page's own, or a `nav` a caller draws
+ *   round the list. Draw that `nav` round the list rather than reaching for `as="nav"`. The rows
+ *   are `li` elements, and a `nav` holding those directly is markup no screen reader reads as a
+ *   list.
  *   The arrows the list answers are the ones it is read along. A column answers the down and up
  *   arrows and a dock answers the ones along the line, which is what `variant` already states, so
  *   nothing new has to be said at the call site. A caller's own key handler runs first and keeps
