@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#em/index.ts";
 
 describe("index", () => {
-  it("names every export and nothing beside it", () => {
+  it("exports Em only", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual(["Em"]);
   });
 
-  it("publishes neither the recipe nor the binding", () => {
+  it("exports no recipe binding or props provider", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {

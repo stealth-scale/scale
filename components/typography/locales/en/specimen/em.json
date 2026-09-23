@@ -1,15 +1,15 @@
 {
-  "about": "Marks a run of words the writer stressed, in the emphasis role.",
-  "after": " press the red one.",
-  "before": "Whatever happens,",
+  "about": "Marks stressed text. The element has the emphasis role.",
+  "after": "after",
+  "backup": "the backup finishes.",
+  "before": "The export starts",
   "motion": {
-    "about": "How the run enters the line.",
+    "about": "The animation a stressed run enters with. Each one runs once when the run mounts.",
     "title": "Motion"
   },
-  "never": "never",
   "title": "Em",
   "tone": {
-    "about": "The stressed run in every ink, inside a line of ordinary words.",
+    "about": "The stressed run in every text ink, inside a line of body text. The inverted ink is for a dark surface, so its cell renders on `bg.inverted`.",
     "title": "Inks"
   }
 }
