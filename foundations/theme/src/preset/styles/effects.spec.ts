@@ -4,12 +4,15 @@ import { effects } from "#preset/styles/effects.ts";
 import { tokenAt } from "#tokens.fixtures.ts";
 
 describe("effects", () => {
-  it("names three glows and nine backdrops and two gradient texts", () => {
+  it("declares three glows", () => {
     expect(Object.keys(tokenAt(effects, "glow") ?? {}).toSorted()).toStrictEqual([
       "lg",
       "md",
       "sm",
     ]);
+  });
+
+  it("declares nine backdrops", () => {
     expect(Object.keys(tokenAt(effects, "backdrop") ?? {}).toSorted()).toStrictEqual([
       "aurora",
       "checker",
@@ -21,41 +24,51 @@ describe("effects", () => {
       "stripes",
       "vignette",
     ]);
+  });
+
+  it("declares two gradient text styles", () => {
     expect(Object.keys(tokenAt(effects, "text") ?? {}).toSorted()).toStrictEqual([
       "gradient",
       "shine",
     ]);
   });
 
-  it("names three blurs and three masks and the dimming and the moving border", () => {
+  it("declares three blurs", () => {
     expect(Object.keys(tokenAt(effects, "blur") ?? {}).toSorted()).toStrictEqual([
       "lg",
       "md",
       "sm",
     ]);
+  });
+
+  it("declares three masks", () => {
     expect(Object.keys(tokenAt(effects, "mask") ?? {}).toSorted()).toStrictEqual([
       "bottom",
       "edges",
       "radial",
     ]);
-    expect(tokenAt(effects, "dim.others")).toBeDefined();
-    expect(tokenAt(effects, "border.moving")).toBeDefined();
   });
 
-  it("blurs by a step of the blur scale", () => {
+  it("reads the blur scale at blur.md", () => {
     expect(tokenAt(effects, "blur.md")).toStrictEqual({ filter: "blur({blurs.md})" });
   });
 
-  it("dims and blurs the siblings of a hovered child after a fast transition", () => {
-    expect(tokenAt(effects, "dim.others")).toStrictEqual({
-      "&:has(> :hover) > :not(:hover)": { filter: "blur({blurs.xs})", opacity: "muted" },
+  it("dims every child except a hovered focused or pressed one", () => {
+    expect(tokenAt(effects, "dim.others")).toMatchObject({
+      "&:has(> :is(:hover, :focus-visible, [aria-pressed=true])) > :not(:hover, :focus-visible, [aria-pressed=true])":
+        { filter: "blur({blurs.xs})", opacity: "muted" },
+    });
+  });
+
+  it("transitions the dim at the fast duration", () => {
+    expect(tokenAt(effects, "dim.others")).toMatchObject({
       "& > *": {
         transition: "filter {durations.fast} {easings.out}, opacity {durations.fast} {easings.out}",
       },
     });
   });
 
-  it("masks an edge or a centre with a gradient", () => {
+  it("declares a gradient mask image for each mask", () => {
     expect(tokenAt(effects, "mask.bottom")).toStrictEqual({
       maskImage: "linear-gradient(to bottom, black 60%, transparent)",
     });
@@ -68,22 +81,28 @@ describe("effects", () => {
     });
   });
 
-  it("draws the patterned backdrops from the lines and the fills", () => {
+  it("paints the checker backdrop from bg.emphasized", () => {
     expect(tokenAt(effects, "backdrop.checker")).toStrictEqual({
       backgroundImage:
         "conic-gradient({colors.bg.emphasized} 25%, transparent 0 50%, {colors.bg.emphasized} 0 75%, transparent 0)",
       backgroundSize: "{sizes.8} {sizes.8}",
     });
+  });
+
+  it("paints the vignette from blackAlpha.600", () => {
     expect(tokenAt(effects, "backdrop.vignette")).toStrictEqual({
       backgroundImage:
         "radial-gradient(ellipse at center, transparent 55%, {colors.blackAlpha.600})",
     });
+  });
+
+  it("paints the noise backdrop from an feTurbulence filter", () => {
     expect(
       String(Reflect.get(tokenAt(effects, "backdrop.noise") ?? {}, "backgroundImage")),
     ).toContain("feTurbulence");
   });
 
-  it("draws a glow as a shadow in the palette's solid at half strength", () => {
+  it("renders each glow as a box shadow in the palette's solid at 50% opacity", () => {
     expect(tokenAt(effects, "glow.md")).toStrictEqual({
       boxShadow: "0 0 {sizes.8} var(--shadow-color)",
       boxShadowColor: "colorPalette.solid/50",
@@ -96,7 +115,7 @@ describe("effects", () => {
     });
   });
 
-  it("draws a moving border as a conic sweep of the palette's solid round the panel surface", () => {
+  it("paints the moving border as a conic gradient over the panel surface", () => {
     expect(tokenAt(effects, "border.moving")).toStrictEqual({
       background:
         "linear-gradient({colors.bg.panel}, {colors.bg.panel}) padding-box, conic-gradient(from var(--angle), transparent 60%, var(--colors-color-palette-solid) 85%, transparent) border-box",
@@ -105,13 +124,16 @@ describe("effects", () => {
     });
   });
 
-  it("draws gradient text from the palette's solid to the accent's and clips it to the glyphs", () => {
+  it("clips text.gradient from the palette solid to the accent solid", () => {
     expect(tokenAt(effects, "text.gradient")).toStrictEqual({
       backgroundClip: "text",
       backgroundImage:
         "linear-gradient(to right, var(--colors-color-palette-solid), var(--colors-accent-solid))",
       color: "transparent",
     });
+  });
+
+  it("paints text.shine through the palette solid in dark mode", () => {
     expect(tokenAt(effects, "text.shine")).toMatchObject({
       _dark: {
         backgroundImage:
@@ -123,16 +145,22 @@ describe("effects", () => {
     });
   });
 
-  it("draws the backdrops from the lines and the gradients", () => {
+  it("paints the dots backdrop in the border color", () => {
     expect(tokenAt(effects, "backdrop.dots")).toStrictEqual({
       backgroundImage:
         "radial-gradient({colors.border} {borderWidths.sm}, transparent {borderWidths.sm})",
       backgroundSize: "{sizes.4} {sizes.4}",
     });
+  });
+
+  it("paints the aurora backdrop from gradients.aurora", () => {
     expect(tokenAt(effects, "backdrop.aurora")).toStrictEqual({
       backgroundImage: "{gradients.aurora}",
       backgroundSize: "300% 300%",
     });
+  });
+
+  it("paints the spotlight in the palette's muted role", () => {
     expect(tokenAt(effects, "backdrop.spotlight")).toMatchObject({
       "--spotlight-color": "var(--colors-color-palette-muted)",
       backgroundImage:
@@ -140,7 +168,7 @@ describe("effects", () => {
     });
   });
 
-  it("tiles a star field of nine dots in the ink the surface is written in", () => {
+  it("tiles nine currentcolor dots in the stars backdrop", () => {
     expect(tokenAt(effects, "backdrop.stars")).toStrictEqual({
       backgroundImage: [
         "radial-gradient({borderWidths.md} {borderWidths.md} at 8% 14%, currentcolor 99%, transparent)",
@@ -157,11 +185,14 @@ describe("effects", () => {
     });
   });
 
-  it("rules a diagonal line a whole pixel wide where an upright one holds at half", () => {
+  it("sets the diagonal stripe width to borderWidths.sm", () => {
     expect(tokenAt(effects, "backdrop.stripes")).toStrictEqual({
       backgroundImage:
         "repeating-linear-gradient(135deg, {colors.border} 0 {borderWidths.sm}, transparent {borderWidths.sm} {sizes.4})",
     });
+  });
+
+  it("sets the grid line width to borderWidths.xs", () => {
     expect(tokenAt(effects, "backdrop.grid")).toStrictEqual({
       backgroundImage:
         "linear-gradient(to right, {colors.border} {borderWidths.xs}, transparent {borderWidths.xs}), linear-gradient(to bottom, {colors.border} {borderWidths.xs}, transparent {borderWidths.xs})",

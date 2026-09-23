@@ -324,3 +324,10 @@ theme: kebab-case the slot in a slot compound's class
 - `defineSlotRecipe` builds each compound's `className` from `slotClass`, which kebab-cases the
   slot. A compound on the `closeTrigger` slot declared `alert__closeTrigger--contrasted` while the
   element carried `alert__close-trigger--contrasted`, so `boundViolations` reported both classes.
+
+theme: dim the siblings of a focused or pressed child
+
+- `layerStyles.dim.others` blurs and fades every child except a `:hover`, `:focus-visible` or
+  `[aria-pressed=true]` one, while the container has such a child. It reacted to `:hover` only.
+  Keyboard focus did not dim the siblings, and a pressed toggle did not show the choice at rest.
+- At rest a pressed child keeps its siblings at opacity 0.64 with `blur(4px)`.
