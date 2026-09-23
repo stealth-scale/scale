@@ -16,6 +16,14 @@
  *   `Group`, which joins controls into one and knows how to square the corners between them, and
  *   this restyles only the rule, which has to stretch to the row's height rather than sit at a
  *   length of its own.
+ *   The search and whatever it holds each take no minimum width. A text field carries one of its
+ *   own, some twenty characters wide, and a field that kept it pushed the row past its own edge on
+ *   the narrowest rows rather than giving way like everything else in them.
+ *   The search is the one thing in the row that gives way. The bands of controls hold their width
+ *   and the search takes whatever is left, down to nothing. Left to give way themselves, they were
+ *   assigned less room than the controls inside them take, because a control does not shrink, and
+ *   the controls ran out of the band and under whatever sat next in the row: the folded control was
+ *   drawn on top of the last action in the start band, two marks in one square.
  */
 
 import {
@@ -55,7 +63,7 @@ export const recipe = defineSlotRecipe({
       flex: "1",
       justifyContent: "center",
     },
-    end: { ...BAND, marginInlineStart: "auto" },
+    end: { ...BAND, flexShrink: "0", marginInlineStart: "auto" },
     folded: { ...FOLDED, alignItems: "center", flexShrink: "0", justifyContent: "center" },
     root: { ...BAND, inlineSize: "100%", position: "relative" },
     search: {
@@ -68,10 +76,12 @@ export const recipe = defineSlotRecipe({
         position: "absolute",
         zIndex: "1",
       },
+      "& > *": { minInlineSize: "0" },
+      flex: "1 1 0",
       minInlineSize: "0",
     },
     separator: { alignSelf: "stretch", blockSize: "auto" },
-    start: BAND,
+    start: { ...BAND, flexShrink: "0" },
   },
   className: "toolbar",
   defaultVariants: { radius: "l2", size: "md", variant: "plain" },

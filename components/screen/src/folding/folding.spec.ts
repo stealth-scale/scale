@@ -13,7 +13,19 @@ describe("FOLDING", () => {
 
   it("keeps a secondary action's words for a screen reader", () => {
     expect(FOLDING["&[data-priority=secondary]"]).toStrictEqual({
-      "[data-narrow] &": { "& > :not(svg)": { srOnly: true } },
+      "[data-narrow] &": {
+        "& > :not(svg)": { srOnly: true },
+        aspectRatio: "square",
+        justifyContent: "center",
+        paddingInline: "0",
+      },
+    });
+  });
+
+  it("draws a folded secondary action as a square around the mark it keeps", () => {
+    expect(FOLDING["&[data-priority=secondary]"]["[data-narrow] &"]).toMatchObject({
+      aspectRatio: "square",
+      paddingInline: "0",
     });
   });
 

@@ -30,6 +30,30 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
+ * Writes what a look drawn on the ground behind it turns under a pointer, under a press, and while
+ * its list stands open.
+ */
+const ON_GROUND = {
+  _active: { background: "bg.emphasized" },
+  _hover: { background: "bg.muted" },
+  _open: { background: "bg.muted" },
+};
+
+/**
+ * Writes what a look already resting on a fill turns for the same three.
+ *
+ * @remarks
+ *   One step further down the surface ladder than the look rests on. Sharing the ladder with the
+ *   looks that rest on the ground gave the subtle look a hover of the fill it was already drawn in,
+ *   and a control that turned nothing under a pointer.
+ */
+const ON_FILL = {
+  _active: { background: "bg.emphasized" },
+  _hover: { background: "bg.emphasized" },
+  _open: { background: "bg.emphasized" },
+};
+
+/**
  * Draws a plain switcher at the middle size.
  */
 export const recipe = defineSlotRecipe({
@@ -137,13 +161,18 @@ export const recipe = defineSlotRecipe({
      *   A switcher is usually at the head of a sidebar, where the sidebar is already a surface and
      *   a second one round the control reads as a box inside a box. `plain` is that case and the
      *   default.
+     *   Each look states what it rests on, what it turns under a pointer, and what it turns while
+     *   its list is open. The three are written here rather than on the root, because the compiler
+     *   layers a recipe's variants over its base: a look that stated its resting fill alone won
+     *   over any state the base had written, and the control read the same at rest, under a pointer
+     *   and with its list standing open under it.
      */
     variant: onSlot("root", {
-      subtle: { background: "bg.muted" },
+      subtle: { ...ON_FILL, background: "bg.muted" },
 
-      outline: { borderColor: "border.emphasized", borderWidth: "control" },
+      outline: { ...ON_GROUND, borderColor: "border.emphasized", borderWidth: "control" },
 
-      plain: { background: "transparent" },
+      plain: { ...ON_GROUND, background: "transparent" },
     }),
   },
 });

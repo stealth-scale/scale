@@ -9,6 +9,36 @@ import page from "#switcher/switcher.specimen.tsx";
 const PARTS = ["root", "mark", "label", "name", "detail", "indicator"];
 
 describe("recipe", () => {
+  it("turns a fill under a pointer and under a press and while its list stands open", () => {
+    expect(recipe.variants?.["variant"]?.["plain"]?.["root"]).toStrictEqual({
+      _active: { background: "bg.emphasized" },
+      _hover: { background: "bg.muted" },
+      _open: { background: "bg.muted" },
+      background: "transparent",
+    });
+  });
+
+  it("moves a look already resting on a fill one step further down the ladder", () => {
+    expect(recipe.variants?.["variant"]?.["subtle"]?.["root"]).toStrictEqual({
+      _active: { background: "bg.emphasized" },
+      _hover: { background: "bg.emphasized" },
+      _open: { background: "bg.emphasized" },
+      background: "bg.muted",
+    });
+  });
+
+  it("states those fills inside each look rather than on the root", () => {
+    const looks = recipe.variants?.["variant"];
+
+    expect([
+      looks?.["outline"]?.["root"],
+      looks?.["plain"]?.["root"],
+      looks?.["subtle"]?.["root"],
+    ]).toSatisfy((roots: ReadonlyArray<Record<string, unknown> | undefined>) =>
+      roots.every((root) => root !== undefined && "_open" in root && "_hover" in root),
+    );
+  });
+
   it("covers every variant axis in the scenes of its specimen page", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });

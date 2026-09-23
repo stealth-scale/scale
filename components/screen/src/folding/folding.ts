@@ -36,12 +36,24 @@ export const PRIORITY = "data-priority";
  *   Every action keeps its words on one line at every width, because the row gives way around them
  *   and a control that wrapped would be the thing that made the row taller.
  *   A secondary action keeps its words in the document under `srOnly` rather than dropping them,
- *   because a control with no accessible name is one a screen reader cannot announce. A tertiary
- *   one leaves the document rather than being hidden, so a keyboard does not reach a control
- *   nobody can see. A primary one states nothing and is left alone.
+ *   because a control with no accessible name is one a screen reader cannot announce. It is drawn
+ *   as a square around whatever mark it keeps, so the row it folds into is a row of equal marks
+ *   rather than of controls at whatever width their padding left them.
+ *   `srOnly` is written on the action's element children, so a secondary action states its words in
+ *   an element. A bare text node is not selectable, and one written straight into the control was
+ *   left drawn beside the mark with the folded control on top of it.
+ *   A tertiary action leaves the document rather than being hidden, so a keyboard does not reach a
+ *   control nobody can see. A primary one states nothing and is left alone.
  */
 export const FOLDING = {
-  [`&[${PRIORITY}=secondary]`]: { [NARROW]: { "& > :not(svg)": { srOnly: true } } },
+  [`&[${PRIORITY}=secondary]`]: {
+    [NARROW]: {
+      "& > :not(svg)": { srOnly: true },
+      aspectRatio: "square",
+      justifyContent: "center",
+      paddingInline: "0",
+    },
+  },
   [`&[${PRIORITY}=tertiary]`]: { [NARROW]: { display: "none" } },
   whiteSpace: "nowrap",
 };
