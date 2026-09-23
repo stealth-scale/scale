@@ -1,6 +1,6 @@
 /**
- * Re-exports the parts of the code block, which a caller composes as a `CodeBlock.Root` around a
- * header carrying a title and controls, and content carrying the code.
+ * Publishes the code block's parts. Nest a header with a title and controls, then content with the
+ * code, under `CodeBlock.Root`.
  */
 
 export { Code, type CodeProps } from "#code-block/code.tsx";

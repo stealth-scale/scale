@@ -1,9 +1,9 @@
 /**
- * Connects the slot recipe to React.
+ * Binds the code block slot recipe to the React context its parts share.
  *
  * @remarks
- *   This is a separate module from `recipe.ts` so that an application's compiler can read the
- *   recipe at build time without pulling React in with it.
+ *   The binding is a separate module from `recipe.ts`, because an application's style compiler
+ *   imports the recipe at build time without the React runtime.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";
@@ -11,7 +11,7 @@ import { createSlotRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#code-block/recipe.ts";
 
 /**
- * A single binding of the recipe: `withProvider` wraps the root, `withContext` wraps every other
- * slot beneath it.
+ * Factories that bind the root, which resolves the variants, and every other part, which reads
+ * them.
  */
 export const { withContext, withProvider } = createSlotRecipeContext(recipe);

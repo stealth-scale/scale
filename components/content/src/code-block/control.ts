@@ -1,5 +1,5 @@
 /**
- * Renders the area at the trailing end of the header where controls acting on the code go.
+ * Renders the group at the end of the header for controls that act on the code.
  */
 
 import { type ComponentProps } from "react";
@@ -7,11 +7,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#code-block/context.ts";
 
 /**
- * Groups the controls at the trailing end of the header.
+ * Renders the control slot.
  */
 export const Control = withContext("div", "control");
 
 /**
- * Props accepted by `Control`, which are the props of a styled `div`.
+ * Describes the props of `Control`: the props of the styled `div`.
  */
 export type ControlProps = ComponentProps<typeof Control>;

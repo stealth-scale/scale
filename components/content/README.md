@@ -1,8 +1,7 @@
 # @stealthscale/component-content
 
-Presents a body of something: a passage of code, and later markdown, a diff, a document, a record
-about a thing. Every component binds a recipe and draws nothing of its own, so a theme restyles all
-of them by extending the recipe. The preset under `./theme` registers the recipes with an
+Renders a body of content, starting with a passage of code. Each component binds a recipe, so a
+theme restyles it by extending the recipe. The preset under `./theme` registers the recipes with an
 application's compiler.
 
 ## Install
@@ -11,35 +10,26 @@ application's compiler.
 pnpm add @stealthscale/component-content
 ```
 
-The package peers on `react`, `@stealthscale/theme` and `@stealthscale/hooks`, and depends on
-`@tanstack/highlight` for the tokens a passage of code is cut into.
+The package peers on `react`, `@stealthscale/theme` and `@stealthscale/hooks`. It depends on
+`@tanstack/highlight`, which splits a passage of code into tokens, and on
+`@stealthscale/component-actions` for the copy control.
 
 ## CodeBlock
 
-Draws a passage of code in a panel: the code set in the code role, each kind of token in the ink the
-theme's code family states for it, headed by what the code is and whatever control a page puts
-beside it. The root holds the code and its language, the code part cuts the passage into tokens and
-writes each kind as `data-token`, and the recipe inks the kinds from `code.keyword`, `code.string`
-and the rest. The panel is drawn in the dark mode whatever the page is in, so a block reads the same
-on every page.
+A panel with a header over a horizontally scrolling passage of code. The recipe colours each token
+kind from the theme's `code` family: `code.keyword`, `code.string` and the rest.
 
 ```tsx
-import { ButtonPropsProvider, Clipboard, IconButton } from "@stealthscale/component-actions";
 import { CodeBlock } from "@stealthscale/component-content";
+import { CheckIcon, CopyIcon } from "lucide-react";
 
-<CodeBlock.Root code={source} language="tsx" size="sm">
+<CodeBlock.Root code={source} language="tsx">
   <CodeBlock.Header>
     <CodeBlock.Title>send.tsx</CodeBlock.Title>
     <CodeBlock.Control>
-      <Clipboard.Root value={source}>
-        <ButtonPropsProvider value={{ size: "xs", status: "neutral", variant: "ghost" }}>
-          <Clipboard.Trigger as={IconButton}>
-            <Clipboard.Indicator copied={<Check />}>
-              <Copy />
-            </Clipboard.Indicator>
-          </Clipboard.Trigger>
-        </ButtonPropsProvider>
-      </Clipboard.Root>
+      <CodeBlock.Copy copied={<CheckIcon aria-hidden size="1em" />} label="Copy the code">
+        <CopyIcon aria-hidden size="1em" />
+      </CodeBlock.Copy>
     </CodeBlock.Control>
   </CodeBlock.Header>
   <CodeBlock.Content>
@@ -48,15 +38,27 @@ import { CodeBlock } from "@stealthscale/component-content";
 </CodeBlock.Root>;
 ```
 
-The block draws no copy control of its own. A page puts the clipboard's trigger from the actions
-package in the control, drawn as the library's icon button, so the block and the button are styled
-by their own recipes.
-
-`language` names the language as the highlighter names it: `tsx`, `ts`, `json`, `shell`, `yaml` and
-the rest of its thirty-one. A language it does not know, or none, sets the passage as plain text.
-`mode` draws the panel `dark` by default, `light` on any page, or in the page's own mode with
-`inherit`.
+| Part      | Element  | What it renders                                                         |
+| --------- | -------- | ----------------------------------------------------------------------- |
+| `Root`    | `div`    | The panel. It takes the code, the language and the colour mode          |
+| `Header`  | `div`    | A row with the title at the start and the controls at the end           |
+| `Title`   | `div`    | A file name or another label, truncated on one line                     |
+| `Control` | `div`    | The group of controls at the end of the header                          |
+| `Copy`    | `button` | A ghost icon button that copies the root's code                         |
+| `Content` | `pre`    | The scrolling region. It is focusable, so the arrow keys scroll it      |
+| `Code`    | `code`   | The highlighted code, one `span` with `data-token` per classified token |
 
 | Axis   | Values     | Default |
 | ------ | ---------- | ------- |
 | `size` | `sm`, `md` | `md`    |
+
+`language` takes the highlighter's language names, such as `tsx`, `ts`, `json`, `shell` and `yaml`.
+An absent or unknown language renders plain text.
+
+`mode` sets the panel's colour mode: `dark` by default on any page, `light` on any page, or
+`inherit` to follow the page.
+
+`CodeBlock.Copy` takes the idle icon as its children and the copied icon as `copied`. `label` and
+`copiedLabel` set its accessible name and default to "Copy to clipboard" and "Copied to clipboard".
+
+The panel shows a focus ring while the scrolling region has focus.

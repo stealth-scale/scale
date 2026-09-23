@@ -1,13 +1,11 @@
 /**
- * Renders the panel a code block sits in and publishes the code to the parts inside it.
+ * Renders the panel of a code block and provides the code to its parts.
  *
  * @remarks
- *   The element is a `div` with no role; the `pre` further down is what assistive technology
- *   announces as preformatted text, and any control the caller adds names itself. By default the
- *   panel pins itself to the theme's dark side with the attribute the theme resolves modes from,
- *   so code reads the same on a light page as on a dark one and every token the recipe references
- *   resolves darkly within it. Pass `mode="light"` to pin it the other way, or `mode="inherit"` to
- *   follow the page, which omits the attribute altogether.
+ *   The element is a `div` with no role. The `pre` inside it is announced as preformatted text, and
+ *   each control names itself. The panel sets the theme's colour mode attribute to `dark` by
+ *   default, so a block renders the same on a light page and a dark one. `mode="light"` sets it to
+ *   light, and `mode="inherit"` omits the attribute so the panel follows the page.
  */
 
 import { type ComponentProps, type ReactElement, useMemo } from "react";
@@ -18,39 +16,41 @@ import { withProvider } from "#code-block/context.ts";
 import { CodeProvider } from "#code-block/state.ts";
 
 /**
- * The styled element carrying the recipe's root slot, which resolves the variants for the parts
- * below it.
+ * Renders the root slot and resolves the variants for the parts below it.
  */
 const Panelled = withProvider("div", "root");
 
 /**
- * The colour mode a panel renders in: pinned dark, pinned light, or whatever the page is using.
+ * Selects the colour mode of the panel: dark, light, or the page's own.
  */
 export type CodeBlockMode = "dark" | "inherit" | "light";
 
 /**
- * Props of the code block root, plus everything the styled element accepts.
+ * Describes the props of `Root`: the code, its language, the colour mode, and the props of the
+ * styled `div`.
  */
 export interface RootProps extends ComponentProps<typeof Panelled> {
   /**
-   * The source text, exactly as it should appear.
+   * Source text, rendered exactly as given.
    */
   readonly code: string;
 
   /**
-   * The language identifier the highlighter recognises, such as `tsx`, `json` or `shell`. The code
-   * renders as plain text when this is omitted or names a language the highlighter does not know.
+   * Language name as the highlighter knows it, such as `tsx`, `json` or `shell`.
+   *
+   * @remarks
+   *   The code renders as plain text when the language is absent or unknown to the highlighter.
    */
   readonly language?: string | undefined;
 
   /**
-   * The colour mode of the panel, dark unless the caller says otherwise.
+   * Colour mode of the panel. Defaults to `dark`.
    */
   readonly mode?: CodeBlockMode | undefined;
 }
 
 /**
- * Renders the panel and puts the code in scope for the parts inside it.
+ * Renders the panel and provides the code and the language to its parts.
  */
 export function Root({ code, language, mode = "dark", ...rest }: RootProps): ReactElement {
   const state = useMemo(() => ({ code, language }), [code, language]);

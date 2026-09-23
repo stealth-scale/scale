@@ -1,25 +1,25 @@
 {
-  "about": "A passage of code in a dark panel, each kind of token in its own ink, headed by what the code is and whatever control a page puts beside it.",
+  "about": "A passage of code in a panel, one ink per token kind, with a header for the file name and the controls.",
   "copied": "Copied the code",
   "copy": "Copy the code",
   "file": {
-    "about": "A component file under its name, with `CodeBlock.Copy` in the header's control. The control reads the code off the root, so the passage is written once, and takes its two marks from the page. The panel is dark whatever the page is, so the same block reads the same on every page.",
+    "about": "A component file with `CodeBlock.Copy` in the header. The copy control reads the code from the root, so the passage is written once. The panel is dark by default on any page.",
     "title": "A file"
   },
   "languages": {
-    "about": "The highlighter knows the language from its name and colours the passage on its first paint. A language it does not know is set as plain text.",
+    "about": "JSON, shell and YAML, each highlighted on the first paint. A language the highlighter does not know renders as plain text.",
     "title": "Languages"
   },
   "modes": {
-    "about": "The panel is dark by default whatever the page is in, so a block reads the same on every page. `mode=\"light\"` draws it light on any page, and `mode=\"inherit\"` leaves it in the page's own mode. Toggle the page to see the third one follow.",
+    "about": "`dark` is the default on any page, `light` is light on any page, and `inherit` follows the page. Switch the page's mode to see the third block change.",
     "title": "Modes"
   },
   "plain": {
-    "about": "A passage with no language named is set as it was written, in the code role, with no token coloured.",
+    "about": "A log without a language, rendered in the code text style with no token colours.",
     "title": "Plain text"
   },
   "size": {
-    "about": "The two sizes the code role is set at. The header reads a step down from the code.",
+    "about": "Both sizes of the code text style. The title is one size smaller than the code.",
     "title": "Sizes"
   },
   "title": "Code block"

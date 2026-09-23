@@ -1,15 +1,14 @@
 /**
- * Styles a code block as a bordered panel with a header bar above a scrolling monospaced passage,
- * coloured one shade per token kind.
+ * Declares the code block slot recipe: a bordered panel with a header bar over a horizontally
+ * scrolling passage of monospaced code, one ink per token kind.
  *
  * @remarks
- *   Every value here is a semantic token, so the whole recipe resolves against whichever colour
- *   mode the root pins the panel to, and a theme that moves its modes moves every code block with
- *   it. The token colours select on the `data-token` attribute the code part writes and draw from
- *   the theme's `code` family, with diff additions and removals taking their own colours. The
- *   highlighter's finer classes are folded into that coarse set: a literal takes the number
- *   colour, a property the attribute colour, a selector the type colour, and meta the comment
- *   colour.
+ *   Every value is a semantic token, so the recipe resolves against the colour mode the root sets
+ *   on the panel. The token inks select on the `data-token` attribute the code part writes and read
+ *   the theme's `code` family. Finer highlighter kinds map to that set: a literal takes the number
+ *   ink, a property the attribute ink, a selector the type ink, and meta the comment ink. The
+ *   recipe has no `palette` axis, because the inks come from the `code` family, and no `effect`
+ *   axis, because a code block is running content and not a surface that asks for attention.
  */
 
 import {
@@ -22,12 +21,12 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * The two size steps the block offers, matching the steps of the theme's code text styles.
+ * Lists the sizes the block offers, which match the theme's code text styles.
  */
 const STEPS = ["sm", "md"] as const;
 
 /**
- * The colour rule for each token kind, keyed on the attribute the code part writes.
+ * Maps each token kind to its ink, keyed on the attribute the code part writes.
  */
 const INKS: SystemStyleObject = {
   "& [data-token=attr]": { color: "code.attr" },
@@ -50,19 +49,47 @@ const INKS: SystemStyleObject = {
 };
 
 /**
- * The `code-block` slot recipe over its six slots, medium by default.
+ * Styles a code block at the md size.
  */
 export const recipe = defineSlotRecipe({
   base: {
-    code: { ...INKS, display: "block", fontFamily: "mono", whiteSpace: "pre" },
-    content: { margin: "0", overflowX: "auto" },
+    /**
+     * The code is as wide as its longest line and never narrower than the scrolling region, so its
+     * box contains every line and the region scrolls it.
+     */
+    code: {
+      ...INKS,
+      display: "block",
+      fontFamily: "mono",
+      inlineSize: "max-content",
+      minInlineSize: "full",
+      whiteSpace: "pre",
+    },
+    /**
+     * The scrolling region renders no outline of its own. The root renders the ring while the
+     * region has focus.
+     */
+    content: { _focusVisible: { outlineStyle: "none" }, margin: "0", overflowX: "auto" },
     control: { alignItems: "center", display: "flex", flexShrink: "0" },
     header: {
       alignItems: "center",
       display: "flex",
       justifyContent: "space-between",
     },
+    /**
+     * The root renders the focus ring outside the panel while the scrolling region has focus.
+     *
+     * @remarks
+     *   The root clips its content, and Firefox clips an outline on a scroll container to its top
+     *   edge, so an outline on the region itself shows as one line.
+     */
     root: {
+      "&:has(.code-block__content:focus-visible)": {
+        outlineColor: "colorPalette.focusRing",
+        outlineOffset: "ring",
+        outlineStyle: "solid",
+        outlineWidth: "ring",
+      },
       background: "bg",
       borderColor: "border",
       borderRadius: "l2",
@@ -85,7 +112,8 @@ export const recipe = defineSlotRecipe({
   slots: ["root", "header", "title", "control", "content", "code"],
   variants: {
     /**
-     * The text size of the code, with the title set one step below it.
+     * Code text style, content inset and header spacing, with the title one size smaller than the
+     * code.
      */
     size: onSlots({
       code: sizeVariants((size) => ({ textStyle: `code.${size}` }), STEPS),

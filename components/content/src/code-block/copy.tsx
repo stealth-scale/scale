@@ -1,13 +1,12 @@
 /**
- * Renders the control that copies the code of the code block.
+ * Renders the control that copies the code of a code block.
  *
  * @remarks
- *   The code comes from the root's context, so the copied text always matches the rendered text.
- *   The control reuses `Clipboard` and `IconButton` from `component-actions`. The caller passes
- *   both icons, because the library ships no icon set, and the accessible names as `label` and
- *   `copiedLabel`, which default to English. The button's size, palette and variant come through
- *   `ButtonPropsProvider`, because a trigger rendered `as` another component forwards only the
- *   machine's props.
+ *   The control reads the code from the root, so the copied text is the rendered text. It renders
+ *   `Clipboard` with an `IconButton` trigger from `component-actions`. The caller passes both icons
+ *   and may pass `label` and `copiedLabel`, which default to English. The button's size, palette
+ *   and variant come from `ButtonPropsProvider`, because a trigger rendered through `as` forwards
+ *   only the machine's props.
  */
 
 import { type ComponentProps, type ReactElement, type ReactNode } from "react";
@@ -17,14 +16,13 @@ import { ButtonPropsProvider, Clipboard, IconButton } from "@stealthscale/compon
 import { useCode } from "#code-block/state.ts";
 
 /**
- * Button variants of the trigger: the extra-small ghost button in the neutral palette, so the icon
- * reads as part of the header.
+ * Button variants of the trigger: an extra-small ghost button in the neutral palette.
  */
 const CONTROL = { palette: "neutral", size: "xs", variant: "ghost" } as const;
 
 /**
- * Props of `CodeBlock.Copy`: the two icons, the two accessible names, and the clipboard root props
- * except `value`, which the block supplies.
+ * Describes the props of `Copy`: the two icons, the two accessible names, and the clipboard root's
+ * props except `value`, which the block supplies.
  */
 export interface CopyProps extends Omit<ComponentProps<typeof Clipboard.Root>, "value"> {
   /**
@@ -33,7 +31,7 @@ export interface CopyProps extends Omit<ComponentProps<typeof Clipboard.Root>, "
   readonly children?: ReactNode;
 
   /**
-   * Icon in the copied state, for the duration of the machine's timeout.
+   * Icon in the copied state, for the machine's timeout.
    */
   readonly copied?: ReactNode;
 
@@ -49,7 +47,7 @@ export interface CopyProps extends Omit<ComponentProps<typeof Clipboard.Root>, "
 }
 
 /**
- * Renders the copy control, which swaps its icon after a successful copy.
+ * Renders the copy control, which shows the copied icon after a successful copy.
  */
 export function Copy({ children, copied, copiedLabel, label, ...rest }: CopyProps): ReactElement {
   const { code } = useCode();

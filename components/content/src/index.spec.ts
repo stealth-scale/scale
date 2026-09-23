@@ -7,7 +7,7 @@ describe("index", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual(["CodeBlock"]);
   });
 
-  it("exposes CodeBlock as a namespace holding its seven parts", () => {
+  it("exports the seven parts under the CodeBlock namespace", () => {
     expect(Object.keys(barrel.CodeBlock).toSorted()).toStrictEqual([
       "Code",
       "Content",

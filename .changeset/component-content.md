@@ -40,3 +40,12 @@ component-content: take the copy control's names as label props
 - Breaking: `CodeBlock.Copy` no longer takes `translations`. It takes `label`, default "Copy to
   clipboard", and `copiedLabel`, default "Copied to clipboard", and passes them to the clipboard
   trigger. Replace `translations={{ triggerLabel }}` with the two props.
+
+component-content: ring the code block while its code is focused
+
+- `CodeBlock.Root` renders the focus ring outside the panel, in `colorPalette.focusRing` at the ring
+  width, while `CodeBlock.Content` has focus. `CodeBlock.Content` renders no outline of its own. The
+  root clipped the browser's default outline, and Firefox rendered only its top edge.
+- `CodeBlock.Code` is as wide as its longest line and at least as wide as `CodeBlock.Content`, so
+  its box contains every line and the content region scrolls it. The code measured 854px of text in
+  an 810px box.

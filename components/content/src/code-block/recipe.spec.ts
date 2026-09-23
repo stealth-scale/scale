@@ -11,11 +11,11 @@ describe("recipe", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+  it("has no scene that writes a value the recipe does not offer", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("reports no violation across the shared recipe checks", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["CodeBlock"] })).toStrictEqual([]);
   });
 
@@ -23,7 +23,7 @@ describe("recipe", () => {
     expect(recipe.className).toBe("code-block");
   });
 
-  it("declares six slots covering the panel the header and the code", () => {
+  it("declares six slots", () => {
     expect([...recipe.slots].toSorted()).toStrictEqual([
       "code",
       "content",
@@ -46,7 +46,7 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "size")).toStrictEqual(["md", "sm"]);
   });
 
-  it("sets the title one step below the code at size md", () => {
+  it("sets the title one size smaller than the code at md", () => {
     expect(recipe.variants?.["size"]?.["md"]).toMatchObject({
       code: { textStyle: "code.md" },
       title: { textStyle: "label.sm" },
@@ -78,8 +78,30 @@ describe("recipe", () => {
     expect(recipe.base?.["code"]).toMatchObject({ fontFamily: "mono" });
   });
 
+  it("sizes the code slot to its longest line and at least the content width", () => {
+    expect(recipe.base?.["code"]).toMatchObject({
+      inlineSize: "max-content",
+      minInlineSize: "full",
+    });
+  });
+
   it("sets overflowX to auto on the content slot", () => {
     expect(recipe.base?.["content"]).toMatchObject({ overflowX: "auto" });
+  });
+
+  it("draws the focus ring on the root while the content slot is focused", () => {
+    expect(recipe.base?.["root"]).toMatchObject({
+      "&:has(.code-block__content:focus-visible)": {
+        outlineColor: "colorPalette.focusRing",
+        outlineOffset: "ring",
+        outlineStyle: "solid",
+        outlineWidth: "ring",
+      },
+    });
+  });
+
+  it("removes the outline of the focused content slot", () => {
+    expect(recipe.base?.["content"]).toMatchObject({ _focusVisible: { outlineStyle: "none" } });
   });
 
   it("matches CodeBlock and its dotted parts with its jsx pattern", () => {

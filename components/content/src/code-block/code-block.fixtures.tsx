@@ -1,6 +1,5 @@
 /**
- * Supplies the root every part has to be rendered inside, since each one reads the recipe variants
- * and the code from it.
+ * Builds the code block trees the part specifications render.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -13,12 +12,12 @@ import { Root, type RootProps } from "#code-block/root.tsx";
 import { Title } from "#code-block/title.ts";
 
 /**
- * The source text every case renders, a single import statement.
+ * Source text every case renders: one TypeScript import statement.
  */
 export const SOURCE = 'import { Button } from "@stealthscale/component-actions";';
 
 /**
- * Wraps the part under test in a root carrying the fixture source in TypeScript.
+ * Renders the part under test inside a root with the fixture source in TypeScript.
  */
 export function coded(children: ReactNode, props: Partial<RootProps> = {}): ReactElement {
   return (
@@ -29,7 +28,7 @@ export function coded(children: ReactNode, props: Partial<RootProps> = {}): Reac
 }
 
 /**
- * Renders every slot of the block arranged the way a caller arranges them.
+ * Renders every part, nested the way a caller nests them.
  */
 export function composed(props: Partial<RootProps> = {}): ReactElement {
   return coded(
