@@ -23,6 +23,7 @@
     "@commitlint/cli": "catalog:",
     "@stealthscale/component-actions": "workspace:^",
     "@stealthscale/component-forms": "workspace:^",
+    "@stealthscale/component-layout": "workspace:^",
     "@stealthscale/component-typography": "workspace:^",
     "@stealthscale/example-lib-actions": "workspace:^",
     "@stealthscale/example-lib-surfaces": "workspace:^",

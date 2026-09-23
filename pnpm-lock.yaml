@@ -418,6 +418,9 @@ importers:
       '@stealthscale/component-forms':
         specifier: workspace:^
         version: link:components/forms
+      '@stealthscale/component-layout':
+        specifier: workspace:^
+        version: link:components/layout
       '@stealthscale/component-typography':
         specifier: workspace:^
         version: link:components/typography
