@@ -16,8 +16,18 @@
     "about": "A card a reader presses, which follows the link in its title and shows its focus, beside one that only holds.",
     "title": "Interactive"
   },
+  "amount": "£12,480",
+  "hillside": "A hillside under a morning sun",
   "invoice": "Invoice 4821",
   "issued": "Issued on 2 September",
+  "kinds": {
+    "about": "Four cards rather than one card turned four ways. A card leading with a picture, a card holding one figure, the invoice the rest of the page draws, and a card running across the page with the picture on its leading side.",
+    "beside": "Across the page",
+    "figure": "One figure",
+    "invoice": "An invoice",
+    "picture": "A picture on top",
+    "title": "Shapes a card takes"
+  },
   "justify": {
     "about": "How the footer shares its room among the controls.",
     "title": "Distribution"
@@ -28,6 +38,7 @@
     "about": "How the card enters the page.",
     "title": "Motion"
   },
+  "outstanding": "Outstanding",
   "orientation": {
     "about": "The bands stacked, and the bands side by side.",
     "title": "Orientation"
@@ -42,7 +53,9 @@
   },
   "remind": "Remind",
   "send": "Send",
+  "statement": "September statement",
   "title": "Card",
+  "trend": "Up 8% on August",
   "variant": {
     "about": "Every look in every status.",
     "title": "Looks and statuses"

@@ -8,6 +8,10 @@
  *   size axis and the axis beside it. The header is a single grid rather than a row of stacks, so
  *   the indicator spans both rows of the title block and the aside stays at the end whatever that
  *   block holds. Stacks inside a row would need a wrapper the anatomy does not name.
+ *   The room between the mark and the title belongs to the mark rather than to the grid. A grid's
+ *   column gap is drawn on both sides of a track whether or not anything is in it, so a card with
+ *   no mark and nothing beside its title had the title standing one gap in from its own body:
+ *   measured at 23 pixels from the card's edge against the body's 17.
  */
 
 import {
@@ -51,7 +55,13 @@ const RULE = { borderColor: "border", borderStyle: "solid" };
  */
 export const recipe = defineSlotRecipe({
   base: {
-    aside: { alignItems: "center", display: "flex", flex: "0 0 auto", gridColumn: "3" },
+    aside: {
+      alignItems: "center",
+      display: "flex",
+      flex: "0 0 auto",
+      gridColumn: "3",
+      marginInlineStart: dense("{spacing.gap.sm}"),
+    },
     content: {
       display: "flex",
       flex: "1",
@@ -65,13 +75,14 @@ export const recipe = defineSlotRecipe({
       flexWrap: "wrap",
       gap: dense("{spacing.gap.sm}"),
     },
-    header: {
+    header: { alignItems: "center", display: "grid", gridTemplateColumns: "auto 1fr auto" },
+    indicator: {
       alignItems: "center",
-      columnGap: dense("{spacing.gap.sm}"),
-      display: "grid",
-      gridTemplateColumns: "auto 1fr auto",
+      display: "flex",
+      flex: "0 0 auto",
+      gridColumn: "1",
+      marginInlineEnd: dense("{spacing.gap.sm}"),
     },
-    indicator: { alignItems: "center", display: "flex", flex: "0 0 auto", gridColumn: "1" },
     media: { display: "block", overflow: "hidden" },
     root: { ...surface(), display: "flex", overflow: "hidden", position: "relative" },
     title: { fontWeight: "semibold", gridColumn: "2" },
@@ -207,10 +218,24 @@ export const recipe = defineSlotRecipe({
 
     /**
      * The axis the bands run along, which also picks the edges the media bleeds to.
+     *
+     * @remarks
+     *   Across the page the picture band states a width and refuses to give it up. A band drawn
+     *   down the page is as wide as the card and the picture inside it decides its own height, but
+     *   in a row nothing there has a width: the band collapsed to nothing and the card drew no
+     *   picture at all. The picture fills the band it is given rather than sitting in a corner of
+     *   it, because the band is as tall as the card beside it and a picture keeping its own shape
+     *   leaves the rest of that column blank.
      */
     orientation: {
       horizontal: {
-        media: { marginBlock: BLEED, marginInlineStart: BLEED },
+        media: {
+          "& > *": { blockSize: "100%", objectFit: "cover" },
+          flexBasis: "33%",
+          flexShrink: "0",
+          marginBlock: BLEED,
+          marginInlineStart: BLEED,
+        },
         root: { flexDirection: "row" },
       },
       vertical: {

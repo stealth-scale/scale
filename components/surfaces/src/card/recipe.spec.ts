@@ -102,9 +102,17 @@ describe("recipe", () => {
   });
 
   it("bleeds the media to the leading side where the card runs across the page", () => {
-    expect(recipe.variants?.["orientation"]?.["horizontal"]?.["media"]).toStrictEqual({
+    expect(recipe.variants?.["orientation"]?.["horizontal"]?.["media"]).toMatchObject({
       marginBlock: "calc(-1 * var(--card-inset))",
       marginInlineStart: "calc(-1 * var(--card-inset))",
+    });
+  });
+
+  it("holds the media open where the card runs across the page", () => {
+    expect(recipe.variants?.["orientation"]?.["horizontal"]?.["media"]).toMatchObject({
+      "& > *": { blockSize: "100%", objectFit: "cover" },
+      flexBasis: "33%",
+      flexShrink: "0",
     });
   });
 
