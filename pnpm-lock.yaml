@@ -415,6 +415,15 @@ importers:
       '@stealthscale/component-actions':
         specifier: workspace:^
         version: link:components/actions
+      '@stealthscale/component-data':
+        specifier: workspace:^
+        version: link:components/data
+      '@stealthscale/component-disclosure':
+        specifier: workspace:^
+        version: link:components/disclosure
+      '@stealthscale/component-feedback':
+        specifier: workspace:^
+        version: link:components/feedback
       '@stealthscale/component-forms':
         specifier: workspace:^
         version: link:components/forms
