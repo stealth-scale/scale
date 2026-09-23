@@ -97,3 +97,11 @@ component-feedback: add the loader
 - `LoaderOverlay` covers a positioned container at `inset: 0` with the container's corner radius.
 - Axes: `palette` inks the spinner in a palette's `solid`, and `scrim` (`veil`, `glass`, `none`)
   fills the overlay. The default is `veil`, the panel color at 80% opacity.
+
+component-feedback: show the source of every loader scene from an example file
+
+- The loader specimen renders each scene from a file under `loader/examples/` and shows that file as
+  its source. The text goes through `useWords`.
+- `src/examples.spec.ts` renders the five loader examples and asserts that axe reports no violation.
+- The examples lay out with `Stack`, so the package links `@stealthscale/component-layout` as a dev
+  dependency.
