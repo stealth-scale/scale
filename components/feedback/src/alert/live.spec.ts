@@ -3,23 +3,23 @@ import { describe, expect, it } from "vitest";
 import { LIVES, ROLES } from "#alert/live.ts";
 
 describe("live", () => {
-  it("orders LIVES from the quietest level to the loudest", () => {
+  it("orders LIVES from off to assertive", () => {
     expect(LIVES).toStrictEqual(["off", "polite", "assertive"]);
   });
 
-  it("resolves assertive to the alert role alone", () => {
+  it("maps assertive to the alert role", () => {
     expect(ROLES.assertive).toStrictEqual({ role: "alert" });
   });
 
-  it("resolves polite to the status role alone", () => {
+  it("maps polite to the status role", () => {
     expect(ROLES.polite).toStrictEqual({ role: "status" });
   });
 
-  it("resolves off to no attributes at all", () => {
+  it("maps off to no attributes", () => {
     expect(ROLES.off).toStrictEqual({});
   });
 
-  it("sets aria-live on no announcement level", () => {
+  it("sets aria-live on no level", () => {
     expect.hasAssertions();
 
     for (const attributes of Object.values(ROLES)) {

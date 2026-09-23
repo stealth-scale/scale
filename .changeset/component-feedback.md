@@ -105,3 +105,31 @@ component-feedback: show the source of every loader scene from an example file
 - `src/examples.spec.ts` renders the five loader examples and asserts that axe reports no violation.
 - The examples lay out with `Stack`, so the package links `@stealthscale/component-layout` as a dev
   dependency.
+
+component-feedback: add Alert.CloseTrigger and outline alerts under forced colors
+
+- `Alert.CloseTrigger` renders a `button` with `type="button"`. `label` sets `aria-label` and
+  defaults to `Dismiss`. The recipe draws it in the alert's ink with an `emphasized` hover fill, and
+  on the solid look with a `contrast/20` hover and a contrast focus ring.
+- The trigger is `max(24px, 1.5em)` square with a 1em glyph, and a negative end margin puts the
+  glyph on the padding edge: 12, 16 and 20px from the end at `sm`, `md` and `lg`.
+- `Alert.Indicator` stretches an `svg` child to its box, so an icon takes the icon size of the
+  alert's size without a `size` prop: 16, 20 and 24px.
+- Under forced colors the root draws a hairline `CanvasText` outline. The solid, subtle and plain
+  looks lost their box when the browser replaced the fill.
+
+component-feedback: resize the empty state to three sizes
+
+- Breaking: `EmptyState.Root` takes `size` `sm`, `md` or `lg`. `xs` and `xl` to `4xl` are removed.
+- The icon is 32, 40 and 50px over a `heading.xs`, `heading.sm` and `heading.md` title, with 8, 12
+  and 16px gaps and 24, 32 and 40px of inset. At `md` the icon measured 20px over a 20px title, and
+  the title reached 83px at `4xl`.
+- `EmptyState.Indicator` sets `aria-hidden` by default.
+
+component-feedback: space skeleton text bars with a column gap
+
+- `SkeletonText` bars are `1lh` tall with a `0.5lh` gap on the column. The bars used a `content-box`
+  clip inside a `1.5lh` box, which the skeleton's `loading` variant overrode with `padding-box`, so
+  six bars rendered as one 216px block. The bars measure 24px with 12px gaps.
+- A loading `Skeleton` draws a hairline `GrayText` outline under forced colors, where the browser
+  replaced its fill and the placeholder disappeared.

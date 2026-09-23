@@ -1,12 +1,11 @@
 # @stealthscale/component-feedback
 
-Draws the system reporting on itself: what is loading, what went wrong, what state a thing is in.
-Every component binds a recipe and draws nothing of its own, so a theme restyles all of them by
-extending the recipe. The preset under `./theme` registers the recipes with an application's
-compiler.
+React components that report state: `Alert`, `Skeleton`, `SkeletonText`, `Spinner`, `Loader` and
+`EmptyState`. Each component renders through a recipe, so a theme restyles it by extending the
+recipe. The preset under `./theme` registers the recipes with an application's compiler.
 
-Every value a theme can change on a component is an axis of its recipe, so a caller sets it as a
-prop and writes no style. A caller changes the element a component draws with `as`.
+Every value a theme can change is a recipe axis, and a caller sets it as a prop. A caller changes
+the rendered element with `as`.
 
 ## Install
 
@@ -14,28 +13,28 @@ prop and writes no style. A caller changes the element a component draws with `a
 pnpm add @stealthscale/component-feedback
 ```
 
-The package peers on `react` and `@stealthscale/theme`. An application lists the preset under
-`./theme` among the presets its compiler installs.
+The package peers on `react` and `@stealthscale/theme`. Add the preset under `./theme` to the
+presets the application's compiler installs.
 
 ## Alert
 
-Draws a notice about something a reader needs to know, composed as `Alert.Root` holding a mark, the
-words, and whatever they do about it.
+Renders a notice the reader needs to act on or know about. Compose it as `Alert.Root` around an
+icon, the text, optional trailing controls and a close trigger.
 
 ```tsx
 import { Alert } from "@stealthscale/component-feedback";
 
 <Alert.Root live="assertive" status="error">
   <Alert.Indicator>
-    <WarningIcon />
+    <TriangleAlertIcon />
   </Alert.Indicator>
   <Alert.Content>
     <Alert.Title>Payment failed</Alert.Title>
     <Alert.Description>The card was declined.</Alert.Description>
   </Alert.Content>
-  <Alert.Aside>
-    <IconButton aria-label="Dismiss this warning" />
-  </Alert.Aside>
+  <Alert.CloseTrigger label="Dismiss payment failed" onClick={dismiss}>
+    <XIcon />
+  </Alert.CloseTrigger>
 </Alert.Root>;
 ```
 
@@ -46,41 +45,45 @@ import { Alert } from "@stealthscale/component-feedback";
 | `size`    | `sm`, `md`, `lg`                                 | `md`      |
 | `layout`  | `stacked`, `inline`                              | `stacked` |
 | `radius`  | `l1`, `l2`, `l3`, `full`                         | `l3`      |
+| `edge`    | `top`, `bottom`, `end`                           | none      |
 | `motion`  | `fade`, `rise`, `reveal`                         | none      |
 
-| Part          | Element | What it draws                           |
-| ------------- | ------- | --------------------------------------- |
-| `Root`        | `div`   | The box, and how loudly it is announced |
-| `Indicator`   | `div`   | A mark, hidden from a screen reader     |
-| `Content`     | `div`   | The title and the description           |
-| `Title`       | `span`  | What the alert is about                 |
-| `Description` | `span`  | The rest of it                          |
-| `Aside`       | `div`   | What a reader does about it             |
+| Part           | Element  | What it renders                                   |
+| -------------- | -------- | ------------------------------------------------- |
+| `Root`         | `div`    | The container, with the role of its `live` level  |
+| `Indicator`    | `div`    | The icon, sized by the recipe, `aria-hidden`      |
+| `Content`      | `div`    | The title and the description                     |
+| `Title`        | `span`   | The headline, which states the severity           |
+| `Description`  | `span`   | The supporting text                               |
+| `Aside`        | `div`    | Trailing controls such as a retry button          |
+| `CloseTrigger` | `button` | The dismiss control, named by `label` (`Dismiss`) |
 
 `live` sets the role that announces the alert:
 
-| `live`      | Role     | Reach for it when                                   |
-| ----------- | -------- | --------------------------------------------------- |
-| `assertive` | `alert`  | The alert answers something a person just did       |
-| `polite`    | `status` | The alert reports progress and can wait for a pause |
-| `off`       | none     | The alert is on the page from the first paint       |
+| `live`      | Role     | Use it for                               |
+| ----------- | -------- | ---------------------------------------- |
+| `assertive` | `alert`  | An alert raised by a user action         |
+| `polite`    | `status` | Progress that can wait for a pause       |
+| `off`       | none     | A notice present from the initial render |
 
-The default is `polite`. Take `off` for notices present at load. Keep a live region mounted and
-empty and fill it, rather than mounting it with its words already in place.
+The default is `polite`. Keep a live region mounted and empty and write into it, because screen
+readers do not reliably announce a region mounted with its text.
 
-Say the status in the title's words. The indicator is hidden from a screen reader, and an alert
-whose status reaches a reader through its palette and its mark alone fails WCAG 1.4.1.
+State the severity in the title. The indicator is `aria-hidden`, and an alert that conveys its
+status through color and icon alone fails WCAG 1.4.1.
 
-Name a control in the aside for what it acts on: `Dismiss this warning` rather than `Dismiss`.
+`Alert.CloseTrigger` takes the alert's ink, so it matches every look and status. On the solid look
+it hovers to a tint of the contrast ink and draws its focus ring in the contrast ink. The box is
+1.5em square and at least 24px, and the glyph sits on the padding edge. Pass a `label` that names
+the notice. Name each control in `Alert.Aside` for its target too, such as `Retry the payment`.
 
-`Alert.Title` is a `span`. Take `as="h2"` for a notice that stays on the page and belongs in its
-outline.
+`Alert.Title` is a `span`. Pass `as="h2"` for a notice that stays on the page and belongs in the
+outline. Under forced colors the root draws a hairline `CanvasText` outline.
 
 ## Skeleton
 
-Draws a placeholder while content loads. Wrap the content rather than replacing it, and the
-placeholder takes its size without a width. It hides what it wraps while `loading` holds, and fades
-out once the content arrives.
+Renders a placeholder over content that is still loading. Wrap the content in the skeleton, so the
+placeholder takes the content's size and the layout does not shift when `loading` turns off.
 
 ```tsx
 import { Skeleton } from "@stealthscale/component-feedback";
@@ -97,12 +100,14 @@ import { Skeleton } from "@stealthscale/component-feedback";
 | `motion`  | `none`, `pulse`, `shimmer` | `pulse` |
 | `radius`  | `l1`, `l2`, `l3`, `full`   | `l2`    |
 
-The element carries no role. State `aria-busy` on the region that is waiting.
+The element has no role. Set `aria-busy` on the region that is loading. The animations stop under
+reduced motion. Under forced colors a loading skeleton draws a hairline `GrayText` outline, because
+the browser replaces its fill.
 
 ## SkeletonText
 
-Draws a placeholder for a paragraph. Each bar is one line tall and the space between two is half a
-line, both read off the surrounding text, so the page does not jump when the real words arrive.
+Renders a placeholder paragraph with one bar per line. Each bar is one line height tall and the bars
+are half a line height apart, both in `lh` units of the surrounding text.
 
 ```tsx
 import { SkeletonText } from "@stealthscale/component-feedback";
@@ -111,8 +116,8 @@ import { SkeletonText } from "@stealthscale/component-feedback";
 <SkeletonText lines={5} motion="shimmer" />;
 ```
 
-The last bar of several is short. `lines` defaults to three and never draws fewer than one. Draw
-this while the text loads and the text itself once it arrives. It takes no loading state.
+The last of several bars is 80% wide. `lines` defaults to 3 and renders at least one bar. Render the
+placeholder while the text loads and the text once it arrives. The component has no `loading` prop.
 
 ## Spinner
 
@@ -212,15 +217,15 @@ and `glass` blurs the content behind it.
 
 ## EmptyState
 
-Draws the panel a page shows where there is nothing to show, composed as `EmptyState.Root` holding a
-mark, a heading and a line saying what would be here.
+Renders the panel a surface shows when it has no content. Compose it as `EmptyState.Root` around an
+`EmptyState.Content` column of an icon, a title and a description.
 
 ```tsx
 import { EmptyState } from "@stealthscale/component-feedback";
 
 <EmptyState.Root size="lg">
   <EmptyState.Content>
-    <EmptyState.Indicator aria-hidden>
+    <EmptyState.Indicator>
       <InboxIcon />
     </EmptyState.Indicator>
     <EmptyState.Title>No invoices yet</EmptyState.Title>
@@ -229,18 +234,24 @@ import { EmptyState } from "@stealthscale/component-feedback";
 </EmptyState.Root>;
 ```
 
-| Axis   | Values                                            | Default |
-| ------ | ------------------------------------------------- | ------- |
-| `size` | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl` | `md`    |
+| Axis   | Values           | Default |
+| ------ | ---------------- | ------- |
+| `size` | `sm`, `md`, `lg` | `md`    |
 
-One `size` moves four parts: the room inside the panel, the gap in the content, the box of the mark
-and the size of the title. The description holds its size at every step.
+`size` sets four values together:
 
-Pass a glyph to the mark without sizing it. State `aria-hidden` on it, since the title says the same
-thing in words.
+| Size | Icon | Title        | Gap  | Inset |
+| ---- | ---- | ------------ | ---- | ----- |
+| `sm` | 32px | `heading.xs` | 8px  | 24px  |
+| `md` | 40px | `heading.sm` | 12px | 32px  |
+| `lg` | 50px | `heading.md` | 16px | 40px  |
 
-The title is an `h2`. State your own level with `as` where the page's outline puts it deeper. The
-root carries no role.
+The icon has twice the gap below it, so the title and the description read as one group. The
+description stays at `body.sm`. Pass the icon without a size. The indicator is `aria-hidden` by
+default, because the title states the same thing in words.
+
+The title is an `h2`. Pass a deeper level with `as` where the page outline requires it. The root has
+no role.
 
 ## Licence
 

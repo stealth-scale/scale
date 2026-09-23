@@ -16,7 +16,7 @@ describe("context", () => {
     expect(slotClasses(container, "alert", "content")).toContain("alert__content");
   });
 
-  it("applies the size variant class a caller passes to the provider", () => {
+  it("applies the size class passed to an element bound with withProvider", () => {
     const Box = withProvider("div", "root");
     const Band = withContext("div", "content");
     const { container } = render(

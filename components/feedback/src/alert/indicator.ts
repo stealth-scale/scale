@@ -1,13 +1,10 @@
 /**
- * Renders the leading icon of an alert.
+ * Renders the leading icon of the alert.
  *
  * @remarks
- *   The element is a `div` that sizes an `Icon` child from the root's `size` variant and declares
- *   no colour of its own, so it inherits the foreground the contrast gate measured against the
- *   root's fill. It is hidden from assistive technology by default: the icon duplicates what the
- *   title already carries in words, and naming a glyph ahead of the alert text is noise. Hiding it
- *   is only safe because the title states the severity, since an alert that conveyed severity
- *   through the icon and the palette alone would fail WCAG 1.4.1.
+ *   The recipe sets the box from the root's size and stretches an `svg` child to fill it, so the
+ *   caller passes an icon without a size. The element inherits the root's ink and sets
+ *   `aria-hidden` by default, because the title states the severity in words.
  */
 
 import { type ComponentProps } from "react";
@@ -15,13 +12,13 @@ import { type ComponentProps } from "react";
 import { withContext } from "#alert/context.ts";
 
 /**
- * Renders the icon container of an alert, hidden from assistive technology by default.
+ * Renders a div on the icon scale, hidden from the accessibility tree by default.
  */
 export const Indicator = withContext("div", "indicator", {
   defaultProps: { "aria-hidden": true },
 });
 
 /**
- * The props of a styled `div`.
+ * Describes the props of Alert.Indicator: the props of a div element.
  */
 export type IndicatorProps = ComponentProps<typeof Indicator>;

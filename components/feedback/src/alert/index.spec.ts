@@ -3,9 +3,10 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#alert/index.ts";
 
 describe("index", () => {
-  it("exports only the six slot components and LIVES", () => {
+  it("exports the seven parts and LIVES only", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Aside",
+      "CloseTrigger",
       "Content",
       "Description",
       "Indicator",
@@ -15,7 +16,7 @@ describe("index", () => {
     ]);
   });
 
-  it("omits every export named as a recipe or a context binding", () => {
+  it("exports no recipe or binding", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {

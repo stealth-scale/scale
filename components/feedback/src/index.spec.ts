@@ -20,6 +20,7 @@ describe("index", () => {
   it("exports Alert as a namespace of its parts", () => {
     expect(Object.keys(barrel.Alert).toSorted()).toStrictEqual([
       "Aside",
+      "CloseTrigger",
       "Content",
       "Description",
       "Indicator",

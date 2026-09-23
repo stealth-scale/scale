@@ -9,13 +9,13 @@ import { recipe } from "#alert/recipe.ts";
 import { type RootProps } from "#alert/root.tsx";
 
 describe("Aside", () => {
-  it("renders a div for the aside slot", () => {
-    const { container } = render(alerted(<Aside>Dismiss</Aside>));
+  it("renders a div", () => {
+    const { container } = render(alerted(<Aside>Retry</Aside>));
 
     expect(slotElement(container, "alert", "aside").tagName).toBe("DIV");
   });
 
-  it("emits a class for every variant value the recipe declares", () => {
+  it("applies the class of every variant value set on the root", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "aside",
@@ -23,9 +23,9 @@ describe("Aside", () => {
     ).toStrictEqual([]);
   });
 
-  it("exposes a button child under the accessible name the caller wrote", () => {
+  it("renders a child button with the name the caller passes", () => {
     render(composed());
 
-    expect(screen.getByRole("button", { name: "Dismiss this warning" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "Retry the payment" })).toBeDefined();
   });
 });

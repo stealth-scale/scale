@@ -1,29 +1,37 @@
 {
-  "about": "Draws a notice about something a reader needs to know: a mark, the words, and whatever they do about it.",
+  "about": "A notice the reader needs to act on or know about: an icon, a title, a description and a close trigger.",
   "declined": "The card was declined and nothing was charged.",
-  "dismiss": "Dismiss this notice",
+  "dismiss": "Dismiss {{name}}",
   "edge": {
-    "about": "A rule in the palette's solid colour along one edge. The end edge is logical, so it draws on the right under left-to-right writing and on the left under right-to-left. Unset by default, and a theme that moves the palette moves the rule with it.",
+    "about": "A rule in the palette's solid color along one edge. The end edge is logical: the right edge in a left-to-right document and the left edge in a right-to-left one.",
     "title": "Edges"
   },
   "failed": "Payment failed",
   "layout": {
-    "about": "The words stacked under their title, and the words wrapped onto a shared baseline with it.",
+    "about": "The description stacked under the title, and on the same line after it.",
     "title": "Layouts"
   },
   "motion": {
-    "about": "How the notice enters the page. A reader who asked for less motion is given the notice without it.",
+    "about": "The entry animation of the alert. Under reduced motion the alert appears without it.",
     "title": "Motion"
   },
   "radius": {
-    "about": "Every corner at every size. The two are crossed because a corner reads against the padding beside it rather than on its own.",
-    "title": "Corners and sizes"
+    "about": "Every corner.",
+    "title": "Corners"
   },
   "restored": "Your draft was restored from Tuesday.",
   "saved": "Changes saved",
+  "size": {
+    "about": "Every size. The size sets the text style, the inset, the gap and the icon box. The close trigger is 1.5em square and at least 24px.",
+    "title": "Sizes"
+  },
+  "status": {
+    "about": "Every status in the subtle look. The status sets the palette only, and the title states the severity in words.",
+    "title": "Statuses"
+  },
   "title": "Alert",
   "variant": {
-    "about": "Every fill in every status. A status points the palette at the semantic palette of its name and sets nothing else, so the fill decides how that palette is drawn. The status is said in the title's words, because the mark is hidden from a screen reader.",
-    "title": "Looks and statuses"
+    "about": "Every look in the error status. The close trigger takes the alert's ink, so it takes the contrast ink on the solid look.",
+    "title": "Looks"
   }
 }

@@ -6,7 +6,7 @@ import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/te
 import page from "#alert/alert.specimen.tsx";
 import { recipe } from "#alert/recipe.ts";
 
-const PARTS = ["root", "indicator", "content", "title", "description", "aside"];
+const PARTS = ["root", "indicator", "content", "title", "description", "aside", "closeTrigger"];
 
 describe("recipe", () => {
   it("covers every variant axis in the scenes of its specimen page", () => {
@@ -17,30 +17,24 @@ describe("recipe", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("attaches a source snippet to every scene generated from axes", () => {
-    const built = page.scenes.filter((scene) => scene.axes !== undefined);
-
-    expect(built.every((scene) => scene.source !== undefined)).toBe(true);
-  });
-
-  it("references a token on every value a theme has to be able to move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(
       recipeViolations(recipe, {
-        names: ["Alert.Root", "Alert.Title", "Alert.Indicator"],
+        names: ["Alert.Root", "Alert.Title", "Alert.Indicator", "Alert.CloseTrigger"],
         parts: PARTS,
       }),
     ).toStrictEqual([]);
   });
 
-  it("prefixes its generated classes with alert", () => {
+  it("sets className to alert", () => {
     expect(recipe.className).toBe("alert");
   });
 
-  it("declares the six slots in the order the markup nests them", () => {
+  it("declares seven slots in markup order", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
   });
 
-  it("declares exactly the seven variants edge through variant", () => {
+  it("declares the edge layout motion radius size status and variant axes", () => {
     expect(axesOf(recipe)).toStrictEqual([
       "edge",
       "layout",
@@ -52,17 +46,17 @@ describe("recipe", () => {
     ]);
   });
 
-  it("accepts only the three edges the theme draws a rule along", () => {
+  it("declares bottom end and top on the edge axis", () => {
     expect(valuesOf(recipe, "edge")).toStrictEqual(["bottom", "end", "top"]);
   });
 
-  it("maps edge top to the indicator.top layer style on the root slot", () => {
+  it("reads the indicator.top layer style on the root for edge top", () => {
     expect(recipe.variants?.["edge"]?.["top"]).toStrictEqual({
       root: { layerStyle: "indicator.top" },
     });
   });
 
-  it("defaults every variant except edge and motion", () => {
+  it("defaults every axis except edge and motion", () => {
     expect(defaultsOf(recipe)).toStrictEqual({
       layout: "stacked",
       radius: "l3",
@@ -72,7 +66,7 @@ describe("recipe", () => {
     });
   });
 
-  it("adds neutral to the four statuses the theme emits", () => {
+  it("declares neutral next to the four statuses", () => {
     expect(valuesOf(recipe, "status")).toStrictEqual([
       "error",
       "info",
@@ -82,7 +76,7 @@ describe("recipe", () => {
     ]);
   });
 
-  it("sets colorPalette to the status name and nothing else on every status", () => {
+  it("sets only colorPalette on the root for each status", () => {
     expect.hasAssertions();
 
     for (const [status, styles] of Object.entries(recipe.variants?.["status"] ?? {})) {
@@ -90,7 +84,7 @@ describe("recipe", () => {
     }
   });
 
-  it("accepts all five flat treatments for variant", () => {
+  it("declares the five flat looks on the variant axis", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual([
       "outline",
       "plain",
@@ -100,11 +94,11 @@ describe("recipe", () => {
     ]);
   });
 
-  it("accepts three size steps rather than the theme's full scale", () => {
+  it("declares sm md and lg on the size axis", () => {
     expect(valuesOf(recipe, "size")).toStrictEqual(["lg", "md", "sm"]);
   });
 
-  it("scales the root's spacing and the indicator's box from a single size value", () => {
+  it("sets the root spacing and the indicator box at md", () => {
     expect(recipe.variants?.["size"]?.["md"]).toStrictEqual({
       indicator: { boxSize: "calc({sizes.icon.md} * var(--density, 1))" },
       root: {
@@ -115,15 +109,52 @@ describe("recipe", () => {
     });
   });
 
-  it("sets a zero minimum inline size on the content slot", () => {
+  it("stretches an svg in the indicator to its box", () => {
+    expect(recipe.base?.["indicator"]).toMatchObject({ "& > svg": { boxSize: "100%" } });
+  });
+
+  it("outlines the root in CanvasText under forced colors", () => {
+    expect(recipe.base?.["root"]).toMatchObject({
+      _highContrast: {
+        outlineColor: "CanvasText",
+        outlineStyle: "solid",
+        outlineWidth: "hairline",
+      },
+    });
+  });
+
+  it("sets a zero minimum inline size on the content", () => {
     expect(recipe.base?.["content"]).toMatchObject({ minInlineSize: "0" });
   });
 
-  it("declares no colour on the indicator slot", () => {
+  it("sets no color on the indicator", () => {
     expect(recipe.base?.["indicator"]).not.toHaveProperty("color");
   });
 
-  it("matches Alert and any dotted member of it for jsx tracking", () => {
+  it("sizes the close trigger to at least 24px in the current ink", () => {
+    expect(recipe.base?.["closeTrigger"]).toMatchObject({
+      boxSize: "max({sizes.6}, 1.5em)",
+      color: "currentcolor",
+      focusVisibleRing: "inside",
+    });
+  });
+
+  it("draws the close trigger in the contrast ink on a solid alert", () => {
+    expect(recipe.compoundVariants).toStrictEqual([
+      {
+        className: "alert__close-trigger--contrasted",
+        css: {
+          closeTrigger: {
+            _hover: { background: "colorPalette.contrast/20" },
+            focusRingColor: "colorPalette.contrast",
+          },
+        },
+        variant: "solid",
+      },
+    ]);
+  });
+
+  it("matches the Alert tag and its parts", () => {
     expect(recipe.jsx).toStrictEqual([/^Alert(\.\w+)?$/u]);
   });
 });

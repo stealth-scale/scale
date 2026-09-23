@@ -1,26 +1,24 @@
 /**
- * Defines the announcement levels an alert supports and resolves each one to ARIA attributes.
+ * Defines the announcement levels of the alert and the ARIA attributes of each.
  */
 
 /**
- * Identifies the announcement level an alert is mounted at.
+ * Announcement level of an alert.
  */
 export type Live = "assertive" | "off" | "polite";
 
 /**
- * Lists every announcement level, ordered quietest first.
+ * Every announcement level, quietest first.
  */
 export const LIVES: readonly Live[] = ["off", "polite", "assertive"];
 
 /**
- * Maps an announcement level to the attributes the root spreads onto its element.
+ * Maps each announcement level to the attributes the root sets.
  *
  * @remarks
  *   `role="alert"` implies `aria-live="assertive"` and `role="status"` implies
- *   `aria-live="polite"`, so the role alone is sufficient and an explicit `aria-live` would
- *   duplicate it. `off` resolves to no attributes rather than `aria-live="off"`, because a live
- *   region announces its contents on mount: a surface rendering a column of static notices would
- *   otherwise read all of them out before the user asked for anything.
+ *   `aria-live="polite"`, so the map sets the role only. `off` sets no attribute, because a live
+ *   region announces its content on mount, and a page of static notices would read them all.
  */
 export const ROLES: Readonly<Record<Live, Readonly<Record<string, string>>>> = {
   assertive: { role: "alert" },
