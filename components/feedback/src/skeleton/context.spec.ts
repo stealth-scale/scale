@@ -15,7 +15,7 @@ describe("context", () => {
     expect(recipeClasses(container, "skeleton")).toContain("skeleton");
   });
 
-  it("applies a motion the provider supplies to a descendant element", () => {
+  it("applies a motion set on PropsProvider to a descendant", () => {
     const Probe = withContext("div");
     const { container } = render(
       createElement(PropsProvider, { value: { motion: "shimmer" } }, createElement(Probe)),

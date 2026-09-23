@@ -1,35 +1,33 @@
 /**
- * Declares the recipe a skeleton is styled from, the placeholder a surface shows while content is
- * still in flight.
+ * Declares the skeleton recipe, which paints a placeholder over content that is still loading.
  *
  * @remarks
- *   A skeleton wraps the content it covers rather than replacing it, so a caller writes one
- *   tree and toggles one prop. While loading it adopts that content's own box and hides everything
- *   inside it, which is how the placeholder takes the size of the real thing without anyone
- *   declaring a width; once loading ends it fades the content in and otherwise gets out of the
- *   way. The fade lives in the base rather than under `loading: false`, because a boolean variant
- *   emits no class for its false value and a rule declared there would reach no element. Each
- *   motion is nested under the loading class, so a skeleton that has finished keeps neither the
- *   pulse nor the shimmer. Every motion resolves to an animation style the theme owns, which is
- *   what lets a reduced-motion preference be honoured once in the theme instead of in every
- *   recipe. No colour, length or duration is declared here. The placeholder uses the neutral
- *   palette's quiet fills, which lift above a dark page instead of sinking into it, so that it
- *   reads as content on its way rather than as a hole.
+ *   A skeleton wraps the content it covers, so a caller writes one tree and toggles `loading`.
+ *   While loading, the element keeps the box of its content and hides everything inside it, so the
+ *   placeholder has the content's size without a declared width. The fade-in is in the base,
+ *   because the compiler emits no class for the `false` value of a boolean axis. Each motion is
+ *   nested under the loading class, so a finished skeleton runs no animation. Every motion is a
+ *   theme animation style, so the theme applies the reduced-motion preference once. The fill is the
+ *   neutral palette's `muted` role, which is lighter than a dark page. Under forced colors the
+ *   browser replaces the fill with Canvas, so a loading skeleton draws a `GrayText` hairline
+ *   outline inside its box. An outline leaves the layout unchanged. The recipe has no `palette`
+ *   axis, because a placeholder signals loading and not a category. It has no `effect` axis,
+ *   because `motion` already animates it.
  */
 
 import { cornerVariants, defineRecipe } from "@stealthscale/theme/authoring";
 
 /**
- * Selects an element that is still loading, for a motion variant to nest its rules under.
+ * Selector for a skeleton that is loading, under which each motion nests its rules.
  *
  * @remarks
- *   The selector is written the way the compiler spells a variant class, the axis and the value
- *   joined by its separator, so that the naming pass rewrites it alongside the class it targets.
+ *   The selector uses the compiler's variant class name, the axis and the value joined by `_`, so
+ *   the naming plugin rewrites it together with the class.
  */
 const WHILE_LOADING = "&.skeleton--loading_true";
 
 /**
- * Styles a skeleton, defaulting to a loading placeholder that pulses at the middle radius.
+ * Skeleton recipe, loading with the pulse motion at the l2 radius by default.
  */
 export const recipe = defineRecipe({
   base: { animationStyle: "fade.in" },
@@ -38,10 +36,16 @@ export const recipe = defineRecipe({
   jsx: [/^Skeleton$/u],
   variants: {
     /**
-     * Whether the content behind the placeholder is still in flight.
+     * Whether the content is still loading. `true` paints the placeholder and hides the content.
      */
     loading: {
       true: {
+        _highContrast: {
+          outlineColor: "GrayText",
+          outlineOffset: "calc(-1 * {borderWidths.hairline})",
+          outlineStyle: "solid",
+          outlineWidth: "hairline",
+        },
         "&::before, &::after, *": { visibility: "hidden" },
         background: "colorPalette.muted",
         backgroundClip: "padding-box",
@@ -55,7 +59,7 @@ export const recipe = defineRecipe({
     },
 
     /**
-     * The animation the placeholder runs while loading.
+     * Animation of the placeholder while loading.
      */
     motion: {
       none: { [WHILE_LOADING]: { animation: "none" } },

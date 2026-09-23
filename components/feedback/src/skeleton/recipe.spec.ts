@@ -15,45 +15,51 @@ describe("recipe", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("references a token on every value a theme has to be able to move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Skeleton"] })).toStrictEqual([]);
   });
 
-  it("prefixes its generated classes with skeleton", () => {
+  it("sets className to skeleton", () => {
     expect(recipe.className).toBe("skeleton");
   });
 
-  it("declares loading and motion beside radius and nothing else", () => {
+  it("declares the loading motion and radius axes", () => {
     expect(axesOf(recipe)).toStrictEqual(["loading", "motion", "radius"]);
   });
 
-  it("defaults to a loading placeholder that pulses at the l2 radius", () => {
+  it("defaults to loading with the pulse motion at the l2 radius", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ loading: true, motion: "pulse", radius: "l2" });
   });
 
-  it("accepts none beside the two animated motions", () => {
+  it("declares none pulse and shimmer on the motion axis", () => {
     expect(valuesOf(recipe, "motion")).toStrictEqual(["none", "pulse", "shimmer"]);
   });
 
-  it("accepts every corner step the theme defines", () => {
+  it("declares every corner on the radius axis", () => {
     expect(valuesOf(recipe, "radius")).toStrictEqual(["full", "l1", "l2", "l3"]);
   });
 
-  it("hides its children and its pseudo-elements while loading", () => {
+  it("hides the content while loading", () => {
     expect(recipe.variants?.["loading"]?.["true"]).toMatchObject({
       "&::before, &::after, *": { visibility: "hidden" },
       color: "transparent",
     });
   });
 
-  it("paints the neutral palette's muted fill while loading", () => {
+  it("draws a GrayText outline under forced colors while loading", () => {
+    expect(recipe.variants?.["loading"]?.["true"]).toMatchObject({
+      _highContrast: { outlineColor: "GrayText", outlineStyle: "solid", outlineWidth: "hairline" },
+    });
+  });
+
+  it("reads the muted role of the neutral palette while loading", () => {
     expect(recipe.variants?.["loading"]?.["true"]).toMatchObject({
       background: "colorPalette.muted",
       colorPalette: "neutral",
     });
   });
 
-  it("carries the fade-in animation in its base", () => {
+  it("runs the fade.in animation style in the base", () => {
     expect(recipe.base).toStrictEqual({ animationStyle: "fade.in" });
   });
 
@@ -76,7 +82,7 @@ describe("recipe", () => {
     });
   });
 
-  it("anchors its jsx pattern so that SkeletonText does not match", () => {
+  it("matches the Skeleton tag only", () => {
     const [pattern] = recipe.jsx ?? [];
 
     expect(pattern).toStrictEqual(/^Skeleton$/u);

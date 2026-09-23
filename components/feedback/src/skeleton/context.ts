@@ -1,10 +1,9 @@
 /**
- * Binds the skeleton recipe to the element that renders it.
+ * Binds the skeleton recipe to React.
  *
  * @remarks
- *   The binding sits apart from the recipe because a consuming application's compiler imports the
- *   recipe at build time. Keeping the runtime here leaves React out of the module graph that every
- *   compiler configuration has to load.
+ *   The binding is a separate module from the recipe, because an application's compiler imports the
+ *   recipe at build time and the binding needs the React runtime.
  */
 
 import { createRecipeContext } from "@stealthscale/theme";
@@ -12,7 +11,7 @@ import { createRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#skeleton/recipe.ts";
 
 /**
- * Binds the recipe once, for the skeleton itself, for the lines skeleton text renders, and for the
- * provider an ancestor sets their variants through.
+ * Factory for the skeleton and the skeleton text bars, and the provider that sets their variants
+ * for descendants.
  */
 export const { PropsProvider, withContext } = createRecipeContext(recipe);

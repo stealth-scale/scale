@@ -1,10 +1,9 @@
 /**
- * Renders a skeleton bound to its recipe.
+ * Renders a skeleton through its recipe.
  *
  * @remarks
- *   The element is a `div` with no ARIA role. A placeholder is not something a screen reader
- *   should announce, and a user told once that a region is busy learns more than one told the same
- *   thing by every bar inside it. Set `aria-busy` on the region that is waiting instead.
+ *   The element is a `div` with no role, so screen readers skip the placeholder. Set `aria-busy`
+ *   on the region that is loading, so a screen reader announces the state once for the region.
  */
 
 import { type ComponentProps } from "react";
@@ -12,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#skeleton/context.ts";
 
 /**
- * Renders a placeholder that takes the box of the content it wraps.
+ * Renders a div that takes the box of the content it wraps.
  */
 export const Skeleton = withContext("div");
 
 /**
- * The recipe variants and the props of a styled `div`.
+ * Describes the props of Skeleton: the recipe's variants and the props of a div element.
  */
 export type SkeletonProps = ComponentProps<typeof Skeleton>;

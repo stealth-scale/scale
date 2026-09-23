@@ -1,51 +1,31 @@
 /**
- * Catalogues the skeleton across its variants, one scene per axis.
+ * Catalogue page for the skeleton.
  *
  * @remarks
- *   The scenes are generated from the recipe, so a value added to it reaches the page without this
- *   file changing. Every placeholder wraps a tile, because a skeleton takes the box of its content
- *   and an empty one would collapse. The copy is keyed under `skeleton` in the catalogue namespace
- *   and stored beside this file at `locales/en/specimen/skeleton.json`.
+ *   `scenesOf` generates one scene per recipe axis. Every scene renders the profile card from
+ *   `examples/` and shows that file as its source. The card gives the skeleton a box, because an
+ *   empty skeleton collapses to zero height. Each card renders in a `Room` at a sidebar's width.
+ *   The words are keys under `skeleton` in `locales/en/specimen/skeleton.json`.
  */
 
-import { type ReactElement } from "react";
+import { Room, scenesOf, specimen } from "@stealthscale/specimen";
 
-import { scenesOf, specimen, Tile, useWords } from "@stealthscale/specimen";
-
+import * as profile from "#skeleton/examples/profile.example.tsx";
 import { recipe } from "#skeleton/recipe.ts";
-import { Skeleton, type SkeletonProps } from "#skeleton/skeleton.ts";
-
-/**
- * The call site every scene's source snippet is generated from.
- */
-const SAMPLE = {
-  children: "<p>Ada Lovelace</p>",
-  imports: 'import { Skeleton } from "@stealthscale/component-feedback";',
-  name: "Skeleton",
-};
-
-/**
- * Draws a profile behind the placeholder, which is the box a skeleton takes.
- */
-function Profile(props: SkeletonProps): ReactElement {
-  const { t } = useWords("skeleton");
-
-  return (
-    <Skeleton {...props}>
-      <Tile>{t("profile")}</Tile>
-    </Skeleton>
-  );
-}
 
 export default specimen({
   about: "skeleton.about",
   id: "components/feedback/skeleton",
   imports: 'import { Skeleton } from "@stealthscale/component-feedback";',
-  scenes: scenesOf<SkeletonProps>(recipe, {
-    draw: (props) => <Profile {...props} />,
+  scenes: scenesOf<Parameters<typeof profile.Profile>[0]>(recipe, {
+    draw: (props) => (
+      <Room size="xs">
+        <profile.Profile {...props} />
+      </Room>
+    ),
+    example: profile,
     namespace: "skeleton",
     order: ["loading", "motion", "radius"],
-    sample: SAMPLE,
   }),
   title: "skeleton.title",
 });
