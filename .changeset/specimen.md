@@ -69,3 +69,15 @@ specimen: write the props of a hand-written scene into its example
   line of its own keeps its indent, and the line is removed when no prop is set.
 - The catalogue's code view passes `label` and `copiedLabel` to `CodeBlock.Copy`, which no longer
   takes `translations`.
+
+specimen: pass palette to the catalogue's badges
+
+- The audit finding and the props table set `palette` on `Badge`, which replaced `status`.
+
+specimen: render the inverted ink on the inverted surface
+
+- `Sample` takes `variant="inverted"`: a `bg.inverted` fill, the `fg.inverted` ink and 8px padding.
+  The other looks still set no text colour.
+- `grounded(tone, cell)` returns the cell in an inverted sample when `tone` is `inverted`, and the
+  cell unchanged for any other tone. The inverted ink failed axe `color-contrast` on six typography
+  pages, where it rendered on the page background.

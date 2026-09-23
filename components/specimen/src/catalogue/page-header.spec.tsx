@@ -4,7 +4,9 @@ import { describe, expect, it } from "vitest";
 
 import { Page } from "@stealthscale/component-screen";
 import { drawn } from "@stealthscale/testing-react";
+import { mountRoute } from "@stealthscale/testing-router";
 
+import { entry as filed, treeOver } from "#catalogue/mounted.fixtures.tsx";
 import { Header } from "#catalogue/page-header.tsx";
 import { type Indexed } from "#catalogue/types.ts";
 
@@ -58,6 +60,15 @@ describe("Header", () => {
     const { queryByRole } = await drawn(headed(entry()));
 
     expect(queryByRole("link")).toBeNull();
+  });
+
+  it("links the group index from the trail when the page id has three segments", async () => {
+    const tree = treeOver([filed("components/actions/button", "", "Button")]);
+    const { result } = await mountRoute(tree, "/docs/components/actions/button");
+    const trail = result.getByRole("navigation", { name: "Breadcrumb" });
+    const links = [...trail.querySelectorAll("a[href]")].map((one) => one.getAttribute("href"));
+
+    expect(links).toContain("/docs/components/actions");
   });
 
   it("resolves the title and the opening through the namespace named", async () => {

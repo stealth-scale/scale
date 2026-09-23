@@ -350,11 +350,23 @@ reports no violation.
 
 ## Sample and Board
 
-`Sample` is one drawing of a component: a caption naming the value it was drawn for, the component,
-and a box the specimen chooses the look of. `of` is the value and `knob` the prop it was set on.
-`variant` draws the box (`plain`, `outline`, `subtle` or `surface`) and `place` says how wide it is
-and where the drawing is placed in it (`fit`, `start`, `center`, `end` or `stretch`). `span` reaches
-a sample across a board's columns.
+`Sample` renders one component under a caption. `of` is the value in the caption and `knob` is the
+prop the value was set on.
+
+- `variant` is the look of the box around the component: `plain`, `outline`, `subtle`, `surface` or
+  `inverted`. `inverted` fills the box with `bg.inverted` and sets the inherited ink to
+  `fg.inverted`. The other looks set no text colour.
+- `place` aligns the component in the box: `start`, `center`, `end` or `stretch`. The box fills the
+  cell at every value.
+- `span` sets the number of board columns the sample spans.
+
+`grounded(tone, cell)` returns the cell in an inverted sample when `tone` is `inverted`, and the
+cell unchanged for any other tone. A scene of a `tone` axis passes each cell through it, because the
+inverted ink fails the text contrast ratio on the page.
+
+```tsx
+tone: { draw: (props) => grounded(props.tone, <sentence.Sentence {...props} />) },
+```
 
 `Board` lays the samples a specimen writes out on the library's grid, and states the look of every
 sample on it once. It takes everything `Grid.Root` takes, with equal columns of the smallest measure

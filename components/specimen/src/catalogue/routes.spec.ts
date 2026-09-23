@@ -131,6 +131,19 @@ describe("declarations", () => {
     expect(declarations([], { ...PLACED, beside })[2]?.parent).toBe("docs.home");
   });
 
+  it("declares no catalogue route when path is the root", () => {
+    expect(declarations(LISTED, { ...PLACED, path: "/" }).map((one) => one.id)).not.toContain(
+      "docs.components",
+    );
+  });
+
+  it("puts the index in the frame without a parent when path is the root", () => {
+    const [index] = declarations(LISTED, { ...PLACED, path: "/" });
+
+    expect(index).toMatchObject({ id: "docs.components.index", layout: ["docs.frame"] });
+    expect(index).not.toHaveProperty("parent");
+  });
+
   it("returns the route and its index for an index that found no page", () => {
     expect(declarations([], PLACED)).toHaveLength(2);
   });

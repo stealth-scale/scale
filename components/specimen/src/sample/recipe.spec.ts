@@ -5,31 +5,31 @@ import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/te
 import { recipe } from "#sample/recipe.ts";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Sample"] })).toStrictEqual([]);
   });
 
-  it("names its class sample", () => {
+  it("uses the class name sample", () => {
     expect(recipe.className).toBe("sample");
   });
 
-  it("draws the caption above the box it names", () => {
+  it("renders the caption slot before the body slot", () => {
     expect(recipe.slots).toStrictEqual(["root", "caption", "body"]);
   });
 
-  it("offers a place a span and a look", () => {
+  it("declares three variant axes", () => {
     expect(axesOf(recipe)).toStrictEqual(["place", "span", "variant"]);
   });
 
-  it("starts the drawing and draws no box when nothing is asked for", () => {
+  it("defaults to the plain look at the start of the cell", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ place: "start", variant: "plain" });
   });
 
-  it("offers four places and no value that sizes the box to its drawing", () => {
+  it("offers four places", () => {
     expect(valuesOf(recipe, "place")).toStrictEqual(["center", "end", "start", "stretch"]);
   });
 
-  it("gives the box the whole cell at every place", () => {
+  it("sets the body to the full cell width at every place", () => {
     expect(recipe.variants?.place).toMatchObject({
       center: { body: { inlineSize: "full" } },
       end: { body: { inlineSize: "full" } },
@@ -38,25 +38,44 @@ describe("recipe", () => {
     });
   });
 
-  it("draws no fill no edge and no room in the plain look", () => {
+  it("sets no fill edge or padding in the plain look", () => {
     expect(recipe.variants?.variant?.plain).toStrictEqual({
       body: { background: "transparent", borderWidth: "0", padding: "0" },
     });
   });
 
-  it("moves no ink of what it holds in any look", () => {
-    expect(JSON.stringify(recipe.variants?.variant)).not.toContain("color");
+  it("fills the body with bg.inverted in the inverted look", () => {
+    expect(recipe.variants?.variant?.inverted).toMatchObject({
+      body: { background: "bg.inverted" },
+    });
   });
 
-  it("offers the four looks a passive box is drawn in", () => {
-    expect(valuesOf(recipe, "variant")).toStrictEqual(["outline", "plain", "subtle", "surface"]);
+  it("sets the inherited ink to fg.inverted in the inverted look", () => {
+    expect(recipe.variants?.variant?.inverted).toMatchObject({ body: { color: "fg.inverted" } });
   });
 
-  it("reaches a board's columns through the span", () => {
+  it.each(["outline", "plain", "subtle", "surface"] as const)(
+    "sets no text colour in the %s look",
+    (look) => {
+      expect(JSON.stringify(recipe.variants?.variant?.[look])).not.toContain("color");
+    },
+  );
+
+  it("offers five looks", () => {
+    expect(valuesOf(recipe, "variant")).toStrictEqual([
+      "inverted",
+      "outline",
+      "plain",
+      "subtle",
+      "surface",
+    ]);
+  });
+
+  it("spans every board column at span full", () => {
     expect(recipe.variants?.span?.full).toStrictEqual({ root: { gridColumn: "1 / -1" } });
   });
 
-  it("tracks the tag a consumer writes it under", () => {
+  it("matches the Sample JSX tag", () => {
     expect(recipe.jsx).toStrictEqual([/^Sample$/u]);
   });
 });

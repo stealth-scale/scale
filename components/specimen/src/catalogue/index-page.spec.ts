@@ -61,6 +61,14 @@ describe("Index", () => {
     expect(cards).toHaveLength(1);
   });
 
+  it("lists every page of a section on the section's index", async () => {
+    const { result } = await mountRoute(treeOver(FILED), "/docs/components");
+
+    expect(
+      result.getAllByRole("heading", { level: 3 }).map((one) => one.textContent),
+    ).toStrictEqual(["Button", "Gauge"]);
+  });
+
   it("opens a group's own index with the sentence written for the group", async () => {
     const { result } = await mountRoute(treeOver(FILED), "/docs/components/actions");
 

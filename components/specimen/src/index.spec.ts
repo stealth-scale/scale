@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#index.ts";
 
 describe("index", () => {
-  it("names everything a specimen is written with and nothing beside it", () => {
+  it("exports the specimen kit's public names only", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Board",
       "DisplayProvider",
@@ -26,6 +26,7 @@ describe("index", () => {
       "deviceOf",
       "entryOf",
       "framedDeclaration",
+      "grounded",
       "grouped",
       "indexId",
       "landmarked",
@@ -45,7 +46,7 @@ describe("index", () => {
     ]);
   });
 
-  it("publishes no binding of its own", () => {
+  it("exports no recipe binding or props provider", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {
