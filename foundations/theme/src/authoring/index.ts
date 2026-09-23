@@ -58,6 +58,7 @@ export {
   type Elevation,
   field,
   type Field,
+  FIELD_EDGE,
   FIELDS,
   fieldStatusVariants,
   fieldVariants,

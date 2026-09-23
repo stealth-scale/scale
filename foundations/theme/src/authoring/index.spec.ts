@@ -28,6 +28,7 @@ const RECIPE = [
   "DISTRIBUTIONS",
   "divider",
   "field",
+  "FIELD_EDGE",
   "FIELDS",
   "fieldStatusVariants",
   "fieldVariants",

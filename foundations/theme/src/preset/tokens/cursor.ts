@@ -1,11 +1,11 @@
 /**
- * Defines the cursor each kind of control is drawn with.
+ * Defines the cursor for each kind of control.
  *
  * @remarks
- *   A recipe writes `cursor: "button"` rather than `pointer`, so a theme that wants native
- *   controls drawn with the arrow, as a desktop application does, changes one token rather than
- *   every recipe. The defaults follow the web: a button and a switch take the hand, and a form
- *   control keeps the arrow.
+ *   A recipe writes `cursor: "button"` in place of `pointer`, so a theme that wants native controls
+ *   shown with the arrow, as a desktop application does, changes one token. The defaults follow the
+ *   web: a button and a switch take the hand, a form control keeps the arrow, and a box around a
+ *   text field takes the I-beam over its marks and padding.
  */
 
 import { type Tokens } from "#pandacss.ts";
@@ -22,6 +22,7 @@ export const cursor: Cursors = {
   button: { value: "pointer" },
   checkbox: { value: "default" },
   disabled: { value: "not-allowed" },
+  field: { value: "text" },
   menuitem: { value: "default" },
   option: { value: "default" },
   radio: { value: "default" },
