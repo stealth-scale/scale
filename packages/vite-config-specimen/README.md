@@ -33,6 +33,10 @@ the catalogue to draw rather than behaviour to assert, so it is an entry point i
 application's `main` is. A package that keeps its specimens elsewhere names its own globs:
 `specimen.layers(["src/pages/**/*.specimen.tsx"])`.
 
+The package's example spec renders each `**/*.example.tsx` file without pressing a control, so
+`layers()` excludes those files from coverage too. Their event handlers would otherwise count as
+uncovered functions.
+
 ## An application that shows a catalogue
 
 Add `specimen.catalogue()` to whichever tier the application already builds on.
@@ -103,6 +107,10 @@ Four rules come off `**/*.specimen.tsx`:
 | `react/no-multi-comp`          | A scene is built from the components that arrange it             |
 
 Pass a list to cover different files: `workspace(["components/**/*.specimen.tsx"])`.
+
+The root also excludes `**/*.example.tsx` from coverage and turns the doc comment rules off for it.
+The catalogue shows an example file verbatim as the Source of a scene, so a doc comment would end up
+in the code a consumer copies.
 
 ## Licence
 

@@ -1,22 +1,22 @@
 /**
- * Collects the layers a package that holds specimens extends its tier with.
+ * Coverage layers for a package that contains specimens.
  */
 
 import { type Layer } from "@stealthscale/vite-config-core";
 
+import { unmeasured } from "#examples.ts";
 import { SPECIMENS } from "#specimens.ts";
 import { uncounted } from "#uncounted.ts";
 
 /**
- * Returns the layers a package holding specimens extends its tier with: the omission of every
- * specimen from the coverage the package is held to.
+ * Returns the coverage exclusions for the specimen and example files of a package.
  *
  * @remarks
- *   A list rather than a tier, because a component package picks whichever tier its framework
- *   calls for and adds these. The lint departures are not among these layers: the linter runs
- *   from the workspace root, so a root config states them through `workspace()`.
- * @param files - Which files are specimens. Defaults to any `*.specimen.tsx` in the package.
+ *   The function returns a layer list, not a tier, so a component package can add it to whichever
+ *   tier its framework requires. Lint exemptions are declared at the workspace root through
+ *   `workspace()`, because the linter reads only the root config.
+ * @param files - Specimen globs. Defaults to every `*.specimen.tsx` file in the package.
  */
 export function layers(files: readonly string[] = SPECIMENS): readonly Layer[] {
-  return [...uncounted(files)];
+  return [...uncounted(files), ...unmeasured()];
 }

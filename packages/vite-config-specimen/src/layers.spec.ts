@@ -3,21 +3,24 @@ import { describe, expect, it } from "vitest";
 import { layers } from "#layers.ts";
 
 describe("layers", () => {
-  it("states one layer for a package that holds specimens", () => {
-    expect(layers()).toHaveLength(1);
+  it("returns two layers for a package with specimens", () => {
+    expect(layers()).toHaveLength(2);
   });
 
-  it("names every layer under this package", () => {
+  it("prefixes every layer name with specimen.", () => {
     expect(layers().every((layer) => layer.name.startsWith("specimen."))).toBe(true);
   });
 
-  it("stops counting the specimens towards the package's coverage", () => {
-    expect(layers()[0]?.name).toBe("specimen.uncounted(**/*.specimen.tsx)");
+  it("excludes specimen files and example files from coverage", () => {
+    expect(layers().map((layer) => layer.name)).toStrictEqual([
+      "specimen.uncounted(**/*.specimen.tsx)",
+      "specimen.example.uncounted(**/*.example.tsx)",
+    ]);
   });
 
-  it("stops counting the files a package names instead", () => {
-    expect(layers(["src/pages/**/*.specimen.tsx"]).map((layer) => layer.name)).toStrictEqual([
+  it("excludes the specimen globs passed as files from coverage", () => {
+    expect(layers(["src/pages/**/*.specimen.tsx"])[0]?.name).toBe(
       "specimen.uncounted(src/pages/**/*.specimen.tsx)",
-    ]);
+    );
   });
 });
