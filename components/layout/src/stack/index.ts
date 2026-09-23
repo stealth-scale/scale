@@ -1,5 +1,5 @@
 /**
- * Publishes the stack: children laid one after another along one direction, a gap apart.
+ * Exposes the stack component and its props provider to the package barrel.
  */
 
 export { PropsProvider as StackPropsProvider } from "#stack/context.ts";

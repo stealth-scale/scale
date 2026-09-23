@@ -1,10 +1,9 @@
 /**
- * Draws a stack through its recipe.
+ * Renders a stack through the stack recipe.
  *
  * @remarks
- *   The element is `div`, because a stack arranges what is already there and says nothing about
- *   what it holds. A caller who is stacking a list of things changes the element with `as`, so a
- *   screen reader counts them. The component adds no surface, no ink and no border of its own.
+ *   The element is `div`, which has no semantics. A stack of list items sets `as="ul"`, so a
+ *   screen reader counts them. The component renders no surface, ink or border.
  */
 
 import { type ComponentProps } from "react";
@@ -12,12 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#stack/context.ts";
 
 /**
- * Lays its children out along one direction, a gap apart.
+ * Renders a `div` element with the classes of the stack recipe.
  */
 export const Stack = withContext("div");
 
 /**
- * Describes what a stack takes: the variants its recipe offers, and everything a styled div
- * element takes.
+ * Describes the props of Stack: the recipe's variants and the props of a `div` element.
  */
 export type StackProps = ComponentProps<typeof Stack>;

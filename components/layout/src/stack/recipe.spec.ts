@@ -11,31 +11,31 @@ describe("recipe", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+  it("has no scene that writes a value the recipe does not offer", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Stack"] })).toStrictEqual([]);
   });
 
-  it("names its class stack", () => {
+  it("sets className to stack", () => {
     expect(recipe.className).toBe("stack");
   });
 
-  it("offers the five axes a stack takes", () => {
+  it("declares five variant axes", () => {
     expect(axesOf(recipe)).toStrictEqual(["align", "direction", "gap", "justify", "wrap"]);
   });
 
-  it("draws a column at the middle gap when nothing is asked for", () => {
+  it("defaults to the md gap", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ gap: "md" });
   });
 
-  it("offers the whole gap scale", () => {
+  it("declares eight gaps on the gap axis", () => {
     expect(valuesOf(recipe, "gap")).toHaveLength(8);
   });
 
-  it("offers the four directions children run in", () => {
+  it("declares four flex directions on the direction axis", () => {
     expect(valuesOf(recipe, "direction")).toStrictEqual([
       "column",
       "column-reverse",
@@ -44,7 +44,7 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers the six ways the space along the direction is shared out", () => {
+  it("declares six distributions on the justify axis", () => {
     expect(valuesOf(recipe, "justify")).toStrictEqual([
       "around",
       "between",
@@ -55,10 +55,13 @@ describe("recipe", () => {
     ]);
   });
 
-  it("centres a row across the flow from the base", () => {
-    const across = "&.stack--direction_row, &.stack--direction_row-reverse";
+  it("centres a row on the cross axis in the base", () => {
+    expect(recipe.base).toMatchObject({
+      "&.stack--direction_row, &.stack--direction_row-reverse": { alignItems: "center" },
+    });
+  });
 
-    expect(recipe.base).toMatchObject({ [across]: { alignItems: "center" } });
+  it("sets only flex-direction on each direction value", () => {
     expect(recipe.variants?.["direction"]).toStrictEqual({
       column: { flexDirection: "column" },
       "column-reverse": { flexDirection: "column-reverse" },
@@ -67,7 +70,7 @@ describe("recipe", () => {
     });
   });
 
-  it("tracks the tag a consumer writes it under", () => {
+  it("matches the Stack JSX tag", () => {
     expect(recipe.jsx).toStrictEqual([/^Stack$/u]);
   });
 });
