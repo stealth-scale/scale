@@ -93,11 +93,17 @@ is a preset. A package that needs another document implementation takes the laye
 alone and selects the automatic JSX runtime. Each field of `Refreshed` widens or narrows one of
 those defaults. A field left undefined keeps the default.
 
-| Field    | Type                | Default                                                        |
-| -------- | ------------------- | -------------------------------------------------------------- |
-| `also`   | `readonly RegExp[]` | Empty. Each pattern compiles beside the five kinds listed here |
-| `except` | `readonly RegExp[]` | Empty. Each pattern joins `/node_modules/`                     |
-| `from`   | `string`            | `react`, also exported as `plugin.FACTORY`                     |
+Fast Refresh skips `*.specimen.tsx` and `*.example.tsx`. JSX in those files still compiles. A
+specimen exports scenes next to its components, and the specimen plugin appends a `source` string
+export to each example. The refresh runtime invalidates a module with a non-component export, and a
+bundled dev server turns that invalidation into a full page reload. The specimen plugin makes each
+specimen accept its own update instead, and an example edit propagates to its specimen.
+
+| Field    | Type                | Default                                                                          |
+| -------- | ------------------- | -------------------------------------------------------------------------------- |
+| `also`   | `readonly RegExp[]` | Empty. Each pattern compiles beside the five kinds listed here                   |
+| `except` | `readonly RegExp[]` | Empty. Each pattern joins `/node_modules/`, `*.specimen.tsx` and `*.example.tsx` |
+| `from`   | `string`            | `react`, also exported as `plugin.FACTORY`                                       |
 
 Note: the automatic runtime imports the factory itself. No file under this transform needs React in
 scope. `web.json` selects the default factory for the type checker, so a package that changes `from`

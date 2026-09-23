@@ -1,5 +1,5 @@
 /**
- * Configures the React plugin that compiles JSX and refreshes a component in place.
+ * Configures `@vitejs/plugin-react` for JSX compilation and Fast Refresh.
  */
 
 import react, { type Options } from "@vitejs/plugin-react";
@@ -7,76 +7,83 @@ import react, { type Options } from "@vitejs/plugin-react";
 import { contribute, type Contribution } from "@stealthscale/vite-config";
 
 /**
- * The configuration key the plugin joins.
+ * Config key the plugin is added to.
  */
 const AT = "plugins";
 
 /**
- * The file kinds the transform reads, covering both TypeScript and markdown that renders.
+ * File patterns the plugin compiles: TypeScript, JavaScript and MDX.
  */
 const COMPILED = [/\.[tj]sx?$/u, /\.mdx$/u];
 
 /**
- * The path a dependency is installed under, left uncompiled because it ships compiled already.
+ * Dependency path pattern. Installed packages ship compiled code.
  */
 const UNTOUCHED = /\/node_modules\//u;
 
 /**
- * A specimen file, left out of the refresh transform.
+ * Specimen file pattern, excluded from Fast Refresh.
  *
  * @remarks
- *   The JSX in it still compiles, because the plugin sets the JSX transform for every file in its
- *   configuration and reads `exclude` for the refresh transform alone. What it is spared is the
- *   refresh runtime's judgement: a specimen exports scenes and constants beside its components,
- *   which the runtime reads as a module it cannot refresh, so it invalidates the module on every
- *   edit and the update climbs to the application's own modules. The specimen plugin gives the
- *   file a hot update boundary of its own, and the runtime's invalidation would undo it.
+ *   The plugin still compiles JSX in an excluded file, because `exclude` applies to the refresh
+ *   transform only. A specimen exports scenes and constants next to its components. The refresh
+ *   runtime rejects such a module as a boundary and invalidates it on every edit, so the update
+ *   reaches the application modules. The specimen plugin makes each specimen self-accept instead.
  */
 const SPECIMEN = /\.specimen\.[tj]sx$/u;
 
 /**
- * The package the JSX factory is imported from unless a caller names another one.
+ * Example file pattern, excluded from Fast Refresh for the reason {@link SPECIMEN} gives.
+ *
+ * @remarks
+ *   Each example carries the `source` string export that the specimen plugin appends. Measured on
+ *   2026-09-23, the invalidation forced a full page reload on every example edit in the bundled dev
+ *   server. Without a refresh boundary, the update propagates to the importing specimen, which
+ *   self-accepts.
+ */
+const EXAMPLE = /\.example\.tsx$/u;
+
+/**
+ * Default package the JSX factory is imported from.
  */
 export const FACTORY = "react";
 
 /**
- * Widens or narrows the transform a package inherits.
+ * Overrides of the plugin defaults.
  *
  * @remarks
- *   Every field widens or narrows a default rather than replacing it, so a caller setting one
- *   keeps the behaviour of the rest. A field left undefined takes the value this package ships.
+ *   Each field extends or replaces one default and leaves the others unchanged.
  */
 export interface Refreshed {
   /**
-   * Extra file kinds to compile, added after the ones compiled by default.
+   * File patterns compiled in addition to the defaults.
    */
   also?: readonly RegExp[];
 
   /**
-   * Extra paths to leave alone, added after the dependency directory and the specimen files.
+   * Path patterns excluded in addition to dependencies, specimen files and example files.
    */
   except?: readonly RegExp[];
 
   /**
-   * The package the automatic runtime imports the JSX factory from.
+   * Package the automatic runtime imports the JSX factory from.
    */
   from?: string;
 }
 
 /**
- * Fills in what a caller left out and hands the result to the React plugin.
+ * Returns the plugin options for a set of overrides.
  *
  * @remarks
- *   The automatic runtime imports the factory itself, so no file under this transform needs React
- *   in scope. The shipped `web.json` sets the same factory for the type checker, and a caller
- *   changing `from` here has to change the tsconfig with it or the two disagree.
- *   The plugin's own `compiler` option is left alone. It asks the plugin to resolve the compiler
- *   from its own directory, which an isolated node_modules refuses, and setting it also turns
- *   fast refresh off. The compiler runs as a Babel pass of its own instead.
+ *   The automatic runtime imports the factory, so no file needs React in scope. The shipped
+ *   `web.json` sets the same factory for the type checker, and a caller who changes `from` must
+ *   change the tsconfig to match. The plugin's own `compiler` option stays unset. It resolves the
+ *   compiler from the plugin directory, which an isolated `node_modules` layout rejects, and it
+ *   disables Fast Refresh. The React Compiler runs as a separate Babel pass instead.
  */
 export function options(stated: Refreshed): Options {
   return {
-    exclude: [UNTOUCHED, SPECIMEN, ...(stated.except ?? [])],
+    exclude: [UNTOUCHED, SPECIMEN, EXAMPLE, ...(stated.except ?? [])],
     include: [...COMPILED, ...(stated.also ?? [])],
     jsxImportSource: stated.from ?? FACTORY,
     jsxRuntime: "automatic",
@@ -84,13 +91,10 @@ export function options(stated: Refreshed): Options {
 }
 
 /**
- * Adds the React plugin to whatever plugins a tier already built.
+ * Adds a new React plugin instance to the plugins of a tier on every call.
  *
- * @remarks
- *   The plugin is constructed when this call runs, not when the configuration resolves, so two
- *   calls produce two independent plugin instances.
- * @param stated - The parts of the transform to change. Omitting it compiles a TypeScript package
- *   rendering through React itself.
+ * @param stated - Overrides of the defaults. Omit it for a TypeScript package that renders with
+ *   React.
  */
 export function refresh(stated: Refreshed = {}): Contribution {
   return contribute({
