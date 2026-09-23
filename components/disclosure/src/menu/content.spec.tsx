@@ -5,7 +5,7 @@ import { drawn } from "@stealthscale/testing-react";
 import { slotElement } from "@stealthscale/testing-theme";
 
 import { Content } from "#menu/content.tsx";
-import { composed, listed } from "#menu/menu.fixtures.tsx";
+import { composed, listed, nested } from "#menu/menu.fixtures.tsx";
 
 describe("Content", () => {
   it("draws a div inside the root it needs above it", async () => {
@@ -32,6 +32,23 @@ describe("Content", () => {
     await drawn(composed({ defaultOpen: true }));
 
     expect(screen.getByRole("menu").getAttribute("tabindex")).toBe("0");
+  });
+
+  it("stands on the rung of the menu it opened from, one step up", async () => {
+    const { container } = await drawn(nested({ defaultOpen: true }));
+    const panels = [...container.querySelectorAll<HTMLElement>(".menu__content")];
+
+    expect(panels.map((panel) => panel.style.getPropertyValue("--menu-depth"))).toStrictEqual([
+      "0",
+      "1",
+    ]);
+  });
+
+  it("marks itself nested only where a menu opened it", async () => {
+    const { container } = await drawn(nested({ defaultOpen: true }));
+    const panels = [...container.querySelectorAll<HTMLElement>(".menu__content")];
+
+    expect(panels.map((panel) => panel.dataset["nested"])).toStrictEqual([undefined, ""]);
   });
 
   it("says which side the machine placed it on", async () => {

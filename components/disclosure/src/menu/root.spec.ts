@@ -9,6 +9,20 @@ import { recipe } from "#menu/recipe.ts";
 import { type RootProps } from "#menu/root.tsx";
 
 describe("Root", () => {
+  it("hands a submenu the direction the menu above it reads in", async () => {
+    const { container } = await drawn(nested({ defaultOpen: true, dir: "rtl" }));
+    const panels = [...container.querySelectorAll<HTMLElement>(".menu__content")];
+
+    expect(panels.map((panel) => panel.getAttribute("dir"))).toStrictEqual(["rtl", "rtl"]);
+  });
+
+  it("leaves a submenu the direction it states for itself", async () => {
+    const { container } = await drawn(nested({ defaultOpen: true }));
+    const panels = [...container.querySelectorAll<HTMLElement>(".menu__content")];
+
+    expect(panels.map((panel) => panel.getAttribute("dir"))).toStrictEqual([null, null]);
+  });
+
   it("breaks no accessibility rule holding a control and its rows", async () => {
     await expect(
       accessibilityViolations(() => composed({ defaultOpen: true })),

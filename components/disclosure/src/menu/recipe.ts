@@ -12,7 +12,13 @@
  *   custom properties the positioner is measured into. The panel reads one of them for its height,
  *   so a menu opened near the edge of a window scrolls inside itself rather than running off the
  *   page. It is held to a width a short list still fills, and grows to its widest row from there,
- *   and a caller wanting the control's width asks the machine for it.
+ *   and a caller wanting the control's width asks the machine for it. The width is a step of the
+ *   scale rather than `--reference-width`: read off the control, a menu under a button spanning
+ *   the page was a list of six short rows spanning the page with them.
+ *   The rung goes on the panel rather than on the positioner the machine places. The machine
+ *   writes `z-index: var(--z-index)` on the positioner as an inline style and fills that property
+ *   from what the panel computes to, so a rung written on the positioner is overruled by the
+ *   machine's own declaration and reaches nothing.
  *   The panel enters from the side it was placed on rather than always from the top, which is what
  *   the `slide-fade` motion reads off the placement the machine writes. It carries no focus ring:
  *   the machine moves focus onto it as it opens, and a ring drawn for that reads as the panel being
@@ -49,6 +55,27 @@ import {
 const SIZES: readonly Scale[] = ["sm", "md", "lg"];
 
 /**
+ * The property a panel states how deep in a nest it sits in, which it adds to the rung.
+ *
+ * @remarks
+ *   Every panel of a nest stands on the dropdown rung, and both a menu and the submenu it opens are
+ *   portalled to the document, so neither is an ancestor of the other and the two stacked by the
+ *   order their portals happened to mount. A submenu came out under the menu it opened from.
+ *   The depth is counted at run time, so the panel writes the property and this reads it. The rung
+ *   itself stays the theme's, which is what a theme moves when it restacks the page.
+ */
+export const MENU_DEPTH = "--menu-depth";
+
+/**
+ * The attribute a panel that opened from a row of another menu marks itself with.
+ *
+ * @remarks
+ *   The depth is a number, and a rule cannot ask whether a number is more than nothing. The panel
+ *   states this beside it for the rules that only want to know that there is a menu above this one.
+ */
+export const NESTED = "data-nested";
+
+/**
  * Fixes the property the gutter for a row's mark is measured into, which the size axis writes and
  * the inset axis and every marked row read.
  */
@@ -66,6 +93,35 @@ const SURFACE = "var(--menu-surface)";
  */
 function gutter(size: Scale): string {
   return `calc({spacing.inset.${below(size)}} + {sizes.icon.${below(size)}} + {spacing.gap.${size}})`;
+}
+
+/**
+ * Gives a submenu back the room its own menu keeps round its rows, on the side it opened towards.
+ *
+ * @remarks
+ *   A submenu is placed against the row that opened it rather than against the panel that row sits
+ *   in, and the engine states the offset itself, so a caller cannot move it. The row stops one
+ *   inset short of the panel's edge, so a submenu began one inset inside the menu it opened from
+ *   and the two overlapped by exactly that much.
+ *   The side is the engine's and is stated as left or right, and the room is written as a logical
+ *   property, which is the pair a direction swaps. A submenu opening right stands off its start in
+ *   a menu read left to right and off its end in one read the other way, so each side states both
+ *   and zeroes the other.
+ * @param room - The inset the panel keeps at this step.
+ */
+function cleared(room: string): SystemStyleObject {
+  return {
+    [`&[${NESTED}][data-placement^=left]`]: {
+      _rtl: { marginInlineEnd: "0", marginInlineStart: room },
+      marginInlineEnd: room,
+      marginInlineStart: "0",
+    },
+    [`&[${NESTED}][data-placement^=right]`]: {
+      _rtl: { marginInlineEnd: room, marginInlineStart: "0" },
+      marginInlineEnd: "0",
+      marginInlineStart: room,
+    },
+  };
 }
 
 /**
@@ -96,17 +152,19 @@ export const recipe = defineSlotRecipe({
       display: "flex",
       flexDirection: "column",
       maxBlockSize: "var(--available-height)",
-      minInlineSize: "var(--reference-width)",
+      minInlineSize: "44",
       outline: "0",
       overflowY: "auto",
       overscrollBehavior: "contain",
-      zIndex: "dropdown",
+      zIndex: `calc({zIndex.dropdown} + var(${MENU_DEPTH}, 0))`,
     },
     contextTrigger: { cursor: "menuitem" },
     indicator: {
+      "& > svg": { boxSize: "100%" },
       alignItems: "center",
       display: "inline-flex",
       flexShrink: "0",
+      justifyContent: "center",
       marginInlineStart: "auto",
     },
     item: {
@@ -203,13 +261,33 @@ export const recipe = defineSlotRecipe({
      * How much room a row takes, and how loud its words are.
      */
     size: onSlots({
+      /**
+       * The room the panel keeps round its rows, and the same room given back to a submenu.
+       *
+       * @remarks
+       *   A submenu is placed against the row that opened it rather than against the panel that
+       *   row sits in, and the engine states the offset itself, so a caller cannot move it. The row
+       *   stops one inset short of the panel's edge, so the submenu began one inset inside the menu
+       *   it opened from and the two overlapped by exactly that much. The panel gives the inset
+       *   back on whichever side it opened towards.
+       */
       content: sizeVariants(
         (size) => ({
+          ...cleared(dense(`{spacing.gap.${below(size)}}`)),
           padding: dense(`{spacing.gap.${below(size)}}`),
           scrollPadding: dense(`{spacing.gap.${below(size)}}`),
         }),
         SIZES,
       ),
+      /**
+       * The mark that opens a submenu takes the square the mark of a checked row takes.
+       *
+       * @remarks
+       *   It stated no size at all, so its box was whatever the glyph a caller put in it came to.
+       *   Measured on the toolbar's menus: a 14-pixel glyph in a 12-pixel box, which overruns the
+       *   end of the row the mark is pinned to.
+       */
+      indicator: sizeVariants((size) => ({ boxSize: dense(`{sizes.icon.${below(size)}}`) }), SIZES),
       item: sizeVariants((size) => rowOf(size), SIZES),
       itemCommand: sizeVariants(
         (size) => ({

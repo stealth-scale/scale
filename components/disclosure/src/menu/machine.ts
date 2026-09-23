@@ -48,6 +48,30 @@ export interface MenuLevel {
   readonly api: MenuApi;
 
   /**
+   * How many menus this one opens from: zero for the outermost, one for a submenu of it, and so on.
+   *
+   * @remarks
+   *   The panel raises itself by this much, because a submenu has to stand over the menu it opened
+   *   from and every panel of a nest is drawn on the same rung of the theme's stack. Both panels
+   *   are portalled to the document, so neither is an ancestor of the other and nothing about
+   *   where they sit in the document decides which is on top: a nest stacked by the order its
+   *   portals happened to mount, which put the submenu under the row a reader had just pointed at.
+   */
+  readonly depth: number;
+
+  /**
+   * The direction this menu reads in, or undefined where nobody stated one.
+   *
+   * @remarks
+   *   A submenu takes it from the menu it opens from. The engine picks the side a submenu opens on
+   *   from the direction of that submenu's own machine, and a caller states the direction once, on
+   *   the outermost menu: a submenu left to work it out for itself decided it read left to right
+   *   and opened to the right, out over the menu that had opened it, inside a menu that read the
+   *   other way.
+   */
+  readonly dir: "ltr" | "rtl" | undefined;
+
+  /**
    * The menu this one opens from, or undefined where this is the outermost.
    */
   readonly parent: MenuLevel | undefined;

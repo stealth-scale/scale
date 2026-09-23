@@ -101,11 +101,21 @@ describe("recipe", () => {
   });
 
   it("stacks the panel on the dropdown rung rather than the popover rung", () => {
-    expect(recipe.base?.["content"]).toMatchObject({ zIndex: "dropdown" });
+    expect(recipe.base?.["content"]).toMatchObject({
+      zIndex: "calc({zIndex.dropdown} + var(--menu-depth, 0))",
+    });
   });
 
-  it("opens the panel at least as wide as its control and as wide as its widest row", () => {
-    expect(recipe.base?.["content"]).toMatchObject({ minInlineSize: "var(--reference-width)" });
+  it("raises a panel by how deep in a nest it sits", () => {
+    expect(recipe.base?.["content"]?.["zIndex"]).toContain("var(--menu-depth, 0)");
+  });
+
+  it("writes the rung where the machine reads it rather than on the positioner", () => {
+    expect(recipe.base?.["positioner"]).not.toHaveProperty("zIndex");
+  });
+
+  it("opens the panel at a width of its own and as wide as its widest row", () => {
+    expect(recipe.base?.["content"]).toMatchObject({ minInlineSize: "44" });
     expect(recipe.base?.["content"]).not.toHaveProperty("inlineSize");
   });
 
@@ -254,10 +264,18 @@ describe("recipe", () => {
 
   it("pushes the mark that opens the panel to the end of its control and holds it still", () => {
     expect(recipe.base?.["indicator"]).toStrictEqual({
+      "& > svg": { boxSize: "100%" },
       alignItems: "center",
       display: "inline-flex",
       flexShrink: "0",
+      justifyContent: "center",
       marginInlineStart: "auto",
+    });
+  });
+
+  it("draws that mark at the square the mark of a checked row is drawn at", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["indicator"]).toStrictEqual({
+      boxSize: "calc({sizes.icon.sm} * var(--density, 1))",
     });
   });
 

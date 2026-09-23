@@ -31,7 +31,9 @@ function Running(props: MenuOptions): ReactElement {
   useNestedMenu(service, OUTERMOST);
 
   return (
-    <ApiProvider value={{ api, parent: undefined, service, variants: {} }}>
+    <ApiProvider
+      value={{ api, depth: 0, dir: undefined, parent: undefined, service, variants: {} }}
+    >
       <div {...api.getPositionerProps()}>
         <div {...api.getContentProps()}>
           <Reader />

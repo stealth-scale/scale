@@ -11,6 +11,10 @@
  *   its parts. A root written inside the content of another is a submenu. It finds the menu above
  *   it, joins the two machines so a pointer and the arrow keys travel between them, and draws
  *   itself in the variants that menu was given unless it picks its own.
+ *   It takes that menu's direction the same way. The engine picks the side a submenu opens on from
+ *   the direction of the submenu's own machine, and a caller states the direction once, on the
+ *   outermost menu. A submenu left to work it out for itself read left to right inside a menu that
+ *   read right to left, and opened to the right, out over the menu that had opened it.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -53,13 +57,15 @@ export function Root(props: RootProps): ReactElement {
   const parent = useEnclosingMenu();
   const [options, rest] = splitMenuProps(props);
   const [picked, others] = splitMenuVariants(rest);
-  const [api, service] = useMenuMachine(options);
+  const dir = options.dir ?? parent?.dir;
+  const [api, service] = useMenuMachine(dir === undefined ? options : { ...options, dir });
   const variants = { ...parent?.variants, ...picked };
+  const depth = parent === undefined ? 0 : parent.depth + 1;
 
   useNestedMenu(service, parent?.service);
 
   return (
-    <ApiProvider value={{ api, parent, service, variants }}>
+    <ApiProvider value={{ api, depth, dir, parent, service, variants }}>
       <Framed {...variants} {...others} />
     </ApiProvider>
   );
