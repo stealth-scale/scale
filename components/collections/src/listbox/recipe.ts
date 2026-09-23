@@ -2,26 +2,32 @@
  * Defines the styles a listbox is drawn with.
  *
  * @remarks
- *   Eleven parts. The root frames the set, the label names it, the input narrows it, and the
- *   content is the list itself. An item holds its words, a line of explanation under them, and the
- *   mark saying it is chosen, and a group gathers items under a heading.
+ *   Twelve parts. The root frames the set, the label names it, the frame is the box it is drawn
+ *   in, the input narrows it, and the content is the list itself. An item holds its words, a line
+ *   of explanation under them, and the mark saying it is chosen, and a group gathers items under a
+ *   heading.
  *   A row is drawn from the theme's `row` fragment. Focus stays on the list and a highlight moves
  *   over the rows, which is why a row carries no ring and no press of its own, and why the
  *   `highlight` axis reads the same three marks a menu reads. The row repaints under a pointer
  *   even so, because a pointer that reaches a row it can pick has to be answered.
+ *   A row's words are set a step quieter than the size names, which is the rule a menu's rows
+ *   follow: a list of rows beside a page set in the step's own type reads as a heavier page rather
+ *   than as a list. They were set in the label scale, so every row of every list carried the
+ *   medium weight a label is set in and a large list read as a column of headings.
+ *   A group spaces its rows the way the list spaces ungrouped ones. The group's own gap stood a
+ *   step of the scale between every pair of rows, so grouping a list pushed its rows three times
+ *   further apart than leaving them loose. The room above a group's heading is the heading's own
+ *   padding, which is where it belongs.
  *   A row wraps, and the line of explanation takes a whole line of it. The words and the mark stay
  *   on the first line, so a column of marks reads straight down however tall each row becomes, and
  *   a row's height is a floor rather than a fixed measure.
- *   The content scrolls rather than the root, so a label and a field above it stay put while the
- *   rows move under them.
+ *   The content scrolls rather than the frame around it, so the field and the select-all row above
+ *   it stay put while the rows move under them.
  */
 
 import {
   below,
-  columnCounts,
   cornerVariants,
-  type Count,
-  COUNTS,
   defineSlotRecipe,
   dense,
   highlightVariants,
@@ -29,103 +35,22 @@ import {
   onSlot,
   onSlots,
   row,
-  type Scale,
   sizeVariants,
   surface,
-  type SystemStyleObject,
   truncate,
 } from "@stealthscale/theme/authoring";
 
-/**
- * Writes one entry per count of columns: the template the count draws, and the display a grid
- * needs beside it, because the list is a flex column until a caller asks for tiles.
- */
-function tiled(): Record<Count, SystemStyleObject> {
-  const columned = columnCounts();
+import { aligned, banded, firstLine, PAD, rowHeight, tiled } from "#listbox/metrics.ts";
 
-  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the entries are built from the counts, one per count
-  return Object.fromEntries(
-    COUNTS.map((count) => [count, { ...columned[count], display: "grid" }]),
-  ) as Record<Count, SystemStyleObject>;
-}
-
-/**
- * The room the list leaves round its rows.
- *
- * @remarks
- *   Every look leaves it, not the raised one alone, so a row sits the same distance from the
- *   list's edge whatever the list is drawn on. A row is a shape a highlight is drawn round, and a
- *   shape flush with its container has nowhere to draw one.
- */
-const PAD = "{spacing.gap.xs}";
-
-/**
- * Writes the insets a band across the list takes: the room the list leaves, given back as a
- * negative margin, and added again as padding so the band's words land on the line the rows' words
- * are on.
- *
- * @remarks
- *   A field or a select-all row is a band rather than a row within the list, so the rule under it
- *   reaches both edges while its words still line up with the rows beneath. Take the room back
- *   without adding it to the padding and the band's words sit a step to the left of every row.
- *   The width goes back to automatic first. A band drawn from the row fragment is the full width
- *   of the list's content box, and a negative margin on a fixed width slides the box sideways
- *   rather than widening it, which left a gap at one end and an overhang at the other. The room
- *   above comes off the first band alone, because only the first one meets the list's top edge.
- */
-function banded(start: string, end: string): SystemStyleObject {
-  const back = `calc(${PAD} * -1)`;
-
-  return {
-    "&:first-child": { marginBlockStart: back },
-    inlineSize: "auto",
-    marginInline: back,
-    paddingInlineEnd: `calc(${PAD} + ${end})`,
-    paddingInlineStart: `calc(${PAD} + ${start})`,
-  };
-}
-
-/**
- * Writes the inset a part outside the list takes, so its words start on the line the rows' words
- * start on.
- *
- * @remarks
- *   The label above the list and the summary below it stand outside the box the rows sit in. Drawn
- *   flush with that box they begin a step to the left of every row, which reads as two columns of
- *   text rather than one. The inset is the room the list leaves round its rows plus the room a row
- *   leaves before its own words, which is what a row's first letter sits behind.
- */
-function aligned(start: string): SystemStyleObject {
-  return { paddingInlineStart: `calc(${PAD} + ${start})` };
-}
-
-/**
- * The property the list publishes one row's height in, for whatever counts rows into a measure.
- */
-export const ROW_HEIGHT = "--listbox-row";
-
-/**
- * Writes the height one row of a given size comes to, as a property the list publishes.
- *
- * @remarks
- *   A transfer holds two lists to one height and a window turns a scroll position into a row, and
- *   both need to know how tall a row is before a row is drawn. The height is written from the same
- *   two values the row itself is written from, so a theme that moves either moves both, and it is
- *   published rather than duplicated because a second copy of the arithmetic drifts from the first.
- *   It holds for a list of single-line rows. A row carrying a line of explanation is taller than
- *   this says, and a measure counted off it comes out short.
- */
-function rowHeight(size: Scale): SystemStyleObject {
-  const floor = "{sizes.6}";
-  const padding = dense(`{spacing.gap.${below(size)}}`);
-
-  return { [ROW_HEIGHT]: `calc(${floor} + ${padding} + ${padding})` };
-}
+export { ROW_HEIGHT } from "#listbox/metrics.ts";
 
 /**
  * Draws a plain listbox at the middle size, tinting the row the highlight is on.
  *
  * @remarks
+ *   The placeholder is drawn in the tertiary ink rather than the text ink. It names what the field
+ *   narrows rather than saying anything, and at the text ink it read as a row that had been typed
+ *   in already.
  *   The control is the band the field sits in, and it carries the rule, the room and the focus.
  *   The field itself writes no box at all. A boxed field there drew a second border inside the
  *   list's and the ring a field carries drew a third on focus, so the band takes the flushed
@@ -133,9 +58,9 @@ function rowHeight(size: Scale): SystemStyleObject {
  *   focus. The control that empties the field sits at the band's end rather than over the field,
  *   because the field is a flex child of the band and shortening it is what keeps the typing out
  *   from under the control.
- *   The band ends closer to the list's edge than a row does. The room a row leaves at its end is
- *   for a mark nobody presses, and the same room round a control leaves it stranded in the middle
- *   of the band's end.
+ *   Every band ends where a row ends, so the control that empties the field stands in the column
+ *   the rows' own marks stand in. Ending the band closer to the edge put the control ten pixels
+ *   outside that column, which reads as a control belonging to the box rather than to the list.
  *   The label above the list, the summary below it and the group labels within it all keep the
  *   inset a row keeps, so every word on the list starts on one line, and a list raised on a surface
  *   keeps a small gap between its frame and its rows, the way a menu's panel does.
@@ -153,6 +78,7 @@ export const recipe = defineSlotRecipe({
       justifyContent: "center",
     },
     content: {
+      "&:empty": { display: "none" },
       display: "flex",
       flexDirection: "column",
       minBlockSize: "0",
@@ -171,10 +97,17 @@ export const recipe = defineSlotRecipe({
       transitionProperty: "common",
       transitionTimingFunction: "press",
     },
-    empty: { color: "fg.muted", textAlign: "start" },
+    empty: { color: "fg.muted", padding: PAD, textAlign: "start" },
+    frame: {
+      display: "flex",
+      flexDirection: "column",
+      minBlockSize: "0",
+      minInlineSize: "0",
+      overflow: "hidden",
+    },
     input: {
       _disabled: { layerStyle: "disabled" },
-      _placeholder: { color: "fg.muted" },
+      _placeholder: { color: "fg.subtle" },
       appearance: "none",
       background: "transparent",
       border: "none",
@@ -185,9 +118,14 @@ export const recipe = defineSlotRecipe({
       outline: "none",
       padding: "0",
     },
-    item: { ...row(), _hover: { background: "bg.muted" }, justifyContent: "space-between" },
+    item: {
+      ...row(),
+      _hover: { background: "bg.muted" },
+      alignItems: "start",
+      justifyContent: "space-between",
+    },
     itemCheckbox: {
-      "[data-selected] &, [data-state=checked] &, [data-state=indeterminate] &": {
+      "[data-selected] > &, [data-state=checked] > &, [data-state=indeterminate] > &": {
         background: "colorPalette.solid",
         borderColor: "colorPalette.solid",
         color: "colorPalette.contrast",
@@ -201,6 +139,7 @@ export const recipe = defineSlotRecipe({
       display: "inline-flex",
       flexShrink: "0",
       justifyContent: "center",
+      lineHeight: "tight",
     },
     itemDescription: { ...truncate(), color: "fg.subtle", display: "block", textAlign: "start" },
     itemGroup: { display: "flex", flexDirection: "column", minInlineSize: "0" },
@@ -211,6 +150,7 @@ export const recipe = defineSlotRecipe({
       display: "inline-flex",
       flexShrink: "0",
       justifyContent: "center",
+      lineHeight: "tight",
       visibility: "hidden",
     },
     itemLines: {
@@ -257,6 +197,7 @@ export const recipe = defineSlotRecipe({
     "control",
     "input",
     "clearTrigger",
+    "frame",
     "content",
     "empty",
     "selectAll",
@@ -345,7 +286,7 @@ export const recipe = defineSlotRecipe({
       ),
       control: sizeVariants(
         (size) => ({
-          ...banded(dense(`{spacing.gap.${size}}`), dense(`{spacing.gap.${below(size)}}`)),
+          ...banded(dense(`{spacing.gap.${size}}`), dense(`{spacing.inset.${size}}`)),
           columnGap: dense(`{spacing.gap.${below(size)}}`),
           minBlockSize: dense(`{sizes.control.${size}}`),
         }),
@@ -355,7 +296,7 @@ export const recipe = defineSlotRecipe({
         (size) => ({
           paddingBlock: dense(`{spacing.gap.${below(size)}}`),
           paddingInline: dense(`{spacing.gap.${size}}`),
-          textStyle: `label.${size}`,
+          textStyle: `body.${below(size)}`,
         }),
         ["sm", "md", "lg"],
       ),
@@ -367,20 +308,20 @@ export const recipe = defineSlotRecipe({
           paddingBlock: dense(`{spacing.gap.${below(size)}}`),
           paddingInlineEnd: dense(`{spacing.inset.${size}}`),
           paddingInlineStart: dense(`{spacing.gap.${size}}`),
-          textStyle: `label.${size}`,
+          textStyle: `body.${below(size)}`,
         }),
         ["sm", "md", "lg"],
       ),
       itemCheckbox: sizeVariants(
-        (size) => ({ boxSize: dense(`{sizes.icon.${below(size)}}`) }),
+        (size) => firstLine(dense(`{sizes.icon.${below(size)}}`)),
         ["sm", "md", "lg"],
       ),
       itemDescription: sizeVariants(
-        (size) => ({ textStyle: `label.${below(below(size))}` }),
+        (size) => ({ textStyle: `body.${below(below(size))}` }),
         ["sm", "md", "lg"],
       ),
       itemGroup: sizeVariants(
-        (size) => ({ gap: dense(`{spacing.gap.${size}}`) }),
+        (size) => ({ gap: dense(`{spacing.gap.${below(below(size))}}`) }),
         ["sm", "md", "lg"],
       ),
       itemGroupLabel: sizeVariants(
@@ -392,7 +333,7 @@ export const recipe = defineSlotRecipe({
         ["sm", "md", "lg"],
       ),
       itemIndicator: sizeVariants(
-        (size) => ({ boxSize: dense(`{sizes.icon.${below(size)}}`) }),
+        (size) => firstLine(dense(`{sizes.icon.${below(size)}}`)),
         ["sm", "md", "lg"],
       ),
       label: sizeVariants(
@@ -406,7 +347,7 @@ export const recipe = defineSlotRecipe({
           columnGap: dense(`{spacing.gap.${size}}`),
           minBlockSize: "6",
           paddingBlock: dense(`{spacing.gap.${below(size)}}`),
-          textStyle: `label.${size}`,
+          textStyle: `body.${below(size)}`,
         }),
         ["sm", "md", "lg"],
       ),
@@ -423,14 +364,16 @@ export const recipe = defineSlotRecipe({
      * Whether the list is raised on a surface of its own or drawn against what holds it.
      *
      * @remarks
-     *   The surface is on the list rather than on the frame around it, so the label and the field
-     *   above it stand outside the box the rows sit in. Only the inline axis is clipped, because
-     *   the block axis is where the rows scroll and a clip on both would take the scrolling away.
+     *   The surface is on the frame rather than on the list inside it, so the field that narrows
+     *   the list and the row that turns all of it on stand inside the box with the rows. Only the
+     *   label above and the summary below stand outside it. The frame hides its overflow, which is
+     *   what cuts the rows back to its corner; the rows scroll inside the list, so the field and
+     *   the row above them stay put while they move.
      */
     variant: {
-      surface: { content: { ...surface(), overflowX: "clip" } },
+      surface: { frame: surface() },
 
-      plain: { content: { background: "transparent" } },
+      plain: { frame: { background: "transparent" } },
     },
   },
 });

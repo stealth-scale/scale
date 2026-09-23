@@ -10,6 +10,9 @@
  *   through `data-selected`, and the box reads that from the row rather than asking the machine a
  *   second time. It is hidden from a screen reader for the same reason: the row announces its own
  *   state, and a box that announced it again would say it twice.
+ *   The rule that fills it reads the row it is a child of and nothing further up. `data-selected`
+ *   is an attribute a tab panel, a menu item and half a dozen other machines write too, so a rule
+ *   that read any ancestor filled every box on a page drawn inside one of them.
  *   It is not a checkbox. A control inside a row a person presses is a second thing to reach and a
  *   second thing to read out, and the row is already both.
  */

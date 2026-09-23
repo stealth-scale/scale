@@ -7,6 +7,7 @@ describe("parts", () => {
     expect(Object.keys(parts).toSorted()).toStrictEqual([
       "Content",
       "Empty",
+      "Frame",
       "Input",
       "Item",
       "ItemCheckbox",

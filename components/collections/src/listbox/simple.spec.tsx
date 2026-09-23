@@ -133,9 +133,25 @@ describe("Simple", () => {
   it("takes every variant its root takes", async () => {
     const { container } = await drawn(whole({ variant: "surface" }));
 
-    expect([...slotElement(container, "listbox", "content").classList].join(" ")).toContain(
+    expect([...slotElement(container, "listbox", "frame").classList].join(" ")).toContain(
       "surface",
     );
+  });
+
+  it("draws the field and the select-all row inside the box the rows sit in", async () => {
+    expect.hasAssertions();
+
+    const { container } = await drawn(
+      whole({
+        narrowing: { onNarrow: vi.fn<(typed: string) => void>() },
+        selectAll: "All",
+        variant: "surface",
+      }),
+    );
+    const frame = slotElement(container, "listbox", "frame");
+
+    expect(frame.querySelector(`.${slotClass("listbox", "input")}`)).not.toBeNull();
+    expect(frame.querySelector(`.${slotClass("listbox", "selectAll")}`)).not.toBeNull();
   });
 
   it("holds nothing but rows inside the element that carries the list role", async () => {

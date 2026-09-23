@@ -19,6 +19,7 @@ describe("index", () => {
     expect(Object.keys(barrel.Listbox).toSorted()).toStrictEqual([
       "Content",
       "Empty",
+      "Frame",
       "Input",
       "Item",
       "ItemCheckbox",

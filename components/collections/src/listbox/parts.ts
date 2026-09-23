@@ -9,6 +9,7 @@
 
 export { Content, type ContentProps } from "#listbox/content.tsx";
 export { Empty, type EmptyProps } from "#listbox/empty.tsx";
+export { Frame, type FrameProps } from "#listbox/frame.ts";
 export { Input, type InputProps } from "#listbox/input.tsx";
 export { ItemCheckbox, type ItemCheckboxProps } from "#listbox/item-checkbox.ts";
 export { ItemDescription, type ItemDescriptionProps } from "#listbox/item-description.ts";

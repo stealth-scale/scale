@@ -25,6 +25,7 @@ import {
   Content,
   type ContentProps,
   Empty,
+  Frame,
   Input,
   type InputProps,
   ItemGroup,
@@ -218,11 +219,12 @@ function boxed<Row>({ "aria-label": named, label, tall }: SimpleProps<Row>): Con
  * Draws a whole listbox from what it is told about the list.
  *
  * @remarks
- *   The label, the field, the row that turns the whole list on and the line it says when it has
- *   none all stand outside the element holding the rows. That element carries `role="listbox"`,
- *   which admits an option and a group and nothing else, so a field or a button inside it is markup
- *   a screen reader is entitled to ignore. It is also where the surface is drawn and what scrolls,
- *   which is why the four of them stay put while the rows move.
+ *   The field, the row that turns the whole list on and the line it says when it has none stand
+ *   inside the box and outside the list. The element holding the rows carries `role="listbox"`,
+ *   which admits an option and a group and nothing else, so a field or a button inside it is
+ *   markup a screen reader is entitled to ignore. The box around it is what they are drawn in, and
+ *   the rows scroll inside the list, so the three of them stay put while the rows move. The label
+ *   above the box and the summary below it are the two parts outside it.
  * @typeParam Row - What one row holds.
  * @param props - The rows, what each one draws, and what stands above and below them.
  * @returns The list, holding its label, its field, its rows and what it says when it has none.
@@ -247,18 +249,20 @@ export function Simple<Row>(props: SimpleProps<Row>): ReactElement {
   return (
     <Root {...root} collection={collection}>
       {label === undefined ? null : <Label>{label}</Label>}
-      {narrowing === undefined ? null : <Input {...narrowed(narrowing)} />}
-      {selectAll === undefined ? null : <SelectAll>{selectAll}</SelectAll>}
-      <Content {...boxed(props)}>
-        {tall === undefined ? (
-          listed(props, collection.items)
-        ) : (
-          <Window count={collection.size}>
-            {({ first, last }) => listed(props, collection.items.slice(first, last))}
-          </Window>
-        )}
-      </Content>
-      {empty === undefined ? null : <Empty>{empty}</Empty>}
+      <Frame>
+        {narrowing === undefined ? null : <Input {...narrowed(narrowing)} />}
+        {selectAll === undefined ? null : <SelectAll>{selectAll}</SelectAll>}
+        <Content {...boxed(props)}>
+          {tall === undefined ? (
+            listed(props, collection.items)
+          ) : (
+            <Window count={collection.size}>
+              {({ first, last }) => listed(props, collection.items.slice(first, last))}
+            </Window>
+          )}
+        </Content>
+        {empty === undefined ? null : <Empty>{empty}</Empty>}
+      </Frame>
       {summary === undefined ? null : <ValueText placeholder={summary} />}
     </Root>
   );

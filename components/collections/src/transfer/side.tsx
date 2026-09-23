@@ -109,20 +109,22 @@ export function Side<Row>({
         variant="surface"
       >
         <Listbox.Label>{title}</Listbox.Label>
-        <Listbox.Content
-          style={{ flex: 1, minBlockSize: `calc(var(${ROW_HEIGHT}) * ${String(tall)})` }}
-        >
-          {collection.items.map((row) => (
-            <Listbox.Row
-              {...(description === undefined ? {} : { description: description(row) })}
-              item={row}
-              key={itemToValue(row)}
-            >
-              {collection.stringifyItem(row)}
-            </Listbox.Row>
-          ))}
-        </Listbox.Content>
-        {nothing === undefined ? null : <Listbox.Empty>{nothing}</Listbox.Empty>}
+        <Listbox.Frame style={{ flex: 1 }}>
+          <Listbox.Content
+            style={{ flex: 1, minBlockSize: `calc(var(${ROW_HEIGHT}) * ${String(tall)})` }}
+          >
+            {collection.items.map((row) => (
+              <Listbox.Row
+                {...(description === undefined ? {} : { description: description(row) })}
+                item={row}
+                key={itemToValue(row)}
+              >
+                {collection.stringifyItem(row)}
+              </Listbox.Row>
+            ))}
+          </Listbox.Content>
+          {nothing === undefined ? null : <Listbox.Empty>{nothing}</Listbox.Empty>}
+        </Listbox.Frame>
       </Listbox.Root>
     </Held>
   );
