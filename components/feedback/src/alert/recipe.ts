@@ -1,5 +1,5 @@
 /**
- * Declares the alert slot recipe: a notice with a leading icon, a title, a description, trailing
+ * Declares the alert slot recipe for a notice with an icon, a title, a description, trailing
  * controls and a close trigger.
  *
  * @remarks
@@ -51,8 +51,8 @@ const BORDERED: Flat[] = ["outline", "surface"];
  * Alert slot recipe, a subtle info notice at the md size by default.
  *
  * @remarks
- *   The indicator, the content and the trailing controls are centred on the whole notice. An
- *   icon pinned to the first line of a three-line notice stood apart from the text below it.
+ *   The indicator, the content and the trailing controls are centred on the notice's full height,
+ *   so the icon aligns with the middle of a text block of any length.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -61,9 +61,8 @@ export const recipe = defineSlotRecipe({
     /**
      * The close trigger is a square of 1.5em, at least 24px, with a 1em glyph. A negative end
      * margin of half the box less the glyph puts the glyph on the padding edge, level with the
-     * indicator at the start. Without it the glyph measured 20px from the end at `md` against the
-     * indicator's 16px from the start. Its focus ring is drawn inside, because a ring outside it
-     * falls on the alert's fill.
+     * indicator at the start: 12, 16 and 20px from the edge at `sm`, `md` and `lg`. Its focus ring
+     * is drawn inside, because a ring outside it falls on the alert's fill.
      */
     closeTrigger: {
       ...interactive(),
@@ -93,8 +92,8 @@ export const recipe = defineSlotRecipe({
       flex: "0 0 auto",
     },
     /**
-     * The root draws a hairline outline in forced colors. The solid, subtle and plain looks have
-     * no border, and with their fills replaced the alert read as loose text next to a cross.
+     * The root draws a hairline outline in forced colors, where the browser replaces the fill and
+     * the solid, subtle and plain looks have no border to mark the box.
      */
     root: {
       _highContrast: {
@@ -148,14 +147,14 @@ export const recipe = defineSlotRecipe({
   staticCss: [statusEmitted(), { status: ["neutral"] }],
   variants: {
     /**
-     * The edge that carries a rule in the palette's solid color. Unset by default.
+     * The edge with a rule in the palette's solid color. Unset by default.
      *
      * @remarks
-     *   The rule is a border on the root, so it follows the root's rounded corners and tapers to
-     *   the side border. The theme's `indicator.*` layer styles draw a 3px pseudo-element, whose
-     *   corner radius the browser scales down to fit, and the bar ran straight past both rounded
-     *   corners. A border also stays visible under forced colors. `end` is logical: the right edge
-     *   in a left-to-right document and the left edge in a right-to-left one.
+     *   The rule is a border on the root, so it follows the root's rounded corners, tapers into
+     *   the side border and shows under forced colors. The theme's `indicator.*` layer styles are
+     *   not used, because their bar is a 2px pseudo-element whose corner radius the browser scales
+     *   down to fit. `end` is logical: the right edge in a left-to-right document and the left edge
+     *   in a right-to-left one.
      */
     edge: {
       top: { root: EDGES.top },
@@ -166,7 +165,7 @@ export const recipe = defineSlotRecipe({
     },
 
     /**
-     * Whether the title sits above the description or on the same line with it.
+     * Whether the title is above the description or on the same line with it.
      */
     layout: {
       inline: {

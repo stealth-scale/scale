@@ -3,10 +3,9 @@
  *
  * @remarks
  *   `size` sets the panel's inset, the column's gap, the mark's box and the title's text style
- *   together. The mark is 32, 40 and 50px at `sm`, `md` and `lg`, above a 16, 18 and 20px title.
- *   With eight sizes on the icon and heading scales the mark measured 20px over a 20px title at
- *   `md`, and the title reached 83px at `4xl`. The mark has twice the column's gap below it, so
- *   the title and the description read as one group. The description stays at `body.sm` at every
+ *   together. The mark is 32, 40 and 50px at `sm`, `md` and `lg`, above a 16, 18 and 20px title, so
+ *   the mark is always larger than the title's line. The mark has twice the column's gap below it,
+ *   so the title and the description read as one group. The description stays at `body.sm` at every
  *   size. The recipe has no `palette` axis, because the panel is muted, and no `effect` axis,
  *   because it has no fill or border.
  */

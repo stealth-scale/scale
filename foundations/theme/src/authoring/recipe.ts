@@ -3,7 +3,7 @@
  *
  * @remarks
  *   Each definition returns the recipe typed over the compiler's generated recipe types, so a
- *   recipe file holds no compiler code and loads both in a component at run time and in a Node
+ *   recipe file imports no compiler code and loads both in a component at run time and in a Node
  *   configuration. The generated types check every value against the foundation's tokens. The
  *   definitions write each compound's `className`, because the compiler emits the compound's styles
  *   under that class and the runtime reads it from the same object.
@@ -43,7 +43,7 @@ interface Meta {
   jsx?: Array<RegExp | string>;
 
   /**
-   * Variant values emitted whether or not source code references them, for values a component
+   * Variant values emitted whether source code references them or not, for values a component
    * picks at run time.
    */
   staticCss?: RecipeRule[];
@@ -210,8 +210,8 @@ const COMPOUND = "--compound__";
 const UNMATCHED = new Set(["className", "css", "name"]);
 
 /**
- * Formats one matched value as a class name segment, or returns undefined for a value a class name
- * cannot hold.
+ * Formats one matched value as a class name segment, or returns undefined for a value that is not
+ * a string, a number, a boolean or an array of them.
  *
  * @remarks
  *   An array lists the values the axis may take, joined by a bar.
@@ -267,7 +267,7 @@ export function compoundSelection(compound: object): string | undefined {
  * @param className - The recipe's class, or the slot's class for a slot recipe.
  * @param compound - The compound. Every key except `css`, `className` and `name` is read as an
  *   axis.
- * @throws {@link Error} When the compound matches an axis on a value a class name cannot hold.
+ * @throws {@link Error} When the compound matches an axis on an object.
  */
 export function compoundClassName(className: string, compound: object): string {
   const pairs = matched(compound).map(([axis, value]) => {
@@ -314,8 +314,8 @@ function named<Variants extends RecipeVariantRecord>(
  *
  * @remarks
  *   The slot class comes from `slotClass`, which kebab-cases the slot the way the binding writes
- *   it. A class built from the raw slot declared `alert__closeTrigger--contrasted` while the
- *   element carried `alert__close-trigger--contrasted`.
+ *   it, so a compound named `contrasted` on the `closeTrigger` slot of `alert` declares
+ *   `alert__close-trigger--contrasted`.
  * @typeParam Slots - Every slot the recipe styles.
  * @typeParam Variants - Each axis of the recipe and its values.
  */

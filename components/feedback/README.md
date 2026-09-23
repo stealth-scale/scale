@@ -74,8 +74,9 @@ status through color and icon alone fails WCAG 1.4.1.
 
 `Alert.CloseTrigger` takes the alert's ink, so it matches every look and status. On the solid look
 it hovers to a tint of the contrast ink and draws its focus ring in the contrast ink. The box is
-1.5em square and at least 24px, and the glyph sits on the padding edge. Pass a `label` that names
-the notice. Name each control in `Alert.Aside` for its target too, such as `Retry the payment`.
+`max(24px, 1.5em)` square, and its glyph is aligned with the padding edge. Pass a `label` that
+includes the notice's title. Label each control in `Alert.Aside` with its target, such as
+`Retry the payment`.
 
 `edge` draws a border in the palette's `solid` along one edge, so the rule follows the rounded
 corners. `end` is the right edge in a left-to-right document and the left edge in a right-to-left
@@ -120,8 +121,9 @@ import { SkeletonText } from "@stealthscale/component-feedback";
 <SkeletonText lines={5} motion="shimmer" />;
 ```
 
-The last of several bars is 80% wide. `lines` defaults to 3 and renders at least one bar. Render the
-placeholder while the text loads and the text once it arrives. The component has no `loading` prop.
+With two or more lines the last bar is 80% wide. `lines` defaults to 3 and renders at least one bar.
+Render the placeholder while the text loads and the text once it arrives. The component has no
+`loading` prop.
 
 ## Spinner
 

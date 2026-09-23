@@ -1,15 +1,13 @@
 /**
- * Declares the spinner's styles: a ring whose arc turns while work with no measurable progress
- * runs.
+ * Declares the spinner recipe, a ring whose arc turns while work of unknown length runs.
  *
  * @remarks
- *   Two border sides draw the arc and the other two draw the track, so the stroke is a border width
- *   and keeps its weight at every size. The turn is the foundation's `spin` animation style, which
- *   a theme retimes and which stops when the reader prefers reduced motion. Every side is written
- *   as a longhand, so the compiled rule holds no shorthand that could override a side. In forced
- *   colors mode the browser paints all four sides in `CanvasText`, transparent ones included, which
- *   closes the ring and hides the turn. Measured in Chromium on 2026-09-23. `_highContrast`
- *   therefore sets `forcedColorAdjust: none` and draws the arc in `CanvasText` itself.
+ *   The block start and inline end borders draw the arc and the other two draw the track, so the
+ *   stroke is a border width and keeps its weight at every size. The turn is the foundation's
+ *   `spin` animation style, which a theme retimes and which stops under reduced motion. Each border
+ *   side is a longhand, so the compiled rule contains no shorthand that overrides a side. In forced
+ *   colors the browser paints all four sides in `CanvasText`, transparent ones included, so
+ *   `_highContrast` sets `forcedColorAdjust: none` and draws the arc in `CanvasText` itself.
  */
 
 import { defineRecipe, iconSizes, paletteVariants } from "@stealthscale/theme/authoring";
@@ -77,7 +75,8 @@ export const recipe = defineRecipe({
     size: { ...iconSizes(), inherit: { boxSize: "1em" } },
 
     /**
-     * The width of the ring: the theme's three semantic strokes, and `heavy` at the 4px step.
+     * Border width of the ring. `hairline`, `control` and `indicator` read the theme's stroke
+     * tokens, and `heavy` reads the 4px `lg` width.
      */
     stroke: {
       control: { borderWidth: "control" },
