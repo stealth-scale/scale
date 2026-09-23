@@ -15,7 +15,7 @@ describe("context", () => {
     expect(slotClasses(container, "empty-state", "root")).toContain("empty-state__root");
   });
 
-  it("applies the size the provider resolved to a descendant slot", () => {
+  it("applies a size set on the root to a part bound with withContext", () => {
     const Root = withProvider("div", "root");
     const Title = withContext("h2", "title");
     const { container } = render(

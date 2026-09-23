@@ -14,7 +14,7 @@ function panelled(children: ReactNode): ReactElement {
 }
 
 describe("Title", () => {
-  it("meets the component contract as an h2 element", () => {
+  it("conforms as an h2 element inside the root", () => {
     expect(
       violations(Title, {
         as: true,
@@ -26,7 +26,7 @@ describe("Title", () => {
     ).toStrictEqual([]);
   });
 
-  it("reports no axe violation holding a heading string", async () => {
+  it("returns no accessibility violation when it holds text", async () => {
     await expect(
       accessibilityViolations(Title, {
         props: { children: "Nothing here yet" },
@@ -35,7 +35,7 @@ describe("Title", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("renders an h3 when as names one", () => {
+  it("renders the element passed as as", () => {
     const { container } = render(panelled(<Title as="h3">Nothing here yet</Title>));
 
     expect(slotElement(container, "empty-state", "title").tagName).toBe("H3");

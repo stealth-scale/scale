@@ -14,7 +14,7 @@ function panelled(children: ReactNode): ReactElement {
 }
 
 describe("Content", () => {
-  it("meets the component contract as a div element", () => {
+  it("conforms as a div element inside the root", () => {
     expect(
       violations(Content, {
         as: true,
@@ -26,7 +26,7 @@ describe("Content", () => {
     ).toStrictEqual([]);
   });
 
-  it("reports no axe violation holding plain text", async () => {
+  it("returns no accessibility violation when it holds text", async () => {
     await expect(
       accessibilityViolations(Content, {
         props: { children: "Nothing here yet" },
@@ -35,7 +35,7 @@ describe("Content", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("renders the element named by as instead of a div", () => {
+  it("renders the element passed as as", () => {
     const { container } = render(panelled(<Content as="section">Nothing here yet</Content>));
 
     expect(slotElement(container, "empty-state", "content").tagName).toBe("SECTION");

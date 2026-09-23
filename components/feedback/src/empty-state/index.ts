@@ -1,6 +1,6 @@
 /**
- * Exposes the empty state, which a caller composes as an `EmptyState.Root` wrapping a centred
- * column of icon, heading and explanation.
+ * Exports the five parts of the empty state, composed as `EmptyState.Root` around an
+ * `EmptyState.Content` column.
  */
 
 export { Content, type ContentProps } from "#empty-state/content.ts";

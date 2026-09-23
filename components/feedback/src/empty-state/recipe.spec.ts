@@ -15,15 +15,15 @@ describe("recipe", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("references a token on every value a theme has to be able to move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["EmptyState"] })).toStrictEqual([]);
   });
 
-  it("prefixes its generated classes with empty-state", () => {
+  it("sets className to empty-state", () => {
     expect(recipe.className).toBe("empty-state");
   });
 
-  it("declares exactly the five slots content through title", () => {
+  it("declares five slots", () => {
     expect([...recipe.slots].toSorted()).toStrictEqual([
       "content",
       "description",
@@ -33,45 +33,45 @@ describe("recipe", () => {
     ]);
   });
 
-  it("declares size as its only variant", () => {
+  it("declares the size axis only", () => {
     expect(axesOf(recipe)).toStrictEqual(["size"]);
   });
 
-  it("defaults size to md", () => {
+  it("defaults to the md size", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md" });
   });
 
-  it("accepts all eight steps of the shared size scale", () => {
-    expect(valuesOf(recipe, "size")).toStrictEqual([
-      "2xl",
-      "3xl",
-      "4xl",
-      "lg",
-      "md",
-      "sm",
-      "xl",
-      "xs",
-    ]);
+  it("declares sm md and lg on the size axis", () => {
+    expect(valuesOf(recipe, "size")).toStrictEqual(["lg", "md", "sm"]);
   });
 
-  it("scales every slot but the description from a single size value", () => {
+  it("sizes the mark two icon steps above the title at md", () => {
     expect(recipe.variants?.["size"]?.["md"]).toStrictEqual({
-      content: { gap: "calc({spacing.gap.md} * var(--density, 1))" },
-      indicator: { boxSize: "calc({sizes.icon.md} * var(--density, 1))" },
-      root: { padding: "calc({spacing.inset.md} * var(--density, 1))" },
-      title: { textStyle: "heading.md" },
+      content: { gap: "calc({spacing.gap.lg} * var(--density, 1))" },
+      indicator: {
+        boxSize: "calc({sizes.icon.2xl} * var(--density, 1))",
+        marginBlockEnd: "calc({spacing.gap.lg} * var(--density, 1))",
+      },
+      root: { padding: "calc({spacing.inset.2xl} * var(--density, 1))" },
+      title: { textStyle: "heading.sm" },
     });
   });
 
-  it("leaves the description slot untouched by the largest size", () => {
-    expect(recipe.variants?.["size"]?.["4xl"]).not.toHaveProperty("description");
+  it("reads heading.xs on the title at sm", () => {
+    expect(recipe.variants?.["size"]?.["sm"]).toMatchObject({
+      title: { textStyle: "heading.xs" },
+    });
   });
 
-  it("pins the description to the small body text style in its base", () => {
+  it("leaves the description out of the size axis", () => {
+    expect(recipe.variants?.["size"]?.["lg"]).not.toHaveProperty("description");
+  });
+
+  it("reads body.sm on the description in the base", () => {
     expect(recipe.base?.["description"]).toMatchObject({ textStyle: "body.sm" });
   });
 
-  it("matches EmptyState and any dotted member of it for jsx tracking", () => {
+  it("matches the EmptyState tag and its parts", () => {
     expect(recipe.jsx).toStrictEqual([/^EmptyState(\.\w+)?$/u]);
   });
 });

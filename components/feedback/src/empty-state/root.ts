@@ -1,11 +1,10 @@
 /**
- * Renders the panel the remaining slots sit inside.
+ * Renders the panel of the empty state.
  *
  * @remarks
- *   The element is a `div` with no ARIA role. The meaning of an empty state is in its title and
- *   description, and giving each one a landmark role would turn a dashboard of empty panels into a
- *   list of landmarks a screen reader user has to step past. A surface that does want the panel
- *   announced sets its own role.
+ *   The element is a `div` with no role. A dashboard of empty panels with a landmark each would
+ *   list every panel in a screen reader's landmark menu. A surface that needs the panel announced
+ *   sets its own role.
  */
 
 import { type ComponentProps } from "react";
@@ -13,11 +12,11 @@ import { type ComponentProps } from "react";
 import { withProvider } from "#empty-state/context.ts";
 
 /**
- * Renders the panel and publishes the size the slots below it resolve against.
+ * Renders a div and provides the size to the parts inside it.
  */
 export const Root = withProvider("div", "root");
 
 /**
- * The size variant and the props of a styled `div`.
+ * Describes the props of EmptyState.Root: the recipe's size and the props of a div element.
  */
 export type RootProps = ComponentProps<typeof Root>;

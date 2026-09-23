@@ -1,10 +1,10 @@
 /**
- * Renders the icon above an empty state's copy.
+ * Renders the mark above the empty state's title.
  *
  * @remarks
- *   The box comes from the icon scale at the root's size and any `svg` inside is stretched to fill
- *   it, so a caller passes a glyph without sizing it. The icon is decorative, since the title
- *   below it says the same thing in words, and the caller is expected to set `aria-hidden` on it.
+ *   The recipe sets the box from the root's size and stretches an `svg` child to fill it, so the
+ *   caller passes an icon without a size. The element sets `aria-hidden` by default, because the
+ *   title states the same thing in words.
  */
 
 import { type ComponentProps } from "react";
@@ -12,11 +12,13 @@ import { type ComponentProps } from "react";
 import { withContext } from "#empty-state/context.ts";
 
 /**
- * Centres a glyph in a box sized from the root's size, in the muted foreground.
+ * Renders a div in the muted ink, hidden from the accessibility tree by default.
  */
-export const Indicator = withContext("div", "indicator");
+export const Indicator = withContext("div", "indicator", {
+  defaultProps: { "aria-hidden": true },
+});
 
 /**
- * The props of a styled `div`.
+ * Describes the props of EmptyState.Indicator: the props of a div element.
  */
 export type IndicatorProps = ComponentProps<typeof Indicator>;

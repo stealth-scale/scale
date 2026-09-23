@@ -10,11 +10,11 @@ import { Root } from "#empty-state/root.ts";
 import { Title } from "#empty-state/title.ts";
 
 describe("Root", () => {
-  it("meets the component contract as a div element", () => {
+  it("conforms as a div element", () => {
     expect(violations(Root, { as: true, children: true, element: "DIV" })).toStrictEqual([]);
   });
 
-  it("reports no axe violation wrapping a content column and a title", async () => {
+  it("returns no accessibility violation when it holds a content column", async () => {
     await expect(
       accessibilityViolations(Root, {
         props: {
@@ -28,19 +28,19 @@ describe("Root", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("emits a class for every variant value the recipe declares", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(recipe, (props) => render(<Root {...props} />).container, { slot: "root" }),
     ).toStrictEqual([]);
   });
 
-  it("sets no role attribute on the element it renders", () => {
+  it("sets no role", () => {
     const { container } = render(<Root />);
 
     expect(slotElement(container, "empty-state", "root").hasAttribute("role")).toBe(false);
   });
 
-  it("renders the element named by as instead of a div", () => {
+  it("renders the element passed as as", () => {
     const { container } = render(<Root as="section" />);
 
     expect(slotElement(container, "empty-state", "root").tagName).toBe("SECTION");
