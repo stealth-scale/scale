@@ -1,0 +1,33 @@
+{
+  "about": "Shows that work is running when there is no progress to report. Where the work reports how far along it is, show a progress indicator instead. The spinner has no role and no text, so write the words the wait needs beside it and set `aria-busy` on the region that is waiting.",
+  "button": {
+    "about": "A spinner at `inherit` in a disabled button, in three looks. With the palette at `current`, the arc takes the button's label ink in each one.",
+    "title": "In a button"
+  },
+  "effect": {
+    "about": "A halo in the palette's solid at half opacity: `glow` holds still and `pulse` breathes. Both stop moving when the reader prefers reduced motion.",
+    "title": "Effects"
+  },
+  "inline": {
+    "about": "At `inherit` the spinner is as tall as the text it sits in, so the line keeps its height at every text size.",
+    "title": "In a line of text"
+  },
+  "palette": {
+    "about": "The arc in each semantic palette's solid color. The theme engine keeps every solid at 3:1 or more against the page. `current` takes the ink of the surrounding text.",
+    "title": "Palettes"
+  },
+  "saving": "Saving",
+  "size": {
+    "about": "Every step of the icon scale, and `inherit`, which takes the height of the surrounding text.",
+    "title": "Sizes"
+  },
+  "stroke": {
+    "about": "The theme's three stroke widths, and `heavy` for a thicker ring. The stroke is a border width, so it keeps its weight at every size.",
+    "title": "Strokes"
+  },
+  "title": "Spinner",
+  "track": {
+    "about": "The ring behind the arc, in the palette's muted color.",
+    "title": "Track"
+  }
+}

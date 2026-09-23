@@ -63,3 +63,15 @@ component-feedback: dismiss an alert in its own ink
   the bar reads the palette's solid so an alert's status colours it.
 - `Alert` builds its `status` axis from `statusVariants()` with `neutral` beside it, the way the
   button and the badge do. It listed the same five values in another order.
+
+component-feedback: add the spinner
+
+- `Spinner` renders an empty `span` whose border draws a turning arc, through the theme's `spin`
+  animation style. It stops under `prefers-reduced-motion`.
+- The axes are `size` (the icon scale and `inherit`), `palette` (`current` and the eight semantic
+  palettes, drawn in the palette's `solid`), `stroke` (`hairline`, `control`, `indicator` and the
+  4px `heavy`), `track` (the ring in the palette's `muted`) and `effect` (`glow`, `pulse`).
+- In forced colors mode the arc is drawn in `CanvasText` with `forced-color-adjust: none`. Without
+  it Chromium paints all four sides, and the spinner is a closed ring with no visible turn.
+- The element has no role. The caller writes the words beside it and sets `aria-busy` on the region
+  that is waiting.

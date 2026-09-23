@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#index.ts";
 
 describe("index", () => {
-  it("exports only the four components and their two props providers", () => {
+  it("exports the public runtime names and no others", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Alert",
       "EmptyState",
@@ -11,10 +11,11 @@ describe("index", () => {
       "SkeletonPropsProvider",
       "SkeletonText",
       "SkeletonTextPropsProvider",
+      "Spinner",
     ]);
   });
 
-  it("groups a multi-slot component into a namespace keyed by slot name", () => {
+  it("exports Alert as a namespace of its parts", () => {
     expect(Object.keys(barrel.Alert).toSorted()).toStrictEqual([
       "Aside",
       "Content",
@@ -26,7 +27,7 @@ describe("index", () => {
     ]);
   });
 
-  it("omits every export whose name starts with recipe with or use", () => {
+  it("exports no name that starts with recipe or with or use", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {

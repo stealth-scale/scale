@@ -114,6 +114,47 @@ import { SkeletonText } from "@stealthscale/component-feedback";
 The last bar of several is short. `lines` defaults to three and never draws fewer than one. Draw
 this while the text loads and the text itself once it arrives. It takes no loading state.
 
+## Spinner
+
+Shows that work is running when there is no progress to report. Where the work reports how far along
+it is, show a progress indicator instead.
+
+```tsx
+import { Button } from "@stealthscale/component-actions";
+import { Spinner } from "@stealthscale/component-feedback";
+
+<Spinner />;
+<Spinner palette="primary" size="lg" stroke="heavy" track />;
+<Spinner effect="glow" palette="accent" />;
+<Button disabled>
+  <Spinner size="inherit" />
+  Saving
+</Button>;
+```
+
+| Axis      | Values                                                                        | Default     |
+| --------- | ----------------------------------------------------------------------------- | ----------- |
+| `size`    | `inherit`, `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl`                  | `md`        |
+| `palette` | `current`, `primary`, `secondary`, `accent`, `neutral`, and the four statuses | `current`   |
+| `stroke`  | `hairline`, `control`, `indicator`, `heavy`                                   | `indicator` |
+| `track`   | `true`                                                                        | off         |
+| `effect`  | `glow`, `pulse`                                                               | none        |
+
+The element is an empty `span` with no role, so a screen reader skips it. Write the words the wait
+needs beside it, and set `aria-busy` on the region that is waiting.
+
+`palette` draws the arc in the palette's `solid` color. The theme engine keeps every `solid` at 3:1
+or more against the page. `current` draws it in the surrounding ink, which is the label ink inside a
+button. `inherit` sizes the spinner to the surrounding font size, so it keeps a line of text or a
+button at its height.
+
+`stroke` reads the theme's semantic widths, so a theme with heavier controls draws a heavier ring.
+`heavy` is the 4px step, heavier than the `indicator` stroke of every published theme.
+
+The arc turns on the theme's `spin` animation style, so it stops when the reader prefers reduced
+motion. The words beside it still say what is happening. In forced colors mode the arc is drawn in
+`CanvasText` and the track in `GrayText`.
+
 ## EmptyState
 
 Draws the panel a page shows where there is nothing to show, composed as `EmptyState.Root` holding a
