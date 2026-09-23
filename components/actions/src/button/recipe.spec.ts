@@ -17,32 +17,20 @@ describe("recipe", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+  it("has no scene that writes a value the recipe no longer offers", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("attaches a source snippet to every scene generated from axes", () => {
-    const built = page.scenes.filter((scene) => scene.axes !== undefined);
-
-    expect(built.every((scene) => scene.source !== undefined)).toBe(true);
-  });
-
-  it("includes the props of the rendered cell in the snippet", () => {
-    const palettes = page.scenes.find((scene) => scene.axes?.[0] === "palette");
-
-    expect(palettes?.source).toContain('<Button palette="primary" variant="solid">');
-  });
-
-  it("prefixes the snippet with the package import line", () => {
-    const palettes = page.scenes.find((scene) => scene.axes?.[0] === "palette");
-
-    expect(palettes?.source).toContain('import { Button } from "@stealthscale/component-actions";');
-  });
-
-  it("derives the snippet of a hand-written scene from the sample it renders", () => {
+  it("writes aria-pressed and the solid look into the source of the pressed scene", () => {
     const stated = page.scenes.find((scene) => scene.title === "button.pressed.title");
 
-    expect(stated?.source).toContain('<Button aria-pressed variant="solid">');
+    expect(stated?.props).toStrictEqual({ "aria-pressed": true, variant: "solid" });
+  });
+
+  it("writes disabled and the solid look into the source of the disabled scene", () => {
+    const stated = page.scenes.find((scene) => scene.title === "button.disabled.title");
+
+    expect(stated?.props).toStrictEqual({ disabled: true, variant: "solid" });
   });
 
   it("references a token on every value for Button and IconButton", () => {
@@ -68,7 +56,7 @@ describe("recipe", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md", variant: "solid" });
   });
 
-  it("draws in the primary palette when palette is unset", () => {
+  it("sets colorPalette to primary in the base", () => {
     expect(recipe.base).toMatchObject({ colorPalette: "primary" });
   });
 
@@ -142,7 +130,7 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "effect")).toStrictEqual(["glow", "pulse"]);
   });
 
-  it("sets boxShadowColor on the pulse effect beside its animation style", () => {
+  it("sets the pulse animation style and its shadow colour on the pulse effect", () => {
     expect(recipe.variants?.["effect"]?.["pulse"]).toStrictEqual({
       animationStyle: "pulse-glow",
       boxShadowColor: "colorPalette.solid/50",
@@ -218,7 +206,7 @@ describe("recipe", () => {
     expect(recipe.base?.["_pressed"]).toBeUndefined();
   });
 
-  it("draws an inset shadow on the solid look when pressed or current", () => {
+  it("applies the inset shadow to the solid look when pressed or current", () => {
     expect(recipe.compoundVariants).toHaveLength(4);
     expect(recipe.compoundVariants?.at(-1)).toStrictEqual({
       className: "button--on-marked",

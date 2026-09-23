@@ -1,35 +1,27 @@
 /**
- * Catalogues the button: one scene per recipe axis, and the pressed and disabled states.
+ * Catalogue page for the button.
  *
  * @remarks
- *   The axis scenes are generated from the recipe, so a value added there reaches the page without
- *   an edit here. The pressed and disabled scenes are written by hand, because `aria-pressed` and
- *   `disabled` are element attributes, not recipe axes. Each scene labels its buttons with a
- *   different action. The words are keys under `button` in the catalogue namespace, stored at
- *   `locales/en/specimen/button.json`.
+ *   `scenesOf` generates one scene per recipe axis. The pressed and disabled scenes are
+ *   hand-written, because `aria-pressed` and `disabled` are element attributes, not recipe axes.
+ *   Every scene renders a component from `examples/` and shows that file as its source, and each
+ *   scene labels its buttons with a different action. The words are keys under `button` in the
+ *   `specimen` namespace, stored in `locales/en/specimen/button.json`.
  */
 
-import { type ReactElement } from "react";
+import { Matrix, type Scene, scenesOf, specimen, valuesOf } from "@stealthscale/specimen";
 
-import { CheckIcon } from "lucide-react";
-
-import { omitUndefined } from "@stealthscale/hooks";
-import {
-  Matrix,
-  type Scene,
-  scenesOf,
-  specimen,
-  useWords,
-  valuesOf,
-  written,
-} from "@stealthscale/specimen";
-
-import { Button, type ButtonProps } from "#button/button.ts";
-import { IconButton } from "#button/icon-button.ts";
+import * as approved from "#button/examples/approve.example.tsx";
+import * as archived from "#button/examples/archive.example.tsx";
+import * as bolded from "#button/examples/bold.example.tsx";
+import * as celebrated from "#button/examples/celebrate.example.tsx";
+import * as published from "#button/examples/publish.example.tsx";
+import * as retried from "#button/examples/retry.example.tsx";
+import * as uploaded from "#button/examples/upload.example.tsx";
 import { recipe } from "#button/recipe.ts";
 
 /**
- * The look values, crossed with every other axis.
+ * Look values, crossed with every other axis.
  */
 const LOOKS = valuesOf(recipe, "variant");
 
@@ -39,95 +31,32 @@ const LOOKS = valuesOf(recipe, "variant");
 const EITHER = [false, true] as const;
 
 /**
- * The call site every scene's source snippet is generated from.
- */
-const SAMPLE = {
-  children: "Publish",
-  imports: 'import { Button } from "@stealthscale/component-actions";',
-  name: "Button",
-};
-
-/**
- * Renders every look with `aria-pressed` unset and set.
- */
-function Pressed(): ReactElement {
-  const { t } = useWords("button");
-
-  return (
-    <Matrix across={{ knob: "variant", of: LOOKS }} knob="aria-pressed" of={EITHER}>
-      {(pressed, variant) => (
-        <Button aria-pressed={pressed} variant={variant}>
-          {t("bold")}
-        </Button>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Renders every look with `disabled` unset and set.
- */
-function Disabled(): ReactElement {
-  const { t } = useWords("button");
-
-  return (
-    <Matrix across={{ knob: "variant", of: LOOKS }} knob="disabled" of={EITHER}>
-      {(disabled, variant) => (
-        <Button disabled={disabled} variant={variant}>
-          {t("archive")}
-        </Button>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Returns a scene renderer whose buttons all show the same action label.
- *
- * @param says - The translation key of the label.
- */
-function acting(says: string): (props: ButtonProps) => ReactElement {
-  return function Acting(props: ButtonProps): ReactElement {
-    const { t } = useWords("button");
-
-    return <Button {...props}>{t(says)}</Button>;
-  };
-}
-
-/**
- * Renders an icon button holding a check mark, with only the axes the scene sets.
- *
- * @remarks
- *   An axis the scene leaves unset is omitted rather than passed as `undefined`, so the icon
- *   button's own `shape` default still applies.
- */
-function Glyph({ shape, size, variant }: ButtonProps): ReactElement {
-  const { t } = useWords("button");
-
-  return (
-    <IconButton aria-label={t("approve")} {...omitUndefined({ shape, size, variant })}>
-      <CheckIcon size="1em" />
-    </IconButton>
-  );
-}
-
-/**
- * The hand-written scene for the pressed state.
+ * Hand-written scene for `aria-pressed` on every look.
  */
 export const pressed: Scene = {
   about: "button.pressed.about",
-  draw: Pressed,
-  source: written(SAMPLE, { "aria-pressed": true, variant: "solid" }),
+  draw: () => (
+    <Matrix across={{ knob: "variant", of: LOOKS }} knob="aria-pressed" of={EITHER}>
+      {(on, variant) => <bolded.Bold aria-pressed={on} variant={variant} />}
+    </Matrix>
+  ),
+  example: bolded,
+  props: { "aria-pressed": true, variant: "solid" },
   title: "button.pressed.title",
 };
 
 /**
- * The hand-written scene for the disabled state.
+ * Hand-written scene for `disabled` on every look.
  */
 export const disabled: Scene = {
   about: "button.disabled.about",
-  draw: Disabled,
-  source: written(SAMPLE, { disabled: true, variant: "solid" }),
+  draw: () => (
+    <Matrix across={{ knob: "variant", of: LOOKS }} knob="disabled" of={EITHER}>
+      {(off, variant) => <archived.Archive disabled={off} variant={variant} />}
+    </Matrix>
+  ),
+  example: archived,
+  props: { disabled: true, variant: "solid" },
   title: "button.disabled.title",
 };
 
@@ -136,18 +65,34 @@ export default specimen({
   id: "components/actions/button",
   imports: 'import { Button, IconButton } from "@stealthscale/component-actions";',
   scenes: [
-    ...scenesOf<ButtonProps>(recipe, {
+    ...scenesOf<Parameters<typeof published.Publish>[0]>(recipe, {
       axes: {
-        effect: { across: "variant", draw: acting("celebrate") },
-        elevation: { across: "variant", draw: acting("upload") },
-        palette: { across: "variant", draw: acting("retry") },
-        shape: { across: "variant", draw: (props) => <Glyph {...props} /> },
+        effect: {
+          across: "variant",
+          draw: (props) => <celebrated.Celebrate {...props} />,
+          example: celebrated,
+        },
+        elevation: {
+          across: "variant",
+          draw: (props) => <uploaded.Upload {...props} />,
+          example: uploaded,
+        },
+        palette: {
+          across: "variant",
+          draw: (props) => <retried.Retry {...props} />,
+          example: retried,
+        },
+        shape: {
+          across: "variant",
+          draw: (props) => <approved.Approve {...props} />,
+          example: approved,
+        },
         variant: { across: "size" },
       },
-      draw: acting("publish"),
+      draw: (props) => <published.Publish {...props} />,
+      example: published,
       namespace: "button",
       order: ["variant", "palette", "elevation", "effect", "shape"],
-      sample: SAMPLE,
     }),
     pressed,
     disabled,
