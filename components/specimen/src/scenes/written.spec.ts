@@ -106,8 +106,30 @@ describe("propped", () => {
     );
   });
 
+  it("removes a props parameter that the formatter wrapped onto several lines", () => {
+    const wrapped = 'function A(\n  props: Omit<P, "x">,\n): R {\n  return <B {...props} />;\n}';
+
+    expect(propped(wrapped, { size: "sm" })).toBe(
+      'function A(): R {\n  return <B size="sm" />;\n}',
+    );
+  });
+
   it("removes the spread when no prop is set", () => {
     expect(propped(EXAMPLE, {})).toContain("<Tag.Root>");
+  });
+
+  it("writes the props of a spread on its own line at the indent of the spread", () => {
+    const own =
+      "function A(props: P) {\n  return (\n    <B\n      value={1}\n      {...props}\n    />\n  );\n}";
+
+    expect(propped(own, { size: "sm" })).toContain('      value={1}\n      size="sm"\n    />');
+  });
+
+  it("removes the line of a spread on its own line when no prop is set", () => {
+    const own =
+      "function A(props: P) {\n  return (\n    <B\n      value={1}\n      {...props}\n    />\n  );\n}";
+
+    expect(propped(own, {})).toContain("      value={1}\n    />");
   });
 
   it("returns the example unchanged when it has no props spread", () => {

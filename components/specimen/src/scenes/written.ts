@@ -36,14 +36,21 @@ export interface Snippet {
 const STEP = "  ";
 
 /**
- * Matches every `{...props}` spread, with the whitespace before it.
+ * Matches every `{...props}` spread that shares a line with other code, with the space before it.
  */
 const SPREAD = /\s\{\.\.\.props\}/gu;
 
 /**
- * Matches the `props` parameter of a component, with its type annotation.
+ * Matches every `{...props}` spread on a line of its own, with the line break and the indent
+ * before it.
  */
-const PARAMETER = /\(props(?::[^)]*)?\)/u;
+const SPREAD_LINE = /\n([ \t]*)\{\.\.\.props\}(?=\n)/gu;
+
+/**
+ * Matches the `props` parameter of a component with its type annotation, including a signature the
+ * formatter wraps onto several lines.
+ */
+const PARAMETER = /\(\s*props(?::[^)]*)?\)/u;
 
 /**
  * Writes one JSX attribute with a leading space.
@@ -109,7 +116,8 @@ export function written(
  * @remarks
  *   The example component takes one parameter named `props` and spreads it with `{...props}`. The
  *   function replaces every spread with the attributes and removes the parameter, so the source
- *   reads as a standalone component. An example without a spread is returned unchanged.
+ *   reads as a standalone component. A spread on its own line keeps its indent, and without props
+ *   the line is removed. An example without a spread is returned unchanged.
  * @param source - Source text of the example module.
  * @param props - Props of the first cell, including the turned axis.
  * @returns The source with the props written in.
@@ -117,7 +125,14 @@ export function written(
 export function propped(source: string, props: Readonly<Record<string, unknown>>): string {
   if (!source.includes("{...props}")) return source;
 
-  return source.replaceAll(SPREAD, attributes(props)).replace(PARAMETER, "()");
+  const set = attributes(props);
+
+  return source
+    .replaceAll(SPREAD_LINE, (_line, indent: string) =>
+      set === "" ? "" : `\n${indent}${set.trimStart()}`,
+    )
+    .replaceAll(SPREAD, set)
+    .replace(PARAMETER, "()");
 }
 
 /**

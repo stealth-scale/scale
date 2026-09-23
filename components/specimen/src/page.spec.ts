@@ -40,6 +40,14 @@ describe("page", () => {
     expect(sourceOf({ ...SIZES, example: { source: 1 } })).toBeUndefined();
   });
 
+  it("writes the props of a hand-written scene into the example spreads", () => {
+    const example = { source: "function A(props: P) {\n  return <B {...props} />;\n}" };
+
+    expect(sourceOf({ ...SIZES, example, props: { disabled: true } })).toBe(
+      "function A() {\n  return <B disabled />;\n}",
+    );
+  });
+
   it("returns undefined when the scene states neither source nor example", () => {
     expect(sourceOf(SIZES)).toBeUndefined();
   });

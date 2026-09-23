@@ -8,6 +8,8 @@
 
 import { type FC } from "react";
 
+import { sampled } from "#scenes/written.ts";
+
 /**
  * How a scene is framed on its card.
  */
@@ -69,6 +71,17 @@ export interface Scene {
    *   frame, because a control flush with the page edge reads as part of the scene.
    */
   frame?: Frame;
+
+  /**
+   * Props of the first cell of a hand-written scene, written into the `{...props}` spreads of its
+   * example.
+   *
+   * @remarks
+   *   A hand-written scene that lays an example out in a `Matrix` passes each cell's props through
+   *   the example's `props` parameter. The Source shows the example with these props in place of
+   *   the spreads and without the parameter, the way `scenesOf` writes a generated scene.
+   */
+  props?: Readonly<Record<string, unknown>> | undefined;
 
   /**
    * Source text shown for the scene. Takes precedence over `example`.
@@ -176,15 +189,9 @@ export function scene(shown: Scene): Scene {
 /**
  * Returns the source text shown for a scene.
  *
- * @returns `source` if set, otherwise the `source` export of `example`, or undefined when neither
- *   is a string.
+ * @returns `source` if set, otherwise the `source` export of `example` with `props` written in, or
+ *   undefined when neither is a string.
  */
 export function sourceOf(shown: Scene): string | undefined {
-  if (shown.source !== undefined) return shown.source;
-
-  const { example } = shown;
-
-  return example !== undefined && "source" in example && typeof example.source === "string"
-    ? example.source
-    : undefined;
+  return shown.source ?? sampled(shown.example, shown.props ?? {});
 }
