@@ -1,10 +1,10 @@
 /**
- * Renders the landing point the skip link jumps to.
+ * Renders the element that receives focus when the skip link is followed.
  *
  * @remarks
- *   The element is a `div` carrying `tabIndex` -1, because a browser only moves focus to a
- *   fragment target that is focusable, and -1 makes it focusable without adding a stop to the tab
- *   order. A page whose content is its main region passes `as="main"`.
+ *   The element is a `div` with `tabIndex` -1. A browser moves focus to a fragment target only when
+ *   the target is focusable, and -1 makes it focusable without adding a Tab stop. Set `as="main"`
+ *   when the target is the page's main region.
  */
 
 import { type ComponentProps } from "react";
@@ -13,13 +13,14 @@ import { withProvider } from "#skip-nav/context.ts";
 import { SKIP_NAV_TARGET } from "#skip-nav/link.ts";
 
 /**
- * Receives the focus the skip link sends and renders no appearance of its own.
+ * Renders a `div` element with the target slot's classes, `id="content"` and `tabIndex` -1 by
+ * default.
  */
 export const Target = withProvider("div", "target", {
   defaultProps: { id: SKIP_NAV_TARGET, tabIndex: -1 },
 });
 
 /**
- * Props accepted by `Target`, which are the props of a styled `div`.
+ * Describes the props of SkipNav.Target: the props of a `div` element.
  */
 export type TargetProps = ComponentProps<typeof Target>;

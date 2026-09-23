@@ -8,11 +8,11 @@ import { SKIP_NAV_TARGET } from "#skip-nav/link.ts";
 import { Target } from "#skip-nav/target.ts";
 
 describe("Target", () => {
-  it("satisfies the component contract with div as its default element", () => {
+  it("passes the component conformance checks as a div element", () => {
     expect(violations(Target, { as: true, children: true, element: "DIV" })).toStrictEqual([]);
   });
 
-  it("reports no axe violation when it wraps a paragraph", async () => {
+  it("returns no accessibility violation with a paragraph", async () => {
     await expect(
       accessibilityViolations(Target, { props: { children: <p>One</p> } }),
     ).resolves.toStrictEqual([]);
@@ -30,7 +30,7 @@ describe("Target", () => {
     expect(slotElement(container, "skip-nav", "target").getAttribute("tabindex")).toBe("-1");
   });
 
-  it("renders the target slot as main when as is main", () => {
+  it("renders a main element when as is main", () => {
     const { container } = render(<Target as="main" />);
 
     expect(slotElement(container, "skip-nav", "target").tagName).toBe("MAIN");

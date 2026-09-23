@@ -1,10 +1,14 @@
 {
-  "about": "Carries a keyboard past the navigation: a link at the top of the document, hidden until focus reaches it, and the target where the content starts.",
-  "content": "The content the link lands on.",
+  "about": "Moves keyboard focus past a repeated block of content. `SkipNav.Link` is hidden until keyboard focus, and `SkipNav.Target` receives focus when the link is followed.",
+  "all": "All",
+  "filters": "Filters",
+  "overdue": "Overdue",
   "pair": {
-    "about": "The link and its target. Press Tab into the panel and the link comes into view; press Enter and focus lands on the target.",
+    "about": "An invoice list whose skip link moves focus past the filters to the results. Press Tab into the scene: the link appears at the start corner of the list, and Enter moves focus to the results.",
     "title": "Link and target"
   },
-  "skip": "Skip to the sample",
+  "paid": "Paid",
+  "results": "24 invoices match the filters.",
+  "skip": "Skip to invoices",
   "title": "Skip nav"
 }

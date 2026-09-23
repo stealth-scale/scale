@@ -1,6 +1,6 @@
 /**
- * Re-exports the skip navigation parts, which a caller places as `SkipNav.Link` first in the
- * document and `SkipNav.Target` where the content begins.
+ * Exposes the skip-nav parts to the package barrel, which publishes them as the `SkipNav`
+ * namespace.
  */
 
 export { Link, type LinkProps, SKIP_NAV_TARGET } from "#skip-nav/link.ts";
