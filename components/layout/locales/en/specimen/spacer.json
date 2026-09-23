@@ -1,10 +1,11 @@
 {
-  "about": "Takes the room a stack has left over, which pushes what follows it to the far end.",
-  "edit": "Edit",
-  "invoices": "Invoices",
-  "room": {
-    "about": "A heading at one end of a row and its action at the other, with the spacer taking everything between. It holds nothing and is hidden from assistive technology, because empty room is not announced.",
-    "title": "Room"
+  "about": "Takes the free space along a stack's main axis, which pushes the children after it to the end.",
+  "create": "New invoice",
+  "export": "Export",
+  "header": {
+    "about": "A page header in a 672px room. The spacer between the heading and the buttons takes the free space of the row. It is empty and has `aria-hidden`, so a screen reader skips it.",
+    "title": "Page header"
   },
+  "invoices": "Invoices",
   "title": "Spacer"
 }

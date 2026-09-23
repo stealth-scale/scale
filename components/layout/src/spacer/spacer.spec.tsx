@@ -8,21 +8,21 @@ import { recipe } from "#spacer/recipe.ts";
 import { Spacer } from "#spacer/spacer.ts";
 
 describe("Spacer", () => {
-  it("conforms as a div element", () => {
+  it("passes the component conformance checks as a div element", () => {
     expect(violations(Spacer, { as: true, element: "DIV" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule", async () => {
+  it("returns no accessibility violation", async () => {
     await expect(accessibilityViolations(Spacer)).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(recipe, (props) => render(<Spacer {...props} />).container),
     ).toStrictEqual([]);
   });
 
-  it("hides empty room from assistive technology", () => {
+  it("sets aria-hidden to true", () => {
     const { container } = render(<Spacer />);
 
     expect(recipeElement(container, "spacer").getAttribute("aria-hidden")).toBe("true");

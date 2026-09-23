@@ -1,16 +1,17 @@
 /**
- * States what a spacer is: the room left over in a stack, taken by an element that draws nothing.
+ * Styles a spacer: an empty flex or grid item that takes the free space along the main axis.
  *
  * @remarks
- *   A spacer states no size of its own. It grows into whatever a stack has not given its other
- *   children, which is how a row puts one thing at each end without stating a width for either.
- *   The recipe states no axis, because there is nothing about empty room a caller picks.
+ *   The spacer has a flex basis of 0 and grows by 1, so in a stack it takes the space its siblings
+ *   leave and pushes the siblings after it to the end. The recipe has no axis, because an empty
+ *   element has no variant a caller chooses, and no `palette` or `effect` axis, because it renders
+ *   nothing.
  */
 
 import { defineRecipe } from "@stealthscale/theme/authoring";
 
 /**
- * Takes the room a stack has left over.
+ * Stretches the spacer across the free space of its container.
  */
 export const recipe = defineRecipe({
   base: { alignSelf: "stretch", flexBasis: "0", flexGrow: "1", justifySelf: "stretch" },

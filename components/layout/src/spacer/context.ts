@@ -1,10 +1,9 @@
 /**
- * Binds the spacer's recipe to the element that draws it.
+ * Binds the spacer recipe to React.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. A recipe file that also bound one would put the runtime behind
- *   every compiler configuration that reads it.
+ *   The binding is a separate module from the recipe, because the theme compiler imports the recipe
+ *   at build time and must not load the React runtime.
  */
 
 import { createRecipeContext } from "@stealthscale/theme";
@@ -12,6 +11,10 @@ import { createRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#spacer/recipe.ts";
 
 /**
- * Binds the recipe once, for the spacer.
+ * Creates the spacer recipe's `withContext` binding and its `PropsProvider`.
+ *
+ * @remarks
+ *   The recipe has no variants, so `PropsProvider` passes only data attributes. The package
+ *   exports it as `SpacerPropsProvider`.
  */
 export const { PropsProvider, withContext } = createRecipeContext(recipe);

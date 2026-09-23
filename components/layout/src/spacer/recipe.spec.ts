@@ -11,27 +11,27 @@ describe("recipe", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+  it("has no scene that writes a value the recipe does not offer", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Spacer"] })).toStrictEqual([]);
   });
 
-  it("names its class spacer", () => {
+  it("sets className to spacer", () => {
     expect(recipe.className).toBe("spacer");
   });
 
-  it("offers no axis because there is nothing about empty room a caller picks", () => {
+  it("declares no variant axis", () => {
     expect(axesOf(recipe)).toStrictEqual([]);
   });
 
-  it("grows into whatever a stack has not given its other children", () => {
+  it("grows from a zero flex basis in the base", () => {
     expect(recipe.base).toMatchObject({ flexBasis: "0", flexGrow: "1" });
   });
 
-  it("tracks the tag a consumer writes it under", () => {
+  it("matches the Spacer JSX tag", () => {
     expect(recipe.jsx).toStrictEqual([/^Spacer$/u]);
   });
 });

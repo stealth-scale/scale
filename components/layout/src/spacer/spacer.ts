@@ -1,10 +1,9 @@
 /**
- * Draws a spacer through its recipe.
+ * Renders a spacer through the spacer recipe.
  *
  * @remarks
- *   The element is `div` and holds nothing. It is hidden from assistive technology, because empty
- *   room is not something a reader is told about, and a reader moving through a row of controls
- *   would otherwise meet a thing with no name between them.
+ *   The element is an empty `div` with `aria-hidden`, so a screen reader skips it and meets no
+ *   unnamed element between two controls.
  */
 
 import { type ComponentProps } from "react";
@@ -12,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#spacer/context.ts";
 
 /**
- * Takes the room a stack has left over, which pushes what follows it to the far end.
+ * Renders an empty `div` element with the classes of the spacer recipe and `aria-hidden`.
  */
 export const Spacer = withContext("div", { defaultProps: { "aria-hidden": true } });
 
 /**
- * Describes what a spacer takes: everything a styled div element takes.
+ * Describes the props of Spacer: the props of a `div` element.
  */
 export type SpacerProps = ComponentProps<typeof Spacer>;
