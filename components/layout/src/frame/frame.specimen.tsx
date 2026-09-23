@@ -12,7 +12,7 @@
 
 import { type ReactElement } from "react";
 
-import { scenesOf, specimen, useWords } from "@stealthscale/specimen";
+import { Room, scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
 import { Frame, type FrameProps } from "#frame/frame.ts";
 import { recipe } from "#frame/recipe.ts";
@@ -30,14 +30,21 @@ const HILLSIDE =
 
 /**
  * Draws the picture in whatever frame the scene hands over.
+ *
+ * @remarks
+ *   The frame is drawn in a room of the catalogue's. A frame states a shape rather than a size,
+ *   and what it holds is drawn at the frame's own width, so a frame given no width at all measured
+ *   nothing wide and nothing tall: every cell of the page was a caption over blank card.
  */
 function Hillside(props: FrameProps): ReactElement {
   const { t } = useWords("frame");
 
   return (
-    <Frame {...props}>
-      <img alt={t("hillside")} src={HILLSIDE} />
-    </Frame>
+    <Room size="xs">
+      <Frame {...props}>
+        <img alt={t("hillside")} src={HILLSIDE} />
+      </Frame>
+    </Room>
   );
 }
 

@@ -11,11 +11,11 @@
     "title": "Counts"
   },
   "filled": {
-    "about": "Every measure that keeps the columns a short row leaves empty, so the six entries hold their measure rather than stretching across the row.",
+    "about": "The same measure filled rather than fitted, in the same three rooms. A filled grid shares out whatever the last row leaves over, so its columns stretch to the room's edge where a fitted grid leaves the remainder empty.",
     "title": "Filled"
   },
   "fitted": {
-    "about": "Every measure that draws as many columns as there is room for and wraps the rest, which is the whole of the grid's responsiveness.",
+    "about": "One fitted measure in three rooms. A measure names a column's width, so what it decides is how many columns a given room holds: the same grid draws one column, then two, then three, as the room grows. Drawn the other way round, as every measure at one width, thirteen of the fourteen steps were wider than a card and each drew the same single column.",
     "title": "Fitted"
   },
   "flow": {

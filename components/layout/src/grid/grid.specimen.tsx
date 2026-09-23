@@ -21,6 +21,7 @@ import { type ReactElement } from "react";
 
 import {
   Matrix,
+  Room,
   type Scene,
   scenesOf,
   specimen,
@@ -46,16 +47,6 @@ const COLUMNS = valuesOf(recipe, "columns");
  * The counts alone, which name no measure.
  */
 const COUNTS = COLUMNS.filter((columns) => !columns.includes("-"));
-
-/**
- * The fitted measures alone.
- */
-const FITTED = COLUMNS.filter((columns) => columns.startsWith("fit-"));
-
-/**
- * The filled measures alone.
- */
-const FILLED = COLUMNS.filter((columns) => columns.startsWith("fill-"));
 
 /**
  * The call site the scenes of the root's axes are generated from.
@@ -110,6 +101,13 @@ function Entries(props: Grid.RootProps): ReactElement {
  * @remarks
  *   The matrix rather than a grid of grids, so each cell carries the value it was drawn for the way
  *   every generated scene captions its own.
+ *   Each grid is drawn in a room. A matrix lays its cells out as flex children, which size a grid
+ *   to its contents rather than to the cell, so every grid came out one column of thirty-six
+ *   pixels and a count of three drew what a count of twelve drew. A measure that fits as many
+ *   columns as it has room for has nothing to fit them into until the room is stated.
+ *   The room is the widest the catalogue offers. A narrower one fits one column of every measure
+ *   from the middle of the scale up, so half the values of the axis drew the same single column
+ *   and the scene stopped being a scale.
  */
 function Columned({
   count,
@@ -121,9 +119,11 @@ function Columned({
   return (
     <Matrix direction="column" knob="columns" of={of}>
       {(columns) => (
-        <Grid.Root columns={columns}>
-          <Numbered count={count} />
-        </Grid.Root>
+        <Room size="4xl">
+          <Grid.Root columns={columns}>
+            <Numbered count={count} />
+          </Grid.Root>
+        </Room>
       )}
     </Matrix>
   );
@@ -222,17 +222,49 @@ function Counts(): ReactElement {
 }
 
 /**
- * Draws six entries at every fitted measure.
+ * The rooms a wrapping grid is read across: enough for one column of the smallest measure, for
+ * two, and for three.
  */
-function Fitted(): ReactElement {
-  return <Columned count={6} of={FITTED} />;
+const ROOMS = ["xs", "2xl", "5xl"] as const;
+
+/**
+ * Draws one wrapping measure in three rooms, which is what makes the wrapping visible.
+ *
+ * @remarks
+ *   One measure across three widths rather than every measure at one width. A measure is a column
+ *   width, so what a measure decides is how many columns a given room holds, and reading that off
+ *   needs the room to change rather than the measure. Drawn the other way round, the smallest
+ *   measure held two columns of the card and every measure above it held one, so thirteen of the
+ *   fourteen steps drew the same single column.
+ *   The smallest measure is the one drawn, because it is the only one a catalogue card has room to
+ *   wrap more than once.
+ */
+function Across({ columns }: { readonly columns: Columns }): ReactElement {
+  return (
+    <Matrix direction="column" knob="room" of={ROOMS}>
+      {(room) => (
+        <Room size={room}>
+          <Grid.Root columns={columns}>
+            <Numbered count={6} />
+          </Grid.Root>
+        </Room>
+      )}
+    </Matrix>
+  );
 }
 
 /**
- * Draws six entries at every filled measure.
+ * Draws a fitted grid wrapping as its room grows.
+ */
+function Fitted(): ReactElement {
+  return <Across columns="fit-xs" />;
+}
+
+/**
+ * Draws a filled grid wrapping as its room grows, its columns sharing what is left over.
  */
 function Filled(): ReactElement {
-  return <Columned count={6} of={FILLED} />;
+  return <Across columns="fill-xs" />;
 }
 
 /**

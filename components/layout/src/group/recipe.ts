@@ -16,7 +16,9 @@ import {
   alignVariants,
   defineRecipe,
   gapSizes,
+  type Justify,
   justifyVariants,
+  type SystemStyleObject,
 } from "@stealthscale/theme/authoring";
 
 /**
@@ -24,6 +26,25 @@ import {
  * line rather than drawing two.
  */
 const OVERLAP = "calc({borderWidths.control} * -1)";
+
+/**
+ * Writes the `justify` axis, taking the width of whatever holds the group along with it.
+ *
+ * @remarks
+ *   A group is inline and takes the width of its children, so a group that states nothing here has
+ *   no room left over and every distribution would draw the same thing. Asking for one is asking
+ *   for the room to share, so each value takes the width it is offered and becomes a block. The
+ *   axis states no default, so a group that says nothing stays inline and is unmoved.
+ */
+function distributed(): Record<Justify, SystemStyleObject> {
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the entries are the axis's own, one per distribution
+  return Object.fromEntries(
+    Object.entries(justifyVariants()).map(([name, placed]) => [
+      name,
+      { ...placed, display: "flex", inlineSize: "full" },
+    ]),
+  ) as Record<Justify, SystemStyleObject>;
+}
 
 /**
  * Draws a horizontal row at the middle gap until a caller says otherwise.
@@ -97,10 +118,18 @@ export const recipe = defineRecipe({
 
     /**
      * Whether the children share the room evenly rather than taking what each needs.
+     *
+     * @remarks
+     *   The group takes the width it is offered along with it, for the same reason the `justify`
+     *   axis does: children can only share room the group has. Left inline, the group was the
+     *   width of its children and sharing that evenly drew what taking what each needs drew.
      */
-    grow: { true: { "& > *": { flex: "1" }, display: "flex" } },
+    grow: { true: { "& > *": { flex: "1" }, display: "flex", inlineSize: "full" } },
 
-    justify: justifyVariants(),
+    /**
+     * How the room left over along the flow is shared out.
+     */
+    justify: distributed(),
 
     /**
      * Which way the children run.

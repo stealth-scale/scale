@@ -15,11 +15,10 @@
 import { type ReactElement } from "react";
 
 import { Button } from "@stealthscale/component-actions";
-import { scenesOf, specimen, useWords } from "@stealthscale/specimen";
+import { Room, scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
 import { Group, type GroupProps } from "#group/group.ts";
 import { recipe } from "#group/recipe.ts";
-import { Stack } from "#stack/stack.ts";
 
 /**
  * The call site every scene's source snippet is generated from.
@@ -94,17 +93,30 @@ function Sizes(props: GroupProps): ReactElement {
 }
 
 /**
- * Draws a pair of controls sharing a column's width.
+ * Draws a pair of controls sharing a measure's width.
  *
  * @remarks
- *   A group is inline and takes the width of its controls, so the room it shares out is the room a
- *   column gives it when the column stretches its children. The stack is that column.
+ *   A group shares out room it has been given. Stating a distribution takes the width of whatever
+ *   holds the group, so what holds it has to have a width of its own: drawn against the scene's
+ *   own box, every share drew two controls side by side and nothing else. The room is the
+ *   catalogue's, which is a measure a reader can see both ends of.
  */
 function Stretched(props: GroupProps): ReactElement {
   return (
-    <Stack>
+    <Room size="xs">
       <Pair {...props} />
-    </Stack>
+    </Room>
+  );
+}
+
+/**
+ * Draws three answers sharing a measure's width, which is what children growing need.
+ */
+function Shared(props: GroupProps): ReactElement {
+  return (
+    <Room size="xs">
+      <Answers {...props} />
+    </Room>
   );
 }
 
@@ -117,7 +129,7 @@ export default specimen({
       align: { draw: (props) => <Sizes {...props} /> },
       dim: { direction: "column", draw: (props) => <Answers {...props} /> },
       gap: { draw: (props) => <Pair {...props} /> },
-      grow: { direction: "column", draw: (props) => <Answers {...props} /> },
+      grow: { direction: "column", draw: (props) => <Shared {...props} /> },
       justify: { direction: "column", draw: (props) => <Stretched {...props} /> },
       orientation: { across: "attached" },
     },

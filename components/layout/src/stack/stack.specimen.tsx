@@ -15,7 +15,7 @@
 
 import { type ReactElement } from "react";
 
-import { scenesOf, specimen, Tile, useWords } from "@stealthscale/specimen";
+import { Room, scenesOf, specimen, Tile, useWords } from "@stealthscale/specimen";
 
 import * as Grid from "#grid/index.ts";
 import { recipe } from "#stack/recipe.ts";
@@ -90,16 +90,24 @@ function Lengths(props: StackProps): ReactElement {
 
 /**
  * Draws three controls of a wizard, which is what a share of the room moves.
+ *
+ * @remarks
+ *   The row is drawn in a room of the catalogue's rather than against the scene's own box. A stack
+ *   is a flex container and the scene lays its drawings out as a row, which sizes each one to what
+ *   it holds, so a stack with nothing stated around it has no room left to share and every share
+ *   drew three tiles side by side.
  */
 function Wizard(props: StackProps): ReactElement {
   const { t } = useWords("stack");
 
   return (
-    <Stack {...props}>
-      <Tile>{t("skip")}</Tile>
-      <Tile>{t("review")}</Tile>
-      <Tile>{t("next")}</Tile>
-    </Stack>
+    <Room size="xs">
+      <Stack {...props}>
+        <Tile>{t("skip")}</Tile>
+        <Tile>{t("review")}</Tile>
+        <Tile>{t("next")}</Tile>
+      </Stack>
+    </Room>
   );
 }
 
