@@ -71,6 +71,11 @@ export interface CommandOptions {
    * The accessible name of the list.
    */
   label: string;
+
+  /**
+   * The query the palette opens holding. Empty when absent.
+   */
+  query?: string | undefined;
 }
 
 /**
@@ -83,11 +88,14 @@ export interface CommandOptions {
  *   settled, so the number matches what is on screen. Matching folds case and accents according to
  *   the active locale and also searches each action's extra keywords, which is what lets `add` find
  *   `New document`.
+ *   A palette may open holding a query, for a page that opens one from something a reader has
+ *   already typed. The collection is narrowed to it in an effect rather than built from it, because
+ *   the collection is the hook's to filter and the query is only the first thing it is filtered by.
  * @returns The state the palette's parts consume.
  */
 export function useCommandState(options: CommandOptions): CommandState {
-  const { actions, count, label } = options;
-  const [typed, setTyped] = useState("");
+  const { actions, count, label, query = "" } = options;
+  const [typed, setTyped] = useState(query);
   const announce = useAnnounce();
   const folded = useFilter();
 
@@ -105,6 +113,12 @@ export function useCommandState(options: CommandOptions): CommandState {
   });
 
   const matches = collection.size;
+
+  useEffect(() => {
+    if (query === "") return;
+
+    narrow(query);
+  }, [narrow, query]);
 
   useEffect(() => {
     if (typed === "") return;

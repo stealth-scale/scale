@@ -37,6 +37,14 @@ export async function typed(field: HTMLElement, text: string): Promise<void> {
 }
 
 /**
+ * Presses a control and waits for the list it filters to settle.
+ */
+export async function pressed(control: HTMLElement): Promise<void> {
+  fireEvent.click(control);
+  await settled();
+}
+
+/**
  * Renders every part of the palette arranged the way a caller arranges them.
  */
 export function composed(props: Omit<RootProps, "actions" | "aria-label"> = {}): ReactElement {

@@ -19,7 +19,7 @@ describe("recipe", () => {
     expect(
       recipeViolations(recipe, {
         names: ["Command"],
-        parts: ["root", "control", "indicator", "input", "list", "empty", "shortcut"],
+        parts: ["root", "control", "indicator", "input", "clear", "list", "empty", "shortcut"],
       }),
     ).toStrictEqual([]);
   });
@@ -28,12 +28,13 @@ describe("recipe", () => {
     expect(recipe.className).toBe("command");
   });
 
-  it("declares its seven slots in the order the palette renders them", () => {
+  it("declares its eight slots in the order the palette renders them", () => {
     expect(recipe.slots).toStrictEqual([
       "root",
       "control",
       "indicator",
       "input",
+      "clear",
       "list",
       "empty",
       "shortcut",

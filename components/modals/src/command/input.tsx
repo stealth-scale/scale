@@ -6,6 +6,9 @@
  *   the rows and the machine keeps `aria-activedescendant` pointed at the current one. The glyph is
  *   decorative and hidden from the accessibility tree. The package ships no icon set, so the field
  *   fills the bar unless the caller supplies one.
+ *   Anything else a caller writes inside goes after the field in the same bar, which is where the
+ *   control that empties the query belongs. Passed straight through it landed on the field itself,
+ *   and an `input` is a void element that takes no children at all.
  */
 
 import { type ComponentProps, type ReactElement, type ReactNode } from "react";
@@ -44,7 +47,7 @@ export interface InputProps extends Omit<ComponentProps<typeof Typed>, "onChange
 /**
  * Filters the list on every keystroke while keeping focus in the field.
  */
-export function Input({ indicator, ...rest }: InputProps): ReactElement {
+export function Input({ children, indicator, ...rest }: InputProps): ReactElement {
   const palette = useCommand();
 
   return (
@@ -57,6 +60,7 @@ export function Input({ indicator, ...rest }: InputProps): ReactElement {
         }}
         value={palette.typed}
       />
+      {children}
     </Banded>
   );
 }

@@ -4,6 +4,7 @@
  */
 
 export { type CommandAction } from "#command/action.ts";
+export { Clear, type ClearProps } from "#command/clear.tsx";
 export { Empty, type EmptyProps } from "#command/empty.ts";
 export { Input, type InputProps } from "#command/input.tsx";
 export { List, type ListProps } from "#command/list.tsx";

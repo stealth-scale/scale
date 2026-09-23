@@ -7,8 +7,9 @@ describe("index", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual(["Command"]);
   });
 
-  it("exposes Command as a namespace holding Empty Input List and Root", () => {
+  it("exposes Command as a namespace holding Clear Empty Input List and Root", () => {
     expect(Object.keys(barrel.Command).toSorted()).toStrictEqual([
+      "Clear",
       "Empty",
       "Input",
       "List",
