@@ -75,3 +75,25 @@ component-feedback: add the spinner
   it Chromium paints all four sides, and the spinner is a closed ring with no visible turn.
 - The element has no role. The caller writes the words beside it and sets `aria-busy` on the region
   that is waiting.
+
+component-feedback: set the palette on the alert specimen's dismiss button
+
+- The alert specimen passes the alert's status to its `IconButton` as `palette`, after
+  `@stealthscale/component-actions` replaced the button's `status` axis with `palette`.
+- The specimen renders `TriangleAlertIcon` and `XIcon` from `lucide-react` in place of hand-drawn
+  SVG paths. The warning icon measured 16px in an `md` alert and the cross 12.6px in the `xs`
+  button, the same sizes as the paths they replace.
+
+component-feedback: add the loader
+
+- `Loader` renders a spinner beside `text`, or centres it over hidden children. The children keep
+  their box through `visibility: hidden`: a loading button measured 40 × 137.7px, the same as the
+  loaded one. With `loading` false the children render unchanged.
+- Over children, the root is an inline grid and the spinner shares the content's cell, so no
+  positioned ancestor is needed. `label` (default `Loading`) is read by screen readers in place of
+  the hidden children.
+- `placement` renders the spinner at the `start` or the `end` of the words. `spinner` replaces the
+  default spinner, which is at `inherit` and `current`.
+- `LoaderOverlay` covers a positioned container at `inset: 0` with the container's corner radius.
+- Axes: `palette` inks the spinner in a palette's `solid`, and `scrim` (`veil`, `glass`, `none`)
+  fills the overlay. The default is `veil`, the panel color at 80% opacity.

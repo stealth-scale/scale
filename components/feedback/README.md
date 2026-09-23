@@ -155,6 +155,61 @@ The arc turns on the theme's `spin` animation style, so it stops when the reader
 motion. The words beside it still say what is happening. In forced colors mode the arc is drawn in
 `CanvasText` and the track in `GrayText`.
 
+## Loader
+
+Shows that something is loading, beside words or over the content it replaces. `LoaderOverlay`
+covers a positioned container while its content loads.
+
+```tsx
+import { Button } from "@stealthscale/component-actions";
+import { Loader, LoaderOverlay } from "@stealthscale/component-feedback";
+import { Card } from "@stealthscale/component-surfaces";
+
+<Loader text="Matching" />;
+<Loader placement="end" palette="primary" text="Matching" />;
+<Button disabled={saving}>
+  <Loader label="Saving changes" loading={saving}>
+    Save changes
+  </Loader>
+</Button>;
+<Card.Root>
+  …
+  <LoaderOverlay scrim="glass">
+    <Loader text="Matching" />
+  </LoaderOverlay>
+</Card.Root>;
+```
+
+| Axis      | Values                                                             | Default   |
+| --------- | ------------------------------------------------------------------ | --------- |
+| `palette` | `primary`, `secondary`, `accent`, `neutral`, and the four statuses | inherited |
+| `scrim`   | `veil`, `glass`, `none`, on `LoaderOverlay`                        | `veil`    |
+
+| Prop        | Type           | Default   | Effect                                             |
+| ----------- | -------------- | --------- | -------------------------------------------------- |
+| `loading`   | `boolean`      | `true`    | With `false`, the children render unchanged        |
+| `text`      | `ReactNode`    | none      | Renders the words beside the spinner, not children |
+| `placement` | `start`, `end` | `start`   | The side of the words the spinner is rendered on   |
+| `label`     | `string`       | `Loading` | Read by screen readers in place of hidden children |
+| `spinner`   | `ReactNode`    | a spinner | Replaces the default spinner                       |
+
+With `text`, the loader renders the spinner and the words in one inline row, so they stay on one
+line in any container. Without `text`, the loader hides its children with `visibility: hidden` and
+centres the spinner over them in the same grid cell. The children keep their box, so a button keeps
+its width and a row does not reflow when the content returns. The loader needs no positioned
+ancestor.
+
+Hidden children leave the accessibility tree, so the loader renders `label` in their place for
+screen readers. Set `aria-busy` on the region that is loading.
+
+The default spinner is at `inherit` and `current`, so it takes the size and the ink of the
+surrounding text. `palette` draws it in the palette's `solid` color instead. Pass `spinner` to
+change its stroke, track or effect.
+
+`LoaderOverlay` is absolutely positioned at `inset: 0` and takes its container's corner radius, so
+the container must be positioned, as `Card.Root` is. `veil` fills it with the panel at 80% opacity
+and `glass` blurs the content behind it.
+
 ## EmptyState
 
 Draws the panel a page shows where there is nothing to show, composed as `EmptyState.Root` holding a

@@ -8,6 +8,7 @@
 
 export * as Alert from "#alert/index.ts";
 export * as EmptyState from "#empty-state/index.ts";
+export * from "#loader/index.ts";
 export * from "#skeleton-text/index.ts";
 export * from "#skeleton/index.ts";
 export * from "#spinner/index.ts";

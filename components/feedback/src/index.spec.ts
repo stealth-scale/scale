@@ -7,6 +7,8 @@ describe("index", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Alert",
       "EmptyState",
+      "Loader",
+      "LoaderOverlay",
       "Skeleton",
       "SkeletonPropsProvider",
       "SkeletonText",
