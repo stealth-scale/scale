@@ -93,7 +93,7 @@ describe("Root", () => {
 
   it("is described by the texts of the field it stands in", () => {
     render(
-      <FieldRoot invalid>
+      <FieldRoot id="theme" invalid>
         {composed()}
         <HelperText>It follows your system by default.</HelperText>
         <ErrorText>That theme is not available.</ErrorText>
@@ -101,7 +101,7 @@ describe("Root", () => {
     );
 
     expect(screen.getByRole("switch").getAttribute("aria-describedby")?.split(" ")).toStrictEqual([
-      screen.getByText("It follows your system by default.").id,
+      "theme-helper",
       screen.getByText("That theme is not available.").id,
     ]);
   });

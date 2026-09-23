@@ -60,8 +60,10 @@ describe("recipe", () => {
     });
   });
 
-  it("drops the inset with the flushed box so its text lines up with the label", () => {
-    expect(recipe.variants?.["variant"]?.["flushed"]).toMatchObject({ paddingInline: "0" });
+  it("leaves a flushed field the smallest inset rather than the inset of its own step", () => {
+    expect(recipe.variants?.["variant"]?.["flushed"]).toMatchObject({
+      paddingInline: "calc({spacing.inset.xs} * var(--density, 1))",
+    });
   });
 
   it("reads the control scale so a field lines up with a button beside it", () => {
@@ -71,7 +73,9 @@ describe("recipe", () => {
   });
 
   it("marks a field that is wrong off the attribute a screen reader reads too", () => {
-    expect(recipe.base?.["_invalid"]).toMatchObject({ borderColor: "border.error" });
+    expect(recipe.base?.["_invalid"]).toMatchObject({
+      "--field-edge": "{colors.border.error}",
+    });
   });
 
   it("draws the focus ring inside the box so a flush field does not clip it", () => {

@@ -104,7 +104,7 @@ describe("Root", () => {
 
   it("is described by the texts of the field it stands in", () => {
     render(
-      <FieldRoot invalid>
+      <FieldRoot id="terms" invalid>
         {composed()}
         <HelperText>Read them first.</HelperText>
         <ErrorText>Accept them to go on.</ErrorText>
@@ -112,7 +112,7 @@ describe("Root", () => {
     );
 
     expect(screen.getByRole("checkbox").getAttribute("aria-describedby")?.split(" ")).toStrictEqual(
-      [screen.getByText("Read them first.").id, screen.getByText("Accept them to go on.").id],
+      ["terms-helper", screen.getByText("Accept them to go on.").id],
     );
   });
 

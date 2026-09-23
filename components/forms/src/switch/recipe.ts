@@ -128,14 +128,29 @@ export const recipe = defineSlotRecipe({
      *
      * @remarks
      *   No value writes a border color, so a status always reaches the edge. The three differ in
-     *   the layer style the palette fills the track with once it is on.
+     *   the layer style the palette fills the track with once it is on. The knob is drawn against
+     *   whatever the track is filled with. A solid track is the palette's own colour, so the knob
+     *   stays the panel's and reads against it. A subtle track is a tint of the page and an outline
+     *   track is the page itself, and a panel-coloured knob on either was a white disc on a
+     *   near-white ground. Those two fill the knob with the palette instead, once the switch is on.
+     *   Resting, every look leaves it the panel's colour, which is what the knob's own shadow is
+     *   drawn to stand out from.
      */
-    variant: onSlot("control", {
-      solid: { _checked: { layerStyle: "fill.solid" } },
+    variant: onSlots({
+      control: {
+        solid: { _checked: { layerStyle: "fill.solid" } },
 
-      subtle: { _checked: { layerStyle: "fill.subtle" } },
+        subtle: { _checked: { layerStyle: "fill.subtle" } },
 
-      outline: { _checked: { layerStyle: "outline.solid" }, background: "transparent" },
+        outline: { _checked: { layerStyle: "outline.solid" }, background: "transparent" },
+      },
+      thumb: {
+        solid: {},
+
+        subtle: { _checked: { background: "colorPalette.solid" } },
+
+        outline: { _checked: { background: "colorPalette.solid" } },
+      },
     }),
   },
 });

@@ -18,6 +18,7 @@
 import {
   controlSizes,
   defineRecipe,
+  dense,
   field,
   fieldStatusVariants,
   fieldVariants,
@@ -44,9 +45,17 @@ export const recipe = defineRecipe({
     status: fieldStatusVariants(),
 
     /**
-     * How the edge of the field is drawn. The flushed look drops the inset with its box, so its
-     * text lines up with the label above it rather than with the other looks beside it.
+     * How the edge of the field is drawn.
+     *
+     * @remarks
+     *   The flushed look keeps the smallest inset of the scale rather than the inset of its own
+     *   step. Dropped outright its text sat hard against the end of the rule under it and read as
+     *   text that had overrun the field; kept at its own step it stood as far in as an outlined
+     *   field, which is the indent a flushed field exists to avoid.
      */
-    variant: { ...fieldVariants(), flushed: { layerStyle: "field.flushed", paddingInline: "0" } },
+    variant: {
+      ...fieldVariants(),
+      flushed: { layerStyle: "field.flushed", paddingInline: dense("{spacing.inset.xs}") },
+    },
   },
 });
