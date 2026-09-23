@@ -35,11 +35,10 @@ component-layout: take a grid entry's span on the entry
 
 component-layout: read a stated alignment on a row
 
-- `Stack align="flex-start" direction="row"` places the children at the start, as the README has
-  said. The compiler writes the axes in an order of its own with `align` before `direction`, and a
-  rule written later wins, so the row's centring beat every stated place. The centring is now
-  written in the base, which sits in a layer below every variant, so a stated `align` overrides it
-  and a row with none stated still centres.
+- `Stack align="flex-start" direction="row"` places the children at the start. The compiler emits
+  `align` before `direction`, so the row's `alignItems: center` overrode every stated `align`. The
+  base now centres a row. The base is in a lower cascade layer than every variant, so a stated
+  `align` overrides it, and a row without `align` still centres its children.
 
 component-layout: show every component
 
@@ -61,3 +60,23 @@ component-layout: show the grid's alignment and the stack's wrap in a narrow roo
   rather than to the frame. They were reachable from no component.
 - `Group` takes a `dim` switch, which recedes the children the pointer is not resting on. The rule
   reads the hovered child of the element it is set on, so a group of peers is where it works.
+
+component-layout: set justify-items from the grid's justify axis
+
+- Breaking: `Grid.Root justify` sets `justify-items` and offers `start`, `center` and `end`.
+  `between`, `around` and `evenly` are removed. Every column template ends in `1fr`, so
+  `justify-content` had no free space to distribute and each value rendered the same grid.
+
+component-layout: remove column flow from the grid
+
+- Breaking: `Grid.Root flow` offers `row` and `dense`. `column` is removed. The recipe does not set
+  a row template, so column flow placed every item in the first row and added one implicit column
+  per item.
+
+component-layout: set aria-orientation on the divider
+
+- `Divider` sets `aria-orientation` from `orientation`, whether the prop or `DividerPropsProvider`
+  sets it. A vertical divider rendered as a horizontal `separator` unless the caller also passed
+  `aria-orientation`. An `aria-orientation` the caller passes takes precedence.
+- `Group dim` also dims the siblings of a keyboard-focused or `aria-pressed="true"` child, through
+  the theme's `dim.others` layer style.
