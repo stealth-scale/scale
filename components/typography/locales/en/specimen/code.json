@@ -1,12 +1,18 @@
 {
-  "about": "Draws a snippet of code inside a line, in a look, a size and the palette of its status.",
-  "status": {
-    "about": "Every status in every look. A status points the palette at the semantic palette of its name.",
-    "title": "Statuses"
+  "about": "Renders code inside a line of text in a look, a size and a palette.",
+  "palette": {
+    "about": "Every look in every palette.",
+    "title": "Palettes"
+  },
+  "run": "Run",
+  "sentence": {
+    "about": "A command at `md` inside a line of body text.",
+    "title": "In a sentence"
   },
   "title": "Code",
   "variant": {
-    "about": "Every look at both sizes.",
+    "about": "Every look at both sizes. `plain` sets no inline padding.",
     "title": "Looks and sizes"
-  }
+  },
+  "where": "in the application's directory."
 }

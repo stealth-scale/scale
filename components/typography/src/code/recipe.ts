@@ -1,12 +1,11 @@
 /**
- * States what inline code is: a snippet set in the code role inside a line, in a look and a size,
- * in the palette of its status.
+ * Styles inline code: its look, size and palette.
  *
  * @remarks
- *   Every value is a code role, a layer style, a semantic inset or a palette, so a theme moves all
- *   of them. The looks read the palette's roles through the foundation's layer styles, and the
- *   status axis points the palette at an intent, so an error snippet and a plain one are one
- *   recipe. Tabular figures keep a column of snippets aligned.
+ *   Every value reads a code text style, a layer style, an inset token or a palette. The looks read
+ *   the `flat` layer styles, so a palette sets the fill, the edge and the text together. Numerals
+ *   are tabular, so a column of snippets keeps its alignment. `staticCss` lists every palette,
+ *   because data can set the value at run time.
  */
 
 import {
@@ -14,14 +13,23 @@ import {
   defineRecipe,
   dense,
   flatVariants,
+  PALETTES,
+  paletteVariants,
   sizeVariants,
-  statusEmitted,
-  statusVariants,
 } from "@stealthscale/theme/authoring";
 
 /**
- * Draws a snippet on the neutral palette in the subtle look and the middle size until a caller
- * says otherwise, set inline so it sits in the line around it.
+ * Draws a `CanvasText` hairline on the padding edge, for a look whose fill forced colours remove.
+ */
+const OUTLINED = {
+  outlineColor: "CanvasText",
+  outlineOffset: "calc({borderWidths.hairline} * -1)",
+  outlineStyle: "solid",
+  outlineWidth: "hairline",
+};
+
+/**
+ * Defaults to the subtle look at `md` in the neutral palette.
  */
 export const recipe = defineRecipe({
   base: {
@@ -35,10 +43,15 @@ export const recipe = defineRecipe({
   className: "code",
   defaultVariants: { size: "md", variant: "subtle" },
   jsx: [/Code$/u],
-  staticCss: [statusEmitted()],
+  staticCss: [{ palette: [...PALETTES] }],
   variants: {
     /**
-     * How loud the snippet is, on the two steps the code role offers.
+     * Semantic palette of the fill, the edge and the text.
+     */
+    palette: paletteVariants(),
+
+    /**
+     * Step of the code text style, with inline padding from the inset one size smaller.
      */
     size: sizeVariants(
       (size) => ({
@@ -48,19 +61,18 @@ export const recipe = defineRecipe({
       ["sm", "md"],
     ),
 
-    status: statusVariants(),
-
     /**
-     * How the snippet is set off from the line it sits in.
+     * Look of the snippet.
      *
      * @remarks
-     *   The plain look drops the room the size gives, because that room is there to hold a fill off
-     *   the words and the plain look paints none. Kept, it pushes the snippet a step to the right
-     *   of whatever sits above and below it, which a column of types in a table reads as one row
-     *   indented.
+     *   `solid` and `subtle` have no edge, so they draw a `CanvasText` hairline in forced colours,
+     *   where the fill is removed. `plain` sets no inline padding, because it renders no fill, so a
+     *   column of plain snippets starts at the same x as the text above and below it.
      */
     variant: {
-      ...flatVariants(["solid", "subtle", "surface", "outline", "plain"]),
+      solid: { _highContrast: OUTLINED, layerStyle: "flat.solid" },
+      subtle: { _highContrast: OUTLINED, layerStyle: "flat.subtle" },
+      ...flatVariants(["surface", "outline"]),
       plain: { layerStyle: "flat.plain", paddingInline: "0" },
     },
   },

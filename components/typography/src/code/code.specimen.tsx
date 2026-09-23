@@ -1,58 +1,50 @@
 /**
- * Shows the code snippet: every look at both sizes, and every status in every look.
+ * Catalogue page for inline code.
  *
  * @remarks
- *   The scenes are generated from the recipe, so an axis added to it reaches the page without this
- *   file changing. The size is crossed with the look and the look with the status, because each
- *   pair reads as a grid rather than as two lists. The snippets are code rather than words, so
- *   they are written here and not translated: a command where the look is what changes, and the
- *   name of an error where the status is. The scene words are keys under `code` in the catalogue's
- *   namespace, kept beside this file in `locales/en/specimen/code.json`.
+ *   `scenesOf` generates the look scene, crossed with the size axis, and the palette scene, crossed
+ *   with the look axis. A hand-written scene renders a command inside a line of body text. Every
+ *   scene renders a component from `examples/` and shows that file as its source. Code is literal
+ *   and the other words are keys under `code` in `locales/en/specimen/code.json`.
  */
 
-import { type ReactElement } from "react";
+import { type Scene, scenesOf, specimen } from "@stealthscale/specimen";
 
-import { scenesOf, specimen } from "@stealthscale/specimen";
-
-import { Code, type CodeProps } from "#code/code.ts";
+import * as failure from "#code/examples/failure.example.tsx";
+import * as install from "#code/examples/install.example.tsx";
+import * as sentence from "#code/examples/sentence.example.tsx";
 import { recipe } from "#code/recipe.ts";
 
 /**
- * The call site every scene's source snippet is generated from.
+ * Hand-written scene for a command inside a line of body text.
  */
-const SAMPLE = {
-  children: "pnpm add",
-  imports: 'import { Code } from "@stealthscale/component-typography";',
-  name: "Code",
+export const inline: Scene = {
+  about: "code.sentence.about",
+  draw: sentence.Sentence,
+  example: sentence,
+  title: "code.sentence.title",
 };
-
-/**
- * Draws a command, which is what a look and a size are read against.
- */
-function Command(props: CodeProps): ReactElement {
-  return <Code {...props}>pnpm add</Code>;
-}
-
-/**
- * Draws the name of an error, which is what a status is read against.
- */
-function Failure(props: CodeProps): ReactElement {
-  return <Code {...props}>ENOENT</Code>;
-}
 
 export default specimen({
   about: "code.about",
   id: "components/typography/code",
   imports: 'import { Code } from "@stealthscale/component-typography";',
-  scenes: scenesOf<CodeProps>(recipe, {
-    axes: {
-      status: { across: "variant", draw: (props) => <Failure {...props} /> },
-      variant: { across: "size" },
-    },
-    draw: (props) => <Command {...props} />,
-    namespace: "code",
-    order: ["variant", "status"],
-    sample: SAMPLE,
-  }),
+  scenes: [
+    ...scenesOf<Parameters<typeof install.Install>[0]>(recipe, {
+      axes: {
+        palette: {
+          across: "variant",
+          draw: (props) => <failure.Failure {...props} />,
+          example: failure,
+        },
+        variant: { across: "size" },
+      },
+      draw: (props) => <install.Install {...props} />,
+      example: install,
+      namespace: "code",
+      order: ["variant", "palette"],
+    }),
+    inline,
+  ],
   title: "code.title",
 });
