@@ -89,3 +89,15 @@ component-actions: import omitUndefined from the hooks package
 
 - The clipboard machine takes `omitUndefined` from `@stealthscale/hooks`. The package's private
   copy, `stated`, is removed.
+
+component-actions: replace the button's status axis with a palette axis
+
+- Breaking: `Button` and `IconButton` take `palette` in place of `status`. Replace `status="error"`
+  with `palette="error"`.
+- `palette` offers `primary`, `secondary`, `accent`, `neutral`, `info`, `success`, `warning` and
+  `error` through `paletteVariants` from `@stealthscale/theme/authoring`. `status` offered the four
+  statuses and `neutral`.
+- `staticCss` emits every palette, so a value set through `ButtonPropsProvider` has a class in the
+  stylesheet when no page sets it as a prop.
+- The clipboard specimen sets `palette` on its caller-built button and renders `CopyIcon` and
+  `CheckIcon` from `lucide-react` in place of hand-drawn SVG paths.

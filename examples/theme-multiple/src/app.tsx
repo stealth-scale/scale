@@ -1,14 +1,12 @@
 /**
- * Draws the page: the controls that switch the theme and the color mode of the document with a
- * badge naming the mode, a row of buttons in every look, a panel wearing a theme of its own, four
- * cards, the candy panel, the looks, the motions, a bento, and the typography and actions
- * packages' components.
+ * Renders the page: controls that switch the document's theme and color mode, a row of buttons in
+ * every look, a panel with its own theme, and the example sections.
  *
  * @remarks
- *   The provider writes the two attributes onto the document root, so the whole page switches at
- *   once. The Forge panel states its theme on itself, which is how a subtree wears another theme
- *   while the page keeps its own. The page's own layout is written with `css`, reading the same
- *   semantic tokens a recipe reads, so every theme moves it too.
+ *   The provider writes the theme and color mode attributes on the document root, so the whole page
+ *   switches at once. The Forge panel sets `data-theme` on itself, which applies another theme to a
+ *   subtree. The page layout uses `css` with the same semantic tokens a recipe uses, so every theme
+ *   restyles it.
  */
 
 import { type ChangeEvent, type ReactElement, useState } from "react";
@@ -25,7 +23,7 @@ import { Motions } from "#motions.tsx";
 import { Published } from "#published.tsx";
 
 /**
- * Lists the themes the application installed, in the order `theme.config.ts` states them.
+ * The themes the application installs, in the order `theme.config.ts` lists them.
  */
 const THEMES = [
   "fathom",
@@ -52,7 +50,7 @@ const THEMES = [
 type ThemeName = (typeof THEMES)[number];
 
 /**
- * Lays the page out as a column with the large gap and inset, over a field of dots.
+ * Lays the page out as a column with the large gap and inset, over a dotted backdrop.
  */
 const page = css({
   display: "flex",
@@ -69,13 +67,13 @@ const page = css({
 const title = css({ textStyle: "heading.lg" });
 
 /**
- * Lays a row of controls out, wrapping where the row is too narrow.
+ * Lays out a row of controls that wraps when it is too narrow.
  */
 const row = css({ alignItems: "center", display: "flex", flexWrap: "wrap", gap: "gap.sm" });
 
 /**
- * Keeps the switches at the top of the page while the rest scrolls past, on the page's own
- * surface so nothing shows through.
+ * Sticks the switches to the top of the page, on the page background so scrolled content is
+ * hidden behind them.
  */
 const switches = css({
   alignItems: "center",
@@ -90,7 +88,7 @@ const switches = css({
 });
 
 /**
- * Draws a panel on the panel surface, with the medium corner and inset.
+ * Styles a panel on the panel background, with the medium corner and inset.
  */
 const panel = css({
   background: "bg.panel",
@@ -104,21 +102,21 @@ const panel = css({
 });
 
 /**
- * Reports whether a select's value names an installed theme.
+ * Reports whether a select's value is the name of an installed theme.
  */
 function isThemeName(value: string): value is ThemeName {
   return THEMES.some((name) => name === value);
 }
 
 /**
- * Draws the page and switches the document to the theme and the color mode a reader picks.
+ * Renders the page and switches the document to the theme and color mode the user selects.
  */
 export function App(): ReactElement {
   const [themeName, setThemeName] = useState<ThemeName>(THEMES[0]);
   const [mode, setMode] = useState<ColorMode>("light");
 
   /**
-   * Switches the document to the theme the select names.
+   * Switches the document to the theme selected in the select element.
    */
   const pickTheme = (event: ChangeEvent<HTMLSelectElement>): void => {
     if (isThemeName(event.target.value)) setThemeName(event.target.value);
@@ -152,7 +150,7 @@ export function App(): ReactElement {
           <Button variant="subtle">Subtle</Button>
           <Button variant="outline">Outline</Button>
           <Button variant="ghost">Ghost</Button>
-          <Button status="error">Delete</Button>
+          <Button palette="error">Delete</Button>
           <Button size="lg">Large</Button>
         </p>
         <section className={panel} data-theme="forge">

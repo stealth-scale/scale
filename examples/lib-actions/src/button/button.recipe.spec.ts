@@ -11,11 +11,11 @@ import {
 import { recipe } from "#button/button.recipe.ts";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe)).toStrictEqual([]);
   });
 
-  it("names its one compound hero for a large solid button", () => {
+  it("names its only compound hero for a large solid button", () => {
     expect(recipe.compoundVariants).toStrictEqual([
       {
         className: compoundClass("button", "hero"),
@@ -26,19 +26,28 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers a size axis and a status axis and a look axis", () => {
-    expect(axesOf(recipe)).toStrictEqual(["size", "status", "variant"]);
+  it("declares palette size and variant axes", () => {
+    expect(axesOf(recipe)).toStrictEqual(["palette", "size", "variant"]);
   });
 
-  it("draws a medium solid button when nothing is asked for", () => {
+  it("defaults to a medium solid button", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md", variant: "solid" });
   });
 
-  it("offers four looks", () => {
+  it("declares four looks on the variant axis", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual(["ghost", "outline", "solid", "subtle"]);
   });
 
-  it("offers the four statuses", () => {
-    expect(valuesOf(recipe, "status")).toStrictEqual(["error", "info", "success", "warning"]);
+  it("declares the eight semantic palettes on the palette axis", () => {
+    expect(valuesOf(recipe, "palette")).toStrictEqual([
+      "accent",
+      "error",
+      "info",
+      "neutral",
+      "primary",
+      "secondary",
+      "success",
+      "warning",
+    ]);
   });
 });

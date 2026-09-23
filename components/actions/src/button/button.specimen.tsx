@@ -1,12 +1,11 @@
 /**
- * Lays out the catalogue page for the button.
+ * Catalogues the button: one scene per recipe axis, and the pressed and disabled states.
  *
  * @remarks
- *   The axis scenes are generated from the recipe, so a variant added there appears here without an
- *   edit to this file. The pressed and disabled scenes are written by hand because a caller sets
- *   both as attributes on the element and the recipe declares neither as an axis. Each scene labels
- *   its buttons with a different action to keep one word from repeating down the page; the labels
- *   are keys under `button` in the catalogue namespace, held beside this file in
+ *   The axis scenes are generated from the recipe, so a value added there reaches the page without
+ *   an edit here. The pressed and disabled scenes are written by hand, because `aria-pressed` and
+ *   `disabled` are element attributes, not recipe axes. Each scene labels its buttons with a
+ *   different action. The words are keys under `button` in the catalogue namespace, stored at
  *   `locales/en/specimen/button.json`.
  */
 
@@ -14,6 +13,7 @@ import { type ReactElement } from "react";
 
 import { CheckIcon } from "lucide-react";
 
+import { omitUndefined } from "@stealthscale/hooks";
 import {
   Matrix,
   type Scene,
@@ -29,18 +29,17 @@ import { IconButton } from "#button/icon-button.ts";
 import { recipe } from "#button/recipe.ts";
 
 /**
- * The variant values that form the second dimension of every other scene.
+ * The look values, crossed with every other axis.
  */
 const LOOKS = valuesOf(recipe, "variant");
 
 /**
- * Both values of a boolean prop, off first.
+ * Both values of a boolean attribute, false first.
  */
 const EITHER = [false, true] as const;
 
 /**
- * The call site every scene's source snippet is generated from, whether the scene is generated or
- * hand-written.
+ * The call site every scene's source snippet is generated from.
  */
 const SAMPLE = {
   children: "Publish",
@@ -49,7 +48,7 @@ const SAMPLE = {
 };
 
 /**
- * Renders a matrix of every look against `aria-pressed` set and unset.
+ * Renders every look with `aria-pressed` unset and set.
  */
 function Pressed(): ReactElement {
   const { t } = useWords("button");
@@ -66,7 +65,7 @@ function Pressed(): ReactElement {
 }
 
 /**
- * Renders a matrix of every look against `disabled` set and unset.
+ * Renders every look with `disabled` unset and set.
  */
 function Disabled(): ReactElement {
   const { t } = useWords("button");
@@ -83,9 +82,9 @@ function Disabled(): ReactElement {
 }
 
 /**
- * Builds a scene renderer whose buttons all carry the same action as their label.
+ * Returns a scene renderer whose buttons all show the same action label.
  *
- * @param says - The translation key, not the label itself.
+ * @param says - The translation key of the label.
  */
 function acting(says: string): (props: ButtonProps) => ReactElement {
   return function Acting(props: ButtonProps): ReactElement {
@@ -96,22 +95,17 @@ function acting(says: string): (props: ButtonProps) => ReactElement {
 }
 
 /**
- * Renders an icon button holding a check mark, forwarding only the axes a scene set.
+ * Renders an icon button holding a check mark, with only the axes the scene sets.
  *
  * @remarks
- *   An axis the scene left out is omitted from the element rather than passed as `undefined`, so
- *   the icon button's own defaults still apply to it.
+ *   An axis the scene leaves unset is omitted rather than passed as `undefined`, so the icon
+ *   button's own `shape` default still applies.
  */
 function Glyph({ shape, size, variant }: ButtonProps): ReactElement {
   const { t } = useWords("button");
 
   return (
-    <IconButton
-      aria-label={t("approve")}
-      {...(shape === undefined ? {} : { shape })}
-      {...(size === undefined ? {} : { size })}
-      {...(variant === undefined ? {} : { variant })}
-    >
+    <IconButton aria-label={t("approve")} {...omitUndefined({ shape, size, variant })}>
       <CheckIcon size="1em" />
     </IconButton>
   );
@@ -146,13 +140,13 @@ export default specimen({
       axes: {
         effect: { across: "variant", draw: acting("celebrate") },
         elevation: { across: "variant", draw: acting("upload") },
+        palette: { across: "variant", draw: acting("retry") },
         shape: { across: "variant", draw: (props) => <Glyph {...props} /> },
-        status: { across: "variant", draw: acting("retry") },
         variant: { across: "size" },
       },
       draw: acting("publish"),
       namespace: "button",
-      order: ["variant", "status", "elevation", "effect", "shape"],
+      order: ["variant", "palette", "elevation", "effect", "shape"],
       sample: SAMPLE,
     }),
     pressed,

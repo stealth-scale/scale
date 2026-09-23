@@ -1,36 +1,26 @@
 /**
- * Lays out the catalogue page for the alert.
+ * Catalogues the alert: one scene per recipe axis, generated from the recipe.
  *
  * @remarks
- *   The scenes are generated from the recipe, so an axis added there appears here without an edit
- *   to this file. Every alert on the page is rendered with `live="off"`, because the whole grid
- *   mounts at once and a live region would have a screen reader read out forty notices in a row.
- *   Each scene carries the notice its axis reads best against: a failed payment where the axis
- *   turns colour or motion, and a saved draft where it turns shape. The copy is keyed under `alert`
- *   in the catalogue namespace and stored beside this file at `locales/en/specimen/alert.json`.
+ *   Every alert renders with `live="off"`. The page mounts every cell at once, and a live region
+ *   per cell would make a screen reader announce forty notices in a row. Each scene uses the notice
+ *   that shows its axis best: a failed payment for the colour and motion axes, and a saved draft
+ *   for the layout axes. The copy is keyed under `alert` in the catalogue namespace, in
+ *   `locales/en/specimen/alert.json`.
  */
 
 import { type ReactElement } from "react";
 
+import { TriangleAlertIcon, XIcon } from "lucide-react";
+
 import { IconButton } from "@stealthscale/component-actions";
-import { Icon } from "@stealthscale/component-typography";
 import { scenesOf, specimen, useWords, type ValueOf } from "@stealthscale/specimen";
 
 import * as Alert from "#alert/index.ts";
 import { recipe } from "#alert/recipe.ts";
 
 /**
- * The SVG path of a warning triangle, drawn in a 24 unit viewBox.
- */
-const TRIANGLE = "M12 3 2 21h20L12 3zm0 6v6m0 3v.5";
-
-/**
- * The SVG path of a cross, drawn in a 24 unit viewBox.
- */
-const CROSS = "M6 6l12 12M18 6 6 18";
-
-/**
- * Narrows the recipe's variant map, so that a scene can type a value it reads off one axis.
+ * Narrows the recipe's variant map so a scene can type the value of one axis.
  */
 type Axes = NonNullable<typeof recipe.variants>;
 
@@ -50,22 +40,22 @@ const SAMPLE = {
 };
 
 /**
- * The copy of one notice and the variants of the alert it is rendered inside.
+ * Describes the copy of one notice and the variants of the alert that contains it.
  */
 interface NoticeProps {
   /**
-   * The body text of the notice, where the scene draws one.
+   * The body text of the notice, when the scene has one.
    *
    * @remarks
-   *   The grid of looks against statuses draws none. Twenty-five cells of a title and a sentence
-   *   wrapped every sentence over four lines and squeezed the dismiss control into the middle of
-   *   a column of text. What that grid is about is the colour, which a title carries on one line.
+   *   The grid of looks by statuses has none. With a title and a sentence in each of its 25 cells,
+   *   every sentence wrapped over four lines and pushed the dismiss control into the middle of a
+   *   column of text. The grid compares colours, and a one-line title shows them.
    */
   readonly description?: string | undefined;
 
   /**
-   * The status of the surrounding alert, which the dismiss control is tinted from. Defaults to the
-   * recipe's own default where a scene does not vary this axis.
+   * The status of the surrounding alert, which sets the dismiss control's palette. Defaults to the
+   * recipe's default when a scene does not vary this axis.
    */
   readonly status?: ValueOf<Axes, "status">;
 
@@ -75,20 +65,20 @@ interface NoticeProps {
   readonly title: string;
 
   /**
-   * The variant of the surrounding alert, which selects the dismiss control's. Defaults to the
-   * recipe's own default where a scene does not vary this axis.
+   * The variant of the surrounding alert, which selects the dismiss control's variant. Defaults to
+   * the recipe's default when a scene does not vary this axis.
    */
   readonly variant?: ValueOf<Axes, "variant">;
 }
 
 /**
- * Fills the four inner slots of an alert, which every scene on this page shares.
+ * Renders the four inner slots of an alert that every scene on this page shares.
  *
  * @remarks
- *   The dismiss control inherits the alert's status and derives its own variant from the alert's:
- *   `solid` on a solid alert, so that it paints the alert's own fill and reads in the contrast
- *   foreground, and `ghost` everywhere else, so that it reads in the palette foreground the title
- *   uses. Leaving it ghost throughout put a dark cross on a solid fill.
+ *   The dismiss control takes the alert's status as its palette and derives its variant from the
+ *   alert's. On a solid alert it is `solid`, so it uses the alert's fill and contrast ink. On every
+ *   other alert it is `ghost`, so it uses the palette ink of the title. A ghost control on a solid
+ *   alert rendered a dark cross on the solid fill.
  */
 function Notice({
   description,
@@ -101,9 +91,7 @@ function Notice({
   return (
     <>
       <Alert.Indicator>
-        <Icon viewBox="0 0 24 24">
-          <path d={TRIANGLE} fill="none" stroke="currentColor" strokeWidth="2" />
-        </Icon>
+        <TriangleAlertIcon aria-hidden size="1em" />
       </Alert.Indicator>
       <Alert.Content>
         <Alert.Title>{title}</Alert.Title>
@@ -112,13 +100,11 @@ function Notice({
       <Alert.Aside>
         <IconButton
           aria-label={t("dismiss")}
+          palette={status}
           size="xs"
-          status={status}
           variant={variant === "solid" ? "solid" : "ghost"}
         >
-          <Icon viewBox="0 0 24 24">
-            <path d={CROSS} fill="none" stroke="currentColor" strokeWidth="2" />
-          </Icon>
+          <XIcon aria-hidden size="1em" />
         </IconButton>
       </Alert.Aside>
     </>
@@ -126,11 +112,11 @@ function Notice({
 }
 
 /**
- * Builds a scene renderer whose alerts all carry the same notice.
+ * Returns a scene renderer whose alerts all show the same notice.
  *
  * @remarks
- *   An axis the scene left out is omitted from the notice rather than passed as `undefined`, so the
- *   notice's own defaults still tint the dismiss control.
+ *   An axis the scene does not set is omitted from the notice instead of passed as `undefined`, so
+ *   the notice's defaults still set the dismiss control's palette.
  * @param title - The translation key of the headline, not the headline itself.
  * @param description - The translation key of the body, not the body itself.
  */

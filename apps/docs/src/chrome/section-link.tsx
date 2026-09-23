@@ -1,5 +1,5 @@
 /**
- * Draws the link to the catalogue in the bar, marked while the reader is anywhere in it.
+ * Renders the toolbar link to the catalogue, marked as current on every catalogue page.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -12,28 +12,26 @@ import { useCatalogueMark } from "@stealthscale/specimen";
 import { CATALOGUE, INDEX } from "#catalogue.ts";
 
 /**
- * Draws the button over the router's link, so it leads to the catalogue without a reload and says
- * it is the current page on the catalogue's index and on every page under it.
+ * Renders the button over the router's link, so it navigates without a reload and takes
+ * `aria-current`.
  */
 const Section = createLink(Button);
 
 /**
- * Describes what the link takes: what the bar's row hands a control, and nothing of its own.
+ * Describes the props of `SectionLink`: the props the toolbar row passes to a control.
  */
 export type SectionLinkProps = Omit<ComponentProps<typeof Section>, "children" | "to">;
 
 /**
- * Draws the link as a quiet button in the bar.
+ * Renders the link as a small ghost button in the toolbar.
  *
  * @remarks
- *   The element is an anchor drawn in the ghost look, so it reads as a place to go rather than as
- *   an action, and the recipe fills it while it names the page being read. The toolbar's item
- *   draws this through `as`, so the row's tab stop lands on the anchor.
- *   Whether the reader is inside the catalogue is the catalogue's own answer, because the route
- *   ids it declares are its own. It is handed over as the value the attribute takes rather than as
- *   an answer this reads, so the attribute is written once either way.
- * @param props - The row's tab stop and everything else an anchor takes.
- * @returns The anchor, in the button's look.
+ *   The element is an anchor in the ghost look, so it reads as navigation rather than an action,
+ *   and the recipe fills it while it has `aria-current`. The toolbar item renders it through `as`,
+ *   so the row's tab stop lands on the anchor. The catalogue decides whether the current route is
+ *   inside it, because it declares the route ids, and returns the value `aria-current` takes.
+ * @param props - The row's tab stop and the anchor's props.
+ * @returns The anchor, styled as a button.
  */
 export function SectionLink(props: SectionLinkProps): ReactElement {
   const { t } = useTranslation("docs");
@@ -42,8 +40,8 @@ export function SectionLink(props: SectionLinkProps): ReactElement {
     <Section
       aria-current={useCatalogueMark(CATALOGUE)}
       as="a"
+      palette="neutral"
       size="sm"
-      status="neutral"
       to={useRouteHref(INDEX)}
       variant="ghost"
       {...props}

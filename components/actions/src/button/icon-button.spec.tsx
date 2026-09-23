@@ -38,7 +38,7 @@ describe("IconButton", () => {
     expect(recipeClasses(container, "button")).toContain(variantClass("button", "shape", "square"));
   });
 
-  it("accepts aria-label or aria-labelledby and rejects props carrying neither", () => {
+  it("requires aria-label or aria-labelledby in its props type", () => {
     expectTypeOf<{ "aria-label": string }>().toExtend<IconButtonProps>();
     expectTypeOf<{ "aria-labelledby": string }>().toExtend<IconButtonProps>();
     expectTypeOf<{ children: string }>().not.toExtend<IconButtonProps>();

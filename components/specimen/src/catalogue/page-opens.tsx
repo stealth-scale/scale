@@ -1,6 +1,6 @@
 /**
- * Draws the end of a scene's footer: the control that shows and hides its source, or the line that
- * says it carries none.
+ * Renders the end of a scene's footer: the control that shows and hides the scene's source, or a
+ * line saying the scene has none.
  */
 
 import { type ReactElement } from "react";
@@ -13,41 +13,40 @@ import { Text } from "@stealthscale/component-typography";
 import { useWords } from "#words.ts";
 
 /**
- * Describes what the end of the footer takes.
+ * Describes the props of `Opens`.
  */
 export interface OpensProps {
   /**
-   * The line a reader copies, or `null` where the scene has none.
+   * The source snippet, or `null` when the scene has none.
    */
   readonly code: null | string;
 
   /**
-   * The id of the panel it opens, which it points `aria-controls` at.
+   * The id of the source panel, referenced by `aria-controls`.
    */
   readonly id: string;
 
   /**
-   * Told when a reader presses it.
+   * Called when the control is pressed.
    */
   readonly onPress: () => void;
 
   /**
-   * Whether the panel it opens is open.
+   * Whether the source panel is open.
    */
   readonly open: boolean;
 }
 
 /**
- * Shows and hides a scene's source, or says there is none.
+ * Renders the source disclosure control, or a line saying the scene has no source.
  *
  * @remarks
- *   A disclosure. It states `aria-expanded` and the id of the panel it controls, and the words on
- *   it do not change with its state, because the state is what `aria-expanded` announces.
- *   A scene written by hand without a sample carries no line to copy. The footer says so in place
- *   of the control rather than drawing a control that opens on nothing.
- * @param props - The line to show, the panel it opens, whether that panel is open, and what to
- *   tell on a press.
- * @returns The control, or the line that stands in for it.
+ *   The control is a disclosure. It sets `aria-expanded` and `aria-controls`, and its label does
+ *   not change with its state, because `aria-expanded` announces the state. A hand-written scene
+ *   without a sample has no source, so the footer renders a line of text instead of a control that
+ *   opens an empty panel.
+ * @param props - The snippet, the panel id, the open state and the press handler.
+ * @returns The control, or the line of text in its place.
  */
 export function Opens({ code, id, onPress, open }: OpensProps): ReactElement {
   const { t } = useWords();
@@ -65,8 +64,8 @@ export function Opens({ code, id, onPress, open }: OpensProps): ReactElement {
       aria-controls={id}
       aria-expanded={open}
       onClick={onPress}
+      palette="neutral"
       size="sm"
-      status="neutral"
       variant="ghost"
     >
       <CodeXmlIcon aria-hidden size="1em" />

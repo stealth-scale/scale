@@ -1,20 +1,25 @@
 /**
- * Lays out the catalogue page for the clipboard.
+ * Catalogues the clipboard: the trigger alone, beside a field, as the value, as a caller-built
+ * control, at each size, and with two copied-state durations.
  *
  * @remarks
- *   The trigger carries no styling of its own, so every scene renders it through `as` as the
- *   library's button and sets that button's variants through its props provider, since `as` does
- *   not retype the props it forwards. Both glyphs are decorative, so the indicator hides them from
- *   assistive technology and the machine names the trigger instead. The text comes from keys under
- *   `clipboard` in the catalogue namespace, held beside this file in
- *   `locales/en/specimen/clipboard.json`.
+ *   The trigger has no styles of its own, so every scene renders it as the library's button through
+ *   `as` and sets the button's variants through `ButtonPropsProvider`, because `as` does not retype
+ *   the props it forwards. Both icons are decorative. The indicator hides them from assistive
+ *   technology, and the machine names the trigger. The words are keys under `clipboard` in the
+ *   catalogue namespace, stored at `locales/en/specimen/clipboard.json`.
  */
 
 import { type ReactElement } from "react";
 
+import { CheckIcon, CopyIcon } from "lucide-react";
+
 import { Input, InputPropsProvider } from "@stealthscale/component-forms";
-import { Icon } from "@stealthscale/component-typography";
 import { Matrix, type Scene, scenesOf, specimen, useWords } from "@stealthscale/specimen";
+
+import { Button, ButtonPropsProvider, IconButton } from "#button/index.ts";
+import * as Clipboard from "#clipboard/index.ts";
+import { recipe } from "#clipboard/recipe.ts";
 
 /**
  * The call site the generated scene's source snippet is built from.
@@ -31,55 +36,23 @@ const SAMPLE = {
   name: "Clipboard.Root",
 };
 
-import { Button, ButtonPropsProvider, IconButton } from "#button/index.ts";
-import * as Clipboard from "#clipboard/index.ts";
-import { recipe } from "#clipboard/recipe.ts";
-
 /**
  * The string every scene copies.
  */
 const LINK = "https://stealthscale.io/payouts/4109";
 
 /**
- * The check mark, as path data over a 24 unit viewBox.
- */
-const CHECK = "M20 6 9 17l-5-5";
-
-/**
- * The rear sheet of the copy glyph, as path data over the same viewBox.
- */
-const SHEET = "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2";
-
-/**
- * The pair of hold durations the final scene contrasts, in milliseconds.
+ * The two copied-state durations the last scene compares, in milliseconds.
  */
 const TIMEOUTS = [250, 3000] as const;
 
 /**
- * Renders the indicator, trading the stacked squares for a check once a copy lands.
+ * Renders the indicator: the copy icon, replaced by a check mark after a copy.
  */
 function Mark(): ReactElement {
   return (
-    <Clipboard.Indicator
-      copied={
-        <Icon viewBox="0 0 24 24">
-          <path d={CHECK} fill="none" stroke="currentColor" strokeWidth="2" />
-        </Icon>
-      }
-    >
-      <Icon viewBox="0 0 24 24">
-        <rect
-          fill="none"
-          height="14"
-          rx="2"
-          stroke="currentColor"
-          strokeWidth="2"
-          width="14"
-          x="8"
-          y="8"
-        />
-        <path d={SHEET} fill="none" stroke="currentColor" strokeWidth="2" />
-      </Icon>
+    <Clipboard.Indicator copied={<CheckIcon size="1em" />}>
+      <CopyIcon size="1em" />
     </Clipboard.Indicator>
   );
 }
@@ -126,7 +99,7 @@ function Beside(): ReactElement {
 }
 
 /**
- * Renders the value itself as the surface a reader clicks.
+ * Renders the value text as the trigger.
  */
 function Value(): ReactElement {
   return (
@@ -142,7 +115,7 @@ function Value(): ReactElement {
 }
 
 /**
- * Renders a button the page builds itself, reading the machine through the consumer.
+ * Renders a caller-built button that reads the machine through `Clipboard.Consumer`.
  */
 function Own(): ReactElement {
   const { t } = useWords("clipboard");
@@ -151,7 +124,7 @@ function Own(): ReactElement {
     <Clipboard.Root value={LINK}>
       <Clipboard.Consumer>
         {(api) => (
-          <Button onClick={api.copy} size="sm" status={api.copied ? "success" : "neutral"}>
+          <Button onClick={api.copy} palette={api.copied ? "success" : "neutral"} size="sm">
             {api.copied ? t("copied") : t("copy")}
           </Button>
         )}
@@ -161,12 +134,12 @@ function Own(): ReactElement {
 }
 
 /**
- * Draws the labelled row: the field holding the link, and the control that copies it.
+ * Renders the labelled row: the field that shows the link and the control that copies it.
  *
  * @remarks
- *   The size is handed to the field and the control as well as to the row, because the row's own
- *   axis moves the label and the gap and the two controls inside take their own. A row at one size
- *   around a field at another drew a label that stepped while the box stayed put.
+ *   The size goes to the field and the control as well as the root. The root's size axis sets the
+ *   label and the gap, and the input and the button read their own size axes, so a root size alone
+ *   leaves both controls at their default size.
  */
 function Labelled({ size = "md", ...rest }: Clipboard.RootProps): ReactElement {
   const { t } = useWords("clipboard");
@@ -189,7 +162,7 @@ function Labelled({ size = "md", ...rest }: Clipboard.RootProps): ReactElement {
 }
 
 /**
- * Renders two buttons whose marks persist for different durations.
+ * Renders two triggers whose copied state lasts for different durations.
  */
 function Held(): ReactElement {
   return (
@@ -227,7 +200,7 @@ export const beside: Scene = {
 };
 
 /**
- * The scene for the value acting as its own trigger.
+ * The scene for the value text used as the trigger.
  */
 export const value: Scene = {
   about: "clipboard.value.about",
@@ -236,7 +209,7 @@ export const value: Scene = {
 };
 
 /**
- * The scene for a control the page supplies through the consumer.
+ * The scene for a caller-built control that reads the machine through the consumer.
  */
 export const own: Scene = {
   about: "clipboard.own.about",
@@ -245,7 +218,7 @@ export const own: Scene = {
 };
 
 /**
- * The scene comparing the hold durations.
+ * The scene comparing the two copied-state durations.
  */
 export const held: Scene = {
   about: "clipboard.held.about",

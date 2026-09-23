@@ -1,6 +1,6 @@
 /**
- * Forms the public surface of the button component, qualifying the shared props provider with the
- * component's name so that a package re-exporting several of them has no collision.
+ * Exports the button's public API. The props provider takes the component's name, so a package
+ * that exports several providers has no name collision.
  */
 
 export { Button, type ButtonProps } from "#button/button.ts";

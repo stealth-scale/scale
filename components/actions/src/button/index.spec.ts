@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#button/index.ts";
 
 describe("index", () => {
-  it("exports only the three public names", () => {
+  it("exports the public runtime names and no others", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Button",
       "ButtonPropsProvider",

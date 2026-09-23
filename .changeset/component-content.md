@@ -29,3 +29,8 @@ component-content: copy a block's code from the block
 - The package depends on `@stealthscale/component-actions` at run time, which is the first such edge
   between two component packages. The clipboard machine and the icon button are the library's answer
   to this, and a block that wired its own would be a second one.
+
+component-content: set the neutral palette on CodeBlock.Copy
+
+- `CodeBlock.Copy` renders its `IconButton` with `palette="neutral"` in place of `status="neutral"`,
+  after `@stealthscale/component-actions` replaced the button's `status` axis with `palette`.

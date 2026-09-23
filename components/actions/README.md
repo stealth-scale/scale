@@ -19,18 +19,21 @@ the preset under `./theme` among the presets its compiler installs.
 
 ## Button
 
-Draws the element a person presses, in a look, a size and a status, raised off the page and glowing
-where a page sets that effect. Under a press the look fills to its pressed colour, a ripple spreads
-from the middle of the box and fades on the release, and an elevated button drops towards the page.
-The box holds still. A button that opens with a mark leads with one step less inset, so the room
-before the mark is the width of the gap after it rather than a word's worth. The element is
-`button`, and `type` defaults to `button` so one inside a form does not send it.
+Renders a control that runs an action when pressed. The element is `button`, and `type` defaults to
+`button`, so a button inside a form does not submit it. A press changes the fill, spreads a ripple
+from the middle of the box and lowers an elevated button, and the box does not move. A button whose
+first child is an icon starts with one inset step less, so the space before the icon matches the gap
+after it.
 
 ```tsx
 import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
 
 <Button size="lg" variant="outline">
   Save
+</Button>;
+<Button palette="error">Delete</Button>;
+<Button effect="glow" palette="accent">
+  Upgrade
 </Button>;
 <Button as="a">Read on</Button>;
 <ButtonPropsProvider value={{ size: "sm", variant: "subtle" }}>
@@ -39,29 +42,32 @@ import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
 </ButtonPropsProvider>;
 ```
 
-`ButtonPropsProvider` sets the variants of every button below it. A prop on the button itself
-overrides the provider's.
+`ButtonPropsProvider` sets the variants of every button below it. A prop on the button overrides the
+provider's value.
 
-The `glass` look is translucent, so the contrast of its label depends on what sits behind it. The
-theme's contrast gate measures the opaque looks alone, and a page puts a glass button on a surface
-it has checked.
+`palette` sets the palette every look reads. Without it the button draws in `primary`. `neutral`
+draws a control in the ink of the text around it, for a button in a toolbar.
+
+The `glass` look is translucent, so the contrast of its label depends on the surface behind it. The
+theme's contrast gate measures the opaque looks only. Put a glass button on a surface you have
+checked.
 
 | Axis        | Values                                                             | Default |
 | ----------- | ------------------------------------------------------------------ | ------- |
 | `variant`   | `solid`, `subtle`, `surface`, `outline`, `ghost`, `plain`, `glass` | `solid` |
 | `size`      | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl`                  | `md`    |
-| `status`    | `info`, `success`, `warning`, `error`, `neutral`                   | primary |
+| `palette`   | `primary`, `secondary`, `accent`, `neutral`, and the four statuses | primary |
 | `shape`     | `square`                                                           | none    |
-| `effect`    | `glow`                                                             | none    |
+| `effect`    | `glow`, `pulse`                                                    | none    |
 | `elevation` | `raised`, `floating`                                               | flat    |
 
 ## IconButton
 
-Draws a button that holds one glyph and no words. It binds the button's recipe with the square shape
-as its default, so it takes every axis a button takes and a theme that moves the button moves it
-too. A glyph names nothing, so the props require an accessible name: `aria-label`, or
-`aria-labelledby` pointing at the element that holds the words. The type refuses an icon button
-without one.
+Renders a square button that contains one icon and no text. It binds the button recipe with `shape`
+defaulting to `square`, so it takes every axis a button takes, and a theme that restyles the button
+restyles it too. An icon doesn't provide an accessible name, so the props require `aria-label`, or
+`aria-labelledby` pointing at the element whose text names the control. An icon button with neither
+is a type error.
 
 ```tsx
 import { IconButton } from "@stealthscale/component-actions";
@@ -74,8 +80,8 @@ import { Icon } from "@stealthscale/component-typography";
 </IconButton>;
 ```
 
-A toggle is a button with `aria-pressed`. The recipe fills it while it is on, against that
-attribute, so the fill and what a screen reader announces cannot disagree:
+A toggle is a button with `aria-pressed`. The recipe fills it while the attribute is true, so the
+fill matches what a screen reader announces:
 
 ```tsx
 <IconButton aria-label="Dark mode" aria-pressed={dark} onClick={toggle} variant="ghost">
@@ -83,13 +89,12 @@ attribute, so the fill and what a screen reader announces cannot disagree:
 </IconButton>
 ```
 
-A link drawn as a button in a bar of an application's sections states `aria-current="page"` on the
-section being read, and the recipe fills it the same way, set semibold. The ghost, glass, outline
-and plain looks take the palette's subtle fill while on, the subtle and surface looks the muted
-fill, and the solid look stays as it is.
+A link rendered as a button in a bar of sections sets `aria-current="page"` on the current section,
+and the recipe fills it the same way, in semibold. The ghost, glass, outline and plain looks take
+the palette's subtle fill while on, the subtle and surface looks take the muted fill, and the solid
+look draws an inset shadow.
 
-A control in a bar reads in the ink of the words beside it. Set `status="neutral"`, which points the
-palette at the neutral one, the way the four statuses point it at theirs.
+A control in a toolbar uses the ink of the text beside it. Set `palette="neutral"`.
 
 ## Clipboard
 
@@ -141,7 +146,7 @@ that change with the state:
 <Clipboard.Root value={link}>
   <Clipboard.Consumer>
     {(api) => (
-      <Button onClick={api.copy} status={api.copied ? "success" : "neutral"}>
+      <Button onClick={api.copy} palette={api.copied ? "success" : "neutral"}>
         {api.copied ? "Copied" : "Copy the link"}
       </Button>
     )}

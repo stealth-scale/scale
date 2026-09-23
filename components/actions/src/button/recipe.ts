@@ -1,15 +1,13 @@
 /**
- * Styles every element bound to the button recipe.
+ * Declares the button recipe: the base styles and the axes a caller sets.
  *
  * @remarks
- *   Each declared value resolves to a token, so a theme can shift all of them at once. The border
- *   is transparent at the control width in every look, which leaves the outline look the same size
- *   as the others rather than one border wider. Nothing in the geometry responds to a press; the
- *   feedback is the pressed fill, the ripple and the elevation dropping, because a control that
- *   shifts under the pointer is easy to overlook. `shape="square"` and `status="neutral"` are
- *   repeated under `staticCss`: the icon button sets the first through a default prop and a toolbar
- *   sets the second through a provider, so neither appears in a JSX literal for the extractor to
- *   find.
+ *   Every value is a token, so a theme moves all of them. The border is transparent at the control
+ *   width in every look, so the outline look is the same size as the others. A press changes the
+ *   fill, spreads the ripple and lowers the elevation, and never moves the box, because a target
+ *   that shifts under the pointer is easy to miss. `staticCss` lists `shape="square"` and every
+ *   palette. The icon button sets the shape through a default prop, and callers set the palette
+ *   through a provider or from data, so the compiler extracts neither from source.
  */
 
 import {
@@ -18,23 +16,22 @@ import {
   interactive,
   liftVariants,
   lookVariants,
-  statusEmitted,
-  statusVariants,
+  PALETTES,
+  paletteVariants,
   type SystemStyleObject,
   touchTarget,
 } from "@stealthscale/theme/authoring";
 
 /**
- * Builds the background a look carries while the button is on.
+ * Returns the `_currentPage` and `_pressed` styles of a look with no fill of its own.
  *
  * @remarks
- *   On means `aria-pressed` or `aria-current="page"`, so the background cannot contradict what a
- *   screen reader announces. Pass `colorPalette.subtle` for a look with no resting background and
- *   `colorPalette.muted` for one that already sits on the subtle token, which moves either of them
- *   exactly one step. These land in a compound variant rather than the base because the compiler
- *   emits a look's own background into a later cascade layer than the base, and the later layer
- *   wins regardless of selector specificity.
- * @returns The `_currentPage` and `_pressed` styles for one look.
+ *   A button is on when it has `aria-pressed="true"` or `aria-current="page"`, so the fill matches
+ *   what a screen reader announces. The styles go in a compound variant, not the base, because the
+ *   compiler emits a look's background in a later cascade layer than the base, and the later layer
+ *   wins whatever the selector's specificity. Pass `colorPalette.subtle` for a look with no resting
+ *   fill and `colorPalette.muted` for a look that rests on the subtle fill, so the on state is one
+ *   step deeper in both.
  */
 function on(background: "colorPalette.muted" | "colorPalette.subtle"): SystemStyleObject {
   return {
@@ -44,15 +41,13 @@ function on(background: "colorPalette.muted" | "colorPalette.subtle"): SystemSty
 }
 
 /**
- * Builds the inset outline a filled look carries while the button is on.
+ * Returns the `_currentPage` and `_pressed` styles of the solid look.
  *
  * @remarks
- *   A look that already sits on a solid background has no background left to spend: the on colour
- *   would collide with the hover colour, which the pointer removes again on the way out. An inset
- *   shadow in the label colour survives a hover, a focus ring drawn outside the element, and
- *   forced-colours mode, where the user agent replaces every background. `:active` remains the
- *   momentary press; this state persists.
- * @returns The `_currentPage` and `_pressed` styles for a look that already carries a background.
+ *   The solid look has no deeper fill left, and any other fill would match its hover fill. An inset
+ *   shadow in the label ink stays visible under hover, beside a focus ring drawn outside the
+ *   element, and in forced colors mode, where the browser replaces every background. `:active`
+ *   stays the momentary press.
  */
 function marked(): SystemStyleObject {
   return {
@@ -62,8 +57,7 @@ function marked(): SystemStyleObject {
 }
 
 /**
- * Declares the button's base styles and its six variant axes, defaulting to the solid look at the
- * md size on the primary palette.
+ * Styles a button, defaulting to the solid look at the md size in the primary palette.
  */
 export const recipe = defineRecipe({
   base: {
@@ -108,30 +102,34 @@ export const recipe = defineRecipe({
   ],
   defaultVariants: { size: "md", variant: "solid" },
   jsx: [/Button$/u],
-  staticCss: [{ shape: ["square"] }, statusEmitted(), { status: ["neutral"] }],
+  staticCss: [{ shape: ["square"] }, { palette: [...PALETTES] }],
   variants: {
     /**
-     * The optional halo a page can put behind a button.
+     * The halo around the button, in the palette's solid at half opacity.
      *
      * @remarks
-     *   Both values take the palette's solid token at half opacity, so a status or a theme carries
-     *   them along. `pulse` sets `boxShadowColor` instead of reusing the glow layer style because
-     *   its keyframe writes the entire shadow and would overwrite a static one. A moving border is
-     *   deliberately absent: `border.moving` paints the panel colour over the padding box to mask
-     *   its conic gradient, which destroys whatever background the look applied, and drawing the
-     *   ring without the background needs a pseudo-element that is already taken — `::after` by the
-     *   ripple and `::before` by the touch target.
+     *   `pulse` sets `boxShadowColor` because its keyframe writes the whole `box-shadow`, which
+     *   would replace a static glow. No moving border is offered. `border.moving` paints over the
+     *   padding box and hides the look's fill, and a ring drawn without it needs a pseudo-element,
+     *   but `::after` holds the ripple and `::before` the touch target.
      */
     effect: {
       glow: { layerStyle: "glow.md" },
       pulse: { animationStyle: "pulse-glow", boxShadowColor: "colorPalette.solid/50" },
     },
     elevation: liftVariants(),
+
+    /**
+     * The palette every look draws in. The base draws in `primary`.
+     *
+     * @remarks
+     *   `neutral` draws a control in the ink of the text around it, for a button in a toolbar.
+     */
+    palette: paletteVariants(),
     shape: {
       square: { aspectRatio: "square", paddingInline: "0" },
     },
     size: controlSizes(),
-    status: { ...statusVariants(), neutral: { colorPalette: "neutral" } },
     variant: { ...lookVariants(), glass: { layerStyle: "glass" } },
   },
 });

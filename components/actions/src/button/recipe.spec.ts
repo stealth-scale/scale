@@ -28,15 +28,15 @@ describe("recipe", () => {
   });
 
   it("includes the props of the rendered cell in the snippet", () => {
-    const statuses = page.scenes.find((scene) => scene.axes?.[0] === "status");
+    const palettes = page.scenes.find((scene) => scene.axes?.[0] === "palette");
 
-    expect(statuses?.source).toContain('<Button status="info" variant="solid">');
+    expect(palettes?.source).toContain('<Button palette="primary" variant="solid">');
   });
 
   it("prefixes the snippet with the package import line", () => {
-    const statuses = page.scenes.find((scene) => scene.axes?.[0] === "status");
+    const palettes = page.scenes.find((scene) => scene.axes?.[0] === "palette");
 
-    expect(statuses?.source).toContain('import { Button } from "@stealthscale/component-actions";');
+    expect(palettes?.source).toContain('import { Button } from "@stealthscale/component-actions";');
   });
 
   it("derives the snippet of a hand-written scene from the sample it renders", () => {
@@ -45,7 +45,7 @@ describe("recipe", () => {
     expect(stated?.source).toContain('<Button aria-pressed variant="solid">');
   });
 
-  it("styles Button and IconButton from tokens a theme can override", () => {
+  it("references a token on every value for Button and IconButton", () => {
     expect(recipeViolations(recipe, { names: ["Button", "IconButton"] })).toStrictEqual([]);
   });
 
@@ -57,15 +57,19 @@ describe("recipe", () => {
     expect(axesOf(recipe)).toStrictEqual([
       "effect",
       "elevation",
+      "palette",
       "shape",
       "size",
-      "status",
       "variant",
     ]);
   });
 
   it("defaults size to md and variant to solid", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md", variant: "solid" });
+  });
+
+  it("draws in the primary palette when palette is unset", () => {
+    expect(recipe.base).toMatchObject({ colorPalette: "primary" });
   });
 
   it("declares eight size values from xs to 4xl", () => {
@@ -81,7 +85,7 @@ describe("recipe", () => {
     ]);
   });
 
-  it("declares glass alongside the six shared look values", () => {
+  it("declares the six shared looks plus glass", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual([
       "ghost",
       "glass",
@@ -93,21 +97,40 @@ describe("recipe", () => {
     ]);
   });
 
-  it("declares neutral alongside the four status values", () => {
-    expect(valuesOf(recipe, "status")).toStrictEqual([
+  it("declares the eight semantic palettes on the palette axis", () => {
+    expect(valuesOf(recipe, "palette")).toStrictEqual([
+      "accent",
       "error",
       "info",
       "neutral",
+      "primary",
+      "secondary",
       "success",
       "warning",
     ]);
   });
 
-  it("lists the square shape and all five status values under staticCss", () => {
+  it("sets colorPalette to the palette of the same name", () => {
+    expect(recipe.variants?.["palette"]?.["secondary"]).toStrictEqual({
+      colorPalette: "secondary",
+    });
+  });
+
+  it("lists the square shape and every palette under staticCss", () => {
     expect(recipe.staticCss).toStrictEqual([
       { shape: ["square"] },
-      { status: ["info", "success", "warning", "error"] },
-      { status: ["neutral"] },
+      {
+        palette: [
+          "primary",
+          "secondary",
+          "accent",
+          "neutral",
+          "info",
+          "success",
+          "warning",
+          "error",
+        ],
+      },
     ]);
   });
 
@@ -153,7 +176,7 @@ describe("recipe", () => {
     });
   });
 
-  it("backs the four unfilled looks with colorPalette.subtle under _pressed and _currentPage", () => {
+  it("fills the four unfilled looks with colorPalette.subtle when pressed or current", () => {
     expect(recipe.compoundVariants?.[1]).toStrictEqual({
       className: "button--on",
       css: {
@@ -172,7 +195,7 @@ describe("recipe", () => {
     });
   });
 
-  it("backs the subtle and surface looks with colorPalette.muted instead", () => {
+  it("fills the subtle and surface looks with colorPalette.muted when pressed or current", () => {
     expect(recipe.compoundVariants?.[2]).toStrictEqual({
       className: "button--on-deeper",
       css: {
@@ -195,7 +218,7 @@ describe("recipe", () => {
     expect(recipe.base?.["_pressed"]).toBeUndefined();
   });
 
-  it("gives the solid look an inset shadow under _pressed and _currentPage", () => {
+  it("draws an inset shadow on the solid look when pressed or current", () => {
     expect(recipe.compoundVariants).toHaveLength(4);
     expect(recipe.compoundVariants?.at(-1)).toStrictEqual({
       className: "button--on-marked",

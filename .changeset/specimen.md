@@ -36,3 +36,9 @@ specimen: take the import line off the index and put it on the page
   `useDeclared` is what a caller uses, and `Specimen.imports` reaches it through `declared()`.
 - A scene's source is the one the scene carries. `SceneSectionProps.source` is `null | string` and
   no longer has a state for sources that have not arrived.
+
+specimen: set the neutral palette on the scene footer buttons
+
+- The audit button and the source toggle in a scene's footer set `palette="neutral"` in place of
+  `status="neutral"`, after `@stealthscale/component-actions` replaced the button's `status` axis
+  with `palette`.

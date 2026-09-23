@@ -1,11 +1,12 @@
 /**
- * States what a button is: an interactive control drawn in a look and a size, in the palette of
- * its status.
+ * Declares the button recipe: an interactive control with a look, a size and a palette.
  *
  * @remarks
- *   Every value is a semantic token, a layer style or a text style, so a theme moves all of them.
- *   The looks read the palette's roles, and the status axis points the palette at an intent, so
- *   an error button and a primary button are one recipe.
+ *   Every value is a semantic token, a layer style or a text style, so a theme can change each of
+ *   them. The looks use the palette's roles, and the `palette` axis sets `colorPalette`, so an
+ *   error button and a primary button share one recipe. The axis matches the `palette` axis of
+ *   `@stealthscale/component-actions`, whose recipe has the same class name. An application that
+ *   installs both packages compiles one set of `button--palette_*` classes.
  */
 
 import {
@@ -13,15 +14,14 @@ import {
   defineRecipe,
   interactive,
   lookVariants,
+  PALETTES,
+  paletteVariants,
   stack,
-  statusEmitted,
-  statusVariants,
 } from "@stealthscale/theme/authoring";
 
 /**
- * Draws a button: the hand and the focus ring, a row of its children, a corner of the middle
- * size, and the primary palette until a status says otherwise. A large solid button is the hero
- * of a page, set in bold and tracked wide.
+ * Styles a button as a centred row with a focus ring, a medium corner and the primary palette. A
+ * large solid button is set in bold with wide tracking.
  */
 export const recipe = defineRecipe({
   base: {
@@ -44,10 +44,10 @@ export const recipe = defineRecipe({
   ],
   defaultVariants: { size: "md", variant: "solid" },
   jsx: [/Button$/u],
-  staticCss: [statusEmitted()],
+  staticCss: [{ palette: [...PALETTES] }],
   variants: {
+    palette: paletteVariants(),
     size: controlSizes(["sm", "md", "lg"]),
-    status: statusVariants(),
     variant: lookVariants(["solid", "subtle", "outline", "ghost"]),
   },
 });

@@ -8,7 +8,7 @@ import { recipeClasses, variantClass } from "@stealthscale/testing-theme";
 import { PropsProvider, withContext } from "#button/context.ts";
 
 describe("context", () => {
-  it("puts the recipe's base class on the element it wraps", () => {
+  it("applies the recipe class to an element bound with withContext", () => {
     const Probe = withContext("span");
     const { container } = render(createElement(Probe, null, "Save"));
 
