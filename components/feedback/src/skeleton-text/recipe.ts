@@ -1,35 +1,28 @@
 /**
- * Declares the recipe the placeholder paragraph's column is styled from.
+ * Declares the recipe of the skeleton text column: one bar per line, spaced by half a line.
  *
  * @remarks
- *   Every length is expressed in `lh`, the line box of the text the bars replace. A bar takes a
- *   line and a half with half a line of that cut out of it by `content-box` clipping, so what a
- *   reader sees is a bar a line tall with half a line of page between it and the next. Nothing
- *   here declares an absolute size, which is what lets a caller drop the placeholder anywhere text
- *   is set and have it come out at that text's size. The last bar of several is capped at 80%,
- *   because a paragraph rarely fills its final line and a stack of equal bars reads as a table
- *   rather than as prose.
- *   The cut was a seventh of a line at either end, which at a body line height is under four
- *   pixels. Six bars at that spacing read as one grey slab rather than as six lines, so the cut is
- *   a quarter of a line now and the bars are the distance apart the description has always
- *   claimed.
+ *   Every length is in `lh`, the line height of the text the bars replace, so the placeholder
+ *   takes the size of the text around it without an absolute length. Each bar is `1lh` tall and
+ *   the column's gap is `0.5lh`. The gap is on the column and not a clipped inset on the bar,
+ *   because the skeleton's `loading` variant sets `background` and `background-clip: padding-box`
+ *   in the variants layer, which overrode a `content-box` clip in this base and left six bars as
+ *   one 216px slab. The last of several bars is capped at 80% width, so the stack reads as a
+ *   paragraph and not as a table.
  */
 
 import { defineRecipe } from "@stealthscale/theme/authoring";
 
 /**
- * Styles the column, giving every child a one line box and capping the final bar's width.
+ * Skeleton text recipe: a full-width flex column of line-height bars.
  */
 export const recipe = defineRecipe({
   base: {
-    "& > *": {
-      backgroundClip: "content-box",
-      blockSize: "1.5lh",
-      paddingBlock: "0.25lh",
-    },
+    "& > *": { blockSize: "1lh" },
     "& > *:last-child:not(:only-child)": { maxWidth: "80%" },
     display: "flex",
     flexDirection: "column",
+    gap: "0.5lh",
     width: "full",
   },
   className: "skeleton-text",

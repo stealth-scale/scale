@@ -1,6 +1,5 @@
 /**
- * Exposes the placeholder paragraph, the column of bars standing in for lines of text, together
- * with the provider an ancestor sets the column's props through.
+ * Exports the skeleton text placeholder and the provider that sets its props for descendants.
  */
 
 export { PropsProvider as SkeletonTextPropsProvider } from "#skeleton-text/context.ts";

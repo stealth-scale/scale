@@ -15,7 +15,7 @@ describe("context", () => {
     expect(recipeClasses(container, "skeleton-text")).toContain("skeleton-text");
   });
 
-  it("keeps the recipe class on a descendant of an empty provider", () => {
+  it("applies the recipe class inside an empty PropsProvider", () => {
     const Probe = withContext("div");
     const { container } = render(createElement(PropsProvider, { value: {} }, createElement(Probe)));
 

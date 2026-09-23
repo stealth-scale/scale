@@ -15,39 +15,31 @@ describe("recipe", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("references a token on every value a theme has to be able to move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["SkeletonText"] })).toStrictEqual([]);
   });
 
-  it("prefixes its generated classes with skeleton-text", () => {
+  it("sets className to skeleton-text", () => {
     expect(recipe.className).toBe("skeleton-text");
   });
 
-  it("declares no variants at all", () => {
+  it("declares no variant axes", () => {
     expect(axesOf(recipe)).toStrictEqual([]);
   });
 
-  it("sizes each bar to a line and a half and insets the paint inside it", () => {
-    expect(recipe.base?.["& > *"]).toStrictEqual({
-      backgroundClip: "content-box",
-      blockSize: "1.5lh",
-      paddingBlock: "0.25lh",
-    });
+  it("sizes each bar to one line height", () => {
+    expect(recipe.base?.["& > *"]).toStrictEqual({ blockSize: "1lh" });
   });
 
-  it("cuts a quarter of a line off either end rather than a seventh", () => {
-    expect(recipe.base?.["& > *"]).toMatchObject({ paddingBlock: "0.25lh" });
-  });
-
-  it("declares no gap on the column", () => {
-    expect(recipe.base).not.toHaveProperty("gap");
+  it("spaces the bars by half a line height on the column", () => {
+    expect(recipe.base).toMatchObject({ gap: "0.5lh" });
   });
 
   it("caps the last of several bars at 80% width", () => {
     expect(recipe.base?.["& > *:last-child:not(:only-child)"]).toStrictEqual({ maxWidth: "80%" });
   });
 
-  it("matches only the SkeletonText tag for jsx tracking", () => {
+  it("matches the SkeletonText tag only", () => {
     expect(recipe.jsx).toStrictEqual([/^SkeletonText$/u]);
   });
 });
