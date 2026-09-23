@@ -91,3 +91,8 @@ specimen: add Contained and Focused
   which every `_focusVisible` condition matches. A focus ring on a visible control renders in a
   still image without taking focus.
 - The preset registers the `contained` recipe.
+
+specimen: fill the container with Contained
+
+- `Contained` sets `inline-size: 100%`. In a sample's flex body it shrank to its content, so a
+  focused field in a matrix rendered 231px wide beside fields of 647px at 2560.
