@@ -1,18 +1,16 @@
 /**
- * Renders one member of a roving focus group.
+ * Renders one item of a roving focus group.
  *
  * @remarks
- *   Exactly one item carries `tabIndex` 0 and every other carries -1, which is what reduces the
- *   whole group to a single stop in the tab order. A disabled item never registers, so the arrows
- *   step past it, and it also refuses the stop when a pointer focuses it, since an item that took
- *   the stop without registering would leave the stop pointing at an item the arrows cannot find
- *   and the group unreachable by Tab. The element is tracked in state rather than in a ref because
- *   the registering effect has to run again once the node exists, and writing a ref schedules
- *   nothing. The group keys on the registration, so the DOM `id` attribute is written only when
- *   the caller supplies one, which leaves a control rendered as an item free to keep the id it
- *   already needs, such as the one a menu trigger points at. The item holding the stop is marked
- *   `data-stop` and not `data-active`, because the theme reads `[data-active]` as a pressed
- *   control and a button rendered as an item would then render filled.
+ *   One item has `tabIndex` 0 and every other has -1, so the group is one stop in the tab order. A
+ *   disabled item does not register, so the arrows step past it. It also refuses the stop when a
+ *   pointer focuses it, because a stop on an unregistered item is unreachable by the arrows and
+ *   removes the group from the tab order. The element is in state and not in a ref, so the
+ *   registering effect runs again once the node exists. The group keys on the registration, so
+ *   the item writes the DOM `id` only when the caller passes one, and a control rendered as an item
+ *   keeps an id it needs, such as the one a menu trigger references. The item with the stop has
+ *   `data-stop` and not `data-active`, because the theme styles `[data-active]` as a pressed
+ *   control.
  */
 
 import {
@@ -31,12 +29,12 @@ import { withContext } from "#roving-focus/context.ts";
 import { RovingFocusContext } from "#roving-focus/use-roving-focus.ts";
 
 /**
- * The styled element carrying the recipe's item slot.
+ * Renders a `div` element with the item slot's classes.
  */
 const Shell = withContext("div", "item");
 
 /**
- * Props of a group item, plus everything the styled element accepts.
+ * Describes the props of RovingFocus.Item: the item options and the props of a `div` element.
  */
 export interface ItemProps extends Omit<ComponentProps<typeof Shell>, "ref"> {
   /**
@@ -45,25 +43,24 @@ export interface ItemProps extends Omit<ComponentProps<typeof Shell>, "ref"> {
   disabled?: boolean | undefined;
 
   /**
-   * The identifier the group registers the item under. One is generated when the caller omits it,
-   * and the DOM attribute is written only when the caller supplies it.
+   * Identifier the group registers the item under. The item generates one when the caller omits
+   * it, and writes the DOM attribute only when the caller passes it.
    */
   id?: string | undefined;
 
   /**
-   * The ref to receive the item's element.
+   * Ref that receives the item's element.
    *
    * @remarks
-   *   Typed to `HTMLElement` rather than to a div, because the caller renders their own control as
-   *   the item. The tab stop is placed on this element, so a control nested inside an item instead
-   *   of rendered as one introduces a second stop and breaks the single-stop guarantee. A toolbar
-   *   passes `as="button"`.
+   *   The type is `HTMLElement`, because the caller renders a control as the item. The tab stop is
+   *   on this element, so a control nested inside an item adds a second stop. A toolbar passes
+   *   `as={Button}` or `as="button"`.
    */
   ref?: Ref<HTMLElement> | undefined;
 }
 
 /**
- * Takes the tab stop while it is the active item and stays out of the tab order otherwise.
+ * Renders an item with `tabIndex` 0 while it has the tab stop and -1 otherwise.
  *
  * @throws {@link Error} When rendered outside a root.
  */
@@ -72,7 +69,7 @@ export function Item(props: ItemProps): ReactElement {
   const group = use(RovingFocusContext);
 
   if (group === undefined) {
-    throw new Error("RovingFocus.Item is drawn inside RovingFocus.Root and nowhere else.");
+    throw new Error("RovingFocus.Item must be rendered inside RovingFocus.Root.");
   }
 
   const generated = useId();
@@ -81,8 +78,7 @@ export function Item(props: ItemProps): ReactElement {
   const [element, setElement] = useState<HTMLDivElement | null>(null);
 
   /**
-   * Stores the node in state so the registering effect can run, then forwards it to the caller's
-   * ref.
+   * Stores the node in state, so the registering effect runs, and forwards it to the caller's ref.
    */
   const attach = useCallbackRef((node: HTMLDivElement | null): void => {
     setElement(node);
@@ -92,7 +88,7 @@ export function Item(props: ItemProps): ReactElement {
   });
 
   /**
-   * Moves the tab stop to this item when focus reaches it, unless the item is disabled.
+   * Moves the tab stop to this item when it receives focus, unless the item is disabled.
    */
   const claim = useCallbackRef((): void => {
     if (!disabled) onFocus(id);

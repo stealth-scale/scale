@@ -18,7 +18,7 @@ function Owned(props: ComponentProps<"button">): ReactElement {
 }
 
 describe("Item", () => {
-  it("emits a class for every variant value the recipe declares", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(
         recipe,
@@ -63,7 +63,7 @@ describe("Item", () => {
     expect(getByText("Cut").dataset["disabled"]).toBe("");
   });
 
-  it("sets data-stop on the item holding the tab stop", () => {
+  it("sets data-stop on the item with the tab stop", () => {
     const { getByText } = render(grouped(<Item id="cut">Cut</Item>));
 
     expect(getByText("Cut").dataset["stop"]).toBe("");
@@ -95,7 +95,7 @@ describe("Item", () => {
     expect(seen.at(-1)?.textContent).toBe("Cut");
   });
 
-  it("renders the item slot as button when as is button", () => {
+  it("renders a button when as is button", () => {
     const { container } = render(grouped(<Item as="button">Cut</Item>));
 
     expect(slotElement(container, "roving-focus", "item").tagName).toBe("BUTTON");
@@ -103,7 +103,7 @@ describe("Item", () => {
 
   it("throws when rendered outside a root", () => {
     expect(() => render(<Item>Cut</Item>)).toThrow(
-      "RovingFocus.Item is drawn inside RovingFocus.Root and nowhere else.",
+      "RovingFocus.Item must be rendered inside RovingFocus.Root.",
     );
   });
 });

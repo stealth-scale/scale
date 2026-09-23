@@ -1,6 +1,6 @@
 /**
- * Re-exports the parts of the roving focus group, which a caller composes as `RovingFocus.Root`
- * around one `RovingFocus.Item` per control.
+ * Exposes the roving focus parts to the package barrel, which publishes them as the `RovingFocus`
+ * namespace.
  */
 
 export { Item, type ItemProps } from "#roving-focus/item.tsx";

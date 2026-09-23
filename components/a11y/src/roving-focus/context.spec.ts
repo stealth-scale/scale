@@ -8,7 +8,7 @@ import { slotClasses, slotVariantClass } from "@stealthscale/testing-theme";
 import { withContext, withProvider } from "#roving-focus/context.ts";
 
 describe("context", () => {
-  it("applies the root slot class to the element withProvider wraps", () => {
+  it("applies the root slot class to an element bound with withProvider", () => {
     const Root = withProvider("div", "root");
     const { container } = render(createElement(Root, null, "One"));
 
@@ -27,7 +27,7 @@ describe("context", () => {
     );
   });
 
-  it("applies the bare slot class to an item because the item slot declares no variant", () => {
+  it("applies the item slot class without a variant class to an item", () => {
     const Root = withProvider("div", "root");
     const Item = withContext("div", "item");
     const { container } = render(

@@ -17,11 +17,11 @@ describe("recipe", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+  it("has no scene that writes a value the recipe does not offer", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("reports no violation across the shared recipe checks", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(
       recipeViolations(recipe, { names: ["RovingFocus.Root", "RovingFocus.Item"] }),
     ).toStrictEqual([]);
@@ -31,15 +31,15 @@ describe("recipe", () => {
     expect(recipe.className).toBe("roving-focus");
   });
 
-  it("declares item and root as its only slots", () => {
+  it("declares the item and root slots", () => {
     expect(slotsOf(recipe)).toStrictEqual(["item", "root"]);
   });
 
-  it("declares orientation as its only variant", () => {
+  it("declares one variant axis", () => {
     expect(axesOf(recipe)).toStrictEqual(["orientation"]);
   });
 
-  it("declares both horizontal and vertical as the values of orientation", () => {
+  it("declares three orientations on the orientation axis", () => {
     expect(valuesOf(recipe, "orientation")).toStrictEqual(["both", "horizontal", "vertical"]);
   });
 
@@ -53,7 +53,7 @@ describe("recipe", () => {
     });
   });
 
-  it("matches RovingFocus and its dotted parts with its jsx pattern", () => {
+  it("matches the RovingFocus JSX tags", () => {
     expect(recipe.jsx).toStrictEqual([/^RovingFocus(\.\w+)?$/u]);
   });
 });

@@ -1,127 +1,100 @@
 /**
- * Catalogue entry for the roving focus group, showing a three-button toolbar in each orientation
- * and with wrapping on and off.
+ * Catalogue page for the roving focus group.
  *
  * @remarks
- *   The orientation scene is generated from the recipe, so a value added to it reaches the page
- *   without this file changing. Wrapping is laid out on a board instead, because it is a prop the
- *   root takes rather than a recipe variant and the board labels each of the two cells. The buttons
- *   sit in an attached `Group` so the three read as one toolbar. The group is nested inside the
- *   root rather than being the root, because both recipes set a flex direction and binding one
- *   element to both would leave two rules competing for the same property; items locate themselves
- *   through the root's context rather than the DOM tree, so the extra element changes nothing about
- *   keyboard behaviour. The behaviour is only visible from the keyboard, so each scene names the
- *   keys to press. Copy comes from the `roving-focus` namespace in
- *   `locales/en/specimen/roving-focus.json`.
+ *   Three hand-written scenes render the `orientation` axis, because each orientation needs its own
+ *   layout and an example cannot read `props.orientation`. The toolbar scene renders the group at
+ *   rest and inside `Focused`, which renders the focus ring on the item with the tab stop without
+ *   taking focus. The arrow keys and `wrap` only act under a keyboard, so each scene names the
+ *   keys. Every scene renders a component from `examples/` and shows that file as its source. The
+ *   words are keys under `roving-focus` in `locales/en/specimen/roving-focus.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
-import { Group } from "@stealthscale/component-layout";
-import { Board, Sample, type Scene, scenesOf, specimen, useWords } from "@stealthscale/specimen";
+import { Board, Focused, Room, Sample, type Scene, specimen } from "@stealthscale/specimen";
 
-import { Item, type Orientation, Root, type RootProps } from "#roving-focus/index.ts";
-import { recipe } from "#roving-focus/recipe.ts";
-
-/**
- * Button props supplied once from above, so every control in the toolbar shares a variant.
- */
-const LOOK = { variant: "outline" } as const;
+import * as filters from "#roving-focus/examples/filters.example.tsx";
+import * as formatting from "#roving-focus/examples/formatting.example.tsx";
+import * as tools from "#roving-focus/examples/tools.example.tsx";
 
 /**
- * The call site the generated scene's source snippet is built from.
+ * Renders the formatting toolbar at rest and in the keyboard-focus state.
  */
-const SAMPLE = {
-  children: [
-    "<Item as={Button}>Cut</Item>",
-    "<Item as={Button}>Copy</Item>",
-    "<Item as={Button}>Paste</Item>",
-  ].join("\n"),
-  imports: 'import { RovingFocus } from "@stealthscale/component-a11y";',
-  name: "RovingFocus.Root",
-};
-
-/**
- * Narrows a group orientation to the two values the attached `Group` accepts.
- *
- * @remarks
- *   `Group` has no equivalent of `both`, and three buttons never reach a second line anyway, so
- *   `both` is rendered as a row.
- */
-function running(orientation: Orientation): "horizontal" | "vertical" {
-  return orientation === "vertical" ? "vertical" : "horizontal";
-}
-
-/**
- * Renders cut, copy and paste as three items of the group.
- */
-function Controls(): ReactElement {
-  const { t } = useWords("roving-focus");
-
-  return (
-    <ButtonPropsProvider value={LOOK}>
-      <Item as={Button}>{t("cut")}</Item>
-      <Item as={Button}>{t("copy")}</Item>
-      <Item as={Button}>{t("paste")}</Item>
-    </ButtonPropsProvider>
-  );
-}
-
-/**
- * Renders a labelled toolbar at a given orientation and wrapping setting.
- */
-function Toolbar({
-  orientation = "horizontal",
-  wrap = false,
-}: Pick<RootProps, "orientation" | "wrap">): ReactElement {
-  const { t } = useWords("roving-focus");
-
-  return (
-    <Root aria-label={t("editing")} orientation={orientation} role="toolbar" wrap={wrap}>
-      <Group attached orientation={running(orientation)}>
-        <Controls />
-      </Group>
-    </Root>
-  );
-}
-
-/**
- * Renders the toolbar twice, once with wrapping off and once with it on.
- */
-function Wrap(): ReactElement {
+function Toolbar(): ReactElement {
   return (
     <Board>
-      <Sample knob="wrap" of="false">
-        <Toolbar />
+      <Sample knob="state" of="rest">
+        <formatting.Formatting />
       </Sample>
-      <Sample knob="wrap" of="true">
-        <Toolbar wrap />
+      <Sample knob="state" of="focus">
+        <Focused>
+          <formatting.Formatting />
+        </Focused>
       </Sample>
     </Board>
   );
 }
 
 /**
- * Scene contrasting a group that stops at its ends with one that wraps.
+ * Renders the vertical toolbar at its own width in a sample.
  */
-export const wrap: Scene = {
-  about: "roving-focus.wrap.about",
-  draw: Wrap,
-  title: "roving-focus.wrap.title",
+function Vertical(): ReactElement {
+  return (
+    <Sample>
+      <tools.Tools />
+    </Sample>
+  );
+}
+
+/**
+ * Renders the filters in a 320px room, where they wrap onto three lines.
+ */
+function Both(): ReactElement {
+  return (
+    <Room size="xs">
+      <filters.Filters />
+    </Room>
+  );
+}
+
+/**
+ * Hand-written scene for a horizontal group that wraps at its ends.
+ */
+export const toolbar: Scene = {
+  about: "roving-focus.toolbar.about",
+  axes: ["orientation"],
+  draw: Toolbar,
+  example: formatting,
+  title: "roving-focus.toolbar.title",
+};
+
+/**
+ * Hand-written scene for a vertical group.
+ */
+export const vertical: Scene = {
+  about: "roving-focus.vertical.about",
+  axes: ["orientation"],
+  draw: Vertical,
+  example: tools,
+  title: "roving-focus.vertical.title",
+};
+
+/**
+ * Hand-written scene for a group that responds to both arrow axes.
+ */
+export const both: Scene = {
+  about: "roving-focus.both.about",
+  axes: ["orientation"],
+  draw: Both,
+  example: filters,
+  title: "roving-focus.both.title",
 };
 
 export default specimen({
   about: "roving-focus.about",
   id: "components/a11y/roving-focus",
   imports: 'import { RovingFocus } from "@stealthscale/component-a11y";',
-  scenes: [
-    ...scenesOf<Pick<RootProps, "orientation" | "wrap">>(recipe, {
-      draw: (props) => <Toolbar {...props} />,
-      namespace: "roving-focus",
-      sample: SAMPLE,
-    }),
-    wrap,
-  ],
+  scenes: [toolbar, vertical, both],
   title: "roving-focus.title",
 });

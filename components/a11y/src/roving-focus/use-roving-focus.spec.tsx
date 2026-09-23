@@ -48,7 +48,7 @@ function Late(): ReactElement {
 }
 
 describe("useRovingFocus", () => {
-  it("sets tabIndex to 0 on the first item and -1 on the rest", () => {
+  it("sets tabIndex 0 on the first item only", () => {
     const { getByText } = render(group());
 
     expect(getByText("One").getAttribute("tabindex")).toBe("0");
@@ -98,7 +98,7 @@ describe("useRovingFocus", () => {
     expect(getByText("Two").getAttribute("tabindex")).toBe("0");
   });
 
-  it("holds the tab stop on the last item on ArrowRight when wrap is false", () => {
+  it("keeps the tab stop on the last item on ArrowRight when wrap is false", () => {
     const { getByText } = render(group());
 
     fireEvent.keyDown(getByText("One"), { key: "End" });
@@ -166,7 +166,7 @@ describe("useRovingFocus", () => {
     expect(getByText("Two").getAttribute("tabindex")).toBe("0");
   });
 
-  it("leaves the tab stop where it is when a modifier is held with the arrow", () => {
+  it("leaves the tab stop where it is when an arrow is pressed with a modifier", () => {
     const { getByText } = render(group());
 
     fireEvent.keyDown(getByText("One"), { ctrlKey: true, key: "ArrowRight" });
@@ -174,7 +174,7 @@ describe("useRovingFocus", () => {
     expect(getByText("One").getAttribute("tabindex")).toBe("0");
   });
 
-  it("ignores an arrow whose target lies outside every registered item", () => {
+  it("ignores an arrow whose target is outside every registered item", () => {
     const { getByRole, getByText } = render(group());
 
     fireEvent.keyDown(getByRole("toolbar"), { key: "ArrowRight" });

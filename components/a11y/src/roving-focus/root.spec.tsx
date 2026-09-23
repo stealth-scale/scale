@@ -9,7 +9,7 @@ import { recipe } from "#roving-focus/recipe.ts";
 import { Root } from "#roving-focus/root.tsx";
 
 describe("Root", () => {
-  it("reports no axe violation as a toolbar containing a button", async () => {
+  it("returns no accessibility violation as a toolbar with a button", async () => {
     await expect(
       accessibilityViolations(Root, {
         props: { children: <Item as="button">Cut</Item>, role: "toolbar" },
@@ -17,7 +17,7 @@ describe("Root", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("emits a class for every variant value the recipe declares", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(recipe, (props) => render(<Root {...props} />).container, { slot: "root" }),
     ).toStrictEqual([]);
@@ -47,7 +47,7 @@ describe("Root", () => {
     ).toBeNull();
   });
 
-  it("renders the root slot as nav when as is nav", () => {
+  it("renders a nav when as is nav", () => {
     const { container } = render(<Root as="nav" />);
 
     expect(slotElement(container, "roving-focus", "root").tagName).toBe("NAV");

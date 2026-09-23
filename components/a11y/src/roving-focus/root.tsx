@@ -1,12 +1,11 @@
 /**
- * Renders the container that owns the group's tab stop.
+ * Renders the container of a roving focus group, which keeps one tab stop for its items.
  *
  * @remarks
- *   The element is a `div` with no role of its own, because naming the control set is the caller's
- *   decision: a toolbar passes `role="toolbar"`, a tab strip passes `role="tablist"`. A single
- *   `orientation` prop feeds three things, the arrow keys the group responds to, the layout of the
- *   items, and `aria-orientation`. The attribute is emitted only when the caller has also supplied
- *   a role, since it carries no meaning on a generic element.
+ *   The element is a `div` with no role. The caller sets the role: `role="toolbar"` for a toolbar,
+ *   `role="tablist"` for a tab list. `orientation` sets the arrow keys the group handles, the
+ *   layout of the items and `aria-orientation`. The root writes `aria-orientation` only with a
+ *   caller's role, because the attribute has no meaning on a generic element, and not for `both`.
  */
 
 import { type ComponentProps, type ReactElement, type ReactNode } from "react";
@@ -19,27 +18,26 @@ import {
 } from "#roving-focus/use-roving-focus.ts";
 
 /**
- * The styled element carrying the recipe's root slot.
+ * Renders a `div` element with the root slot's classes.
  */
 const Shell = withProvider("div", "root");
 
 /**
- * Props of the group container: the focus behaviour below, plus everything the styled element
- * accepts.
+ * Describes the props of RovingFocus.Root: the focus options and the props of a `div` element.
  */
 export interface RootProps extends Omit<ComponentProps<typeof Shell>, "orientation"> {
   /**
-   * The item holding the tab stop when the caller controls the group.
+   * Item with the tab stop when the caller controls the group.
    */
   activeId?: string | undefined;
 
   /**
-   * The items the group lays out.
+   * Items of the group.
    */
   children?: ReactNode | undefined;
 
   /**
-   * The item Tab enters first when the group controls itself.
+   * Item that Tab enters first when the group controls itself.
    */
   defaultActiveId?: string | undefined;
 
@@ -49,7 +47,7 @@ export interface RootProps extends Omit<ComponentProps<typeof Shell>, "orientati
   onActiveIdChange?: ((activeId: string | undefined) => void) | undefined;
 
   /**
-   * The axes whose arrows move focus, horizontal unless the caller says otherwise.
+   * Axes whose arrows move focus. Defaults to `horizontal`.
    */
   orientation?: Orientation | undefined;
 
@@ -60,7 +58,7 @@ export interface RootProps extends Omit<ComponentProps<typeof Shell>, "orientati
 }
 
 /**
- * Keeps a single tab stop for the items below it and moves that stop on the arrow keys.
+ * Keeps one tab stop for the items below it and moves the stop on the arrow keys.
  */
 export function Root(props: RootProps): ReactElement {
   const {

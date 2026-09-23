@@ -1,17 +1,17 @@
 /**
- * Lays the group out as a flex row or column, matching the direction the arrow keys move.
+ * Styles a roving focus group as a flex row or column in the direction its arrow keys move.
  *
  * @remarks
- *   Orientation is a single variant because two things have to agree on it: the arrow keys the
- *   root handles and the direction the recipe lays the items out in. Splitting them would let a
- *   caller build a column that responds to the left and right arrows. The `both` value enables
- *   flex wrapping, since a group navigable on two axes is one that runs onto a second line.
+ *   One `orientation` axis sets both the layout and the arrow keys, so a column never responds to
+ *   the left and right arrows. `both` wraps the row, because a group navigable on both axes runs
+ *   onto more lines. The recipe has no `palette` or `effect` axis, because the group renders no
+ *   box of its own.
  */
 
 import { defineSlotRecipe } from "@stealthscale/theme/authoring";
 
 /**
- * The `roving-focus` slot recipe over a root and its items, horizontal by default.
+ * Defaults to a horizontal group.
  */
 export const recipe = defineSlotRecipe({
   base: { item: { minInlineSize: "0" }, root: { display: "flex" } },
@@ -20,6 +20,9 @@ export const recipe = defineSlotRecipe({
   jsx: [/^RovingFocus(\.\w+)?$/u],
   slots: ["root", "item"],
   variants: {
+    /**
+     * Flex direction of the root, matching the arrow keys the group handles.
+     */
     orientation: {
       both: { root: { flexDirection: "row", flexWrap: "wrap" } },
       horizontal: { root: { flexDirection: "row" } },

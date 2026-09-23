@@ -1,16 +1,35 @@
 {
-  "about": "Holds one tab stop for a set of controls: Tab reaches the set and the arrows move inside it.",
-  "copy": "Copy",
-  "cut": "Cut",
-  "editing": "Editing",
-  "orientation": {
-    "about": "Which arrows move the stop: across, down, or either way. Reach a set with Tab and press an arrow.",
-    "title": "Orientations"
+  "about": "Keeps one tab stop for a set of controls. Tab reaches the set, and the arrow keys move focus inside it.",
+  "bold": "Bold",
+  "both": {
+    "about": "Eight filters in a 320px room, wrapping onto three lines. With `orientation=\"both\"` every arrow key moves focus to the next or previous filter.",
+    "title": "Both"
   },
-  "paste": "Paste",
+  "draw": "Draw",
+  "erase": "Erase",
+  "filters": "Filters",
+  "formatting": "Formatting",
+  "italic": "Italic",
+  "select": "Select",
+  "statuses": {
+    "disputed": "Disputed",
+    "draft": "Draft",
+    "overdue": "Overdue",
+    "paid": "Paid",
+    "pending": "Pending",
+    "refunded": "Refunded",
+    "scheduled": "Scheduled",
+    "void": "Void"
+  },
   "title": "Roving focus",
-  "wrap": {
-    "about": "An arrow past the last control stops there, or, with `wrap`, comes round to the first.",
-    "title": "Wrap"
+  "toolbar": {
+    "about": "A formatting toolbar with `wrap`. Tab reaches Bold, the item with the tab stop, and the second cell renders its focused state. ArrowRight moves to Italic, and on Underline it moves back to Bold.",
+    "title": "Toolbar"
+  },
+  "tools": "Tools",
+  "underline": "Underline",
+  "vertical": {
+    "about": "A vertical toolbar. ArrowDown and ArrowUp move focus, and ArrowLeft and ArrowRight reach the page.",
+    "title": "Vertical"
   }
 }
