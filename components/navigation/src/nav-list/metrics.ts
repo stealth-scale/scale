@@ -3,7 +3,7 @@
  *
  * @remarks
  *   The module covers the row, its leading icon, the end column and the nested list's margin. It is
- *   separate from the recipe because the recipe exceeded the 300-line limit with it.
+ *   separate from the recipe, which keeps the recipe under the 300-line limit.
  */
 
 import { below, dense, type Scale, type SystemStyleObject } from "@stealthscale/theme/authoring";
@@ -18,8 +18,8 @@ export type Step = "lg" | "md" | "sm";
  * metrics.
  *
  * @remarks
- *   At the tag scale the md row measured 24px, which left 5px above and below 14px text and put
- *   the rows closer together than a pointer target in a sidebar should be.
+ *   The `md` and `lg` rows read the control scale, so a sidebar's rows are as tall as its
+ *   controls. The `sm` row reads the tag scale's largest step.
  */
 const ROW: Readonly<Record<Step, string>> = {
   lg: "control.md",
@@ -67,10 +67,9 @@ export function rowed(size: Step): SystemStyleObject {
  * Returns the styles that make the end column a square on the tag scale with its content centred.
  *
  * @remarks
- *   The count, the control and the indicator share this square, so they line up in one column.
- *   Placed by one rule each, they were at three distances from the row's end: at the middle size,
- *   on a row ending at 416.84px, their centres measured 401.22px, 408.84px and 397.74px. The square
- *   sets a minimum width, so a three-digit count extends it towards the row's start.
+ *   The count, the control and the indicator share this square, so their centres are at one
+ *   distance from the row's end. The square sets a minimum width, so a three-digit count extends
+ *   it towards the row's start.
  * @param size - The row's size.
  * @returns The styles of the count, the control or the indicator at that size.
  */
@@ -119,8 +118,8 @@ export function reserved(size: Scale): string {
  *
  * @remarks
  *   The margin is the trigger's inset plus half the icon, less half the line. At the middle size
- *   the line measured 20px from the list's start, on the centre of a 16px icon at 12px. A trigger
- *   without a leading icon keeps the line at its inset, under the start of its text.
+ *   the line is 20px from the list's start, on the centre of a 16px icon that starts at 12px. A
+ *   trigger without a leading icon puts the line at its inset, under the start of its text.
  * @param size - The row's size.
  * @returns The nested list's start margin.
  */

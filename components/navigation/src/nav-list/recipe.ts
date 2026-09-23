@@ -3,14 +3,13 @@
  * and the count, control and indicator at the end of a row.
  *
  * @remarks
- *   A row reads the theme's `row` fragment, not the button recipe. A link is not a control, and a
- *   row bound to two recipes took whichever height the stylesheet wrote last. A nested list reuses
- *   `Item` and `Link`, and `Content` sets the muted ink the nested rows inherit. `Content` animates
- *   between the heights the collapsible machine measures, and the indicator rotates a quarter turn
- *   as the branch opens. `iconic` renders every row as a square containing its icon, with the text
- *   kept for screen readers, and removes the end padding a square has no use for: a row with a
- *   control measured 51.59px wide next to squares of 24px. The count, the control and the indicator
- *   share one column at the end of a row.
+ *   A row reads the theme's `row` fragment and no second recipe, so one rule sets its height. A
+ *   nested list reuses `Item` and `Link`, and `Content` sets the muted ink the nested rows inherit.
+ *   `Content` animates between the heights the collapsible machine measures, and the indicator
+ *   rotates a quarter turn as the branch opens. `iconic` renders every row as a square containing
+ *   its icon, with the text kept for screen readers, and removes the end padding, so a row with a
+ *   control is as wide as a row without one. The count, the control and the indicator share one
+ *   column at the end of a row.
  */
 
 import {
@@ -35,9 +34,9 @@ import { centred, reserved, rowed, trailing, tucked } from "#nav-list/metrics.ts
  * The recipe's class name, used to build the selectors that reach from one part to another.
  *
  * @remarks
- *   The binding writes one class per part, such as `nav-list__action`, and no attribute naming the
- *   part. A selector across parts therefore targets the class, built from this constant so the two
- *   cannot drift. The keyboard module reads the same constant to find the rows.
+ *   The binding writes one class per part, such as `nav-list__action`, and no part attribute, so a
+ *   selector across parts targets the class, built from this constant. The keyboard module reads
+ *   the same constant to find the rows.
  */
 export const CLASS = "nav-list";
 
@@ -106,10 +105,9 @@ const BESIDE = {
  * Styles the control at the end of a row as an unfilled square button that fills on hover.
  *
  * @remarks
- *   The end column sizes the action, so it fits inside the row. A button of the actions package
- *   measured 32px in a row with a 28px pitch. The hover fill is `emphasized`, two steps darker than
- *   the row's `subtle` hover and one step darker than the tint highlight. At `subtle`, a hovered
- *   control had no visible edge on its hovered row.
+ *   The end column sizes the action, so it fits inside the row at every size. The hover fill is
+ *   `emphasized`, two steps darker than the row's `subtle` hover and one step darker than the tint
+ *   highlight, so a hovered control shows an edge on its hovered row.
  */
 const ACTING = {
   ...BESIDE,
@@ -147,9 +145,9 @@ const GLOWING = { _currentPage: { layerStyle: "glow.sm" } };
  * Styles a column of rows at the md size, tinting the current row.
  *
  * @remarks
- *   The count sets its own ink instead of inheriting the row's. The count is a sibling of the link,
- *   so it doesn't inherit the ink of the link's highlight. A count in the fill's ink would render
- *   white on white next to a row with the solid fill.
+ *   The count sets its own ink. The count is a sibling of the link, so it does not inherit the ink
+ *   of the link's highlight, and the compound for the fill highlight sets the fill's contrast ink
+ *   on it.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -234,12 +232,12 @@ export const recipe = defineSlotRecipe({
      * highlight is a fill.
      *
      * @remarks
-     *   The count is positioned over the filled row, where its muted ink measured 3.1:1, under the
-     *   4.5:1 WCAG 1.4.3 requires for text. The control's icon is under the same fill. The tint and
-     *   bar highlights leave the row on the page surface, where the muted ink is correct. Both
-     *   parts follow the link in the DOM, so the rule selects them as following siblings of the
-     *   current row. The control hovers to the fill's own hover, because `emphasized` on the solid
-     *   fill read as a hole in it.
+     *   The count is positioned over the filled row, where the muted ink is 3.1:1 against the
+     *   fill, under the 4.5:1 WCAG 1.4.3 requires for text. The control's icon is under the same
+     *   fill. The tint and bar highlights leave the row on the page surface, where the muted ink
+     *   meets the ratio. Both parts follow the link in the DOM, so the rule selects them as
+     *   following siblings of the current row. The control hovers to the fill's own hover role,
+     *   because `emphasized` is lighter than the solid fill.
      */
     {
       css: {
