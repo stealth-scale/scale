@@ -34,6 +34,17 @@ export interface FieldState {
    * Whether the field has to be filled in.
    */
   required: boolean;
+
+  /**
+   * The status the field reports, or nothing where it reports none.
+   *
+   * @remarks
+   *   The message reads this as well as `invalid`, because a field can report something that is
+   *   not a fault. Gated on `invalid` alone, the only way to show a reader a note in the success
+   *   palette was to mark the control wrong, which draws the browser's own invalid ring in red
+   *   over whatever the status had painted and tells a screen reader the entry is invalid.
+   */
+  status?: string | undefined;
 }
 
 /**

@@ -29,11 +29,9 @@ describe("HelperText", () => {
     expect(slotElement(container, "field", "helperText").getAttribute("id")).toBe("email-helper");
   });
 
-  it("is drawn whether or not the field is wrong", () => {
+  it("gives its place to the error text where the field is wrong", () => {
     const { container } = render(composed({ invalid: true }));
 
-    expect(slotElement(container, "field", "helperText").textContent).toBe(
-      "We only write about invoices.",
-    );
+    expect(container.querySelector(".field__helper-text")).toBeNull();
   });
 });

@@ -64,6 +64,7 @@ export function Root({
   invalid = false,
   readOnly = false,
   required = false,
+  status,
   ...rest
 }: RootProps): ReactElement {
   const generated = useId();
@@ -76,14 +77,16 @@ export function Root({
       invalid,
       readOnly,
       required,
+      status,
     }),
-    [generated, id, invalid, readOnly, required, unreachable],
+    [generated, id, invalid, readOnly, required, status, unreachable],
   );
 
   return (
     <FieldProvider value={state}>
       <Framed
         {...rest}
+        {...(status === undefined ? {} : { status })}
         data-disabled={unreachable || undefined}
         data-invalid={invalid || undefined}
       />
