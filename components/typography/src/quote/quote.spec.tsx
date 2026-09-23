@@ -8,23 +8,23 @@ import { Quote } from "#quote/quote.ts";
 import { recipe } from "#quote/recipe.ts";
 
 describe("Quote", () => {
-  it("conforms as a q element", () => {
+  it("passes the component conformance checks as a q element", () => {
     expect(violations(Quote, { as: true, children: true, element: "Q" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule", async () => {
+  it("returns no accessibility violation", async () => {
     await expect(
       accessibilityViolations(Quote, { props: { children: "quoted" } }),
     ).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(recipe, (props) => render(<Quote {...props}>quoted</Quote>).container),
     ).toStrictEqual([]);
   });
 
-  it("keeps the cite a caller states so a reader can reach the source", () => {
+  it("renders the cite attribute passed as cite", () => {
     const { container } = render(<Quote cite="https://example.org/paper">quoted</Quote>);
 
     expect(recipeElement(container, "quote").getAttribute("cite")).toBe(
@@ -32,7 +32,7 @@ describe("Quote", () => {
     );
   });
 
-  it("draws the element as names", () => {
+  it("renders a span when as is span", () => {
     const { container } = render(<Quote as="span">quoted</Quote>);
 
     expect(recipeElement(container, "quote").tagName).toBe("SPAN");

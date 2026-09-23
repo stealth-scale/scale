@@ -1,11 +1,9 @@
 /**
- * Binds the q element to its recipe.
+ * Renders an inline quotation through the quote recipe.
  *
  * @remarks
- *   `q` is the quotation that sits inside a line. The browser draws the marks from the `quotes`
- *   property, which resolves against the `lang` the element sits under, so a German page gets its
- *   own marks without the caller writing them. A quotation that stands on its own is
- *   `Blockquote.Root`. A caller quoting a source states `cite` with its address.
+ *   The element is `q`, a quotation inside a line. A quotation set as its own block is
+ *   `Blockquote.Root`. `cite` takes the address of the source.
  */
 
 import { type ComponentProps } from "react";
@@ -13,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#quote/context.ts";
 
 /**
- * Quotes a run of words inside the line around it.
+ * Renders a `q` element with the classes of the quote recipe.
  */
 export const Quote = withContext("q");
 
 /**
- * Describes the props a q element takes.
+ * Describes the props of Quote: the recipe's variants and the props of a `q` element.
  */
 export type QuoteProps = ComponentProps<typeof Quote>;

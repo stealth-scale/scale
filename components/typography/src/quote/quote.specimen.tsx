@@ -1,54 +1,31 @@
 /**
- * Shows the inline quotation: both answers to the marks, every ink and every motion, each inside a
- * line of ordinary words.
+ * Catalogue page for the inline quotation.
  *
  * @remarks
- *   The scenes are generated from the recipe, so an axis added to it reaches the page without this
- *   file changing. The quotation sits in a paragraph, because a quoted run is read against the
- *   words around it. The words are keys under `quote` in the catalogue's namespace, kept beside
- *   this file in `locales/en/specimen/quote.json`.
+ *   `scenesOf` generates one scene per recipe axis. The example renders the quotation inside a
+ *   `Text` line, because an inline quotation is read against the surrounding text. The tone scene
+ *   renders the inverted ink on `bg.inverted` through `grounded`. Every scene renders the example
+ *   and shows it as its source. The words are keys under `quote` in
+ *   `locales/en/specimen/quote.json`.
  */
 
-import { type ReactElement } from "react";
+import { grounded, scenesOf, specimen } from "@stealthscale/specimen";
 
-import { scenesOf, specimen, useWords } from "@stealthscale/specimen";
-
-import { Quote, type QuoteProps } from "#quote/quote.ts";
+import * as audit from "#quote/examples/audit.example.tsx";
 import { recipe } from "#quote/recipe.ts";
-import { Text } from "#text/text.ts";
-
-/**
- * The call site every scene's source snippet is generated from.
- */
-const SAMPLE = {
-  children: "a measured claim",
-  imports: 'import { Quote } from "@stealthscale/component-typography";',
-  name: "Quote",
-};
-
-/**
- * Draws the quotation inside a line of ordinary words.
- */
-function Quoted(props: QuoteProps): ReactElement {
-  const { t } = useWords("quote");
-
-  return (
-    <Text>
-      {t("before")} <Quote {...props}>{t("claim")}</Quote>
-      {t("after")}
-    </Text>
-  );
-}
 
 export default specimen({
   about: "quote.about",
   id: "components/typography/quote",
   imports: 'import { Quote, Text } from "@stealthscale/component-typography";',
-  scenes: scenesOf<QuoteProps>(recipe, {
-    draw: (props) => <Quoted {...props} />,
+  scenes: scenesOf<Parameters<typeof audit.Audit>[0]>(recipe, {
+    axes: {
+      tone: { draw: (props) => grounded(props.tone, <audit.Audit {...props} />) },
+    },
+    draw: (props) => <audit.Audit {...props} />,
+    example: audit,
     namespace: "quote",
     order: ["marks", "tone", "motion"],
-    sample: SAMPLE,
   }),
   title: "quote.title",
 });

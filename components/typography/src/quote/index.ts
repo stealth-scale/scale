@@ -1,5 +1,5 @@
 /**
- * Publishes the Quote component.
+ * Exposes the inline quotation component to the package barrel.
  */
 
 export { Quote, type QuoteProps } from "#quote/quote.ts";
