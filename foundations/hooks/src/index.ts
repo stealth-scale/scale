@@ -1,13 +1,14 @@
 /**
- * Publishes the React hooks a component uses to read the page it draws into: how the page is read,
- * what it measures, and what a value was on the previous render. It also publishes the context
- * factory a component drawn in parts needs. Every hook depends on React and on the document and on
- * nothing else, so a package that draws no component installs only React to use them.
+ * Exports the React hooks and helpers the component packages share: media and pointer queries,
+ * overflow and sticky-offset measurement, controlled state, live-region announcements, and the
+ * context and props utilities for components with parts. The package peers on React and depends on
+ * nothing else.
  *
  * @packageDocumentation
  */
 
 export { createRequiredContext, type ProvidedProps } from "#create-required-context.ts";
+export { type OmitUndefined, omitUndefined } from "#omit-undefined.ts";
 export { splitEnumerable, type Splitter } from "#split-enumerable.ts";
 export { type AnnouncePoliteness, speakable, useAnnounce } from "#use-announce.ts";
 export { useCallbackRef } from "#use-callback-ref.ts";

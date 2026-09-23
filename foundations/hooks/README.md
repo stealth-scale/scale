@@ -318,6 +318,23 @@ The third member of the tuple reads the same context and returns `undefined` whe
 stands above it. A root that nests inside another of its own kind reads that hook to find out
 whether it is the outermost.
 
+## omitUndefined
+
+Returns a copy of an object without the entries whose value is `undefined`, typed without
+`undefined`.
+
+Use it on the settings a root splits off for a Zag machine. Under `exactOptionalPropertyTypes`,
+`useMachine` rejects `undefined` for every setting the machine defaults, while the machine's own
+`Partial<Props>` allows it. The call changes the type and not the value: `useMachine` strips
+`undefined` entries itself before it merges the machine's defaults.
+
+```tsx
+const [options, rest] = splitPopoverProps(props);
+const service = useMachine(popover.machine, { ...omitUndefined(options), id: options.id ?? id });
+```
+
+`false`, `null`, `0` and the empty string are kept. The input object is not modified.
+
 ## Types
 
 | Type                        | Declaration               | What it describes                                                           |
@@ -329,6 +346,7 @@ whether it is the outermost.
 | `UseStickyOffsetsOptions`   | `interface`               | Which bands stick, and which custom properties carry their offsets          |
 | `AnnouncePoliteness`        | `"assertive" \| "polite"` | How much a message is allowed to interrupt                                  |
 | `ProvidedProps`             | `interface`               | The value a provider carries and the tree that reads it                     |
+| `OmitUndefined`             | mapped type               | The input type with every property optional and `undefined` excluded        |
 
 ## Licence
 
