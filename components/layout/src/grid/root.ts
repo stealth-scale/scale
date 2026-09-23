@@ -1,10 +1,9 @@
 /**
- * Draws the grid itself, which takes the variants for every entry below it.
+ * Renders the root of a grid.
  *
  * @remarks
- *   The element is `div`, because a grid arranges what is already there and says nothing about
- *   what it holds. A caller arranging a list of things changes the element with `as`, so a screen
- *   reader counts them.
+ *   The element is `div`, which has no semantics. A grid of list items sets `as="ul"`, so a screen
+ *   reader counts them. The root takes the variants and provides them to the items.
  */
 
 import { type ComponentProps } from "react";
@@ -12,12 +11,11 @@ import { type ComponentProps } from "react";
 import { withProvider } from "#grid/context.ts";
 
 /**
- * Lays its entries out in columns, and hands the variants to each of them.
+ * Renders a `div` element with the root slot's classes and provides the variants to the items.
  */
 export const Root = withProvider("div", "root");
 
 /**
- * Describes what a grid takes: the variants its recipe offers, and everything a styled div
- * element takes.
+ * Describes the props of Grid.Root: the recipe's variants and the props of a `div` element.
  */
 export type RootProps = ComponentProps<typeof Root>;

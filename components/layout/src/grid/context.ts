@@ -1,10 +1,9 @@
 /**
- * Binds the grid's recipe to the parts that draw it.
+ * Binds the grid slot recipe to React.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. The root carries the variants, and every entry below it reads
- *   its classes from the root through a context.
+ *   The binding is a separate module from the recipe, because the theme compiler imports the recipe
+ *   at build time and must not load the React runtime.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";
@@ -12,6 +11,9 @@ import { createSlotRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#grid/recipe.ts";
 
 /**
- * Binds the recipe once: the root takes the variants, and each entry draws its slot in them.
+ * Creates the grid recipe's `withProvider` and `withContext` bindings.
+ *
+ * @remarks
+ *   The root and the item are both bound with `withProvider`, because each takes axes of its own.
  */
 export const { withContext, withProvider } = createSlotRecipeContext(recipe);
