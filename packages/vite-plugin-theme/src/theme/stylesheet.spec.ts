@@ -187,9 +187,17 @@ async function serving(
   plugin: ReturnType<typeof stylesheet>,
   watched: string[],
   invalidated: string[] = [],
+  sent: unknown[] = [],
 ): Promise<void> {
   const server = {
     environments: {
+      client: {
+        hot: {
+          send(payload: unknown): void {
+            sent.push(payload);
+          },
+        },
+      },
       ssr: {
         moduleGraph: {
           onFileChange(file: string): void {
@@ -546,6 +554,24 @@ describe("stylesheet", () => {
     expect(invalidated).toStrictEqual(["styles.css"]);
   });
 
+  it("drops a file the configuration was built from before it reimports the presets", async () => {
+    const found = await withScratchWorkspaceAsync(APP, async (workspace) => {
+      const plugin = stylesheet(OPTIONS);
+      const invalidated: string[] = [];
+      const context = hookContext();
+
+      await serving(plugin, [], invalidated);
+      await configured(plugin, { ...RESOLVED, root: workspace.root });
+      await started(plugin, context);
+      await loaded(plugin, VIRTUAL);
+      await updated(plugin, context, workspace.path("theme.config.ts"));
+
+      return invalidated.map((at) => at.slice(workspace.root.length + 1));
+    });
+
+    expect(found).toStrictEqual(["theme.config.ts"]);
+  });
+
   it("renders the configuration again when the statement changes", async () => {
     const written = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const { context, plugin, sheet } = await compiled(workspace);
@@ -835,7 +861,7 @@ describe("stylesheet", () => {
     expect(found.warned).toContain("naming/collision");
   });
 
-  it("keeps the rules compiled before an error under a dev server", async () => {
+  it("serves what did compile after an error rather than the rules it had", async () => {
     const found = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const { context, plugin, sheet } = await compiled(workspace);
       const before = await transformed(plugin, context, DECLARED, sheet);
@@ -848,8 +874,25 @@ describe("stylesheet", () => {
       return { same: before === after, warned: context.warned.join("\n") };
     });
 
-    expect(found.same).toBe(true);
-    expect(found.warned).toContain("keeps the rules compiled before");
+    expect(found.same).toBe(false);
+    expect(found.warned).toContain("missing from the stylesheet");
+  });
+
+  it("lands a rule that compiles while another one in the same save does not", async () => {
+    const written = await withScratchWorkspaceAsync(COLLISION, async (workspace) => {
+      const { context, plugin, sheet } = await compiled(workspace);
+
+      await transformed(plugin, context, DECLARED, sheet);
+      workspace.write({
+        "src/page.tsx":
+          'import { css } from "@acme/design";\n\nexport const Page = () => [css({ color: "A" }), css({ color: "a" }), css({ margin: "13px" })];\n',
+      });
+      await updated(plugin, context, workspace.path("src/page.tsx"));
+
+      return transformed(plugin, context, DECLARED, sheet);
+    });
+
+    expect(written).toContain("13px");
   });
 
   it("invalidates nothing when the graph does not hold the stylesheet", async () => {

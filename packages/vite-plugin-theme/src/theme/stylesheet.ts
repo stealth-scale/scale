@@ -41,6 +41,11 @@ const VIRTUAL = "virtual:stealth-theme.css";
 const CLIENT = "client";
 
 /**
+ * The name the plugin registers itself under.
+ */
+const PLUGIN = "stealth:theme.stylesheet";
+
+/**
  * The change kinds a bundler reports for a file. A dev server's hot update and a build's watch use
  * the same names.
  */
@@ -419,9 +424,16 @@ function reported(
  * @remarks
  *   Every stylesheet declaring the cascade order gets the same rules, so the compile and the
  *   rename run once per generation no matter how many stylesheets ask. An error is a rule the
- *   compiler could not compile, or a class two names collide on. A build fails on it; a server
- *   warns and keeps serving the rules compiled before it, so the page keeps its styles while
- *   someone fixes the error.
+ *   compiler could not compile, or a class two names collide on. A build fails on it. A server
+ *   warns and serves what did compile, which is every rule but the ones the errors belong to.
+ *   A server used to keep the rules of the last compile that succeeded, so that a page kept its
+ *   styling while someone fixed the error. It cost more than it was worth. Every save after the
+ *   first error compiled, failed, and was thrown away; reloading the page served the same kept
+ *   rules, because they were held in the plugin rather than in the browser; and nothing short of
+ *   restarting the server cleared them. A reader who had not noticed the error in the terminal
+ *   was editing a stylesheet that had stopped answering, with no way to tell from the page. What
+ *   is served now always comes from the source on disk, so a save that compiles is a save that
+ *   lands and the rule that failed is simply missing, which is what the terminal says about it.
  * @throws {@link Error} Under a build, when the compiler or the rename reported an error.
  */
 function compiled(state: Running, assembled: Assembled, context: Reporting): string {
@@ -429,19 +441,16 @@ function compiled(state: Running, assembled: Assembled, context: Reporting): str
 
   const output = assembled.compiler.driver.cssgen({ emitLayerDeclaration: false });
   const renamed = rewritten(assembled.compiler, output.css);
-  const failed = hasErrors(reported(assembled, output, renamed, context.warn));
 
-  if (failed && context.building) {
-    throw new Error("the stylesheet did not compile: the errors reported above stop the build");
+  if (hasErrors(reported(assembled, output, renamed, context.warn))) {
+    if (context.building) {
+      throw new Error("the stylesheet did not compile: the errors reported above stop the build");
+    }
+
+    context.warn("the rules the errors above belong to are missing from the stylesheet");
   }
 
-  const kept = failed ? state.compiled : undefined;
-
-  if (kept !== undefined) {
-    context.warn("the stylesheet keeps the rules compiled before the errors reported above");
-  }
-
-  state.compiled = { css: kept?.css ?? renamed.css, generation: state.generation };
+  state.compiled = { css: renamed.css, generation: state.generation };
 
   return state.compiled.css;
 }
@@ -469,6 +478,10 @@ function appended(
  *   When there is no compiler to take the change, because the assembly is in flight or failed, the
  *   change is queued for the compiler the next assembly produces, and this starts that assembly if
  *   none is running. Nothing is dropped, so the rules served afterwards match what is on disk.
+ *   The file is dropped from the server's `ssr` graph before the reassembly starts. The presets are
+ *   imported through that runner, which caches what it has evaluated, so a reassembly that did not
+ *   drop the file first reloaded the preset it already held. An edit to a recipe then reached the
+ *   page only after the server was restarted.
  * @returns The compiler as it stands after the change, or undefined when nothing changed.
  */
 function applied(
@@ -487,6 +500,7 @@ function applied(
   }
 
   if (assembled.watched.includes(file)) {
+    state.server?.environments["ssr"]?.moduleGraph.onFileChange(file);
     dropped(state);
 
     return ready(state, resolved);
@@ -584,7 +598,7 @@ export function stylesheet(options: Options = {}): Plugin {
 
   return {
     enforce: "pre",
-    name: "stealth:theme.stylesheet",
+    name: PLUGIN,
 
     /**
      * Records where the application is and which conditions it resolves under.
@@ -660,9 +674,9 @@ export function stylesheet(options: Options = {}): Plugin {
      *   A server that serves one module per file reports the same change to `hotUpdate`, which
      *   applies it and invalidates the stylesheets, so this hook defers to that one and returns
      *   early. A server that bundles runs no `hotUpdate` and reports here instead, once per
-     *   environment. The presets are imported through the server's `ssr` runner, and the server
-     *   invalidates that runner's graph only after every `watchChange` has returned, so the file
-     *   is invalidated here first or the assembly reloads the stale preset.
+     *   environment. Every file it reports is dropped from the server's `ssr` graph, whether or not
+     *   the configuration was built from it, because the server invalidates that runner's graph
+     *   only after every `watchChange` has returned.
      */
     async watchChange(id, change) {
       const environment: Environment | undefined = this.environment;
