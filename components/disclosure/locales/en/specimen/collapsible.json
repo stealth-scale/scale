@@ -10,9 +10,18 @@
     "about": "A block that leaves a strip showing while closed, so a reader sees the first line and the control reveals the rest.",
     "title": "Preview"
   },
+  "size": {
+    "about": "Every step the block is read at, each drawn closed so the scale reads as one column of controls. The step sets the control, the block and the mark together.",
+    "title": "Sizes"
+  },
+  "terms": "Deliveries run Monday to Friday and arrive between eight in the morning and six in the evening. A parcel nobody is in for goes to the depot named on the card, where it is held for ten days. A parcel a courier could not fit through the door is brought back the next working day at no charge. Where a delivery is late by more than a working day the postage is returned, and where it is late by three the order is.",
+  "status": {
+    "about": "Every status, on the subtle look. A block a page folds away is often a block about something, so the status points the palette and the look reads it: one word turns the fill, the edge and what a press does. The plain look draws no fill and no edge, so a palette set on it turns nothing.",
+    "title": "Statuses"
+  },
   "title": "Collapsible",
   "variant": {
-    "about": "Every look at every size, each open so the block shows. The size sets the control, the block and the mark from one step of the scale.",
-    "title": "Looks and sizes"
+    "about": "Every look, each open so the block shows. The raised look carries an elevation as well as a line, which is what tells it from the outlined one on a page already the panel's colour.",
+    "title": "Looks"
   }
 }

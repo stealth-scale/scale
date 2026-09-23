@@ -17,10 +17,14 @@
   },
   "overview": "Overview",
   "settings": "Settings",
+  "size": {
+    "about": "Every step the strip is read at. The step sets the tab, the words on it and the room round them.",
+    "title": "Sizes"
+  },
   "title": "Tabs",
   "tuned": "What can be changed.",
   "variant": {
-    "about": "Every look at every size.",
-    "title": "Looks and sizes"
+    "about": "Every look, one under another so each set is read at the width a strip of tabs is given.",
+    "title": "Looks"
   }
 }

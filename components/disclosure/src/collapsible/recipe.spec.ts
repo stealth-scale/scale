@@ -27,12 +27,17 @@ describe("recipe", () => {
     expect([...recipe.slots].toSorted()).toStrictEqual(["content", "indicator", "root", "trigger"]);
   });
 
-  it("offers the three axes a collapsible takes", () => {
-    expect(axesOf(recipe)).toStrictEqual(["motion", "size", "variant"]);
+  it("offers the four axes a collapsible takes", () => {
+    expect(axesOf(recipe)).toStrictEqual(["motion", "size", "status", "variant"]);
   });
 
   it("draws an unframed collapsible sliding open at the middle size by default", () => {
-    expect(defaultsOf(recipe)).toStrictEqual({ motion: "slide", size: "md", variant: "plain" });
+    expect(defaultsOf(recipe)).toStrictEqual({
+      motion: "slide",
+      size: "md",
+      status: "neutral",
+      variant: "plain",
+    });
   });
 
   it("offers the eight sizes every component shares", () => {

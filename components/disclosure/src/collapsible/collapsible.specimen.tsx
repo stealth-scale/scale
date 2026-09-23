@@ -1,11 +1,18 @@
 /**
- * Shows the collapsible: every look at every size open, every motion closed to be pressed, and a
- * block that leaves a preview showing.
+ * Shows the collapsible: every look open, every size open, every motion closed to be pressed, and
+ * a block that leaves a preview showing.
  *
  * @remarks
  *   The axis scenes are generated from the recipe, so a value added to it reaches the page without
  *   this file changing. The preview scene is written by hand, because the height a closed block
  *   keeps is a length a page states rather than an axis of the recipe.
+ *   The looks and the sizes run down the page as two lists rather than crossed into one grid. A
+ *   block open on a page is tall, so four looks against nine steps was a grid of thirty-six, and a
+ *   reader scrolled a wall to compare two of them. A grid of that shape suits a control that fits
+ *   on a line and not a block that holds a paragraph.
+ *   The sizes are drawn closed for the same reason. Nine steps of a block open is nine paragraphs
+ *   of the same words, and what the step turns is the control, the mark and the room round them,
+ *   all of which a closed block shows.
  *   The looks open by default so the block shows. The motions start closed, because a motion is
  *   only seen on the way open. The words are keys under `collapsible` in the catalogue's namespace,
  *   kept beside this file in `locales/en/specimen/collapsible.json`.
@@ -85,6 +92,48 @@ function Closed(props: Collapsible.RootProps): ReactElement {
 }
 
 /**
+ * Draws the block in the subtle look, which is the one a status is read against.
+ *
+ * @remarks
+ *   The plain look draws no fill and no edge, so a palette set on it turns nothing. The subtle look
+ *   fills the whole pair, which is where a status is meant to be read.
+ */
+function Tinted(props: Collapsible.RootProps): ReactElement {
+  return (
+    <Collapsible.Root variant="subtle" {...props}>
+      <Details />
+    </Collapsible.Root>
+  );
+}
+
+/**
+ * Draws the same block over a body of several lines.
+ *
+ * @remarks
+ *   The preview scene alone draws this. A block that keeps two lines showing has nothing to show
+ *   where its body is one line long: the preview drew the whole body and the scene read as a
+ *   collapsible that was not collapsed. Every other scene keeps the short body, because what they
+ *   are about is the look, the size or the motion rather than the height.
+ */
+function Lengthy(): ReactElement {
+  const { t } = useWords("collapsible");
+
+  return (
+    <>
+      <Collapsible.Trigger>
+        {t("delivery")}
+        <Collapsible.Indicator>
+          <Icon viewBox="0 0 24 24">
+            <path d={CHEVRON} fill="none" stroke="currentColor" strokeWidth="2" />
+          </Icon>
+        </Collapsible.Indicator>
+      </Collapsible.Trigger>
+      <Collapsible.Content>{t("terms")}</Collapsible.Content>
+    </>
+  );
+}
+
+/**
  * Draws the collapsible closed with two lines of the block showing.
  */
 function Preview(): ReactElement {
@@ -92,7 +141,7 @@ function Preview(): ReactElement {
     <Matrix knob="collapsedHeight" of={[PREVIEW]}>
       {(collapsedHeight) => (
         <Collapsible.Root collapsedHeight={collapsedHeight} variant="subtle">
-          <Details />
+          <Lengthy />
         </Collapsible.Root>
       )}
     </Matrix>
@@ -117,11 +166,13 @@ export default specimen({
     ...scenesOf<Collapsible.RootProps>(recipe, {
       axes: {
         motion: { draw: (props) => <Closed {...props} /> },
-        variant: { across: "size" },
+        size: { direction: "column", draw: (props) => <Closed {...props} /> },
+        status: { draw: (props) => <Tinted {...props} /> },
+        variant: { direction: "column" },
       },
       draw: (props) => <Opened {...props} />,
       namespace: "collapsible",
-      order: ["variant", "motion"],
+      order: ["variant", "status", "size", "motion"],
       sample: SAMPLE,
     }),
     preview,

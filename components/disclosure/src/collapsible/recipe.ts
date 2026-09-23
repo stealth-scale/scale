@@ -18,7 +18,11 @@ import {
   iconSizes,
   insetSizes,
   interactive,
+  onSlot,
   onSlots,
+  statusEmitted,
+  statusVariants,
+  surface,
 } from "@stealthscale/theme/authoring";
 
 /**
@@ -38,7 +42,7 @@ export const recipe = defineSlotRecipe({
       transitionProperty: "rotate",
       transitionTimingFunction: "press",
     },
-    root: { width: "full" },
+    root: { colorPalette: "neutral", width: "full" },
     trigger: {
       ...interactive(),
       alignItems: "center",
@@ -49,9 +53,10 @@ export const recipe = defineSlotRecipe({
     },
   },
   className: "collapsible",
-  defaultVariants: { motion: "slide", size: "md", variant: "plain" },
+  defaultVariants: { motion: "slide", size: "md", status: "neutral", variant: "plain" },
   jsx: [/^Collapsible(\.\w+)?$/u],
   slots: ["root", "trigger", "content", "indicator"],
+  staticCss: [statusEmitted()],
   variants: {
     /**
      * How the block appears and goes.
@@ -79,27 +84,51 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
+     * The palette the pair is drawn in.
+     *
+     * @remarks
+     *   A block a page folds away is often a block about something: a warning it wants read before
+     *   it is opened, a fault it wants kept out of the way until someone asks. The status points
+     *   the palette and the looks read it, so one word turns the fill, the edge and what a press
+     *   does, and no value here is a colour.
+     *   `neutral` is the default and the one a page states nothing for, which is the grey every
+     *   collapsible was drawn in before there was an axis at all.
+     */
+    status: onSlot("root", { ...statusVariants(), neutral: { colorPalette: "neutral" } }),
+
+    /**
      * How the pair is set off from the page around it.
+     *
+     * @remarks
+     *   The raised look is the theme's own surface fragment, which carries an elevation along with
+     *   the panel colour and the line. Written out without one it was a line round a panel, and a
+     *   panel on a page already that colour is a line round nothing: the raised look and the
+     *   outlined look drew the same thing.
+     *   Each look reads the palette the status points rather than a surface role, which is what
+     *   lets one word tint the whole pair.
      */
     variant: {
       subtle: {
-        root: { background: "bg.muted", borderRadius: "l2" },
-        trigger: { _hover: { background: "bg.emphasized" } },
+        root: { background: "colorPalette.subtle", borderRadius: "l2" },
+        trigger: { _hover: { background: "colorPalette.muted" } },
       },
 
       surface: {
-        root: {
-          background: "bg.panel",
-          borderColor: "border",
-          borderRadius: "l2",
-          borderWidth: "hairline",
+        root: surface(),
+        trigger: {
+          _open: { borderBlockEndColor: "colorPalette.border", borderBlockEndWidth: "hairline" },
         },
-        trigger: { _open: { borderBlockEndColor: "border", borderBlockEndWidth: "hairline" } },
       },
 
       outline: {
-        root: { borderColor: "border", borderRadius: "l2", borderWidth: "hairline" },
-        trigger: { _open: { borderBlockEndColor: "border", borderBlockEndWidth: "hairline" } },
+        root: {
+          borderColor: "colorPalette.border",
+          borderRadius: "l2",
+          borderWidth: "hairline",
+        },
+        trigger: {
+          _open: { borderBlockEndColor: "colorPalette.border", borderBlockEndWidth: "hairline" },
+        },
       },
 
       plain: { root: { borderWidth: "0" } },
