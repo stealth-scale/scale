@@ -1,16 +1,18 @@
 /**
- * Publishes the preset an application's style compiler installs to pick up this package's recipes.
+ * Registers every recipe in the package in the preset an application's style compiler installs.
  *
  * @remarks
- *   The list of recipes is maintained by hand. The package's own specification fails when a recipe
- *   file is missing from it, which is why nothing generates the list.
+ *   The list is written by hand. `theme.spec.ts` fails when a recipe file is missing from it, so no
+ *   generator writes it.
  */
 
 import { definePreset } from "@stealthscale/theme/authoring";
 
 import { recipe as badge } from "#badge/recipe.ts";
+import { recipe as stat } from "#stat/recipe.ts";
+import { recipe as status } from "#status/recipe.ts";
 
 export default definePreset({
   name: "@stealthscale/component-data",
-  theme: { extend: { recipes: { badge } } },
+  theme: { extend: { recipes: { badge }, slotRecipes: { stat, status } } },
 });

@@ -1,0 +1,32 @@
+{
+  "about": "A colored dot and a word that report what something is doing now. The word carries the meaning, so the status is readable without the color.",
+  "after": "in twelve countries.",
+  "before": "Payouts are",
+  "effect": {
+    "about": "A halo around the dot, in the palette's solid at half opacity. `pulse` animates it, the usual signal for a live connection, and stops when the reader prefers reduced motion.",
+    "title": "Effects"
+  },
+  "palette": {
+    "about": "The dot in each semantic palette, next to a word for a state a caller would map to it.",
+    "title": "Palettes"
+  },
+  "sentence": {
+    "about": "The root is a `span`, so a status is valid inside a paragraph. At `inherit` the word takes the font of the sentence, and the dot and the gap follow it.",
+    "title": "In a sentence"
+  },
+  "size": {
+    "about": "Each size sets the label text style one size smaller, and `inherit` takes the surrounding font. The dot and the gap scale with the text.",
+    "title": "Sizes"
+  },
+  "states": {
+    "accent": "Scheduled",
+    "error": "Down",
+    "info": "Syncing",
+    "neutral": "Unknown",
+    "primary": "In review",
+    "secondary": "Draft",
+    "success": "Live",
+    "warning": "Degraded"
+  },
+  "title": "Status"
+}
