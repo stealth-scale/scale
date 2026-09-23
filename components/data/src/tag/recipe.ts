@@ -1,23 +1,19 @@
 /**
- * Declares the slot recipe of the tag, a short label with an optional mark at either end and a
- * button that removes it.
+ * Declares the tag slot recipe for a short label with an optional mark at either end and a button
+ * that removes it.
  *
  * @remarks
- *   The looks are the flat layer styles the badge uses, so a tag does not repaint under a pointer.
- *   The close trigger is the one control in it, with the focus ring from `interactive()` and a
- *   touch target from `touchTarget()`, because the tag's height is under the 24px WCAG 2.5.8
- *   floor at the smaller sizes. The root does not shrink in a flex row, so a row of tags wraps
- *   instead of cutting every label. With shrinking, three tags at `xl` measured as `led…`, `pay…`
- *   and `archi…`. The root is capped at its container's width, and the label truncates with an
- *   ellipsis when the tag reaches that cap. Marks and the close glyph are sized in `em`, so they
- *   follow the label.
+ *   The looks are the flat layer styles, so a tag does not repaint on hover. The close trigger is
+ *   the one control, with the focus ring from `interactive()` and a touch target from
+ *   `touchTarget()`, because the tag is under the 24px WCAG 2.5.8 target at the smaller sizes. The
+ *   root does not shrink in a flex row, so a row of tags wraps and no label is truncated. The
+ *   root is capped at its container's width, and the label truncates with an ellipsis at that cap.
+ *   Marks and the close glyph are sized in `em`, so they follow the label.
  */
 
 import {
-  below,
   cornerVariants,
   defineSlotRecipe,
-  dense,
   flatVariants,
   interactive,
   onSlot,
@@ -27,34 +23,14 @@ import {
   touchTarget,
 } from "@stealthscale/theme/authoring";
 
-/**
- * Selects one of the four sizes a tag offers.
- */
-type Step = "lg" | "md" | "sm" | "xl";
-
-/**
- * Maps each tag size to the gap token of its inline padding: 6px, 8px, 8px and 12px at the
- * foundation's metrics.
- *
- * @remarks
- *   The tag scale's inset, which the badge uses, measured 12px at `md` on a 24px tag, and 20px at
- *   `xl`. A tag with a mark then had as much room at its ends as the mark was wide.
- */
-const PAD: Readonly<Record<Step, string>> = { lg: "md", md: "md", sm: "sm", xl: "lg" };
-
-/**
- * Maps each tag size to the gap token between its parts: 4px at `sm` and `md`, 6px at `lg` and
- * `xl`. The gap one size smaller measured 6px at `md` and 12px at `xl` between a mark and the
- * label.
- */
-const GAP: Readonly<Record<Step, string>> = { lg: "sm", md: "xs", sm: "xs", xl: "sm" };
+import { CHIP_SIZES, chipSize } from "#chip.ts";
 
 /**
  * Styles the element at either end of the tag, which contains a mark.
  *
  * @remarks
- *   The element is pulled `0.125em` towards the tag's edge, because a mark's glyph has space inside
- *   its box and sat further from the edge than the label does.
+ *   The element is pulled `0.125em` towards the tag's edge, because a glyph has space inside its
+ *   box, so the glyph's ink is as far from the edge as the label is.
  */
 const ELEMENT = {
   "& > svg": { blockSize: "1em", inlineSize: "1em" },
@@ -64,13 +40,13 @@ const ELEMENT = {
 };
 
 /**
- * Styles a tag at the middle size, in the surface look and the neutral palette.
+ * Tag slot recipe, the surface look at the md size in the neutral palette by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
     /**
-     * The close trigger draws its focus ring inside its box, because a ring outside it fell on the
-     * tag's own fill and could not be seen on a solid tag.
+     * The close trigger draws its focus ring inside its box, because a ring outside it falls on
+     * the tag's fill.
      */
     closeTrigger: {
       ...interactive(),
@@ -98,9 +74,8 @@ export const recipe = defineSlotRecipe({
      * The label is raised `0.1em` and clipped on the inline axis only.
      *
      * @remarks
-     *   A centred line box put the text low in the tag: at `md` the lowercase x-height's centre
-     *   measured 1.1px below the tag's centre, and the ink 1.6px below. At `lg` the descenders
-     *   ended at the edge of the label's box, where `overflow: hidden` would cut them.
+     *   The raise puts the lowercase x-height's centre within 0.7px of the tag's centre at every
+     *   size. The block axis is not clipped, because the descenders extend to the label box's edge.
      */
     label: {
       minInlineSize: "0",
@@ -111,8 +86,8 @@ export const recipe = defineSlotRecipe({
       whiteSpace: "nowrap",
     },
     /**
-     * The root draws a hairline outline in forced colors mode. The solid, subtle and plain looks
-     * have no border, and with their fills replaced a tag read as loose text next to a cross.
+     * The root draws a hairline outline in forced colors, where the browser replaces the fill and
+     * the solid, subtle and plain looks have no border to mark the box.
      */
     root: {
       _highContrast: {
@@ -136,8 +111,8 @@ export const recipe = defineSlotRecipe({
   compoundVariants: [
     /**
      * The close trigger on a solid tag hovers to a tint of the contrast ink and draws its focus
-     * ring in the contrast ink. `emphasized` is lighter than the solid fill and put the light cross
-     * on a light square, and the `focusRing` role is as dark as the fill.
+     * ring in the contrast ink, because the `emphasized` role is lighter than the solid fill and
+     * the `focusRing` role is as dark as it.
      */
     {
       css: {
@@ -159,7 +134,7 @@ export const recipe = defineSlotRecipe({
      * The halo around the tag, in the palette's solid at half opacity.
      *
      * @remarks
-     *   `pulse` animates the halo and stops when the reader prefers reduced motion.
+     *   `pulse` animates the halo and stops under reduced motion.
      */
     effect: onSlot("root", {
       glow: { layerStyle: "glow.sm" },
@@ -169,21 +144,9 @@ export const recipe = defineSlotRecipe({
     radius: onSlot("root", cornerVariants()),
 
     /**
-     * The height on the tag scale, the label one size smaller, and the padding and gap from
-     * `PAD` and `GAP`.
+     * The height, padding, gap and label text style from `chipSize`, shared with the badge.
      */
-    size: onSlot(
-      "root",
-      sizeVariants(
-        (size) => ({
-          gap: dense(`{spacing.gap.${GAP[size]}}`),
-          height: dense(`{sizes.tag.${size}}`),
-          paddingInline: dense(`{spacing.gap.${PAD[size]}}`),
-          textStyle: `label.${below(size)}`,
-        }),
-        ["sm", "md", "lg", "xl"],
-      ),
-    ),
+    size: onSlot("root", sizeVariants(chipSize, CHIP_SIZES)),
     variant: onSlot("root", flatVariants()),
   },
 });

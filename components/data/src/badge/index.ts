@@ -1,6 +1,5 @@
 /**
- * Forms the public surface of the badge, renaming the props provider so that it stays unambiguous
- * among the providers other components publish.
+ * Exports the badge and its props provider, renamed so it does not clash with other providers.
  */
 
 export { Badge, type BadgeProps } from "#badge/badge.ts";

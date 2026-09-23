@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
+import { PALETTES } from "@stealthscale/theme/authoring";
 
 import page from "#badge/badge.specimen.tsx";
 import { recipe } from "#badge/recipe.ts";
+import { chipSize } from "#chip.ts";
 
 describe("recipe", () => {
   it("covers every variant axis in the scenes of its specimen page", () => {
@@ -15,7 +17,7 @@ describe("recipe", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("styles Badge from tokens a theme can override", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Badge"] })).toStrictEqual([]);
   });
 
@@ -23,28 +25,35 @@ describe("recipe", () => {
     expect(recipe.className).toBe("badge");
   });
 
-  it("declares four variant axes", () => {
-    expect(axesOf(recipe)).toStrictEqual(["radius", "size", "status", "variant"]);
+  it("declares the effect palette radius size and variant axes", () => {
+    expect(axesOf(recipe)).toStrictEqual(["effect", "palette", "radius", "size", "variant"]);
   });
 
   it("defaults to the subtle look at the md size with the l2 corner", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ radius: "l2", size: "md", variant: "subtle" });
   });
 
-  it("declares eight size values from xs to 4xl", () => {
-    expect(valuesOf(recipe, "size")).toStrictEqual([
-      "2xl",
-      "3xl",
-      "4xl",
-      "lg",
-      "md",
-      "sm",
-      "xl",
-      "xs",
-    ]);
+  it("reads the primary palette in the base", () => {
+    expect(recipe.base).toMatchObject({ colorPalette: "primary" });
   });
 
-  it("declares five look values", () => {
+  it("declares every semantic palette on the palette axis", () => {
+    expect(valuesOf(recipe, "palette")).toStrictEqual([...PALETTES].toSorted());
+  });
+
+  it("lists every palette in staticCss", () => {
+    expect(recipe.staticCss).toStrictEqual([{ palette: [...PALETTES] }]);
+  });
+
+  it("declares sm md lg and xl on the size axis", () => {
+    expect(valuesOf(recipe, "size")).toStrictEqual(["lg", "md", "sm", "xl"]);
+  });
+
+  it("reads the chip metrics at md", () => {
+    expect(recipe.variants?.["size"]?.["md"]).toStrictEqual(chipSize("md"));
+  });
+
+  it("declares the five flat looks on the variant axis", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual([
       "outline",
       "plain",
@@ -54,34 +63,21 @@ describe("recipe", () => {
     ]);
   });
 
-  it("omits ghost from the look values", () => {
-    expect(valuesOf(recipe, "variant")).not.toContain("ghost");
+  it("declares glow and pulse on the effect axis", () => {
+    expect(valuesOf(recipe, "effect")).toStrictEqual(["glow", "pulse"]);
   });
 
-  it("declares neutral alongside the four status values", () => {
-    expect(valuesOf(recipe, "status")).toStrictEqual([
-      "error",
-      "info",
-      "neutral",
-      "success",
-      "warning",
-    ]);
-  });
-
-  it("lists all five status values under staticCss", () => {
-    expect(recipe.staticCss).toStrictEqual([
-      { status: ["info", "success", "warning", "error"] },
-      { status: ["neutral"] },
-    ]);
-  });
-
-  it("declares four radius values", () => {
+  it("declares every corner on the radius axis", () => {
     expect(valuesOf(recipe, "radius")).toStrictEqual(["full", "l1", "l2", "l3"]);
   });
 
-  it("takes the md height from the tag scale rather than the control scale", () => {
-    expect(recipe.variants?.["size"]?.["md"]).toMatchObject({
-      height: "calc({sizes.tag.md} * var(--density, 1))",
+  it("outlines the badge in CanvasText under forced colors", () => {
+    expect(recipe.base).toMatchObject({
+      _highContrast: {
+        outlineColor: "CanvasText",
+        outlineStyle: "solid",
+        outlineWidth: "hairline",
+      },
     });
   });
 

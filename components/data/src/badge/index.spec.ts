@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#badge/index.ts";
 
 describe("index", () => {
-  it("exports only the two public names", () => {
+  it("exports Badge and BadgePropsProvider only", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual(["Badge", "BadgePropsProvider"]);
   });
 

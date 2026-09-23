@@ -1,10 +1,9 @@
 /**
- * Binds the badge recipe to a React context the styled element reads.
+ * Binds the badge recipe to React.
  *
  * @remarks
- *   The binding is kept out of `recipe.ts` because a consuming application's style compiler
- *   imports the recipe at build time. Binding a context there would pull the React runtime into
- *   every compiler configuration that reads it.
+ *   The binding is a separate module from the recipe, because an application's compiler imports the
+ *   recipe at build time and the binding needs the React runtime.
  */
 
 import { createRecipeContext } from "@stealthscale/theme";
@@ -12,7 +11,6 @@ import { createRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#badge/recipe.ts";
 
 /**
- * Supplies the element factory the badge is built from, and the provider an ancestor uses to set
- * its variants.
+ * Factory for the badge and the provider that sets its variants for descendants.
  */
 export const { PropsProvider, withContext } = createRecipeContext(recipe);

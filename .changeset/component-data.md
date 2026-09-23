@@ -71,3 +71,13 @@ component-data: show the source of every scene from an example file
   examples.
 - The status palette scene and the color swatch mix scene are hand-written. The first pairs each
   palette with a state word, and a caller selects a mix by the number of colors.
+
+component-data: size the badge like the tag and give it a palette axis
+
+- Breaking: `Badge` takes `palette` in place of `status`. The eight semantic palettes replace the
+  four statuses and `neutral`, and `staticCss` lists every palette.
+- Breaking: `Badge` takes `size` `sm`, `md`, `lg` or `xl`. `xs` and `2xl` to `4xl` are removed. The
+  sizes read `chipSize`, which the tag also reads: the tag scale's height, gap-scale padding of 6,
+  8, 8 and 12px, and a label one size smaller. The inset padding measured 12px at `md`.
+- `effect` adds a `glow` or a `pulse` halo in the palette's solid at half opacity.
+- Under forced colors the badge draws a hairline `CanvasText` outline.

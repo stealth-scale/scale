@@ -1,11 +1,11 @@
 # @stealthscale/component-data
 
-Draws one value for reading: a figure, an instant, a label, a state. Every component binds a recipe
-and draws nothing of its own, so a theme restyles all of them by extending the recipe. The preset
-under `./theme` registers the recipes with an application's compiler.
+React components that display one value: `Badge`, `Status`, `Stat`, `Tag` and `ColorSwatch`. Each
+component renders through a recipe, so a theme restyles it by extending the recipe. The preset under
+`./theme` registers the recipes with an application's compiler.
 
-Every value a theme can change on a component is an axis of its recipe, so a caller sets it as a
-prop and writes no style. A caller changes the element a component draws with `as`.
+Every value a theme can change is a recipe axis, and a caller sets it as a prop. A caller changes
+the rendered element with `as`.
 
 ## Install
 
@@ -18,49 +18,45 @@ The package peers on `react` and `@stealthscale/theme`. An application lists the
 
 ## Badge
 
-Labels something with one short word or a count, set off from what it labels. Its look is flat, so
-it does not repaint under a pointer. Put a badge inside a row that hovers and the pointer crosses
-the badge whenever it crosses the row, and a badge that changed under the pointer would read as a
-control a reader can press and then cannot. Numbers are tabular, so a column of counts holds its
-width as the counts change.
-
-A badge is read beside a control of its own size and drawn at half its height. Its inset, its gap
-and its label all come from the smaller step of the scale, so a medium badge beside a medium button
-reads at the small label rather than the medium one.
+Renders a short label or a count. The looks are flat, so a badge does not repaint on hover,
+including inside a hoverable row. Numerals are tabular, so a column of changing counts keeps its
+width.
 
 ```tsx
 import { Badge, BadgePropsProvider } from "@stealthscale/component-data";
 
 <Badge>New</Badge>;
-<Badge radius="full" status="error">
+<Badge aria-label="3 failed" palette="error" radius="full">
   3
 </Badge>;
-<Badge as="output" variant="outline">
-  Draft
+<Badge palette="success">
+  <CircleCheckIcon aria-hidden />
+  Paid
 </Badge>;
 <BadgePropsProvider value={{ size: "sm", variant: "surface" }}>
   <Badge>Public</Badge>
-  <Badge status="success">Live</Badge>
+  <Badge palette="success">Live</Badge>
 </BadgePropsProvider>;
 ```
 
-`BadgePropsProvider` sets the variants of every badge below it. A prop on the badge itself overrides
-the provider's.
+| Axis      | Values                                                             | Default   |
+| --------- | ------------------------------------------------------------------ | --------- |
+| `variant` | `solid`, `subtle`, `surface`, `outline`, `plain`                   | `subtle`  |
+| `size`    | `sm`, `md`, `lg`, `xl`                                             | `md`      |
+| `palette` | `primary`, `secondary`, `accent`, `neutral`, and the four statuses | `primary` |
+| `radius`  | `l1`, `l2`, `l3`, `full`                                           | `l2`      |
+| `effect`  | `glow`, `pulse`                                                    | none      |
 
-The element is `span` and has no role, so a screen reader reads its text and nothing else. A badge
-whose meaning is in its colour needs that meaning in words: a red badge reading `3` tells a sighted
-reader that three things failed and tells a screen reader `3`. Write the words with `aria-label`, or
-put them in the badge and let the colour repeat them.
+The sizes match `Tag`: the height from the tag scale, the padding and gap from the gap scale, and
+the text one size smaller. An `svg` child is 1em square, so an icon matches the text at every size.
 
-| Axis      | Values                                            | Default  |
-| --------- | ------------------------------------------------- | -------- |
-| `variant` | `solid`, `subtle`, `surface`, `outline`, `plain`  | `subtle` |
-| `size`    | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl` | `md`     |
-| `status`  | `info`, `success`, `warning`, `error`, `neutral`  | primary  |
-| `radius`  | `l1`, `l2`, `l3`, `full`                          | `l2`     |
+`BadgePropsProvider` sets the variants of every badge below it. A prop on the badge overrides the
+provider's. The recipe lists every palette in `staticCss`, so a palette set from data has a rule.
 
-There is no ghost look here. A ghost control is a transparent box that fills in under a pointer, and
-a look that never repaints leaves it identical to plain.
+The element is a `span` with no role, so a screen reader announces only its text. A badge that
+conveys a status by color states the status in its text or its `aria-label`, because WCAG 1.4.1
+rejects color alone. Pass `role="status"` to announce a count as it changes. Under forced colors the
+badge draws a hairline `CanvasText` outline.
 
 ## Status
 
