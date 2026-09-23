@@ -33,6 +33,11 @@ const SIZES = ["sm", "md", "lg"] as const;
 
 /**
  * Styles an alert, defaulting to a subtle informational notice at the middle size.
+ *
+ * @remarks
+ *   The mark and whatever stands at the end are centred against the whole notice rather than
+ *   pinned to its first line. An alert is a few lines at most, and a mark held at the top of a
+ *   three-line notice sat on its own with the notice hanging below it.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -40,7 +45,7 @@ export const recipe = defineSlotRecipe({
     content: { display: "flex", flex: "1", minInlineSize: "0" },
     description: { color: "inherit" },
     indicator: { alignItems: "center", display: "inline-flex", flex: "0 0 auto" },
-    root: { alignItems: "flex-start", display: "flex", inlineSize: "full" },
+    root: { alignItems: "center", display: "flex", inlineSize: "full" },
     title: { fontWeight: "medium" },
   },
   className: "alert",

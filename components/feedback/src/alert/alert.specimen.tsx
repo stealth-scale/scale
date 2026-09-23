@@ -54,9 +54,14 @@ const SAMPLE = {
  */
 interface NoticeProps {
   /**
-   * The body text of the notice.
+   * The body text of the notice, where the scene draws one.
+   *
+   * @remarks
+   *   The grid of looks against statuses draws none. Twenty-five cells of a title and a sentence
+   *   wrapped every sentence over four lines and squeezed the dismiss control into the middle of
+   *   a column of text. What that grid is about is the colour, which a title carries on one line.
    */
-  readonly description: string;
+  readonly description?: string | undefined;
 
   /**
    * The status of the surrounding alert, which the dismiss control is tinted from. Defaults to the
@@ -102,7 +107,7 @@ function Notice({
       </Alert.Indicator>
       <Alert.Content>
         <Alert.Title>{title}</Alert.Title>
-        <Alert.Description>{description}</Alert.Description>
+        {description === undefined ? null : <Alert.Description>{description}</Alert.Description>}
       </Alert.Content>
       <Alert.Aside>
         <IconButton
@@ -129,7 +134,7 @@ function Notice({
  * @param title - The translation key of the headline, not the headline itself.
  * @param description - The translation key of the body, not the body itself.
  */
-function noticing(title: string, description: string): (props: Alert.RootProps) => ReactElement {
+function noticing(title: string, description?: string): (props: Alert.RootProps) => ReactElement {
   return function Noticing({ status, variant, ...rest }: Alert.RootProps): ReactElement {
     const { t } = useWords("alert");
 
@@ -141,7 +146,7 @@ function noticing(title: string, description: string): (props: Alert.RootProps) 
         {...rest}
       >
         <Notice
-          description={t(description)}
+          {...(description === undefined ? {} : { description: t(description) })}
           {...(status === undefined ? {} : { status })}
           title={t(title)}
           {...(variant === undefined ? {} : { variant })}
@@ -162,7 +167,7 @@ export default specimen({
         layout: { with: { status: "success" } },
         motion: { draw: noticing("failed", "declined"), with: { status: "error" } },
         radius: { across: "size" },
-        variant: { across: "status", draw: noticing("failed", "declined") },
+        variant: { across: "status", draw: noticing("failed") },
       },
       draw: noticing("saved", "restored"),
       namespace: "alert",

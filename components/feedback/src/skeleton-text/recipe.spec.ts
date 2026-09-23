@@ -27,12 +27,16 @@ describe("recipe", () => {
     expect(axesOf(recipe)).toStrictEqual([]);
   });
 
-  it("sizes each bar to one line box and insets the paint inside it", () => {
+  it("sizes each bar to a line and a half and insets the paint inside it", () => {
     expect(recipe.base?.["& > *"]).toStrictEqual({
       backgroundClip: "content-box",
-      blockSize: "1lh",
-      paddingBlock: "0.15lh",
+      blockSize: "1.5lh",
+      paddingBlock: "0.25lh",
     });
+  });
+
+  it("cuts a quarter of a line off either end rather than a seventh", () => {
+    expect(recipe.base?.["& > *"]).toMatchObject({ paddingBlock: "0.25lh" });
   });
 
   it("declares no gap on the column", () => {
