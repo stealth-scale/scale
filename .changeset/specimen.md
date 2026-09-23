@@ -42,3 +42,11 @@ specimen: set the neutral palette on the scene footer buttons
 - The audit button and the source toggle in a scene's footer set `palette="neutral"` in place of
   `status="neutral"`, after `@stealthscale/component-actions` replaced the button's `status` axis
   with `palette`.
+
+specimen: show an example file as the source of a scene
+
+- `Scene.example` takes the namespace of an example module. When the scene states no `source`, the
+  catalogue shows the module's `source` export. `sourceOf(scene)` returns that text.
+- `scenesOf` takes `example` at page level and per axis, ahead of `sample`. `propped(source, props)`
+  writes the props of the first cell in place of every `{...props}` spread and removes the `props`
+  parameter, so a generated scene shows `<Tag.Root palette="primary" variant="solid">`.

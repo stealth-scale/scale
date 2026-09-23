@@ -154,14 +154,14 @@ The examples band opens with the statement that imports the page's components fr
 the content package's code block with the clipboard's trigger beside it. The page states that
 statement itself, under `imports`. Each scene stands on a card, which is the first time that
 component reaches the browser. The card's footer holds two controls: `Source`, a disclosure that
-shows the scene's source under the scene in the same code block, written by the scene itself, and
-`Check`, which runs axe over the element the scene was drawn into and reports what it came to at the
-start of the footer. A clean audit says how many rules it held the scene to. A broken one opens a
-panel listing each rule broken, worst first, with the elements it was broken on and a link to the
-rule. Axe is loaded on the first check and not before. Each section is anchored by its worded title,
-`looks-and-sizes`, and a rail beside the page lists the sections, marks the ones on screen and
-scrolls the page to the one pressed. The rail is the navigation package's table of contents in the
-page's aside, which leaves a narrow page and sticks beside a wide one.
+shows the scene's source under the scene in the same code block, from the scene's `source` or its
+`example`, and `Check`, which runs axe over the element the scene was drawn into and reports what it
+came to at the start of the footer. A clean audit says how many rules it held the scene to. A broken
+one opens a panel listing each rule broken, worst first, with the elements it was broken on and a
+link to the rule. Axe is loaded on the first check and not before. Each section is anchored by its
+worded title, `looks-and-sizes`, and a rail beside the page lists the sections, marks the ones on
+screen and scrolls the page to the one pressed. The rail is the navigation package's table of
+contents in the page's aside, which leaves a narrow page and sticks beside a wide one.
 
 The props band is drawn where the index was asked to read props, and loaded when the band is opened.
 It holds one section per part, headed by the component and the interface, with one table of what the
@@ -305,12 +305,48 @@ names in alphabetical order and a page written Variants, States, Anatomy would b
 States, Variants. `scene()` declares one the way `specimen()` declares a page, for a file that wants
 the shape checked where the scene is written.
 
-A scene declares `title`, `draw`, and may declare `about`, `frame` and `viewport`. `draw` is a
-component rather than a node, so a scene that holds state declares its hooks in its own render.
-`frame` says how the scene meets the card it is drawn on: `inset` leaves the card's own room round
-it, `bleed` takes that room back so a component that is already a panel reaches the card's edges,
-and `bare` drops the card's surface as well. `viewport` says the scene fills a window, so a device
-shows it at the window's edges.
+A scene declares `title` and `draw`, and may declare `about`, `example`, `source`, `frame` and
+`viewport`. `draw` takes a component, not a node, so a stateful scene calls its hooks in its own
+render. `frame` sets the card framing. `inset` keeps the card padding, `bleed` removes the padding
+so a panel reaches the card edges, and `bare` also removes the card surface. `viewport` makes the
+scene fill the device window.
+
+### Examples
+
+The Source control of a scene shows an example file. An example file is
+`<component>/examples/<name>.example.tsx` and exports one component, written as the code a consumer
+copies. Its text goes through `useWords`, so the catalogue renders it in the reader's locale. The
+specimen plugin appends the file's text to the module as the `source` export, with `#` imports
+rewritten to the package name.
+
+```tsx
+import * as filtered from "#tag/examples/filters.example.tsx";
+import * as removable from "#tag/examples/removable.example.tsx";
+
+export const filters: Scene = {
+  about: "tag.filters.about",
+  draw: filtered.Filters,
+  example: filtered,
+  title: "tag.filters.title",
+};
+
+scenesOf<RootProps>(recipe, {
+  draw: (props) => <removable.Removable {...props} />,
+  example: removable,
+  namespace: "tag",
+});
+```
+
+A hand-written scene shows the example file unchanged. Staging that a consumer does not write, such
+as a `Room`, goes in the scene's `draw`. A generated scene writes the props of its first cell into
+the example. The example component takes one parameter named `props` and spreads it with
+`{...props}`. The kit replaces each spread with the attributes and removes the parameter, so the
+Source of the palette scene reads `<Tag.Root palette="primary" variant="solid">`. `scenesOf` takes
+`example` at page level and per axis, and an axis setting takes precedence. A stated `source` takes
+precedence over `example`.
+
+Each component package runs `src/examples.spec.ts`, which renders every example and asserts that axe
+reports no violation.
 
 ## Sample and Board
 

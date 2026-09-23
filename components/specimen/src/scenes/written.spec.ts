@@ -1,21 +1,31 @@
 import { describe, expect, it } from "vitest";
 
-import { written } from "#scenes/written.ts";
+import { propped, sampled, written } from "#scenes/written.ts";
+
+const EXAMPLE = [
+  "export function Removable(props: Tag.RootProps): ReactElement {",
+  "  return (",
+  "    <Tag.Root {...props}>",
+  '      <Tag.Label>{t("words.payouts")}</Tag.Label>',
+  "    </Tag.Root>",
+  "  );",
+  "}",
+].join("\n");
 
 describe("written", () => {
-  it("writes every prop the cell is drawn with", () => {
+  it("writes every prop of the first cell as an attribute", () => {
     expect(written({ name: "Button" }, { status: "info", variant: "solid" })).toBe(
       '<Button status="info" variant="solid" />',
     );
   });
 
-  it("closes a component that takes no children on its own tag", () => {
+  it("writes a self-closing tag when the snippet has no children", () => {
     expect(written({ name: "Divider" }, { orientation: "vertical" })).toBe(
       '<Divider orientation="vertical" />',
     );
   });
 
-  it("writes the children on their own lines one step in", () => {
+  it("indents the children one level inside the tag", () => {
     const snippet = { children: "<Card.Title>Invoice</Card.Title>", name: "Card.Root" };
 
     expect(written(snippet, { variant: "elevated" })).toBe(
@@ -23,7 +33,7 @@ describe("written", () => {
     );
   });
 
-  it("keeps the shape of children already written across several lines", () => {
+  it("keeps the relative indentation of multi-line children", () => {
     const children = "<Card.Header>\n  <Card.Title>Invoice</Card.Title>\n</Card.Header>";
 
     expect(written({ children, name: "Card.Root" }, { variant: "elevated" })).toContain(
@@ -31,7 +41,7 @@ describe("written", () => {
     );
   });
 
-  it("puts the import the page states above the block", () => {
+  it("writes the imports above the tag with a blank line between", () => {
     const snippet = {
       imports: 'import { Button } from "@stealthscale/component-actions";',
       name: "Button",
@@ -42,7 +52,7 @@ describe("written", () => {
     );
   });
 
-  it("leaves a blank line inside the children blank rather than indenting nothing", () => {
+  it("does not indent a blank line inside the children", () => {
     const children = "<Card.Header />\n\n<Card.Footer />";
 
     expect(written({ children, name: "Card.Root" }, { variant: "solid" })).toContain(
@@ -50,27 +60,73 @@ describe("written", () => {
     );
   });
 
-  it("writes a switch that is on as the bare prop a reader writes", () => {
+  it("writes a true prop as a bare attribute", () => {
     expect(written({ name: "Card.Root" }, { divided: true })).toBe("<Card.Root divided />");
   });
 
-  it("writes a switch that is off in braces rather than leaving it off the line", () => {
+  it("writes a false prop in braces", () => {
     expect(written({ name: "Card.Root" }, { divided: false })).toBe(
       "<Card.Root divided={false} />",
     );
   });
 
-  it("leaves out a prop the cell was handed nothing for", () => {
+  it("omits an undefined prop", () => {
     expect(written({ name: "Button" }, { size: undefined, variant: "solid" })).toBe(
       '<Button variant="solid" />',
     );
   });
 
-  it("writes nothing where the page states no snippet", () => {
+  it("returns undefined when there is no snippet", () => {
     expect(written(undefined, { variant: "solid" })).toBeUndefined();
   });
 
-  it("writes nothing for a cell drawn with no props at all", () => {
+  it("returns undefined when no prop is set", () => {
     expect(written({ name: "Button" }, {})).toBeUndefined();
+  });
+});
+
+describe("propped", () => {
+  it("replaces the props spread with the attributes of the first cell", () => {
+    expect(propped(EXAMPLE, { palette: "primary", variant: "solid" })).toContain(
+      '<Tag.Root palette="primary" variant="solid">',
+    );
+  });
+
+  it("removes the props parameter from the component signature", () => {
+    expect(propped(EXAMPLE, { palette: "primary" })).toContain(
+      "export function Removable(): ReactElement {",
+    );
+  });
+
+  it("replaces every props spread in the example", () => {
+    const twice = "function A(props: P) {\n  return [<B {...props} />, <C {...props} />];\n}";
+
+    expect(propped(twice, { size: "sm" })).toBe(
+      'function A() {\n  return [<B size="sm" />, <C size="sm" />];\n}',
+    );
+  });
+
+  it("removes the spread when no prop is set", () => {
+    expect(propped(EXAMPLE, {})).toContain("<Tag.Root>");
+  });
+
+  it("returns the example unchanged when it has no props spread", () => {
+    const plain = "export function Marks(): ReactElement {\n  return <Tag.Root />;\n}";
+
+    expect(propped(plain, { size: "sm" })).toBe(plain);
+  });
+});
+
+describe("sampled", () => {
+  it("writes the source from the source export of the example module", () => {
+    expect(sampled({ source: EXAMPLE }, { size: "sm" })).toContain('<Tag.Root size="sm">');
+  });
+
+  it("returns undefined when the example module has no string source export", () => {
+    expect(sampled({ Removable: EXAMPLE }, { size: "sm" })).toBeUndefined();
+  });
+
+  it("returns undefined when there is no example module", () => {
+    expect(sampled(undefined, { size: "sm" })).toBeUndefined();
   });
 });

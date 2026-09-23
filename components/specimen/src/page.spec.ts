@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { scene, type Scene, specimen } from "#page.ts";
+import { scene, type Scene, sourceOf, specimen } from "#page.ts";
 
 const SIZES: Scene = { draw: () => null, title: "Sizes" };
 
@@ -20,5 +20,27 @@ describe("page", () => {
     const page = specimen({ id: "actions/button", scenes: [states, SIZES] });
 
     expect(page.scenes.map((held) => held.title)).toStrictEqual(["States", "Sizes"]);
+  });
+
+  it("returns the source a scene states", () => {
+    expect(sourceOf({ ...SIZES, source: "<Badge />" })).toBe("<Badge />");
+  });
+
+  it("returns the source export of the example module when the scene states no source", () => {
+    expect(sourceOf({ ...SIZES, example: { source: "<Tag.Root />" } })).toBe("<Tag.Root />");
+  });
+
+  it("prefers the stated source over the example module", () => {
+    expect(sourceOf({ ...SIZES, example: { source: "<Tag.Root />" }, source: "<Badge />" })).toBe(
+      "<Badge />",
+    );
+  });
+
+  it("returns undefined when the example module has no string source export", () => {
+    expect(sourceOf({ ...SIZES, example: { source: 1 } })).toBeUndefined();
+  });
+
+  it("returns undefined when the scene states neither source nor example", () => {
+    expect(sourceOf(SIZES)).toBeUndefined();
   });
 });

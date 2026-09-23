@@ -1,53 +1,56 @@
 /**
- * Writes the source a built scene shows: the component as a consumer writes it, with the axis the
- * scene turns set to one of its values.
+ * Writes the source of a generated scene from the props of its first cell.
  *
  * @remarks
- *   The index cuts a scene's snippet out of the specimen's own text, and a scene built at runtime
- *   has no declaration to cut. What a reader wants from that panel is the line they would put in
- *   their own file, which is not the matrix wiring the cut would have given them either.
- *   One block rather than one per value. The drawing above the panel already names every value,
- *   once per cell, so repeating the whole component against each of them fills the panel with the
- *   same lines and leaves the reader to spot the one word that moved.
- *   Every prop the drawn cell receives is written: the axis the scene turns, the axis crossing it
- *   where one does, and the props the scene holds fixed. A snippet that named only the turned axis
- *   did not match the cell above it, which is the one thing a reader checks it against.
- *   The import line is the page's to state. The generator holds a string and a prop set and has no
- *   view of the file, so it cannot know that a card's children reach for a button.
+ *   A generated scene has no declaration in the specimen file to show. Its source comes from an
+ *   example module or from a snippet. An example contributes its whole file, with every
+ *   `{...props}` spread replaced by the props of the first cell. A snippet contributes a tag name,
+ *   optional children and optional imports. The source covers the first cell only, because the
+ *   rendered cells already label every value. It writes every prop the first cell receives: the
+ *   turned axis, the crossing axis and the fixed props.
  */
 
 /**
- * Describes how a consumer writes the component.
+ * Snippet the source of a generated scene is written from.
  */
 export interface Snippet {
   /**
-   * The lines the component is written round, where it takes children. Written as a consumer would
-   * write them and indented here, so a page states them the way they read.
+   * JSX children, indented one level inside the tag. Undefined for a self-closing tag.
    */
   readonly children?: string | undefined;
 
   /**
-   * The import the snippet needs to compile, which a reader copies above it.
+   * Import statement written above the tag.
    */
   readonly imports?: string | undefined;
 
   /**
-   * The tag, `Button` or `Card.Root`.
+   * Tag name, such as `Button` or `Card.Root`.
    */
   readonly name: string;
 }
 
 /**
- * The room one level of nesting takes.
+ * Indentation of one nesting level.
  */
 const STEP = "  ";
 
 /**
- * Writes one attribute, as a word for a string and in braces for anything else.
+ * Matches every `{...props}` spread, with the whitespace before it.
+ */
+const SPREAD = /\s\{\.\.\.props\}/gu;
+
+/**
+ * Matches the `props` parameter of a component, with its type annotation.
+ */
+const PARAMETER = /\(props(?::[^)]*)?\)/u;
+
+/**
+ * Writes one JSX attribute with a leading space.
  *
  * @remarks
- *   A switch that is on is written as the bare prop, which is how a reader writes it. One that is
- *   off is written out, because a line with nothing on it says nothing about the axis.
+ *   `true` becomes a bare attribute. `false` is written in braces, because an omitted attribute
+ *   says nothing about the axis. A string is quoted, and any other value is written in braces.
  */
 function attribute(axis: string, value: unknown): string {
   if (value === true) return ` ${axis}`;
@@ -57,7 +60,17 @@ function attribute(axis: string, value: unknown): string {
 }
 
 /**
- * Moves every line of the children in by one step.
+ * Returns the attributes of every defined prop, each with a leading space.
+ */
+function attributes(props: Readonly<Record<string, unknown>>): string {
+  return Object.entries(props)
+    .filter(([, value]) => value !== undefined)
+    .map(([axis, value]) => attribute(axis, value))
+    .join("");
+}
+
+/**
+ * Indents every non-empty line by one level.
  */
 function nested(children: string): string {
   return children
@@ -67,27 +80,58 @@ function nested(children: string): string {
 }
 
 /**
- * Writes the source for one scene: the component once, carrying every prop the first cell draws
- * with, under whatever the page states it has to import.
+ * Writes the source of a scene from a snippet and the props of its first cell.
  *
- * @param snippet - The tag, the lines it is written round, and the import it needs.
- * @param props - The props the first cell is drawn with, the turned axis among them.
- * @returns The block, or nothing where the page states no snippet or the cell draws with nothing.
+ * @param snippet - Tag name, children and imports.
+ * @param props - Props of the first cell, including the turned axis.
+ * @returns The source, or undefined when there is no snippet or no prop is set.
  */
 export function written(
   snippet: Snippet | undefined,
   props: Readonly<Record<string, unknown>>,
 ): string | undefined {
-  const set = Object.entries(props).filter(([, value]) => value !== undefined);
+  const set = attributes(props);
 
-  if (snippet === undefined || set.length === 0) return undefined;
+  if (snippet === undefined || set === "") return undefined;
 
-  const attributes = set.map(([axis, value]) => attribute(axis, value)).join("");
-  const opened = `<${snippet.name}${attributes}`;
+  const opened = `<${snippet.name}${set}`;
   const block =
     snippet.children === undefined
       ? `${opened} />`
       : `${opened}>\n${nested(snippet.children)}\n</${snippet.name}>`;
 
   return snippet.imports === undefined ? block : `${snippet.imports}\n\n${block}`;
+}
+
+/**
+ * Writes the source of a scene from an example and the props of its first cell.
+ *
+ * @remarks
+ *   The example component takes one parameter named `props` and spreads it with `{...props}`. The
+ *   function replaces every spread with the attributes and removes the parameter, so the source
+ *   reads as a standalone component. An example without a spread is returned unchanged.
+ * @param source - Source text of the example module.
+ * @param props - Props of the first cell, including the turned axis.
+ * @returns The source with the props written in.
+ */
+export function propped(source: string, props: Readonly<Record<string, unknown>>): string {
+  if (!source.includes("{...props}")) return source;
+
+  return source.replaceAll(SPREAD, attributes(props)).replace(PARAMETER, "()");
+}
+
+/**
+ * Writes the source of a scene from an example module and the props of its first cell.
+ *
+ * @param example - Namespace of the example module.
+ * @param props - Props of the first cell, including the turned axis.
+ * @returns The source, or undefined without an example or a string `source` export.
+ */
+export function sampled(
+  example: object | undefined,
+  props: Readonly<Record<string, unknown>>,
+): string | undefined {
+  return example !== undefined && "source" in example && typeof example.source === "string"
+    ? propped(example.source, props)
+    : undefined;
 }

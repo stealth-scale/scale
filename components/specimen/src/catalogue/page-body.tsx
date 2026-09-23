@@ -1,6 +1,5 @@
 /**
- * Draws the body of one page: the line that imports its components, then each scene as a section
- * with its source folded under the stage.
+ * Renders the import statement and the scene sections of a catalogue page.
  */
 
 import { type ReactElement } from "react";
@@ -8,59 +7,59 @@ import { type ReactElement } from "react";
 import { Import } from "#catalogue/page-import.tsx";
 import { SceneSection } from "#catalogue/page-scene.tsx";
 import { type Indexed } from "#catalogue/types.ts";
-import { type Scene } from "#page.ts";
+import { type Scene, sourceOf } from "#page.ts";
 
 /**
- * Describes one scene as the page lists it: anchored, and worded.
+ * A scene as listed in the page body.
  */
 export interface Listed {
   /**
-   * The anchor the scene's section is reached by.
+   * Anchor ID of the scene section.
    */
   readonly id: string;
 
   /**
-   * The scene.
+   * Scene declaration.
    */
   readonly scene: Scene;
 
   /**
-   * The scene's title, worded.
+   * Translated scene title.
    */
   readonly title: string;
 }
 
 /**
- * Describes what the body takes.
+ * Props of {@link Body}.
  */
 export interface BodyProps {
   /**
-   * The entry the index holds for the page.
+   * Index entry of the page.
    */
   readonly entry: Indexed;
 
   /**
-   * The path the application serves the framed page at, or nothing where it serves none.
+   * Path of the framed page, or undefined when the application serves none.
    */
   readonly framed?: string | undefined;
 
   /**
-   * The statement the page opens with, or nothing where it declares none.
+   * Import statement of the page, or undefined when it declares none.
    */
   readonly imports?: string | undefined;
 
   /**
-   * The scenes, in the order they are on the page.
+   * Scenes in display order.
    */
   readonly scenes: readonly Listed[];
 }
 
 /**
- * Draws the import line and the scenes, for the page body its caller draws round them.
+ * Renders the import statement and one section per scene.
  *
  * @remarks
- *   Each scene carries its own source, which the scene either writes out or is built with. A scene
- *   that carries none is drawn without a source control.
+ *   The source of each scene comes from {@link sourceOf}. A scene without a source renders a
+ *   placeholder message instead of the source control.
  */
 export function Body({ entry, framed, imports, scenes }: BodyProps): ReactElement {
   return (
@@ -75,7 +74,7 @@ export function Body({ entry, framed, imports, scenes }: BodyProps): ReactElemen
           page={entry.id}
           position={position}
           scene={scene}
-          source={scene.source ?? null}
+          source={sourceOf(scene) ?? null}
         />
       ))}
     </>

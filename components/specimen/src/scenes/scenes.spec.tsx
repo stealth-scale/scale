@@ -5,7 +5,7 @@ import { drawn } from "@stealthscale/testing-react";
 import { scenesOf } from "#scenes/scenes.ts";
 
 /**
- * A recipe offering a look, a size and a switch, which is all the generator reads of one.
+ * Recipe with a variant, a size and a boolean axis.
  */
 const RECIPE = {
   variants: {
@@ -16,14 +16,14 @@ const RECIPE = {
 };
 
 /**
- * Draws the props it is handed, so a case reads what the generator passed.
+ * Returns the props as JSON, so a case can read what the generator passed.
  */
 function draw(props: Record<string, unknown>): string {
   return JSON.stringify(props);
 }
 
 describe("scenesOf", () => {
-  it("builds a scene for every axis the recipe offers", () => {
+  it("returns one scene per recipe axis", () => {
     expect(scenesOf(RECIPE, { draw, namespace: "probe" }).map((one) => one.title)).toStrictEqual([
       "probe.loud.title",
       "probe.size.title",
@@ -31,7 +31,7 @@ describe("scenesOf", () => {
     ]);
   });
 
-  it("states the axis each scene draws, so a check reads it rather than the file", () => {
+  it("sets axes to the axis each scene renders", () => {
     expect(scenesOf(RECIPE, { draw, namespace: "probe" }).map((one) => one.axes)).toStrictEqual([
       ["loud"],
       ["size"],
@@ -39,7 +39,7 @@ describe("scenesOf", () => {
     ]);
   });
 
-  it("builds no scene for an axis the page states a reason to skip", () => {
+  it("skips an axis listed in skip", () => {
     const scenes = scenesOf(RECIPE, { draw, namespace: "probe", skip: { loud: "drawn nowhere" } });
 
     expect(scenes.map((one) => one.title)).toStrictEqual([
@@ -48,13 +48,13 @@ describe("scenesOf", () => {
     ]);
   });
 
-  it("draws the axes the page orders first, and the rest after them", () => {
+  it("orders the scenes by order and appends the remaining axes", () => {
     const scenes = scenesOf(RECIPE, { draw, namespace: "probe", order: ["variant", "size"] });
 
     expect(scenes.map((one) => one.axes?.[0])).toStrictEqual(["variant", "size", "loud"]);
   });
 
-  it("builds no scene of its own for an axis another scene crosses", () => {
+  it("returns no separate scene for a crossed axis", () => {
     const scenes = scenesOf(RECIPE, {
       axes: { size: { across: "variant" } },
       draw,
@@ -64,7 +64,7 @@ describe("scenesOf", () => {
     expect(scenes.map((one) => one.title)).toStrictEqual(["probe.loud.title", "probe.size.title"]);
   });
 
-  it("keeps a crossed axis's own scene where the page states something for it", () => {
+  it("returns a separate scene for a crossed axis with its own settings", () => {
     const scenes = scenesOf(RECIPE, {
       axes: { size: { across: "variant" }, variant: { across: "size" } },
       draw,
@@ -74,7 +74,7 @@ describe("scenesOf", () => {
     expect(scenes.map((one) => one.title)).toContain("probe.variant.title");
   });
 
-  it("states the crossed axis beside the one a scene turns", () => {
+  it("lists the crossed axis after the turned axis in axes", () => {
     const scenes = scenesOf(RECIPE, {
       axes: { size: { across: "variant" } },
       draw,
@@ -87,13 +87,13 @@ describe("scenesOf", () => {
     ]);
   });
 
-  it("looks the words up under the page's namespace and the axis", () => {
+  it("keys the introduction under the namespace and the axis", () => {
     const [first] = scenesOf(RECIPE, { draw, namespace: "card" });
 
     expect(first?.about).toBe("card.loud.about");
   });
 
-  it("turns a boolean axis through both answers rather than the one key it states", async () => {
+  it("renders a boolean axis with false and true", async () => {
     const [scene] = scenesOf(RECIPE, { draw, namespace: "probe" });
     const Turned = scene?.draw ?? ((): null => null);
     const { container } = await drawn(<Turned />);
@@ -102,7 +102,7 @@ describe("scenesOf", () => {
     expect(container.textContent).toContain('"loud":true');
   });
 
-  it("hands the drawing the value of the axis it turns", async () => {
+  it("passes the axis value to the draw function", async () => {
     const [scene] = scenesOf(RECIPE, { draw, namespace: "probe", order: ["variant"] });
     const Turned = scene?.draw ?? ((): null => null);
     const { container } = await drawn(<Turned />);
@@ -110,7 +110,7 @@ describe("scenesOf", () => {
     expect(container.textContent).toContain('"variant":"solid"');
   });
 
-  it("holds the props an axis states fixed while it turns", async () => {
+  it("passes the with props to every cell", async () => {
     const [scene] = scenesOf(RECIPE, {
       axes: { variant: { with: { size: "lg" } } },
       draw,
@@ -123,7 +123,7 @@ describe("scenesOf", () => {
     expect(container.textContent).toContain('"size":"lg"');
   });
 
-  it("draws an axis through the drawing that axis states rather than the page's", async () => {
+  it("uses the draw function of the axis over the draw function of the page", async () => {
     const [scene] = scenesOf(RECIPE, {
       axes: { variant: { draw: (): string => "its own" } },
       draw,
@@ -136,7 +136,7 @@ describe("scenesOf", () => {
     expect(container.textContent).toContain("its own");
   });
 
-  it("runs the cells of an axis down the page where it states a column", async () => {
+  it("lays the cells out in one column when direction is column", async () => {
     const [scene] = scenesOf(RECIPE, {
       axes: { variant: { direction: "column" } },
       draw,
@@ -149,7 +149,7 @@ describe("scenesOf", () => {
     expect(container.querySelector("[data-recipe=grid]")?.className).toContain("1");
   });
 
-  it("hands the drawing a value of each axis where one crosses the other", async () => {
+  it("passes a value of each axis to the draw function of a crossed scene", async () => {
     const [scene] = scenesOf(RECIPE, {
       axes: { variant: { across: "size" } },
       draw,
@@ -163,7 +163,7 @@ describe("scenesOf", () => {
     expect(container.textContent).toContain('"size":"sm"');
   });
 
-  it("carries the source a reader copies where the page states a sample", () => {
+  it("writes the source from the sample snippet", () => {
     const [scene] = scenesOf(RECIPE, {
       draw,
       namespace: "probe",
@@ -174,17 +174,40 @@ describe("scenesOf", () => {
     expect(scene?.source).toBe('<Button variant="plain">\n  Publish\n</Button>');
   });
 
-  it("builds nothing for a recipe that offers no axes", () => {
+  it("writes the source from the example module with the props of the first cell", () => {
+    const [scene] = scenesOf(RECIPE, {
+      draw,
+      example: { source: "function A(props: P) {\n  return <B {...props} />;\n}" },
+      namespace: "probe",
+      order: ["variant"],
+    });
+
+    expect(scene?.source).toBe('function A() {\n  return <B variant="plain" />;\n}');
+  });
+
+  it("prefers the example of the axis over the sample of the page", () => {
+    const [scene] = scenesOf(RECIPE, {
+      axes: { variant: { example: { source: "<B {...props} />" } } },
+      draw,
+      namespace: "probe",
+      order: ["variant"],
+      sample: { children: "Publish", name: "Button" },
+    });
+
+    expect(scene?.source).toBe('<B variant="plain" />');
+  });
+
+  it("returns no scene for a recipe without axes", () => {
     expect(scenesOf({}, { draw, namespace: "probe" })).toStrictEqual([]);
   });
 
-  it("fills the window on every scene where the page asks for it", () => {
+  it("sets viewport on every scene when the page sets it", () => {
     const scenes = scenesOf(RECIPE, { draw, namespace: "probe", viewport: true });
 
     expect(scenes.map((scene) => scene.viewport)).toStrictEqual([true, true, true]);
   });
 
-  it("fills the window on the one axis that asks for it", () => {
+  it("sets viewport only on the axis that sets it", () => {
     const scenes = scenesOf(RECIPE, {
       axes: { variant: { viewport: true } },
       draw,
@@ -195,7 +218,7 @@ describe("scenesOf", () => {
     expect(scenes.map((scene) => scene.viewport)).toStrictEqual([true, undefined, undefined]);
   });
 
-  it("leaves the window alone where neither the page nor the axis asks", () => {
+  it("omits viewport when neither the page nor the axis sets it", () => {
     const [scene] = scenesOf(RECIPE, { draw, namespace: "probe" });
 
     expect(scene).not.toHaveProperty("viewport");
