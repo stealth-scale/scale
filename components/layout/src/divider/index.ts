@@ -1,5 +1,5 @@
 /**
- * Publishes the divider: one line between things, across the page or down a row.
+ * Exposes the divider component and its props provider to the package barrel.
  */
 
 export { PropsProvider as DividerPropsProvider } from "#divider/context.ts";

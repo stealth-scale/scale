@@ -1,10 +1,20 @@
 {
-  "about": "Draws one line between things, which a screen reader announces as a break.",
-  "orientation": {
-    "about": "A line across a column and a line down a row. The line standing up states its orientation beside its look, because a browser assumes a separator lies flat.",
-    "title": "Orientations"
+  "about": "Renders a hairline separator across a column or down a row. The element is an `hr` with the separator role.",
+  "bold": "Bold",
+  "horizontal": {
+    "about": "Two days of an activity feed in a 320px room, separated by a horizontal divider.",
+    "title": "Horizontal"
   },
+  "italic": "Italic",
+  "paid": "Invoice INV-2041 was paid",
+  "redo": "Redo",
+  "refunded": "Charge CH-3188 was refunded",
   "title": "Divider",
   "today": "Today",
+  "undo": "Undo",
+  "vertical": {
+    "about": "Two groups of toolbar buttons separated by a vertical divider, which stretches to the height of the row and sets `aria-orientation=\"vertical\"`.",
+    "title": "Vertical"
+  },
   "yesterday": "Yesterday"
 }

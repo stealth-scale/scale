@@ -1,62 +1,58 @@
 /**
- * Shows the divider: a line across a column of things and a line down a row of them.
+ * Catalogue page for the divider.
  *
  * @remarks
- *   The scenes are generated from the recipe, so an orientation added to the theme reaches the page
- *   without this file changing. Each line stands between two tiles in a stack running the other
- *   way, because a line between nothing shows nothing. The words are keys under `divider` in the
- *   catalogue's namespace, kept beside this file in `locales/en/specimen/divider.json`.
+ *   Two hand-written scenes render the `orientation` axis, because each orientation needs a stack
+ *   that runs the other way and an example cannot read `props.orientation`. A horizontal divider
+ *   separates two days of an activity feed in a 320px room. A vertical divider separates two
+ *   groups of toolbar buttons. Every scene renders a component from `examples/` and shows that
+ *   file as its source. The words are keys under `divider` in `locales/en/specimen/divider.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { scenesOf, specimen, Tile, useWords } from "@stealthscale/specimen";
+import { Room, type Scene, specimen } from "@stealthscale/specimen";
 
-import { Divider, type DividerProps } from "#divider/divider.ts";
-import { recipe } from "#divider/recipe.ts";
-import { Stack } from "#stack/stack.ts";
+import * as feed from "#divider/examples/feed.example.tsx";
+import * as toolbar from "#divider/examples/toolbar.example.tsx";
 
 /**
- * The call site every scene's source snippet is generated from.
+ * Renders the activity feed in a 320px room.
  */
-const SAMPLE = {
-  imports: 'import { Divider } from "@stealthscale/component-layout";',
-  name: "Divider",
+function Feed(): ReactElement {
+  return (
+    <Room size="xs">
+      <feed.Feed />
+    </Room>
+  );
+}
+
+/**
+ * Hand-written scene for a horizontal divider.
+ */
+export const horizontal: Scene = {
+  about: "divider.horizontal.about",
+  axes: ["orientation"],
+  draw: Feed,
+  example: feed,
+  title: "divider.horizontal.title",
 };
 
 /**
- * Draws yesterday and today with a line between them, in a stack running the other way.
- *
- * @remarks
- *   A line standing up states its orientation beside its look, because a browser assumes a
- *   separator lies flat. The stack runs the way the line does not, so the line parts the two tiles
- *   rather than lying along one of them.
+ * Hand-written scene for a vertical divider.
  */
-function Between({ orientation, ...rest }: DividerProps): ReactElement {
-  const { t } = useWords("divider");
-  const standing = orientation === "vertical";
-
-  return (
-    <Stack align="stretch" direction={standing ? "row" : "column"}>
-      <Tile>{t("yesterday")}</Tile>
-      <Divider
-        {...(standing ? { "aria-orientation": "vertical" as const } : {})}
-        {...(orientation === undefined ? {} : { orientation })}
-        {...rest}
-      />
-      <Tile>{t("today")}</Tile>
-    </Stack>
-  );
-}
+export const vertical: Scene = {
+  about: "divider.vertical.about",
+  axes: ["orientation"],
+  draw: toolbar.Toolbar,
+  example: toolbar,
+  title: "divider.vertical.title",
+};
 
 export default specimen({
   about: "divider.about",
   id: "components/layout/divider",
-  imports: 'import { Divider, Stack } from "@stealthscale/component-layout";',
-  scenes: scenesOf<DividerProps>(recipe, {
-    draw: (props) => <Between {...props} />,
-    namespace: "divider",
-    sample: SAMPLE,
-  }),
+  imports: 'import { Divider } from "@stealthscale/component-layout";',
+  scenes: [horizontal, vertical],
   title: "divider.title",
 });
