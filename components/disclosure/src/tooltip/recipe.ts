@@ -10,6 +10,12 @@
  *   position as inline styles, so this recipe states nothing about where the box goes. It states
  *   what the box looks like, and it grows from whichever corner the machine placed it against,
  *   which is a custom property the machine sets.
+ *   The box carries the tooltip rung. It stood on no rung at all, so a tooltip stacked by the
+ *   order it was drawn in and opened behind anything positioned that came after it. The rung goes
+ *   on the box rather than on the positioner the machine places: the machine writes
+ *   `z-index: var(--z-index)` on the positioner as an inline style and fills that property from
+ *   what the box computes to, so a rung written on the positioner is overruled by the machine's
+ *   own declaration and reaches nothing.
  *   Both looks name their surface once as a custom property, because the arrow has to be filled in
  *   the same colour as the box and reads it from there rather than restating it.
  *   A tooltip is quieter than a popover. It holds a few words, so it reads at a label rather than
@@ -45,6 +51,7 @@ export const recipe = defineSlotRecipe({
       maxWidth: "xs",
       textWrap: "pretty",
       transformOrigin: "var(--transform-origin)",
+      zIndex: "tooltip",
     },
     positioner: { position: "relative" },
     root: { display: "contents" },

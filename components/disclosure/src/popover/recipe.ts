@@ -25,14 +25,25 @@
  */
 
 import {
+  below,
   defineSlotRecipe,
   dense,
-  insetSizes,
   interactive,
   motion,
   onSlots,
+  sizeVariants,
   textSizes,
 } from "@stealthscale/theme/authoring";
+
+/**
+ * The property holding the room the panel's heading leaves for the control that closes it.
+ *
+ * @remarks
+ *   The control is out of the flow, so a heading long enough to reach the corner ran under it. The
+ *   room is written as a property by the size axis and read by the heading, rather than restated at
+ *   both ends, so the two cannot fall out of step.
+ */
+const CLOSED = "--popover-closed";
 
 /**
  * Draws a surfaced popover at the middle size until a caller says otherwise.
@@ -72,7 +83,7 @@ export const recipe = defineSlotRecipe({
     },
     positioner: { position: "relative" },
     root: { display: "contents" },
-    title: { fontWeight: "semibold" },
+    title: { fontWeight: "semibold", paddingInlineEnd: `var(${CLOSED})` },
     trigger: {
       ...interactive(),
       alignItems: "center",
@@ -101,7 +112,28 @@ export const recipe = defineSlotRecipe({
      * How much room the panel takes, and how loud its heading is.
      */
     size: onSlots({
-      content: insetSizes(),
+      /**
+       * The control that closes the panel: a square on the control scale two steps under the
+       * panel's own, holding a mark one step under it, inset from the panel's corner by the room
+       * the panel keeps round everything else.
+       *
+       * @remarks
+       *   The slot stated no size at all. The control was whatever mark a caller put in it, pinned
+       *   to the corner of the content box: a bare glyph of some ten pixels overlapping the panel's
+       *   own inset, with no square round it to press and nothing centred against anything.
+       *   The panel keeps room for it at its inline end as well, so a heading long enough to reach
+       *   the corner stops before the control rather than running under it.
+       */
+      closeTrigger: sizeVariants((size) => ({
+        "& > svg": { boxSize: dense(`{sizes.icon.${below(size)}}`) },
+        boxSize: dense(`{sizes.control.${below(below(size))}}`),
+        insetBlockStart: dense(`{spacing.inset.${size}}`),
+        insetInlineEnd: dense(`{spacing.inset.${size}}`),
+      })),
+      content: sizeVariants((size) => ({
+        [CLOSED]: `calc(${dense(`{sizes.control.${below(below(size))}}`)} + ${dense(`{spacing.gap.${size}}`)})`,
+        padding: dense(`{spacing.inset.${size}}`),
+      })),
       description: textSizes("body"),
       title: textSizes("heading"),
     }),

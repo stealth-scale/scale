@@ -82,6 +82,14 @@ describe("recipe", () => {
     expect(recipe.base?.["positioner"]).toStrictEqual({ position: "relative" });
   });
 
+  it("stands the box on the tooltip rung", () => {
+    expect(recipe.base?.["content"]).toMatchObject({ zIndex: "tooltip" });
+  });
+
+  it("writes the rung where the machine reads it rather than on the positioner", () => {
+    expect(recipe.base?.["positioner"]).not.toHaveProperty("zIndex");
+  });
+
   it("caps the box narrow so a long hint wraps", () => {
     expect(recipe.base?.["content"]).toMatchObject({ maxWidth: "xs", textWrap: "pretty" });
   });

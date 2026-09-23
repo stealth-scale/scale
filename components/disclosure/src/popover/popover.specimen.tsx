@@ -15,6 +15,7 @@
 
 import { type ReactElement } from "react";
 
+import { Portal } from "@stealthscale/component-primitives";
 import { Icon } from "@stealthscale/component-typography";
 import { Matrix, type Scene, scenesOf, specimen, useWords, written } from "@stealthscale/specimen";
 
@@ -42,11 +43,13 @@ const CROSS = "M6 6l12 12M18 6 6 18";
 const SAMPLE = {
   children: [
     "<Popover.Trigger>Filters</Popover.Trigger>",
-    "<Popover.Positioner>",
-    "  <Popover.Content>",
-    "    <Popover.Title>Filter the list</Popover.Title>",
-    "  </Popover.Content>",
-    "</Popover.Positioner>",
+    "<Portal>",
+    "  <Popover.Positioner>",
+    "    <Popover.Content>",
+    "      <Popover.Title>Filter the list</Popover.Title>",
+    "    </Popover.Content>",
+    "  </Popover.Positioner>",
+    "</Portal>",
   ].join("\n"),
   imports: 'import { Popover } from "@stealthscale/component-disclosure";',
   name: "Popover.Root",
@@ -68,20 +71,22 @@ function Filters(): ReactElement {
           </Icon>
         </Popover.Indicator>
       </Popover.Trigger>
-      <Popover.Positioner>
-        <Popover.Content>
-          <Popover.Arrow>
-            <Popover.ArrowTip />
-          </Popover.Arrow>
-          <Popover.Title as="h3">{t("filter")}</Popover.Title>
-          <Popover.Description>{t("only")}</Popover.Description>
-          <Popover.CloseTrigger aria-label={t("close")}>
-            <Icon viewBox="0 0 24 24">
-              <path d={CROSS} fill="none" stroke="currentColor" strokeWidth="2" />
-            </Icon>
-          </Popover.CloseTrigger>
-        </Popover.Content>
-      </Popover.Positioner>
+      <Portal>
+        <Popover.Positioner>
+          <Popover.Content>
+            <Popover.Arrow>
+              <Popover.ArrowTip />
+            </Popover.Arrow>
+            <Popover.Title as="h3">{t("filter")}</Popover.Title>
+            <Popover.Description>{t("only")}</Popover.Description>
+            <Popover.CloseTrigger aria-label={t("close")}>
+              <Icon viewBox="0 0 24 24">
+                <path d={CROSS} fill="none" stroke="currentColor" strokeWidth="2" />
+              </Icon>
+            </Popover.CloseTrigger>
+          </Popover.Content>
+        </Popover.Positioner>
+      </Portal>
     </>
   );
 }
