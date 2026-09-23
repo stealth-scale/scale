@@ -28,6 +28,7 @@
     "@stealthscale/component-feedback": "workspace:^",
     "@stealthscale/component-forms": "workspace:^",
     "@stealthscale/component-layout": "workspace:^",
+    "@stealthscale/component-surfaces": "workspace:^",
     "@stealthscale/component-typography": "workspace:^",
     "@stealthscale/example-lib-actions": "workspace:^",
     "@stealthscale/example-lib-surfaces": "workspace:^",

@@ -430,6 +430,9 @@ importers:
       '@stealthscale/component-layout':
         specifier: workspace:^
         version: link:components/layout
+      '@stealthscale/component-surfaces':
+        specifier: workspace:^
+        version: link:components/surfaces
       '@stealthscale/component-typography':
         specifier: workspace:^
         version: link:components/typography
