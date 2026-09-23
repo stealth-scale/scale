@@ -1,32 +1,33 @@
 /**
- * States what a text field is: a box a person types one line into, drawn in a look, a size and the
- * palette of its status.
+ * Recipe for the single-line text field.
  *
  * @remarks
- *   The surface, the edge, the ink, the placeholder, the focus ring and every state a field enters
- *   come from the theme's own field fragment, so a theme decides what a field looks like once for
- *   every field, and the three looks are layer styles it owns. What is left here is the shape and
- *   the inset the flushed look drops.
- *   The size reads the control scale, so a field lines up with a button of the same name beside it
- *   and both move when a theme restates the scale. A field fills the width it is given rather than
- *   sizing itself to its content, because a row of fields of different widths reads as a form that
- *   was laid out by hand.
- *   The focus ring is drawn inside the box. A ring outside it would be clipped where a field sits
- *   flush against the edge of a panel, which is where fields usually sit.
+ *   The surface, edge, ink, placeholder, focus ring and states come from the theme's field fragment
+ *   and its three field looks, so every field in a theme matches. The sizes read the control scale,
+ *   so an input and a button of the same size are the same height. The inline inset is one size
+ *   smaller than a button's: 12px at `md` and 40px at `4xl`. Typed text is set at the normal weight
+ *   of body text, the same as the textarea's, and not at a label's medium weight. The field fills
+ *   the inline size of its container. The recipe has no `palette` axis, because a field's color
+ *   reports a state, and no `effect` axis, because a glow or a pulse would compete with the focus
+ *   ring and the status edge.
  */
 
 import {
+  below,
+  CONTROL_INSET_END,
+  CONTROL_INSET_START,
   controlSizes,
   defineRecipe,
   dense,
   field,
   fieldStatusVariants,
   fieldVariants,
+  sizeVariants,
   statusEmitted,
 } from "@stealthscale/theme/authoring";
 
 /**
- * Draws an outlined field at the middle size until a caller says otherwise.
+ * Defines the input recipe: an outline field at size `md` by default.
  */
 export const recipe = defineRecipe({
   base: {
@@ -41,21 +42,42 @@ export const recipe = defineRecipe({
   jsx: [/^Input$/u],
   staticCss: [statusEmitted()],
   variants: {
-    size: controlSizes(),
+    /**
+     * Height, text size and inline inset. The height and text read the control scale at the same
+     * size, and the inset reads it one size smaller.
+     *
+     * @remarks
+     *   The inset is written through the control's inset properties, so a component that places
+     *   something inside the field opens the side it needs without writing padding of its own.
+     */
+    size: sizeVariants((size) => ({
+      ...controlSizes()[size],
+      fontWeight: "normal",
+      paddingInlineEnd: `var(${CONTROL_INSET_END}, ${dense(`{spacing.inset.${below(size)}}`)})`,
+      paddingInlineStart: `var(${CONTROL_INSET_START}, ${dense(`{spacing.inset.${below(size)}}`)})`,
+    })),
+
+    /**
+     * Status the field reports. Each value sets the edge and the focus ring from that status's
+     * palette.
+     */
     status: fieldStatusVariants(),
 
     /**
-     * How the edge of the field is drawn.
+     * Edges and surface of the field.
      *
      * @remarks
-     *   The flushed look keeps the smallest inset of the scale rather than the inset of its own
-     *   step. Dropped outright its text sat hard against the end of the rule under it and read as
-     *   text that had overrun the field; kept at its own step it stood as far in as an outlined
-     *   field, which is the indent a flushed field exists to avoid.
+     *   `flushed` keeps the smallest inset of the scale at every size, so its text starts near the
+     *   start of its edge. The inset goes through the control's inset properties, the same as
+     *   at every size.
      */
     variant: {
       ...fieldVariants(),
-      flushed: { layerStyle: "field.flushed", paddingInline: dense("{spacing.inset.xs}") },
+      flushed: {
+        layerStyle: "field.flushed",
+        paddingInlineEnd: `var(${CONTROL_INSET_END}, ${dense("{spacing.inset.xs}")})`,
+        paddingInlineStart: `var(${CONTROL_INSET_START}, ${dense("{spacing.inset.xs}")})`,
+      },
     },
   },
 });

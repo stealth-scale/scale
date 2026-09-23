@@ -1,96 +1,64 @@
 /**
- * Shows the text field: every look at every size, every status in every look, and the states a
- * page puts it in.
+ * Catalogue page for the input.
  *
  * @remarks
- *   The axis scenes are generated from the recipe, so a value added to it reaches the page without
- *   this file changing. The states scene is written by hand, because a page sets those three as
- *   attributes on the element and the recipe declares no axis for them.
- *   Every field is named with `aria-label`, because a field with no name is announced as `edit
- *   text` and nothing more. The words are keys under `input` in the catalogue's namespace, kept
- *   beside this file in `locales/en/specimen/input.json`.
+ *   `scenesOf` generates the sizes scene and the statuses scene, each crossed with the looks. The
+ *   states scene is hand-written, because focus, `disabled`, `readOnly` and `aria-invalid` are
+ *   element states, not recipe axes. Its focused row renders each look inside `Focused`, which
+ *   marks the field as focused by keyboard. Every scene renders a component from `examples/` and
+ *   shows that file as its source. The words are keys under `input` in
+ *   `locales/en/specimen/input.json`.
  */
 
-import { type ReactElement } from "react";
+import { Focused, Matrix, type Scene, scenesOf, specimen, valuesOf } from "@stealthscale/specimen";
 
-import {
-  Matrix,
-  type Scene,
-  scenesOf,
-  specimen,
-  useWords,
-  valuesOf,
-  written,
-} from "@stealthscale/specimen";
-
-import { Input, type InputProps } from "#input/input.ts";
+import * as email from "#input/examples/email.example.tsx";
+import * as reference from "#input/examples/reference.example.tsx";
+import * as search from "#input/examples/search.example.tsx";
 import { recipe } from "#input/recipe.ts";
 
 /**
- * The states a page puts a field in, beside the field as it is.
- */
-const STATES = ["default", "disabled", "readOnly", "invalid"] as const;
-
-/**
- * Every look the recipe draws, which the states are crossed with.
+ * Look values, crossed with every other axis.
  */
 const LOOKS = valuesOf(recipe, "variant");
 
 /**
- * The call site every scene's source snippet is generated from.
+ * States of the states scene, in reading order.
  */
-const SAMPLE = {
-  imports: 'import { Input } from "@stealthscale/component-forms";',
-  name: "Input",
-};
+const STATES = ["rest", "focused", "disabled", "readOnly", "invalid"] as const;
 
 /**
- * Draws a search field, which is what a look and a size are read against.
+ * Maps each state to the props that put a field in it. `Focused` stages the focused state.
  */
-function Search(props: InputProps): ReactElement {
-  const { t } = useWords("input");
-
-  return <Input aria-label={t("search")} {...props} />;
-}
+const STATED: Readonly<Record<(typeof STATES)[number], Parameters<typeof reference.Reference>[0]>> =
+  {
+    disabled: { disabled: true },
+    focused: {},
+    invalid: { "aria-invalid": true },
+    readOnly: { readOnly: true },
+    rest: {},
+  };
 
 /**
- * Draws an address field, which is what a status is read against.
- */
-function Address(props: InputProps): ReactElement {
-  const { t } = useWords("input");
-
-  return <Input aria-label={t("email")} placeholder={t("email")} {...props} />;
-}
-
-/**
- * Draws an address field in every state, in every look.
- */
-function States(): ReactElement {
-  const { t } = useWords("input");
-
-  return (
-    <Matrix across={{ knob: "variant", of: LOOKS }} knob="state" of={STATES}>
-      {(state, variant) => (
-        <Input
-          aria-invalid={state === "invalid" ? true : undefined}
-          aria-label={t("email")}
-          defaultValue={t("email")}
-          disabled={state === "disabled"}
-          readOnly={state === "readOnly"}
-          variant={variant}
-        />
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * The hand-written scene for the states a page puts a field in.
+ * Hand-written scene for the focus, disabled, read-only and invalid states on every look.
  */
 export const states: Scene = {
   about: "input.states.about",
-  draw: States,
-  source: written(SAMPLE, { disabled: true, variant: "outline" }),
+  draw: () => (
+    <Matrix across={{ knob: "variant", of: LOOKS }} knob="state" of={STATES}>
+      {(state, variant) =>
+        state === "focused" ? (
+          <Focused>
+            <reference.Reference variant={variant} />
+          </Focused>
+        ) : (
+          <reference.Reference {...STATED[state]} variant={variant} />
+        )
+      }
+    </Matrix>
+  ),
+  example: reference,
+  props: { "aria-invalid": true, variant: "outline" },
   title: "input.states.title",
 };
 
@@ -99,15 +67,19 @@ export default specimen({
   id: "components/forms/input",
   imports: 'import { Input } from "@stealthscale/component-forms";',
   scenes: [
-    ...scenesOf<InputProps>(recipe, {
+    ...scenesOf<Parameters<typeof search.Search>[0]>(recipe, {
       axes: {
-        status: { across: "variant", draw: (props) => <Address {...props} /> },
-        variant: { across: "size" },
+        size: { across: "variant" },
+        status: {
+          across: "variant",
+          draw: (props) => <email.Email {...props} />,
+          example: email,
+        },
       },
-      draw: (props) => <Search {...props} />,
+      draw: (props) => <search.Search {...props} />,
+      example: search,
       namespace: "input",
-      order: ["variant", "status"],
-      sample: SAMPLE,
+      order: ["size", "status"],
     }),
     states,
   ],

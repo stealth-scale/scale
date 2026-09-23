@@ -1,6 +1,5 @@
 /**
- * Publishes the text field: the box a person types one line into, and the provider that sets its
- * variants from above.
+ * Exports the input and the provider that sets its variants in a subtree.
  */
 
 export { PropsProvider as InputPropsProvider } from "#input/context.ts";
