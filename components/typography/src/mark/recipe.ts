@@ -1,16 +1,14 @@
 /**
- * Defines the styles a mark element is drawn with.
+ * Styles a highlight's look, palette, inline inset, corner, effect and entrance motion.
  *
  * @remarks
- *   The base clears the browser's own highlight colours, which no theme reaches, and clones the
- *   box decoration so a fill that runs onto a second line carries its inset and its corners onto
- *   both. The base sets no `whiteSpace`. A marked phrase held on one line forces a horizontal
- *   scroll at 320 pixels, which WCAG 1.4.10 fails. The filled looks read the `flat` layer styles,
- *   whose background and ink are the palette pairs the contrast gate measures, so a highlight
- *   clears the text ratio in both color modes. The inset writes `paddingInline` alone, because
- *   block padding on an inline box overflows into the line above rather than opening the line.
- *   The defaults draw a finished highlight: a subtle fill, the tightest inset and the tightest
- *   corner. A mark with nothing picked sits off the glyphs rather than running against them.
+ *   The base clears the browser's highlight colours and sets `box-decoration-break: clone`, so a
+ *   highlight that wraps repeats its inset and corners on every line. The base sets no
+ *   `white-space`, because a highlight kept on one line scrolls horizontally at 320px, which fails
+ *   WCAG 1.4.10. The filled looks read the `flat` layer styles, whose fill and ink pairs the
+ *   theme's contrast gate measures in both colour modes. The inset sets `padding-inline` only,
+ *   because block padding on an inline box overlaps the line above. `staticCss` lists every
+ *   palette, because `MarkPropsProvider` and data can set the value at run time.
  */
 
 import {
@@ -19,13 +17,17 @@ import {
   dense,
   flatVariants,
   motionVariants,
+  PALETTES,
+  paletteVariants,
   sizeVariants,
-  statusEmitted,
-  statusVariants,
 } from "@stealthscale/theme/authoring";
 
 /**
- * Draws a highlight in the subtle look until a caller states another.
+ * Defaults to the subtle look with the `xs` inset and the `l1` corner, in the inherited palette.
+ *
+ * @remarks
+ *   The `tinted` compound sets the text to `colorPalette.fg` in the plain and text looks when a
+ *   palette is set, because those looks have no fill to carry the palette.
  */
 export const recipe = defineRecipe({
   base: { background: "transparent", boxDecorationBreak: "clone", color: "inherit" },
@@ -34,16 +36,20 @@ export const recipe = defineRecipe({
     {
       css: { color: "colorPalette.fg" },
       name: "tinted",
-      status: ["error", "info", "success", "warning"],
+      palette: [...PALETTES],
       variant: ["plain", "text"],
     },
   ],
   defaultVariants: { inset: "xs", radius: "l1", variant: "subtle" },
   jsx: [/Mark$/u],
-  staticCss: [statusEmitted()],
+  staticCss: [{ palette: [...PALETTES] }],
   variants: {
     /**
-     * A highlight that asks to be noticed beyond its fill.
+     * Effect around the highlight.
+     *
+     * @remarks
+     *   `glow` reads the `glow.sm` layer style. `shine` reads `text.shine` and the `shimmer`
+     *   animation style, which moves a highlight across the text.
      */
     effect: {
       glow: { layerStyle: "glow.sm" },
@@ -51,25 +57,41 @@ export const recipe = defineRecipe({
     },
 
     /**
-     * How much room the fill leaves round the words, on the inline axis alone.
+     * Inline padding from the inset scale. The plain and text looks set no padding.
      */
     inset: sizeVariants(
       (size) => ({ paddingInline: dense(`{spacing.inset.${size}}`) }),
       ["xs", "sm", "md"],
     ),
 
+    /**
+     * Entrance animation. Each value reads the theme's animation style of the same name.
+     */
     motion: motionVariants(["fade", "rise", "reveal"]),
-    radius: cornerVariants(),
-    status: statusVariants(),
 
     /**
-     * How the words are picked out. The plain value restates the base, so its class reaches a
-     * rule, and the text value picks them out by weight where a fill would be too loud.
+     * Semantic palette of the fill and the edge, and of the text in the plain and text looks.
+     */
+    palette: paletteVariants(),
+
+    /**
+     * Corner radius token.
+     */
+    radius: cornerVariants(),
+
+    /**
+     * Look of the highlight.
+     *
+     * @remarks
+     *   The filled looks read the `flat` layer styles. `plain` restates the base, so its class
+     *   matches a rule. `text` sets the medium weight in place of a fill, for a highlight that has
+     *   to be distinguishable without colour. Both set no inline padding, because they render no
+     *   box.
      */
     variant: {
       ...flatVariants(),
-      plain: { background: "transparent", color: "inherit" },
-      text: { fontWeight: "medium" },
+      plain: { background: "transparent", color: "inherit", paddingInline: "0" },
+      text: { fontWeight: "medium", paddingInline: "0" },
     },
   },
 });

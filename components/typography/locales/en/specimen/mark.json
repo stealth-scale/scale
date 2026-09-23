@@ -1,23 +1,23 @@
 {
-  "about": "Picks a run of words out of the text around it, for a search hit or a term a page wants noticed.",
-  "after": " and stopped there.",
-  "before": "The search found",
-  "chassis": "chassis",
+  "about": "Highlights text inside a line, such as a search hit. The element has the mark role.",
   "effect": {
-    "about": "The two effects a highlight can carry: a glow round it, and a shine that passes over it.",
+    "about": "`glow` adds a shadow around the highlight. `shine` moves a highlight across the text.",
     "title": "Effects"
   },
+  "files": "in 3 files.",
+  "found": "Found",
   "motion": {
-    "about": "How the highlight enters the line.",
+    "about": "The animation a highlight enters with. Each one runs once when the highlight mounts.",
     "title": "Motion"
   },
+  "palette": {
+    "about": "Every look in every palette. The `text` look sets a heavier weight in place of a fill, for a highlight that has to be distinguishable without colour.",
+    "title": "Palettes and looks"
+  },
   "radius": {
-    "about": "Every corner at every inset.",
+    "about": "Every corner at every inline inset, in the subtle look.",
     "title": "Corners and insets"
   },
-  "title": "Mark",
-  "variant": {
-    "about": "Every look in every status. The text look carries the highlight in weight, for a distinction that must survive without colour.",
-    "title": "Looks and statuses"
-  }
+  "term": "chassis",
+  "title": "Mark"
 }
