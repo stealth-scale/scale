@@ -1,10 +1,10 @@
 /**
- * Draws the words that name the rail.
+ * Renders the title that labels the table of contents.
  *
  * @remarks
- *   The element is `div` and carries no heading role. The rail is a landmark named by these
- *   words, and a heading here would put one more entry in the outline of the page the rail lists.
- *   The machine gives it the id the landmark names itself by.
+ *   The element is `div` with no heading role, so the title adds no entry to the outline of the
+ *   page the list describes. The machine sets its ID, and the root's `aria-labelledby` references
+ *   it.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,23 +15,20 @@ import { withContext } from "#toc/context.ts";
 import { useToc } from "#toc/machine.ts";
 
 /**
- * Draws the words at the size the root states.
+ * Div with the title slot classes.
  */
-const Named = withContext("div", "title");
+const Styled = withContext("div", "title");
 
 /**
- * Describes what the title takes.
+ * Describes the props of Toc.Title: the props of a div element.
  */
-export type TitleProps = ComponentProps<typeof Named>;
+export type TitleProps = ComponentProps<typeof Styled>;
 
 /**
- * Draws the words the landmark is named by.
- *
- * @param props - Everything a styled div takes.
- * @returns The words, carrying the id the landmark names itself by.
+ * Renders a div with the ID the root's `aria-labelledby` references.
  */
 export function Title(props: TitleProps): ReactElement {
   const api = useToc();
 
-  return <Named {...mergeProps(api.getTitleProps(), props)} />;
+  return <Styled {...mergeProps(api.getTitleProps(), props)} />;
 }

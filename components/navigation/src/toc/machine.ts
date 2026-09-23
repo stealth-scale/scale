@@ -20,8 +20,9 @@ import { createRequiredContext, omitUndefined, splitEnumerable } from "@stealths
  * methods.
  *
  * @remarks
- *   The type is inferred from `connect`, so it follows the installed machine version. The inferred
- *   type references `@zag-js/types`, so the package declares that package as a dependency.
+ *   The type is derived from the return type of `connect`, so it follows the installed machine
+ *   version. The derived type references `@zag-js/types`, so the package declares that package as
+ *   a dependency.
  */
 export type TocApi = ReturnType<typeof toc.connect>;
 

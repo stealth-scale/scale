@@ -1,12 +1,11 @@
 /**
- * Draws the link to one heading.
+ * Renders the link to one heading.
  *
  * @remarks
- *   The element is `a`, and the address is the caller's: the heading's id behind a `#`. The
- *   machine states `aria-current="location"` while the heading is on screen, which is the value
- *   for a place within the page rather than a page within a set. Where the root names a scroll
- *   container, a press scrolls that container to the heading and writes the fragment into the
- *   address, so a link works with and without a router.
+ *   The element is `a`, and the caller passes the heading's ID behind a `#` as `href`. The machine
+ *   sets `aria-current="location"` while the heading is visible, the value WAI-ARIA defines for a
+ *   location inside a page. When the root has a `scrollEl`, a click scrolls that element to the
+ *   heading and writes the fragment to the URL, so the link works with or without a router.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -17,28 +16,25 @@ import { withContext } from "#toc/context.ts";
 import { type TocItem, useToc } from "#toc/machine.ts";
 
 /**
- * Draws the link at the size the root states.
+ * Anchor with the link slot classes.
  */
-const Linked = withContext("a", "link");
+const Styled = withContext("a", "link");
 
 /**
- * Describes what a link takes.
+ * Describes the props of Toc.Link: the heading and the props of an anchor element.
  */
-export interface LinkProps extends ComponentProps<typeof Linked> {
+export interface LinkProps extends ComponentProps<typeof Styled> {
   /**
-   * The heading the link leads to: its id in the document, and how deep it sits.
+   * Heading the link points to: its element ID as `value` and its level as `depth`.
    */
   readonly item: TocItem;
 }
 
 /**
- * Leads to one heading.
- *
- * @param props - The heading it leads to, and everything a styled anchor takes.
- * @returns The link, saying whether its heading is on screen.
+ * Renders an anchor that sets `aria-current` while its heading is visible.
  */
 export function Link({ item, ...rest }: LinkProps): ReactElement {
   const api = useToc();
 
-  return <Linked {...mergeProps(api.getLinkProps({ item }), rest)} />;
+  return <Styled {...mergeProps(api.getLinkProps({ item }), rest)} />;
 }

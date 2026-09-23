@@ -1,6 +1,6 @@
 /**
- * Publishes the table of contents' six parts, which a caller composes as `Toc.Root` holding a
- * title and a list of one row per heading, with the indicator as the list's first child.
+ * Exports the six parts of the table of contents, composed as `Toc.Root` around a `Toc.Title` and
+ * a `Toc.List` whose first child is `Toc.Indicator`.
  */
 
 export { Indicator, type IndicatorProps } from "#toc/indicator.tsx";

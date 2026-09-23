@@ -7,20 +7,20 @@ import { Title } from "#toc/title.tsx";
 import { railed } from "#toc/toc.fixtures.tsx";
 
 describe("Title", () => {
-  it("draws a div inside the root it needs above it", async () => {
+  it("renders a div inside the root", async () => {
     const { container } = await drawn(railed(<Title>On this page</Title>));
 
     expect(slotElement(container, "toc", "title").tagName).toBe("DIV");
   });
 
-  it("carries the id the landmark names itself by", async () => {
+  it("sets the id that aria-labelledby on the root references", async () => {
     const { container } = await drawn(railed(<Title>On this page</Title>));
     const title = slotElement(container, "toc", "title");
 
     expect(slotElement(container, "toc", "root").getAttribute("aria-labelledby")).toBe(title.id);
   });
 
-  it("draws the element as names", async () => {
+  it("renders the element passed as as", async () => {
     const { container } = await drawn(railed(<Title as="h2">On this page</Title>));
 
     expect(slotElement(container, "toc", "title").tagName).toBe("H2");

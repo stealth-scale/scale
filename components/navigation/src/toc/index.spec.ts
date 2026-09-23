@@ -10,7 +10,7 @@ import { List } from "#toc/list.tsx";
 import { Title } from "#toc/title.tsx";
 
 describe("index", () => {
-  it("names every part and nothing beside it", () => {
+  it("exports the six parts only", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Indicator",
       "Item",
@@ -21,7 +21,7 @@ describe("index", () => {
     ]);
   });
 
-  it("publishes neither the recipe nor the binding nor the machine", () => {
+  it("exports no recipe binding or machine hook", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {
@@ -29,7 +29,7 @@ describe("index", () => {
     }
   });
 
-  it("refuses every part drawn outside the root that holds it together", () => {
+  it("throws for every part rendered outside Toc.Root", () => {
     expect(
       rootedViolations(
         { Indicator, Item, Link, List, Title },

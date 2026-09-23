@@ -1,5 +1,5 @@
 /**
- * Builds the rail a part's specification needs above it, every part reading one machine.
+ * Test fixtures for the table of contents parts, which read the machine from the root.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -13,7 +13,7 @@ import { Root, type RootProps } from "#toc/root.tsx";
 import { Title } from "#toc/title.tsx";
 
 /**
- * The headings a case lists: two at the top and one a level in.
+ * Three headings: two at depth 2 and one at depth 3.
  */
 export const ITEMS: readonly TocItem[] = [
   { depth: 2, value: "sizes" },
@@ -22,20 +22,14 @@ export const ITEMS: readonly TocItem[] = [
 ];
 
 /**
- * Draws whatever a case wants measured inside the root that runs the machine.
- *
- * @param children - The part under test.
- * @returns The root, holding it.
+ * Renders the part under test inside `Toc.Root` over `ITEMS`.
  */
 export function railed(children: ReactNode): ReactElement {
   return <Root items={[...ITEMS]}>{children}</Root>;
 }
 
 /**
- * Draws a whole rail over three headings, so a case can read what the rows say.
- *
- * @param props - Whatever the case sets on the root.
- * @returns The six parts composed the way a caller composes them.
+ * Renders every part over `ITEMS`, with the props passed to the root.
  */
 export function composed(props: Partial<RootProps> = {}): ReactElement {
   return (

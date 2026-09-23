@@ -1,9 +1,9 @@
 /**
- * Draws the list the rows sit in.
+ * Renders the list of heading rows.
  *
  * @remarks
- *   The element is `ul`, so a screen reader counts the headings. The indicator is placed inside
- *   it, against the rows the machine measures, so draw the indicator as the list's first child.
+ *   The element is `ul`, so a screen reader announces the number of headings. The indicator is
+ *   positioned against this list, so render `Toc.Indicator` as its first child.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -14,23 +14,20 @@ import { withContext } from "#toc/context.ts";
 import { useToc } from "#toc/machine.ts";
 
 /**
- * Draws the list at the size the root states.
+ * Unordered list with the list slot classes.
  */
-const Listed = withContext("ul", "list");
+const Styled = withContext("ul", "list");
 
 /**
- * Describes what the list takes.
+ * Describes the props of Toc.List: the props of an unordered list element.
  */
-export type ListProps = ComponentProps<typeof Listed>;
+export type ListProps = ComponentProps<typeof Styled>;
 
 /**
- * Draws the list that holds one row per heading.
- *
- * @param props - Everything a styled list takes.
- * @returns The list, carrying the id the machine measures it by.
+ * Renders an unordered list with the ID the machine measures the rows against.
  */
 export function List(props: ListProps): ReactElement {
   const api = useToc();
 
-  return <Listed {...mergeProps(api.getListProps(), props)} />;
+  return <Styled {...mergeProps(api.getListProps(), props)} />;
 }

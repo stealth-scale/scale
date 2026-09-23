@@ -1,10 +1,9 @@
 /**
- * Draws one row of the list, for one heading.
+ * Renders the list row of one heading.
  *
  * @remarks
- *   A row names its heading with `item`, which is the one thing the machine cannot work out for
- *   itself. Everything else is the machine's: the depth the row is indented by, and whether the
- *   heading is on screen, which the recipe reads to mark the row.
+ *   The caller passes the heading as `item`. The machine sets `--depth`, `data-depth` and
+ *   `data-active` from it, and the recipe indents the row by the depth.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,28 +14,25 @@ import { withContext } from "#toc/context.ts";
 import { type TocItem, useToc } from "#toc/machine.ts";
 
 /**
- * Draws the row at the size the root states.
+ * List item with the item slot classes.
  */
-const Rowed = withContext("li", "item");
+const Styled = withContext("li", "item");
 
 /**
- * Describes what a row takes.
+ * Describes the props of Toc.Item: the heading and the props of a list item element.
  */
-export interface ItemProps extends ComponentProps<typeof Rowed> {
+export interface ItemProps extends ComponentProps<typeof Styled> {
   /**
-   * The heading the row names: its id in the document, and how deep it sits.
+   * Heading of the row: its element ID as `value` and its level as `depth`.
    */
   readonly item: TocItem;
 }
 
 /**
- * Draws the row that holds the link to one heading.
- *
- * @param props - The heading it names, and everything a styled list item takes.
- * @returns The row, carrying its depth and whether its heading is on screen.
+ * Renders a list item with the depth and active state of its heading.
  */
 export function Item({ item, ...rest }: ItemProps): ReactElement {
   const api = useToc();
 
-  return <Rowed {...mergeProps(api.getItemProps({ item }), rest)} />;
+  return <Styled {...mergeProps(api.getItemProps({ item }), rest)} />;
 }

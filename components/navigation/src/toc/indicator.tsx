@@ -1,12 +1,11 @@
 /**
- * Draws the mark that slides down the list to the rows naming the headings on screen.
+ * Renders the indicator next to the links whose headings are visible.
  *
  * @remarks
- *   The machine measures those rows and writes their place as custom properties on the root, so
- *   the recipe states the mark's thickness and its colour and never its position. It is hidden
- *   until there is something to measure, and it states `aria-hidden`, because the list owns its
- *   rows and a mark with no words is one more thing for a reader to step past. Which headings are
- *   on screen is `aria-current` on the links themselves. Draw it as the list's first child.
+ *   The machine writes the offset and height of the active rows to `--top` and `--height`, so the
+ *   recipe sets only the indicator's width and color. The machine sets `hidden` until it has a row
+ *   to measure. The indicator sets `aria-hidden`, because `aria-current` on the links already
+ *   marks the visible headings. Render it as the first child of `Toc.List`.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -17,23 +16,20 @@ import { withContext } from "#toc/context.ts";
 import { useToc } from "#toc/machine.ts";
 
 /**
- * Draws the mark at the thickness the recipe states.
+ * List item with the indicator slot classes.
  */
-const Marked = withContext("li", "indicator");
+const Styled = withContext("li", "indicator");
 
 /**
- * Describes what the mark takes.
+ * Describes the props of Toc.Indicator: the props of a list item element.
  */
-export type IndicatorProps = ComponentProps<typeof Marked>;
+export type IndicatorProps = ComponentProps<typeof Styled>;
 
 /**
- * Moves to the rows naming the headings on screen.
- *
- * @param props - Everything a styled list item takes.
- * @returns The mark, positioned by the machine.
+ * Renders a list item positioned over the active rows, hidden from the accessibility tree.
  */
 export function Indicator(props: IndicatorProps): ReactElement {
   const api = useToc();
 
-  return <Marked {...mergeProps({ "aria-hidden": true }, api.getIndicatorProps(), props)} />;
+  return <Styled {...mergeProps({ "aria-hidden": true }, api.getIndicatorProps(), props)} />;
 }

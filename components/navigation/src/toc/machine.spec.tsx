@@ -15,10 +15,7 @@ import {
 import { ITEMS } from "#toc/toc.fixtures.tsx";
 
 /**
- * Runs the machine and reports what it answers, so a case can read its state off the screen.
- *
- * @param props - The settings the machine is started with.
- * @returns The state, drawn as text.
+ * Runs the machine and provides its api to `Reader`.
  */
 function Running(props: TocOptions): ReactElement {
   const api = useTocMachine(props);
@@ -31,9 +28,7 @@ function Running(props: TocOptions): ReactElement {
 }
 
 /**
- * Reads the running machine through the hook a part reads it through.
- *
- * @returns The headings on screen, and how many are listed.
+ * Renders the active IDs and the item count read through `useToc`.
  */
 function Reader(): ReactElement {
   const api = useToc();
@@ -43,34 +38,32 @@ function Reader(): ReactElement {
   );
 }
 
-describe("splitTocProps", () => {
-  it("takes the machine's settings out of what the root was handed", () => {
+describe("machine", () => {
+  it("returns the machine options first from splitTocProps", () => {
     const [options] = splitTocProps({ autoScroll: false, items: [...ITEMS] });
 
     expect(options).toStrictEqual({ autoScroll: false, items: [...ITEMS] });
   });
 
-  it("leaves everything the element takes behind", () => {
+  it("returns the element props second from splitTocProps", () => {
     const [, rest] = splitTocProps({ items: [...ITEMS], size: "lg" });
 
     expect(rest).toStrictEqual({ size: "lg" });
   });
-});
 
-describe("useTocMachine", () => {
-  it("answers a running machine a part can read", async () => {
+  it("provides the running machine through useToc", async () => {
     await drawn(<Running defaultActiveIds={["sizes"]} items={[...ITEMS]} />);
 
     expect(screen.getByTestId("state").textContent).toBe("sizes of 3");
   });
 
-  it("marks no heading where a caller says nothing", async () => {
+  it("marks no heading active when defaultActiveIds is absent", async () => {
     await drawn(<Running items={[...ITEMS]} />);
 
     expect(screen.getByTestId("state").textContent).toBe("none of 3");
   });
 
-  it("keeps the machine's own default where a caller hands over nothing for it", async () => {
+  it("keeps the machine default when defaultActiveIds is undefined", async () => {
     await drawn(<Running defaultActiveIds={undefined} items={[...ITEMS]} />);
 
     expect(screen.getByTestId("state").textContent).toBe("none of 3");
