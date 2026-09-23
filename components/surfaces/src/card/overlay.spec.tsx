@@ -5,39 +5,31 @@ import { boundViolations, slotElement } from "@stealthscale/testing-theme";
 
 import { carded, composed } from "#card/card.fixtures.tsx";
 import { Media } from "#card/media.ts";
+import { Overlay } from "#card/overlay.ts";
 import { recipe } from "#card/recipe.ts";
 import { type RootProps } from "#card/root.ts";
 
-describe("Media", () => {
-  it("renders a div for the media slot inside a root", () => {
+describe("Overlay", () => {
+  it("renders a div for the overlay slot inside the media", () => {
     const { container } = render(
       carded(
         <Media>
           <img alt="" src="/invoice.png" />
+          <Overlay>New</Overlay>
         </Media>,
       ),
     );
 
-    expect(slotElement(container, "card", "media").tagName).toBe("DIV");
+    expect(slotElement(container, "card", "overlay").parentElement).toBe(
+      slotElement(container, "card", "media"),
+    );
   });
 
-  it("applies the media slot class for every variant value", () => {
+  it("applies the overlay slot class for every variant value", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
-        slot: "media",
+        slot: "overlay",
       }),
     ).toStrictEqual([]);
-  });
-
-  it("renders no aria-label of its own", () => {
-    const { container } = render(
-      carded(
-        <Media>
-          <img alt="An invoice" src="/invoice.png" />
-        </Media>,
-      ),
-    );
-
-    expect(slotElement(container, "card", "media").hasAttribute("aria-label")).toBe(false);
   });
 });

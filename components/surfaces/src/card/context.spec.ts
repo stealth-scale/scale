@@ -8,7 +8,7 @@ import { slotClasses, variantClass } from "@stealthscale/testing-theme";
 import { withContext, withProvider } from "#card/context.ts";
 
 describe("context", () => {
-  it("puts the content slot's class on the element withContext wraps", () => {
+  it("applies the content slot class to an element bound with withContext", () => {
     const Panel = withProvider("article", "root");
     const Band = withContext("div", "content");
     const { container } = render(createElement(Panel, null, createElement(Band, null, "a line")));
@@ -16,7 +16,7 @@ describe("context", () => {
     expect(slotClasses(container, "card", "content")).toContain("card__content");
   });
 
-  it("puts the size variant class on the root slot", () => {
+  it("applies the size variant class to the root slot", () => {
     const Panel = withProvider("article", "root");
     const Band = withContext("div", "content");
     const { container } = render(

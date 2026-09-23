@@ -1,10 +1,9 @@
 /**
- * Binds the card slot recipe to a React context its parts share.
+ * Binds the card slot recipe to the React context its parts share.
  *
  * @remarks
- *   The binding is kept out of `recipe.ts` because a consuming application's style compiler
- *   imports the recipe at build time. Binding a context there would pull the React runtime into
- *   every compiler configuration that reads it.
+ *   The binding is a separate module from `recipe.ts`, because an application's style compiler
+ *   imports the recipe at build time without the React runtime.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";
@@ -12,7 +11,7 @@ import { createSlotRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#card/recipe.ts";
 
 /**
- * Supplies the factory the root publishes the recipe's variants with, and the factory each band
- * reads them through.
+ * Factories that bind the root, which resolves the variants, and every other part, which reads
+ * them.
  */
 export const { withContext, withProvider } = createSlotRecipeContext(recipe);

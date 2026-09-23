@@ -1,11 +1,9 @@
 /**
- * Renders the band holding a card's controls.
+ * Renders the band that contains a card's controls.
  *
  * @remarks
- *   The element is a `div` with no role. The controls lie in a wrapping row, so a narrow card
- *   stacks them instead of overflowing. The `justify` axis places them: a card with one destructive
- *   action and one safe one pushes them to opposite ends about as often as it groups them at the
- *   end.
+ *   The element is a `div` with no role. It lays its controls in a wrapping row, so a narrow card
+ *   wraps them onto a second line. The root's `justify` axis aligns them, at the end by default.
  */
 
 import { type ComponentProps } from "react";
@@ -13,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#card/context.ts";
 
 /**
- * Renders the footer slot, laying out the controls a reader acts on.
+ * Renders the footer slot.
  */
 export const Footer = withContext("div", "footer");
 
 /**
- * Accepts every prop the styled div takes.
+ * Describes the props of `Footer`: the props of a `div`.
  */
 export type FooterProps = ComponentProps<typeof Footer>;

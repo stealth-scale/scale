@@ -65,3 +65,34 @@ component-surfaces: draw a card with no panel
   composes with every look. `aurora` carries the drift animation that moves it.
 - `Card` takes an `effect` axis with `glow`, which reads `glow.lg`. The button takes the smaller
   glow; a spread measured against a control reads as a smudge round something the size of a card.
+
+component-surfaces: add Card.Section, Card.Overlay and the palette, scrim and disabled axes
+
+- Breaking: `Card` no longer takes `backdrop`. The theme's `backdrop.*` layer styles are unchanged.
+- Breaking: `Card` takes `palette` in place of `status`. Replace `status="error"` with
+  `palette="error"`. `palette` offers the eight palettes from `paletteVariants`, and `staticCss`
+  emits every one. An `outline` card sets its border to `colorPalette.border`, and a `subtle` card
+  also fills with `colorPalette.subtle`.
+- `Card.Section` renders a band that extends to the card's side edges, keeps its content at the
+  inset, and has a hairline to each band beside it. Two adjacent sections share one rule.
+- Every rule in a card spans its full width with the inset above and below it: 16px at `md`. The
+  lower band of each boundary renders the rule. `divided` rules the band after the header and the
+  footer this way. Its rules ran inside the padding, with the inset above the header's rule and the
+  gap below it.
+- `Card.Overlay` renders a layer over `Card.Media` for a badge or a caption, at the bottom-start
+  corner. `scrim` darkens the lower half of the picture with `blackAlpha.700` and renders the
+  overlay in the dark color scheme.
+- `disabled` renders the card at `opacity: disabled` with no pointer events, and `Card.Root` sets
+  `aria-disabled`.
+- `Card.Media` extends to the top edge only as the first band and to the bottom edge only as the
+  last. It extended to the top edge wherever it stood. In the horizontal orientation it covers the
+  leading third at full height, and the other bands stack in one column beside it. Each band
+  rendered as a column of its own.
+- The indicator and the aside span the title and description rows and are centred on them. The aside
+  rendered on the description row. Both are spaced from the header's text by 8, 12, 16 and 16px from
+  `sm` to `xl`, where both took 6px at every size. An `img` in the indicator renders as a round
+  avatar of 32 to 56px by size, and a direct `svg` takes the icon size of the card's size.
+- `--card-inset` and the new `--card-gap` contain the density-scaled lengths. Under a density of 0.9
+  the media bled 10% past the padding.
+- In an interactive card every other link and button is positioned over the title's stretched link
+  and takes its own clicks.

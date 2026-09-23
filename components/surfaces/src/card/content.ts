@@ -1,9 +1,9 @@
 /**
- * Renders the band holding a card's substance.
+ * Renders the band that contains a card's body.
  *
  * @remarks
- *   The element is a `div` with no role. The band stacks its children at the body text style, so a
- *   card of running prose needs no `Text` wrapper around each line.
+ *   The element is a `div` with no role. It stacks its children in a column with the small gap and
+ *   takes the height the other bands leave.
  */
 
 import { type ComponentProps } from "react";
@@ -11,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#card/context.ts";
 
 /**
- * Renders the content slot, stacking whatever the card is about.
+ * Renders the content slot.
  */
 export const Content = withContext("div", "content");
 
 /**
- * Accepts every prop the styled div takes.
+ * Describes the props of `Content`: the props of a `div`.
  */
 export type ContentProps = ComponentProps<typeof Content>;

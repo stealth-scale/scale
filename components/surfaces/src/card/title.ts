@@ -2,10 +2,9 @@
  * Renders a card's heading.
  *
  * @remarks
- *   The element is an `h3`, which places a card below a section's own heading in the outline a
- *   screen reader walks. A page whose cards sit at another depth passes the level through `as`,
- *   since the level belongs to the page's structure rather than to the card. The size axis sets the
- *   text style, so the heading steps with the padding around it.
+ *   The element is an `h3`. Pass another level through `as` where the page's outline needs it. The
+ *   size axis sets the text style: `label.lg` at `sm`, and the heading one size smaller than the
+ *   card at `md` to `xl`. In an interactive card the title contains the link the card follows.
  */
 
 import { type ComponentProps } from "react";
@@ -13,11 +12,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#card/context.ts";
 
 /**
- * Renders the title slot at whatever heading level the page's outline needs.
+ * Renders the title slot in the header grid's second column.
  */
 export const Title = withContext("h3", "title");
 
 /**
- * Accepts every prop the styled h3 takes.
+ * Describes the props of `Title`: the props of an `h3`.
  */
 export type TitleProps = ComponentProps<typeof Title>;

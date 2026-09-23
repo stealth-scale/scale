@@ -1,21 +1,16 @@
 /**
- * Styles the nine slots of the card.
+ * Declares the card slot recipe: a panel of bands, with a picture, a header, content, sections and
+ * a footer.
  *
  * @remarks
- *   The root publishes its own inset as a custom property. The media reads it back as a negative
- *   margin, and a divided band as the space between its rule and its text; writing either as a
- *   literal length would mean one value per step, and so a compound variant for every pair of the
- *   size axis and the axis beside it. The header is a single grid rather than a row of stacks, so
- *   the indicator spans both rows of the title block and the aside stays at the end whatever that
- *   block holds. Stacks inside a row would need a wrapper the anatomy does not name.
- *   The room between the mark and the title belongs to the mark rather than to the grid. A grid's
- *   column gap is drawn on both sides of a track whether or not anything is in it, so a card with
- *   no mark and nothing beside its title had the title standing one gap in from its own body:
- *   measured at 23 pixels from the card's edge against the body's 17.
+ *   The root is a flex column in both orientations. In the horizontal orientation the picture is
+ *   positioned along the leading third and the root pads its start past it, so every other band
+ *   still stacks in one column. The header is a three-column grid: the indicator and the aside each
+ *   span the title and the description rows and are centred on them. The root clips its content, so
+ *   a bled picture takes the root's corners.
  */
 
 import {
-  below,
   cornerVariants,
   defineSlotRecipe,
   dense,
@@ -23,35 +18,37 @@ import {
   motionVariants,
   onSlot,
   onSlots,
+  PALETTES,
+  paletteVariants,
   sizeVariants,
-  statusEmitted,
-  statusVariants,
   surface,
 } from "@stealthscale/theme/authoring";
 
-/**
- * The custom property carrying the root's inset, which the media and the rules read back.
- */
-const INSET = "--card-inset";
+import {
+  asided,
+  bled,
+  CLASS,
+  INSET,
+  marked,
+  ruled,
+  sectioned,
+  spaced,
+  STEPS,
+  titled,
+} from "#card/metrics.ts";
 
 /**
- * The four sizes the card is styled at.
+ * Width of the picture along the leading side of a horizontal card.
  */
-const STEPS = ["sm", "md", "lg", "xl"] as const;
+const SIDE = "33%";
 
 /**
- * The negative margin that cancels the root's inset.
+ * Selects the link in the title that an interactive card stretches over its whole face.
  */
-const BLEED = `calc(-1 * var(${INSET}))`;
+const TITLE_LINK = `.${CLASS}__title > a`;
 
 /**
- * The border style a divided band is separated by.
- */
-const RULE = { borderColor: "border", borderStyle: "solid" };
-
-/**
- * Declares the slot styles and the card's variant axes, defaulting to an elevated panel at the md
- * size.
+ * Styles a card as an elevated panel at the md size, in the palette of its surroundings.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -60,7 +57,7 @@ export const recipe = defineSlotRecipe({
       display: "flex",
       flex: "0 0 auto",
       gridColumn: "3",
-      marginInlineStart: dense("{spacing.gap.sm}"),
+      gridRow: "1 / span 2",
     },
     content: {
       display: "flex",
@@ -81,20 +78,70 @@ export const recipe = defineSlotRecipe({
       display: "flex",
       flex: "0 0 auto",
       gridColumn: "1",
-      marginInlineEnd: dense("{spacing.gap.sm}"),
+      gridRow: "span 2",
     },
-    media: { display: "block", overflow: "hidden" },
-    root: { ...surface(), display: "flex", overflow: "hidden", position: "relative" },
+    media: {
+      "& > img": { display: "block", inlineSize: "full" },
+      overflow: "hidden",
+      position: "relative",
+    },
+
+    /**
+     * The overlay covers the picture and places its content at the bottom-start corner.
+     *
+     * @remarks
+     *   The overlay passes the pointer through, and its children take it back. The `scrim` axis
+     *   darkens the picture behind text.
+     */
+    overlay: {
+      "& > *": { pointerEvents: "auto" },
+      alignItems: "flex-start",
+      display: "flex",
+      flexDirection: "column",
+      gap: dense("{spacing.gap.sm}"),
+      inset: "0",
+      justifyContent: "flex-end",
+      padding: `var(${INSET})`,
+      pointerEvents: "none",
+      position: "absolute",
+    },
+    root: {
+      ...surface(),
+      [`& > .${CLASS}__section + :is(.${CLASS}__content, .${CLASS}__footer)`]: ruled(),
+      display: "flex",
+      flexDirection: "column",
+      overflow: "hidden",
+      position: "relative",
+    },
+    section: sectioned(),
     title: { fontWeight: "semibold", gridColumn: "2" },
   },
-  className: "card",
+  className: CLASS,
   compoundVariants: [
+    /**
+     * Sets the border of an outline card in a palette to the palette's border role.
+     */
     {
       css: { root: { borderColor: "colorPalette.border" } },
       name: "toned",
-      status: ["error", "info", "success", "warning"],
-      variant: ["outline", "subtle"],
+      palette: [...PALETTES],
+      variant: "outline",
     },
+
+    /**
+     * Fills a subtle card in a palette with the palette's subtle role and sets its border to the
+     * palette's border role.
+     */
+    {
+      css: { root: { background: "colorPalette.subtle", borderColor: "colorPalette.border" } },
+      name: "tinted",
+      palette: [...PALETTES],
+      variant: "subtle",
+    },
+
+    /**
+     * An interactive elevated card raises its shadow one step under the pointer.
+     */
     {
       css: { root: { _hover: { boxShadow: "lg" } } },
       interactive: true,
@@ -113,94 +160,75 @@ export const recipe = defineSlotRecipe({
   slots: [
     "root",
     "media",
+    "overlay",
     "header",
     "indicator",
     "title",
     "description",
     "aside",
     "content",
+    "section",
     "footer",
   ],
-  staticCss: [statusEmitted()],
+  staticCss: [{ palette: [...PALETTES] }],
   variants: {
     /**
-     * The pattern painted behind the card's content.
+     * Unavailable look: the card at the disabled opacity, with no pointer events on any band.
      *
      * @remarks
-     *   Each of the nine values is a layer style the theme already defines, so restating one in a
-     *   theme moves every card wearing it. A pattern paints the root's background image and leaves
-     *   its fill untouched, which lets it compose with any look: a grid behind a panel, dots behind
-     *   a glass card, stars behind a plain one. `aurora` animates, since a gradient that large
-     *   reads as a smear when it holds still, and its animation style stops for a reader who asked
-     *   for less motion.
+     *   The styles do not remove the title's link from the tab order. Render the title without a
+     *   link, or give the link `aria-disabled` and no `href`.
      */
-    backdrop: onSlot("root", {
-      aurora: { animationStyle: "aurora", layerStyle: "backdrop.aurora" },
-
-      checker: { layerStyle: "backdrop.checker" },
-
-      dots: { layerStyle: "backdrop.dots" },
-
-      grid: { layerStyle: "backdrop.grid" },
-
-      noise: { layerStyle: "backdrop.noise" },
-
-      spotlight: { layerStyle: "backdrop.spotlight" },
-
-      stars: { layerStyle: "backdrop.stars" },
-
-      stripes: { layerStyle: "backdrop.stripes" },
-
-      vignette: { layerStyle: "backdrop.vignette" },
-    }),
+    disabled: { true: { root: { opacity: "disabled", pointerEvents: "none" } } },
 
     /**
-     * The halo drawn around the card.
+     * Rules under the header and above the footer.
      *
      * @remarks
-     *   The glow takes the palette's solid token at half opacity, so a status or a theme carries it
-     *   along. It is the larger of the two glows the theme defines; the button takes the smaller
-     *   one, and a spread measured against a control reads as a smudge around something card-sized.
-     */
-    effect: onSlot("root", { glow: { layerStyle: "glow.lg" } }),
-
-    /**
-     * Whether the header and the footer are ruled off from the content between them.
+     *   The band after the header and the footer each render the rule above them through `ruled`,
+     *   so both rules span the card's full width with the inset on both sides, like a section's.
      */
     divided: {
       true: {
-        footer: { ...RULE, borderBlockStartWidth: "hairline", paddingBlockStart: `var(${INSET})` },
-        header: { ...RULE, borderBlockEndWidth: "hairline", paddingBlockEnd: `var(${INSET})` },
+        footer: ruled(),
+        root: {
+          [`& > .${CLASS}__header + :is(.${CLASS}__content, .${CLASS}__section, .${CLASS}__footer)`]:
+            ruled(),
+        },
       },
     },
 
     /**
-     * Whether the whole card responds to a pointer, for a card whose title holds the link.
+     * Halo around the card in the palette's solid at half opacity.
      *
      * @remarks
-     *   The link inside the title stretches a pseudo-element across the root, the card's only
-     *   positioned ancestor, so a click anywhere on the card follows the link while the link itself
-     *   keeps the focus and the accessible name. A click handler on the root would leave the card
-     *   reachable by pointer alone. The ring is written out instead of taken from
-     *   `focusVisibleRing` because that utility styles whichever element took focus: nested under a
-     *   descendant condition it asks the card to be `:focus-visible`, which a div never is, and the
-     *   card then draws no ring at all. Matching the title's link rather than any focus inside also
-     *   keeps a secondary control's ring its own, so a button in the footer rings itself and leaves
-     *   the card alone. The colour is the palette's focus ring named directly, the way the utility
-     *   names it, so the two rings agree.
+     *   The axis offers `glow` and no `pulse`. A pulse animates `box-shadow` on the root, whose
+     *   `animation` the `motion` axis already sets, and the root clips a pseudo-element's shadow.
+     */
+    effect: onSlot("root", { glow: { layerStyle: "glow.lg" } }),
+
+    /**
+     * Whole-card press through the link in the title.
+     *
+     * @remarks
+     *   The title's link stretches a pseudo-element over the root, so a click anywhere follows the
+     *   link and the link keeps the focus and the accessible name. Every other link and button in
+     *   the card is positioned, so it paints over the pseudo-element and takes its own clicks. The
+     *   root renders the focus ring while the title's link is focused, in the palette's
+     *   `focusRing`.
      */
     interactive: {
       true: {
         root: {
           _hover: { borderColor: "border.emphasized" },
-          "&:has(.card__title a:focus-visible)": {
+          [`&:has(${TITLE_LINK}:focus-visible)`]: {
             outlineColor: "colorPalette.focusRing",
             outlineOffset: "ring",
             outlineStyle: "solid",
             outlineWidth: "ring",
           },
+          [`& :is(a[href], button):not(${TITLE_LINK})`]: { position: "relative" },
           cursor: "button",
-          focusRingColor: "colorPalette.focusRing",
           transitionDuration: "press",
           transitionProperty: "common",
           transitionTimingFunction: "press",
@@ -210,74 +238,81 @@ export const recipe = defineSlotRecipe({
     },
 
     /**
-     * Where the footer's controls sit along the row.
+     * Alignment of the footer's controls along the row.
      */
     justify: onSlot("footer", justifyVariants()),
-
     motion: onSlot("root", motionVariants(["fade", "rise", "reveal"])),
 
     /**
-     * The axis the bands run along, which also picks the edges the media bleeds to.
+     * Placement of the picture: bled across the top of a vertical card, or along the leading third
+     * of a horizontal one.
      *
      * @remarks
-     *   Across the page the picture band states a width and refuses to give it up. A band drawn
-     *   down the page is as wide as the card and the picture inside it decides its own height, but
-     *   in a row nothing there has a width: the band collapsed to nothing and the card drew no
-     *   picture at all. The picture fills the band it is given rather than sitting in a corner of
-     *   it, because the band is as tall as the card beside it and a picture keeping its own shape
-     *   leaves the rest of that column blank.
+     *   A horizontal card pads its start by the picture's width plus the inset only when it
+     *   contains a picture, and the picture fills its full height with `object-fit: cover`.
      */
     orientation: {
       horizontal: {
         media: {
-          "& > *": { blockSize: "100%", objectFit: "cover" },
-          flexBasis: "33%",
-          flexShrink: "0",
-          marginBlock: BLEED,
-          marginInlineStart: BLEED,
+          "& > img": { blockSize: "full", objectFit: "cover" },
+          inlineSize: SIDE,
+          insetBlock: "0",
+          insetInlineStart: "0",
+          position: "absolute",
         },
-        root: { flexDirection: "row" },
+        root: {
+          [`&:has(> .${CLASS}__media)`]: { paddingInlineStart: `calc(${SIDE} + var(${INSET}))` },
+        },
       },
-      vertical: {
-        media: { marginBlockStart: BLEED, marginInline: BLEED },
-        root: { flexDirection: "column" },
+      vertical: { media: bled() },
+    },
+
+    /**
+     * Palette of the card's tint, border, focus ring and glow.
+     *
+     * @remarks
+     *   The outline look sets its border to the palette's border role, and the subtle look also
+     *   fills with the palette's subtle role. Without a palette the card inherits the palette of
+     *   its surroundings.
+     */
+    palette: onSlot("root", paletteVariants()),
+    radius: onSlot("root", cornerVariants()),
+
+    /**
+     * Scrim behind the overlay: 64% black across the lower half of the picture, fading to
+     * transparent at the top.
+     *
+     * @remarks
+     *   The scrim declares the dark color scheme on the overlay, so `fg` and every semantic color
+     *   in it take their dark-mode values in both modes. Set it for text over a picture. A badge
+     *   has its own fill and does not need it.
+     */
+    scrim: {
+      true: {
+        overlay: {
+          backgroundImage:
+            "linear-gradient(to top, {colors.blackAlpha.700}, {colors.blackAlpha.700} 50%, transparent)",
+          color: "fg",
+          colorScheme: "dark",
+        },
       },
     },
 
-    radius: onSlot("root", cornerVariants()),
-    status: onSlot("root", statusVariants()),
-
     /**
-     * The room the panel leaves around its bands, and the weight of its title.
-     *
-     * @remarks
-     *   The title sits one step below the panel's own size, because a card's title heads a panel
-     *   rather than a section of the page. The smallest card takes the label role instead: one step
-     *   under `heading.sm` is body text, and a title set in body text no longer reads as a title.
+     * Inset, gap, title style, header gaps and indicator media at each size.
      */
     size: onSlots({
-      root: sizeVariants(
-        (size) => ({
-          gap: dense(`{spacing.gap.${size}}`),
-          [INSET]: `{spacing.inset.${size}}`,
-          padding: dense(`{spacing.inset.${size}}`),
-        }),
-        STEPS,
-      ),
-      title: sizeVariants(
-        (size) => ({ textStyle: size === "sm" ? "label.lg" : `heading.${below(size)}` }),
-        STEPS,
-      ),
+      aside: sizeVariants(asided, STEPS),
+      indicator: sizeVariants(marked, STEPS),
+      root: sizeVariants(spaced, STEPS),
+      title: sizeVariants(titled, STEPS),
     }),
 
     /**
-     * The treatment of the panel behind the content.
+     * Treatment of the panel.
      *
      * @remarks
-     *   The plain look draws no panel at all: no fill, no border and no shadow, so the content
-     *   stands on whatever is behind it. The card still lays out its bands and still publishes its
-     *   inset, so a plain card is the anatomy without the surface, which is what a stretch of
-     *   content needing a header and a footer but no panel asks for.
+     *   `plain` removes the fill, the border and the shadow, and keeps the bands and the inset.
      */
     variant: {
       elevated: { root: { borderColor: "transparent", boxShadow: "md" } },
