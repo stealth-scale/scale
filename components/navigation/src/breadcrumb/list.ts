@@ -1,11 +1,10 @@
 /**
- * Draws the ordered list the crumbs are rows of.
+ * Renders the ordered list of crumbs.
  *
  * @remarks
- *   The element is `ol`, because the order of a trail is its meaning. It states its list role
- *   rather than relying on the element, because a list drawn with no marker loses its role in
- *   Safari and a reader is then told nothing about how many crumbs there are or which one they
- *   are on.
+ *   The element is `ol`, because the order of the crumbs is the hierarchy. It sets `role="list"`,
+ *   because Safari drops the list role from a list with `list-style: none`, and VoiceOver then
+ *   announces neither the crumb count nor the position.
  */
 
 import { type ComponentProps } from "react";
@@ -13,11 +12,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#breadcrumb/context.ts";
 
 /**
- * Draws the crumbs in order, at the gap its size states.
+ * Renders an ordered list with `role="list"` and the gap of the size axis.
  */
 export const List = withContext("ol", "list", { defaultProps: { role: "list" } });
 
 /**
- * Describes what the list takes.
+ * Describes the props of Breadcrumb.List: the props of an ordered list element.
  */
 export type ListProps = ComponentProps<typeof List>;

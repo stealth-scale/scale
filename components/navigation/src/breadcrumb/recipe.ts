@@ -1,19 +1,14 @@
 /**
- * States what a breadcrumb trail is: the path from the front of a site to the page a person is on,
- * drawn as a list of links with a mark between each pair.
+ * Declares the breadcrumb slot recipe for an ordered list of links from the site root to the
+ * current page, with a separator between each pair.
  *
  * @remarks
- *   Six parts. The root is the landmark, the list holds the trail, and each crumb is an item
- *   holding either a link to somewhere above or the name of the page itself. A separator sits
- *   between two crumbs as a row of the list rather than inside one, which is how a screen reader
- *   counts the crumbs rather than counting them twice.
- *   The size axis sets the text on the root and the gap on the list, so every part reads at one
- *   size by inheriting it and only the spacing is stated twice. It stops at `xl` because it reads
- *   the body role, and a trail is read at the size the page around it is read at rather than as a
- *   heading.
- *   The trail is quieter than the page it sits above: the links are muted and darken under a
- *   pointer, and the crumb for the page itself is the one at full strength. That is the way round
- *   a reader needs, because the one crumb that is not a link is the one naming where they are.
+ *   The separator is a list row between two items, so a screen reader counts the crumbs without
+ *   the separators. The size axis sets the text style on the root and the gap on the list, and
+ *   every part inherits the text size. The axis stops at `xl`, because it reads the body text
+ *   style. The links are muted and the current page is in the default ink. The recipe has no
+ *   `palette` axis, because a trail has no color of its own. It has no `effect` axis, because it
+ *   has no box.
  */
 
 import {
@@ -25,7 +20,7 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * Draws a muted trail at the middle size until a caller says otherwise.
+ * Breadcrumb slot recipe, at the md size in the plain look by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -59,12 +54,12 @@ export const recipe = defineSlotRecipe({
   slots: ["root", "list", "item", "link", "currentLink", "ellipsis", "separator"],
   variants: {
     /**
-     * How big the trail is read at, which every part inherits from the root.
+     * The text style of the root and the gap between list rows.
      */
     size: onSlots({ list: gapSizes(["xs", "sm", "md", "lg", "xl"]), root: textSizes("body") }),
 
     /**
-     * Whether a crumb above the page is underlined at rest or only under a pointer.
+     * Whether the links show an underline at rest or only on hover.
      */
     variant: {
       plain: {

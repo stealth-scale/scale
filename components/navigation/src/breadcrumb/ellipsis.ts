@@ -1,16 +1,12 @@
 /**
- * Draws the mark standing where the crumbs between two steps were left out.
+ * Renders the list row that replaces the crumbs left out of a long trail.
  *
  * @remarks
- *   A trail down a deep hierarchy runs past the width it is given, and a trail that wraps onto a
- *   second line stops reading as one path. A caller drops the middle steps and draws this in their
- *   place, so the first step, the mark and the page a reader is on stay on one line.
- *   A row of the list, like a crumb rather than like a separator, because a reader can see that
- *   something was left out and where. It is named rather than hidden: a trail that quietly skipped
- *   four steps read to a screen reader as a two-step trail, which is a different hierarchy. The
- *   name is the caller's, so it says how many were dropped in the reader's own language.
- *   It draws no mark of its own. This package ships no artwork, so the glyph is the caller's, the
- *   way every other mark in it is.
+ *   A trail with six crumbs wraps onto a second line in a page header. A caller keeps the first
+ *   crumb and the current page, and renders this row in place of the crumbs between them. The row
+ *   is in the accessibility tree and takes an `aria-label` from the caller, such as
+ *   `4 more steps`, so a screen reader announces the full depth of the trail. The caller passes
+ *   the glyph as a child, because the package does not include icons.
  */
 
 import { type ComponentProps } from "react";
@@ -18,11 +14,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#breadcrumb/context.ts";
 
 /**
- * Draws the mark, named by whatever the caller states on it.
+ * Renders a list item in the muted ink.
  */
 export const Ellipsis = withContext("li", "ellipsis");
 
 /**
- * Describes what the mark takes.
+ * Describes the props of Breadcrumb.Ellipsis: the props of a list item element.
  */
 export type EllipsisProps = ComponentProps<typeof Ellipsis>;

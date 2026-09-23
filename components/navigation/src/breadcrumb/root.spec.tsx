@@ -10,11 +10,11 @@ import { recipe } from "#breadcrumb/recipe.ts";
 import { Root } from "#breadcrumb/root.ts";
 
 describe("Root", () => {
-  it("conforms as a navigation element", () => {
+  it("conforms as a nav element", () => {
     expect(violations(Root, { as: true, children: true, element: "NAV" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule holding a trail", async () => {
+  it("returns no accessibility violation when it holds a list", async () => {
     await expect(
       accessibilityViolations(Root, {
         props: {
@@ -28,13 +28,13 @@ describe("Root", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(recipe, (props) => render(<Root {...props} />).container, { slot: "root" }),
     ).toStrictEqual([]);
   });
 
-  it("names the landmark so a page of several tells them apart", () => {
+  it("defaults aria-label to Breadcrumb", () => {
     const { container } = render(<Root />);
 
     expect(slotElement(container, "breadcrumb", "root").getAttribute("aria-label")).toBe(
@@ -42,7 +42,7 @@ describe("Root", () => {
     );
   });
 
-  it("keeps the name a caller states", () => {
+  it("keeps an aria-label passed by the caller", () => {
     const { container } = render(<Root aria-label="You are here" />);
 
     expect(slotElement(container, "breadcrumb", "root").getAttribute("aria-label")).toBe(

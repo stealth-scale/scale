@@ -1,6 +1,6 @@
 /**
- * Publishes the breadcrumb's seven parts, which a caller composes as `Breadcrumb.Root` holding a
- * list of crumbs.
+ * Exports the seven parts of the breadcrumb, composed as `Breadcrumb.Root` around a
+ * `Breadcrumb.List` of items.
  */
 
 export { CurrentLink, type CurrentLinkProps } from "#breadcrumb/current-link.ts";

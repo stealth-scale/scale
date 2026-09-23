@@ -8,7 +8,7 @@ import { trailed } from "#breadcrumb/breadcrumb.fixtures.tsx";
 import { Separator } from "#breadcrumb/separator.ts";
 
 describe("Separator", () => {
-  it("conforms as a list row inside the landmark it needs above it", () => {
+  it("conforms as a list item inside the root", () => {
     expect(
       violations(Separator, {
         as: true,
@@ -20,7 +20,7 @@ describe("Separator", () => {
     ).toStrictEqual([]);
   });
 
-  it("says nothing to a screen reader because the list already carries the order", () => {
+  it("hides the list item from the accessibility tree", () => {
     const { container } = render(trailed(<Separator>/</Separator>));
     const mark = slotElement(container, "breadcrumb", "separator");
 

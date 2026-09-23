@@ -1,9 +1,9 @@
 /**
- * Draws a crumb that goes somewhere.
+ * Renders the link of a crumb above the current page.
  *
  * @remarks
- *   The element is `a`, and it takes an `href` like any other. A crumb with nowhere to go is the
- *   page itself, which the current crumb draws rather than this.
+ *   The element is `a` and takes an `href`. The crumb for the current page has no destination, so
+ *   `Breadcrumb.CurrentLink` renders it.
  */
 
 import { type ComponentProps } from "react";
@@ -11,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#breadcrumb/context.ts";
 
 /**
- * Draws a link to somewhere above the page.
+ * Renders an anchor in the muted ink that darkens on hover.
  */
 export const Link = withContext("a", "link");
 
 /**
- * Describes what a crumb's link takes.
+ * Describes the props of Breadcrumb.Link: the props of an anchor element.
  */
 export type LinkProps = ComponentProps<typeof Link>;

@@ -1,21 +1,22 @@
 {
-  "about": "Draws the path from the front of a site to the page a person is on.",
+  "about": "An ordered list of links from the site root to the current page.",
   "april": "April",
-  "deep": {
-    "about": "A trail down a deep hierarchy with its middle left out. Six steps drawn in full run past the width a header gives a trail, and a trail that wraps onto a second line stops reading as one path. The mark carries a name saying how many steps it stands for, because a trail that skipped four in silence reads as a two-step trail.",
-    "title": "A trail with its middle left out"
+  "collapsed": {
+    "about": "A trail with the crumbs between the first crumb and the current page replaced by an ellipsis. The ellipsis takes an aria-label with the number of crumbs it replaces, so a screen reader announces the full depth.",
+    "title": "Collapsed"
   },
   "dropped": "{{count}} more steps",
   "home": "Home",
   "invoices": "Invoices",
+  "label": "Breadcrumb",
+  "shortened": "Collapsed breadcrumb",
   "size": {
-    "about": "Every step the trail is read at, one under another. Drawn side by side the widest step had nowhere to go and broke its trail over two lines, which is the one thing a trail must not do.",
+    "about": "Every size, one trail per row. The size sets the text style and the gap between crumbs.",
     "title": "Sizes"
   },
   "title": "Breadcrumb",
-  "trail": "Trail",
   "variant": {
-    "about": "Both looks. The last crumb is not a link and is the one at full strength.",
+    "about": "Both looks. The current page is a span in the default ink, and the links above it are muted.",
     "title": "Looks"
   }
 }

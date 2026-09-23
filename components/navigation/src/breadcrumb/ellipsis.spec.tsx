@@ -8,7 +8,7 @@ import { trailed } from "#breadcrumb/breadcrumb.fixtures.tsx";
 import { Ellipsis } from "#breadcrumb/ellipsis.ts";
 
 describe("Ellipsis", () => {
-  it("draws a row of the list it stands in", () => {
+  it("renders a list item by default", () => {
     const { container } = render(trailed(<Ellipsis>…</Ellipsis>));
 
     expect(slotElement(container, "breadcrumb", "ellipsis").tagName).toBe("LI");
@@ -26,7 +26,7 @@ describe("Ellipsis", () => {
     ).toStrictEqual([]);
   });
 
-  it("says how many steps it stands for where a caller names them", () => {
+  it("forwards aria-label to the list item", () => {
     const { container } = render(trailed(<Ellipsis aria-label="4 more steps">…</Ellipsis>));
 
     expect(slotElement(container, "breadcrumb", "ellipsis").getAttribute("aria-label")).toBe(
@@ -34,7 +34,7 @@ describe("Ellipsis", () => {
     );
   });
 
-  it("is read rather than hidden, so a skipped trail is not read as a short one", () => {
+  it("stays in the accessibility tree by default", () => {
     const { container } = render(trailed(<Ellipsis>…</Ellipsis>));
     const mark = slotElement(container, "breadcrumb", "ellipsis");
 
