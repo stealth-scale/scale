@@ -1,21 +1,19 @@
 /**
- * States what a link is: words a person follows to somewhere else, drawn in the theme's link ink
- * and underlined either always or under a pointer.
+ * Declares the link recipe, which renders an inline anchor in the theme's link ink with an
+ * underline at rest or on hover.
  *
  * @remarks
- *   The ink, the visited ink, the cursor and the focus ring all come from the theme's own link
- *   fragment, so a theme that decides what a link looks like decides it once for every link. The
- *   box is inline so a link sits in a line of words, and it lays its content out in a row so a
- *   mark beside the words is centred on them rather than sitting on the baseline.
- *   The underline is the one thing this recipe adds. A link inside a paragraph is found by its
- *   underline as much as by its colour, and a reader who cannot tell the two inks apart has
- *   nothing else to go on, which is why colour alone is not enough to mark a link.
+ *   The ink, the visited ink, the cursor and the focus ring come from `link()`, so a theme that
+ *   restates `fg.link` restyles every link. The root is `inline-flex` with centred items, so an
+ *   icon next to the text centres on the text instead of standing on the baseline. The recipe has
+ *   no `effect` axis, because a link has no box for a glow or a pulse to surround. `staticCss`
+ *   lists every palette, because `LinkPropsProvider` can set the value at run time.
  */
 
-import { defineRecipe, dense, link } from "@stealthscale/theme/authoring";
+import { axis, defineRecipe, dense, link, PALETTES } from "@stealthscale/theme/authoring";
 
 /**
- * Draws a link underlined under a pointer until a caller asks for one that always is.
+ * Link recipe, underlined at rest by default.
  */
 export const recipe = defineRecipe({
   base: {
@@ -28,29 +26,44 @@ export const recipe = defineRecipe({
   className: "link",
   defaultVariants: { variant: "underline" },
   jsx: [/^Link$/u],
+  staticCss: [{ palette: [...PALETTES] }],
   variants: {
     /**
-     * Whether the link takes the ink of the words around it rather than the theme's link ink.
+     * Whether the link inherits the text color in place of the link ink.
      *
      * @remarks
-     *   For a link that is the title of a card or the brand in a bar, where the surface it sits on
-     *   already says it is pressed and the link ink would read as a second colour on the page. The
-     *   underline under a pointer and the focus ring stay, so the link is still found.
+     *   Use it for a card title or a brand name, where the context already marks the text as a
+     *   link. The hover underline and the focus ring still apply. A `palette` set on the same link
+     *   takes precedence, because the compiler emits the palette axis after this one.
      */
     inherit: { true: { _visited: { color: "inherit" }, color: "inherit" } },
 
     /**
-     * Whether the underline is drawn at rest or only under a pointer.
+     * The semantic palette the ink and the focus ring read from.
      *
      * @remarks
-     *   Underlined unless a caller says otherwise. A link in running text is told from the words
-     *   around it by its ink alone without one, and an ink drawn to the theme's accent stands at
-     *   1.6:1 from body text on Ink's page, 1:1 where the link takes the ink around it. The plain
-     *   look is for a link whose surroundings already say it is one: the title of a card, a row of
-     *   a navigation list, the brand in a bar.
+     *   Each value sets `colorPalette` and writes the ink from the palette's `fg` role, visited
+     *   state included. Without a palette the link keeps `fg.link`, which a theme can restate
+     *   apart from `accent.fg`.
+     */
+    palette: axis(PALETTES, (palette) => ({
+      _visited: { color: "colorPalette.fg" },
+      color: "colorPalette.fg",
+      colorPalette: palette,
+    }))(),
+
+    /**
+     * Whether the underline shows at rest or only on hover.
+     *
+     * @remarks
+     *   `underline` is the default. Without an underline a link in running text differs from the
+     *   text only by ink, and the link ink measured 1.64:1 against body text on the ink theme,
+     *   under the 3:1 that WCAG technique G183 asks for. `plain` is for a link whose context marks
+     *   it: a card title, a navigation row, a brand name. `plain` restates the hover underline,
+     *   because its `none` is in the variants layer and overrides the base `_hover` rule.
      */
     variant: {
-      plain: { textDecoration: "none" },
+      plain: { _hover: { textDecoration: "underline" }, textDecoration: "none" },
       underline: { textDecoration: "underline" },
     },
   },

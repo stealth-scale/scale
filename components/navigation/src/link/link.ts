@@ -1,12 +1,10 @@
 /**
- * Draws a link through its recipe.
+ * Renders a styled anchor through the link recipe.
  *
  * @remarks
- *   The element is `a`, which a browser focuses, follows on Enter, and offers to open elsewhere. A
- *   link with no `href` is not a link to anything and a browser gives it none of that, so a control
- *   that acts rather than navigates is a button and not a link drawn as one.
- *   A router's own link component goes in through `as`, which keeps the routing and leaves the
- *   drawing here.
+ *   The element is `a`. A browser focuses an anchor, follows it on Enter and offers to open it in a
+ *   new tab only when it has an `href`, so a control that runs an action is a button. A router's
+ *   link component goes in through `as`, which keeps its routing and takes the recipe's classes.
  */
 
 import { type ComponentProps } from "react";
@@ -14,12 +12,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#link/context.ts";
 
 /**
- * Draws words a person follows to somewhere else.
+ * Renders an anchor with the link recipe's classes.
  */
 export const Link = withContext("a");
 
 /**
- * Describes what a link takes: the variants its recipe offers, and everything a styled anchor
- * takes.
+ * Describes the props of Link: the recipe's variants and the props of an anchor element.
  */
 export type LinkProps = ComponentProps<typeof Link>;

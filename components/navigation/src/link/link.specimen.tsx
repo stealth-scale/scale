@@ -1,77 +1,32 @@
 /**
- * Shows the link: both looks, and a link in its own ink beside one inheriting the line's, each
- * inside a line of ordinary words.
+ * Catalogue page for the link.
  *
  * @remarks
- *   The scenes are generated from the recipe, so an axis added to it reaches the page without this
- *   file changing. The link sits in a paragraph, because a link is found against the words around
- *   it, and the paragraph the inheriting link sits in is drawn in the muted ink, because a link
- *   that takes the line's ink shows nothing against a line drawn in the ink it would have taken
- *   anyway. The words are keys under `link` in the catalogue's namespace, kept beside this file in
- *   `locales/en/specimen/link.json`.
+ *   `scenesOf` generates one scene per recipe axis. Every scene renders a component from
+ *   `examples/` and shows that file as its source. Each link stands inside a sentence, because a
+ *   reader finds a link by its contrast with the text around it. The inherit scene sets the
+ *   sentence in muted text, because a link that inherits body text is identical to one that
+ *   inherits nothing. The words are keys under `link` in `locales/en/specimen/link.json`.
  */
 
-import { type ReactElement } from "react";
+import { scenesOf, specimen } from "@stealthscale/specimen";
 
-import { Text } from "@stealthscale/component-typography";
-import { scenesOf, specimen, useWords } from "@stealthscale/specimen";
-
-import { Link, type LinkProps } from "#link/link.ts";
+import * as footnote from "#link/examples/footnote.example.tsx";
+import * as terms from "#link/examples/terms.example.tsx";
 import { recipe } from "#link/recipe.ts";
-
-/**
- * The call site every scene's source snippet is generated from.
- */
-const SAMPLE = {
-  children: "the terms",
-  imports: 'import { Link } from "@stealthscale/component-navigation";',
-  name: "Link",
-};
-
-/**
- * Draws the link inside a line of ordinary words.
- */
-function Sentence(props: LinkProps): ReactElement {
-  const { t } = useWords("link");
-
-  return (
-    <Text>
-      {t("before")}{" "}
-      <Link href="#terms" {...props}>
-        {t("terms")}
-      </Link>
-      {t("after")}
-    </Text>
-  );
-}
-
-/**
- * Draws the link inside a line already drawn in the muted ink.
- */
-function Muted(props: LinkProps): ReactElement {
-  const { t } = useWords("link");
-
-  return (
-    <Text tone="muted">
-      {t("before")}{" "}
-      <Link href="#terms" {...props}>
-        {t("terms")}
-      </Link>
-      {t("after")}
-    </Text>
-  );
-}
 
 export default specimen({
   about: "link.about",
   id: "components/navigation/link",
   imports: 'import { Link } from "@stealthscale/component-navigation";',
-  scenes: scenesOf<LinkProps>(recipe, {
-    axes: { inherit: { draw: (props) => <Muted {...props} /> } },
-    draw: (props) => <Sentence {...props} />,
+  scenes: scenesOf<Parameters<typeof terms.Terms>[0]>(recipe, {
+    axes: {
+      inherit: { draw: (props) => <footnote.Footnote {...props} />, example: footnote },
+    },
+    draw: (props) => <terms.Terms {...props} />,
+    example: terms,
     namespace: "link",
-    order: ["variant", "inherit"],
-    sample: SAMPLE,
+    order: ["variant", "palette", "inherit"],
   }),
   title: "link.title",
 });
