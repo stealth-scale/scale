@@ -5,13 +5,28 @@
     "title": "Alignment"
   },
   "amount": "Amount",
+  "clear": "Clear the search",
+  "control": "a control at the end",
+  "glyph": "a glyph at the start",
   "marks": {
     "about": "A mark at the start, at the end, and at both. The field reserves room where a mark is, so the typing never runs underneath.",
     "title": "Marks"
   },
+  "note": "1250.00 for the quarter, less the deposit already paid",
+  "passphrase": "Passphrase",
+  "query": "focus ring",
+  "reveal": "Show the passphrase",
+  "search": "Search",
   "size": {
     "about": "Every size, with both marks.",
     "title": "Sizes"
   },
-  "title": "Input group"
+  "sum": "1250.00",
+  "title": "Input group",
+  "typed": "correct horse battery staple",
+  "use": "use",
+  "uses": {
+    "about": "The two marks a currency symbol and a unit do not cover. A glyph says what the field takes, and a control at the far end acts on what the reader typed. A mark takes no pointer, so a press over the glyph lands in the field, and whatever a caller puts inside a mark takes the pointer back.",
+    "title": "What a mark is for"
+  }
 }

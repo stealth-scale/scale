@@ -1,21 +1,38 @@
 {
   "about": "Wraps a control in everything that explains it: a label, the text a person needs in advance, a count and what went wrong.",
+  "badge": "optional",
   "email": "Email",
+  "family": "Family name",
+  "given": "Given name",
   "helper": "We only write about invoices.",
+  "optional": {
+    "about": "A label carrying a badge rather than the required mark. The label is an inline row, so anything a page puts after the words sits beside them.",
+    "title": "Optional"
+  },
   "orientation": {
-    "about": "The label above the control, and the label beside it.",
+    "about": "The label above the control, and the label beside it. Beside it, the label is centred against the control it names.",
     "title": "Orientations"
   },
+  "paired": {
+    "about": "Two fields sharing a line. A field fills the column it is given, so a page lays a form out in a grid and states no width on any field.",
+    "title": "Two on a line"
+  },
   "size": {
-    "about": "Every size, which every part reads.",
+    "about": "Every size, which every part reads. The text under the control reads a step below the control's own words.",
     "title": "Sizes"
   },
   "states": {
     "about": "A field as it is, required, disabled, read only, and wrong. The error text draws nothing where the field is not wrong, and the mark draws nothing where it is optional.",
     "title": "States"
   },
+  "reported": {
+    "error": "That address is not one we recognise.",
+    "info": "We send the receipt here as well as the invoice.",
+    "success": "That address is free. Nobody else has claimed it.",
+    "warning": "That address bounced the last time we wrote to it."
+  },
   "status": {
-    "about": "Every status on a field that is wrong, which the error text and the mark read.",
+    "about": "Every status a field reports. The status draws the control's edge, the message and the required mark, and the message leads with the mark of its status so the four are told apart without reading colour. Only the error is a fault: the other three report something a reader should know, so the control is not marked wrong and does not ring red when they reach it.",
     "title": "Statuses"
   },
   "title": "Field",
