@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#nav-list/index.ts";
 
 describe("index", () => {
-  it("names every part a caller composes", () => {
+  it("exports the ten parts and no other runtime name", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Action",
       "Badge",
@@ -18,7 +18,7 @@ describe("index", () => {
     ]);
   });
 
-  it("publishes neither the recipe nor the binding", () => {
+  it("exports no name that starts with recipe or with or use", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {

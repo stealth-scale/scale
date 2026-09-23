@@ -1,5 +1,5 @@
 /**
- * Builds the navigation list a part's specification needs above it.
+ * Builds the navigation lists the part specs render their subjects in.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -15,22 +15,22 @@ import { Root, type RootProps } from "#nav-list/root.tsx";
 import { Trigger } from "#nav-list/trigger.tsx";
 
 /**
- * Draws whatever a case wants measured inside the list that hands down the variants.
+ * Renders a part inside a list that provides the variants.
  *
  * @param children - The part under test.
- * @param props - Whatever the case sets on the list.
- * @returns The list, holding it.
+ * @param props - The list's props.
+ * @returns The list, which contains the part.
  */
 export function listed(children: ReactNode, props: RootProps = {}): ReactElement {
   return <Root {...props}>{children}</Root>;
 }
 
 /**
- * Draws whatever a case wants measured inside a branch, inside the list.
+ * Renders a part inside a branch inside a list.
  *
  * @param children - The part under test.
- * @param props - Whatever the case sets on the branch.
- * @returns The list, holding the branch, holding it.
+ * @param props - The branch's props.
+ * @returns The list, which contains the branch that contains the part.
  */
 export function branched(children: ReactNode, props: BranchProps = {}): ReactElement {
   return (
@@ -41,10 +41,11 @@ export function branched(children: ReactNode, props: BranchProps = {}): ReactEle
 }
 
 /**
- * Draws a whole list, so a case can press a branch and read what its rows do.
+ * Renders a complete list: a current link with a count, a link with a control, and a branch with
+ * one nested link.
  *
- * @param props - Whatever the case sets on the list.
- * @returns The parts composed the way a caller composes them.
+ * @param props - The list's props.
+ * @returns The list.
  */
 export function composed(props: RootProps = {}): ReactElement {
   return (
@@ -57,9 +58,7 @@ export function composed(props: RootProps = {}): ReactElement {
       </Item>
       <Item>
         <Link href="/invoices">Invoices</Link>
-        <Action>
-          <button type="button">Pin Invoices</button>
-        </Action>
+        <Action aria-label="Pin Invoices">P</Action>
       </Item>
       <Branch>
         <Trigger>

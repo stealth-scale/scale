@@ -1,12 +1,11 @@
 /**
- * Draws the shape of a row still on its way.
+ * Renders a placeholder row while the list loads.
  *
  * @remarks
- *   The element is `li`, so a list of these counts as the rows it stands in for rather than
- *   collapsing to nothing. It draws no placeholder of its own: a caller puts the feedback package's
- *   skeleton inside it, and this states the room a row takes.
- *   Say that the list is loading. State `aria-busy` on the list around these, so a reader is told
- *   the rows are on their way rather than being read a set of empty items.
+ *   The element is `li`, so the placeholders occupy the rows they stand in for. It renders no
+ *   placeholder shape itself: put the feedback package's `Skeleton` inside it, and this part sets
+ *   the row's size. Set `aria-busy` on the list, so a screen reader announces a loading list
+ *   instead of reading a set of empty items.
  */
 
 import { type ComponentProps } from "react";
@@ -14,11 +13,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#nav-list/context.ts";
 
 /**
- * Draws the room a row takes while it is on its way.
+ * Renders the placeholder row `li` with the list's variants.
  */
 export const Skeleton = withContext("li", "skeleton");
 
 /**
- * Describes what a waiting row takes.
+ * Describes the props of `Skeleton`.
  */
 export type SkeletonProps = ComponentProps<typeof Skeleton>;

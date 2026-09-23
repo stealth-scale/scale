@@ -94,3 +94,32 @@ component-navigation: import omitUndefined from the hooks package
   `@stealthscale/hooks`. The package's private copy, `stated`, is removed.
 - The branch machine moves from `nav-list/state.ts` to `nav-list/machine.ts`, the file name every
   other machine component uses.
+
+component-navigation: render NavList.Action as a button and resize NavList rows
+
+- Breaking: `NavList.Action` renders a `button` with `type="button"` in place of a `span`. Pass the
+  icon as its child and an `aria-label` that includes the row, such as `Rename Invoices`. The recipe
+  styles it as an unfilled square in the end column that fills with `colorPalette.emphasized` on
+  hover.
+- Rows are 28.8px (`tag.xl`) at `sm`, 32px (`control.xs`) at `md` and 40px (`control.md`) at `lg`.
+  An `md` row measured 24px on the tag scale.
+- The recipe sizes an `svg` that is a direct child of a link or a trigger to the icon size one
+  smaller than the row, 16px at `md`. Pass icons without a size.
+- A row keeps its `colorPalette.subtle` hover fill while the pointer is on its `Action`. The fill
+  was removed when the pointer moved from the link to the control.
+- With `reveal="hover"`, the control on the row with `aria-current="page"` is always visible.
+- With `highlight="fill"`, the `Action` on the current row takes `colorPalette.contrast` and hovers
+  to `colorPalette.solid.hover`.
+- `iconic` rows drop their inline padding. The link's icon measured 6px off centre in a 24px square.
+- `variant="dock"` gives each item an equal share of the row and renders a 24px (`icon.lg`) icon
+  over a `label.xs` label.
+
+component-navigation: add palette, effect and guide axes to NavList
+
+- `palette` sets `colorPalette` on the root through `paletteVariants`. The highlight, the hover fill
+  and the branch rows use it.
+- `effect="glow"` adds the `glow.sm` layer style to the current row.
+- `guide` sets the style of the line down a nested list: `solid` (the default), `dashed`, `dotted`
+  or `none`. When the trigger starts with an `svg`, the line is centred on the icon. At `md` the
+  line and the icon's centre both measured 20px from the list's start.
+- The row geometry functions move from `nav-list/recipe.ts` to `nav-list/metrics.ts`.

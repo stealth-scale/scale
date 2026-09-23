@@ -7,19 +7,19 @@ import { Link } from "#nav-list/link.ts";
 import { listed } from "#nav-list/nav-list.fixtures.tsx";
 
 describe("Link", () => {
-  it("draws an anchor inside the list it needs above it", () => {
+  it("renders an A element inside a list", () => {
     const { container } = render(listed(<Link href="/">Overview</Link>));
 
     expect(slotElement(container, "nav-list", "link").tagName).toBe("A");
   });
 
-  it("goes where the href names", () => {
+  it("sets href to the value the caller passes", () => {
     render(listed(<Link href="/invoices">Invoices</Link>));
 
     expect(screen.getByRole("link", { name: "Invoices" }).getAttribute("href")).toBe("/invoices");
   });
 
-  it("says which row names the page being read", () => {
+  it("passes aria-current through to the anchor", () => {
     render(
       listed(
         <Link aria-current="page" href="/">
@@ -31,7 +31,7 @@ describe("Link", () => {
     expect(screen.getByRole("link").getAttribute("aria-current")).toBe("page");
   });
 
-  it("draws the element as names, for a row that acts rather than goes", () => {
+  it("renders a BUTTON element when as is set to button", () => {
     const { container } = render(listed(<Link as="button">Sign out</Link>));
 
     expect(slotElement(container, "nav-list", "link").tagName).toBe("BUTTON");

@@ -1,18 +1,16 @@
 /**
- * Moves focus from row to row on the arrow keys, Home and End.
+ * Moves focus between rows with the arrow keys, Home and End.
  *
  * @remarks
- *   A sidebar holding sixty destinations is one a reader crosses with the arrows. Tab reaches every
- *   row on its own, and it also reaches every branch and every control beside a row, so a reader
- *   looking for the twentieth page presses it forty times. The arrows step row to row instead.
- *   Every row keeps its own tab stop. The list states no role and announces no orientation, so a
- *   keyboard that walks it row by row still works and the arrows are the shorter way rather than
- *   the only one. The accessibility package's roving focus group is the other answer, and it is the
- *   one a toolbar takes: it holds the whole group to a single tab stop, which is what
- *   `role=toolbar` promises and what a list of links does not. The rows are read from the DOM
- *   rather than registered by each part, because a branch draws a list of its own and the root
- *   cannot see through the components between them. They are read on each press, so a branch that
- *   has just opened is stepped into without anything telling the root it did.
+ *   Tab reaches every row, every branch trigger and every control beside a row, so reaching the
+ *   twentieth link of a sidebar with sixty takes about forty presses. The arrow keys step from row
+ *   to row instead. Every row keeps its own tab stop, and the list sets no role and no orientation,
+ *   so Tab still works and the arrow keys are a shortcut. The a11y package's roving focus group is
+ *   the alternative a toolbar uses: it gives the whole group one tab stop, which `role="toolbar"`
+ *   requires and a list of links does not. The rows are queried from the DOM on each key press,
+ *   not registered by each part, because the root cannot see through the components between it and
+ *   a branch's nested list, and a branch that has just opened is included without notifying the
+ *   root.
  */
 
 import { type KeyboardEvent, useCallback } from "react";
@@ -20,21 +18,22 @@ import { type KeyboardEvent, useCallback } from "react";
 import { CLASS } from "#nav-list/recipe.ts";
 
 /**
- * Selects the rows the arrows step through: a destination, and the row a branch opens from.
+ * Selects the rows the arrow keys step through: links and branch triggers.
  *
  * @remarks
- *   The control beside a row is left out. It acts on the row rather than being one, and a reader
- *   crossing the list would stop on it twice for every destination.
+ *   The control beside a row is excluded. It acts on the row, and including it would add a second
+ *   stop for every row that has one.
  */
 const ROWS = `.${CLASS}__link, .${CLASS}__trigger`;
 
 /**
- * Where a key asks focus to go: one end of the list, or a signed step from the row it is on.
+ * Describes where a key moves focus: to one end of the list, or by a signed step from the current
+ * row.
  */
 type Intent = "end" | "start" | number;
 
 /**
- * The step each arrow moves by, before the writing direction is applied to the inline pair.
+ * Maps each arrow key to its step, before the writing direction is applied to the inline pair.
  */
 const STEPS: Readonly<Record<string, number | undefined>> = {
   ArrowDown: 1,
@@ -44,17 +43,16 @@ const STEPS: Readonly<Record<string, number | undefined>> = {
 };
 
 /**
- * The arrows that run along the line rather than down the page.
+ * The arrow keys on the inline axis.
  */
 const ALONG_THE_LINE = new Set(["ArrowLeft", "ArrowRight"]);
 
 /**
- * Translates a key press into where it asks focus to go.
+ * Returns where a key moves focus, or `undefined` when the list does not handle the key.
  *
  * @param key - The `key` value of the keyboard event.
- * @param along - Whether the list runs along the line, which a dock does and a column does not.
- * @param forward - 1 in a left-to-right list and -1 in a right-to-left one.
- * @returns Where to go, or undefined where the list does not answer the key.
+ * @param along - Whether the rows run along the inline axis, as in the dock.
+ * @param forward - 1 in a left-to-right list and -1 in a right-to-left list.
  */
 function intentOf(key: string, along: boolean, forward: number): Intent | undefined {
   if (key === "Home") return "start";
@@ -68,30 +66,30 @@ function intentOf(key: string, along: boolean, forward: number): Intent | undefi
 }
 
 /**
- * Reports whether a row is one a reader can see.
+ * Returns whether a row is visible.
  *
  * @remarks
- *   Two readings, because a row is hidden two ways. A closed branch marks the list it holds
- *   `hidden`, which is an attribute on an ancestor. A list collapsed to a rail of marks takes its
- *   nested lists out of the layout, which is a computed style and nothing an attribute reports.
+ *   A row is hidden in two ways. A closed branch sets `hidden` on its nested list, an attribute on
+ *   an ancestor. The iconic list removes nested lists from the layout, a computed style that no
+ *   attribute reports.
  */
 function shown(row: HTMLElement): boolean {
   return row.closest("[hidden]") === null && row.checkVisibility();
 }
 
 /**
- * Returns the rows a reader can see, in the order they are drawn.
+ * Returns the visible rows in document order.
  */
 function rowsOf(root: HTMLElement): readonly HTMLElement[] {
   return [...root.querySelectorAll<HTMLElement>(ROWS)].filter((row) => shown(row));
 }
 
 /**
- * Returns the row focus moves to, holding at the ends rather than continuing at the other.
+ * Returns the row focus moves to, stopping at the first and last rows instead of wrapping.
  *
  * @remarks
- *   A list of destinations has a first and a last, and a reader holding the down arrow to reach the
- *   foot of it does not expect to arrive back at the head.
+ *   A person holding the down arrow to reach the end of a list does not expect to arrive back at
+ *   the top.
  */
 function nextOf(
   rows: readonly HTMLElement[],
@@ -105,13 +103,13 @@ function nextOf(
 }
 
 /**
- * Builds the key handler the list answers with.
+ * Returns the list's key handler.
  *
  * @remarks
- *   The row a press comes from is the one holding what has focus rather than the one the event
- *   names, because a row holds a mark and a count and the press bubbles up through them.
- * @param along - Whether the list runs along the line, which the `dock` variant does.
- * @returns The handler, which ignores every key the list does not answer.
+ *   The handler finds the current row from the focused element, not from the event target, because
+ *   a key press can bubble up from an icon or a count inside the row.
+ * @param along - Whether the rows run along the inline axis, as in the `dock` variant.
+ * @returns The handler, which ignores every key the list does not handle.
  */
 export function useRowKeys(along: boolean): (event: KeyboardEvent<HTMLElement>) => void {
   return useCallback(

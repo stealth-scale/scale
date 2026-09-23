@@ -11,11 +11,11 @@ import { recipe } from "#nav-list/recipe.ts";
 import { type RootProps } from "#nav-list/root.tsx";
 
 describe("Root", () => {
-  it("breaks no accessibility rule holding rows and a branch", async () => {
+  it("returns no accessibility violation for a list with rows and a branch", async () => {
     await expect(accessibilityViolations(() => composed())).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("emits a class for every variant value the recipe declares", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "root",
@@ -23,25 +23,25 @@ describe("Root", () => {
     ).toStrictEqual([]);
   });
 
-  it("draws a list a screen reader counts the destinations of", () => {
+  it("renders a UL element", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "nav-list", "root").tagName).toBe("UL");
   });
 
-  it("carries no landmark of its own", () => {
+  it("renders no navigation landmark", () => {
     render(composed());
 
     expect(screen.queryByRole("navigation")).toBeNull();
   });
 
-  it("draws the list element a caller names instead", () => {
+  it("renders an OL element when as is set to ol", () => {
     const { container } = render(composed({ as: "ol" }));
 
     expect(slotElement(container, "nav-list", "root").tagName).toBe("OL");
   });
 
-  it("leaves the rows in a list where a caller draws the landmark round it", async () => {
+  it("returns no accessibility violation inside a nav the caller renders", async () => {
     await expect(
       accessibilityViolations(() => createElement("nav", { "aria-label": "Main" }, composed())),
     ).resolves.toStrictEqual([]);

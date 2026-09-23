@@ -7,13 +7,13 @@ import { listed } from "#nav-list/nav-list.fixtures.tsx";
 import { Skeleton } from "#nav-list/skeleton.ts";
 
 describe("Skeleton", () => {
-  it("draws a list item inside the list it needs above it", () => {
+  it("renders an LI element inside a list", () => {
     const { container } = render(listed(<Skeleton />));
 
     expect(slotElement(container, "nav-list", "skeleton").tagName).toBe("LI");
   });
 
-  it("draws no placeholder of its own", () => {
+  it("renders no child element when the caller passes none", () => {
     const { container } = render(listed(<Skeleton />));
 
     expect(slotElement(container, "nav-list", "skeleton").children).toHaveLength(0);

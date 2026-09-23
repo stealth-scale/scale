@@ -7,7 +7,7 @@ import { Item } from "#nav-list/item.ts";
 import { listed } from "#nav-list/nav-list.fixtures.tsx";
 
 describe("Item", () => {
-  it("draws a list item inside the list it needs above it", () => {
+  it("renders an LI element inside a list", () => {
     const { container } = render(listed(<Item>Overview</Item>));
 
     expect(slotElement(container, "nav-list", "item").tagName).toBe("LI");

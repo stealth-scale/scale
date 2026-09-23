@@ -1,6 +1,5 @@
 /**
- * Publishes the navigation list's ten parts, which a caller composes as `NavList.Root` holding
- * rows, and branches that open onto rows of their own.
+ * Exports the navigation list's parts, which a caller composes under `NavList.Root`.
  */
 
 export { Action, type ActionProps } from "#nav-list/action.ts";

@@ -111,81 +111,105 @@ pointing forwards.
 
 ## NavList
 
-Draws the destinations a page is reached from: rows one under another, and branches that open onto
-rows of their own.
+Renders a list of links a page is reached from: rows in a column, and branches that expand a nested
+list.
 
 ```tsx
 import { NavList } from "@stealthscale/component-navigation";
 
-<NavList.Root aria-label="Main" as="nav" iconic={collapsed}>
-  <NavList.Item>
-    <NavList.Link aria-current="page" href="/">
-      Overview
-    </NavList.Link>
-    <NavList.Badge>3</NavList.Badge>
-  </NavList.Item>
-  <NavList.Branch defaultOpen>
-    <NavList.Trigger>
-      Settings
-      <NavList.Indicator>
-        <ChevronIcon />
-      </NavList.Indicator>
-    </NavList.Trigger>
-    <NavList.Content>
-      <NavList.Item>
-        <NavList.Link href="/settings/team">Team</NavList.Link>
-      </NavList.Item>
-    </NavList.Content>
-  </NavList.Branch>
-</NavList.Root>;
+<nav aria-label="Main">
+  <NavList.Root iconic={collapsed} palette="primary">
+    <NavList.Item>
+      <NavList.Link aria-current="page" href="/">
+        Overview
+      </NavList.Link>
+      <NavList.Badge>3</NavList.Badge>
+    </NavList.Item>
+    <NavList.Branch defaultOpen>
+      <NavList.Trigger>
+        Settings
+        <NavList.Indicator>
+          <ChevronIcon />
+        </NavList.Indicator>
+      </NavList.Trigger>
+      <NavList.Content>
+        <NavList.Item>
+          <NavList.Link href="/settings/team">Team</NavList.Link>
+        </NavList.Item>
+      </NavList.Content>
+    </NavList.Branch>
+  </NavList.Root>
+</nav>;
 ```
 
-| Axis        | Values                   | Default  |
-| ----------- | ------------------------ | -------- |
-| `size`      | `sm`, `md`, `lg`         | `md`     |
-| `variant`   | `list`, `dock`           | `list`   |
-| `highlight` | `tint`, `fill`, `bar`    | `tint`   |
-| `radius`    | `l1`, `l2`, `l3`, `full` | `l2`     |
-| `iconic`    | `true`                   | off      |
-| `reveal`    | `always`, `hover`        | `always` |
+| Axis        | Values                                                             | Default   |
+| ----------- | ------------------------------------------------------------------ | --------- |
+| `size`      | `sm`, `md`, `lg`                                                   | `md`      |
+| `variant`   | `list`, `dock`                                                     | `list`    |
+| `highlight` | `tint`, `fill`, `bar`                                              | `tint`    |
+| `palette`   | `primary`, `secondary`, `accent`, `neutral`, and the four statuses | inherited |
+| `radius`    | `l1`, `l2`, `l3`, `full`                                           | `l2`      |
+| `guide`     | `solid`, `dashed`, `dotted`, `none`                                | `solid`   |
+| `iconic`    | `true`                                                             | off       |
+| `reveal`    | `always`, `hover`                                                  | `always`  |
+| `effect`    | `glow`                                                             | none      |
 
-| Part        | Element  | What it draws                    |
-| ----------- | -------- | -------------------------------- |
-| `Root`      | `ul`     | The list, and the variants       |
-| `Item`      | `li`     | One row                          |
-| `Link`      | `a`      | The destination a reader presses |
-| `Action`    | `span`   | A control at the end of a row    |
-| `Badge`     | `span`   | A count at the end of a row      |
-| `Branch`    | `li`     | A row that opens, and its state  |
-| `Trigger`   | `button` | The row that opens a branch      |
-| `Indicator` | `span`   | The mark that turns as it opens  |
-| `Content`   | `ul`     | The rows beneath a branch        |
-| `Skeleton`  | `li`     | The room a row on its way takes  |
+| Part        | Element  | What it renders                         |
+| ----------- | -------- | --------------------------------------- |
+| `Root`      | `ul`     | The list, which receives the variants   |
+| `Item`      | `li`     | One row                                 |
+| `Link`      | `a`      | A row's link                            |
+| `Action`    | `button` | A control at the end of a row           |
+| `Badge`     | `span`   | A count at the end of a row             |
+| `Branch`    | `li`     | A row that expands, and its state       |
+| `Trigger`   | `button` | The row that expands and collapses      |
+| `Indicator` | `span`   | The icon that rotates as a branch opens |
+| `Content`   | `ul`     | The nested list of a branch             |
+| `Skeleton`  | `li`     | A placeholder row while the list loads  |
 
-State `aria-current="page"` on the row naming the page being read. That attribute is what a screen
-reader announces and what `highlight` draws, so the two cannot disagree.
+Set `aria-current="page"` on the link to the current page. A screen reader announces the attribute
+and `highlight` styles it, so the two cannot disagree.
 
-The list carries no landmark. A page holds more than one of these, so name the set on whatever holds
-it, or state `as="nav"` and an `aria-label` on the root.
+The list doesn't set a landmark, because a page renders more than one list. Render a `nav` with an
+`aria-label` around the list. Do not pass `as="nav"` to the root: the rows are `li` elements, and a
+`nav` holding them directly is not read as a list.
+
+`palette` sets the palette the highlight, the hover fill and the branch rows read. Without it the
+list inherits the palette of the surrounding element. `effect="glow"` adds a glow around the current
+row.
 
 `NavList.Branch` takes `open`, `defaultOpen`, `onOpenChange` and `id`. Pass `open` to keep the
-branch holding the current page open across a navigation. The trigger says what it controls and
-whether that list is expanded, so state neither yourself.
+branch that contains the current page open across navigations. The machine sets `aria-expanded` and
+`aria-controls` on the trigger, so do not set them yourself.
 
-Set `iconic` for a list collapsed to a rail. The rows become squares, the actions and the chevrons
-go, and the words stay in the document out of sight, so a screen reader still names every row. Pass
-it from whatever collapses. The list measures nothing itself.
+`NavList.Action` is a `button` with `type="button"`. Pass the icon as its child and an `aria-label`
+that includes the row, such as `Rename Invoices`. A screen reader has no other text that ties the
+control to its row.
 
-Set `reveal="hover"` for a control that appears with the pointer. It stays drawn under a coarse
-pointer and while anything in the row holds focus, so a keyboard and a finger both reach it.
+Set `iconic` for a list collapsed to a rail. Each row becomes a square that contains its icon. The
+counts, the controls, the indicators and the nested rows are hidden. The text stays in the
+accessibility tree, so a screen reader still reads the name of every row. The rail centres its
+squares, so render it in a container as wide as the rail. Pass `iconic` from the component that
+collapses. The list doesn't measure anything itself.
 
-Set `variant="dock"` for a bar of destinations across the foot of a screen. It keeps clear of the
-room a device reserves for a home indicator.
+`reveal="hover"` hides each control until its row is hovered. The control on the current row stays
+visible. The others also appear while any element in their row has focus and under a coarse pointer,
+so a keyboard and a touch screen both reach them.
 
-Nested rows are the same `Item` and `Link`. `Content` mutes the ink and they inherit it.
+Set `variant="dock"` for a few links across the foot of a screen. Each link takes an equal share of
+the row and shows its icon over its label. The bottom padding includes the safe area a device
+reserves for a home indicator. Do not put a branch in a dock, because it has no room to open.
 
-Say that a list is loading. State `aria-busy` on the root around a set of `NavList.Skeleton` rows,
-and put the feedback package's skeleton inside each one.
+The list sizes an `svg` that is a direct child of a link or a trigger. In a list, the icon takes the
+icon size one smaller than the row's size. In a dock, it takes `icon.lg`. Pass the icon without a
+size.
+
+Nested rows use the same `Item` and `Link`. `Content` sets the muted ink, and the nested rows
+inherit it. A line runs down the start of a nested list. When the trigger leads with an icon, the
+line is aligned with the icon's centre. `guide` sets the line's style, and `none` removes it.
+
+Set `aria-busy` on the root while `NavList.Skeleton` rows render in place of the loading rows, and
+put the feedback package's `Skeleton` inside each one.
 
 ## Toc
 

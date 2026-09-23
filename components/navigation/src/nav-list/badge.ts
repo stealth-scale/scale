@@ -1,10 +1,9 @@
 /**
- * Draws the count at the end of a row.
+ * Renders the count at the end of a row.
  *
  * @remarks
- *   The element is `span`, and it takes no pointer, so a press over the count reaches the row
- *   behind it. It stays in the document where the rows are drawn as squares, out of sight and still
- *   read, because a count a reader cannot see is still a count they are told about.
+ *   The element is `span` with `pointer-events: none`, so a press on the count reaches the row
+ *   below it. In the iconic list the count is hidden visually and stays in the accessibility tree.
  */
 
 import { type ComponentProps } from "react";
@@ -12,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#nav-list/context.ts";
 
 /**
- * Draws the count at the end of the row.
+ * Renders the count `span` with the list's variants.
  */
 export const Badge = withContext("span", "badge");
 
 /**
- * Describes what a count takes.
+ * Describes the props of `Badge`.
  */
 export type BadgeProps = ComponentProps<typeof Badge>;

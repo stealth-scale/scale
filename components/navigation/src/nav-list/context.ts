@@ -1,9 +1,9 @@
 /**
- * Binds the navigation list's recipe to the elements that draw its parts.
+ * Binds the navigation list recipe to the elements that render its parts.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime.
+ *   The binding is kept out of `recipe.ts` because an application's style compiler imports the
+ *   recipe at build time, and a binding there would pull the React runtime into that import.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";
@@ -11,6 +11,7 @@ import { createSlotRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#nav-list/recipe.ts";
 
 /**
- * Binds the recipe once. The root provides the variants and every other part reads them.
+ * Supplies the root's factory, which receives the variants, and the part factory every other part
+ * reads them through.
  */
 export const { withContext, withProvider } = createSlotRecipeContext(recipe);

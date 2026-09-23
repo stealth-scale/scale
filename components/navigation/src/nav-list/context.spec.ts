@@ -8,7 +8,7 @@ import { slotClass, slotClasses, variantClass } from "@stealthscale/testing-them
 import { withContext, withProvider } from "#nav-list/context.ts";
 
 describe("context", () => {
-  it("draws the slot's class on an element it binds", () => {
+  it("applies the slot class to an element bound with withContext", () => {
     const List = withProvider("ul", "root");
     const Row = withContext("a", "link");
     const { container } = render(createElement(List, null, createElement(Row)));
@@ -16,7 +16,7 @@ describe("context", () => {
     expect(slotClasses(container, "nav-list", "link")).toContain(slotClass("nav-list", "link"));
   });
 
-  it("hands the list's variants to a row below it", () => {
+  it("applies a variant the root sets to a part below it", () => {
     const List = withProvider("ul", "root");
     const Row = withContext("a", "link");
     const { container } = render(createElement(List, { highlight: "bar" }, createElement(Row)));

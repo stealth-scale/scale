@@ -1,17 +1,13 @@
 /**
- * Draws the list the rows sit in and moves focus between them on the arrow keys.
+ * Renders the list that holds the rows, and moves focus between rows with the arrow keys.
  *
  * @remarks
- *   The element is `ul`, so a screen reader counts the destinations and says how many there are.
- *   The list states no landmark of its own. A page draws more than one of these, and the landmark
- *   belongs to whatever names the set: a sidebar's `nav`, a page's own, or a `nav` a caller draws
- *   round the list. Draw that `nav` round the list rather than reaching for `as="nav"`. The rows
- *   are `li` elements, and a `nav` holding those directly is markup no screen reader reads as a
- *   list.
- *   The arrows the list answers are the ones it is read along. A column answers the down and up
- *   arrows and a dock answers the ones along the line, which is what `variant` already states, so
- *   nothing new has to be said at the call site. A caller's own key handler runs first and keeps
- *   the key where it has taken it.
+ *   The element is `ul`, so a screen reader announces the number of items. The list sets no
+ *   landmark, because a page renders several lists and the landmark belongs to whatever names the
+ *   set: a sidebar's `nav`, or a `nav` the caller renders around the list. Do not pass `as="nav"`.
+ *   The rows are `li` elements, and a `nav` holding them directly is not read as a list. The list
+ *   handles the arrow keys on its own axis: down and up for `list`, left and right for `dock`. A
+ *   caller's own key handler runs first, and a key it prevents is not handled.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -22,25 +18,25 @@ import { withProvider } from "#nav-list/context.ts";
 import { useRowKeys } from "#nav-list/keys.ts";
 
 /**
- * Draws the list and sets the variants every part below it reads.
+ * Renders the list `ul` and provides the variants to every part below it.
  */
 const Listed = withProvider("ul", "root");
 
 /**
- * The variant whose rows run along the line rather than down the page.
+ * The variant whose rows run along the inline axis.
  */
 const DOCK = "dock";
 
 /**
- * Describes what the list takes.
+ * Describes the props of `Root`.
  */
 export type RootProps = ComponentProps<typeof Listed>;
 
 /**
- * Gathers the rows and answers the keys that cross them.
+ * Renders the list and handles the arrow keys that move focus between rows.
  *
- * @param props - The recipe's variants and the element's props together.
- * @returns The list, holding them.
+ * @param props - The recipe's variants and the `ul` element's props.
+ * @returns The list.
  */
 export function Root(props: RootProps): ReactElement {
   const onKeyDown = useRowKeys(props.variant === DOCK);

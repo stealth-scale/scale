@@ -12,7 +12,7 @@ import { Root, type RootProps } from "#nav-list/root.tsx";
 import { Trigger } from "#nav-list/trigger.tsx";
 
 /**
- * Presses a key on a row, the way a reader on that row presses it.
+ * Focuses a row and fires a keydown event on it.
  */
 function typed(row: HTMLElement, key: string, held: Record<string, boolean> = {}): void {
   row.focus();
@@ -20,7 +20,7 @@ function typed(row: HTMLElement, key: string, held: Record<string, boolean> = {}
 }
 
 /**
- * Draws the list with a branch a case can open, so the rows under it can be stepped into.
+ * Renders a list with one link and a closed branch holding one nested link.
  */
 function opening(props: RootProps = {}): ReturnType<typeof render> {
   return render(
@@ -41,56 +41,56 @@ function opening(props: RootProps = {}): ReturnType<typeof render> {
 }
 
 describe("useRowKeys", () => {
-  it("moves to the next row on the down arrow", () => {
+  it("moves focus to the next row on ArrowDown", () => {
     render(composed());
     typed(screen.getByRole("link", { name: "Overview" }), "ArrowDown");
 
     expect(document.activeElement).toBe(screen.getByRole("link", { name: "Invoices" }));
   });
 
-  it("moves to the row above on the up arrow", () => {
+  it("moves focus to the previous row on ArrowUp", () => {
     render(composed());
     typed(screen.getByRole("link", { name: "Invoices" }), "ArrowUp");
 
     expect(document.activeElement).toBe(screen.getByRole("link", { name: "Overview" }));
   });
 
-  it("stops on the last row rather than starting again at the first", () => {
+  it("keeps focus on the last row on ArrowDown", () => {
     render(composed());
     typed(screen.getByRole("button", { name: "Settings" }), "ArrowDown");
 
     expect(document.activeElement).toBe(screen.getByRole("button", { name: "Settings" }));
   });
 
-  it("stops on the first row rather than starting again at the last", () => {
+  it("keeps focus on the first row on ArrowUp", () => {
     render(composed());
     typed(screen.getByRole("link", { name: "Overview" }), "ArrowUp");
 
     expect(document.activeElement).toBe(screen.getByRole("link", { name: "Overview" }));
   });
 
-  it("moves to the first row on Home", () => {
+  it("moves focus to the first row on Home", () => {
     render(composed());
     typed(screen.getByRole("button", { name: "Settings" }), "Home");
 
     expect(document.activeElement).toBe(screen.getByRole("link", { name: "Overview" }));
   });
 
-  it("moves to the last row on End", () => {
+  it("moves focus to the last row on End", () => {
     render(composed());
     typed(screen.getByRole("link", { name: "Overview" }), "End");
 
     expect(document.activeElement).toBe(screen.getByRole("button", { name: "Settings" }));
   });
 
-  it("steps past the rows of a branch that is closed", () => {
+  it("skips the rows of a closed branch", () => {
     opening();
     typed(screen.getByRole("link", { name: "Overview" }), "End");
 
     expect(document.activeElement).toBe(screen.getByRole("button", { name: "Settings" }));
   });
 
-  it("steps into the rows of a branch that has opened", async () => {
+  it("includes the rows of a branch that has opened", async () => {
     opening();
     await pressed(screen.getByRole("button", { name: "Settings" }));
     typed(screen.getByRole("button", { name: "Settings" }), "ArrowDown");
@@ -98,7 +98,7 @@ describe("useRowKeys", () => {
     expect(document.activeElement).toBe(screen.getByRole("link", { name: "Team" }));
   });
 
-  it("moves from a press that came up through a mark inside a row", () => {
+  it("moves focus when the keydown comes from an element inside the row", () => {
     render(composed());
     screen.getByRole("button", { name: "Settings" }).focus();
     fireEvent.keyDown(screen.getByText("v"), { key: "ArrowUp" });
@@ -106,49 +106,49 @@ describe("useRowKeys", () => {
     expect(document.activeElement).toBe(screen.getByRole("link", { name: "Invoices" }));
   });
 
-  it("steps the other way along the line where the writing runs right to left", () => {
+  it("moves focus backwards on ArrowRight in a right-to-left dock", () => {
     render(composed({ dir: "rtl", style: { direction: "rtl" }, variant: "dock" }));
     typed(screen.getByRole("link", { name: "Invoices" }), "ArrowRight");
 
     expect(document.activeElement).toBe(screen.getByRole("link", { name: "Overview" }));
   });
 
-  it("answers the arrows along the line where the rows run along it", () => {
+  it("moves focus to the next row on ArrowRight in the dock", () => {
     render(composed({ variant: "dock" }));
     typed(screen.getByRole("link", { name: "Overview" }), "ArrowRight");
 
     expect(document.activeElement).toBe(screen.getByRole("link", { name: "Invoices" }));
   });
 
-  it("leaves the down arrow alone where the rows run along the line", () => {
+  it("ignores ArrowDown in the dock", () => {
     render(composed({ variant: "dock" }));
     typed(screen.getByRole("link", { name: "Overview" }), "ArrowDown");
 
     expect(document.activeElement).toBe(screen.getByRole("link", { name: "Overview" }));
   });
 
-  it("leaves the arrows along the line alone where the rows run down the page", () => {
+  it("ignores ArrowRight in the list variant", () => {
     render(composed());
     typed(screen.getByRole("link", { name: "Overview" }), "ArrowRight");
 
     expect(document.activeElement).toBe(screen.getByRole("link", { name: "Overview" }));
   });
 
-  it("leaves a key it answers none of alone", () => {
+  it("ignores a key it does not handle", () => {
     render(composed());
     typed(screen.getByRole("link", { name: "Overview" }), "a");
 
     expect(document.activeElement).toBe(screen.getByRole("link", { name: "Overview" }));
   });
 
-  it("leaves an arrow held with a modifier alone", () => {
+  it("ignores an arrow key pressed with a modifier", () => {
     render(composed());
     typed(screen.getByRole("link", { name: "Overview" }), "ArrowDown", { ctrlKey: true });
 
     expect(document.activeElement).toBe(screen.getByRole("link", { name: "Overview" }));
   });
 
-  it("leaves an arrow pressed on no row at all alone", () => {
+  it("ignores an arrow key when no row has focus", () => {
     const { container } = render(composed());
     const list = container.querySelector("ul");
 
@@ -157,7 +157,7 @@ describe("useRowKeys", () => {
     expect(document.activeElement).toBe(document.body);
   });
 
-  it("leaves an arrow a caller's own handler has taken alone", () => {
+  it("ignores an arrow key the caller's handler prevented", () => {
     const heard = vi.fn((event: { preventDefault: () => void }) => {
       event.preventDefault();
     });
@@ -169,7 +169,7 @@ describe("useRowKeys", () => {
     expect(document.activeElement).toBe(screen.getByRole("link", { name: "Overview" }));
   });
 
-  it("runs a caller's own handler beside its own", () => {
+  it("calls the caller's onKeyDown handler when it moves focus", () => {
     const heard = vi.fn<() => void>();
 
     render(composed({ onKeyDown: heard }));

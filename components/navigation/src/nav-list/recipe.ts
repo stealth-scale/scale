@@ -1,27 +1,16 @@
 /**
- * Defines the styles a navigation list is drawn with.
+ * Declares the navigation list's slot recipe: rows of links, branches that expand a nested list,
+ * and the count, control and indicator at the end of a row.
  *
  * @remarks
- *   Ten parts. The root is the list, an item is a row, a link is the destination a reader presses,
- *   and an action and a badge sit at the end of a row. A branch is a row that opens: the trigger is
- *   the row, the indicator is the mark that turns, and the content is the list beneath it. The
- *   skeleton is the shape of a row still on its way.
- *   A row is drawn from the theme's `row` fragment rather than borrowed from the button. A
- *   destination is not a control, and a row carrying two recipes carried two heights, whichever the
- *   stylesheet happened to write last.
- *   A nested list reuses the item and the link rather than naming a second pair. The content mutes
- *   the ink and every row below it inherits, so one rule says a nested row is quieter and the parts
- *   a caller composes stay the same at every depth. It slides open and closed from the height the
- *   branch's machine measures, through the theme's collapse motion, and the mark on the row turns
- *   a quarter as it opens, so a reader sees the list arrive rather than appear.
- *   `iconic` draws the rows as squares with their words read but not seen. It is a variant rather
- *   than an attribute read from an ancestor, so the slot recipe hands it to every part through the
- *   root and no part selects on a scope it does not own. A row collapsed to a square gives back the
- *   room it was keeping for whatever it carries at its end: that room is still reserved while the
- *   count and the control are only hidden, and a row that carried a control came out at 51.59
- *   pixels wide beside squares of 24.
- *   The count, the control and the mark that opens a branch all stand in one column at the row's
- *   end. They are three different things to the markup and one column to a reader.
+ *   A row reads the theme's `row` fragment, not the button recipe. A link is not a control, and a
+ *   row bound to two recipes took whichever height the stylesheet wrote last. A nested list reuses
+ *   `Item` and `Link`, and `Content` sets the muted ink the nested rows inherit. `Content` animates
+ *   between the heights the collapsible machine measures, and the indicator rotates a quarter turn
+ *   as the branch opens. `iconic` renders every row as a square containing its icon, with the text
+ *   kept for screen readers, and removes the end padding a square has no use for: a row with a
+ *   control measured 51.59px wide next to squares of 24px. The count, the control and the indicator
+ *   share one column at the end of a row.
  */
 
 import {
@@ -32,62 +21,62 @@ import {
   HIGHLIGHTS,
   highlightVariants,
   interactive,
+  onSlot,
   onSlots,
+  paletteVariants,
   row,
-  type Scale,
   sizeVariants,
-  type SystemStyleObject,
   truncate,
 } from "@stealthscale/theme/authoring";
 
+import { centred, reserved, rowed, trailing, tucked } from "#nav-list/metrics.ts";
+
 /**
- * The class this recipe is compiled under, which a selector reaching across parts reads.
+ * The recipe's class name, used to build the selectors that reach from one part to another.
  *
  * @remarks
- *   The binding writes one class per part, `nav-list__action`, and stamps no attribute naming the
- *   part. A rule that selects another part therefore selects the class, and builds it from this
- *   constant so the two cannot drift. The keyboard reads the same constant to find the rows, for
- *   the same reason.
+ *   The binding writes one class per part, such as `nav-list__action`, and no attribute naming the
+ *   part. A selector across parts therefore targets the class, built from this constant so the two
+ *   cannot drift. The keyboard module reads the same constant to find the rows.
  */
 export const CLASS = "nav-list";
 
 /**
- * Selects the control at the end of a row from a rule written on the row.
+ * Selects the control at the end of a row, from a rule on the row.
  */
 const ACTION = `.${CLASS}__action`;
 
 /**
- * Selects the count at the end of a row from a rule written on the row.
+ * Selects the count at the end of a row, from a rule on the row.
  */
 const BADGE = `.${CLASS}__badge`;
 
 /**
- * Selects whichever of the two things a row carries at its end, for a rule that has to leave room
- * for either.
+ * Selects either the count or the control at the end of a row.
  */
 const TRAILED = `:is(${ACTION}, ${BADGE})`;
 
 /**
- * Writes what a row collapsed to a mark is drawn as: a square holding the mark alone, with the
- * words it was written with kept for a screen reader.
+ * Styles a row of the iconic list: a square containing the icon, with the text hidden visually.
  *
  * @remarks
- *   The words go out of sight rather than out of the document, because a destination with no name
- *   is one a screen reader announces as `link` and nothing else. Clipping them with the square's
- *   overflow would leave them taking room inside it and squashing the mark they were meant to leave
- *   alone, so they are taken out of the flow instead. A mark drawn as `svg` is what stays; anything
- *   else a caller wants seen goes in one.
+ *   The text stays in the accessibility tree through `srOnly`, because a link without a name is
+ *   announced as `link` alone. `srOnly` also takes the text out of the flow, where clipping by
+ *   overflow would leave it inside the square and squeeze the icon. Only an `svg` child stays
+ *   visible. The square drops the row's inline padding: with it, a 24px square kept 12px on each
+ *   side and pushed the link's icon 6px off centre.
  */
 const SQUARED = {
   "& > :not(svg)": { srOnly: true },
   aspectRatio: "square",
   inlineSize: "auto",
   justifyContent: "center",
+  paddingInline: "0",
 };
 
 /**
- * Writes what every row a reader presses shares: the theme's row, the whole width of the list, and
- * words that are cut short rather than wrapped.
+ * Styles every row a person presses: the theme's row fragment at the full width of the list, with
+ * a minimum width of zero so the text can truncate.
  */
 const PRESSABLE = {
   ...row(),
@@ -100,43 +89,11 @@ const PRESSABLE = {
 };
 
 /**
- * Writes the room a row takes at one size: as tall as a tag of that name, with the label, the
- * inset and the gap a step below it, and the page being read set in the ink and semibold.
+ * Positions a part at the end of a row: absolutely, over the row, centred on the block axis.
  *
  * @remarks
- *   A list of destinations is read down a column, twenty rows at a time, and a row set in the
- *   label of a control at the same name reads as a column of buttons, so the words and the inset
- *   step down. They stepped down twice, which put the three sizes on three neighbouring steps of
- *   the label scale: a small list and a large one differed by a pixel of type and a reader could
- *   not tell the page's three steps apart. One step down keeps a row short and leaves the steps
- *   the distance the scale meant them to have. The current page's weight is written here beside the
- *   label rather than on the row's base, because the label states a weight of its own and the
- *   compiler lets a variant's value beat the base's, whichever was written later.
- *   The weight and nothing else. The ink of the current row belongs to the `highlight` axis, which
- *   states a fill and the ink that reads on it. Written here as well it won: `size` is declared
- *   after `highlight`, so a row marked with the solid fill was drawn in the page's own ink on the
- *   palette's solid, and the words of the page a reader was on disappeared into the mark.
- *   The row is never shorter than the grid step at twenty-four CSS pixels, whatever the theme's
- *   density and whatever step it is drawn at. A row is a target a reader points at, and a small
- *   list under a theme drawn tighter measured 20.5 pixels with 2.9 between rows, which is under
- *   both what 2.5.8 asks of a target and what its spacing exception allows.
- */
-function rowed(size: Scale): SystemStyleObject {
-  return {
-    _currentPage: { fontWeight: "semibold" },
-    blockSize: `max({sizes.6}, ${dense(`{sizes.tag.${size}}`)})`,
-    gap: dense(`{spacing.gap.${below(size)}}`),
-    paddingInline: dense(`{spacing.inset.${below(size)}}`),
-    textStyle: `label.${below(size)}`,
-  };
-}
-
-/**
- * Writes what sits at the end of a row: over the row, centred against it, out of the flow.
- *
- * @remarks
- *   Out of the flow so that the mark filling the row a reader is on runs the whole width of it. In
- *   the flow the fill stopped where the control began and left a notch at the end of the row.
+ *   The part is out of the flow so the highlight fill spans the whole row. In the flow, the fill
+ *   would stop where the control begins and leave a notch at the end of the row.
  */
 const BESIDE = {
   insetInlineEnd: "0",
@@ -146,76 +103,57 @@ const BESIDE = {
 };
 
 /**
- * Writes the column every mark at the end of a row stands in: a square on the tag scale holding
- * whatever it is given in the middle of it.
+ * Styles the control at the end of a row as an unfilled square button that fills on hover.
  *
  * @remarks
- *   One square for all three, because a count, a control and the mark that opens a branch are the
- *   same column of a list to anybody reading down it. Each was placed by its own rule before: the
- *   count and the control are drawn over the row and the mark is a child of it, so the three stood
- *   at three widths from the row's end and none of them lined up with the other two. Measured at
- *   the middle step on a row ending at 416.84: the count's middle at 401.22, the control's at
- *   408.84 and the mark's at 397.74. A minimum rather than a width. A count of three digits is
- *   wider than the square and grows back along the row; a mark never is.
+ *   The end column sizes the action, so it fits inside the row. A button of the actions package
+ *   measured 32px in a row with a 28px pitch. The hover fill is `emphasized`, two steps darker than
+ *   the row's `subtle` hover and one step darker than the tint highlight. At `subtle`, a hovered
+ *   control had no visible edge on its hovered row.
  */
-function trailing(size: Scale): SystemStyleObject {
-  const square = dense(`{sizes.tag.${below(size)}}`);
-
-  return {
-    alignItems: "center",
-    blockSize: square,
-    display: "flex",
-    justifyContent: "center",
-    minInlineSize: square,
-  };
-}
+const ACTING = {
+  ...BESIDE,
+  ...interactive(),
+  _hover: { background: "colorPalette.emphasized", color: "fg" },
+  appearance: "none",
+  background: "transparent",
+  borderRadius: "l1",
+  borderStyle: "none",
+  color: "fg.muted",
+  padding: "0",
+};
 
 /**
- * Writes the room a row keeps between the column at its end and its own edge, which is the room it
- * keeps at the other end.
- */
-function tucked(size: Scale): SystemStyleObject {
-  return { marginInlineEnd: dense(`{spacing.inset.${below(size)}}`) };
-}
-
-/**
- * Writes the room a row leaves at its end for whatever is drawn over it: the row's own inset, the
- * gap, and the square the mark stands in.
- *
- * @remarks
- *   Both the count and the control are drawn over the row, so the words under either ran on until
- *   they met it. The longest row of a list sized to its own contents had its last word crossed out
- *   by a pencil.
- */
-function reserved(size: Scale): string {
-  const inset = dense(`{spacing.inset.${below(size)}}`);
-
-  return `calc(${inset} + ${dense(`{spacing.gap.${below(size)}}`)} + ${dense(`{sizes.tag.${below(size)}}`)})`;
-}
-
-/**
- * Selects the row a reader presses from a rule written on the item that holds it, whichever of the
- * two kinds of row it is.
+ * Selects the row a person presses, a link or a trigger, from a rule on the item.
  */
 const PRESSED = `:is(.${CLASS}__link, .${CLASS}__trigger)`;
 
 /**
- * Selects the row naming the page being read, off the attribute a screen reader reads it by.
+ * Selects the row for the current page by its `aria-current` attribute.
  */
 const CURRENT = '[aria-current="page"]';
 
 /**
- * Draws a column of rows at the middle size, tinting the row the reader is on.
+ * Selects a branch's nested list whose trigger leads with an icon, from a rule on the branch.
+ */
+const UNDER_ICON = `&:has(> .${CLASS}__trigger > svg:first-child) > .${CLASS}__content`;
+
+/**
+ * The glow the `effect` axis puts around the current row.
+ */
+const GLOWING = { _currentPage: { layerStyle: "glow.sm" } };
+
+/**
+ * Styles a column of rows at the md size, tinting the current row.
  *
  * @remarks
- *   The count beside a row states its own ink rather than taking the row's. It is placed at the
- *   end of the row rather than inside the link, and a mark that fills the link stops at the link's
- *   edge, so a count that took the ink meant to read on that fill was drawn in it on the page
- *   instead: white on white beside a row marked with the solid fill.
+ *   The count sets its own ink instead of inheriting the row's. The count is a sibling of the link,
+ *   so it doesn't inherit the ink of the link's highlight. A count in the fill's ink would render
+ *   white on white next to a row with the solid fill.
  */
 export const recipe = defineSlotRecipe({
   base: {
-    action: BESIDE,
+    action: ACTING,
     badge: { ...BESIDE, color: "fg.muted", pointerEvents: "none" },
     branch: { listStyle: "none", minInlineSize: "0" },
     content: {
@@ -245,7 +183,17 @@ export const recipe = defineSlotRecipe({
       transitionProperty: "rotate",
       transitionTimingFunction: "press",
     },
-    item: { listStyle: "none", minInlineSize: "0", position: "relative" },
+    item: {
+      /**
+       * The row keeps its hover fill while the pointer is on its control. The control is a sibling
+       * of the link, so moving onto it ended the link's hover and left the control beside an
+       * unfilled row.
+       */
+      [`&:has(> ${ACTION}:hover) > ${PRESSED}`]: { background: "colorPalette.subtle" },
+      listStyle: "none",
+      minInlineSize: "0",
+      position: "relative",
+    },
     link: PRESSABLE,
     root: {
       display: "flex",
@@ -282,29 +230,36 @@ export const recipe = defineSlotRecipe({
     },
 
     /**
-     * The count beside the row a reader is on takes the ink that reads on the mark filling it.
+     * The count and the control next to the current row take the fill's contrast ink when the
+     * highlight is a fill.
      *
      * @remarks
-     *   Only where the mark is a fill. A count is drawn over the row rather than inside it, so on a
-     *   row filled with the palette's solid the muted ink it takes everywhere else stood at 3.1:1
-     *   from what it was drawn on, which is under what 1.4.3 asks of text. The tint and the bar
-     *   leave the row on the page's own surface, where the muted ink is what a count should read
-     *   in.
-     *   The count follows the row in the document, so the rule reads the row as a sibling rather
-     *   than asking the item what it holds.
+     *   The count is positioned over the filled row, where its muted ink measured 3.1:1, under the
+     *   4.5:1 WCAG 1.4.3 requires for text. The control's icon is under the same fill. The tint and
+     *   bar highlights leave the row on the page surface, where the muted ink is correct. Both
+     *   parts follow the link in the DOM, so the rule selects them as following siblings of the
+     *   current row. The control hovers to the fill's own hover, because `emphasized` on the solid
+     *   fill read as a hole in it.
      */
     {
       css: {
+        action: {
+          [`${PRESSED}${CURRENT} ~ &`]: {
+            _hover: { background: "colorPalette.solid.hover", color: "colorPalette.contrast" },
+            color: "colorPalette.contrast",
+          },
+        },
         badge: {
           [`${PRESSED}${CURRENT} ~ &`]: { color: "colorPalette.contrast" },
         },
       },
       highlight: "fill",
-      name: "counted",
+      name: "inked",
       variant: "list",
     },
   ],
   defaultVariants: {
+    guide: "solid",
     highlight: "tint",
     radius: "l2",
     reveal: "always",
@@ -326,7 +281,25 @@ export const recipe = defineSlotRecipe({
   ],
   variants: {
     /**
-     * How the row naming the page the reader is on is marked.
+     * The halo around the current row, in the palette's solid at half opacity.
+     */
+    effect: onSlots({ link: { glow: GLOWING }, trigger: { glow: GLOWING } }),
+
+    /**
+     * The style of the line down the start of a nested list.
+     *
+     * @remarks
+     *   `none` removes the line and keeps the indent.
+     */
+    guide: onSlot("content", {
+      dashed: { borderInlineStartStyle: "dashed" },
+      dotted: { borderInlineStartStyle: "dotted" },
+      none: { borderInlineStartStyle: "none" },
+      solid: { borderInlineStartStyle: "solid" },
+    }),
+
+    /**
+     * How the current row is marked.
      */
     highlight: onSlots({
       link: highlightVariants(HIGHLIGHTS, "_currentPage"),
@@ -334,13 +307,21 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * Whether the rows are drawn as squares holding a mark, their words read but not seen.
+     * Whether the rows render as squares containing their icons, with the text kept for screen
+     * readers.
      *
      * @remarks
-     *   The words stay in the document under `srOnly`, because a row with no name is no row to a
-     *   screen reader. The sidebar that collapses states this; the list never measures anything.
+     *   A sidebar that collapses to a rail sets it. The list measures nothing itself.
      */
     iconic: { true: { root: { alignItems: "center" } } },
+
+    /**
+     * The palette the highlight, the hover fill and the branch rows read.
+     *
+     * @remarks
+     *   The palette is set on the root, and every part inherits the palette's custom properties.
+     */
+    palette: onSlot("root", paletteVariants()),
 
     radius: onSlots({
       link: cornerVariants(["l1", "l2", "l3", "full"]),
@@ -348,11 +329,12 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * When the control beside a row is drawn.
+     * When the control at the end of a row is visible.
      *
      * @remarks
-     *   A control revealed on hover stays drawn under a coarse pointer, where there is no hover to
-     *   reveal it with, and while anything inside the row holds focus, so a keyboard reaches it.
+     *   With `hover`, the control is hidden until its row is hovered. It is visible on the current
+     *   row and under a coarse pointer, which cannot hover. It is also visible while any element in
+     *   its row has focus, so a keyboard user can operate it.
      */
     reveal: {
       always: { action: { opacity: "1" } },
@@ -365,7 +347,10 @@ export const recipe = defineSlotRecipe({
           transitionTimingFunction: "press",
         },
         item: {
-          [`&:focus-within ${ACTION}, &:hover ${ACTION}`]: { opacity: "1" },
+          [`&:focus-within ${ACTION}, &:hover ${ACTION}, &:has(> ${PRESSED}${CURRENT}) ${ACTION}`]:
+            {
+              opacity: "1",
+            },
         },
       },
     },
@@ -374,11 +359,7 @@ export const recipe = defineSlotRecipe({
       action: sizeVariants((size) => ({ ...trailing(size), ...tucked(size) }), ["sm", "md", "lg"]),
 
       /**
-       * The count beside a row reads a step under the row's own words.
-       *
-       * @remarks
-       *   The slot stated no size at all, so a count stayed one measure through every step and a
-       *   large list carried the same small tag a small list did.
+       * The count's text style is one size smaller than the row's.
        */
       badge: sizeVariants(
         (size) => ({
@@ -386,6 +367,10 @@ export const recipe = defineSlotRecipe({
           ...tucked(size),
           textStyle: `label.${below(below(size))}`,
         }),
+        ["sm", "md", "lg"],
+      ),
+      branch: sizeVariants(
+        (size) => ({ [UNDER_ICON]: { marginInlineStart: centred(size) } }),
         ["sm", "md", "lg"],
       ),
       content: sizeVariants(
@@ -400,15 +385,13 @@ export const recipe = defineSlotRecipe({
 
       indicator: sizeVariants(trailing, ["sm", "md", "lg"]),
       /**
-       * The room a row leaves at its end for whatever is drawn over it.
+       * The end padding a row keeps for the count or the control positioned over it.
        *
        * @remarks
-       *   A count as well as a control. Both are drawn over the row, and the rule asked only about
-       *   the control, so a row whose words ran as far as its count had them written under it.
-       *   The rule is written on this axis rather than on the item's base, because the compiler
-       *   puts a recipe's variants in a layer over its base and the row's own `paddingInline` is
-       *   written by the axis of the same name. A layer beats specificity, so the same rule on the
-       *   base, three classes deep, lost to a variant one class deep.
+       *   The rule is on this axis, not in the item's base, because the compiler puts variants in a
+       *   layer over the base, and the row's own `paddingInline` comes from this axis. A layer
+       *   beats specificity, so the same rule in the base, three classes deep, lost to a variant
+       *   one class deep.
        */
       item: sizeVariants(
         (size) => ({
@@ -436,19 +419,28 @@ export const recipe = defineSlotRecipe({
      * Whether the rows run down the side of a page or across the foot of a screen.
      *
      * @remarks
-     *   The dock is the pattern a thumb reaches: a handful of destinations in equal columns, each a
-     *   mark over its words. It keeps clear of the room a device reserves at the foot of the
-     *   screen for a home indicator.
-     *   It is named `dock` rather than `bar` because the `highlight` axis already offers `bar`, and
-     *   two values of that name on one slot compile to one class that the later of them wins.
+     *   `dock` lays a few links out in equal columns, each an `icon.lg` icon over a `label.xs`
+     *   caption, and pads the root by the safe area a device reserves at the foot of the screen. It
+     *   is named `dock` because the `highlight` axis already offers `bar`, and two values with one
+     *   name on a slot compile to one class.
      */
     variant: {
       dock: {
-        item: { flex: "1" },
-        link: { blockSize: "auto", flexDirection: "column", justifyContent: "center" },
+        item: { flex: "1", minInlineSize: "0" },
+        link: {
+          "& > svg": { boxSize: dense("{sizes.icon.lg}") },
+          blockSize: "auto",
+          flexDirection: "column",
+          gap: dense("{spacing.gap.xs}"),
+          justifyContent: "center",
+          paddingBlock: dense("{spacing.gap.sm}"),
+          paddingInline: dense("{spacing.gap.xs}"),
+          textStyle: "label.xs",
+        },
         root: {
           alignItems: "stretch",
           flexDirection: "row",
+          gap: dense("{spacing.gap.xs}"),
           paddingBlockEnd: "safe.bottom",
         },
       },
