@@ -54,6 +54,7 @@
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
     "@rolldown/plugin-babel": "catalog:",
+    "@stealthscale/component-layout": "workspace:^",
     "@stealthscale/theme": "workspace:^",
     "@stealthscale/vite-config": "workspace:^",
     "@stealthscale/vite-config-i18n": "workspace:^",
@@ -66,6 +67,7 @@
     "@types/react-dom": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
     "happy-dom": "catalog:",
+    "lucide-react": "catalog:",
     "oxc-transform-react": "catalog:",
     "publint": "catalog:",
     "react": "catalog:",

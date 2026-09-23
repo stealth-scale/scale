@@ -1010,6 +1010,9 @@ importers:
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
         version: 0.2.4(@babel/core@7.29.7(supports-color@10.2.2))(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@0.3.3(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.7)
+      '@stealthscale/component-layout':
+        specifier: workspace:^
+        version: link:../layout
       '@stealthscale/theme':
         specifier: workspace:^
         version: link:../../foundations/theme
@@ -1046,6 +1049,9 @@ importers:
       happy-dom:
         specifier: 'catalog:'
         version: 20.14.5
+      lucide-react:
+        specifier: 'catalog:'
+        version: 1.47.0(react@19.3.0)
       oxc-transform-react:
         specifier: 'catalog:'
         version: 0.149.0
@@ -1176,6 +1182,9 @@ importers:
       '@stealthscale/component-actions':
         specifier: workspace:^
         version: link:../actions
+      '@stealthscale/component-surfaces':
+        specifier: workspace:^
+        version: link:../surfaces
       '@stealthscale/theme':
         specifier: workspace:^
         version: link:../../foundations/theme
