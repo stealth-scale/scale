@@ -4,10 +4,15 @@ import { recipeViolations } from "@stealthscale/testing-theme";
 
 import { defineRecipe } from "#authoring/recipe.ts";
 import { field, FIELD_EDGE } from "#authoring/recipes/field.ts";
-import { fieldStatusVariants, statusEmitted, statusVariants } from "#authoring/recipes/status.ts";
+import {
+  fieldStatusVariants,
+  paletteVariants,
+  statusEmitted,
+  statusVariants,
+} from "#authoring/recipes/status.ts";
 
 describe("statusVariants", () => {
-  it("points the palette at the semantic palette of each status", () => {
+  it("sets colorPalette to the palette of each status", () => {
     expect(statusVariants()).toStrictEqual({
       error: { colorPalette: "error" },
       info: { colorPalette: "info" },
@@ -16,7 +21,7 @@ describe("statusVariants", () => {
     });
   });
 
-  it("names an intent the recipe checks accept for every status", () => {
+  it("returns no recipe violation for any status", () => {
     const recipe = defineRecipe({
       className: "x",
       staticCss: [statusEmitted()],
@@ -27,8 +32,36 @@ describe("statusVariants", () => {
   });
 });
 
+describe("paletteVariants", () => {
+  it("sets colorPalette to the palette of each value", () => {
+    expect(paletteVariants(["primary", "error"])).toStrictEqual({
+      error: { colorPalette: "error" },
+      primary: { colorPalette: "primary" },
+    });
+  });
+
+  it("offers every semantic palette when called with no argument", () => {
+    expect(Object.keys(paletteVariants()).toSorted()).toStrictEqual([
+      "accent",
+      "error",
+      "info",
+      "neutral",
+      "primary",
+      "secondary",
+      "success",
+      "warning",
+    ]);
+  });
+
+  it("returns no recipe violation for any palette", () => {
+    const recipe = defineRecipe({ className: "x", variants: { palette: paletteVariants() } });
+
+    expect(recipeViolations(recipe)).toStrictEqual([]);
+  });
+});
+
 describe("fieldStatusVariants", () => {
-  it("writes the edge property with the line family's member of each status", () => {
+  it("writes the edge property from the border family member of each status", () => {
     expect(fieldStatusVariants()).toStrictEqual({
       error: {
         _invalid: { [FIELD_EDGE]: "{colors.border.error}" },
@@ -53,19 +86,19 @@ describe("fieldStatusVariants", () => {
     });
   });
 
-  it("draws the error edge in the same token the invalid state draws", () => {
+  it("writes the error edge with the token the invalid state of field uses", () => {
     expect(field()).toMatchObject({
       _invalid: { [FIELD_EDGE]: fieldStatusVariants().error[FIELD_EDGE] },
     });
   });
 
-  it("keeps a field marked wrong in the status it reports rather than in the error edge", () => {
+  it("writes the status edge under _invalid for a status other than error", () => {
     expect(fieldStatusVariants().warning["_invalid"]).toStrictEqual({
       [FIELD_EDGE]: "{colors.border.warning}",
     });
   });
 
-  it("names a token the recipe checks accept for every status", () => {
+  it("returns no recipe violation for any status", () => {
     const recipe = defineRecipe({
       className: "x",
       staticCss: [statusEmitted()],

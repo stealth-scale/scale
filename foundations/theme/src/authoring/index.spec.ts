@@ -60,6 +60,7 @@ const RECIPE = [
   "onSlots",
   "overlay",
   "PALETTES",
+  "paletteVariants",
   "ratioVariants",
   "ROLES",
   "row",
@@ -166,20 +167,20 @@ const ENGINE = [
 ];
 
 describe("authoring", () => {
-  it("publishes the vocabulary a recipe and a theme and an application are written in", () => {
+  it("exports the recipe helpers the patterns and the color engine and no other name", () => {
     expect(Object.keys(published).toSorted()).toStrictEqual(
       [...RECIPE, ...PATTERN, ...ENGINE].toSorted(),
     );
   });
 
-  it("publishes neither the ramp-step tables nor the transcription helpers", () => {
+  it("exports neither the ramp-step tables nor the transcription helpers", () => {
     expect(Object.keys(published)).not.toContain("paletteRoles");
     expect(Object.keys(published)).not.toContain("backgrounds");
     expect(Object.keys(published)).not.toContain("palettes");
     expect(Object.keys(published)).not.toContain("deepMerge");
   });
 
-  it("publishes nothing from the generated runtime", () => {
+  it("exports no name from the generated runtime", () => {
     expect(Object.keys(published)).not.toContain("css");
     expect(Object.keys(published)).not.toContain("styled");
   });

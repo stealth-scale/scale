@@ -292,6 +292,7 @@ places each hue on the wheel with its chroma.
 | `link()`                              | The link ink, an underline on hover, the focus ring                                |
 | `lookVariants(looks)`                 | A `variant` axis, each look a layer style                                          |
 | `statusVariants()`                    | A `status` axis, each status a palette                                             |
+| `paletteVariants(palettes)`           | A `palette` axis over the eight semantic palettes, each value a palette            |
 | `toneVariants(tones)`                 | A `tone` axis over the inks: the family's four and the four statuses               |
 | `controlSizes(sizes)`                 | A `size` axis over the control height, the inset, the gap and the label text style |
 | `iconSizes(sizes)`, `iconOnly(sizes)` | A `size` axis over the icon box, or a square control with no inset                 |

@@ -312,3 +312,9 @@ theme: publish the breakpoints as the foundation states them
   `token` before, and `token` keeps the whole token map in the bundle, 32 kB of values for the five
   a page reads. The catalogue's library chunk is 163 kB rather than 195, 50 kB rather than 57
   gzipped.
+
+theme: add paletteVariants
+
+- `paletteVariants()` writes a `palette` axis over the eight semantic palettes: `primary`,
+  `secondary`, `accent`, `neutral` and the four statuses. Each value sets `colorPalette`, and the
+  recipe reads the palette's roles.

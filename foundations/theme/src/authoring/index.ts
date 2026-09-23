@@ -1,17 +1,16 @@
 /**
- * Publishes the vocabulary a recipe, a theme and an application are written in, and nothing that
- * runs in a browser. Every name here is read at build time. It is separate from the package's own
- * entry because that entry re-exports the generated runtime, and the compiler's configuration
- * reaches this package through whatever a theme imports: a theme importing the entry would put
- * every generated file behind the configuration, and regenerating them would read as the
- * configuration changing. The two attributes are published here as well as on the entry, so a
- * package that does not render, such as the testing kit, reads them without loading the provider
- * and its React transform.
+ * Exports the build-time authoring API: the recipe and theme definers, the recipe helpers, the
+ * patterns, the token contract and the color engine. Nothing here runs in a browser. The API is
+ * separate from the package entry because that entry re-exports the generated runtime. A theme
+ * that imported the entry would make every generated file an input of the compiler configuration,
+ * so regenerating them would read as a configuration change. The two attributes are exported here
+ * as well as from the entry, so a package that does not render, such as the testing kit, reads them
+ * without loading the provider and its React transform.
  *
  * @remarks
- *   Three groups are published. A recipe author reads the definers, the helpers, the patterns
- *   and the contract. A theme author reads `defineTheme` and the parts of a statement. An
- *   application or a test that draws a palette of its own reads the engine and the measurements.
+ *   Recipe authors use the definers, the helpers, the patterns and the contract. Theme authors use
+ *   `defineTheme` and the statement types. An application or a test that computes its own palette
+ *   uses the color engine and the measurement functions.
  * @packageDocumentation
  */
 
@@ -92,6 +91,7 @@ export {
   onSlot,
   onSlots,
   overlay,
+  paletteVariants,
   ratioVariants,
   row,
   sizeVariants,

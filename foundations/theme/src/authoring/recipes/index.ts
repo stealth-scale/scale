@@ -1,11 +1,9 @@
 /**
- * Publishes the helpers a recipe is built from, so a recipe states what a component is rather than
- * how each of its states is drawn.
+ * Exports the helpers recipes are built from.
  *
  * @remarks
- *   Each helper returns a plain style object that reads semantic tokens, layer styles, text
- *   styles and animation styles, and nothing a recipe may not write: no color, no pixel length,
- *   no color mode.
+ *   Each helper returns a plain style object that reads semantic tokens, layer styles, text styles
+ *   or animation styles. None writes a raw color, a pixel length or a color mode.
  */
 
 export { type Axis, axis } from "#authoring/recipes/axis.ts";
@@ -60,7 +58,12 @@ export {
   touchTarget,
 } from "#authoring/recipes/sizes.ts";
 export { type Anatomy, onSlot, onSlots, slotsOf } from "#authoring/recipes/slots.ts";
-export { fieldStatusVariants, statusEmitted, statusVariants } from "#authoring/recipes/status.ts";
+export {
+  fieldStatusVariants,
+  paletteVariants,
+  statusEmitted,
+  statusVariants,
+} from "#authoring/recipes/status.ts";
 export {
   divider,
   type Elevation,
