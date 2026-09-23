@@ -50,3 +50,22 @@ specimen: show an example file as the source of a scene
 - `scenesOf` takes `example` at page level and per axis, ahead of `sample`. `propped(source, props)`
   writes the props of the first cell in place of every `{...props}` spread and removes the `props`
   parameter, so a generated scene shows `<Tag.Root palette="primary" variant="solid">`.
+
+specimen: name props band parts after the page ID
+
+- The props band heads each part with the namespace from the page ID, `namespaceOf(id)`, so the tag
+  page reads `Tag.CloseTrigger`. It read `tag.title.CloseTrigger`, because page titles are
+  translation keys.
+- A part whose name contains the namespace is a standalone component: `ColorSwatchMix`,
+  `LoaderOverlay` and `IconButton` in place of `ColorSwatch.ColorSwatchMix`, `Loader.LoaderOverlay`
+  and `Button.IconButton`.
+
+specimen: write the props of a hand-written scene into its example
+
+- `Scene.props` holds the props of the first cell of a hand-written scene. `sourceOf()` writes them
+  into the example's `{...props}` spreads and removes the `props` parameter, so a `Matrix` scene
+  shows `<Button aria-pressed variant="solid">`.
+- `propped()` removes a `props` parameter that the formatter wraps onto several lines. A spread on a
+  line of its own keeps its indent, and the line is removed when no prop is set.
+- The catalogue's code view passes `label` and `copiedLabel` to `CodeBlock.Copy`, which no longer
+  takes `translations`.

@@ -87,10 +87,7 @@ function CopyControl(): ReactElement {
   const { t } = useWords("code-block");
 
   return (
-    <CodeBlock.Copy
-      copied={<CheckIcon size="1em" />}
-      translations={{ triggerLabel: (copied) => t(copied ? "copied" : "copy") }}
-    >
+    <CodeBlock.Copy copied={<CheckIcon size="1em" />} copiedLabel={t("copied")} label={t("copy")}>
       <CopyIcon size="1em" />
     </CodeBlock.Copy>
   );

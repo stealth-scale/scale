@@ -2,10 +2,11 @@
  * Renders the button that copies the value.
  *
  * @remarks
- *   The machine supplies the accessible name and swaps it once a copy succeeds. A caller whose
- *   button carries its own text overrides that through `aria-label`, or through `translations` on
- *   the root. This slot applies no control styling; pass `as` to render it as the library's button,
- *   which keeps it in step with every other button in a theme.
+ *   `label` and `copiedLabel` set the accessible name in the idle and the copied state, with
+ *   English defaults. A trigger with visible text passes that text as `label` and shows
+ *   `copiedLabel` during the copied state, so the name contains the visible label (WCAG 2.5.3). The
+ *   slot has no control styles. Pass `as={Button}` or `as={IconButton}` to render it as the
+ *   library's button.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -16,23 +17,50 @@ import { withContext } from "#clipboard/context.ts";
 import { useClipboard } from "#clipboard/machine.ts";
 
 /**
- * Renders the trigger slot inside the control row.
+ * `button` bound to the trigger slot.
  */
-const Pressed = withContext("button", "trigger");
+const Styled = withContext("button", "trigger");
 
 /**
- * Accepts every prop the styled button takes.
+ * Default accessible name in the idle state.
  */
-export type TriggerProps = ComponentProps<typeof Pressed>;
+const LABEL = "Copy to clipboard";
 
 /**
- * Renders the button, merging the caller's props over the machine's.
+ * Default accessible name in the copied state.
+ */
+const COPIED_LABEL = "Copied to clipboard";
+
+/**
+ * Props of `Clipboard.Trigger`: the two accessible names and the props of the styled `button`.
+ */
+export interface TriggerProps extends ComponentProps<typeof Styled> {
+  /**
+   * Accessible name in the copied state. Defaults to "Copied to clipboard".
+   */
+  readonly copiedLabel?: string | undefined;
+
+  /**
+   * Accessible name in the idle state. Defaults to "Copy to clipboard".
+   */
+  readonly label?: string | undefined;
+}
+
+/**
+ * Renders the button with the caller's props merged over the machine's.
  *
- * @param props - Everything a styled button takes.
- * @returns The button, wired to the machine's copy handler and its accessible name.
+ * @remarks
+ *   An `aria-label` the caller passes takes precedence over both names.
+ * @param props - The two accessible names and the props of the styled `button`.
+ * @returns The button, wired to the machine's copy handler.
  */
-export function Trigger(props: TriggerProps): ReactElement {
+export function Trigger({
+  copiedLabel = COPIED_LABEL,
+  label = LABEL,
+  ...rest
+}: TriggerProps): ReactElement {
   const api = useClipboard();
+  const named = { "aria-label": api.copied ? copiedLabel : label };
 
-  return <Pressed {...mergeProps(api.getTriggerProps(), props)} />;
+  return <Styled {...mergeProps(api.getTriggerProps(), named, rest)} />;
 }

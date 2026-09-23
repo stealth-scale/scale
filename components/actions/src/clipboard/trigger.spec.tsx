@@ -28,40 +28,44 @@ describe("Trigger", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("takes its accessible name from the machine before a copy", () => {
+  it("defaults its accessible name to Copy to clipboard", () => {
     render(clipped(<Trigger>⧉</Trigger>));
 
     expect(screen.getByRole("button", { name: "Copy to clipboard" })).toBeDefined();
   });
 
-  it("swaps its accessible name once the copy succeeds", async () => {
+  it("defaults its accessible name to Copied to clipboard after a copy", async () => {
     render(clipped(<Trigger>⧉</Trigger>));
     await pressed(screen.getByRole("button"));
 
     expect(screen.getByRole("button", { name: "Copied to clipboard" })).toBeDefined();
   });
 
-  it("lets an aria-label from the caller override the machine's name", () => {
+  it("uses an aria-label passed by the caller over both names", () => {
     render(clipped(<Trigger aria-label="Copy the link">⧉</Trigger>));
 
     expect(screen.getByRole("button", { name: "Copy the link" })).toBeDefined();
   });
 
-  it("takes its idle name from the translations set on the root", () => {
+  it("takes its idle name from label", () => {
     render(
-      clipped(<Trigger>⧉</Trigger>, {
-        translations: { triggerLabel: (copied) => (copied ? "Klaar" : "Kopieer") },
-      }),
+      clipped(
+        <Trigger copiedLabel="Klaar" label="Kopieer">
+          ⧉
+        </Trigger>,
+      ),
     );
 
     expect(screen.getByRole("button", { name: "Kopieer" })).toBeDefined();
   });
 
-  it("takes its copied name from the translations set on the root", async () => {
+  it("takes its copied name from copiedLabel after a copy", async () => {
     render(
-      clipped(<Trigger>⧉</Trigger>, {
-        translations: { triggerLabel: (copied) => (copied ? "Klaar" : "Kopieer") },
-      }),
+      clipped(
+        <Trigger copiedLabel="Klaar" label="Kopieer">
+          ⧉
+        </Trigger>,
+      ),
     );
     await pressed(screen.getByRole("button"));
 
@@ -90,14 +94,14 @@ describe("Trigger", () => {
     expect(heard).toHaveBeenCalledOnce();
   });
 
-  it("still copies when the caller passes an onClick handler of its own", async () => {
+  it("copies when the caller also passes onClick", async () => {
     render(clipped(<Trigger onClick={vi.fn<() => void>()}>⧉</Trigger>));
     await pressed(screen.getByRole("button"));
 
     expect(screen.getByRole("button").dataset["copied"]).toBe("");
   });
 
-  it("carries the button recipe's classes when rendered as the icon button", () => {
+  it("applies the button recipe classes when rendered as IconButton", () => {
     const { container } = render(
       clipped(
         <PropsProvider value={{ size: "sm", variant: "ghost" }}>
@@ -113,7 +117,7 @@ describe("Trigger", () => {
     expect(trigger.classList.contains("button--sm")).toBe(true);
   });
 
-  it("keeps copying when rendered as the icon button", async () => {
+  it("copies when rendered as IconButton", async () => {
     const { container } = render(
       clipped(
         <PropsProvider value={{ size: "sm", variant: "ghost" }}>

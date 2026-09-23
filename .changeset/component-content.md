@@ -34,3 +34,9 @@ component-content: set the neutral palette on CodeBlock.Copy
 
 - `CodeBlock.Copy` renders its `IconButton` with `palette="neutral"` in place of `status="neutral"`,
   after `@stealthscale/component-actions` replaced the button's `status` axis with `palette`.
+
+component-content: take the copy control's names as label props
+
+- Breaking: `CodeBlock.Copy` no longer takes `translations`. It takes `label`, default "Copy to
+  clipboard", and `copiedLabel`, default "Copied to clipboard", and passes them to the clipboard
+  trigger. Replace `translations={{ triggerLabel }}` with the two props.
