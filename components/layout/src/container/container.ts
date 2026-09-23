@@ -1,10 +1,10 @@
 /**
- * Draws a container through its recipe.
+ * Renders a container through the container recipe.
  *
  * @remarks
- *   The element is `div`, because a container states a measure and says nothing about what it
- *   holds. A page whose container is its main region changes the element with `as="main"`, which
- *   is what a screen reader skips to.
+ *   The element is `div`, which has no semantics. A container that wraps a page's main content
+ *   sets `as="main"`, so a screen reader can jump to it. The component renders no surface, ink or
+ *   border.
  */
 
 import { type ComponentProps } from "react";
@@ -12,12 +12,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#container/context.ts";
 
 /**
- * Draws a page at one measure, centred in whatever holds it, with a gutter down each side.
+ * Renders a `div` element with the classes of the container recipe.
  */
 export const Container = withContext("div");
 
 /**
- * Describes what a container takes: the variants its recipe offers, and everything a styled div
- * element takes.
+ * Describes the props of Container: the recipe's variants and the props of a `div` element.
  */
 export type ContainerProps = ComponentProps<typeof Container>;

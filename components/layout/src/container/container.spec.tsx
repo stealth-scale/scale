@@ -8,23 +8,23 @@ import { Container } from "#container/container.ts";
 import { recipe } from "#container/recipe.ts";
 
 describe("Container", () => {
-  it("conforms as a div element", () => {
+  it("passes the component conformance checks as a div element", () => {
     expect(violations(Container, { as: true, children: true, element: "DIV" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule holding a paragraph", async () => {
+  it("returns no accessibility violation with a paragraph", async () => {
     await expect(
       accessibilityViolations(Container, { props: { children: <p>One</p> } }),
     ).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(recipe, (props) => render(<Container {...props}>One</Container>).container),
     ).toStrictEqual([]);
   });
 
-  it("draws the element as names", () => {
+  it("renders a main element when as is main", () => {
     const { container } = render(<Container as="main">One</Container>);
 
     expect(recipeElement(container, "container").tagName).toBe("MAIN");

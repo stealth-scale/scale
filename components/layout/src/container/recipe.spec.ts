@@ -11,33 +11,39 @@ describe("recipe", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+  it("has no scene that writes a value the recipe does not offer", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Container"] })).toStrictEqual([]);
   });
 
-  it("names its class container", () => {
+  it("sets className to container", () => {
     expect(recipe.className).toBe("container");
   });
 
-  it("offers a measure axis and a gutter a caller clears", () => {
+  it("declares two variant axes", () => {
     expect(axesOf(recipe)).toStrictEqual(["flush", "size"]);
   });
 
-  it("holds a page to the wide measure when nothing is asked for", () => {
+  it("defaults to the 3xl size", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "3xl" });
   });
 
-  it("offers every measure the page is read at beside the prose measure", () => {
-    expect(valuesOf(recipe, "size")).toContain("prose");
-    expect(valuesOf(recipe, "size")).toContain("full");
+  it("declares 14 sizes on the size axis", () => {
     expect(valuesOf(recipe, "size")).toHaveLength(14);
   });
 
-  it("tracks the tag a consumer writes it under", () => {
+  it.each(["full", "prose"])("declares %s on the size axis", (size) => {
+    expect(valuesOf(recipe, "size")).toContain(size);
+  });
+
+  it("removes the gutter on the flush value", () => {
+    expect(recipe.variants?.flush?.true).toStrictEqual({ paddingInline: "0" });
+  });
+
+  it("matches the Container JSX tag", () => {
     expect(recipe.jsx).toStrictEqual([/^Container$/u]);
   });
 });
