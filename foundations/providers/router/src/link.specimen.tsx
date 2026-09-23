@@ -20,9 +20,21 @@
 import { type ReactElement } from "react";
 
 import { Stack } from "@stealthscale/component-layout";
+import { Link } from "@stealthscale/component-navigation";
 import { Text } from "@stealthscale/component-typography";
-import { RouteLink } from "@stealthscale/provider-router";
+import { createLink, RouteLink } from "@stealthscale/provider-router";
 import { Matrix, type Scene, specimen, useWords, written } from "@stealthscale/specimen";
+
+/**
+ * Draws a route link that carries a link's ink and its underline.
+ *
+ * @remarks
+ *   `RouteLink` resolves an identifier and draws a bare `a`, which the page's reset leaves in the
+ *   ink of the words around it. Set in a sentence it was a run of body text nobody could tell from
+ *   the rest, so this page draws it through the navigation package's link, which is what a caller
+ *   with a design system does.
+ */
+const Inlined = createLink(Link);
 
 /**
  * The identifiers of routes the catalogue compiles, which the scenes resolve.
@@ -68,7 +80,7 @@ function Inline(): ReactElement {
   return (
     <Stack gap="sm">
       <Text>
-        {t("before")} <RouteLink to="specimen.components.actions.button">{t("named")}</RouteLink>{" "}
+        {t("before")} <Inlined to="specimen.components.actions.button">{t("named")}</Inlined>{" "}
         {t("after")}
       </Text>
     </Stack>

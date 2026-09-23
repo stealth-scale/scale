@@ -49,6 +49,7 @@
     "@arethetypeswrong/core": "catalog:",
     "@rolldown/plugin-babel": "catalog:",
     "@stealthscale/component-layout": "workspace:^",
+    "@stealthscale/component-navigation": "workspace:^",
     "@stealthscale/component-typography": "workspace:^",
     "@stealthscale/testing-config": "workspace:^",
     "@stealthscale/vite-config": "workspace:^",
