@@ -71,3 +71,12 @@ vite-plugin-specimen: include a page chunk's dependencies recursively
   stub chunk under the page's own name that held those modules and re-exported the page, and the two
   chunks imported each other. A table the page built at module level from an icon in the stub read
   `undefined`, because the stub's binding was hoisted and not yet evaluated.
+
+vite-plugin-specimen: export the source of an example file
+
+- Every `*.example.tsx` module gets a string export named `source` that holds the file's text.
+- Imports through `#` subpaths are merged into one named import from the package name, so
+  `import * as Tag from "#tag/index.ts"` reads `import { Tag } from "@stealthscale/component-data"`.
+- A default import through a `#` subpath throws, because a package barrel has no default export.
+- The props reader also reads the modules that each imported example file imports. A specimen that
+  renders its components only through examples, such as the color swatch, read no parts before.

@@ -114,7 +114,7 @@ function updating(
   );
 }
 
-describe("plugin", () => {
+describe("specimens", () => {
   it("returns a plugin named stealth:specimens", () => {
     expect(specimens({ patterns: PATTERNS }).name).toBe("stealth:specimens");
   });
@@ -200,6 +200,41 @@ describe("plugin", () => {
     expect(held.slice(1)).toStrictEqual([undefined, undefined]);
   });
 
+  it("appends the source of an example module with # imports rewritten to the package name", async () => {
+    const example = ['import * as Badge from "#badge/index.ts";', "", "export const A = 1;", ""];
+    const held = await serving(
+      { ...TREE, "src/badge/examples/a.example.tsx": example.join("\n") },
+      (plugin, scratch) =>
+        transformed(
+          plugin,
+          hookContext(),
+          "compiled",
+          scratch.path("src/badge/examples/a.example.tsx"),
+        ),
+    );
+
+    expect(held).toBe(
+      `compiled\nexport const source = ${JSON.stringify(
+        ['import { Badge } from "@kit/data";', "", "export const A = 1;", ""].join("\n"),
+      )};\n`,
+    );
+  });
+
+  it("returns undefined for an example request with a query", async () => {
+    const held = await serving(
+      { ...TREE, "src/badge/examples/a.example.tsx": "export const A = 1;\n" },
+      (plugin, scratch) =>
+        transformed(
+          plugin,
+          hookContext(),
+          "compiled",
+          scratch.path("src/badge/examples/a.example.tsx?raw"),
+        ),
+    );
+
+    expect(held).toBeUndefined();
+  });
+
   it("lists the page a specimen declares", async () => {
     await expect(index()).resolves.toMatch(/id: "data\/badge"/u);
   });
@@ -208,7 +243,7 @@ describe("plugin", () => {
     await expect(index()).resolves.toMatch(/group: "Data"/u);
   });
 
-  it("names the package the specimen belongs to", async () => {
+  it("lists the package name from the manifest above the specimen", async () => {
     await expect(index()).resolves.toMatch(/package: "@kit\/data"/u);
   });
 
@@ -233,7 +268,7 @@ describe("plugin", () => {
     expect(held).toBeUndefined();
   });
 
-  it("reads a typed file again when a bundled environment reports it changed", async () => {
+  it("rereads a typed file when a bundled environment reports an update to it", async () => {
     const held = await withScratchWorkspaceAsync(kit(), async (scratch) => {
       const plugin = await reading(scratch);
       const file = scratch.path("src/badge/badge.ts");
@@ -249,7 +284,7 @@ describe("plugin", () => {
     expect(held).toContain('"probe"');
   });
 
-  it("adds the stamp to the files a page's props watch", async () => {
+  it("adds the stamp file to the watch files of a props module", async () => {
     const watched = await withScratchWorkspaceAsync(kit(), async (scratch) => {
       const plugin = await reading(scratch);
       const context = hookContext();
@@ -264,7 +299,7 @@ describe("plugin", () => {
     expect(watched[0]?.endsWith("/index")).toBe(true);
   });
 
-  it("rewrites the stamp when a bundled environment reports a typed file changed", async () => {
+  it("rewrites the stamp when a bundled environment reports an update to a typed file", async () => {
     const stamps = await withScratchWorkspaceAsync(kit(), async (scratch) => {
       const plugin = await reading(scratch);
       const context = hookContext();
@@ -289,7 +324,7 @@ describe("plugin", () => {
     expect(stamps.after).not.toBe(stamps.before);
   });
 
-  it("reads no typed file again when the environment is not bundled", async () => {
+  it("does not reread a typed file when the environment is not bundled", async () => {
     const held = await withScratchWorkspaceAsync(kit(), async (scratch) => {
       const plugin = await reading(scratch);
       const file = scratch.path("src/badge/badge.ts");
@@ -311,7 +346,7 @@ describe("plugin", () => {
     expect(held).toBeUndefined();
   });
 
-  it("adds the stamp to the files the index watches", async () => {
+  it("adds the stamp file to the watch files of the index module", async () => {
     const watched = await serving(TREE, async (plugin) => {
       const context = hookContext();
 
@@ -324,7 +359,7 @@ describe("plugin", () => {
     expect(watched[0]?.endsWith("/index")).toBe(true);
   });
 
-  it("rewrites the stamp when a specimen appears in a bundled environment", async () => {
+  it("rewrites the stamp when a bundled environment reports a new specimen", async () => {
     const stamps = await serving(TREE, async (plugin, scratch) => {
       const context = hookContext();
 
@@ -347,7 +382,7 @@ describe("plugin", () => {
     expect(stamps.after).not.toBe(stamps.before);
   });
 
-  it("rewrites the stamp when a specimen disappears in a bundled environment", async () => {
+  it("rewrites the stamp when a bundled environment reports a deleted specimen", async () => {
     const stamps = await serving(TREE, async (plugin, scratch) => {
       const context = hookContext();
 
@@ -369,7 +404,7 @@ describe("plugin", () => {
     expect(stamps.after).not.toBe(stamps.before);
   });
 
-  it("leaves the stamp alone when a scene changed and no props have been read", async () => {
+  it("keeps the stamp when a scene changes before any props module loads", async () => {
     const stamps = await serving(TREE, async (plugin, scratch) => {
       const context = hookContext();
 
@@ -392,7 +427,7 @@ describe("plugin", () => {
     expect(stamps.after).toBe(stamps.before);
   });
 
-  it("rewrites the stamp when a page changed its declared metadata in a bundled environment", async () => {
+  it("rewrites the stamp when a bundled environment reports a change to page metadata", async () => {
     const stamps = await serving(TREE, async (plugin, scratch) => {
       const context = hookContext();
 
@@ -415,7 +450,7 @@ describe("plugin", () => {
     expect(stamps.after).not.toBe(stamps.before);
   });
 
-  it("leaves the stamp alone when the environment is not bundled", async () => {
+  it("keeps the stamp when the environment is not bundled", async () => {
     const stamps = await serving(TREE, async (plugin, scratch) => {
       const context = hookContext();
 
@@ -453,7 +488,7 @@ describe("plugin", () => {
     expect(watched).toHaveLength(1);
   });
 
-  it("reloads the index when a page changed the metadata it declares", async () => {
+  it("reloads the index module when a page changes its metadata", async () => {
     const held = await serving(TREE, async (plugin, scratch) => {
       await loaded(plugin, RESOLVED);
 
@@ -467,7 +502,7 @@ describe("plugin", () => {
     expect(held).toHaveLength(1);
   });
 
-  it("leaves the index alone when an edit changed a scene", async () => {
+  it("returns undefined when an edit changes only a scene", async () => {
     const held = await serving(TREE, async (plugin, scratch) => {
       await loaded(plugin, RESOLVED);
 
@@ -477,7 +512,7 @@ describe("plugin", () => {
     expect(held).toBeUndefined();
   });
 
-  it("returns undefined when a file the index lists no page for changed", async () => {
+  it("returns undefined when a file outside the index changes", async () => {
     const held = await serving(TREE, async (plugin, scratch) => {
       await loaded(plugin, RESOLVED);
 
@@ -491,7 +526,7 @@ describe("plugin", () => {
     await expect(index({ "src/a.ts": "" })).rejects.toThrow(/matched no file/u);
   });
 
-  it("writes a props loader onto every page of the index", async () => {
+  it("writes a props loader into every index entry", async () => {
     const held = await withScratchWorkspaceAsync(kit(), async (scratch) => {
       const plugin = await reading(scratch);
 
@@ -501,7 +536,7 @@ describe("plugin", () => {
     expect(held).toMatch(/props: \(\) => import\("virtual:specimen-props\/badge"\)/u);
   });
 
-  it("serves the parts a page's components accept", async () => {
+  it("serves the props of each part of a page", async () => {
     const held = await withScratchWorkspaceAsync(kit(), async (scratch) => {
       const plugin = await reading(scratch);
 
@@ -544,7 +579,7 @@ describe("plugin", () => {
     expect(held).toBeUndefined();
   });
 
-  it("reloads every loaded props module when a typed file changed", async () => {
+  it("reloads every loaded props module when a typed file changes", async () => {
     const held = await withScratchWorkspaceAsync(kit(), async (scratch) => {
       const plugin = await reading(scratch);
 

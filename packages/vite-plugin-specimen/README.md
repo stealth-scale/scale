@@ -66,8 +66,7 @@ into the entry's chunk, so a component in the pages chunk read the refresh runti
 preamble installed it and threw. A build therefore writes both chunks and a dev server writes
 neither. Both are a caching measure for a reader, and a dev server has no reader to cache for.
 
-A page states its own import line and each scene its own source. Neither is read out of the file, so
-the plugin parses no syntax tree.
+A page states its own import line. The index reads no scene source from the specimen file.
 
 Add the types with a triple-slash directive from a file the project already compiles.
 
@@ -134,6 +133,23 @@ reason as its opening and a loader that rejects with the same reason. A build th
 every unreadable file in one error.
 
 One identifier declared by two files is the same fault. The second is refused and names the first.
+
+## Example files
+
+The plugin transforms every file matching `*.example.tsx`. It appends the file's text to the module
+as a string export named `source`, which a catalogue scene shows when it states `example`. The text
+is the file as written, with its `#` imports rewritten:
+
+- All imports through `#` subpaths merge into one named import from the package name in the nearest
+  `package.json`.
+- A namespace import becomes a named import of the same name. `import * as Tag from "#tag/index.ts"`
+  becomes `import { Tag } from "@stealthscale/component-data"`.
+- A default import through a `#` subpath throws, because a package barrel has no default export.
+
+Exclude example files from Fast Refresh, as `@stealthscale/vite-config-react` does. The `source`
+export disqualifies the module as a refresh boundary, so the refresh runtime would invalidate it and
+a bundled dev server would reload the page. With the exclusion, an edit propagates to the importing
+specimen, which accepts it.
 
 ## Hot updates
 

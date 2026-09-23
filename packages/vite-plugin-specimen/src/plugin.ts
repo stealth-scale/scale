@@ -1,10 +1,13 @@
 /**
- * Vite plugin for specimen files: matches the configured globs, serves the index and each page's
- * props as virtual modules, and invalidates them when a file changes.
+ * Vite plugin that indexes specimen files and serves the catalogue's virtual modules.
+ *
+ * @remarks
+ *   The plugin serves `virtual:specimen-index` and one `virtual:specimen-props/<id>` module per
+ *   page. It appends a self-accepting HMR handler to each specimen module and a `source` export to
+ *   each example module. It invalidates its generated modules when a watched file changes.
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { readFileSync } from "node:fs";
 import {
   type EnvironmentModuleGraph,
   type EnvironmentModuleNode,
@@ -12,28 +15,28 @@ import {
   type UserConfig,
 } from "vite";
 
-import { scratchDir } from "@stealthscale/vite-plugin-base";
-
 import { type Settled, settled } from "#anatomy/reading.ts";
 import { type Compiler } from "#anatomy/types.ts";
 import { type Changed, type Indexing, pageOf, pathOf, reindexes, retyped } from "#changed.ts";
 import { accepting, anatomised, type Listed, listings, type Resolved, written } from "#emit.ts";
+import { exampleModule } from "#example.ts";
 import { found, roots } from "#found.ts";
 import { ID, type Options, PROPS } from "#options.ts";
+import { type Loading, stamped, stamps } from "#stamp.ts";
 
 /**
- * Resolved id of the index module, which is the import specifier unchanged.
+ * Resolved ID of the index module, identical to its import specifier.
  *
  * @remarks
- *   Vite's convention is to prefix a virtual module's resolved id with NUL so that other plugins
- *   skip it. That breaks under a server that bundles: it registers a dynamically imported module
- *   under the id without the NUL, and its runtime then finds nothing behind the prefixed one.
- *   Dropping the prefix is safe here because no other plugin claims a specifier with no extension.
+ *   Vite's convention prefixes virtual module IDs with `\0` so other plugins skip them. A bundled
+ *   dev server registers a dynamically imported module under the unprefixed ID, so a prefixed ID
+ *   resolves to nothing at runtime. No other plugin claims an extensionless specifier, which makes
+ *   the unprefixed ID safe.
  */
 const RESOLVED = ID;
 
 /**
- * Resolved id prefix for a page's props, with the page's identifier appended to it.
+ * Resolved ID prefix of a page's props module. The page ID follows the prefix.
  */
 const RESOLVED_PROPS = PROPS;
 
@@ -41,90 +44,66 @@ const RESOLVED_PROPS = PROPS;
  * Globs excluded from the dev server's file watcher.
  *
  * @remarks
- *   The plugin hands the watcher whole package trees, which contain the coverage report a test run
- *   writes. Vite reloads the page in full when a watched HTML file resolves to no module, so
- *   without this exclusion a test run reloads the catalogue.
+ *   The plugin watches entire package trees, and test runs write coverage reports into them. Vite
+ *   performs a full reload when a watched HTML file maps to no module. Without the exclusion, every
+ *   test run reloads the catalogue.
  */
 const OUTPUTS: readonly string[] = ["**/coverage/**"];
 
 /**
- * Directory name the plugin's scratch space takes under the system temporary directory.
- */
-const SCRATCH = "stealth-specimen";
-
-/**
- * File whose modification time stands in for a change to the set of indexed pages.
- *
- * @remarks
- *   The index module declares this file as a dependency. A server that bundles runs no hot update
- *   hook and regenerates a module only when a file that module declared changes, so the plugin
- *   writes here whenever a page appears, disappears, or declares different metadata. A module can
- *   only declare real files, and the set of pages the patterns match is not one.
- */
-const STAMP = "index";
-
-/**
- * The part of a dev server the plugin uses.
- *
- * @remarks
- *   Narrower than Vite's own type, so a test can pass a watcher instead of a whole server.
+ * Minimal dev server interface the plugin depends on.
  */
 interface Watcher {
   /**
-   * The server's file watcher, which the plugin registers extra directories on.
+   * The dev server's file watcher.
    */
   readonly watcher: {
     /**
-     * Registers directories, so that files appearing under them are reported.
+     * Adds paths to the watch set.
      */
     readonly add: (paths: readonly string[]) => void;
   };
 }
 
 /**
- * The part of a hot update the plugin uses, on top of the fields {@link Changed} declares.
- *
- * @remarks
- *   Narrower than Vite's own type, which also carries the dev server. Leaving it out lets a test
- *   build an update without one.
+ * Minimal hot update payload the plugin depends on.
  */
 interface Updated extends Changed {
   /**
-   * The modules Vite already resolved for the changed file.
+   * Modules Vite resolved for the changed file.
    */
   readonly modules: readonly EnvironmentModuleNode[];
 }
 
 /**
- * The part of the environment the update hook reads off `this`.
+ * Minimal `this` context of the `hotUpdate` hook.
  */
 interface Watching {
   /**
-   * The environment the change was reported in.
+   * Environment that reported the change.
    */
   readonly environment: {
     /**
-     * The module graph, used to look up whether a module has been loaded.
+     * Module graph used to look up generated modules by ID.
      */
     readonly moduleGraph: Pick<EnvironmentModuleGraph, "getModuleById">;
   };
 }
 
 /**
- * The part of the environment the watch change hook reads off `this`.
+ * Minimal `this` context of the `watchChange` hook.
  */
 interface Bundling {
   /**
-   * The environment the change was reported in, absent when Vite binds none.
+   * Environment that reported the change, or undefined when Vite binds none.
    */
   readonly environment?: {
     /**
-     * The resolved configuration, narrowed to the one flag read here.
+     * Resolved environment config.
      */
     readonly config: {
       /**
-       * True under a build and under a dev server that bundles, false when the server serves one
-       * module per file.
+       * True for a build and for a dev server in full bundle mode.
        */
       readonly isBundled: boolean;
     };
@@ -132,123 +111,82 @@ interface Bundling {
 }
 
 /**
- * A generated module's source, with its source map suppressed.
+ * Hook result with module code and no source map.
  */
 interface Written {
   /**
-   * The source of the generated module.
+   * Module code.
    */
   readonly code: string;
 
   /**
-   * Always null: the module was generated rather than transformed, so there is nothing to map.
+   * Always null. Generated code has no original source, and appended code leaves existing
+   * positions unchanged.
    */
   readonly map: null;
 }
 
 /**
- * The mutable state one plugin instance carries across hook calls.
+ * Mutable per-instance plugin state.
  */
 interface State {
   /**
-   * Listing and page identifier per file, as of the last time the index was generated.
+   * Listing and page ID per file from the last index generation.
    */
   last: ReadonlyMap<string, Listed>;
 
   /**
-   * The compiler, started on the first request for a page's props.
+   * Compiler, created on the first props request.
    */
   opening: Promise<Compiler> | undefined;
 
   /**
-   * The props reading settled from the options, or undefined when the repository reads no props.
+   * Props reading settings, or undefined when props reading is disabled.
    */
   reading: Settled | undefined;
 
   /**
-   * The root and command taken from the resolved configuration.
+   * Root and command from the resolved config.
    */
   resolved: Resolved;
 
   /**
-   * The absolute directories the patterns start searching in.
+   * Absolute directories where the glob patterns start.
    */
   watched: readonly string[];
 }
 
 /**
- * The second argument the watch change hook receives, beside the file.
+ * Second argument of the `watchChange` hook.
  */
 interface Change {
   /**
-   * The kind of change: a creation, a deletion, or an edit.
+   * Change kind: `create`, `delete` or `update`.
    */
   readonly event: Changed["type"];
 }
 
 /**
- * The part of the config hook's environment argument the plugin reads.
- *
- * @remarks
- *   Narrower than Vite's own type, so a test can pass the command alone.
+ * Minimal environment argument of the `config` hook.
  */
 interface Composing {
   /**
-   * The command the bundler is running. A build runs `build`.
+   * Bundler command. A build reports `build`.
    */
   readonly command: string;
 }
 
 /**
- * Returns the absolute path of the stamp file for the resolved root.
- */
-function stampOf(state: State): string {
-  return join(scratchDir(SCRATCH, state.resolved.root), STAMP);
-}
-
-/**
- * Writes a new timestamp into the stamp file, creating its directory when it is absent.
+ * Invalidates generated modules after a file change in a bundled environment.
  *
  * @remarks
- *   `process.hrtime.bigint` has nanosecond resolution, so two writes within the same millisecond
- *   still produce different content.
- */
-function stamped(state: State): void {
-  const stamp = stampOf(state);
-
-  mkdirSync(dirname(stamp), { recursive: true });
-  writeFileSync(stamp, `${process.hrtime.bigint()}\n`);
-}
-
-/**
- * Declares the stamp as a file a generated module depends on, writing it where it is absent.
- *
- * @remarks
- *   The stamp is the only way a server that bundles reaches a module this plugin generated. That
- *   server reports a change to `watchChange`, which is handed a configuration and no module graph
- *   and so can invalidate nothing itself. It writes a new stamp instead, and the bundler loads
- *   every module that declared the stamp again.
- *   Both generated modules declare it. The index is regenerated when the listing changes, and a
- *   page's props when the compiler was restarted, which is what an edit to a file it reads does.
- */
-function stamps(state: State, loading: Loading): void {
-  if (!existsSync(stampOf(state))) stamped(state);
-
-  loading.addWatchFile(stampOf(state));
-}
-
-/**
- * Brings a server that bundles up to date with one changed file.
- *
- * @remarks
- *   The watch change hook passes a path and no reader, so the change is given a reader that opens
- *   the file itself. Only an edit is ever read, which is why a deleted path never reaches the file
- *   system.
- *   A new stamp is written for either of two changes, because each leaves a generated module
- *   holding what a file no longer says. A change to the listing is the index's. A change to a file
- *   the compiler reads is a page's props: the compiler is restarted so the next read is fresh, and
- *   without a new stamp nothing ever asks for that read and the props a reader sees are the ones
- *   the server generated when it started.
+ *   `watchChange` provides a path without a reader, so the function reads updated files from disk.
+ *   It rewrites the stamp when the change alters the listing or restarts the compiler. The bundler
+ *   then reloads every module that watches the stamp.
+ * @param state - Plugin state.
+ * @param patterns - Glob patterns from the options.
+ * @param file - Absolute path of the changed file.
+ * @param type - Change kind.
  */
 async function bundled(
   state: State,
@@ -260,30 +198,19 @@ async function bundled(
 
   const changed: Changed = { file, read: () => readFileSync(file, "utf8"), type };
 
-  if ((await reindexes(state, patterns, changed)) || reopened) stamped(state);
+  if ((await reindexes(state, patterns, changed)) || reopened) stamped(state.resolved.root);
 }
 
 /**
- * The part of the load hook's context the plugin reads off `this`.
- */
-interface Loading {
-  /**
-   * Declares a file the loaded module depends on, so that changing it loads the module again.
-   */
-  readonly addWatchFile: (file: string) => void;
-}
-
-/**
- * Generates the source for one resolved id: either the index or one page's props.
+ * Generates the index module, or the props module of one page.
  *
  * @remarks
- *   The compiler module is imported on the first request for props and the compiler it opens is
- *   cached on the state, so a repository that states no reading never loads the TypeScript API.
- *   The index declares the stamp here because the load hook is the only place the plugin is given
- *   a context to declare it through.
- * @returns The generated source, or undefined when the identifier is not this plugin's.
- * @throws {@link Error} When the patterns match nothing, a build meets a file it cannot read, or
- *   no listed page has the requested identifier.
+ *   The compiler module is imported on the first props request and cached on the state, so a
+ *   repository without props reading never loads the TypeScript API. Both modules register the
+ *   stamp as a watch file.
+ * @returns Module code, or undefined when the ID belongs to another plugin.
+ * @throws {@link Error} When the patterns match no file, when a build cannot read a file, or when
+ *   no listed page has the requested ID.
  */
 async function generated(
   state: State,
@@ -296,7 +223,7 @@ async function generated(
 
     state.last = listings(state.resolved, files, state.reading !== undefined);
 
-    stamps(state, loading);
+    stamps(state.resolved.root, loading);
 
     return written(state.last);
   }
@@ -306,20 +233,17 @@ async function generated(
   const path = pathOf(state, id.slice(RESOLVED_PROPS.length));
   const { compiler } = await import("#anatomy/compiler.ts");
 
-  stamps(state, loading);
+  stamps(state.resolved.root, loading);
   state.opening ??= compiler(state.resolved.root);
 
   return anatomised((await state.opening).anatomyOf(path, state.reading));
 }
 
 /**
- * Restarts the compiler when the changed file is one it reads.
+ * Restarts the compiler when the changed file is a typed file under a watched directory.
  *
- * @remarks
- *   No compiler exists until a page's props have been asked for, so every change before that
- *   request passes through untouched.
- * @returns True when the compiler restarted, false when none was open or the file is not a typed
- *   one under a searched directory.
+ * @returns True if the compiler restarted. False if no compiler is running or the file is not a
+ *   typed file under a watched directory.
  */
 async function restarted(state: State, file: string): Promise<boolean> {
   if (state.opening === undefined || !retyped(state.watched, file)) return false;
@@ -330,13 +254,13 @@ async function restarted(state: State, file: string): Promise<boolean> {
 }
 
 /**
- * Collects the props modules a hot update has to reload after a type change.
+ * Returns the props modules to reload after a type change.
  *
  * @remarks
- *   Every props module the graph has loaded is returned, whether or not the changed file reaches
- *   it. Working out which pages a type change reaches would cost more than the tens of
- *   milliseconds the compiler takes to answer a page again.
- * @returns Each loaded props module, or an empty array when the compiler did not restart.
+ *   The function returns every loaded props module instead of computing the affected pages. That
+ *   analysis would cost more than the tens of milliseconds the compiler needs to regenerate the
+ *   props of a page.
+ * @returns Every loaded props module, or an empty array when the compiler did not restart.
  */
 async function reread(
   state: State,
@@ -354,37 +278,35 @@ async function reread(
 }
 
 /**
- * Name of the build chunk holding every page's props.
+ * Build chunk that contains every props module.
  */
 const PROPS_CHUNK = "props";
 
 /**
- * Name of the build chunk holding every page.
+ * Build chunk that contains every specimen page.
  */
 const PAGES_CHUNK = "pages";
 
 /**
- * The `command` value Vite reports when it is running a build.
+ * `command` value Vite reports for a build.
  */
 const BUILDING = "build";
 
 /**
- * Returns the configuration the plugin contributes: the watcher's exclusions always, and a build's
- * two chunk groups.
+ * Returns the plugin's config contribution.
  *
  * @remarks
- *   One chunk per page produced sixty chunks in the docs build, from one kilobyte to fifty-five
- *   and most under two gzipped, each one its own request. The pages group pulls in what each page
- *   depends on, so a component a single page reaches ships with that page. Props take a second
- *   group, because a reader opens one page's props at a time. The index imports a page lazily
- *   under a query, which the test strips before it looks the page up. Only a build takes the
- *   groups: a dev server folds the React plugin's refresh preamble into the entry chunk, and a
- *   component in the pages chunk then reaches the refresh runtime before the preamble installs it
- *   and throws. An output the repository stated as an array is left alone, since writing a group
- *   into one entry of it would be a guess at which entry holds the pages.
- * @param indexing - The index as last generated, which maps a file to its page.
- * @param stated - The configuration as the repository stated it.
- * @param command - The command the bundler is running. A build runs `build`.
+ *   Every command gets the watcher exclusions. A build also gets two code-splitting groups. One
+ *   chunk per page produced 60 chunks in the docs build, from 1 kB to 55 kB and mostly under 2 kB
+ *   gzipped. The `pages` group pulls in the dependencies of each page recursively. The `props`
+ *   group holds the props modules, which the catalogue loads one page at a time. The group test
+ *   strips the query that the lazy imports of the index add. A dev server gets no groups, because
+ *   the React refresh preamble is in the entry chunk and a component in the pages chunk would call
+ *   the refresh runtime before the preamble installs it. An array-valued `output` is returned
+ *   unchanged, since the function cannot tell which entry holds the pages.
+ * @param indexing - Latest index, which maps a file to its page.
+ * @param stated - Config as declared by the repository.
+ * @param command - Bundler command.
  */
 function configured(indexing: Indexing, stated: UserConfig, command: string): UserConfig {
   const watched: UserConfig = { server: { watch: { ignored: [...OUTPUTS] } } };
@@ -413,15 +335,39 @@ function configured(indexing: Indexing, stated: UserConfig, command: string): Us
 }
 
 /**
- * Creates the plugin that indexes the specimens the patterns match and serves that index as a
- * virtual module.
+ * Appends generated code to specimen and example modules.
  *
  * @remarks
- *   The index is generated when a catalogue first imports it, and again whenever a page appears,
- *   disappears, or changes the metadata it declares. Editing a scene reloads its page and leaves
- *   the index alone.
- * @param options - Where to search, and whether to read props. {@link Options} Documents every
- *   member.
+ *   A specimen module gets a self-accepting HMR handler that dispatches the new module to the
+ *   catalogue. The index lists every specimen before the bundler transforms it, because the loaders
+ *   in the index are its only importers. An example module gets its rewritten source as a `source`
+ *   export. A request with a query targets the file's text, not its module, and passes through
+ *   unchanged.
+ * @param state - Plugin state, which maps a file to its page.
+ * @param code - Module code from the preceding plugins.
+ * @param id - Module ID, possibly with a query.
+ * @returns The transformed code, or undefined for any other module.
+ */
+function appendedTo(state: State, code: string, id: string): undefined | Written {
+  if (id.includes("?")) return undefined;
+
+  const example = exampleModule(code, id);
+
+  if (example !== undefined) return { code: example, map: null };
+
+  const page = pageOf(state, id);
+
+  return page === undefined ? undefined : { code: code + accepting(page, "module"), map: null };
+}
+
+/**
+ * Creates the specimen plugin.
+ *
+ * @remarks
+ *   The index is generated on first import and regenerated when a page is created, deleted or
+ *   changes its declared metadata. An edit to a scene reloads the page without regenerating the
+ *   index.
+ * @param options - Search patterns and props reading settings. See {@link Options}.
  */
 export function specimens(options: Options): Plugin {
   const state: State = {
@@ -434,7 +380,7 @@ export function specimens(options: Options): Plugin {
 
   return {
     /**
-     * Shuts the compiler down, when one was started.
+     * Closes the compiler, if one is running.
      */
     async closeBundle(): Promise<void> {
       const held = await state.opening;
@@ -444,21 +390,21 @@ export function specimens(options: Options): Plugin {
     },
 
     /**
-     * Contributes this plugin's configuration to the repository's.
+     * Returns the plugin's config contribution.
      *
-     * @param stated - The configuration as the repository stated it.
-     * @param env - The command and the mode the bundler composes the configuration under.
+     * @param stated - Config as declared by the repository.
+     * @param env - Command and mode of the config.
      */
     config(stated: UserConfig, env: Composing): UserConfig {
       return configured(state, stated, env.command);
     },
 
     /**
-     * Records the resolved root and command, and resolves the directories the patterns start in.
+     * Stores the resolved root and command, and resolves the pattern roots.
      *
      * @remarks
-     *   The root is read from the resolved configuration and not from the process, because under a
-     *   task runner the working directory is the workspace root.
+     *   The root comes from the resolved config, not from `process.cwd()`. Under a task runner the
+     *   working directory is the workspace root.
      */
     configResolved(config: Resolved): void {
       state.resolved = config;
@@ -466,21 +412,20 @@ export function specimens(options: Options): Plugin {
     },
 
     /**
-     * Registers the directories the patterns start in with the dev server's watcher, including
-     * any that sit outside the project root.
+     * Adds the pattern roots to the dev server's watcher, including roots outside the project.
      */
     configureServer(server: Watcher): void {
       server.watcher.add([...state.watched]);
     },
 
     /**
-     * Adds this plugin's modules to the ones a change reloads.
+     * Adds the plugin's generated modules to a hot update.
      *
      * @remarks
-     *   Returning undefined hands the change back to the bundler's own handling. An update
-     *   carrying no environment gets that, because without a module graph the plugin can reach
-     *   none of its modules, and `watchChange` has already followed the change.
-     * @returns Every module to reload, or undefined when the change reaches none of this plugin's.
+     *   Returning undefined defers to Vite's default handling. An update without an environment
+     *   gets the default, because the plugin cannot reach its modules without a module graph.
+     *   `watchChange` has already processed such a change.
+     * @returns Modules to reload, or undefined when the change affects no generated module.
      */
     async hotUpdate(
       this: Watching,
@@ -502,15 +447,13 @@ export function specimens(options: Options): Plugin {
     },
 
     /**
-     * Serves the index or one page's props.
+     * Loads the index module or the props module of a page.
      *
      * @remarks
-     *   The null map is deliberate. Nothing here was transformed out of a source file, and the
-     *   bundler generates a map of its own unless the hook returns one. Those maps came to four
-     *   fifths of the payload: 232 kB of map on a 289 kB index, and 4.3 MB on the 5 MB of props
-     *   one compound produced.
-     * @returns The generated source and a null map, or undefined when the module is not this
-     *   plugin's.
+     *   The null map is deliberate. Without it the bundler generates a source map for the generated
+     *   code. Those maps were four fifths of the payload: 232 kB of map on a 289 kB index, and 4.3
+     *   MB on the 5 MB of props of one compound component.
+     * @returns Generated code with a null map, or undefined for another plugin's module.
      */
     async load(this: Loading, id: string): Promise<undefined | Written> {
       const code = await generated(state, options.patterns, id, this);
@@ -521,9 +464,9 @@ export function specimens(options: Options): Plugin {
     name: "stealth:specimens",
 
     /**
-     * Claims the index specifier and every props specifier, leaving every other import alone.
+     * Resolves the index specifier and the props specifiers.
      *
-     * @returns The resolved identifier, or undefined for any other import.
+     * @returns The resolved ID, or undefined for any other specifier.
      */
     resolveId(id: string): string | undefined {
       if (id === ID) return RESOLVED;
@@ -532,31 +475,23 @@ export function specimens(options: Options): Plugin {
     },
 
     /**
-     * Appends the statement that makes a listed specimen accept its hot update and report the
-     * module that replaced it.
+     * Appends generated code to specimen and example modules. See {@link appendedTo}.
      *
-     * @remarks
-     *   Nothing imports a specimen except through a loader the index handed out, so the index has
-     *   listed the file by the time the bundler transforms it. A request carrying a query asks for
-     *   the file's text rather than its module, and gets no statement appended.
-     * @returns The source with the statement appended, or undefined for any other module.
+     * @returns The transformed code, or undefined for any other module.
      */
     transform(code: string, id: string): undefined | Written {
-      const page = id.includes("?") ? undefined : pageOf(state, id);
-
-      return page === undefined ? undefined : { code: code + accepting(page, "module"), map: null };
+      return appendedTo(state, code, id);
     },
 
     /**
-     * Follows a change reported by an environment that bundles.
+     * Handles a file change reported by a bundled environment.
      *
      * @remarks
-     *   A server that bundles runs no hot update hook and reports every change here instead.
-     *   Invalidation stays the bundler's: it regenerates the index when the stamp that module
-     *   declared changes, and leaves the index alone for an edited scene. A server that serves one
-     *   module per file reports to `hotUpdate`, and this hook returns at once.
-     * @param id - The absolute path of the file that changed.
-     * @param change - Whether the file was created, deleted or edited.
+     *   A bundled dev server skips `hotUpdate` and reports every change here. The bundler owns the
+     *   invalidation and reloads the modules that watch the stamp. An unbundled dev server reports
+     *   changes to `hotUpdate`, so this hook returns immediately.
+     * @param id - Absolute path of the changed file.
+     * @param change - Change kind.
      */
     async watchChange(this: Bundling, id: string, change: Change): Promise<void> {
       if (this.environment?.config.isBundled !== true) return;
