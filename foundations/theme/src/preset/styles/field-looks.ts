@@ -1,64 +1,84 @@
 /**
- * Defines the looks a field rests in: outlined on the panel, subtle on the muted well, and flushed
- * with its block-end edge alone, each for a control that carries its own states and for a box
- * drawn around one that does.
+ * Defines the three field looks: outlined on the panel, subtle on the subtle surface, and flushed
+ * with a block-end edge only. Each look has one form for a control with its own states and one
+ * for a box around such a control.
  *
  * @remarks
- *   A look decides which edges are drawn and what the field rests on. What those edges are drawn in
- *   is the field fragment's `--field-edge`, which the hover, the invalid state and the status axis
- *   write and every look reads. Each look used to restate those three rules, because the compiler
- *   layers a recipe's variants over its base and a look that wrote a color won over them; read
- *   through the property there is nothing left to restate and nothing left to fall out of step.
- *   The edge is the control's boundary, which stands from every surface at the ratio 1.4.11 asks of
- *   a control. The subtle look carries that edge at its block end alone, because an empty field has
- *   no text and no placeholder, so its fill is the only thing a reader could identify it by, and a
- *   fill two steps below the page stands at 1.39:1 from the panel around it rather than the 3:1
- *   that identifying a control asks for.
- *   A look drawn at its block end alone reports focus by that edge rather than by a ring. A ring
- *   round a field with no box drew the box the look had taken away, which is what a reader saw
- *   instead of the field they had reached.
- *   The wrapped looks are the same declarations read through the control the box holds.
- *   `:read-only` matches every element that is not editable, a box among them, so an outlined
- *   textarea rested on the read-only fill whatever its control was doing.
+ *   A look sets which edges are drawn and the surface behind the text. The edge color is the field
+ *   fragment's `--field-edge`, which the hover state, the invalid state and the status axis write.
+ *   The edge meets the 3:1 ratio WCAG 1.4.11 sets for a control's boundary. The subtle look draws
+ *   the edge at its block end, because an empty field has no text and its fill stays under 3:1
+ *   against the panel. The subtle and flushed looks draw no ring. On focus their edge takes
+ *   the ring color and the ring width. The width change is the signal on a field with a status,
+ *   because each status palette's ring color equals its edge color. The look writes both in the
+ *   variants layer, after the status axis. A read-only field that is not disabled dashes its drawn
+ *   edges on every look, which reads apart from rest in a still image and in forced colors. The
+ *   wrapped forms read read-only and focus from the controls inside the box, with the field
+ *   fragment's selectors, because `:read-only` on the box would match the box itself.
  */
 
-import { FIELD_EDGE } from "#authoring/recipes/field.ts";
+import { FIELD_EDGE, WITHIN_FOCUS, WITHIN_READ_ONLY } from "#authoring/recipes/field.ts";
 import { type LayerStyle } from "#pandacss.ts";
 import { type Look } from "#preset/styles/look.ts";
 
 /**
- * Selects one of the three looks a field rests in.
+ * Selects one of the three field looks.
  */
 type FieldLook = "flushed" | "outline" | "subtle";
 
 /**
- * Reports focus by the edge the look already draws, with no ring over it.
+ * Reports focus on a look without a full border: the block-end edge takes the ring color and the
+ * ring width, and no ring is drawn.
  */
-const EDGED: LayerStyle = { outlineStyle: "none" };
+const EDGED: LayerStyle = {
+  borderBlockEndWidth: "ring",
+  [FIELD_EDGE]: "var(--focus-ring-color)",
+  outlineStyle: "none",
+};
 
 /**
- * Describes one look: what it rests on, and what it rests on where the control takes no input.
+ * Width the block-end edge gains on focus: the ring width less the control stroke, 1px at the
+ * foundation's widths.
+ */
+const GAINED = "calc({borderWidths.ring} - {borderWidths.control})";
+
+/**
+ * Dashes every drawn edge of a field that takes focus but no input.
+ *
+ * @remarks
+ *   A border style survives forced colors, where a fill does not.
+ */
+const LOCKED: LayerStyle = { borderStyle: "dashed" };
+
+/**
+ * Selects a read-only control that is not disabled. `:read-only` alone also matches a disabled
+ * control.
+ */
+const READ_ONLY = "&:is(:read-only, [aria-readonly=true]):not(:disabled)";
+
+/**
+ * Describes one look in its three states.
  */
 interface Stated {
   /**
-   * The look where the control takes no input.
+   * Styles the look when the control takes no input.
    */
   blocked: LayerStyle;
 
   /**
-   * The look where the control holds focus. A look that reports focus with the ring the fragment
-   * already draws leaves it out.
+   * Styles the look when the control has keyboard focus. A look that keeps the fragment's ring
+   * omits it.
    */
   focused?: LayerStyle | undefined;
 
   /**
-   * How the look rests, its edges read from the field's own property.
+   * Styles the look at rest. Every edge color reads the field's edge property.
    */
   rested: LayerStyle;
 }
 
 /**
- * Fixes what each look rests in and which of its edges are drawn.
+ * Maps each look to its surface and edges in each state.
  */
 const LOOKS: Readonly<Record<FieldLook, Stated>> = {
   flushed: {
@@ -79,7 +99,7 @@ const LOOKS: Readonly<Record<FieldLook, Stated>> = {
     blocked: { background: "bg.subtle" },
     focused: EDGED,
     rested: {
-      background: "bg.muted",
+      background: "bg.subtle",
       borderBlockEndColor: `var(${FIELD_EDGE})`,
       borderBlockEndWidth: "control",
       borderColor: "transparent",
@@ -88,39 +108,48 @@ const LOOKS: Readonly<Record<FieldLook, Stated>> = {
 };
 
 /**
- * Writes one look for a control that carries its own states.
+ * Returns a look for a control that has its own read-only and focus states.
+ *
+ * @remarks
+ *   A control has a fixed height, so a wider edge takes its pixel from the content box and moves
+ *   the centred text. A look that widens its edge on focus pads the control's block end by that
+ *   pixel at rest and drops the padding on focus, so the content box and the text do not move.
  */
 function own({ blocked, focused, rested }: Stated): Look {
   return {
     value: {
       _readOnly: blocked,
-      ...(focused === undefined ? {} : { _focusVisible: focused }),
+      [READ_ONLY]: LOCKED,
+      ...(focused === undefined
+        ? {}
+        : { _focusVisible: { ...focused, paddingBlockEnd: "0" }, paddingBlockEnd: GAINED }),
       ...rested,
     },
   };
 }
 
 /**
- * Writes one look for a box drawn around the control that carries the states.
+ * Returns a look for a box that reads the read-only and focus states from the controls inside it.
  *
  * @remarks
- *   The focused rule is keyed off the control rather than off the box, because a box holds no focus
- *   of its own.
+ *   A box takes its height from its content, so a wider edge makes it 1px taller. A look that
+ *   widens its edge on focus pulls the box's block-end margin in by that pixel, so the control
+ *   inside and every element after the box keep their positions.
  */
 function around({ blocked, focused, rested }: Stated): Look {
   return {
     value: {
-      "&:has(> :read-only:not(:disabled))": blocked,
+      [WITHIN_READ_ONLY]: { ...blocked, ...LOCKED },
       ...(focused === undefined
         ? {}
-        : { "&:has(> :focus-visible, > [data-focus-visible])": focused }),
+        : { [WITHIN_FOCUS]: { ...focused, marginBlockEnd: `calc(${GAINED} * -1)` } }),
       ...rested,
     },
   };
 }
 
 /**
- * Lists the field looks, each with its surface, its edges, and where it takes no input.
+ * Lists the field looks for a control.
  */
 export const fieldLooks: Readonly<Record<FieldLook, Look>> = {
   flushed: own(LOOKS.flushed),
@@ -129,7 +158,7 @@ export const fieldLooks: Readonly<Record<FieldLook, Look>> = {
 };
 
 /**
- * Lists the same looks for a box that reads its states from the control inside it.
+ * Lists the field looks for a box around a control.
  */
 export const wrappedFieldLooks: Readonly<Record<FieldLook, Look>> = {
   flushed: around(LOOKS.flushed),

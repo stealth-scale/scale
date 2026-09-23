@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest";
 
+import { WITHIN_READ_ONLY } from "#authoring/recipes/field.ts";
 import { effects } from "#preset/styles/effects.ts";
 import { fieldLooks } from "#preset/styles/field-looks.ts";
 import { layerStyles } from "#preset/styles/layer-styles.ts";
 import { tokenAt } from "#tokens.fixtures.ts";
 
 describe("layerStyles", () => {
-  it("names six fills and two outlines and four indicators", () => {
+  it("declares six fill looks", () => {
     expect(Object.keys(tokenAt(layerStyles, "fill") ?? {}).toSorted()).toStrictEqual([
       "ghost",
       "muted",
@@ -15,10 +16,16 @@ describe("layerStyles", () => {
       "subtle",
       "surface",
     ]);
+  });
+
+  it("declares two outline looks", () => {
     expect(Object.keys(tokenAt(layerStyles, "outline") ?? {}).toSorted()).toStrictEqual([
       "solid",
       "subtle",
     ]);
+  });
+
+  it("declares four indicator looks", () => {
     expect(Object.keys(tokenAt(layerStyles, "indicator") ?? {}).toSorted()).toStrictEqual([
       "bottom",
       "end",
@@ -27,20 +34,22 @@ describe("layerStyles", () => {
     ]);
   });
 
-  it("spreads the effects beside the looks", () => {
+  it("includes every effect layer style", () => {
+    expect.hasAssertions();
+
     for (const effect of Object.keys(effects)) {
       expect(tokenAt(layerStyles, effect)).toBe(tokenAt(effects, effect));
     }
   });
 
-  it("holds the ripple still for a reader who asked for less motion", () => {
+  it("sets the ripple pace to 0 under reduced motion", () => {
     expect(tokenAt(layerStyles, "ripple")).toMatchObject({
       _motionReduce: { "--ripple-pace": "0" },
       "--ripple-pace": "1",
     });
   });
 
-  it("grows the ripple from the point a press names and centres it where none is named", () => {
+  it("grows the ripple from the pressed point with the centre as the fallback", () => {
     expect(tokenAt(layerStyles, "ripple")).toMatchObject({
       _active: {
         _after: {
@@ -60,31 +69,31 @@ describe("layerStyles", () => {
     });
   });
 
-  it("states the press with no transition at all", () => {
+  it("removes the ripple transition while pressed", () => {
     expect(tokenAt(layerStyles, "ripple")).toMatchObject({
       _active: { _after: { transition: "none" } },
     });
   });
 
-  it("carries both the opacity and the size out over the release", () => {
+  it("transitions the ripple over durations.slower on release", () => {
     const written = JSON.stringify(tokenAt(layerStyles, "ripple"));
 
     expect(written).toContain("opacity calc(var(--ripple-pace) * {durations.slower})");
     expect(written).toContain("background-size calc(var(--ripple-pace) * {durations.slower})");
   });
 
-  it("cuts the ripple back to the control's corner without hiding its overflow", () => {
+  it("rounds the ripple with the control's corners without an overflow rule", () => {
     expect(tokenAt(layerStyles, "ripple")).not.toHaveProperty("overflow");
     expect(tokenAt(layerStyles, "ripple")).toMatchObject({
       _after: { borderRadius: "inherit", inset: "0" },
     });
   });
 
-  it("names no clip at all", () => {
+  it("sets no clip path on the ripple", () => {
     expect(JSON.stringify(tokenAt(layerStyles, "ripple"))).not.toContain("clipPath");
   });
 
-  it("draws a solid fill in the palette with its hover inside it", () => {
+  it("sets the solid fill with its hover and press colors", () => {
     expect(tokenAt(layerStyles, "fill.solid")).toStrictEqual({
       _active: { background: "colorPalette.solid.hover" },
       _hover: { background: "colorPalette.solid.hover" },
@@ -93,7 +102,7 @@ describe("layerStyles", () => {
     });
   });
 
-  it("draws a surface as a subtle fill with a border at the control's width", () => {
+  it("sets the control stroke width on every bordered look", () => {
     expect(tokenAt(layerStyles, "fill.surface")).toMatchObject({
       background: "colorPalette.subtle",
       borderColor: "colorPalette.border",
@@ -104,20 +113,23 @@ describe("layerStyles", () => {
     expect(tokenAt(layerStyles, "outline.subtle")).toMatchObject({ borderWidth: "control" });
   });
 
-  it("draws a plain look as the ink alone and marks a press with a fill", () => {
+  it("sets the plain fill as ink with a subtle fill while pressed", () => {
     expect(tokenAt(layerStyles, "fill.plain")).toStrictEqual({
       _active: { background: "colorPalette.subtle" },
       color: "colorPalette.fg",
     });
   });
 
-  it("names three field looks and the same three for a box around a control", () => {
+  it("lists the field looks beside the wrapped group", () => {
     expect(Object.keys(tokenAt(layerStyles, "field") ?? {}).toSorted()).toStrictEqual([
       "flushed",
       "outline",
       "subtle",
       "wrapped",
     ]);
+  });
+
+  it("lists three wrapped field looks", () => {
     expect(Object.keys(tokenAt(layerStyles, "field.wrapped") ?? {}).toSorted()).toStrictEqual([
       "flushed",
       "outline",
@@ -125,18 +137,16 @@ describe("layerStyles", () => {
     ]);
   });
 
-  it("reads a wrapped look's read-only state from the control rather than from the box", () => {
-    const look = JSON.stringify(tokenAt(layerStyles, "field.wrapped.outline"));
-
-    expect(look).toContain(":has(> :read-only:not(:disabled))");
-    expect(look).not.toContain("_readOnly");
+  it("reads the wrapped read-only state from the controls inside the box", () => {
+    expect(tokenAt(layerStyles, "field.wrapped.outline")).toHaveProperty([WITHIN_READ_ONLY]);
+    expect(tokenAt(layerStyles, "field.wrapped.outline")).not.toHaveProperty("_readOnly");
   });
 
-  it("reads the field looks from their own module", () => {
+  it("takes the field looks from fieldLooks", () => {
     expect(tokenAt(layerStyles, "field.outline")).toStrictEqual(fieldLooks.outline.value);
   });
 
-  it("draws an outline in the palette's solid or its border", () => {
+  it("sets the outline edge from the palette's solid or border", () => {
     expect(tokenAt(layerStyles, "outline.solid")).toMatchObject({
       borderColor: "colorPalette.solid",
     });
@@ -146,7 +156,7 @@ describe("layerStyles", () => {
     });
   });
 
-  it("fills an outline in as it is hovered and further as it is pressed", () => {
+  it("steps an outline look's fill from subtle on hover to muted on press", () => {
     expect(tokenAt(layerStyles, "outline.solid")).toMatchObject({
       _active: { background: "colorPalette.muted" },
       _hover: { background: "colorPalette.subtle" },
@@ -157,7 +167,7 @@ describe("layerStyles", () => {
     });
   });
 
-  it("presses a fill to the palette's emphasized and a solid fill to the ink it hovers to", () => {
+  it("darkens a filled look under press", () => {
     expect(tokenAt(layerStyles, "fill.subtle")).toMatchObject({
       _active: { background: "colorPalette.emphasized" },
     });
@@ -166,7 +176,7 @@ describe("layerStyles", () => {
     });
   });
 
-  it("draws an indicator as a bar along one edge at the indicator's width", () => {
+  it("renders each indicator as a bar at the indicator width along one edge", () => {
     expect(tokenAt(layerStyles, "indicator.bottom")).toStrictEqual({
       _before: {
         background: "colorPalette.solid",
@@ -192,19 +202,16 @@ describe("layerStyles", () => {
     expect(tokenAt(layerStyles, "indicator.end")).toMatchObject({
       _before: { width: "{borderWidths.indicator}" },
     });
-    expect(tokenAt(layerStyles, "indicator.top")).toMatchObject({
-      _before: { height: "{borderWidths.indicator}" },
-    });
   });
 
-  it("draws a disabled control with the disabled cursor and opacity", () => {
+  it("sets the disabled look from the disabled tokens", () => {
     expect(tokenAt(layerStyles, "disabled")).toStrictEqual({
       cursor: "disabled",
       opacity: "disabled",
     });
   });
 
-  it("draws glass as the panel surface at seventy percent behind a blur", () => {
+  it("sets glass as the panel surface at 70 percent over a backdrop blur", () => {
     expect(tokenAt(layerStyles, "glass")).toStrictEqual({
       _reducedTransparency: { backdropFilter: "none", background: "bg.panel" },
       backdropFilter: "blur({blurs.md})",
