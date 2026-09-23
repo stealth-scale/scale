@@ -34,12 +34,12 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers a size axis alone", () => {
-    expect(axesOf(recipe)).toStrictEqual(["size"]);
+  it("offers a placement axis and a size axis", () => {
+    expect(axesOf(recipe)).toStrictEqual(["placement", "size"]);
   });
 
-  it("draws the middle size by default", () => {
-    expect(defaultsOf(recipe)).toStrictEqual({ size: "md" });
+  it("stands where it is written at the middle size by default", () => {
+    expect(defaultsOf(recipe)).toStrictEqual({ placement: "inline", size: "md" });
   });
 
   it("offers the three sizes a rail is read at", () => {

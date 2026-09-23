@@ -22,10 +22,21 @@ import {
   below,
   defineSlotRecipe,
   dense,
+  onSlot,
   onSlots,
   sizeVariants,
   truncate,
 } from "@stealthscale/theme/authoring";
+
+/**
+ * The property a rail beside the page reads the room the bars above it take from.
+ *
+ * @remarks
+ *   The application shell states it on every pinned bar, so a rail that sticks stops under them
+ *   rather than sliding beneath. A page with no pinned bar writes nothing and the rail sticks to
+ *   the top of the window.
+ */
+const STUCK = "--app-shell-sticky-top";
 
 /**
  * The steps the rail is offered at, which read the body role a step below and the label role two
@@ -88,10 +99,34 @@ export const recipe = defineSlotRecipe({
     },
   },
   className: "toc",
-  defaultVariants: { size: "md" },
+  defaultVariants: { placement: "inline", size: "md" },
   jsx: [/^Toc(\.\w+)?$/u],
   slots: ["root", "title", "list", "item", "link", "indicator"],
   variants: {
+    /**
+     * Where the rail is placed against the page it lists.
+     *
+     * @remarks
+     *   Beside the page it sticks to the top of the window as the reader scrolls, which is the
+     *   whole of what a table of contents is for: the mark moves down a rail that stays where the
+     *   reader can see it. Written into the flow it scrolls away with the first heading it names,
+     *   and a reader is left with a rail they have to scroll back to.
+     *   It keeps the room the bars above it take, through the same property a sticky bar reads, so
+     *   a page with a header does not slide the rail under it.
+     *   `inline` is the default and stands where it is written: a rail in a drawer, or over a page
+     *   on a narrow screen, is placed by whatever holds it.
+     */
+    placement: onSlot("root", {
+      aside: {
+        alignSelf: "start",
+        insetBlockStart: `calc(var(${STUCK}, 0px) + ${dense("{spacing.gap.lg}")})`,
+        maxBlockSize: `calc(100dvh - var(${STUCK}, 0px) - ${dense("{spacing.gap.lg}")} * 2)`,
+        overflowY: "auto",
+        position: "sticky",
+      },
+      inline: { position: "static" },
+    }),
+
     /**
      * How big the rail is read at.
      */
