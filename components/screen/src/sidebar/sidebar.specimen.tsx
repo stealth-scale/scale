@@ -1,25 +1,29 @@
 /**
- * Shows the sidebar: every look at every size, and the column collapsed to a rail.
+ * Shows the sidebar: every look, every size, and the column collapsed to a rail.
  *
  * @remarks
- *   The look scene is generated from the recipe, so a value added to it reaches the page without
+ *   The axis scenes are generated from the recipe, so a value added to it reaches the page without
  *   this file changing. The rail scene is written by hand, because collapsing the column is a prop
  *   the root takes rather than an axis, and the bands inside have to be told of it too.
+ *   The looks and the sizes are two scenes rather than one matrix of the two. Every column is a
+ *   room the width of a sidebar, and twelve of those across one card left each of them a hundred
+ *   and fifty pixels to draw a column in.
  *   A block's own heading is drawn as an `h3` under the scene's own `h2`. Left at its own level,
- *   the sixteen columns of one scene put thirty-two headings into the page's outline beside the two
- *   the page has.
- *   Every column holds the same three bands: a head naming the workspace, a
- *   search and two blocks of destinations, and a foot naming who is signed in. The words are keys
- *   under `sidebar` in the catalogue's namespace, kept beside this file in
- *   `locales/en/specimen/sidebar.json`.
+ *   the columns of one scene put two headings each into the page's outline beside the ones the page
+ *   has.
+ *   Every column holds the same three bands: a head naming the workspace, a search and two blocks
+ *   of destinations, and a foot naming who is signed in. The words are keys under `sidebar` in the
+ *   catalogue's namespace, kept beside this file in `locales/en/specimen/sidebar.json`.
  */
 
 import { type ReactElement } from "react";
 
+import { Building2, CircleUser, Plus } from "lucide-react";
+
 import { SearchInput } from "@stealthscale/component-forms";
 import { NavList } from "@stealthscale/component-navigation";
 import { Icon, Span } from "@stealthscale/component-typography";
-import { Matrix, type Scene, scenesOf, specimen, useWords } from "@stealthscale/specimen";
+import { Matrix, Room, type Scene, scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
 import * as Sidebar from "#sidebar/index.ts";
 import { recipe } from "#sidebar/recipe.ts";
@@ -102,14 +106,19 @@ function Bands({ iconic = false }: BandsProps): ReactElement {
 
   return (
     <>
-      <Sidebar.Header>{t("acme")}</Sidebar.Header>
+      <Sidebar.Header>
+        <Building2 />
+        <Span>{t("acme")}</Span>
+      </Sidebar.Header>
       <Sidebar.Content>
         <Sidebar.Search>
-          <SearchInput aria-label={t("search")} size="sm" />
+          <SearchInput aria-label={t("search")} placeholder={t("search")} size="sm" />
         </Sidebar.Search>
         <Sidebar.Nav as="div">
           <Sidebar.NavLabel as="h3">{t("workspace")}</Sidebar.NavLabel>
-          <Sidebar.NavAction>{t("add")}</Sidebar.NavAction>
+          <Sidebar.NavAction aria-label={t("add")}>
+            <Plus />
+          </Sidebar.NavAction>
           <NavList.Root iconic={iconic}>
             <NavList.Item>
               <NavList.Link aria-current="page" href="#overview">
@@ -145,33 +154,58 @@ function Bands({ iconic = false }: BandsProps): ReactElement {
           </NavList.Root>
         </Sidebar.Nav>
       </Sidebar.Content>
-      <Sidebar.Footer>{t("signedIn")}</Sidebar.Footer>
+      <Sidebar.Footer>
+        <CircleUser />
+        <Span>{t("signedIn")}</Span>
+      </Sidebar.Footer>
     </>
   );
 }
 
 /**
- * Draws the column in whatever the scene hands over.
+ * Draws the column in whatever the scene hands over, in a room the width of a sidebar.
+ *
+ * @remarks
+ *   The sidebar states nothing about how wide it is, because the shell around it decides that.
+ *   Drawn without a room it took whatever the cell it was in left over, and a scene that crossed
+ *   four looks with three sizes gave each of the twelve a hundred and fifty pixels: the columns ran
+ *   into one another and the destinations were cut mid-word.
  */
 function Column(props: Sidebar.RootProps): ReactElement {
   return (
-    <Sidebar.Root {...props}>
-      <Bands />
-    </Sidebar.Root>
+    <Room size="xs">
+      <Sidebar.Root {...props}>
+        <Bands />
+      </Sidebar.Root>
+    </Room>
   );
 }
 
 /**
  * Draws the column as it is and collapsed to a rail.
+ *
+ * @remarks
+ *   The rail takes no room. A rail is as wide as the marks it holds, so the one width this scene
+ *   must not state is the rail's: held to a sidebar's measure, the marks stood in the middle of a
+ *   column three hundred pixels wide with the rules between the blocks running the whole way
+ *   across, which is the column the rail replaced rather than the rail.
  */
 function Iconic(): ReactElement {
   return (
     <Matrix knob="iconic" of={EITHER}>
-      {(iconic) => (
-        <Sidebar.Root iconic={iconic} variant="outline">
-          <Bands iconic={iconic} />
-        </Sidebar.Root>
-      )}
+      {(iconic) =>
+        iconic ? (
+          <Sidebar.Root iconic variant="outline">
+            <Bands iconic />
+          </Sidebar.Root>
+        ) : (
+          <Room size="xs">
+            <Sidebar.Root variant="outline">
+              <Bands />
+            </Sidebar.Root>
+          </Room>
+        )
+      }
     </Matrix>
   );
 }
@@ -182,6 +216,27 @@ function Iconic(): ReactElement {
 export const iconic: Scene = {
   about: "sidebar.iconic.about",
   draw: Iconic,
+  source: [
+    'import { Sidebar } from "@stealthscale/component-screen";',
+    'import { NavList } from "@stealthscale/component-navigation";',
+    "",
+    "<Sidebar.Root iconic>",
+    "  <Sidebar.Header>",
+    "    <Building2 />",
+    "    <span>Acme</span>",
+    "  </Sidebar.Header>",
+    "  <Sidebar.Content>",
+    "    <Sidebar.Nav>",
+    "      <Sidebar.NavLabel>Workspace</Sidebar.NavLabel>",
+    "      <NavList.Root iconic>…</NavList.Root>",
+    "    </Sidebar.Nav>",
+    "  </Sidebar.Content>",
+    "  <Sidebar.Footer>",
+    "    <CircleUser />",
+    "    <span>Signed in as Ada</span>",
+    "  </Sidebar.Footer>",
+    "</Sidebar.Root>",
+  ].join("\n"),
   title: "sidebar.iconic.title",
 };
 
@@ -191,9 +246,9 @@ export default specimen({
   imports: 'import { Sidebar } from "@stealthscale/component-screen";',
   scenes: [
     ...scenesOf<Sidebar.RootProps>(recipe, {
-      axes: { variant: { across: "size" } },
       draw: (props) => <Column {...props} />,
       namespace: "sidebar",
+      order: ["variant", "size"],
       sample: SAMPLE,
     }),
     iconic,

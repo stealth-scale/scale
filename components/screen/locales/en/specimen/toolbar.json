@@ -9,10 +9,18 @@
     "about": "Every corner of an outlined row.",
     "title": "Corners"
   },
+  "room": {
+    "about": "One row in three widths. A row folds on its own width rather than the window's, so the way to read the fold is to change the room and leave the row alone: the search gives up the end of the row, then the controls behind the separator give up their words, and what is left goes under the folded control.",
+    "title": "Rooms"
+  },
   "search": "Search invoices",
+  "size": {
+    "about": "Every size. The size moves the gaps, the separator and the controls together, so a row at one step and controls at another never happens.",
+    "title": "Sizes"
+  },
   "title": "Toolbar",
   "variant": {
-    "about": "Every look at every size. The row is one stop in the tab order and the arrows move along it.",
-    "title": "Looks and sizes"
+    "about": "Every look. The row is one stop in the tab order and the arrows move along it.",
+    "title": "Looks"
   }
 }

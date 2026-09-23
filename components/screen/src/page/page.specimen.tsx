@@ -13,10 +13,30 @@
 
 import { type ReactElement } from "react";
 
-import { scenesOf, specimen, Tile, useWords } from "@stealthscale/specimen";
+import { Ellipsis } from "lucide-react";
 
+import { Button, ButtonPropsProvider, IconButton } from "@stealthscale/component-actions";
+import { scenesOf, specimen, useWords } from "@stealthscale/specimen";
+import { type Scale } from "@stealthscale/theme/authoring";
+
+import { Ledger } from "#ledger.fixtures.tsx";
 import * as Page from "#page/index.ts";
 import { recipe } from "#page/recipe.ts";
+
+/**
+ * Writes the look the controls in a header take, at the step the page is read at.
+ *
+ * @remarks
+ *   A control written as `Page.Action as={Button}` is typed as the slot rather than as the button,
+ *   so the button's own axes are set through its props provider rather than as props on the slot.
+ *   The step is threaded down from the scene, because the controls are the one part of the header
+ *   that would otherwise stand at one size through the whole size axis.
+ * @param size - The step the page is read at.
+ * @param leading - Whether this is the one control the page leads with.
+ */
+function looked(size: Scale, leading: boolean): { size: Scale; variant: "solid" | "subtle" } {
+  return { size, variant: leading ? "solid" : "subtle" };
+}
 
 /**
  * The call site every scene's source snippet is generated from.
@@ -35,7 +55,7 @@ const SAMPLE = {
 /**
  * Draws the header and the body every page holds.
  */
-function Invoices(): ReactElement {
+function Invoices({ size = "md" }: { readonly size?: Scale | undefined }): ReactElement {
   const { t } = useWords("page");
 
   return (
@@ -45,13 +65,23 @@ function Invoices(): ReactElement {
         <Page.Title as="h3">{t("april")}</Page.Title>
         <Page.Description>{t("everything")}</Page.Description>
         <Page.Actions>
-          <Page.Action priority="primary">{t("export")}</Page.Action>
-          <Page.Action priority="tertiary">{t("archive")}</Page.Action>
-          <Page.Folded>{t("more")}</Page.Folded>
+          <ButtonPropsProvider value={looked(size, true)}>
+            <Page.Action as={Button} priority="primary">
+              {t("export")}
+            </Page.Action>
+          </ButtonPropsProvider>
+          <ButtonPropsProvider value={looked(size, false)}>
+            <Page.Action as={Button} priority="tertiary">
+              {t("archive")}
+            </Page.Action>
+            <Page.Folded aria-label={t("more")} as={IconButton}>
+              <Ellipsis />
+            </Page.Folded>
+          </ButtonPropsProvider>
         </Page.Actions>
       </Page.Header>
       <Page.Body>
-        <Tile>{t("body")}</Tile>
+        <Ledger />
       </Page.Body>
     </>
   );
@@ -63,7 +93,7 @@ function Invoices(): ReactElement {
 function Paged(props: Page.RootProps): ReactElement {
   return (
     <Page.Root {...props}>
-      <Invoices />
+      <Invoices {...(props.size === undefined ? {} : { size: props.size })} />
     </Page.Root>
   );
 }
@@ -87,24 +117,34 @@ function Narrow(props: Page.RootProps): ReactElement {
  *   row of its own under it. A header with no meta in it reads the same either way, so this is the
  *   one drawing that carries some.
  */
-function Metaed(props: Page.RootProps): ReactElement {
+function Metaed({ size = "md", ...rest }: Page.RootProps): ReactElement {
   const { t } = useWords("page");
 
   return (
-    <Page.Root {...props}>
+    <Page.Root size={size} {...rest}>
       <Page.Header>
         <Page.Trail href="#home">{t("home")}</Page.Trail>
         <Page.Title as="h3">{t("april")}</Page.Title>
         <Page.Meta>{t("raised")}</Page.Meta>
         <Page.Description>{t("everything")}</Page.Description>
         <Page.Actions>
-          <Page.Action priority="primary">{t("export")}</Page.Action>
-          <Page.Action priority="tertiary">{t("archive")}</Page.Action>
-          <Page.Folded>{t("more")}</Page.Folded>
+          <ButtonPropsProvider value={looked(size, true)}>
+            <Page.Action as={Button} priority="primary">
+              {t("export")}
+            </Page.Action>
+          </ButtonPropsProvider>
+          <ButtonPropsProvider value={looked(size, false)}>
+            <Page.Action as={Button} priority="tertiary">
+              {t("archive")}
+            </Page.Action>
+            <Page.Folded aria-label={t("more")} as={IconButton}>
+              <Ellipsis />
+            </Page.Folded>
+          </ButtonPropsProvider>
         </Page.Actions>
       </Page.Header>
       <Page.Body>
-        <Tile>{t("body")}</Tile>
+        <Ledger />
       </Page.Body>
     </Page.Root>
   );

@@ -3,22 +3,36 @@
  *
  * @remarks
  *   The scenes are generated from the recipe, so a value added to it reaches the page without this
- *   file changing. Every shell holds the same parts: a header with the navigation's trigger,
- *   a navbar holding a sidebar, the page, an aside, and a footer. A shell is the height of the
- *   window, so each cell is a screen and the cells run down the page, and every scene says it
- *   fills the window, so a device shows a shell at the window's edges. The words are keys under
- *   `app-shell` in the catalogue's namespace, kept beside this file in
+ *   file changing. A shell is the height of the window, so each cell is a screen and the cells run
+ *   down the page, and every scene says it fills the window, so a device shows a shell at the
+ *   window's edges.
+ *   Every shell is drawn as an application rather than as a set of labelled boxes: a bar holding
+ *   the navigation's trigger, a sidebar of destinations under a workspace and over an account, a
+ *   block of invoices in the page, a panel of detail beside it and a bar under it. What each look
+ *   does is to set those against one another, and a shell of five grey rectangles showed the
+ *   rectangles moving and nothing about the application they stand for.
+ *   The page, the panel beside it, the bar under it and the block of destinations are each drawn as
+ *   a `div`, which the drawing below says why.
+ *   The words are keys under `app-shell` in the catalogue's namespace, kept beside this file in
  *   `locales/en/specimen/app-shell.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { NavList } from "@stealthscale/component-navigation";
-import { scenesOf, specimen, Tile, useWords } from "@stealthscale/specimen";
+import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
+import { scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
 import * as AppShell from "#app-shell/index.ts";
 import { recipe } from "#app-shell/recipe.ts";
-import * as Sidebar from "#sidebar/index.ts";
+import { Ledger } from "#ledger.fixtures.tsx";
+import { Navbar } from "#navbar.fixtures.tsx";
+import * as Page from "#page/index.ts";
+import * as Toolbar from "#toolbar/index.ts";
+
+/**
+ * The look the one control in the shell's page takes, set through the button's own provider.
+ */
+const LOOK = { size: "sm", variant: "solid" } as const;
 
 /**
  * The call site every scene's source snippet is generated from.
@@ -49,37 +63,52 @@ function Application(): ReactElement {
   return (
     <>
       <AppShell.Header>
-        <AppShell.Trigger>{t("navigation")}</AppShell.Trigger>
+        <Toolbar.Root aria-label={t("navigation")} size="sm" variant="plain">
+          <Toolbar.Start>
+            <AppShell.Trigger>{t("navigation")}</AppShell.Trigger>
+          </Toolbar.Start>
+          <Toolbar.Center>
+            <span>{t("april")}</span>
+          </Toolbar.Center>
+        </Toolbar.Root>
       </AppShell.Header>
       <AppShell.Body>
         <AppShell.Navbar>
-          <Sidebar.Root variant="subtle">
-            <Sidebar.Header>{t("acme")}</Sidebar.Header>
-            <Sidebar.Content>
-              <Sidebar.Nav as="div">
-                <NavList.Root>
-                  <NavList.Item>
-                    <NavList.Link aria-current="page" href="#overview">
-                      {t("overview")}
-                    </NavList.Link>
-                  </NavList.Item>
-                  <NavList.Item>
-                    <NavList.Link href="#invoices">{t("invoices")}</NavList.Link>
-                  </NavList.Item>
-                </NavList.Root>
-              </Sidebar.Nav>
-            </Sidebar.Content>
-          </Sidebar.Root>
+          <Navbar />
         </AppShell.Navbar>
         <AppShell.Main as="div">
-          <Tile>{t("page")}</Tile>
+          <Page.Root size="sm">
+            <Page.Header>
+              <Page.Title as="h3">{t("april")}</Page.Title>
+              <Page.Description>{t("everything")}</Page.Description>
+              <Page.Actions>
+                <ButtonPropsProvider value={LOOK}>
+                  <Page.Action as={Button} priority="primary">
+                    {t("export")}
+                  </Page.Action>
+                </ButtonPropsProvider>
+              </Page.Actions>
+            </Page.Header>
+            <Page.Body>
+              <Ledger />
+            </Page.Body>
+          </Page.Root>
         </AppShell.Main>
         <AppShell.Aside as="div">
-          <Tile>{t("detail")}</Tile>
+          <Page.Root gutter="sm" size="sm">
+            <Page.Header>
+              <Page.Title as="h3">{t("detail")}</Page.Title>
+              <Page.Description>{t("raised")}</Page.Description>
+            </Page.Header>
+          </Page.Root>
         </AppShell.Aside>
       </AppShell.Body>
       <AppShell.Footer as="div">
-        <Tile>{t("footer")}</Tile>
+        <Toolbar.Root aria-label={t("footer")} size="sm" variant="plain">
+          <Toolbar.Start>
+            <span>{t("footer")}</span>
+          </Toolbar.Start>
+        </Toolbar.Root>
       </AppShell.Footer>
     </>
   );

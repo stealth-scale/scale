@@ -13,10 +13,14 @@
   "profile": "Profile",
   "search": "Search",
   "signedIn": "Signed in as Ada",
+  "size": {
+    "about": "Every size. The size moves the insets, the gaps and the words of every band together.",
+    "title": "Sizes"
+  },
   "title": "Sidebar",
   "variant": {
-    "about": "Every look at every size.",
-    "title": "Looks and sizes"
+    "about": "Every look. Each column is drawn in a room the width of a sidebar, because a sidebar states nothing about how wide it is and the shell around it decides that.",
+    "title": "Looks"
   },
   "workspace": "Workspace"
 }

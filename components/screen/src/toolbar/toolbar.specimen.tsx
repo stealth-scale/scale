@@ -1,20 +1,29 @@
 /**
- * Shows the toolbar: every look at every size, and every corner of an outlined row.
+ * Shows the toolbar: every look, every size, every corner of an outlined row, and what a row drops
+ * as the room it is given runs out.
  *
  * @remarks
- *   The scenes are generated from the recipe, so a value added to it reaches the page without this
- *   file changing. Every row holds the same controls: a primary filter, a secondary export,
- *   a tertiary column picker behind a separator, the folded control at the end, and a search that
- *   covers the row once it is narrow. The rows run down the page, because a row folds on its own
- *   width and a cell of a grid would fold every one. The words are keys under `toolbar` in the
- *   catalogue's namespace, kept beside this file in `locales/en/specimen/toolbar.json`.
+ *   The axis scenes are generated from the recipe, so a value added to it reaches the page without
+ *   this file changing. Every row holds the same controls: a primary filter, a secondary export, a
+ *   tertiary column picker behind a separator, the folded control at the end, and a search that
+ *   covers the row once it is narrow.
+ *   Every scene runs its rows down the page and none of them crosses two axes. A row folds on its
+ *   own width, so a matrix of looks against sizes gave each row a third of a card and folded all
+ *   nine of them: the drawings that were meant to show three sizes showed three collapses, with
+ *   the words of one control drawn over the words of the next.
+ *   The room scene is written by hand, because what a row drops is not an axis. It is the same row
+ *   in three widths, which is the only way to read a fold at all.
+ *   The words are keys under `toolbar` in the catalogue's namespace, kept beside this file in
+ *   `locales/en/specimen/toolbar.json`.
  */
 
 import { type ReactElement } from "react";
 
+import { Columns3, Download, Ellipsis, Funnel } from "lucide-react";
+
 import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
 import { SearchInput } from "@stealthscale/component-forms";
-import { scenesOf, specimen, useWords } from "@stealthscale/specimen";
+import { Matrix, Room, type Scene, scenesOf, specimen, useWords } from "@stealthscale/specimen";
 import { type Scale } from "@stealthscale/theme/authoring";
 
 import * as Toolbar from "#toolbar/index.ts";
@@ -58,23 +67,26 @@ function Controls({ size }: ControlsProps): ReactElement {
     <ButtonPropsProvider value={{ size }}>
       <Toolbar.Start>
         <Toolbar.Action as={Button} priority="primary" variant="subtle">
-          {t("filter")}
+          <Funnel />
+          <span>{t("filter")}</span>
         </Toolbar.Action>
         <Toolbar.Action as={Button} priority="secondary" variant="ghost">
-          {t("export")}
+          <Download />
+          <span>{t("export")}</span>
         </Toolbar.Action>
         <Toolbar.Separator />
         <Toolbar.Action as={Button} priority="tertiary" variant="ghost">
-          {t("columns")}
+          <Columns3 />
+          <span>{t("columns")}</span>
         </Toolbar.Action>
       </Toolbar.Start>
       <Toolbar.End>
-        <Toolbar.Folded as={Button} variant="ghost">
-          {t("more")}
+        <Toolbar.Folded aria-label={t("more")} as={Button} variant="ghost">
+          <Ellipsis />
         </Toolbar.Folded>
       </Toolbar.End>
       <Toolbar.Search>
-        <SearchInput aria-label={t("search")} size={size} />
+        <SearchInput aria-label={t("search")} placeholder={t("search")} size={size} />
       </Toolbar.Search>
     </ButtonPropsProvider>
   );
@@ -103,19 +115,84 @@ function Outlined(props: Toolbar.RootProps): ReactElement {
   return <Row variant="outline" {...props} />;
 }
 
+/**
+ * The widths a row is read across: too little for the controls it holds, enough for them, and more
+ * than enough.
+ */
+const ROOMS = ["xs", "2xl", "5xl"] as const;
+
+/**
+ * Draws one row in three rooms, which is what makes the fold visible.
+ */
+function Rooms(): ReactElement {
+  const { t } = useWords("toolbar");
+
+  return (
+    <Matrix direction="column" knob="room" of={ROOMS}>
+      {(room) => (
+        <Room size={room}>
+          <Outlined aria-label={t("invoices")} />
+        </Room>
+      )}
+    </Matrix>
+  );
+}
+
+/**
+ * The hand-written scene for what a row drops as its room runs out.
+ */
+export const room: Scene = {
+  about: "toolbar.room.about",
+  draw: Rooms,
+  source: [
+    'import { Toolbar } from "@stealthscale/component-screen";',
+    "",
+    '<Toolbar.Root aria-label="Invoices" variant="outline">',
+    "  <Toolbar.Start>",
+    '    <Toolbar.Action as={Button} priority="primary">',
+    "      <Funnel />",
+    "      <span>Filter</span>",
+    "    </Toolbar.Action>",
+    '    <Toolbar.Action as={Button} priority="secondary">',
+    "      <Download />",
+    "      <span>Export</span>",
+    "    </Toolbar.Action>",
+    "    <Toolbar.Separator />",
+    '    <Toolbar.Action as={Button} priority="tertiary">',
+    "      <Columns3 />",
+    "      <span>Columns</span>",
+    "    </Toolbar.Action>",
+    "  </Toolbar.Start>",
+    "  <Toolbar.End>",
+    '    <Toolbar.Folded aria-label="More" as={Button}>',
+    "      <Ellipsis />",
+    "    </Toolbar.Folded>",
+    "  </Toolbar.End>",
+    "  <Toolbar.Search>",
+    '    <SearchInput aria-label="Search invoices" placeholder="Search invoices" />',
+    "  </Toolbar.Search>",
+    "</Toolbar.Root>",
+  ].join("\n"),
+  title: "toolbar.room.title",
+};
+
 export default specimen({
   about: "toolbar.about",
   id: "components/screen/toolbar",
   imports: 'import { Toolbar } from "@stealthscale/component-screen";',
-  scenes: scenesOf<Toolbar.RootProps>(recipe, {
-    axes: {
-      radius: { direction: "column", draw: (props) => <Outlined {...props} /> },
-      variant: { across: "size", direction: "column" },
-    },
-    draw: (props) => <Row {...props} />,
-    namespace: "toolbar",
-    order: ["variant", "radius"],
-    sample: SAMPLE,
-  }),
+  scenes: [
+    ...scenesOf<Toolbar.RootProps>(recipe, {
+      axes: {
+        radius: { direction: "column", draw: (props) => <Outlined {...props} /> },
+        size: { direction: "column" },
+        variant: { direction: "column" },
+      },
+      draw: (props) => <Row {...props} />,
+      namespace: "toolbar",
+      order: ["variant", "size", "radius"],
+      sample: SAMPLE,
+    }),
+    room,
+  ],
   title: "toolbar.title",
 });
