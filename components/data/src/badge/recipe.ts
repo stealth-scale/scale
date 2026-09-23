@@ -11,6 +11,9 @@
  *   onto a second one and doubling the row height. The `status` axis adds `neutral` for a label
  *   stating a category rather than a condition, and every status value is listed under `staticCss`
  *   so that a page setting the status from data still finds a rule.
+ *   A mark a caller puts in is drawn at the badge's own words: one em square, and never shrunk by
+ *   the row the badge is in. Left at whatever it was, a mark from an icon set came in at its own
+ *   sixteen or twenty-four pixels and a small badge was a square with a word beside it.
  */
 
 import {
@@ -28,6 +31,7 @@ import {
  */
 export const recipe = defineRecipe({
   base: {
+    "& > svg": { blockSize: "1em", flexShrink: "0", inlineSize: "1em" },
     alignItems: "center",
     colorPalette: "primary",
     display: "inline-flex",

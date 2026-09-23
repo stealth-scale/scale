@@ -1,7 +1,13 @@
 {
   "about": "Labels something with one short word or a count, set off from what it labels.",
   "draft": "Draft",
+  "error": "Overdue",
+  "info": "Sent",
   "live": "Live",
+  "marked": {
+    "about": "A badge led by a mark. A mark is the second thing a status is told by, after the colour, and a reader who cannot tell the four hues apart reads nothing from a row that differs by hue alone. A mark a caller puts in is drawn one em square, so it sits at the badge's own words at every size.",
+    "title": "Marks"
+  },
   "radius": {
     "about": "Every corner at every size, on a count. Numbers are tabular, so a column of counts holds its width as the counts change.",
     "title": "Corners and sizes"
@@ -10,9 +16,11 @@
     "about": "Every status in every look. A badge whose meaning is in its colour needs that meaning in words.",
     "title": "Statuses"
   },
+  "success": "Paid",
   "title": "Badge",
   "variant": {
     "about": "Every look at every size. The look is flat, so a badge does not repaint under a pointer.",
     "title": "Looks and sizes"
-  }
+  },
+  "warning": "Due soon"
 }
