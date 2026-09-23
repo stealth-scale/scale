@@ -1,77 +1,143 @@
 /**
- * Draws a search field: a text field that empties itself from a control at its end.
+ * Renders a search field in an input group, with a leading search mark and a control that clears
+ * the value.
  *
  * @remarks
- *   The box, the field and the room the field leaves at its end are the input group's, so a theme
- *   that moves every grouped field moves this one and neither recipe restates the other. The
- *   control is a part of this recipe rather than a button from elsewhere, which keeps this package
- *   off every other component package.
- *   The control is drawn only where there is something to clear. A control that is always there
- *   and does nothing half the time is a control a reader learns to pass over, and a keyboard
- *   reaches it either way. Clearing puts focus back in the field, because a person who has just
- *   emptied a search is about to type another one.
+ *   The box, the field and the marks are the input group's parts. `searchIndicator` renders a
+ *   decorative mark before the field. The clear control renders only while the field has a value
+ *   and the caller passes `clearIndicator`. Pressing it empties the field and moves focus back to
+ *   the field. Escape empties a non-empty field and stops there, so a dialog around the field stays
+ *   open; on an empty field Escape passes on. The clear control is out of the tab order, because
+ *   Escape clears from the keyboard. Enter calls `onSubmit` with the value, and a form around the
+ *   field still submits.
  */
 
-import { type ComponentProps, type ReactElement, type ReactNode, useCallback, useRef } from "react";
+import {
+  type ComponentProps,
+  type KeyboardEvent,
+  type KeyboardEventHandler,
+  type ReactElement,
+  type ReactNode,
+  useRef,
+} from "react";
 
-import { useControllableState } from "@stealthscale/hooks";
+import { omitUndefined, useControllableState } from "@stealthscale/hooks";
 
-import { End } from "#input-group/end.ts";
 import { Field } from "#input-group/field.ts";
-import { Root } from "#input-group/root.ts";
+import { Mark } from "#input-group/mark.ts";
+import { Root, type RootProps } from "#input-group/root.tsx";
 import { withContext } from "#search-input/context.ts";
 
 /**
- * Draws the control that empties the field.
+ * Renders the `button` that clears the field.
  */
-const Clear = withContext("button", { defaultProps: { type: "button" } });
+const Clear = withContext("button", { defaultProps: { tabIndex: -1, type: "button" } });
 
 /**
- * Describes what a search field takes.
+ * Describes the props of SearchInput: the group's variants, the field's props, the value, and the
+ * content and names of the marks.
  */
-export interface SearchInputProps extends Omit<
-  ComponentProps<typeof Field>,
-  "defaultValue" | "onChange" | "value"
-> {
+export interface SearchInputProps
+  extends
+    Omit<ComponentProps<typeof Field>, "defaultValue" | "onChange" | "onSubmit" | "size" | "value">,
+    Pick<RootProps, "size" | "status" | "variant"> {
   /**
-   * Drawn inside the control that empties the field, which is drawn only where one is given.
+   * Content of the clear control. The control renders only when this is passed.
    */
   readonly clearIndicator?: ReactNode | undefined;
 
   /**
-   * Reads out as the name of the control that empties the field.
+   * Accessible name of the clear control. Defaults to `Clear search`.
    */
   readonly clearLabel?: string | undefined;
 
   /**
-   * Fills the field before a caller drives it.
+   * Initial value when the caller does not control the value.
    */
   readonly defaultValue?: string | undefined;
 
   /**
-   * Hears the field's contents each time they change.
+   * Called with the value when Enter is pressed in the field.
+   */
+  readonly onSubmit?: ((value: string) => void) | undefined;
+
+  /**
+   * Called with the new value on every change, clearing included.
    */
   readonly onValueChange?: ((value: string) => void) | undefined;
 
   /**
-   * Fills the field, where a caller drives it.
+   * Content of the decorative mark before the field, such as a magnifying glass.
+   */
+  readonly searchIndicator?: ReactNode | undefined;
+
+  /**
+   * Controlled value.
    */
   readonly value?: string | undefined;
 }
 
 /**
- * Draws a field a person searches from.
- *
- * @param props - The field's own, plus what it holds and how the control is named.
- * @returns The field and, where it holds something, the control that empties it.
+ * Describes what the key handler reads: the value, the setter, and the caller's handlers.
+ */
+interface Keyed {
+  /**
+   * Value of the field.
+   */
+  readonly held: string;
+
+  /**
+   * Caller's key handler, which runs first.
+   */
+  readonly onKeyDown: KeyboardEventHandler<HTMLInputElement> | undefined;
+
+  /**
+   * Caller's submit handler, which receives the value on Enter.
+   */
+  readonly onSubmit: ((value: string) => void) | undefined;
+
+  /**
+   * Sets the value of the field.
+   */
+  readonly setHeld: (value: string) => void;
+}
+
+/**
+ * Handles a key in the field after the caller's handler: Escape clears a non-empty value and
+ * Enter submits the value.
+ */
+function keyed(
+  event: KeyboardEvent<HTMLInputElement>,
+  { held, onKeyDown, onSubmit, setHeld }: Keyed,
+): void {
+  onKeyDown?.(event);
+
+  if (event.defaultPrevented) return;
+
+  if (event.key === "Escape" && held !== "") {
+    event.preventDefault();
+    event.stopPropagation();
+    setHeld("");
+  }
+
+  if (event.key === "Enter") onSubmit?.(held);
+}
+
+/**
+ * Renders the search field, its search mark, and the clear control while it has a value.
  */
 export function SearchInput({
   clearIndicator,
   clearLabel = "Clear search",
   defaultValue = "",
+  onKeyDown,
+  onSubmit,
   onValueChange,
+  searchIndicator,
   size,
+  status,
   value,
+  variant,
   ...rest
 }: SearchInputProps): ReactElement {
   const field = useRef<HTMLInputElement>(null);
@@ -81,32 +147,35 @@ export function SearchInput({
     value,
   });
 
-  const clear = useCallback((): void => {
-    setHeld("");
-    field.current?.focus();
-  }, [setHeld]);
-
-  const sized = size === undefined ? {} : { size };
-  const shown = held !== "" && clearIndicator !== undefined;
-
   return (
-    <Root {...sized} marks="end">
+    <Root {...omitUndefined({ size, status, variant })}>
+      {searchIndicator === undefined ? undefined : <Mark aria-hidden>{searchIndicator}</Mark>}
       <Field
+        enterKeyHint="search"
         {...rest}
-        {...sized}
         onChange={(event) => {
           setHeld(event.target.value);
+        }}
+        onKeyDown={(event) => {
+          keyed(event, { held, onKeyDown, onSubmit, setHeld });
         }}
         ref={field}
         type="search"
         value={held}
       />
-      {shown ? (
-        <End {...sized}>
-          <Clear {...sized} aria-label={clearLabel} onClick={clear}>
+      {held !== "" && clearIndicator !== undefined ? (
+        <Mark>
+          <Clear
+            {...omitUndefined({ size })}
+            aria-label={clearLabel}
+            onClick={() => {
+              setHeld("");
+              field.current?.focus();
+            }}
+          >
             {clearIndicator}
           </Clear>
-        </End>
+        </Mark>
       ) : undefined}
     </Root>
   );

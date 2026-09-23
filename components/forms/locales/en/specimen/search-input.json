@@ -1,10 +1,10 @@
 {
-  "about": "Draws a field a person searches from, with a control at its end that empties it.",
+  "about": "Renders a search field with a leading search mark and a control that clears the value. Escape clears the field, Enter submits the value, and the clear control stays out of the tab order.",
   "clear": "Clear the search",
   "query": "unpaid invoices",
   "search": "Search invoices",
   "size": {
-    "about": "Every size, each holding a query so the control that empties it shows.",
+    "about": "Every size, each with a value so the clear control renders. The box, the marks and the control read the control scale at the same size.",
     "title": "Sizes"
   },
   "title": "Search input"

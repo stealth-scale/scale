@@ -1,10 +1,9 @@
 /**
- * Binds the search control's recipe to the element that draws it.
+ * Binds the clear control's recipe to React.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. A recipe file that also bound one would put the runtime behind
- *   every compiler configuration that reads it.
+ *   The binding is a separate module because an application's compiler reads `recipe.ts` at build
+ *   time and the binding needs the runtime.
  */
 
 import { createRecipeContext } from "@stealthscale/theme";
@@ -12,6 +11,6 @@ import { createRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#search-input/recipe.ts";
 
 /**
- * Binds the recipe once, for the control that empties the field.
+ * Binds the recipe once for the clear control.
  */
 export const { withContext } = createRecipeContext(recipe);

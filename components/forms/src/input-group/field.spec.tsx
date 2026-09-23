@@ -1,21 +1,21 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { boundViolations, recipeClasses, slotElement } from "@stealthscale/testing-theme";
+import { boundViolations, slotElement } from "@stealthscale/testing-theme";
 
 import { Field } from "#input-group/field.ts";
 import { composed, grouped } from "#input-group/input-group.fixtures.tsx";
 import { recipe } from "#input-group/recipe.ts";
-import { type RootProps } from "#input-group/root.ts";
+import { type RootProps } from "#input-group/root.tsx";
 
 describe("Field", () => {
-  it("draws an input inside the root it needs above it", () => {
+  it("renders an input inside the root", () => {
     const { container } = render(grouped(<Field aria-label="Amount" />));
 
     expect(slotElement(container, "input-group", "field").tagName).toBe("INPUT");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "field",
@@ -23,21 +23,30 @@ describe("Field", () => {
     ).toStrictEqual([]);
   });
 
-  it("keeps the text field's own class beside the slot's", () => {
+  it("carries no class of the input recipe", () => {
     const { container } = render(grouped(<Field aria-label="Amount" />));
+    const classes = [...slotElement(container, "input-group", "field").classList];
 
-    expect(recipeClasses(container, "input")).toContain("input");
+    expect(classes.filter((name) => name === "input" || name.startsWith("input--"))).toStrictEqual(
+      [],
+    );
   });
 
-  it("is reachable by its accessible name", () => {
+  it("exposes the field by its accessible name", () => {
     render(composed());
 
     expect(screen.getByRole("textbox", { name: "Amount" })).toBeDefined();
   });
 
-  it("draws the control as names, for a group holding something other than a field", () => {
-    const { container } = render(grouped(<Field aria-label="Amount" as="button" />));
+  it("renders the element that as names", () => {
+    const { container } = render(grouped(<Field aria-label="Notes" as="textarea" />));
 
-    expect(slotElement(container, "input-group", "field").tagName).toBe("BUTTON");
+    expect(slotElement(container, "input-group", "field").tagName).toBe("TEXTAREA");
+  });
+
+  it("passes the size attribute through to the element", () => {
+    render(grouped(<Field aria-label="Month" size={2} />));
+
+    expect(screen.getByRole("textbox", { name: "Month" }).getAttribute("size")).toBe("2");
   });
 });

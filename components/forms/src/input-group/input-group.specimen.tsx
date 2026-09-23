@@ -1,220 +1,153 @@
 /**
- * Shows the input group: a mark at each side and at both, every size, both alignments, and the
- * three things a mark turns out to be.
+ * Catalogue page for the input group.
  *
  * @remarks
- *   The axis scenes are generated from the recipe, so a value added to it reaches the page without
- *   this file changing. The marks are a currency symbol and a unit, both decorative, so each states
- *   `aria-hidden` and the field is named itself.
- *   Every field is drawn holding something. Empty, a group read as a box with two words floating at
- *   its ends and nothing between them, which is the one arrangement the component never draws in
- *   use.
- *   The uses scene is written by hand, because what a mark is for is not an axis. The axis scenes
- *   draw a currency symbol and a unit; this one draws the two the axes never reach, a glyph that
- *   says what the field takes and a control the reader presses.
- *   A mark is a square on the control scale and the field reserves exactly that much room, so a
- *   word longer than the square runs over the typing. The marks drawn here are a glyph and a
- *   control, and the words drawn elsewhere on the page are a symbol and a three-letter unit.
- *   The words are keys under `input-group` in the catalogue's namespace, kept beside this file in
- *   `locales/en/specimen/input-group.json`.
+ *   Ten hand-written scenes show the group in use, each in a room of a phone's width: search,
+ *   password, addons, country code, card number, card details in one row, card details in two rows,
+ *   counter, button and a disabled group. `scenesOf` generates the looks scene, the sizes scene,
+ *   the statuses scene crossed with the looks, and the alignment scene. The sizes are not crossed
+ *   with the looks, because three 4xl groups side by side leave a phone-width field no room. The
+ *   states scene is hand-written, because focus, `readOnly` and `aria-invalid` are states of the
+ *   field, not recipe axes. Its focused row renders inside `Focused`. The disabled group has its
+ *   own scene, because a disabled `fieldset` around the group disables its fields. Every scene
+ *   renders a component from `examples/` and shows that file as its source. The page imports the
+ *   parts' barrel as a type, so the props reader finds the parts. The words are keys under
+ *   `input-group` in `locales/en/specimen/input-group.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Eye, Search, X } from "lucide-react";
+import { Focused, Matrix, Room, type Scene, scenesOf, specimen } from "@stealthscale/specimen";
 
-import { IconButton } from "@stealthscale/component-actions";
-import { Board, Sample, type Scene, scenesOf, specimen, useWords } from "@stealthscale/specimen";
-
-import * as InputGroup from "#input-group/index.ts";
+import * as examples from "#input-group/examples/index.ts";
+import type * as InputGroup from "#input-group/index.ts";
 import { recipe } from "#input-group/recipe.ts";
-import { Textarea } from "#textarea/textarea.tsx";
 
 /**
- * The call site every scene's source snippet is generated from.
+ * States of the states scene, in reading order.
  */
-const SAMPLE = {
-  children: [
-    "<InputGroup.Start aria-hidden>€</InputGroup.Start>",
-    '<InputGroup.Field aria-label="Amount" inputMode="decimal" />',
-    "<InputGroup.End aria-hidden>EUR</InputGroup.End>",
-  ].join("\n"),
-  imports: 'import { InputGroup } from "@stealthscale/component-forms";',
-  name: "InputGroup.Root",
+const STATES = ["rest", "focused", "readOnly", "invalid"] as const;
+
+/**
+ * Maps each state to the field props that put the group in it. `Focused` stages the focused state.
+ */
+const STATED: Readonly<Record<(typeof STATES)[number], InputGroup.FieldProps>> = {
+  focused: {},
+  invalid: { "aria-invalid": true },
+  readOnly: { readOnly: true },
+  rest: {},
 };
 
 /**
- * Draws an amount field with a mark on each side the group names.
+ * Builds a hand-written scene that renders one example in a room of a phone's width.
  *
- * @remarks
- *   A mark is drawn only for the side the group leaves room at. A group that names one side and
- *   draws marks on both puts the second mark over the box.
+ * @param name - Key of the scene under `input-group.scenes`.
+ * @param example - Example module, whose source the scene shows.
+ * @param Example - Component the example module exports.
+ * @returns The scene.
  */
-function Marked({ marks, ...rest }: InputGroup.RootProps): ReactElement {
-  const { t } = useWords("input-group");
-
-  return (
-    <InputGroup.Root {...(marks === undefined ? {} : { marks })} {...rest}>
-      {marks === "end" ? null : <InputGroup.Start aria-hidden>€</InputGroup.Start>}
-      <InputGroup.Field aria-label={t("amount")} defaultValue={t("sum")} inputMode="decimal" />
-      {marks === "start" ? null : <InputGroup.End aria-hidden>EUR</InputGroup.End>}
-    </InputGroup.Root>
-  );
+function roomed(name: string, example: object, Example: () => ReactElement): Scene {
+  return {
+    about: `input-group.scenes.${name}.about`,
+    draw: () => (
+      <Room size="sm">
+        <Example />
+      </Room>
+    ),
+    example,
+    title: `input-group.scenes.${name}.title`,
+  };
 }
 
 /**
- * Draws an amount field with a mark at each side.
- *
- * @remarks
- *   The size is stated on the field as well as on the group. The group's size is the room a mark
- *   takes, and the field's is its own height, so a group at one size around a field at another drew
- *   the marks stepping while the box stayed put.
+ * Hand-written scenes, one per example of the group in use.
  */
-function Amount({ size, ...rest }: InputGroup.RootProps): ReactElement {
-  const { t } = useWords("input-group");
-
-  return (
-    <InputGroup.Root {...(size === undefined ? {} : { size })} {...rest}>
-      <InputGroup.Start aria-hidden>€</InputGroup.Start>
-      <InputGroup.Field
-        aria-label={t("amount")}
-        defaultValue={t("sum")}
-        inputMode="decimal"
-        {...(size === undefined ? {} : { size })}
-      />
-      <InputGroup.End aria-hidden>EUR</InputGroup.End>
-    </InputGroup.Root>
-  );
-}
+export const shown: readonly Scene[] = [
+  roomed("search", examples.search, examples.search.Search),
+  roomed("password", examples.password, examples.password.Password),
+  roomed("website", examples.website, examples.website.Website),
+  roomed("phone", examples.phone, examples.phone.Phone),
+  roomed("cardNumber", examples.cardNumber, examples.cardNumber.CardNumber),
+  roomed("card", examples.card, examples.card.Card),
+  roomed("payment", examples.payment, examples.payment.Payment),
+  roomed("counter", examples.counter, examples.counter.Counter),
+  roomed("coupon", examples.coupon, examples.coupon.Coupon),
+];
 
 /**
- * Draws the marks against a box of several lines, which is what an alignment moves them in.
+ * Looks of an addon, filled and plain.
  */
-function Lines(props: InputGroup.RootProps): ReactElement {
-  const { t } = useWords("input-group");
-
-  return (
-    <InputGroup.Root {...props}>
-      <InputGroup.Start aria-hidden>€</InputGroup.Start>
-      <InputGroup.Field aria-label={t("amount")} as={Textarea} defaultValue={t("note")} />
-      <InputGroup.End aria-hidden>EUR</InputGroup.End>
-    </InputGroup.Root>
-  );
-}
+const ADDON_LOOKS = ["filled", "plain"] as const;
 
 /**
- * Draws a search field, its glyph leading and a control to empty it at the end.
- *
- * @remarks
- *   The glyph says what the field takes and carries no pointer, so a press over it lands in the
- *   field. The control does take a pointer, which is what the mark's own rule hands back to
- *   whatever a caller puts inside it.
+ * Hand-written scene for the two looks of an addon.
  */
-function Searched(): ReactElement {
-  const { t } = useWords("input-group");
-
-  return (
-    <InputGroup.Root>
-      <InputGroup.Start aria-hidden>
-        <Search />
-      </InputGroup.Start>
-      <InputGroup.Field aria-label={t("search")} defaultValue={t("query")} type="search" />
-      <InputGroup.End>
-        <IconButton aria-label={t("clear")} size="xs" variant="ghost">
-          <X />
-        </IconButton>
-      </InputGroup.End>
-    </InputGroup.Root>
-  );
-}
+export const addons: Scene = {
+  about: "input-group.addons.about",
+  draw: () => (
+    <Room size="sm">
+      <Matrix knob="look" of={ADDON_LOOKS}>
+        {(look) => <examples.rate.Rate look={look} />}
+      </Matrix>
+    </Room>
+  ),
+  example: examples.rate,
+  props: { look: "plain" },
+  title: "input-group.addons.title",
+};
 
 /**
- * Draws a passphrase field with the control that shows what was typed.
- *
- * @remarks
- *   A mark at the end alone, so the typing starts where it would in any other field and the control
- *   sits where a reader looks for it.
+ * Hand-written scene for the focus, read-only and invalid states.
  */
-function Secret(): ReactElement {
-  const { t } = useWords("input-group");
-
-  return (
-    <InputGroup.Root marks="end">
-      <InputGroup.Field
-        aria-label={t("passphrase")}
-        autoComplete="current-password"
-        defaultValue={t("typed")}
-        type="password"
-      />
-      <InputGroup.End>
-        <IconButton aria-label={t("reveal")} size="xs" variant="ghost">
-          <Eye />
-        </IconButton>
-      </InputGroup.End>
-    </InputGroup.Root>
-  );
-}
-
-/**
- * Draws the two marks a currency symbol and a unit do not cover: a glyph that says what the field
- * takes, and a control the reader presses.
- */
-function Uses(): ReactElement {
-  const { t } = useWords("input-group");
-
-  return (
-    <Board columns="1">
-      <Sample knob={t("use")} of={t("glyph")}>
-        <Searched />
-      </Sample>
-      <Sample knob={t("use")} of={t("control")}>
-        <Secret />
-      </Sample>
-    </Board>
-  );
-}
-
-/**
- * The hand-written scene for what a mark is for.
- */
-export const uses: Scene = {
-  about: "input-group.uses.about",
-  draw: Uses,
-  source: [
-    'import { IconButton } from "@stealthscale/component-actions";',
-    'import { InputGroup } from "@stealthscale/component-forms";',
-    "",
-    "<InputGroup.Root>",
-    "  <InputGroup.Start aria-hidden>",
-    "    <Search />",
-    "  </InputGroup.Start>",
-    '  <InputGroup.Field aria-label="Search" type="search" />',
-    "  <InputGroup.End>",
-    '    <IconButton aria-label="Clear" size="xs" variant="ghost">',
-    "      <X />",
-    "    </IconButton>",
-    "  </InputGroup.End>",
-    "</InputGroup.Root>",
-  ].join("\n"),
-  title: "input-group.uses.title",
+export const states: Scene = {
+  about: "input-group.states.about",
+  draw: () => (
+    <Room size="sm">
+      <Matrix knob="state" of={STATES}>
+        {(state) =>
+          state === "focused" ? (
+            <Focused>
+              <examples.price.Price />
+            </Focused>
+          ) : (
+            <examples.price.Price {...STATED[state]} />
+          )
+        }
+      </Matrix>
+    </Room>
+  ),
+  example: examples.price,
+  props: { "aria-invalid": true },
+  title: "input-group.states.title",
 };
 
 export default specimen({
   about: "input-group.about",
   id: "components/forms/input-group",
-  imports: 'import { InputGroup, Textarea } from "@stealthscale/component-forms";',
+  imports: 'import { InputGroup } from "@stealthscale/component-forms";',
   scenes: [
-    uses,
+    ...shown,
+    addons,
     ...scenesOf<InputGroup.RootProps>(recipe, {
       axes: {
-        align: { draw: (props) => <Lines {...props} /> },
-        marks: { draw: (props) => <Marked {...props} /> },
+        align: {
+          draw: (props) => (
+            <Room size="sm">
+              <examples.notes.Notes {...props} />
+            </Room>
+          ),
+          example: examples.notes,
+        },
+        status: { across: "variant" },
+        variant: {},
       },
-      draw: (props) => <Amount {...props} />,
+      draw: (props) => <examples.amount.Amount {...props} />,
+      example: examples.amount,
       namespace: "input-group",
-      order: ["marks", "size", "align"],
-      sample: SAMPLE,
+      order: ["variant", "size", "status", "align"],
     }),
+    states,
+    roomed("locked", examples.locked, examples.locked.Locked),
   ],
   title: "input-group.title",
 });

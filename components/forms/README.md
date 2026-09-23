@@ -1,8 +1,8 @@
 # @stealthscale/component-forms
 
 Draws what a person fills in: the group, the field that explains a control, the checkbox, the
-switch, the text field, the multi-line box, the field with a mark at one end or both, and the search
-field with a control that empties it.
+switch, the text field, the multi-line box, the box that holds fields, marks and addons, and the
+search field with a control that empties it.
 
 Every value a theme can change is an axis of a component's recipe, so set it as a prop and write no
 style. Change the element a component draws with `as`. A component with parts is published as a
@@ -225,13 +225,13 @@ Put the switch inside a `Field` and it takes the field's `disabled`, `invalid`, 
 
 ## Input
 
-Draws a box a person types one line into.
+`Input` renders a single-line text field.
 
 ```tsx
 import { Input } from "@stealthscale/component-forms";
 
-<Input aria-label="Search invoices" size="sm" variant="subtle" />;
-<Input aria-invalid placeholder="name@example.com" />;
+<Input aria-label="Search invoices" placeholder="Search" size="sm" variant="subtle" />;
+<Input aria-invalid aria-label="Email" defaultValue="ada@example" type="email" />;
 ```
 
 | Axis      | Values                                            | Default   |
@@ -240,17 +240,19 @@ import { Input } from "@stealthscale/component-forms";
 | `variant` | `outline`, `subtle`, `flushed`                    | `outline` |
 | `status`  | `info`, `success`, `warning`, `error`             | none      |
 
-The size reads the control scale, so a field lines up with a button of the same size beside it.
-
-Name the field. Compose it into `Field`, point a `label` at it, or state `aria-label`. A field with
-none of those is announced as `edit text` and nothing more.
-
-State `aria-invalid` on a field that is wrong. There is no separate prop, so the styling and what a
-screen reader reads cannot disagree.
+- The sizes read the control scale. An input and a button of the same size are the same height. The
+  inline inset is one size smaller than the button's: 12px at `md`.
+- Name the field with a `label` that points at it, with `aria-label`, or by composing it into
+  `Field`. A screen reader announces a field without a name as "edit text".
+- Set `aria-invalid` on a field whose value is wrong. The invalid styling reads that attribute, so
+  the styling and the screen reader report the same state.
+- `subtle` and `flushed` draw a block-end edge only. On keyboard focus the edge widens to 2px in the
+  ring color, and the text stays where it is.
+- A read-only field that is not disabled dashes its edges on every look.
 
 ## Textarea
 
-Draws a box a person types several lines into.
+`Textarea` renders a multi-line text field.
 
 ```tsx
 import { Textarea } from "@stealthscale/component-forms";
@@ -267,15 +269,15 @@ import { Textarea } from "@stealthscale/component-forms";
 | `grip`    | `none`, `vertical`, `both`            | `vertical` |
 | `grows`   | `true`                                | off        |
 
-Set `grows` for a box that takes its height from the text. It grows on the frame the text changes
-and measures nothing, so a long paste costs no layout read.
-
-`grip` is the CSS `resize` property. It is named apart from it because a styled element takes every
-CSS property as a prop, and a style prop of the same name shadows an axis.
-
-Takes `value` and `defaultValue`, so it serves a caller that holds the value and one that does not.
-`onValueChange` reports the contents on every change. `rows` sets the height before it grows and
-defaults to three.
+- `rows` sets the height and defaults to 3. Without `grows` the field keeps that height and scrolls.
+- With `grows` the field takes the height of its text, with `rows` as the least height. The height
+  follows the text in the same frame, and no layout is read.
+- `grip` sets the CSS `resize` property. A style prop named `resize` would shadow an axis of that
+  name.
+- `value` and `defaultValue` serve a controlled and an uncontrolled field. `onValueChange` receives
+  the value on every change.
+- The text reads the body role. The inset is one size smaller than the size, the same as the
+  input's: 12px at `md`.
 
 Compose it into a `Field` with `as`:
 
@@ -285,75 +287,99 @@ Compose it into a `Field` with `as`:
 
 ## InputGroup
 
-Draws a field with a mark at one end or both: a currency symbol, a unit, a glyph, or a control.
+`InputGroup` renders one field box that holds fields, marks and addons in one row or in stacked
+rows.
 
 ```tsx
 import { InputGroup } from "@stealthscale/component-forms";
 
-<InputGroup.Root marks="start">
-  <InputGroup.Start aria-hidden>€</InputGroup.Start>
-  <InputGroup.Field aria-label="Amount" inputMode="decimal" />
+<InputGroup.Root>
+  <InputGroup.Mark aria-hidden>€</InputGroup.Mark>
+  <InputGroup.Field aria-label="Hourly rate" inputMode="decimal" />
+  <InputGroup.Addon>per hour</InputGroup.Addon>
+</InputGroup.Root>;
+
+<InputGroup.Root>
+  <InputGroup.Row>
+    <InputGroup.Field aria-label="Card number" autoComplete="cc-number" />
+  </InputGroup.Row>
+  <InputGroup.Row>
+    <InputGroup.Field aria-label="Expiry month" size={2} />
+    <InputGroup.Mark aria-hidden>/</InputGroup.Mark>
+    <InputGroup.Field aria-label="Expiry year" size={2} />
+    <InputGroup.Field aria-label="Security code" />
+  </InputGroup.Row>
 </InputGroup.Root>;
 ```
 
-| Axis    | Values                                            | Default  |
-| ------- | ------------------------------------------------- | -------- |
-| `size`  | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl` | `md`     |
-| `marks` | `start`, `end`, `both`                            | `both`   |
-| `align` | `center`, `start`                                 | `center` |
+| Axis      | Values                                            | Default   |
+| --------- | ------------------------------------------------- | --------- |
+| `size`    | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl` | `md`      |
+| `variant` | `outline`, `subtle`, `flushed`                    | `outline` |
+| `status`  | `info`, `success`, `warning`, `error`             | none      |
+| `align`   | `center`, `start`                                 | `center`  |
 
-| Part    | Element | What it draws                     |
-| ------- | ------- | --------------------------------- |
-| `Root`  | `div`   | The box, and the variants         |
-| `Field` | `input` | The control the marks sit against |
-| `Start` | `div`   | A mark at the start of the field  |
-| `End`   | `div`   | A mark at the end of the field    |
+| Part    | Element | What it draws                                           |
+| ------- | ------- | ------------------------------------------------------- |
+| `Root`  | `div`   | The box, its edge and its states, and the variants      |
+| `Row`   | `div`   | One row of a box that stacks its items                  |
+| `Field` | `input` | A bare control that takes the free width                |
+| `Mark`  | `span`  | An icon, a unit, a separator, a counter or a button     |
+| `Addon` | `div`   | A segment that reaches the box's edge, behind a divider |
 
-Set `marks` to the side you draw a mark on. The field reserves room there, so the typing never runs
-underneath.
-
-`InputGroup.Field` binds the text field. Put another control in its place with `as`, and any control
-built on the theme's control sizes takes the room the group reserves:
-
-```tsx
-<InputGroup.Field as={Select.Trigger} />
-```
-
-A native `select` takes a start mark and not an end one. The browser draws its own arrow at the
-inline end.
-
-Set `align="start"` for a control that runs to several lines.
-
-Label a mark that carries meaning. State `aria-hidden` on a decorative one. A press over a mark
-reaches the field behind it, and a control drawn in a mark still works.
+- Every item takes its own width, so a mark of any width never covers the text. A field grows into
+  the free width, or keeps the width of its `size` attribute.
+- The box reads its state from the controls inside it. It draws the ring when one has keyboard
+  focus, the error edge when one is invalid, the dashed edge when every text control is read-only,
+  and the disabled look when none is enabled.
+- A divider in the edge color separates two adjacent fields, an addon from the fields, and one row
+  from the next. A mark between two fields, such as the slash of an expiry date, takes the place of
+  a divider.
+- `Addon` takes `look`. `filled`, the default, is one surface step darker than the box. `plain` has
+  no fill.
+- `InputGroup.Field` renders an `input`. Render a `select`, a `textarea` or any component that
+  renders an input and forwards its ref with `as`.
+- A button at either end of a row sits 4px from the edge, and a press on it keeps its own behaviour.
+- A press on a mark, an addon's text or the padding focuses the field nearest the pointer, in the
+  addon, row or box pressed. A press that focuses a `select` also opens its list where the browser
+  supports `showPicker`.
+- Name every field, and state `aria-hidden` on a decorative mark. Give fields a shared name with a
+  `Fieldset.Root` and a legend around the group. A disabled `Fieldset.Root` disables every field in
+  it.
+- Set `align="start"` for a `textarea`, so the marks stay on its first line.
 
 ## SearchInput
 
-Draws a field a person searches from, with a control at its end that empties it.
+`SearchInput` renders a search field on an input group, with a search mark before it and a control
+at its end that clears it.
 
 ```tsx
 import { SearchInput } from "@stealthscale/component-forms";
 
-<SearchInput aria-label="Search invoices" clearIndicator={<CloseIcon />} />;
 <SearchInput
-  aria-label="Search"
-  clearIndicator={<CloseIcon />}
-  onValueChange={setQuery}
-  size="sm"
-  value={query}
+  aria-label="Search invoices"
+  clearIndicator={<XIcon />}
+  onSubmit={search}
+  searchIndicator={<SearchIcon />}
 />;
 ```
 
-| Axis   | Values                                            | Default |
-| ------ | ------------------------------------------------- | ------- |
-| `size` | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl` | `md`    |
+| Axis      | Values                                            | Default   |
+| --------- | ------------------------------------------------- | --------- |
+| `size`    | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl` | `md`      |
+| `variant` | `outline`, `subtle`, `flushed`                    | `outline` |
+| `status`  | `info`, `success`, `warning`, `error`             | none      |
 
-Takes `value` and `defaultValue`, so it serves a caller that holds the value and one that does not.
-`onValueChange` reports the contents on every change.
-
-The control appears where the field holds something and you have passed something to draw in it.
-Clearing puts focus back in the field. Name the control with `clearLabel`, which defaults to
-`Clear search`.
+- `searchIndicator` renders a decorative mark before the field, such as a magnifying glass.
+- Escape empties a field that has a value and stops there. In an empty field Escape passes on, so a
+  dialog around the field still closes.
+- Enter calls `onSubmit` with the value.
+- The clear control renders while the field has a value and you pass `clearIndicator`. Pressing it
+  empties the field and moves focus back to the field. It stays out of the tab order, because Escape
+  does the same from the keyboard.
+- `clearLabel` names the clear control and defaults to `Clear search`.
+- `value` and `defaultValue` serve a controlled and an uncontrolled field. `onValueChange` receives
+  the value on every change, clearing included.
 
 ## Licence
 

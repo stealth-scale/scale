@@ -81,25 +81,32 @@ component-forms: publish Fieldset, Field, Checkbox, Switch, Textarea and InputGr
   error palette, so the same part draws a green message for a field reporting something else.
 - Three axes: `size`, `orientation` and `status`.
 
-- `InputGroup` draws a field with a mark at one end or both: a currency symbol, a unit, a glyph, or
-  a control. Four parts under one namespace: `Root`, `Field`, `Start` and `End`.
-- The marks are drawn over the field and the field reserves room for them, so the typing never runs
-  underneath. The group writes no padding: `size` states the room on the root and `marks` hands it
-  to `--control-inset-start` or `--control-inset-end`, which every recipe built on `controlSizes`
-  reads with its own step as the fallback. The control's recipe stays the one rule writing its
-  padding, so restyling the control never races the group for the property.
-- `SearchInput` is drawn on the group with `marks="end"`, so the two write one mechanism between
-  them. Its own recipe is now the control that empties the field and nothing else.
-- `marks` takes `start`, `end` or `both`, defaulting to `both`. `size` reads the control scale, so a
-  mark and the field step together and a group lines up with a button beside it.
-- `InputGroup.Field` binds the text field, so a group holding one needs no `as`. Another control
-  goes in its place with `as`, and the factory draws it under both recipes. A native `select` is the
-  one control this does not hold at both ends, because the browser draws and places its own arrow at
-  the inline end.
-- `align` takes `center` or `start`, defaulting to `center`. Set `start` for a control that runs to
-  several lines, where a mark centred against a tall box floats in the middle of it.
-- A mark takes no pointer and whatever it holds takes the pointer back, so a press over a decorative
-  glyph reaches the field behind it and a control drawn in a mark still works.
+- `InputGroup` draws one field box that holds fields, marks and addons in a row, or in stacked rows.
+  Five parts under one namespace: `Root`, `Row`, `Field`, `Mark` and `Addon`.
+- The root is the box. It draws the edge, the surface and every state from the theme's
+  `wrappedField()`, read from the controls inside it. It draws the ring when one has keyboard focus,
+  the error edge when one is invalid, the dashed edge when every text control is read-only, and the
+  disabled look when none is enabled.
+- Every item takes its own width, so a mark of any width never covers the text. A field is a bare
+  control that grows into the free width, or keeps the width of its `size` attribute. `as` renders a
+  `select`, a `textarea` or any component that renders an input and forwards its ref.
+- A mark holds an icon, a unit, a separator, a counter or a button. A button at either end of a row
+  sits 4px from the edge.
+- An addon reaches the box's edge at either end and takes its corners. `look` sets its fill:
+  `filled` is one surface step darker than the box, and `plain` has no fill.
+- A divider in the field's edge color separates two adjacent fields, an addon from the fields, and
+  one row from the next. The inset lies on both sides of every divider. Under forced colors the
+  divider between two fields paints `CanvasText`, because Firefox paints an input's own edge in its
+  gray there.
+- A root that contains `Row` parts stacks them. Each row lays out its items the way a root without
+  rows does, so a card form puts the number on one row and the expiry and security code on the next.
+- A primary press on a mark, an addon's text or the padding focuses an enabled field. The field is
+  the one nearest the pointer in the smallest part around the press that holds a field: the addon,
+  the row or the box. A press that focuses a `select` also opens its list where the browser supports
+  `showPicker`. A press on a control, a link or a label keeps its own behaviour.
+- Four axes: `size`, `variant`, `status` and `align`. The inset is one size smaller than the size,
+  the same as the input's, and the flushed look keeps the smallest inset. The recipe has no
+  `palette` axis, because a field's color reports a state.
 - `Input` gains a `status` row in the README, which the axis it took in the previous release left
   undocumented.
 
@@ -113,8 +120,8 @@ component-forms: reach a textarea's states from its own control
 - The textarea's surface reads `wrappedField()` and the wrapped looks, so its disabled, read-only,
   invalid and focused treatments follow the control rather than the box. The box always matched
   `:read-only`, so it rested on the read-only fill in every state.
-- The textarea reserves an input group's leading and trailing room through
-  `--control-inset-start/end`, which it wrote its own padding over. Text ran under both adornments.
+- The textarea reads its inline inset through `--control-inset-start/end`, which it wrote its own
+  padding over.
 - The switch's thumb travels the other way where the page runs right to left, carries a border where
   the display replaces every fill, and names `translate` as the property it moves in rather than
   `transform`, which it never changed.
@@ -128,10 +135,6 @@ component-forms: stack a field's texts under the control beside its label
 - A horizontal fieldset shares its row between the fields, each from twelve rem, and gives its two
   texts a row each. A field fills the width it is given, so a row of fields put each on a line of
   its own and the group across read the same as the group down.
-- An input group's marks are set in the label of the group's step. A mark in the body size overran a
-  small square: `EUR` ran past the end of an extra small field. The specimen states the size on the
-  field as well as on the group, because the group's size is the room a mark takes and the field's
-  is its own height.
 - The checkbox's and the switch's alignment scenes stand in a room at the smallest measure, so the
   label runs to a second line and the two places differ.
 
@@ -150,3 +153,36 @@ component-forms: import omitUndefined from the hooks package
 
 - The checkbox and switch machines and `Textarea` take `omitUndefined` from `@stealthscale/hooks`.
   The package's private copy, `stated`, is removed.
+
+component-forms: narrow the inline inset of the input
+
+- `Input` reads its inline inset one size smaller than its own size: 8, 8, 12, 16, 20, 24, 32 and
+  40px from `xs` to `4xl`, in place of a button's 8 to 48px. The height and the text size still
+  match a button of the same size. The inset is written through the control inset properties, so a
+  component that places something inside the field opens the side it needs.
+- `Input` sets typed text at the normal weight, 400, the same as `Textarea`. The label role set it
+  at 500.
+- A flushed `Input` writes its 8px inset through the control inset properties. Its fixed
+  `paddingInline` overrode both properties.
+
+component-forms: keep a textarea without grows at the height of its rows
+
+- `Textarea` writes the copy of its text onto the root only when `grows` is set. Every textarea
+  wrote it, so every textarea grew with its text: a field of three rows holding five lines measured
+  154px in place of 98px.
+- The inset on every side reads one size smaller than the size: 8, 12 and 16px at `sm`, `md` and
+  `lg`, in place of 12, 16 and 20px. A flushed textarea keeps an 8px inline inset, the same as the
+  flushed input, in place of none.
+
+component-forms: rebuild SearchInput on the input group
+
+- `SearchInput` renders an `InputGroup`: an optional search mark, the field, and the clear control
+  in a mark while the field has a value. It takes the group's `size`, `variant` and `status`.
+- `searchIndicator` renders a decorative mark before the field, such as a magnifying glass.
+- Escape empties a field that has a value and stops the event there. In an empty field Escape passes
+  on, so a dialog around the field still closes. React Aria's `useSearchField` does the same.
+- Enter calls `onSubmit` with the value.
+- The clear control leaves the tab order, because Escape does the same from the keyboard.
+- The clear control is a square of the tag height, at least 24px, and the group places it 4px from
+  the box's end. The recipe drops the negative inline margin it wrote, which pushed the square past
+  its mark at every size.
