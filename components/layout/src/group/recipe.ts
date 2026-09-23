@@ -1,15 +1,13 @@
 /**
- * States what a group is: controls laid along one direction, either a semantic gap apart or
- * attached into one control with three parts.
+ * Styles a group's direction, gap, alignment, distribution, growth, attachment and dimming.
  *
  * @remarks
- *   Attached is the axis worth reading. The corners between two neighbours are squared and the
- *   border between them is pulled back by its own width, so three buttons read as one control
- *   rather than as three that happen to touch. A focused child is lifted above its neighbours,
- *   because a ring drawn at the same level is clipped by the next child's edge.
- *   The squaring sits in a compound rather than in the `attached` value, for two reasons. It
- *   depends on which way the group runs, and a compound is written after every variant, so the
- *   gap it closes is not reopened by the `gap` axis.
+ *   An attached group squares the corners between neighbours and overlaps their borders by the
+ *   control stroke width, so the border between two children renders once. A focused child sits
+ *   above its neighbours, so the next child does not cover its focus ring. The squaring is in two
+ *   compounds, one per orientation. The compiler emits compounds after every variant, so the `gap`
+ *   axis cannot reopen the gap. The recipe has no `palette` or `effect` axis, because a group
+ *   renders no box of its own.
  */
 
 import {
@@ -22,19 +20,16 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * Pulls a child back over its neighbour's edge by the control's stroke width, so the two share one
- * line rather than drawing two.
+ * Negative margin that overlaps a child with its neighbour by the control stroke width.
  */
 const OVERLAP = "calc({borderWidths.control} * -1)";
 
 /**
- * Writes the `justify` axis, taking the width of whatever holds the group along with it.
+ * Returns the `justify` axis, where every value also makes the group a full-width flex box.
  *
  * @remarks
- *   A group is inline and takes the width of its children, so a group that states nothing here has
- *   no room left over and every distribution would draw the same thing. Asking for one is asking
- *   for the room to share, so each value takes the width it is offered and becomes a block. The
- *   axis states no default, so a group that says nothing stays inline and is unmoved.
+ *   The base group is `inline-flex` and as wide as its children, so it has no free space to
+ *   distribute. The axis has no default, so a group without `justify` stays inline.
  */
 function distributed(): Record<Justify, SystemStyleObject> {
   // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the entries are the axis's own, one per distribution
@@ -47,7 +42,7 @@ function distributed(): Record<Justify, SystemStyleObject> {
 }
 
 /**
- * Draws a horizontal row at the middle gap until a caller says otherwise.
+ * Defaults to a horizontal group at the `sm` gap.
  */
 export const recipe = defineRecipe({
   base: {
@@ -90,49 +85,51 @@ export const recipe = defineRecipe({
   defaultVariants: { gap: "sm", orientation: "horizontal" },
   jsx: [/^Group$/u],
   variants: {
+    /**
+     * Cross-axis alignment of the children.
+     */
     align: alignVariants(),
 
     /**
-     * Whether the children the pointer is not on recede while it rests on one of them.
+     * Dims every child except a hovered, keyboard-focused or pressed one.
      *
      * @remarks
-     *   The theme's own rule, which blurs and quietens every child but the hovered one and
-     *   transitions both so the group settles rather than snaps. It was drawn by the theme and
-     *   reachable from no component until this axis named it.
-     *   A group is where it belongs: the rule reads the hovered child of the element it is set on,
-     *   so it wants a container whose children are peers a reader picks between.
+     *   The value applies the theme's `dim.others` layer style, which blurs and fades the other
+     *   children with a transition. A child with `aria-pressed="true"` keeps the others dimmed at
+     *   rest.
      */
     dim: { true: { layerStyle: "dim.others" } },
 
     /**
-     * Whether the children touch and read as one control.
+     * Joins the children into one control.
      *
      * @remarks
-     *   An attached group never wraps. A second line of a joined control reads as two controls,
-     *   and the squared corners between them face nothing. The gap is closed here and again in the
-     *   compound, because the `gap` axis is written after this one and would otherwise reopen it.
+     *   An attached group does not wrap, because a joined control on two lines has squared corners
+     *   that face no neighbour. The value and the compounds both set a zero gap, because the
+     *   compiler emits the `gap` axis after this one.
      */
     attached: { true: { flexWrap: "nowrap", gap: "0" } },
 
+    /**
+     * Gap token between the children, from `xs` to `xl`.
+     */
     gap: gapSizes(["xs", "sm", "md", "lg", "xl"]),
 
     /**
-     * Whether the children share the room evenly rather than taking what each needs.
-     *
-     * @remarks
-     *   The group takes the width it is offered along with it, for the same reason the `justify`
-     *   axis does: children can only share room the group has. Left inline, the group was the
-     *   width of its children and sharing that evenly drew what taking what each needs drew.
+     * Makes the group full width and gives every child an equal share of it.
      */
     grow: { true: { "& > *": { flex: "1" }, display: "flex", inlineSize: "full" } },
 
     /**
-     * How the room left over along the flow is shared out.
+     * Distribution of the space left over along the main axis.
+     *
+     * @remarks
+     *   Every value makes the group full width, because an inline group has no free space.
      */
     justify: distributed(),
 
     /**
-     * Which way the children run.
+     * Direction the children run in.
      */
     orientation: {
       horizontal: { flexDirection: "row" },

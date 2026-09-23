@@ -1,5 +1,5 @@
 /**
- * Publishes the group: controls laid along one direction, a gap apart or attached into one.
+ * Exposes the group component and its props provider to the package barrel.
  */
 
 export { PropsProvider as GroupPropsProvider } from "#group/context.ts";

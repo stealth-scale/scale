@@ -8,14 +8,14 @@ import { recipeClasses, variantClass } from "@stealthscale/testing-theme";
 import { PropsProvider, withContext } from "#group/context.ts";
 
 describe("context", () => {
-  it("draws the recipe's class on an element it binds", () => {
+  it("applies the group class to a bound element", () => {
     const Probe = withContext("section");
     const { container } = render(createElement(Probe, null, "One"));
 
     expect(recipeClasses(container, "group")).toContain("group");
   });
 
-  it("hands a provider's variants to an element below it", () => {
+  it("applies the orientation set by PropsProvider to a bound element below it", () => {
     const Probe = withContext("section");
     const { container } = render(
       createElement(
