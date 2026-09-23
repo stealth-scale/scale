@@ -1,124 +1,58 @@
 /**
- * Shows the heading: every size, the display role, every ink, both effects, the motions and a line
- * cut short.
+ * Catalogue page for the heading.
  *
  * @remarks
- *   The scenes are generated from the recipe, so an axis added to it reaches the page without this
- *   file changing. Every heading is drawn as an `h3`, under the scene's own `h2`, so the page's
- *   outline stays in order whatever size a heading takes.
- *   Each axis carries the title it reads best against, and the three axes that show nothing at the
- *   middle size are held at the loudest one: the display role, the effects and the gradient all
- *   need the words large enough to carry them. The display role turns off and on at one size
- *   rather than climbing the three sizes it reaches, because the axis is the role and the size axis
- *   has a scene of its own.
- *   The words are keys under `heading` in the catalogue's namespace, kept beside this file in
- *   `locales/en/specimen/heading.json`.
+ *   `scenesOf` generates one scene per recipe axis. Every example renders an `h3`, one level below
+ *   the scene's `h2`, so the page outline stays in order at every size. The display and effect
+ *   scenes render at `2xl`. The tone scene renders the inverted ink on `bg.inverted` through
+ *   `grounded`, and the truncation scene renders a long title in a 512px room. Every scene renders
+ *   a component from `examples/` and shows that file as its source. The words are keys under
+ *   `heading` in `locales/en/specimen/heading.json`.
  */
 
-import { type ReactElement } from "react";
+import { grounded, Room, scenesOf, specimen } from "@stealthscale/specimen";
 
-import { Room, scenesOf, specimen, useWords } from "@stealthscale/specimen";
-
-import { Heading, type HeadingProps } from "#heading/heading.ts";
+import * as migration from "#heading/examples/migration.example.tsx";
+import * as report from "#heading/examples/report.example.tsx";
+import * as settings from "#heading/examples/settings.example.tsx";
+import * as welcome from "#heading/examples/welcome.example.tsx";
 import { recipe } from "#heading/recipe.ts";
-
-/**
- * The call site every scene's source snippet is generated from.
- */
-const SAMPLE = {
-  children: "Quarterly report",
-  imports: 'import { Heading } from "@stealthscale/component-typography";',
-  name: "Heading",
-};
-
-/**
- * Draws the title of a report, which is what a size is read against.
- */
-function Report(props: HeadingProps): ReactElement {
-  const { t } = useWords("heading");
-
-  return (
-    <Heading as="h3" {...props}>
-      {t("quarterly")}
-    </Heading>
-  );
-}
-
-/**
- * Draws the title of a settings page, which is what an ink is read against.
- */
-function Settings(props: HeadingProps): ReactElement {
-  const { t } = useWords("heading");
-
-  return (
-    <Heading as="h3" {...props}>
-      {t("settings")}
-    </Heading>
-  );
-}
-
-/**
- * Draws a greeting, which is what the loudest role and its effects are read against.
- */
-function Greeting(props: HeadingProps): ReactElement {
-  const { t } = useWords("heading");
-
-  return (
-    <Heading as="h3" {...props}>
-      {t("welcome")}
-    </Heading>
-  );
-}
-
-/**
- * Draws the title of a release, which is what a motion is read against.
- */
-function Release(props: HeadingProps): ReactElement {
-  const { t } = useWords("heading");
-
-  return (
-    <Heading as="h3" {...props}>
-      {t("release")}
-    </Heading>
-  );
-}
-
-/**
- * Draws a long title, cut to the line or left to wrap.
- *
- * @remarks
- *   The title stands in a room at the large measure, because a heading cut short and one left to
- *   wrap read the same until the width runs out, and a cell of the catalogue gave a title of eighty
- *   characters the whole page.
- */
-function Winding(props: HeadingProps): ReactElement {
-  const { t } = useWords("heading");
-
-  return (
-    <Room size="lg">
-      <Heading as="h3" {...props}>
-        {t("winding")}
-      </Heading>
-    </Room>
-  );
-}
 
 export default specimen({
   about: "heading.about",
   id: "components/typography/heading",
   imports: 'import { Heading } from "@stealthscale/component-typography";',
-  scenes: scenesOf<HeadingProps>(recipe, {
+  scenes: scenesOf<Parameters<typeof report.Report>[0]>(recipe, {
     axes: {
-      display: { draw: (props) => <Greeting {...props} />, with: { size: "2xl" } },
-      effect: { draw: (props) => <Greeting {...props} />, with: { size: "2xl" } },
-      motion: { draw: (props) => <Release {...props} /> },
-      tone: { draw: (props) => <Settings {...props} /> },
-      truncate: { direction: "column", draw: (props) => <Winding {...props} /> },
+      display: {
+        draw: (props) => <welcome.Welcome {...props} />,
+        example: welcome,
+        with: { size: "2xl" },
+      },
+      effect: {
+        draw: (props) => <welcome.Welcome {...props} />,
+        example: welcome,
+        with: { size: "2xl" },
+      },
+      size: { direction: "column" },
+      tone: {
+        draw: (props) => grounded(props.tone, <settings.Settings {...props} />),
+        example: settings,
+      },
+      truncate: {
+        direction: "column",
+        draw: (props) => (
+          <Room size="lg">
+            <migration.Migration {...props} />
+          </Room>
+        ),
+        example: migration,
+      },
     },
-    draw: (props) => <Report {...props} />,
+    draw: (props) => <report.Report {...props} />,
+    example: report,
     namespace: "heading",
     order: ["size", "display", "tone", "effect", "motion", "truncate"],
-    sample: SAMPLE,
   }),
   title: "heading.title",
 });
