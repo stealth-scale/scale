@@ -24,7 +24,7 @@ const FORBIDDEN = [
 ];
 
 /**
- * Longest wait, in milliseconds, for the Props tab to render its first row.
+ * Longest wait, in milliseconds, for the Props tab to render its first part or row.
  */
 const PROPS_TIMEOUT = 15_000;
 
@@ -86,11 +86,15 @@ export async function sourced(page: Page): Promise<Band> {
 }
 
 /**
- * Opens the Props tab and waits for its first table row.
+ * Opens the Props tab and waits for its first part.
  *
+ * @remarks
+ *   The kit renders every part as a `section[id]` and adds a table only for a part with props of
+ *   its own, so a part that declares none, such as `SkipNav.Link`, is listed without a row. A
+ *   pending load, a failed load and a page the reader found no part for render no section.
  * @param page - The open page.
- * @returns A fault with the panel's text when no row renders within 15 seconds, and the row count
- *   otherwise.
+ * @returns A fault with the panel's text when no part renders within 15 seconds, and the part and
+ *   row counts otherwise.
  */
 export async function propped(page: Page): Promise<Band> {
   const tab = page.locator("main [role=tablist]").first().getByRole("tab").last();
@@ -98,13 +102,15 @@ export async function propped(page: Page): Promise<Band> {
   await tab.click();
 
   const panel = page.locator(`[id="${(await tab.getAttribute("aria-controls")) ?? ""}"]`);
-  const rows = panel.locator("tbody tr");
+  const parts = panel.locator("section[id]");
 
   try {
-    await rows.first().waitFor({ timeout: PROPS_TIMEOUT });
+    await parts.first().waitFor({ timeout: PROPS_TIMEOUT });
   } catch {
     return { faults: [(await panel.innerText()).slice(0, 200)], note: "" };
   }
 
-  return { faults: [], note: `${String(await rows.count())} rows` };
+  const rows = await panel.locator("tbody tr").count();
+
+  return { faults: [], note: `${String(await parts.count())} parts, ${String(rows)} rows` };
 }

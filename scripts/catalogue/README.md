@@ -150,7 +150,7 @@ prints one line per check and one indented line per fault, then exits with 1 whe
 | `overflow` | A recipe slot's content is wider than its box                                             |
 | `columns`  | Sibling rows of one list end their last part at distances more than 1px apart             |
 | `sources`  | A scene has no Source, or its Source contains `{...props}`, `props.<name>` or `#` imports |
-| `props`    | The Props tab renders no table row within 15 seconds                                      |
+| `props`    | The Props tab lists no part within 15 seconds. A part without props of its own passes     |
 | `raw keys` | Text renders as an untranslated key                                                       |
 | `console`  | The page logs an error while the checks run                                               |
 
