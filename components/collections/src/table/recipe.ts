@@ -397,6 +397,10 @@ export const recipe = defineSlotRecipe({
      *   next begins, which no amount of weight does from the corner of an eye.
      *   The fill is the shallowest well, the same one a stripe takes, so a table that is both
      *   banded and striped draws its names in the tone its odd rows take rather than in a third.
+     *   The names are set in capitals and tracked out along with it. A band of names is a label for
+     *   the columns under it rather than a row of the table, and the case is what says so once the
+     *   fill has already taken the weight's job. The two move together, so this axis turns the band
+     *   rather than the fill alone.
      */
     banded: {
       true: {
