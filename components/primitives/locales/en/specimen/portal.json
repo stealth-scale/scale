@@ -1,11 +1,18 @@
 {
   "about": "Draws what it holds somewhere else in the document rather than where it is written.",
-  "here": "Drawn where it is written",
+  "panels": {
+    "first": "The first panel",
+    "second": "The second panel"
+  },
+  "places": {
+    "first": "Into the first panel",
+    "here": "Left where it is written",
+    "second": "Into the second panel"
+  },
   "placing": {
-    "about": "A tile drawn into the panel beside it, and one left where it is written. The first is a child of the panel in the document, whatever the tree says.",
+    "about": "One tile, written once under the two panels, and three places to draw it. Press a control and the tile moves in the document without moving in the tree. Sent into a panel, the portal takes that panel as its container and the tile becomes its child. Left where it is written, the portal is disabled and the tile stays under both.",
     "title": "Placing"
   },
-  "sent": "Sent into the panel",
-  "target": "The panel",
+  "tile": "The tile",
   "title": "Portal"
 }
