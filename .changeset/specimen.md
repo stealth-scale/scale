@@ -81,3 +81,13 @@ specimen: render the inverted ink on the inverted surface
 - `grounded(tone, cell)` returns the cell in an inverted sample when `tone` is `inverted`, and the
   cell unchanged for any other tone. The inverted ink failed axe `color-contrast` on six typography
   pages, where it rendered on the page background.
+
+specimen: add Contained and Focused
+
+- `Contained` renders a box with `contain: layout`, the containing block of a `position: fixed`
+  descendant. A skip link revealed by Tab inside it renders at the box's corner and not over the
+  catalogue.
+- `Focused` renders a `Contained` and sets `data-focus-visible` on its first focusable descendant,
+  which every `_focusVisible` condition matches. A focus ring on a visible control renders in a
+  still image without taking focus.
+- The preset registers the `contained` recipe.

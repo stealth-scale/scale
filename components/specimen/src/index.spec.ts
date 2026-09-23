@@ -6,9 +6,11 @@ describe("index", () => {
   it("exports the specimen kit's public names only", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Board",
+      "Contained",
       "DisplayProvider",
       "Drawn",
       "FRAMES",
+      "Focused",
       "Index",
       "Matrix",
       "NAMED",

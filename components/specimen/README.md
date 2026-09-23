@@ -442,14 +442,36 @@ its control.
 </Room>
 ```
 
+## Contained and Focused
+
+`Contained` is a box with `contain: layout`, which makes it the containing block of a
+`position: fixed` descendant. Render an example with a control that is fixed to the window under
+keyboard focus, such as a skip link, inside it. Tab then reveals the control at the box's corner and
+not over the catalogue.
+
+`Focused` is a `Contained` that sets `data-focus-visible` on its first focusable descendant after it
+mounts. Every `_focusVisible` condition matches that attribute, so the descendant renders its focus
+styles in a still image without taking focus. Use it for a focus style on a control that is visible
+at rest, such as the ring on a toolbar's tab stop. Do not use it for a control that is hidden until
+focus, because the staged control then reads as always visible.
+
+```tsx
+<Contained>
+  <SkipNav.Link href="#results">Skip to results</SkipNav.Link>
+</Contained>;
+<Focused>
+  <Toolbar />
+</Focused>;
+```
+
 ## The recipes it states
 
 Every part the catalogue draws is a component of the library: the caption is `Text`, the page is
-`Page`, the rail is `Sidebar.Nav` over `NavList`. The device, the pane, the matrix, the tile and the
-room state a recipe each, published as a preset from `@stealthscale/specimen/theme`, and every value
-in them is a semantic token, so a theme that moves the library moves the catalogue with it. The
-preset also makes the root of a framed document see-through, over the background the theme paints
-every root in.
+`Page`, the rail is `Sidebar.Nav` over `NavList`. The device, the pane, the matrix, the tile, the
+room and the contained box state a recipe each, published as a preset from
+`@stealthscale/specimen/theme`, and every value in them is a semantic token, so a theme that moves
+the library moves the catalogue with it. The preset also makes the root of a framed document
+see-through, over the background the theme paints every root in.
 
 ## Types
 
