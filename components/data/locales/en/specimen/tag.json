@@ -1,0 +1,44 @@
+{
+  "about": "A short label on something: a filter a person applied, the kind of thing a record is, or its state. A mark goes at either end, and a close trigger removes the tag.",
+  "effect": {
+    "about": "A halo around the tag, in the palette's solid at half opacity. `pulse` animates it and stops when the reader prefers reduced motion.",
+    "title": "Effects"
+  },
+  "filters": {
+    "about": "Press a close trigger to remove a filter, and Reset to restore them. Each close trigger is its own button, with a tab stop and a name that includes the filter it removes.",
+    "title": "Removing a tag"
+  },
+  "marks": {
+    "about": "A mark at the start names the kind of thing, and a mark at the end names a state. Both are sized in `em`, so they follow the label.",
+    "title": "Marks"
+  },
+  "overflow": {
+    "about": "A label longer than its container is cut with an ellipsis, and the close trigger stays visible. The whole label stays in the DOM, so a screen reader announces all of it.",
+    "title": "A long label"
+  },
+  "palette": {
+    "about": "Every palette in every look. The looks are flat, so a tag does not change under the pointer. The close trigger hovers to a darker square, or to a tint of the label ink on a solid tag.",
+    "title": "Palettes and looks"
+  },
+  "radius": {
+    "about": "Every corner, from the theme's corner scale.",
+    "title": "Corners"
+  },
+  "remove": "Remove {{name}}",
+  "reset": "Reset",
+  "size": {
+    "about": "Each size sets the height on the tag scale, the label one size smaller, and a padding and a gap from the gap scale. A plain tag, a tag with a mark and a removable tag have the same height at each size.",
+    "title": "Sizes"
+  },
+  "title": "Tag",
+  "words": {
+    "archived": "archived",
+    "ledger": "ledger",
+    "long": "reconciliation-2026-Q1-north-europe-settlement-batch-14",
+    "payouts": "payouts",
+    "reconciled": "reconciled",
+    "returned": "returned",
+    "review": "needs review",
+    "settled": "settled"
+  }
+}

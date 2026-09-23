@@ -7,8 +7,21 @@ describe("index", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Badge",
       "BadgePropsProvider",
+      "ColorSwatch",
+      "ColorSwatchMix",
       "Stat",
       "Status",
+      "Tag",
+    ]);
+  });
+
+  it("exports Tag as a namespace of its parts", () => {
+    expect(Object.keys(barrel.Tag).toSorted()).toStrictEqual([
+      "CloseTrigger",
+      "EndElement",
+      "Label",
+      "Root",
+      "StartElement",
     ]);
   });
 
