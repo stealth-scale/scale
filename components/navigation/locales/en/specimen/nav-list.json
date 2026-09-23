@@ -16,8 +16,9 @@
     "about": "Every corner, on the row naming the page being read.",
     "title": "Corners"
   },
+  "rename": "Rename",
   "reveal": {
-    "about": "An action always drawn, and one that appears with the pointer and stays under a coarse pointer or while the row holds focus.",
+    "about": "An action always drawn, and one that appears with the pointer. Every row carries one, so the two read apart without hovering either; point at the second list and the controls arrive one row at a time. A revealed control stays drawn under a coarse pointer, where there is no hover to reveal it with, and while anything in the row holds focus.",
     "title": "Reveal"
   },
   "settings": "Settings",

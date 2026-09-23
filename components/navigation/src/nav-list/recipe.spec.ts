@@ -74,19 +74,28 @@ describe("recipe", () => {
     });
   });
 
-  it("draws a row as tall as a tag with the label two steps below", () => {
-    expect(recipe.variants?.["size"]?.["md"]?.["link"]).toStrictEqual({
-      _currentPage: { color: "fg", fontWeight: "semibold" },
-      blockSize: "max({sizes.6}, calc({sizes.tag.md} * var(--density, 1)))",
-      gap: "calc({spacing.gap.xs} * var(--density, 1))",
-      paddingInline: "calc({spacing.inset.xs} * var(--density, 1))",
-      textStyle: "label.xs",
+  it("leaves the ink of the current row to the highlight that marks it", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["link"]?.["_currentPage"]).not.toHaveProperty(
+      "color",
+    );
+    expect(recipe.variants?.["highlight"]?.["fill"]?.["link"]).toMatchObject({
+      _currentPage: { layerStyle: "fill.solid" },
     });
-    expect(recipe.variants?.["size"]?.["lg"]?.["trigger"]).toMatchObject({
-      blockSize: "max({sizes.6}, calc({sizes.tag.lg} * var(--density, 1)))",
+  });
+
+  it("draws a row as tall as a tag with the label a step below", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["link"]).toStrictEqual({
+      _currentPage: { fontWeight: "semibold" },
+      blockSize: "max({sizes.6}, calc({sizes.tag.md} * var(--density, 1)))",
       gap: "calc({spacing.gap.sm} * var(--density, 1))",
       paddingInline: "calc({spacing.inset.sm} * var(--density, 1))",
       textStyle: "label.sm",
+    });
+    expect(recipe.variants?.["size"]?.["lg"]?.["trigger"]).toMatchObject({
+      blockSize: "max({sizes.6}, calc({sizes.tag.lg} * var(--density, 1)))",
+      gap: "calc({spacing.gap.md} * var(--density, 1))",
+      paddingInline: "calc({spacing.inset.md} * var(--density, 1))",
+      textStyle: "label.md",
     });
   });
 
@@ -127,6 +136,49 @@ describe("recipe", () => {
     });
   });
 
+  it("leaves a row carrying a control or a count room for it at its end", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["item"]).toStrictEqual({
+      "&:has(> :is(.nav-list__action, .nav-list__badge)) > :is(.nav-list__link, .nav-list__trigger)":
+        {
+          paddingInlineEnd:
+            "calc(calc({spacing.inset.sm} * var(--density, 1)) + calc({spacing.gap.sm} * var(--density, 1)) + calc({sizes.tag.sm} * var(--density, 1)))",
+        },
+    });
+  });
+
+  it("reserves that room on the axis writing the padding rather than on the base", () => {
+    expect(recipe.base?.["item"]).not.toHaveProperty(
+      "&:has(> :is(.nav-list__action, .nav-list__badge)) > :is(.nav-list__link, .nav-list__trigger)",
+    );
+  });
+
+  it("gives that room back to a row drawn as a square", () => {
+    expect(recipe.compoundVariants?.[0]?.css?.["item"]).toStrictEqual({
+      "&:has(> :is(.nav-list__action, .nav-list__badge)) > :is(.nav-list__link, .nav-list__trigger)":
+        { paddingInlineEnd: "0" },
+    });
+  });
+
+  it("stands the count the control and the branch mark in one column", () => {
+    const square = "calc({sizes.tag.sm} * var(--density, 1))";
+    const room = "calc({spacing.inset.sm} * var(--density, 1))";
+
+    expect(recipe.variants?.["size"]?.["md"]?.["action"]).toMatchObject({
+      blockSize: square,
+      marginInlineEnd: room,
+      minInlineSize: square,
+    });
+    expect(recipe.variants?.["size"]?.["md"]?.["badge"]).toMatchObject({
+      blockSize: square,
+      marginInlineEnd: room,
+      minInlineSize: square,
+    });
+    expect(recipe.variants?.["size"]?.["md"]?.["indicator"]).toMatchObject({
+      blockSize: square,
+      minInlineSize: square,
+    });
+  });
+
   it("draws a revealed control while a keyboard stands anywhere in its row", () => {
     expect(recipe.variants?.["reveal"]?.["hover"]?.["item"]).toStrictEqual({
       "&:focus-within .nav-list__action, &:hover .nav-list__action": { opacity: "1" },
@@ -139,21 +191,44 @@ describe("recipe", () => {
 
   it("squares one class per part it changes in the order the slots are named", () => {
     expect(recipe.compoundVariants?.map((each) => each.className)).toStrictEqual([
+      "nav-list__item--squared",
       "nav-list__link--squared",
       "nav-list__action--squared",
       "nav-list__badge--squared",
       "nav-list__trigger--squared",
       "nav-list__indicator--squared",
       "nav-list__content--squared",
+      "nav-list__badge--counted",
     ]);
   });
 
-  it("squares the rows only where the list runs down a side", () => {
+  it("compounds only where the list runs down a side", () => {
     expect.hasAssertions();
 
     for (const compound of recipe.compoundVariants ?? []) {
-      expect(compound).toMatchObject({ iconic: true, variant: "list" });
+      expect(compound).toMatchObject({ variant: "list" });
     }
+  });
+
+  it("squares the rows only where a caller asked for a rail", () => {
+    const squared = (recipe.compoundVariants ?? []).filter((each) =>
+      (each.className ?? "").endsWith("--squared"),
+    );
+
+    expect(squared.map((each) => each["iconic"])).toStrictEqual(squared.map(() => true));
+  });
+
+  it("reads the count on the row a reader is on in the ink that mark was drawn for", () => {
+    expect(recipe.compoundVariants?.at(-1)).toMatchObject({
+      css: {
+        badge: {
+          ':is(.nav-list__link, .nav-list__trigger)[aria-current="page"] ~ &': {
+            color: "colorPalette.contrast",
+          },
+        },
+      },
+      highlight: "fill",
+    });
   });
 
   it("keeps a collapsed row's words for a screen reader rather than clipping them", () => {
