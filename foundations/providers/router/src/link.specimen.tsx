@@ -1,20 +1,12 @@
 /**
- * Lays out the catalogue page for the router's declared link.
+ * Catalogue page for the route link.
  *
  * @remarks
- *   The link ships no recipe: it is the router's own behaviour wrapped round whatever component a
- *   caller hands it, and the look belongs to that component. There is no axis to generate a scene
- *   from and no recipe specification to ask what this page covers, so every scene is written by
- *   hand and stays that way.
- *   The scenes draw real links against the routes the catalogue itself compiled, so what a reader
- *   sees resolves and navigates rather than standing in for something that would. Every address on
- *   the page is a page of this catalogue, which is the one route map a specimen can count on being
- *   mounted inside.
- *   The page reaches for the layout and typography packages, which a foundation does not otherwise
- *   do. A specimen is read by the catalogue and packed into nothing, so the reach is a development
- *   dependency and not a line in what this package publishes.
- *   The copy is keyed under `link` in the catalogue namespace and stored beside this file at
- *   `locales/en/specimen/link.json`.
+ *   `RouteLink` has no recipe, so `scenesOf` has no axes to generate scenes from and both scenes
+ *   are hand-written. The links resolve against the routes the catalogue compiles, because the
+ *   catalogue's route map is the only one mounted around a specimen. The layout and typography
+ *   packages are development dependencies, because only the catalogue reads this file. The words
+ *   are keys under `route-link` in `locales/en/specimen/route-link.json`.
  */
 
 import { type ReactElement } from "react";
@@ -26,22 +18,20 @@ import { createLink, RouteLink } from "@stealthscale/provider-router";
 import { Matrix, type Scene, specimen, useWords, written } from "@stealthscale/specimen";
 
 /**
- * Draws a route link that carries a link's ink and its underline.
+ * Route link rendered through the navigation package's `Link`.
  *
  * @remarks
- *   `RouteLink` resolves an identifier and draws a bare `a`, which the page's reset leaves in the
- *   ink of the words around it. Set in a sentence it was a run of body text nobody could tell from
- *   the rest, so this page draws it through the navigation package's link, which is what a caller
- *   with a design system does.
+ *   `RouteLink` renders a bare `a`, which the page's reset leaves in the text color, so inside a
+ *   sentence it is indistinguishable from the text around it.
  */
 const Inlined = createLink(Link);
 
 /**
- * The identifiers of routes the catalogue compiles, which the scenes resolve.
+ * IDs of three routes the catalogue compiles.
  *
  * @remarks
- *   A page's route is named for its address with the slashes turned into dots, under the prefix
- *   every specimen page is compiled beneath.
+ *   A specimen page's route ID is its address with the slashes replaced by dots, under the
+ *   `specimen` prefix.
  */
 const ROUTES = [
   "specimen.components.actions.button",
@@ -50,7 +40,7 @@ const ROUTES = [
 ] as const;
 
 /**
- * The call site each scene's source is generated from.
+ * Call site the source of each scene is written from.
  */
 const SAMPLE = {
   children: "Open the page",
@@ -59,10 +49,10 @@ const SAMPLE = {
 };
 
 /**
- * Draws one link per route, each resolving its identifier through the map.
+ * Renders one route link per ID in `ROUTES`.
  */
 function Resolving(): ReactElement {
-  const { t } = useWords("link");
+  const { t } = useWords("route-link");
 
   return (
     <Matrix knob="to" of={ROUTES}>
@@ -72,10 +62,10 @@ function Resolving(): ReactElement {
 }
 
 /**
- * Draws a link beside the words around it, so a sentence keeps its line.
+ * Renders a route link inside a sentence.
  */
 function Inline(): ReactElement {
-  const { t } = useWords("link");
+  const { t } = useWords("route-link");
 
   return (
     <Stack gap="sm">
@@ -88,29 +78,29 @@ function Inline(): ReactElement {
 }
 
 /**
- * The scene resolving an identifier through the route map.
+ * Hand-written scene for route IDs resolved through the route map.
  */
 export const resolving: Scene = {
-  about: "link.resolving.about",
+  about: "route-link.resolving.about",
   draw: Resolving,
   source: written(SAMPLE, { to: "specimen.components.actions.button" }),
-  title: "link.resolving.title",
+  title: "route-link.resolving.title",
 };
 
 /**
- * The scene drawing a link inside a line of words.
+ * Hand-written scene for a route link inside a sentence.
  */
 export const inline: Scene = {
-  about: "link.inline.about",
+  about: "route-link.inline.about",
   draw: Inline,
   source: written(SAMPLE, { to: "specimen.components.actions.button" }),
-  title: "link.inline.title",
+  title: "route-link.inline.title",
 };
 
 export default specimen({
-  about: "link.about",
+  about: "route-link.about",
   id: "foundations/router/link",
   imports: 'import { RouteLink } from "@stealthscale/provider-router";',
   scenes: [resolving, inline],
-  title: "link.title",
+  title: "route-link.title",
 });
