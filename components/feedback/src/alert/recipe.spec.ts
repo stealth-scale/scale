@@ -50,10 +50,22 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "edge")).toStrictEqual(["bottom", "end", "top"]);
   });
 
-  it("reads the indicator.top layer style on the root for edge top", () => {
+  it("draws edge top as a block start border in the palette's solid", () => {
     expect(recipe.variants?.["edge"]?.["top"]).toStrictEqual({
-      root: { layerStyle: "indicator.top" },
+      root: { borderBlockStartColor: "colorPalette.solid", borderBlockStartWidth: "indicator" },
     });
+  });
+
+  it("restates each edge for the outline and surface looks", () => {
+    expect(
+      recipe.compoundVariants
+        ?.filter((each) => each["edge"] !== undefined)
+        .map((each) => [each.className, each["edge"], each["variant"]]),
+    ).toStrictEqual([
+      ["alert__root--edged-top", "top", ["outline", "surface"]],
+      ["alert__root--edged-bottom", "bottom", ["outline", "surface"]],
+      ["alert__root--edged-end", "end", ["outline", "surface"]],
+    ]);
   });
 
   it("defaults every axis except edge and motion", () => {
@@ -140,7 +152,7 @@ describe("recipe", () => {
   });
 
   it("draws the close trigger in the contrast ink on a solid alert", () => {
-    expect(recipe.compoundVariants).toStrictEqual([
+    expect(recipe.compoundVariants?.filter((each) => each["edge"] === undefined)).toStrictEqual([
       {
         className: "alert__close-trigger--contrasted",
         css: {

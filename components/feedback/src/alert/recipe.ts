@@ -8,14 +8,14 @@
  *   because WCAG 1.4.1 rejects a status told by color alone. `variant` reads the `flat.*` layer
  *   styles, whose fill and ink are the pairs the contrast gate measures. The indicator and the
  *   close trigger inherit the root's ink, so a solid alert draws both in the contrast ink. The
- *   recipe has no `effect` axis, because `motion` already animates the root and `edge` already
- *   paints its pseudo-element.
+ *   recipe has no `effect` axis, because `motion` already animates the root.
  */
 
 import {
   cornerVariants,
   defineSlotRecipe,
   dense,
+  type Flat,
   flatVariants,
   iconSizes,
   interactive,
@@ -32,6 +32,20 @@ import {
  * Sizes of the icon box and the root's gap, inset and text style.
  */
 const SIZES = ["sm", "md", "lg"] as const;
+
+/**
+ * Maps each edge to the border that draws it, in the palette's solid at the indicator width.
+ */
+const EDGES = {
+  bottom: { borderBlockEndColor: "colorPalette.solid", borderBlockEndWidth: "indicator" },
+  end: { borderInlineEndColor: "colorPalette.solid", borderInlineEndWidth: "indicator" },
+  top: { borderBlockStartColor: "colorPalette.solid", borderBlockStartWidth: "indicator" },
+};
+
+/**
+ * Looks whose layer style sets the `border-width` and `border-color` shorthands.
+ */
+const BORDERED: Flat[] = ["outline", "surface"];
 
 /**
  * Alert slot recipe, a subtle info notice at the md size by default.
@@ -112,6 +126,15 @@ export const recipe = defineSlotRecipe({
       name: "contrasted",
       variant: "solid",
     },
+
+    /**
+     * The outline and surface looks restate the edge. Their layer style sets the border shorthands
+     * in the `variant` axis, which the compiler emits after `edge` and which reset the edge's
+     * width and color.
+     */
+    { css: { root: EDGES.top }, edge: "top", name: "edged-top", variant: BORDERED },
+    { css: { root: EDGES.bottom }, edge: "bottom", name: "edged-bottom", variant: BORDERED },
+    { css: { root: EDGES.end }, edge: "end", name: "edged-end", variant: BORDERED },
   ],
   defaultVariants: {
     layout: "stacked",
@@ -128,16 +151,18 @@ export const recipe = defineSlotRecipe({
      * The edge that carries a rule in the palette's solid color. Unset by default.
      *
      * @remarks
-     *   Each value reads one of the theme's `indicator.*` layer styles, which paint a
-     *   pseudo-element along that edge. `end` is logical: the right edge in a left-to-right
-     *   document and the left edge in a right-to-left one.
+     *   The rule is a border on the root, so it follows the root's rounded corners and tapers to
+     *   the side border. The theme's `indicator.*` layer styles draw a 3px pseudo-element, whose
+     *   corner radius the browser scales down to fit, and the bar ran straight past both rounded
+     *   corners. A border also stays visible under forced colors. `end` is logical: the right edge
+     *   in a left-to-right document and the left edge in a right-to-left one.
      */
     edge: {
-      top: { root: { layerStyle: "indicator.top" } },
+      top: { root: EDGES.top },
 
-      bottom: { root: { layerStyle: "indicator.bottom" } },
+      bottom: { root: EDGES.bottom },
 
-      end: { root: { layerStyle: "indicator.end" } },
+      end: { root: EDGES.end },
     },
 
     /**

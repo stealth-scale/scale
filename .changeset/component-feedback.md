@@ -117,6 +117,10 @@ component-feedback: add Alert.CloseTrigger and outline alerts under forced color
   alert's size without a `size` prop: 16, 20 and 24px.
 - Under forced colors the root draws a hairline `CanvasText` outline. The solid, subtle and plain
   looks lost their box when the browser replaced the fill.
+- `edge` draws a border in the palette's `solid` at the indicator width, so the rule follows the
+  root's rounded corners. The `indicator.*` layer styles drew a straight 2px bar that ran past both
+  corners and vanished under forced colors. Named compounds restate the edge for the outline and
+  surface looks, whose border shorthands reset it.
 
 component-feedback: resize the empty state to three sizes
 

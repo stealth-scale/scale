@@ -77,6 +77,10 @@ it hovers to a tint of the contrast ink and draws its focus ring in the contrast
 1.5em square and at least 24px, and the glyph sits on the padding edge. Pass a `label` that names
 the notice. Name each control in `Alert.Aside` for its target too, such as `Retry the payment`.
 
+`edge` draws a border in the palette's `solid` along one edge, so the rule follows the rounded
+corners. `end` is the right edge in a left-to-right document and the left edge in a right-to-left
+one.
+
 `Alert.Title` is a `span`. Pass `as="h2"` for a notice that stays on the page and belongs in the
 outline. Under forced colors the root draws a hairline `CanvasText` outline.
 
