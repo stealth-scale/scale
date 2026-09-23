@@ -4,25 +4,21 @@
   "corner": "Service",
   "crossing": "{{row}} in {{column}}: {{state}}",
   "discovery": "Discovery",
+  "platform": "Platform",
+  "streaming": "Streaming",
   "down": "Down",
   "fine": "Healthy",
   "gap": {
-    "about": "The same grid twice, the second with APAC never run. A crossing nobody measured draws its own mark rather than a blank, and it counts as unknown in the rollup, which outranks both a pass and a crossing that does not apply. Left blank, a region nobody checked would read as a region with nothing wrong.",
-    "every": "every crossing measured",
-    "short": "APAC never run",
+    "about": "Three services with APAC never run. A crossing nobody measured draws its own mark rather than a blank, and it counts as unknown in the rollup, which outranks both a pass and a crossing that does not apply. Read the Worst column against the marks beside it: auth passed everywhere it ran and still closes as unknown, and billing closes as down because down outranks unknown. Left blank, a region nobody checked would read as a region with nothing wrong.",
     "title": "A gap outranks a pass"
   },
   "legend": "States",
-  "measured": {
-    "about": "Every crossing measured, gathered into a section per team, closing on the worst state along each row. Nothing in the grid is pressable and nothing in it is a tab stop, because no caller is listening for a crossing. Hover a crossing to light its row and its column.",
-    "title": "Every crossing measured"
-  },
   "nothing": "No services measured yet",
   "nothingYet": "Nothing picked yet",
   "payments": "Payments",
   "picked": "Picked {{row}} in {{column}}: {{state}}",
   "picking": {
-    "about": "Given a handler, every crossing becomes a button and the grid takes a tab stop per crossing. A crossing nobody measured is a button as well, because that is the pair somebody wants to go and measure. The hover stays a quiet neutral rather than the accent: the mark's own colour is the data, and a strong fill under it destroys what the crossing is saying.",
+    "about": "Given a handler, every crossing becomes a button and the grid takes a tab stop per crossing. Without one nothing in the grid is pressable and nothing in it is a tab stop, and a hover lights the crossing's row and its column instead. A crossing nobody measured is a button as well, because that is the pair somebody wants to go and measure. The hover stays a quiet neutral rather than the accent: the mark's own colour is the data, and a strong fill under it destroys what the crossing is saying. Press the crossing that is already picked to clear it: the grid marks no crossing as picked, so the line under it is the only answer, and pressing one twice wrote the same line twice.",
     "title": "Picking a crossing"
   },
   "plain": {
