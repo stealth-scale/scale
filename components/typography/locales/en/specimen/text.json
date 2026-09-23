@@ -1,32 +1,31 @@
 {
-  "about": "Draws a paragraph, in a size, an ink, a weight and an alignment.",
+  "about": "Renders a paragraph in a body size, a text ink, a weight and an alignment.",
   "align": {
-    "about": "Where the lines of a paragraph sit in the measure they are given.",
+    "about": "The four alignments of a paragraph in a 576px room. `start` and `end` follow the writing direction.",
     "title": "Alignment"
   },
   "mask": {
-    "about": "A paragraph faded out at its foot, for a preview that is cut rather than finished.",
+    "about": "The three fade masks. `bottom` fades the last lines, `edges` fades both inline ends of a line that scrolls, and `radial` fades out from the centre.",
     "title": "Mask"
   },
   "motion": {
-    "about": "How a paragraph enters the page.",
+    "about": "The animation a paragraph enters with. Each one runs once when the paragraph mounts.",
     "title": "Motion"
   },
-  "note": "The invoice was sent on Tuesday and paid before the week was out.",
-  "passage": "Perfection is reached not when there is nothing left to add, but when there is nothing left to take away. Every part that stays has earned its place, and the whole reads as one thing rather than many.",
-  "reminder": "Your session ends in five minutes.",
+  "payment": "Paid on 12 March.",
+  "release": "Payouts settle within two business days in 34 countries. A transfer started before 14:00 UTC arrives on the same day, and the dashboard shows the expected arrival date of every transfer.",
+  "session": "Your session ends in five minutes.",
   "size": {
-    "about": "Every body size.",
+    "about": "The five steps of the body text role.",
     "title": "Sizes"
   },
-  "summary": "Three of the four checks passed and the fourth is waiting on a review.",
   "title": "Text",
   "tone": {
-    "about": "Every ink at every weight. An ink reads the palette of its name, so the inverted one is for a dark surface and reads as nothing on the page.",
+    "about": "Every text ink at every weight. The inverted ink is for a dark surface, so its row renders on `bg.inverted`.",
     "title": "Inks and weights"
   },
   "truncate": {
-    "about": "A paragraph cut to one line beside one left to wrap. Keep the full words reachable, in a title or in text nearby.",
+    "about": "A paragraph that wraps, and the same paragraph cut to one line with an ellipsis. Show the full text elsewhere, such as in a detail view.",
     "title": "Truncate"
   }
 }

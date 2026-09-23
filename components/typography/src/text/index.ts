@@ -1,5 +1,5 @@
 /**
- * Publishes the paragraph: the element most words on a page are set in.
+ * Exposes the paragraph component to the package barrel.
  */
 
 export { Text, type TextProps } from "#text/text.ts";

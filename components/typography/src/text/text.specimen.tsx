@@ -1,85 +1,58 @@
 /**
- * Shows the paragraph: every size, every ink at every weight, the alignments, a line cut short, the
- * motions and the mask.
+ * Catalogue page for the paragraph.
  *
  * @remarks
- *   The scenes are generated from the recipe, so an axis added to it reaches the page without this
- *   file changing. The weight is crossed with the ink, because a weight is only readable against
- *   the ink it is set in. Each axis carries the words it reads best against: a sentence where the
- *   axis turns the size, the ink or the motion, and a passage of several lines where it turns the
- *   alignment, the cut or the mask, because none of those three shows itself on one line. A scene
- *   whose paragraph needs a measure runs its cells down the page. The words are keys under `text`
- *   in the catalogue's namespace, kept beside this file in `locales/en/specimen/text.json`.
+ *   `scenesOf` generates one scene per recipe axis. The tone scene crosses the weight axis and
+ *   renders the inverted ink on `bg.inverted` through `grounded`. The alignment, truncation and
+ *   mask scenes render a three-line release note in a 576px room, the width of a reading column.
+ *   Every scene renders a component from `examples/` and shows that file as its source. The words
+ *   are keys under `text` in `locales/en/specimen/text.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { scenesOf, specimen, useWords } from "@stealthscale/specimen";
+import { grounded, Room, scenesOf, specimen } from "@stealthscale/specimen";
 
+import * as payment from "#text/examples/payment.example.tsx";
+import * as release from "#text/examples/release.example.tsx";
+import * as session from "#text/examples/session.example.tsx";
 import { recipe } from "#text/recipe.ts";
-import { Text, type TextProps } from "#text/text.ts";
 
 /**
- * The call site every scene's source snippet is generated from.
+ * Props of every Text example.
  */
-const SAMPLE = {
-  children: "The deployment finished at 14:02.",
-  imports: 'import { Text } from "@stealthscale/component-typography";',
-  name: "Text",
-};
+type Props = Parameters<typeof session.Session>[0];
 
 /**
- * Draws a sentence, which is what a size, an ink or a motion is read against.
+ * Renders the release note in a 576px room.
  */
-function Sentence(props: TextProps): ReactElement {
-  const { t } = useWords("text");
-
-  return <Text {...props}>{t("reminder")}</Text>;
-}
-
-/**
- * Draws a short note, which is what a weight is read against beside its ink.
- */
-function Note(props: TextProps): ReactElement {
-  const { t } = useWords("text");
-
-  return <Text {...props}>{t("note")}</Text>;
-}
-
-/**
- * Draws a passage of several lines, which is what an alignment, a cut or a mask needs to show.
- */
-function Passage(props: TextProps): ReactElement {
-  const { t } = useWords("text");
-
-  return <Text {...props}>{t("passage")}</Text>;
-}
-
-/**
- * Draws a summary, which is what a motion is read against.
- */
-function Summary(props: TextProps): ReactElement {
-  const { t } = useWords("text");
-
-  return <Text {...props}>{t("summary")}</Text>;
+function columned(props: Props): ReactElement {
+  return (
+    <Room size="xl">
+      <release.Release {...props} />
+    </Room>
+  );
 }
 
 export default specimen({
   about: "text.about",
   id: "components/typography/text",
   imports: 'import { Text } from "@stealthscale/component-typography";',
-  scenes: scenesOf<TextProps>(recipe, {
+  scenes: scenesOf<Props>(recipe, {
     axes: {
-      align: { direction: "column", draw: (props) => <Passage {...props} /> },
-      mask: { direction: "column", draw: (props) => <Passage {...props} /> },
-      motion: { draw: (props) => <Summary {...props} /> },
-      tone: { across: "weight", draw: (props) => <Note {...props} /> },
-      truncate: { direction: "column", draw: (props) => <Passage {...props} /> },
+      align: { direction: "column", draw: columned, example: release },
+      mask: { direction: "column", draw: columned, example: release },
+      tone: {
+        across: "weight",
+        draw: (props) => grounded(props.tone, <payment.Payment {...props} />),
+        example: payment,
+      },
+      truncate: { direction: "column", draw: columned, example: release },
     },
-    draw: (props) => <Sentence {...props} />,
+    draw: (props) => <session.Session {...props} />,
+    example: session,
     namespace: "text",
     order: ["size", "tone", "align", "truncate", "motion", "mask"],
-    sample: SAMPLE,
   }),
   title: "text.title",
 });

@@ -8,14 +8,14 @@ import { recipeClasses, variantClass } from "@stealthscale/testing-theme";
 import { PropsProvider, withContext } from "#text/context.ts";
 
 describe("context", () => {
-  it("draws the recipe's class on an element it binds", () => {
+  it("applies the text class to a bound element", () => {
     const Probe = withContext("span");
     const { container } = render(createElement(Probe, null, "Words"));
 
     expect(recipeClasses(container, "text")).toContain("text");
   });
 
-  it("hands a provider's variants to an element below it", () => {
+  it("applies the size set by PropsProvider to a bound element below it", () => {
     const Probe = withContext("span");
     const { container } = render(
       createElement(PropsProvider, { value: { size: "lg" } }, createElement(Probe, null, "Words")),
