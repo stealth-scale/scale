@@ -1,12 +1,11 @@
 /**
- * Reads every source file under a package's `src`: the specification beside it, the packages it
- * imports, and whether its suffix matches what it holds.
+ * Checks that each source file under `src` has a spec, declares its imports and carries the right
+ * suffix.
  *
  * @remarks
- *   The pairing is by path rather than by what a specification imports, so a file whose cases were
- *   folded into a sibling's specification reads as uncovered. That is the point: a reader opening a
- *   source file finds its cases in one place, and a file nobody wrote cases for is visible without
- *   reading any of them.
+ *   Specs are paired with sources by path, not by what they import. A source tested only through a
+ *   sibling's spec counts as uncovered. The pairing is deliberate: the cases of each source have
+ *   one predictable location, and an untested file is visible in the file tree.
  */
 
 import { existsSync, globSync, readFileSync } from "node:fs";
@@ -15,47 +14,54 @@ import { basename, join } from "node:path";
 import { type Published } from "#manifest.ts";
 
 /**
- * The files a package's sources are found in.
+ * Glob matching the source files of a package.
  */
 const SOURCES = "src/**/*.{ts,tsx}";
 
 /**
- * The suffixes a file carries when it is not itself a source.
+ * File suffixes excluded from the source checks.
  *
  * @remarks
- *   A specimen belongs here for the reason a fixture does. It declares a page for a catalogue to
- *   draw rather than behaviour to assert, and it runs in the catalogue rather than in the package
- *   it documents, so it resolves what it imports through the workspace root.
+ *   Spec, fixtures, specimen and example files run in the workspace, under a test runner or in the
+ *   catalogue. They resolve imports through the workspace root and ship no behaviour. Declaration
+ *   files compile to nothing.
  */
-const APART = [".spec.ts", ".spec.tsx", ".fixtures.ts", ".fixtures.tsx", ".specimen.tsx", ".d.ts"];
+const APART = [
+  ".spec.ts",
+  ".spec.tsx",
+  ".fixtures.ts",
+  ".fixtures.tsx",
+  ".specimen.tsx",
+  ".example.tsx",
+  ".d.ts",
+];
 
 /**
- * The files a barrel is named, which gather a block rather than declare one.
+ * Barrel file names. A barrel re-exports other modules and declares nothing.
  */
 const BARRELS = new Set(["index.ts", "index.tsx"]);
 
 /**
- * The suffixes a specification may carry, whichever suffix its source has.
+ * Accepted spec suffixes, independent of the suffix of the source.
  */
 const BESIDE = [".spec.ts", ".spec.tsx"];
 
 /**
- * Matches a line that exports something.
+ * Matches a line that starts with an export.
  */
 const EXPORTS = /^export\b/mu;
 
 /**
- * Matches a line that exports a type and nothing that survives compilation.
+ * Matches a line that exports only a type or an interface.
  */
 const EXPORTS_TYPE = /^export (?:interface|type)\b/mu;
 
 /**
- * Matches the specifier of every module a file imports or re-exports.
+ * Capture the specifier of each import and re-export in a file.
  *
  * @remarks
- *   Both patterns start at a line, because a statement does, and neither crosses a quote or a
- *   semicolon. That is what keeps an import written inside a template literal out, which a package
- *   generating code for somebody else writes and never runs itself.
+ *   Both patterns anchor at the start of a line and never cross a quote or a semicolon. The anchors
+ *   exclude imports inside template literals, such as code a generator emits for another package.
  */
 const SPECIFIERS = [
   /^\s*(?:import|export)\b[^"';]*?\bfrom\s*"([^"]+)"/gmu,
@@ -63,13 +69,12 @@ const SPECIFIERS = [
 ];
 
 /**
- * Matches a closing or self-closing tag, which no file without JSX carries.
+ * Matches a closing or self-closing JSX tag.
  */
 const TAGS = /<\/[A-Za-z][\w.]*>|\/>/u;
 
 /**
- * Tells whether a path is a source rather than a specification or a fixture, and rather than a
- * barrel unless barrels count.
+ * Returns true for a published source file. A barrel counts only when `barrels` is true.
  */
 function named(path: string, barrels: boolean): boolean {
   const file = basename(path);
@@ -78,12 +83,12 @@ function named(path: string, barrels: boolean): boolean {
 }
 
 /**
- * Tells whether a file contributes anything a specification could run.
+ * Returns true when the file exports a runtime value or exports nothing.
  *
  * @remarks
- *   A module whose every export is an `export type` or an `export interface` compiles to nothing,
- *   so there is no behaviour to write cases against. The test reads the text rather than the syntax
- *   tree, which is enough because an export written any other way puts a value in the output.
+ *   A module that exports only types and interfaces compiles to nothing, so it has no behaviour to
+ *   test. The check scans text lines instead of the AST, which is sufficient because every other
+ *   export form emits a value.
  */
 function declares(at: string, path: string): boolean {
   const held = readFileSync(join(at, path), "utf8");
@@ -93,18 +98,16 @@ function declares(at: string, path: string): boolean {
 }
 
 /**
- * Reports every source file with no specification beside it.
+ * Reports every source file without a spec beside it.
  *
  * @remarks
- *   A barrel is left alone unless the package asks for barrels. It re-exports what the files
- *   around it declare, and the conformance specification every package already runs is what
- *   reads a barrel. A component package asks for barrels, because a barrel there is where a
- *   component's public surface is written and where a recipe or a binding leaks out. A fixture,
- *   a declaration file and a module exporting types alone are left alone in every package, since
- *   none of them holds behaviour of its own.
- * @param at - The directory holding the package's manifest.
- * @param barrels - Whether a barrel needs a specification beside it too.
- * @returns One violation per source file with no specification, or an empty array.
+ *   Barrels are skipped unless `barrels` is true, because the conformance spec of the package
+ *   already covers them. Component packages set `barrels`, because their barrels define the public
+ *   surface of each component. Fixtures, declaration files and type-only modules are always
+ *   skipped.
+ * @param at - Directory containing the package manifest.
+ * @param barrels - Whether barrels also require a spec.
+ * @returns One violation per source file without a spec, or an empty array.
  */
 export function specs(at: string, barrels = false): readonly string[] {
   const found = globSync(SOURCES, { cwd: at }).filter(
@@ -118,22 +121,21 @@ export function specs(at: string, barrels = false): readonly string[] {
 }
 
 /**
- * Matches a specifier that opens with a scheme, which names something other than a package.
+ * Matches a specifier with a URL scheme, such as `node:path` or `virtual:i18n`.
  *
  * @remarks
- *   `node:path` is a builtin and `virtual:i18n` is a module a bundler plugin answers. Neither is
- *   installed, so neither is a manifest's to declare. A scoped package opens with `@` and a package
- *   name carries no colon, so nothing installed matches this.
+ *   Builtins come from the runtime and virtual modules from bundler plugins, so neither belongs in
+ *   a manifest. A package name cannot contain a colon, so no installed package matches.
  */
 const SCHEME = /^[a-z][a-z\d+.-]*:/u;
 
 /**
- * Reads the package a specifier names, or nothing where it names a file, a builtin or a virtual
- * module.
+ * Returns the package name of a specifier, or undefined for a relative path, a `#` subpath, a
+ * builtin or a virtual module.
  *
  * @remarks
- *   A subpath is dropped, so `@acme/theme/authoring` reads as `@acme/theme`, because a manifest
- *   declares the package and not the entry a file reached it through.
+ *   Subpaths are dropped, so `@acme/theme/authoring` resolves to `@acme/theme`. A manifest declares
+ *   packages, not entry points.
  */
 function packageOf(specifier: string): string | undefined {
   if (specifier.startsWith(".") || specifier.startsWith("#") || SCHEME.test(specifier)) {
@@ -146,16 +148,15 @@ function packageOf(specifier: string): string | undefined {
 }
 
 /**
- * Reports every package a source imports that the manifest does not declare.
+ * Reports every package a source file imports without the manifest declaring it.
  *
  * @remarks
- *   A source runs in whatever installed the package, so what it imports has to be a dependency or
- *   a peer. A specification is read past, because it runs in the workspace and resolves the
- *   testing kits through the root. Neither `publint` nor `attw` reads an import, so a package
- *   importing something it never declared installs and then fails at run time.
- * @param at - The directory holding the package's manifest.
- * @param published - The parsed manifest.
- * @returns One violation per undeclared package, naming the file that imports it.
+ *   A published source runs in the consumer's install, so every import must be a dependency or a
+ *   peer dependency. Files matching {@link APART} are skipped. `publint` and `attw` do not read
+ *   imports, so an undeclared import installs cleanly and fails at runtime.
+ * @param at - Directory containing the package manifest.
+ * @param published - Parsed manifest.
+ * @returns One violation per undeclared package, naming the importing file.
  */
 export function declared(at: string, published: Published): readonly string[] {
   const allowed = new Set([
@@ -179,14 +180,13 @@ export function declared(at: string, published: Published): readonly string[] {
 }
 
 /**
- * Reports every file suffixed `.tsx` that writes no JSX.
+ * Reports every `.tsx` file that contains no JSX.
  *
  * @remarks
- *   A file is named for what it holds, and a suffix that promises JSX where there is none sends a
- *   reader looking for markup that was never written. The other way round needs no check, because
- *   a compiler refuses JSX in a `.ts` file.
- * @param at - The directory holding the package's manifest.
- * @returns One violation per file, or an empty array.
+ *   The `.tsx` suffix promises JSX. The reverse needs no check, because the compiler rejects JSX in
+ *   a `.ts` file.
+ * @param at - Directory containing the package manifest.
+ * @returns One violation per `.tsx` file without JSX, or an empty array.
  */
 export function jsx(at: string): readonly string[] {
   return globSync(SOURCES, { cwd: at })
