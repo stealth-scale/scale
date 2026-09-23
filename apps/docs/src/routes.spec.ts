@@ -1,9 +1,51 @@
 import { describe, expect, it } from "vitest";
 
+import { type RouteDeclaration } from "@stealthscale/provider-router";
 import { routerOver } from "@stealthscale/testing-router";
 
 import { opened } from "#app.fixtures.tsx";
-import { buildTree } from "#routes.tsx";
+import { COMPILED } from "#catalogue.ts";
+import { buildTree, rerouted, routed } from "#routes.tsx";
+
+/**
+ * A page the index did not hold when the router was built, nested as the button's page is.
+ */
+const GAINED: RouteDeclaration = {
+  ...COMPILED.find((one) => one.id === "specimen.components.actions.button"),
+  component: () => null,
+  id: "specimen.components.data.gained",
+  path: "components/data/gained",
+};
+
+describe("rerouted", () => {
+  it("keeps the route tree when the compiled routes are unchanged", () => {
+    const router = routed();
+    const tree = router.routeTree;
+
+    rerouted(router);
+
+    expect(router.routeTree).toBe(tree);
+  });
+
+  it("adds a gained page to the route tree when the compiled routes change", () => {
+    const router = routed();
+
+    rerouted(router, [...COMPILED, GAINED]);
+
+    expect(Object.keys(router.routesById)).toContain("/_docs.frame/components/data/gained");
+  });
+
+  it("builds the tree once for the same changed routes", () => {
+    const router = routed();
+    const changed = [...COMPILED, GAINED];
+
+    rerouted(router, changed);
+    const tree = router.routeTree;
+    rerouted(router, changed);
+
+    expect(router.routeTree).toBe(tree);
+  });
+});
 
 describe("buildTree", () => {
   it("serves the catalogue under its own path inside the frame", () => {

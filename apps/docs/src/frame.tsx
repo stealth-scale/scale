@@ -1,6 +1,6 @@
 /**
- * Draws the frame every page is drawn in: a bar across the top, the rail down the side, and the
- * page in the room left over.
+ * Renders the layout every catalogue page is rendered in: a bar at the top, the rail at the side
+ * and the page in the remaining space.
  */
 
 import { type ReactElement, useState } from "react";
@@ -8,38 +8,39 @@ import { type ReactElement, useState } from "react";
 import { SkipNav } from "@stealthscale/component-a11y";
 import { AppShell, Sidebar } from "@stealthscale/component-screen";
 import { useTranslation } from "@stealthscale/provider-i18n";
-import { type LayoutProps } from "@stealthscale/provider-router";
+import { type LayoutProps, useRouteContext } from "@stealthscale/provider-router";
 import { Rail, RailSearch } from "@stealthscale/specimen";
 import { css } from "@stealthscale/theme";
 
-import { COMPILED } from "#catalogue.ts";
+import { type CatalogueContext, COMPILED } from "#catalogue.ts";
 import { Bar } from "#chrome/bar.tsx";
 
 /**
- * The room the bar keeps round what it holds.
+ * The padding of the bar: the medium gap above and below, and the large gap at the sides.
  *
  * @remarks
- *   The shell's bar is a bare container, so the inset is this application's. One gap above and
- *   below, and a larger one at the sides, which is where the rail's own inset starts.
+ *   The shell's header sets no padding, so the application sets it. The large gap at the sides
+ *   matches the start of the rail's own inset.
  */
 const barred = css({ paddingBlock: "gap.md", paddingInline: "gap.lg" });
 
 /**
- * Draws the shell around whichever page the router matched.
+ * Renders the shell around the page the router matched.
  *
  * @remarks
- *   The navigation folds over the page below the middle breakpoint, and the control in the bar
- *   opens it there. The sidebar is drawn on the muted ground and draws no line of its own, because
- *   the shell parts it from the page. The search at its head narrows the rail to the pages whose
- *   words a reader types, and the words are this frame's state, so the rail and the field read
- *   one value. The main region is the place the skip link jumps to, so a keyboard passes the bar
- *   and the rail in one press.
+ *   Below the middle breakpoint the navigation opens over the page, from the control in the bar.
+ *   The sidebar uses the subtle look without a border. The search field filters the rail, and its
+ *   value is state in this component, which the field and the rail both read. The main region is
+ *   the skip link's target, so one key press moves focus past the bar and the rail. The rail lists
+ *   the declarations in the router context, which the router's route map was built from, so every
+ *   link it renders resolves.
  * @param props - The page the router matched.
- * @returns The shell, holding it.
+ * @returns The shell around the page.
  */
 export function Frame({ children }: LayoutProps): ReactElement {
   const { t } = useTranslation("docs");
   const [query, setQuery] = useState("");
+  const context: CatalogueContext = useRouteContext({ strict: false });
 
   return (
     <AppShell.Root>
@@ -54,7 +55,7 @@ export function Frame({ children }: LayoutProps): ReactElement {
               <RailSearch onValueChange={setQuery} value={query} />
             </Sidebar.Header>
             <Sidebar.Content>
-              <Rail declarations={COMPILED} query={query} />
+              <Rail declarations={context.declarations ?? COMPILED} query={query} />
             </Sidebar.Content>
           </Sidebar.Root>
         </AppShell.Navbar>
