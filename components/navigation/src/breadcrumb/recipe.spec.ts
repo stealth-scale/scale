@@ -23,15 +23,20 @@ describe("recipe", () => {
     expect(recipe.className).toBe("breadcrumb");
   });
 
-  it("draws the six parts a trail is composed of", () => {
+  it("draws the seven parts a trail is composed of", () => {
     expect([...recipe.slots].toSorted()).toStrictEqual([
       "currentLink",
+      "ellipsis",
       "item",
       "link",
       "list",
       "root",
       "separator",
     ]);
+  });
+
+  it("draws the mark for the steps left out in the muted ink", () => {
+    expect(recipe.base?.["ellipsis"]).toMatchObject({ color: "fg.muted" });
   });
 
   it("offers the two axes a trail takes", () => {

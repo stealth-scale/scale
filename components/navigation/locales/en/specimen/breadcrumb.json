@@ -1,12 +1,21 @@
 {
   "about": "Draws the path from the front of a site to the page a person is on.",
   "april": "April",
+  "deep": {
+    "about": "A trail down a deep hierarchy with its middle left out. Six steps drawn in full run past the width a header gives a trail, and a trail that wraps onto a second line stops reading as one path. The mark carries a name saying how many steps it stands for, because a trail that skipped four in silence reads as a two-step trail.",
+    "title": "A trail with its middle left out"
+  },
+  "dropped": "{{count}} more steps",
   "home": "Home",
   "invoices": "Invoices",
+  "size": {
+    "about": "Every step the trail is read at, one under another. Drawn side by side the widest step had nowhere to go and broke its trail over two lines, which is the one thing a trail must not do.",
+    "title": "Sizes"
+  },
   "title": "Breadcrumb",
   "trail": "Trail",
   "variant": {
-    "about": "Both looks at every size. The last crumb is not a link and is the one at full strength.",
-    "title": "Looks and sizes"
+    "about": "Both looks. The last crumb is not a link and is the one at full strength.",
+    "title": "Looks"
   }
 }

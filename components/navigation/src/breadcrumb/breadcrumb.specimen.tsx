@@ -11,7 +11,7 @@
 
 import { type ReactElement } from "react";
 
-import { landmarked, scenesOf, specimen, useWords } from "@stealthscale/specimen";
+import { landmarked, type Scene, scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
 import * as Breadcrumb from "#breadcrumb/index.ts";
 import { recipe } from "#breadcrumb/recipe.ts";
@@ -66,15 +66,60 @@ function Trail(props: Breadcrumb.RootProps): ReactElement {
   );
 }
 
+/**
+ * Draws a trail down a deep hierarchy with its middle left out.
+ *
+ * @remarks
+ *   Six steps drawn in full run past the width a header gives a trail and wrap onto a second line,
+ *   where they stop reading as one path. The first step, the mark and the page a reader is on are
+ *   what a trail is for, so the four between them are dropped and the mark says so. The mark is
+ *   named rather than hidden: a trail that skipped four steps in silence reads as a two-step
+ *   trail, which is a different hierarchy.
+ */
+function Deep(): ReactElement {
+  const { t } = useWords("breadcrumb");
+
+  return (
+    <Breadcrumb.Root aria-label={t("trail")}>
+      <Breadcrumb.List>
+        <Breadcrumb.Item>
+          <Breadcrumb.Link href="#home">{t("home")}</Breadcrumb.Link>
+        </Breadcrumb.Item>
+        <Breadcrumb.Separator>{MARK}</Breadcrumb.Separator>
+        <Breadcrumb.Ellipsis aria-label={t("dropped", { count: 4 })}>…</Breadcrumb.Ellipsis>
+        <Breadcrumb.Separator>{MARK}</Breadcrumb.Separator>
+        <Breadcrumb.Item>
+          <Breadcrumb.CurrentLink>{t("april")}</Breadcrumb.CurrentLink>
+        </Breadcrumb.Item>
+      </Breadcrumb.List>
+    </Breadcrumb.Root>
+  );
+}
+
+/**
+ * A trail with its middle left out.
+ */
+export const deep: Scene = {
+  about: "breadcrumb.deep.about",
+  draw: Deep,
+  title: "breadcrumb.deep.title",
+};
+
 export default specimen({
   about: "breadcrumb.about",
   id: "components/navigation/breadcrumb",
   imports: 'import { Breadcrumb } from "@stealthscale/component-navigation";',
-  scenes: scenesOf<Breadcrumb.RootProps>(recipe, {
-    axes: { variant: { across: "size" } },
-    draw: (props) => <Trail {...props} />,
-    namespace: "breadcrumb",
-    sample: SAMPLE,
-  }),
+  scenes: [
+    ...scenesOf<Breadcrumb.RootProps>(recipe, {
+      axes: {
+        size: { direction: "column" },
+        variant: { direction: "column" },
+      },
+      draw: (props) => <Trail {...props} />,
+      namespace: "breadcrumb",
+      sample: SAMPLE,
+    }),
+    deep,
+  ],
   title: "breadcrumb.title",
 });

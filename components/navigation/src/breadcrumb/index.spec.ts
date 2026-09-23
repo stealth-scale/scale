@@ -6,6 +6,7 @@ describe("index", () => {
   it("names every part and nothing beside it", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "CurrentLink",
+      "Ellipsis",
       "Item",
       "Link",
       "List",

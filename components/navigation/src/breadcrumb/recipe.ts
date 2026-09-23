@@ -30,6 +30,7 @@ import {
 export const recipe = defineSlotRecipe({
   base: {
     currentLink: { alignItems: "center", display: "inline-flex", gap: dense("{spacing.gap.xs}") },
+    ellipsis: { alignItems: "center", color: "fg.muted", display: "inline-flex" },
     item: { alignItems: "center", display: "inline-flex" },
     link: {
       alignItems: "center",
@@ -55,7 +56,7 @@ export const recipe = defineSlotRecipe({
   className: "breadcrumb",
   defaultVariants: { size: "md", variant: "plain" },
   jsx: [/^Breadcrumb(\.\w+)?$/u],
-  slots: ["root", "list", "item", "link", "currentLink", "separator"],
+  slots: ["root", "list", "item", "link", "currentLink", "ellipsis", "separator"],
   variants: {
     /**
      * How big the trail is read at, which every part inherits from the root.
