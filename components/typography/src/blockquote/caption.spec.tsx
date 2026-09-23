@@ -15,7 +15,7 @@ function quoted(children: ReactNode): ReactElement {
 }
 
 describe("Caption", () => {
-  it("conforms as a figcaption element inside the root it needs above it", () => {
+  it("passes the component conformance checks as a figcaption element inside Root", () => {
     expect(
       violations(Caption, {
         as: true,
@@ -27,7 +27,7 @@ describe("Caption", () => {
     ).toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value to the caption slot", () => {
     expect(
       boundViolations(
         recipe,

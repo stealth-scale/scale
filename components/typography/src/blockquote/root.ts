@@ -1,10 +1,9 @@
 /**
- * Draws the figure a quotation sits in, which takes the variants for every part below it.
+ * Renders the root of a block quotation.
  *
  * @remarks
- *   The element is `figure`, because a quotation with a caption is a self-contained figure, and
- *   the caption is its `figcaption`. The root takes the look, the size, the alignment, the status
- *   and the motion, and hands them to the parts.
+ *   The element is `figure`, because a quotation with a caption is a self-contained figure and the
+ *   caption is its `figcaption`. The root takes the variants and passes them to the other parts.
  */
 
 import { type ComponentProps } from "react";
@@ -12,13 +11,12 @@ import { type ComponentProps } from "react";
 import { withProvider } from "#blockquote/context.ts";
 
 /**
- * Draws the figure, in a look, a size, an alignment, a status and a motion, and hands them to
- * every part.
+ * Renders a `figure` element with the root slot's classes and provides the variants to the parts.
  */
 export const Root = withProvider("figure", "root");
 
 /**
- * Describes what a blockquote takes: the variants its recipe offers, and everything a styled
- * figure element takes.
+ * Describes the props of Blockquote.Root: the recipe's variants and the props of a `figure`
+ * element.
  */
 export type RootProps = ComponentProps<typeof Root>;

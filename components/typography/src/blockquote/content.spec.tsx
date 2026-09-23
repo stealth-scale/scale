@@ -15,7 +15,7 @@ function quoted(children: ReactNode): ReactElement {
 }
 
 describe("Content", () => {
-  it("conforms as a blockquote element inside the root it needs above it", () => {
+  it("passes the component conformance checks as a blockquote element inside Root", () => {
     expect(
       violations(Content, {
         as: true,
@@ -27,7 +27,7 @@ describe("Content", () => {
     ).toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value to the content slot", () => {
     expect(
       boundViolations(
         recipe,

@@ -1,9 +1,8 @@
 /**
- * Draws the words of a quotation.
+ * Renders the text of a block quotation.
  *
  * @remarks
- *   The element is `blockquote`, which a screen reader announces as a quotation. The content draws
- *   its slot in the variants the root was given, and the size sets its body role.
+ *   The element is `blockquote`. The root's `size` sets its body text style.
  */
 
 import { type ComponentProps } from "react";
@@ -11,11 +10,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#blockquote/context.ts";
 
 /**
- * Draws the quotation itself, in the body role of the size the root was given.
+ * Renders a `blockquote` element with the content slot's classes.
  */
 export const Content = withContext("blockquote", "content");
 
 /**
- * Describes what the content takes: everything a styled blockquote element takes.
+ * Describes the props of Blockquote.Content: the props of a `blockquote` element.
  */
 export type ContentProps = ComponentProps<typeof Content>;
