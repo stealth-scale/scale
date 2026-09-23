@@ -1,22 +1,22 @@
 {
-  "about": "Draws the artwork a caller passes in, at a size, in an ink and with a motion, and ships no artwork of its own.",
-  "arrow": "Arrow pointing right",
+  "about": "Renders an icon at a size, in a text ink and with a motion. The component ships no artwork: pass paths as children or an icon component through `as`.",
+  "arrow": "Next",
   "mirrored": {
-    "about": "A mark that points is mirrored, so it flips in a right-to-left page.",
+    "about": "An icon that points is mirrored in a right-to-left page. The arrow renders the same in this left-to-right page.",
     "title": "Mirrored"
   },
   "motion": {
-    "about": "Every motion: a spin for something loading, a float for something waiting, a twinkle for something new.",
+    "about": "`spin` for loading, `float` for waiting and `twinkle` for something new. Each stops under reduced motion.",
     "title": "Motion"
   },
   "size": {
-    "about": "Every size, from the line's own to the largest box.",
+    "about": "The eight steps of the icon scale, and `inherit`, which is the height of the surrounding text.",
     "title": "Sizes"
   },
-  "star": "Star",
+  "star": "Favourite",
   "title": "Icon",
   "tone": {
-    "about": "Every ink. The current one takes the ink of the text around it.",
+    "about": "Every text ink. `current` takes the ink of the surrounding text. The inverted ink is for a dark surface, so its cell renders on `bg.inverted`.",
     "title": "Inks"
   }
 }

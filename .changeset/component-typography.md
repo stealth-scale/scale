@@ -81,3 +81,52 @@ component-typography: give a scene that reads once the width runs out a room
 - `Text` takes all three fades the theme draws as `mask`: `bottom`, `edges` and `radial`. Only
   `bottom` was offered.
 - `Icon` offers every ink `Text` offers rather than five of the eight, beside its own `current`.
+
+component-typography: break a word wider than its container
+
+- `Text` and `Heading` set `overflow-wrap: anywhere`. A `4xl` heading measured 384px in a 354px card
+  at 420px. `break-word` does not lower the min-content width, which a flex or grid item is sized
+  from, so it left the overflow in place.
+
+component-typography: replace status with palette on Mark, Code and Blockquote
+
+- Breaking: `Mark`, `Code` and `Blockquote.Root` take `palette`, the eight semantic palettes, in
+  place of `status`. Replace `status="error"` with `palette="error"`. Every palette is listed in
+  `staticCss`.
+- `Mark`'s `plain` and `text` looks set no inline padding.
+- `Code`'s `solid` and `subtle` looks draw a `CanvasText` hairline in forced colours, where their
+  fill is removed.
+
+component-typography: split Kbd into Kbd.Root and Kbd.Group
+
+- Breaking: `Kbd` is a namespace. Replace `<Kbd>` with `<Kbd.Root>` and `KbdProps` with
+  `Kbd.RootProps`.
+- `Kbd.Group` renders a `kbd` around one `kbd` per key, 4px apart on one line, and sets its `size`,
+  `variant` and `palette` on every keycap inside it. A value set on a keycap takes precedence.
+- A keycap is 19.2, 21.6 and 24px tall at `sm`, `md` and `lg`, from the tag scale. It read the
+  control scale at 32, 36 and 40px. Its minimum width equals its height, its text is centred, and it
+  uses the body face, which renders `⌘` at the height of the letters.
+- The raised look's 2px foot reads `colorPalette.border`. The subtle look draws a `CanvasText`
+  hairline in forced colours.
+- Breaking: `Kbd.Root` takes `palette` in place of `status`.
+
+component-typography: hang the blockquote's mark in a gutter
+
+- The root is a grid. At `justify="start"` an icon hangs in a start gutter beside the quotation and
+  the caption, and at `center` and `end` it is above them. The icon is one line of the quotation
+  tall at every size: the root reads the body text style and the icon slot sets `font-size: 1lh`.
+- `Blockquote.Icon` renders the library's quote mark when it has no children.
+- The quotation is upright, with `text-wrap: pretty`. The gap between the parts is one step larger.
+  `plain` sets no start padding.
+- `variant="surface"` fills the root with `colorPalette.subtle`, renders the solid start rule and
+  rounds the end corners.
+
+component-typography: size a list indicator's icon to the text
+
+- `List.Indicator` is one line tall and centres its content. An `svg` inside it is `1em`.
+
+component-typography: keep the fill of an icon that sets one
+
+- `Icon` fills with the current colour only an `svg` without a `fill` attribute.
+  `<Icon as={StarIcon}>` from `lucide-react` keeps `fill="none"`. The base fill overrode it and
+  filled every lucide shape.

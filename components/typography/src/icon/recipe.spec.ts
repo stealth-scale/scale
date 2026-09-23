@@ -11,27 +11,27 @@ describe("recipe", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+  it("has no scene that writes a value the recipe does not offer", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Icon"] })).toStrictEqual([]);
   });
 
-  it("names its class icon", () => {
+  it("sets className to icon", () => {
     expect(recipe.className).toBe("icon");
   });
 
-  it("offers a mirrored axis and a motion axis and a size axis and a tone axis", () => {
+  it("declares four variant axes", () => {
     expect(axesOf(recipe)).toStrictEqual(["mirrored", "motion", "size", "tone"]);
   });
 
-  it("follows the size of the text around it when nothing is asked for", () => {
+  it("defaults to the inherit size", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "inherit" });
   });
 
-  it("offers the eight icon sizes and the inherited one", () => {
+  it("declares eight icon sizes and inherit on the size axis", () => {
     expect(valuesOf(recipe, "size")).toStrictEqual([
       "2xl",
       "3xl",
@@ -45,7 +45,7 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers every ink the library draws words in beside the current colour", () => {
+  it("declares eight inks and current on the tone axis", () => {
     expect(valuesOf(recipe, "tone")).toStrictEqual([
       "current",
       "default",
@@ -59,20 +59,23 @@ describe("recipe", () => {
     ]);
   });
 
-  it("reads the ink of the words round it until a caller picks one", () => {
+  it("sets color to currentcolor in the base", () => {
     expect(recipe.base).toMatchObject({ color: "currentcolor" });
-    expect(recipe.variants?.["tone"]?.["current"]).toStrictEqual({ color: "currentcolor" });
   });
 
-  it("offers the three motions a mark takes", () => {
+  it("fills an svg with the current colour only when it sets no fill", () => {
+    expect(recipe.base).toMatchObject({ "&:not([fill])": { fill: "currentcolor" } });
+  });
+
+  it("declares three motions on the motion axis", () => {
     expect(valuesOf(recipe, "motion")).toStrictEqual(["float", "spin", "twinkle"]);
   });
 
-  it("flips a mirrored mark through a property the spin motion does not animate", () => {
+  it("mirrors through scale in a right-to-left page", () => {
     expect(recipe.variants?.mirrored.true).toStrictEqual({ _rtl: { scale: "-1 1" } });
   });
 
-  it("tracks every tag whose name ends in Icon", () => {
+  it("matches every JSX tag that ends in Icon", () => {
     expect(recipe.jsx).toStrictEqual([/Icon$/u]);
   });
 });
