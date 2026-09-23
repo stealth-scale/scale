@@ -1,5 +1,5 @@
 /**
- * Re-exports the visually hidden component, its props type and its props provider.
+ * Exposes the visually hidden component and its props provider to the package barrel.
  */
 
 export { PropsProvider as VisuallyHiddenPropsProvider } from "#visually-hidden/context.ts";

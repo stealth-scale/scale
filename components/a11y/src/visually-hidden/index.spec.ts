@@ -3,14 +3,14 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#visually-hidden/index.ts";
 
 describe("index", () => {
-  it("limits its exports to VisuallyHidden and VisuallyHiddenPropsProvider", () => {
+  it("exports VisuallyHidden and VisuallyHiddenPropsProvider only", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "VisuallyHidden",
       "VisuallyHiddenPropsProvider",
     ]);
   });
 
-  it("exports no name prefixed with recipe with use or PropsProvider", () => {
+  it("exports no recipe binding or hook", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {

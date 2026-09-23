@@ -1,37 +1,48 @@
 /**
- * Styles for content that is announced but not painted, and for the variant that reveals it under
- * focus.
+ * Styles content that a screen reader announces and the browser does not paint.
  *
  * @remarks
- *   The hiding comes from the compiler's `srOnly` utility, which clips the element instead of
- *   applying `display: none` or `visibility: hidden`; either of those would drop the content from
- *   the accessibility tree as well as from the page. Anything reachable by keyboard has to become
- *   visible while it holds focus, or a sighted keyboard user loses track of where they are, so the
- *   `focusable` variant reverses the clipping under `:focus-visible` and pins the element to the
- *   start corner of the viewport above the rest of the page.
+ *   The base applies the `srOnly` utility, which clips the element to 1px and keeps it in the
+ *   accessibility tree. `display: none` and `visibility: hidden` remove it from the tree. The
+ *   `focusable` value cancels the clipping under `:focus-visible` and fixes the element to the
+ *   window's start corner, so a keyboard user sees the control that holds focus. The recipe has no
+ *   `palette` or `effect` axis, because the element renders nothing at rest.
  */
 
 import { defineRecipe, dense } from "@stealthscale/theme/authoring";
 
 /**
- * The `visually-hidden` recipe, matched against the `VisuallyHidden` JSX tag.
+ * Clips the element at rest.
  */
 export const recipe = defineRecipe({
   base: { srOnly: true },
   className: "visually-hidden",
   jsx: [/^VisuallyHidden$/u],
   variants: {
+    /**
+     * Reveals the element under keyboard focus, on the `fill.surface` layer style at the window's
+     * start corner.
+     *
+     * @remarks
+     *   The value resets each property the clipping sets. It does not use `srOnly: false`, which
+     *   expands to `position: static` and `padding: 0` and conflicts with the fixed position and
+     *   the padding.
+     */
     focusable: {
       true: {
         _focusVisible: {
+          blockSize: "auto",
           borderRadius: "l1",
+          clip: "auto",
+          inlineSize: "auto",
           insetBlockStart: dense("{spacing.inset.md}"),
           insetInlineStart: dense("{spacing.inset.md}"),
           layerStyle: "fill.surface",
+          margin: "0",
+          overflow: "visible",
           paddingBlock: dense("{spacing.inset.sm}"),
           paddingInline: dense("{spacing.inset.md}"),
           position: "fixed",
-          srOnly: false,
           textStyle: "label.md",
           zIndex: "skipNav",
         },

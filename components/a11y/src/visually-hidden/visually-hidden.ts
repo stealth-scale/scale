@@ -1,12 +1,11 @@
 /**
- * Renders content that assistive technology can reach and the browser never paints.
+ * Renders a visually hidden element through the visually-hidden recipe.
  *
  * @remarks
- *   The default element is a `span`, which contributes no semantics of its own; callers that need
- *   a landmark, a heading or a table cell override the element with `as`. The content is clipped
- *   rather than removed, so it remains in the accessibility tree. The usual cases are the
- *   accessible name of an icon-only control, a heading the document outline requires but the
- *   layout has no room for, and instructions that should be announced before a control.
+ *   The element is `span`, which has no semantics. `as` sets a heading or another element. The
+ *   usual content is the accessible name of an icon-only control, a heading the document outline
+ *   needs and the layout has no room for, and an instruction a screen reader reads before a
+ *   control.
  */
 
 import { type ComponentProps } from "react";
@@ -14,11 +13,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#visually-hidden/context.ts";
 
 /**
- * Exposes its children to assistive technology without rendering them visibly.
+ * Renders a `span` element with the classes of the visually-hidden recipe.
  */
 export const VisuallyHidden = withContext("span");
 
 /**
- * Props accepted by `VisuallyHidden`: the recipe's variants plus the props of a styled `span`.
+ * Describes the props of VisuallyHidden: the recipe's variants and the props of a `span` element.
  */
 export type VisuallyHiddenProps = ComponentProps<typeof VisuallyHidden>;

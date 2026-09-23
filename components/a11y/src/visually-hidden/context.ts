@@ -1,10 +1,9 @@
 /**
- * Connects the recipe to React.
+ * Binds the visually-hidden recipe to React.
  *
  * @remarks
- *   This is deliberately a separate module from `recipe.ts`. An application's compiler imports the
- *   recipe at build time, and a recipe module that also created the context would drag React into
- *   every compiler configuration that reads it.
+ *   The binding is a separate module from the recipe, because the theme compiler imports the recipe
+ *   at build time and must not load the React runtime.
  */
 
 import { createRecipeContext } from "@stealthscale/theme";
@@ -12,7 +11,10 @@ import { createRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#visually-hidden/recipe.ts";
 
 /**
- * A single binding of the recipe, shared by the component and by any ancestor that supplies its
- * variants through the provider.
+ * Creates the visually-hidden recipe's `withContext` binding and its `PropsProvider`.
+ *
+ * @remarks
+ *   `PropsProvider` sets variants on every element bound below it. The package exports it as
+ *   `VisuallyHiddenPropsProvider`.
  */
 export const { PropsProvider, withContext } = createRecipeContext(recipe);

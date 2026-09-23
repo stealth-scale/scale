@@ -8,19 +8,19 @@ import { recipe } from "#visually-hidden/recipe.ts";
 import { VisuallyHidden } from "#visually-hidden/visually-hidden.ts";
 
 describe("VisuallyHidden", () => {
-  it("satisfies the component contract with span as its default element", () => {
+  it("passes the component conformance checks as a span element", () => {
     expect(violations(VisuallyHidden, { as: true, children: true, element: "SPAN" })).toStrictEqual(
       [],
     );
   });
 
-  it("reports no axe violation when it renders text", async () => {
+  it("returns no accessibility violation with text", async () => {
     await expect(
       accessibilityViolations(VisuallyHidden, { props: { children: "Loading" } }),
     ).resolves.toStrictEqual([]);
   });
 
-  it("emits a class for every variant value the recipe declares", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(
         recipe,
@@ -29,13 +29,13 @@ describe("VisuallyHidden", () => {
     ).toStrictEqual([]);
   });
 
-  it("leaves aria-hidden unset on the element holding its children", () => {
+  it("leaves aria-hidden unset on the element with the text", () => {
     const { getByText } = render(<VisuallyHidden>Loading</VisuallyHidden>);
 
     expect(getByText("Loading").getAttribute("aria-hidden")).toBeNull();
   });
 
-  it("renders the recipe element as h2 when as is h2", () => {
+  it("renders an h2 when as is h2", () => {
     const { container } = render(<VisuallyHidden as="h2">Sections</VisuallyHidden>);
 
     expect(recipeElement(container, "visually-hidden").tagName).toBe("H2");

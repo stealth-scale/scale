@@ -11,11 +11,11 @@ describe("recipe", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+  it("has no scene that writes a value the recipe does not offer", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("reports no violation across the shared recipe checks", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["VisuallyHidden"] })).toStrictEqual([]);
   });
 
@@ -27,7 +27,7 @@ describe("recipe", () => {
     expect(recipe.base).toStrictEqual({ srOnly: true });
   });
 
-  it("declares focusable as its only variant", () => {
+  it("declares one variant axis", () => {
     expect(axesOf(recipe)).toStrictEqual(["focusable"]);
   });
 
@@ -35,13 +35,19 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "focusable")).toStrictEqual(["true"]);
   });
 
-  it("cancels srOnly under focus-visible when focusable is true", () => {
+  it("fixes the element under focus-visible when focusable is true", () => {
     expect(recipe.variants?.["focusable"]).toMatchObject({
-      true: { _focusVisible: { position: "fixed", srOnly: false, zIndex: "skipNav" } },
+      true: { _focusVisible: { clip: "auto", position: "fixed", zIndex: "skipNav" } },
     });
   });
 
-  it("matches the VisuallyHidden tag with its jsx pattern", () => {
+  it("sets no srOnly under focus-visible when focusable is true", () => {
+    expect(recipe.variants?.["focusable"]?.["true"]?.["_focusVisible"]).not.toHaveProperty(
+      "srOnly",
+    );
+  });
+
+  it("matches the VisuallyHidden JSX tag", () => {
     expect(recipe.jsx).toStrictEqual([/^VisuallyHidden$/u]);
   });
 });

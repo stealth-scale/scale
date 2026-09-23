@@ -1,79 +1,71 @@
 /**
- * Catalogue entry for `VisuallyHidden`, covering both values of its `focusable` variant.
+ * Catalogue page for the visually hidden component.
  *
  * @remarks
- *   The scene is generated from the recipe, so an axis added to it reaches the page without this
- *   file changing. The `false` cell is the common case, an icon-only button whose accessible name
- *   is hidden text; the `true` cell makes the hidden text the control itself, so it can be seen
- *   once it takes focus. The two cells are drawn differently rather than from one call, because a
- *   hidden label and a hidden control are two arrangements rather than one arrangement twice. Copy
- *   comes from the `visually-hidden` namespace in `locales/en/specimen/visually-hidden.json`.
+ *   Two hand-written scenes render the component. The name scene hides the name of an icon-only
+ *   button. The focusable scene renders a page section whose first control is hidden until
+ *   keyboard focus, inside `Contained`, so Tab reveals the control at the section's corner and not
+ *   at the window's. At rest the scene shows what a pointer user sees, so a still image shows no
+ *   control. Every scene renders a component from `examples/` and shows that file as its source.
+ *   The words are keys under `visually-hidden` in `locales/en/specimen/visually-hidden.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
-import { Icon } from "@stealthscale/component-typography";
-import { scenesOf, specimen, useWords } from "@stealthscale/specimen";
+import { Contained, Room, Sample, type Scene, specimen } from "@stealthscale/specimen";
 
-import { recipe } from "#visually-hidden/recipe.ts";
-import { VisuallyHidden, type VisuallyHiddenProps } from "#visually-hidden/visually-hidden.ts";
+import * as close from "#visually-hidden/examples/close.example.tsx";
+import * as shortcuts from "#visually-hidden/examples/shortcuts.example.tsx";
 
 /**
- * Button props supplied once from above, so both cells share a variant.
+ * Renders the close button at its own width in a sample.
  */
-const OUTLINE = { variant: "outline" } as const;
+function Named(): ReactElement {
+  return (
+    <Sample>
+      <close.Close />
+    </Sample>
+  );
+}
 
 /**
- * Path data for a close glyph, drawn against a 24 by 24 viewBox.
+ * Renders the page section in a 512px room that contains its fixed control.
  */
-const CROSS = "M6 6l12 12M18 6 6 18";
+function Focusable(): ReactElement {
+  return (
+    <Room size="lg">
+      <Contained>
+        <shortcuts.Shortcuts />
+      </Contained>
+    </Room>
+  );
+}
 
 /**
- * The call site the scene's source snippet is generated from.
+ * Hand-written scene for hidden text that names an icon-only button.
  */
-const SAMPLE = {
-  children: "Close",
-  imports: 'import { VisuallyHidden } from "@stealthscale/component-a11y";',
-  name: "VisuallyHidden",
+export const named: Scene = {
+  about: "visually-hidden.name.about",
+  draw: Named,
+  example: close,
+  title: "visually-hidden.name.title",
 };
 
 /**
- * Draws hidden text as the name of an icon button, or as a control that appears once focused.
+ * Hand-written scene for a hidden control that appears under keyboard focus.
  */
-function Hidden({ focusable }: VisuallyHiddenProps): ReactElement {
-  const { t } = useWords("visually-hidden");
-
-  if (focusable === true) {
-    return (
-      <ButtonPropsProvider value={OUTLINE}>
-        <VisuallyHidden as={Button} focusable>
-          {t("close")}
-        </VisuallyHidden>
-      </ButtonPropsProvider>
-    );
-  }
-
-  return (
-    <ButtonPropsProvider value={OUTLINE}>
-      <Button shape="square">
-        <Icon viewBox="0 0 24 24">
-          <path d={CROSS} fill="none" stroke="currentColor" strokeWidth="2" />
-        </Icon>
-        <VisuallyHidden>{t("close")}</VisuallyHidden>
-      </Button>
-    </ButtonPropsProvider>
-  );
-}
+export const focusable: Scene = {
+  about: "visually-hidden.focusable.about",
+  axes: ["focusable"],
+  draw: Focusable,
+  example: shortcuts,
+  title: "visually-hidden.focusable.title",
+};
 
 export default specimen({
   about: "visually-hidden.about",
   id: "components/a11y/visually-hidden",
   imports: 'import { VisuallyHidden } from "@stealthscale/component-a11y";',
-  scenes: scenesOf<VisuallyHiddenProps>(recipe, {
-    draw: (props) => <Hidden {...props} />,
-    namespace: "visually-hidden",
-    sample: SAMPLE,
-  }),
+  scenes: [named, focusable],
   title: "visually-hidden.title",
 });
