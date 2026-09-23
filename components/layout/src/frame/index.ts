@@ -1,5 +1,5 @@
 /**
- * Publishes the frame: a box of a fixed shape that holds a picture, a video or a map.
+ * Exposes the frame component and its props provider to the package barrel.
  */
 
 export { PropsProvider as FramePropsProvider } from "#frame/context.ts";

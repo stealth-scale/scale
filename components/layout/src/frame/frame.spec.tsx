@@ -8,11 +8,11 @@ import { Frame } from "#frame/frame.ts";
 import { recipe } from "#frame/recipe.ts";
 
 describe("Frame", () => {
-  it("conforms as a div element", () => {
+  it("passes the component conformance checks as a div element", () => {
     expect(violations(Frame, { as: true, children: true, element: "DIV" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule holding a named picture", async () => {
+  it("returns no accessibility violation with a named picture", async () => {
     await expect(
       accessibilityViolations(Frame, {
         props: { children: <img alt="A hillside" src="/hill.avif" /> },
@@ -20,13 +20,13 @@ describe("Frame", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(recipe, (props) => render(<Frame {...props} />).container),
     ).toStrictEqual([]);
   });
 
-  it("draws the element as names", () => {
+  it("renders a figure when as is figure", () => {
     const { container } = render(<Frame as="figure" />);
 
     expect(recipeElement(container, "frame").tagName).toBe("FIGURE");

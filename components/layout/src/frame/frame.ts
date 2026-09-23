@@ -1,10 +1,9 @@
 /**
- * Draws a frame through its recipe.
+ * Renders a frame through the frame recipe.
  *
  * @remarks
- *   The element is `div` and what it holds is the caller's picture, video or map. A frame that is
- *   a figure on the page changes the element with `as="figure"`. The frame names nothing itself,
- *   so the alternative text stays with the picture inside it, where a screen reader reads it.
+ *   The element is `div`, which has no semantics. A frame that is a figure sets `as="figure"`. The
+ *   frame has no accessible name of its own, so the child picture carries the alternative text.
  */
 
 import { type ComponentProps } from "react";
@@ -12,12 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#frame/context.ts";
 
 /**
- * Draws a box of one shape, clipped to its corners, round the picture it is given.
+ * Renders a `div` element with the classes of the frame recipe.
  */
 export const Frame = withContext("div");
 
 /**
- * Describes what a frame takes: the variants its recipe offers, and everything a styled div
- * element takes.
+ * Describes the props of Frame: the recipe's variants and the props of a `div` element.
  */
 export type FrameProps = ComponentProps<typeof Frame>;

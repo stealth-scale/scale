@@ -7,57 +7,60 @@ import specimen from "#frame/frame.specimen.tsx";
 import { recipe } from "#frame/recipe.ts";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
-    expect(recipeViolations(recipe, { names: ["Frame"] })).toStrictEqual([]);
-  });
-
-  it("names its class frame", () => {
-    expect(recipe.className).toBe("frame");
-  });
-
-  it("draws every axis it offers on its own page", () => {
+  it("covers every variant axis in the scenes of its specimen page", () => {
     expect(uncovered(recipe, specimen.scenes)).toStrictEqual([]);
   });
 
-  it("shows no source naming a value the recipe no longer offers", () => {
+  it("has no scene that writes a value the recipe does not offer", () => {
     expect(stale(recipe, specimen.scenes)).toStrictEqual([]);
   });
 
-  it("offers a blur axis and a fit axis and a corner axis and a shape axis", () => {
+  it("references a token on every value a theme has to be able to change", () => {
+    expect(recipeViolations(recipe, { names: ["Frame"] })).toStrictEqual([]);
+  });
+
+  it("sets className to frame", () => {
+    expect(recipe.className).toBe("frame");
+  });
+
+  it("declares four variant axes", () => {
     expect(axesOf(recipe)).toStrictEqual(["blur", "fit", "radius", "ratio"]);
   });
 
-  it("offers every blur the theme draws", () => {
+  it("defaults to a square frame that crops its child", () => {
+    expect(defaultsOf(recipe)).toStrictEqual({ fit: "cover", ratio: "square" });
+  });
+
+  it("declares three blurs on the blur axis", () => {
     expect(valuesOf(recipe, "blur")).toStrictEqual(["lg", "md", "sm"]);
   });
 
-  it("blurs what the frame holds rather than the frame itself", () => {
+  it("applies the blur layer style to the child at blur md", () => {
     expect(recipe.variants?.["blur"]?.["md"]).toStrictEqual({
       "& > *": { layerStyle: "blur.md", scale: "1.09" },
     });
   });
 
-  it("grows what it blurs by more at every step", () => {
+  it("scales the blurred child further at each larger blur", () => {
     const blur = recipe.variants?.blur;
     const grown = [blur?.sm, blur?.md, blur?.lg].map((step) => Number(step?.["& > *"]?.scale));
 
     expect(grown).toStrictEqual([1.06, 1.09, 1.12]);
   });
 
-  it("draws a square that crops what it holds when nothing is asked for", () => {
-    expect(defaultsOf(recipe)).toStrictEqual({ fit: "cover", ratio: "square" });
+  it("declares seven ratios on the ratio axis", () => {
+    expect(valuesOf(recipe, "ratio")).toHaveLength(7);
   });
 
-  it("offers every shape the theme states", () => {
-    expect(valuesOf(recipe, "ratio")).toHaveLength(7);
+  it("declares video on the ratio axis", () => {
     expect(valuesOf(recipe, "ratio")).toContain("video");
   });
 
-  it("offers every corner the theme states", () => {
+  it("declares four radii on the radius axis", () => {
     expect(valuesOf(recipe, "radius")).toStrictEqual(["full", "l1", "l2", "l3"]);
   });
 
-  it("tracks the tag a consumer writes it under", () => {
+  it("matches the Frame JSX tag", () => {
     expect(recipe.jsx).toStrictEqual([/^Frame$/u]);
   });
 });

@@ -1,17 +1,17 @@
 {
-  "about": "Holds a picture, a video or a map to one shape, clipped to its corners.",
+  "about": "Clips a picture, a video or a map to an aspect ratio and a corner radius.",
   "blur": {
-    "about": "Every blur the theme draws, thrown over what the frame holds.",
+    "about": "Every blur step over a landscape frame. The frame clips the softened edge of the picture.",
     "title": "Blur"
   },
   "fit": {
-    "about": "A wide picture in a tall frame, filling the shape or shown whole inside it.",
+    "about": "A 16:9 picture in a portrait frame. `cover` crops the picture to the frame. `contain` shows all of it.",
     "title": "Fit"
   },
-  "hillside": "A hillside under a morning sun",
+  "hillside": "Green hills with pine trees under a yellow sun",
   "ratio": {
-    "about": "Every shape at every corner.",
-    "title": "Shapes and corners"
+    "about": "Every aspect ratio at every corner radius. Each frame is at most 320px wide.",
+    "title": "Ratios and radii"
   },
   "title": "Frame"
 }
