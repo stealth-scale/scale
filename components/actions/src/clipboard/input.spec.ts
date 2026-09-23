@@ -25,7 +25,7 @@ describe("Input", () => {
     expect(screen.getByLabelText<HTMLInputElement>("Link to the payout").value).toBe(LINK);
   });
 
-  it("marks the field read-only rather than disabled", () => {
+  it("renders the field read-only and enabled", () => {
     render(composed());
 
     expect(screen.getByLabelText<HTMLInputElement>("Link to the payout").readOnly).toBe(true);

@@ -98,32 +98,38 @@ A control in a toolbar uses the ink of the text beside it. Set `palette="neutral
 
 ## Clipboard
 
-Copies a value when its trigger is pressed and says so for a while. The root runs the machine and
-holds the value. The trigger copies it, the indicator swaps its glyph while the copy is fresh, the
-label names the value, the input shows it read-only, and the value text writes it in a run of text.
-The machine names the trigger for a screen reader, "Copy to clipboard" before a press and "Copied to
-clipboard" after, and `translations` on the root replaces both.
+Copies a value when its trigger is pressed and shows the copied state for a moment. The root runs
+the Zag clipboard machine and holds the value. The parts:
 
-The trigger draws no control look of its own. Draw it as the library's button with `as`, and set the
-button's variants through `ButtonPropsProvider`, because `as` retypes nothing.
+- `Trigger` copies the value.
+- `Indicator` shows `children` in the idle state and `copied` in the copied state.
+- `Label` names the value, `Input` shows it read-only, and `ValueText` renders it inline.
+
+`Clipboard.Trigger` takes its accessible name from `label`, "Copy to clipboard" by default, and from
+`copiedLabel`, "Copied to clipboard" by default, during the copied state. A trigger with visible
+text passes that text as `label` and shows `copiedLabel` during the copied state, so the accessible
+name contains the visible label in both states (WCAG 2.5.3).
+
+The trigger has no control styles. Render it as `Button` or `IconButton` with `as`, and set the
+button variants through `ButtonPropsProvider`, because `as` does not retype the forwarded props.
 
 ```tsx
 import { Button, ButtonPropsProvider, Clipboard } from "@stealthscale/component-actions";
 
 <Clipboard.Root value="https://stealthscale.io/payouts/4109">
   <ButtonPropsProvider value={{ size: "sm", variant: "outline" }}>
-    <Clipboard.Trigger as={Button}>
-      <Clipboard.Indicator copied={<Check />}>
-        <Copy />
+    <Clipboard.Trigger as={Button} copiedLabel="Copied" label="Copy the link">
+      <Clipboard.Indicator copied={<CheckIcon size="1em" />}>
+        <CopyIcon size="1em" />
       </Clipboard.Indicator>
-      Copy the link
+      <Clipboard.Indicator copied="Copied">Copy the link</Clipboard.Indicator>
     </Clipboard.Trigger>
   </ButtonPropsProvider>
 </Clipboard.Root>;
 ```
 
-Beside a field, the label names the input and the input can still be focused and selected, which is
-what a person falls back on where the browser refuses the copy:
+Next to a field, the label names the input. The input is read-only but focusable and selectable, so
+a person can copy by hand when the browser denies clipboard access:
 
 ```tsx
 <Clipboard.Root value={link}>
@@ -131,16 +137,16 @@ what a person falls back on where the browser refuses the copy:
   <Clipboard.Control>
     <Clipboard.Input as={Input} />
     <Clipboard.Trigger as={IconButton}>
-      <Clipboard.Indicator copied={<Check />}>
-        <Copy />
+      <Clipboard.Indicator copied={<CheckIcon size="1em" />}>
+        <CopyIcon size="1em" />
       </Clipboard.Indicator>
     </Clipboard.Trigger>
   </Clipboard.Control>
 </Clipboard.Root>
 ```
 
-`Clipboard.Consumer` hands the machine to a function, for a control of the page's own or for words
-that change with the state:
+`Clipboard.Consumer` passes the machine's API to a render function, for a custom control or for text
+that changes with the state:
 
 ```tsx
 <Clipboard.Root value={link}>
@@ -154,8 +160,10 @@ that change with the state:
 </Clipboard.Root>
 ```
 
-The root takes the machine's options: `value` or `defaultValue`, `timeout` in milliseconds (3000 by
-default), `onStatusChange`, `onValueChange`, `translations` and `ids`.
+The root takes the machine options: `value` or `defaultValue`, `timeout` in milliseconds (3000 by
+default), `onStatusChange`, `onValueChange` and `ids`. The root `size` sets the label and the gaps.
+The field and the button take their size through `InputPropsProvider` and `ButtonPropsProvider`. The
+clipboard has no colour or surface of its own, so it offers no `palette` or `effect` axis.
 
 | Axis   | Values           | Default |
 | ------ | ---------------- | ------- |

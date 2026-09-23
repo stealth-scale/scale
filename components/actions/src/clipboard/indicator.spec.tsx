@@ -55,7 +55,7 @@ describe("Indicator", () => {
     );
   });
 
-  it("keeps aria-hidden false when the caller sets it so", () => {
+  it("keeps aria-hidden false when passed false", () => {
     const { container } = render(clipped(<Indicator aria-hidden={false}>Copy</Indicator>));
 
     expect(slotElement(container, "clipboard", "indicator").getAttribute("aria-hidden")).toBe(

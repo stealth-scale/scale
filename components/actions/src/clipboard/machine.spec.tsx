@@ -64,7 +64,7 @@ describe("splitClipboardProps", () => {
 });
 
 describe("useClipboardMachine", () => {
-  it("exposes the value it was started with through the parts' hook", () => {
+  it("returns the start value through useClipboard", () => {
     render(<Running value="4109" />);
 
     expect(screen.getByTestId("state").textContent).toBe("4109:idle");

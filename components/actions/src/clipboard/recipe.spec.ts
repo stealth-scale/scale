@@ -11,11 +11,11 @@ describe("recipe", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+  it("has no scene that writes a value the recipe no longer offers", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("styles Clipboard from tokens a theme can override", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Clipboard"] })).toStrictEqual([]);
   });
 
@@ -55,7 +55,7 @@ describe("recipe", () => {
     });
   });
 
-  it("lays the root out as a column aligned at the start", () => {
+  it("lays out the root as a column aligned at the start", () => {
     expect(recipe.base?.["root"]).toStrictEqual({
       alignItems: "start",
       display: "flex",
@@ -67,7 +67,7 @@ describe("recipe", () => {
     expect(recipe.base?.["control"]).toMatchObject({ alignSelf: "stretch" });
   });
 
-  it("leaves the trigger slot without base styles", () => {
+  it("declares no base styles for the trigger slot", () => {
     expect(recipe.base?.["trigger"]).toBeUndefined();
   });
 

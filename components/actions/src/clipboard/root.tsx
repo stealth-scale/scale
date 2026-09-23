@@ -1,11 +1,9 @@
 /**
- * Renders the container holding the label, the field and the trigger, and runs the machine they
- * share.
+ * Renders the container of the label, the field and the trigger, and runs the machine they share.
  *
  * @remarks
- *   The container is a plain `div` with no ARIA role. A clipboard is a value plus a button that
- *   copies it, and each of those already carries its own semantics, so a role on the wrapper would
- *   tell a screen reader nothing.
+ *   The container is a `div` without a role. The value and the trigger carry their own semantics,
+ *   so a role on the container would add nothing for a screen reader.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -19,25 +17,25 @@ import {
 } from "#clipboard/machine.ts";
 
 /**
- * Renders the root slot and publishes the recipe's variants to the parts below it.
+ * `div` bound to the root slot, which provides the recipe's variants to the parts.
  */
-const Framed = withProvider("div", "root");
+const Styled = withProvider("div", "root");
 
 /**
- * Merges the machine's settings with the props of the styled div.
+ * Props of `Clipboard.Root`: the machine settings and the props of the styled `div`.
  *
  * @remarks
- *   `id` and `dir` are dropped from the element's props because the machine owns both, and
- *   `defaultValue` because the machine's is the value the parts copy.
+ *   The element props omit `id` and `dir`, which the machine owns, and `defaultValue`, which is
+ *   the machine's initial value.
  */
 export interface RootProps
-  extends ClipboardOptions, Omit<ComponentProps<typeof Framed>, "defaultValue" | "dir" | "id"> {}
+  extends ClipboardOptions, Omit<ComponentProps<typeof Styled>, "defaultValue" | "dir" | "id"> {}
 
 /**
  * Starts a clipboard machine and renders the container its parts read from.
  *
- * @param props - The machine's settings, the recipe's variants and the div's props in one object.
- * @returns The container, with the connected api in context for the parts.
+ * @param props - Machine settings, recipe variants and `div` props.
+ * @returns The container, with the connected API in context.
  */
 export function Root(props: RootProps): ReactElement {
   const [options, rest] = splitClipboardProps(props);
@@ -45,7 +43,7 @@ export function Root(props: RootProps): ReactElement {
 
   return (
     <ApiProvider value={api}>
-      <Framed {...rest} {...api.getRootProps()} />
+      <Styled {...rest} {...api.getRootProps()} />
     </ApiProvider>
   );
 }

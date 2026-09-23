@@ -1,5 +1,5 @@
 /**
- * Forms the public surface of the clipboard, whose parts a caller nests under `Clipboard.Root`.
+ * Exports the parts of the clipboard, which a caller nests under `Clipboard.Root`.
  */
 
 export { Consumer, type ConsumerProps } from "#clipboard/consumer.ts";

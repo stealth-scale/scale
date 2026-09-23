@@ -1,6 +1,5 @@
 /**
- * Assembles the wrappers a clipboard part needs before a case can render it, all sharing one
- * machine.
+ * Renders clipboard parts inside a root for the specs, all sharing one machine.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -17,16 +16,16 @@ import { Root, type RootProps } from "#clipboard/root.tsx";
 import { Trigger } from "#clipboard/trigger.tsx";
 
 /**
- * The string every case puts on the clipboard.
+ * Value every case copies.
  */
 export const LINK = "https://stealthscale.io/payouts/4109";
 
 /**
- * Renders a tree inside a root running the machine.
+ * Renders a tree inside a root that runs the machine.
  *
- * @param children - The part under test.
- * @param props - Overrides for the root, applied over the value.
- * @returns The root, wrapping the part.
+ * @param children - Part under test.
+ * @param props - Root props, applied over the value.
+ * @returns The root with the part inside.
  */
 export function clipped(children: ReactNode, props: Partial<RootProps> = {}): ReactElement {
   return (
@@ -37,13 +36,13 @@ export function clipped(children: ReactNode, props: Partial<RootProps> = {}): Re
 }
 
 /**
- * Clicks an element and waits for the machine's transition to finish.
+ * Clicks an element and waits for the machine's transition.
  *
  * @remarks
- *   The machine schedules its own update, so a case that reads the DOM straight after the click
- *   still sees the state from before it. Every case that clicks goes through here.
- * @param control - The element to click.
- * @returns A promise that resolves once the update has flushed.
+ *   The machine schedules its update after the click, so a DOM read directly after the click
+ *   returns the previous state. Every case that clicks uses this helper.
+ * @param control - Element to click.
+ * @returns A promise that resolves after the update flushes.
  */
 export async function pressed(control: HTMLElement): Promise<void> {
   fireEvent.click(control);
@@ -53,8 +52,8 @@ export async function pressed(control: HTMLElement): Promise<void> {
 /**
  * Renders a label, a field and a trigger under one root.
  *
- * @param props - Overrides for the root, applied over the value.
- * @returns The parts nested as a caller would nest them.
+ * @param props - Root props, applied over the value.
+ * @returns The root with the three parts.
  */
 export function composed(props: Partial<RootProps> = {}): ReactElement {
   return clipped(

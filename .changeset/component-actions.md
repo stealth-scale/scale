@@ -101,3 +101,25 @@ component-actions: replace the button's status axis with a palette axis
   stylesheet when no page sets it as a prop.
 - The clipboard specimen sets `palette` on its caller-built button and renders `CopyIcon` and
   `CheckIcon` from `lucide-react` in place of hand-drawn SVG paths.
+
+component-actions: render the button scenes from examples
+
+- The button specimen renders each scene from a file under `button/examples/` and shows that file as
+  its source. The pressed and disabled scenes pass their first-cell props through `Scene.props`.
+- `src/examples.spec.ts` runs axe on every example of the package.
+
+component-actions: take the clipboard trigger's names as label props
+
+- Breaking: `Clipboard.Root` no longer takes `translations`. `Clipboard.Trigger` takes `label`,
+  default "Copy to clipboard", and `copiedLabel`, default "Copied to clipboard", and sets its
+  `aria-label` from them by the copied state. Replace `translations={{ triggerLabel }}` on the root
+  with the two props on the trigger.
+- A trigger with visible text passes that text as `label`. The specimen's "Copy the link" button was
+  named "Copy to clipboard", which fails WCAG 2.5.3. axe `label-content-name-mismatch` reports no
+  violation on the page.
+
+component-actions: render the clipboard scenes from examples
+
+- The clipboard specimen renders each scene from a file under `clipboard/examples/`. The size scene
+  renders the three sizes itself, and the field and the rows take a phone's width.
+- Docblocks, case names, the README section and the scene text are rewritten in the house register.

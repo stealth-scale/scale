@@ -12,7 +12,7 @@ describe("Consumer", () => {
     expect(screen.getByText(LINK)).toBeDefined();
   });
 
-  it("re-renders the function with copied set once the caller's control calls copy", async () => {
+  it("calls the render function again with copied true after copy", async () => {
     render(
       clipped(
         <Consumer>
@@ -46,7 +46,7 @@ describe("Consumer", () => {
     await expect(navigator.clipboard.readText()).resolves.toBe(LINK);
   });
 
-  it("throws naming Clipboard when it renders with no root above it", () => {
+  it("throws an error that names Clipboard when no root is mounted", () => {
     expect(() => render(<Consumer>{() => null}</Consumer>)).toThrow(/Clipboard/u);
   });
 });

@@ -1,5 +1,5 @@
 /**
- * Renders the row holding the field and the trigger.
+ * Renders the row that holds the field and the trigger.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -10,23 +10,23 @@ import { withContext } from "#clipboard/context.ts";
 import { useClipboard } from "#clipboard/machine.ts";
 
 /**
- * Renders the control slot, spaced by the variants the root published.
+ * `div` bound to the control slot.
  */
-const Rowed = withContext("div", "control");
+const Styled = withContext("div", "control");
 
 /**
- * Accepts every prop the styled div takes.
+ * Props of `Clipboard.Control`: the props of the styled `div`.
  */
-export type ControlProps = ComponentProps<typeof Rowed>;
+export type ControlProps = ComponentProps<typeof Styled>;
 
 /**
- * Renders the row, merging the caller's props over the machine's.
+ * Renders the row with the caller's props merged over the machine's.
  *
- * @param props - Everything a styled div takes.
- * @returns The row, carrying the copied-state attribute the recipe styles from.
+ * @param props - Props of the styled `div`.
+ * @returns The row, with the `data-copied` attribute the machine sets after a copy.
  */
 export function Control(props: ControlProps): ReactElement {
   const api = useClipboard();
 
-  return <Rowed {...mergeProps(api.getControlProps(), props)} />;
+  return <Styled {...mergeProps(api.getControlProps(), props)} />;
 }

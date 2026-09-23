@@ -31,7 +31,7 @@ describe("Label", () => {
     ).toStrictEqual([]);
   });
 
-  it("resolves the input as the element it labels", () => {
+  it("points the label at the input", () => {
     render(composed());
 
     expect(screen.getByLabelText("Link to the payout").tagName).toBe("INPUT");
