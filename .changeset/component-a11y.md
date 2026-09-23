@@ -33,3 +33,12 @@ component-a11y: draw the roving focus specimen's controls as one toolbar
   element bound to both would take two rules for the same property. An item finds its place through
   the root's context and not through the document, so the group between them changes nothing a
   keyboard does.
+
+component-a11y: fix the focused position of the skip link and focusable hidden text
+
+- `SkipNav.Link` and `VisuallyHidden focusable` reset the clipping property by property under
+  `:focus-visible`. `srOnly: false` expanded to `position: static` and `padding: 0` after
+  `position: fixed` and the paddings, so the revealed control rendered in the document flow without
+  padding. It now renders fixed 16px from the window's start corner.
+- `RovingFocus.Item` outside a root throws "RovingFocus.Item must be rendered inside
+  RovingFocus.Root.".
