@@ -1,119 +1,126 @@
 /**
- * Runs the accessibility audit the testing kit runs, over a region of a live page.
+ * Runs axe, the engine the testing kit and the catalogue's Audit control use, over a region of a
+ * live page.
  */
 
+import { type RunOptions } from "axe-core";
 import { createRequire } from "node:module";
 import { type Locator, type Page } from "playwright";
 
 /**
- * Describes one element a violation was found on, as the audit reports it.
+ * Element a violation was found on, as axe reports it.
  */
 interface Hit {
   /**
-   * The selectors that reach the element, one per frame.
+   * Selectors that locate the element, one per frame.
    */
   readonly target: readonly string[];
 }
 
 /**
- * Describes one violation as the audit reports it.
+ * Violation as axe reports it.
  */
 interface Violation {
   /**
-   * The rule's own explanation of the fault.
+   * Rule description from axe.
    */
   readonly help: string;
 
   /**
-   * The rule that found it.
+   * Rule id, such as `color-contrast`.
    */
   readonly id: string;
 
   /**
-   * The severity the rule gives it, or nothing where the rule gives none.
+   * Severity, or null for a rule axe does not rate.
    */
   readonly impact?: null | string;
 
   /**
-   * The elements it was found on.
+   * Elements the rule failed on.
    */
   readonly nodes: readonly Hit[];
 }
 
 /**
- * Describes the audit's report.
+ * Report axe returns from a run.
  */
 interface Report {
   /**
-   * The violations found.
+   * Rules that failed.
    */
   readonly violations: readonly Violation[];
 }
 
 /**
- * Describes the audit as the page sees it once its script is added.
+ * Global axe object the injected script defines.
  */
 interface Audit {
   /**
-   * Runs the audit over an element and answers what it found.
+   * Runs the enabled rules over an element and resolves to the report.
    */
-  readonly run: (context: Element) => Promise<Report>;
+  readonly run: (context: Element, options?: RunOptions) => Promise<Report>;
 }
 
 declare global {
   /**
-   * The page's window, with the audit on it once its script is added.
+   * Page window, extended with the global axe object.
    */
   interface Window {
     /**
-     * The audit, once its script is added to the page.
+     * Global axe object, defined once the script is injected.
      */
     axe?: Audit;
   }
 }
 
 /**
- * Describes one finding of the audit.
+ * Violation reduced to what the command-line tools print.
  */
 export interface Finding {
   /**
-   * The rule's own explanation of the fault.
+   * Rule description from axe.
    */
   readonly help: string;
 
   /**
-   * The rule that found it.
+   * Rule id, such as `color-contrast`.
    */
   readonly id: string;
 
   /**
-   * The severity the rule gives it.
+   * Severity, or `unknown` for a rule axe does not rate.
    */
   readonly impact: string;
 
   /**
-   * The elements it was found on, as selectors.
+   * Selectors of the elements the rule failed on.
    */
   readonly targets: readonly string[];
 }
 
 /**
- * Runs the audit over the first element a locator finds.
+ * Injects axe into the page and runs it over the first element a locator matches.
  *
- * @param page - The open page, which the audit's script is added to.
- * @param root - The element to audit.
- * @returns The violations found, none for a clean region.
- * @throws {@link Error} When the audit's script did not load.
+ * @param page - The open page.
+ * @param root - Element to audit.
+ * @param options - Run options passed to axe unchanged. Axe applies its defaults when omitted.
+ * @returns Every violation, or an empty array.
+ * @throws {@link Error} When the axe script fails to load.
  */
-export async function audited(page: Page, root: Locator): Promise<readonly Finding[]> {
+export async function audited(
+  page: Page,
+  root: Locator,
+  options?: RunOptions,
+): Promise<readonly Finding[]> {
   const require = createRequire(import.meta.url);
 
   await page.addScriptTag({ path: require.resolve("axe-core") });
 
-  return root.first().evaluate(async (element) => {
-    if (window.axe === undefined) throw new Error("the audit's script did not load");
+  return root.first().evaluate(async (element, given) => {
+    if (window.axe === undefined) throw new Error("the axe script did not load");
 
-    const { violations } = await window.axe.run(element);
+    const { violations } = await window.axe.run(element, given);
 
     return violations.map((violation) => ({
       help: violation.help,
@@ -121,5 +128,5 @@ export async function audited(page: Page, root: Locator): Promise<readonly Findi
       impact: violation.impact ?? "unknown",
       targets: violation.nodes.map((node) => node.target.join(" ")),
     }));
-  });
+  }, options);
 }

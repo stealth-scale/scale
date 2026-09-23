@@ -1,63 +1,67 @@
 # Catalogue scripts
 
-Two commands that open a page of the catalogue in a browser and read it back, for building and
-checking components. Both run straight from the shell under Node 26, which strips the types, so
-there is nothing to build. Both need a catalogue that is already serving, at `http://localhost:4100`
-unless `--base` names another, which is how the earlier library on 5178 is read for a comparison and
-how a deployed catalogue is read at all.
+The commands in this directory open catalogue pages in a browser and read them back. You use them to
+build and review components. Node 26 strips the TypeScript types, so the commands run without a
+build step. Each command reads a catalogue that is already serving, at `http://localhost:4100`
+unless `--base` names another URL.
+
+| Command       | What it does                                                         |
+| ------------- | -------------------------------------------------------------------- |
+| `pnpm shot`   | Captures a page, a scene or an element as PNG files                  |
+| `pnpm dom`    | Prints the DOM, styles, rules, accessibility tree, boxes or measures |
+| `pnpm review` | Runs the page review checks and exits with 1 on any fault            |
 
 ```bash
 pnpm shot -p components/actions/button -t asphalt,prism -m light,dark
 pnpm dom -p components/actions/button -s variant --tree --depth 4
+pnpm review -p components/data/badge,components/data/tag
 ```
 
-A page is named by its identifier, which is also its address: `components/actions/button` is the
-page declared under that identifier and served at `/components/actions/button`.
+A page's id is its path under the base URL: `components/actions/button` is served at
+`/components/actions/button`. The `components/` prefix is part of the id.
 
-`pnpm shot --help` and `pnpm dom --help` list every option.
+Run any command with `--help` to list its options.
 
 ## Targeting
 
-Both commands take the same options for what to read. A theme, a colour mode, a width or a page can
-be named more than once with commas, and the command runs every combination.
+All three commands take these options. Pages, themes, modes and widths accept comma-separated lists,
+and the command runs every combination.
 
-| Option             | What it does                                                           |
-| ------------------ | ---------------------------------------------------------------------- |
-| `-p, --page`       | The page's identifier, such as `components/actions/button`             |
-| `-s, --scene`      | A scene's title, part of it, or its number on the page                 |
-| `-t, --theme`      | A theme, written into the page's settings before it loads              |
-| `-m, --mode`       | `light` or `dark`, written the same way and set on the browser         |
-| `-w, --width`      | The viewport's width, 3072 by default                                  |
-| `--height`         | The viewport's height, 1400 by default                                 |
-| `--scale`          | The device scale factor, 1.25 by default                               |
-| `--open`           | Selectors to press before anything is read, semicolons between them    |
-| `--press`          | Keys to type after `--open`, commas between them and `*` to repeat one |
-| `--reduced-motion` | Read the page as someone who asked for less motion                     |
-| `--forced-colors`  | Read the page in a forced colours mode                                 |
-| `-b, --browser`    | `chromium`, `firefox` or `webkit`, `firefox` by default                |
-| `--base`           | Where the catalogue is served, `http://localhost:4100` by default      |
+| Option             | What it does                                                        |
+| ------------------ | ------------------------------------------------------------------- |
+| `-p, --page`       | Page id, such as `components/actions/button`                        |
+| `-s, --scene`      | Scene title, part of it, or its position on the page                |
+| `-t, --theme`      | Theme, written to the page's storage before it loads                |
+| `-m, --mode`       | `light` or `dark`, written to storage and emulated in the browser   |
+| `-w, --width`      | Viewport width, 1920 by default                                     |
+| `--height`         | Viewport height, 1080 by default                                    |
+| `--scale`          | Device scale factor, 1 by default                                   |
+| `--open`           | Selectors to click before reading, separated by semicolons          |
+| `--press`          | Keys to type after `--open`, separated by commas, `*` repeats a key |
+| `--reduced-motion` | Emulates `prefers-reduced-motion: reduce`                           |
+| `--forced-colors`  | Emulates `forced-colors: active`                                    |
+| `-b, --browser`    | `chromium`, `firefox` or `webkit`, `firefox` by default             |
+| `--base`           | Catalogue base URL, `http://localhost:4100` by default              |
 
-By default both commands read a 4K screen at 125% scaling, in Firefox.
+`pnpm review` rejects `--scene`, because every check reads the whole page.
 
 ## Capturing
 
-`pnpm shot` writes one image per combination under `.scratch/shots`, named for the page, the scene,
-the theme, the mode and the width.
+`pnpm shot` writes one file per combination under `.scratch/shots`. The file name contains the page,
+the scene, the theme, the mode and the width.
 
-| Option          | What it does                                                             |
-| --------------- | ------------------------------------------------------------------------ |
-| `-e, --element` | Capture the first visible element a selector finds rather than the scene |
-| `--state`       | `rest`, `hover`, `focus` or `active`, one image each; needs `--element`  |
-| `--margin`      | Room round a scene or an element for a ring or a shadow, 8px by default  |
-| `-f, --full`    | Capture the whole page rather than to the fold                           |
-| `-o, --out`     | Where the images go                                                      |
+| Option          | What it does                                                           |
+| --------------- | ---------------------------------------------------------------------- |
+| `-e, --element` | Captures the first visible match of a selector instead of the scene    |
+| `--state`       | `rest`, `hover`, `focus` or `active`, one file each; needs `--element` |
+| `--margin`      | Space around a scene or an element for a ring or a shadow, 8px default |
+| `-f, --full`    | Captures the whole page instead of the fold                            |
+| `-o, --out`     | Output directory                                                       |
 
-A control is put in a state the way a reader would put it there: hovered by the pointer, focused
-from the keyboard with Tab, held down with the pointer. Animations are held still while capturing,
-so two captures of one thing lay over each other. A scene narrows the search and `--element` picks
-within it, so `[data-recipe=toolbar]` under a scene finds the scene's toolbar rather than the
-catalogue's own bar. A selector with no scene named searches the whole document, which is how the
-chrome is captured.
+The command hovers a control with the pointer, focuses it with Tab, and presses it with the pointer
+held down. Animations are frozen, so two captures of one element overlay pixel for pixel. With
+`--scene`, `--element` matches inside that scene only. Without `--scene`, it matches anywhere in the
+document, which is how you capture the catalogue chrome.
 
 ```bash
 pnpm shot -p components/actions/button -e "[data-recipe=button]" --state rest,hover,focus,active -b chromium
@@ -65,16 +69,14 @@ pnpm shot -p components/disclosure/menu --open "[data-recipe=menu] button" -e "[
 pnpm shot -p components/layout/stack -s gaps -w 420,1024,3072
 ```
 
-A semicolon between two selectors presses both, the first before the second is looked for. A control
-inside a panel is reached that way, and so is a band of a page that another tab draws.
+`--open` clicks each selector in order and waits for the next one to appear. Use it to reach a
+control inside a panel, or a band on another tab.
 
 ```bash
 pnpm shot -p components/disclosure/menu --open '[role=tab]:last-of-type; [data-scope=popover][data-part=trigger]'
 ```
 
-`--press` types once `--open` has pressed something. A component is then read part way through a
-keyboard journey rather than at rest. A star repeats a key. One press says nothing about what the
-twelfth does, and a reader crosses a long list by keeping the key down.
+`--press` types keys after `--open`. `ArrowDown*14` presses the key 14 times.
 
 ```bash
 pnpm shot -p components/collections/listbox --open "#too-many-rows-to-draw [role=option]" --press "ArrowDown*14"
@@ -82,30 +84,29 @@ pnpm shot -p components/collections/listbox --open "#too-many-rows-to-draw [role
 
 ## Reading
 
-`pnpm dom` prints an outline of the region: the headings, the landmarks, the controls with their
-accessible names, a count of elements per recipe, any word left as the key it was looked up by, and
-what the console reported. The region is the page, the scene named with `--scene`, or the elements
-named with `--select`, within the scene where one is named. Everything else is read on request, and
-once anything else is read the outline shrinks to the scenes and the console errors unless
-`--outline` asks for the whole of it.
+`pnpm dom` prints an outline of the region: headings, landmarks, controls with their accessible
+names, the element count per recipe, untranslated keys and console errors. The region is the page,
+the scene named with `--scene`, or the elements `--select` matches. When you request another
+reading, the outline shrinks to the scene titles and the console errors unless you add `--outline`.
 
-| Option        | What it does                                                                  |
-| ------------- | ----------------------------------------------------------------------------- |
-| `--outline`   | The whole outline beside another reading                                      |
-| `--tree`      | The tree of elements: tag, recipe, classes, role, ARIA and state attributes   |
-| `-d, --depth` | How deep the tree goes, 8 by default                                          |
-| `--classes`   | `recipe` for the slot and variant classes alone, `all` for every class        |
-| `--css`       | The computed style of each element a selector finds in the region             |
-| `--css-all`   | Every computed property rather than the visual ones                           |
-| `--rules`     | The rules that reach the first element a selector finds, least specific first |
-| `--state`     | The state the element read by `--css` or `--rules` is put in first            |
-| `--aria`      | The accessibility tree of the region, as a screen reader hears it             |
-| `--axe`       | An accessibility audit of the region, the same one the testing kit runs       |
-| `--box`       | The box of each element a selector finds in the region                        |
-| `--tokens`    | Every custom property in force on the root, for the theme and the mode        |
-| `-j, --json`  | JSON rather than text, for a diff                                             |
+| Option        | What it does                                                                |
+| ------------- | --------------------------------------------------------------------------- |
+| `--outline`   | Prints the whole outline beside another reading                             |
+| `--tree`      | Prints the element tree: tag, recipe, classes, role, ARIA and state         |
+| `-d, --depth` | Tree depth, 8 by default                                                    |
+| `--classes`   | `recipe` for slot and variant classes, `all` for every class                |
+| `--css`       | Computed style of each element the selector matches in the region           |
+| `--css-all`   | Every computed property instead of the layout and paint subset              |
+| `--rules`     | Rules matching the first element the selector matches, least specific first |
+| `--state`     | State of the element `--css` or `--rules` reads                             |
+| `--aria`      | Accessibility tree of the region                                            |
+| `--axe`       | Axe audit of the region                                                     |
+| `--box`       | Box of each element the selector matches in the region                      |
+| `--measure`   | Text and icon measurements of the `--select` elements                       |
+| `--tokens`    | Custom properties on the root for the theme and the mode                    |
+| `-j, --json`  | JSON instead of text                                                        |
 
-`--rules` reads the browser's devtools protocol and needs `--browser chromium`.
+`--rules` reads the Chrome DevTools Protocol and needs `--browser chromium`.
 
 ```bash
 pnpm dom -p components/actions/button -s variant --rules "[data-recipe=button]" -b chromium
@@ -115,3 +116,43 @@ pnpm dom -p components/actions/button --tokens -t asphalt -j > /tmp/asphalt.json
 pnpm dom -p components/actions/button --tokens -t prism -j > /tmp/prism.json
 diff /tmp/asphalt.json /tmp/prism.json
 ```
+
+## Measuring
+
+`--measure` takes one or more kinds, separated by commas, and measures every element `--select`
+matches. Values are CSS pixels. A centre offset is the ink centre minus the box centre, so a
+positive offset has the larger x or y coordinate.
+
+| Kind     | What it reports                                                                |
+| -------- | ------------------------------------------------------------------------------ |
+| `ink`    | Offset of the x-height centre and the cap-height centre from the box centre    |
+| `glyph`  | Inset of the icon's ink from each edge, and the ink's centre offset            |
+| `starts` | Viewport x of the first and last text ink, and their insets from the box edges |
+| `gaps`   | Block and inline distance from each element to the next one matched            |
+
+The icon is the element's first `svg`. Its ink is the geometry's bounding box plus half the stroke
+width, so a 24-unit lucide icon at 16px reads its drawn edges, not its box.
+
+```bash
+pnpm dom -p components/data/badge -s marks --select ".badge" --measure ink,glyph
+pnpm dom -p components/navigation/toc --select ".toc__title, .toc__link" --measure starts
+```
+
+## Reviewing
+
+`pnpm review` runs seven checks on each page, in light and in dark unless `--mode` names a mode. It
+prints one line per check and one indented line per fault, then exits with 1 when any check failed.
+`--json` prints the same results as JSON.
+
+| Check      | Fails when                                                                                |
+| ---------- | ----------------------------------------------------------------------------------------- |
+| `axe`      | Axe reports a violation. It runs the catalogue's scene rules plus the label-in-name rule  |
+| `overflow` | A recipe slot's content is wider than its box                                             |
+| `columns`  | Sibling rows of one list end their last part at distances more than 1px apart             |
+| `sources`  | A scene has no Source, or its Source contains `{...props}`, `props.<name>` or `#` imports |
+| `props`    | The Props tab renders no table row within 15 seconds                                      |
+| `raw keys` | Text renders as an untranslated key                                                       |
+| `console`  | The page logs an error while the checks run                                               |
+
+Every check reads the whole document, the catalogue chrome included. Axe reports two landmarks with
+the same name even when one is in a scene and the other is in the chrome.

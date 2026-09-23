@@ -1,12 +1,10 @@
 /**
- * Reads the command line both commands share: which pages to open, in which themes and colour
- * modes, at what sizes, in which browser, on which port, and what to press first.
+ * Parses the command-line options every catalogue command shares: pages, themes, colour modes,
+ * viewport, browser, base URL, and the controls to press before reading.
  *
  * @remarks
- *   A theme, a colour mode, a width or a page can be named more than once with commas, and the
- *   commands run every combination, so one call captures a page in every theme in both modes at
- *   three widths. The parsing is Node's own, because the options are flat and nothing here needs
- *   more than a flag and a value.
+ *   Pages, themes, modes and widths each accept a comma-separated list, and the commands run every
+ *   combination. Parsing uses Node's `parseArgs`, because every option is a flat flag or value.
  */
 
 import { parseArgs, type ParseArgsConfig } from "node:util";
@@ -14,17 +12,17 @@ import { parseArgs, type ParseArgsConfig } from "node:util";
 import { BROWSERS, MODES, type Target } from "./browse.ts";
 
 /**
- * Where the catalogue's own dev server serves it.
+ * Base URL of the catalogue's dev server.
  */
 const BASE = "http://localhost:4100";
 
 /**
- * The viewport a 4K screen at 125% scaling shows, which is the one the catalogue is read on.
+ * Default viewport: 1920 by 1080 CSS pixels at device scale 1.
  */
 const VIEWPORT = { height: 1080, scale: 1.0, width: 1920 };
 
 /**
- * The options both commands take.
+ * Options every command accepts.
  */
 export const SHARED = {
   base: { default: BASE, type: "string" },
@@ -44,47 +42,47 @@ export const SHARED = {
 } satisfies ParseArgsConfig["options"];
 
 /**
- * The lines of help the shared options add to a command's own.
+ * Help lines for the shared options, which each command prints above its own.
  */
 export const SHARED_HELP = [
-  "  -p, --page <path>     the page under /components, such as actions/button; commas for several",
-  "  -s, --scene <title>   a scene's title, part of it, or its number on the page",
-  "  -t, --theme <name>    a theme, or several with commas; the page's own where left out",
-  "  -m, --mode <mode>     light or dark, or both with commas; the page's own where left out",
-  "  -w, --width <px>      the viewport's width, 1920 by default; commas for several",
-  "      --height <px>     the viewport's height, 1400 by default",
-  "      --scale <factor>  the device scale factor, 1.25 by default",
-  "      --open <css>      press the first element each selector finds, semicolons between them",
-  "      --press <keys>    type these keys after --open, such as ArrowDown or ArrowDown*12",
-  "      --reduced-motion  read the page as someone who asked for less motion",
-  "      --forced-colors   read the page in a forced colours mode",
+  "  -p, --page <id>       page id, such as components/actions/button; commas for several",
+  "  -s, --scene <title>   scene title, part of it, or its position on the page",
+  "  -t, --theme <name>    theme, commas for several; the page's stored theme when omitted",
+  "  -m, --mode <mode>     light or dark, commas for both; the page's stored mode when omitted",
+  `  -w, --width <px>      viewport width, ${String(VIEWPORT.width)} by default; commas for several`,
+  `      --height <px>     viewport height, ${String(VIEWPORT.height)} by default`,
+  `      --scale <factor>  device scale factor, ${String(VIEWPORT.scale)} by default`,
+  "      --open <css>      click the first match of each selector, semicolons between them",
+  "      --press <keys>    keys typed after --open, such as ArrowDown or ArrowDown*12",
+  "      --reduced-motion  emulate prefers-reduced-motion: reduce",
+  "      --forced-colors   emulate forced-colors: active",
   "  -b, --browser <name>  chromium, firefox or webkit, firefox by default",
-  "      --base <url>      where the catalogue is served, http://localhost:4100 by default",
-  "  -h, --help            this",
+  `      --base <url>      catalogue base URL, ${BASE} by default`,
+  "  -h, --help            print this help",
 ];
 
 /**
- * Describes what the shared options resolve to: one target per combination, and the scene.
+ * Shared options resolved into targets.
  */
 export interface Resolved {
   /**
-   * The scene named, or undefined for the whole page.
+   * Scene named, or undefined for the whole page.
    */
   readonly scene: string | undefined;
 
   /**
-   * One target per page, theme, mode and width named, in that order.
+   * One target per page, theme, mode and width, in that nesting order.
    */
   readonly targets: readonly Target[];
 }
 
 /**
- * Describes what was parsed: every option by name, as the string or boolean it was given.
+ * Parsed options by name, each a string or a boolean.
  */
 export type Values = Readonly<Record<string, boolean | string | undefined>>;
 
 /**
- * Splits a value that may name several things with commas, dropping the empty ones.
+ * Splits a comma-separated value and drops empty entries.
  */
 export function listed(value: string): readonly string[] {
   return value
@@ -94,7 +92,7 @@ export function listed(value: string): readonly string[] {
 }
 
 /**
- * Reads an option as a string, empty where it holds none.
+ * Returns an option's string value, or an empty string when it is not a string.
  */
 export function stringAt(values: Values, name: string): string {
   const value = values[name];
@@ -103,16 +101,16 @@ export function stringAt(values: Values, name: string): string {
 }
 
 /**
- * Reads an option as a flag.
+ * Returns true when a boolean option is set.
  */
 export function flagAt(values: Values, name: string): boolean {
   return values[name] === true;
 }
 
 /**
- * Reads a number above zero out of an option.
+ * Parses an option value as a number above zero.
  *
- * @throws {@link Error} When the option holds anything else, naming the option.
+ * @throws {@link Error} When the value is not a finite number above zero.
  */
 function counted(name: string, value: string): number {
   const number = Number(value);
@@ -125,22 +123,22 @@ function counted(name: string, value: string): number {
 }
 
 /**
- * Reads where the catalogue is served, rejecting anything a page cannot resolve against.
+ * Parses the base URL.
  *
- * @throws {@link Error} When the value is no absolute URL, naming the option.
+ * @throws {@link Error} When the value is not an absolute URL.
  */
 function based(value: string): string {
   try {
     return new URL(value).href;
   } catch {
-    throw new Error("--base takes an absolute URL, such as http://localhost:4100");
+    throw new Error(`--base takes an absolute URL, such as ${BASE}`);
   }
 }
 
 /**
- * Picks one of a list of names.
+ * Returns the value when it is one of the allowed names.
  *
- * @throws {@link Error} When the value is none of them, naming the option and the names.
+ * @throws {@link Error} When the value is not in `names`.
  */
 export function named<Name extends string>(
   option: string,
@@ -155,16 +153,18 @@ export function named<Name extends string>(
 }
 
 /**
- * Turns the values parsed into the targets to open.
+ * Resolves the parsed options into one target per combination.
  *
- * @param values - The options as `parseArgs` read them.
+ * @param values - Options as `parseArgs` returns them.
  * @returns The targets and the scene.
- * @throws {@link Error} When no page is named or an option holds a value it cannot take.
+ * @throws {@link Error} When no page is given or an option has an invalid value.
  */
 export function resolved(values: Values): Resolved {
   const pages = listed(stringAt(values, "page"));
 
-  if (pages.length === 0) throw new Error("--page names the page to open, such as actions/button");
+  if (pages.length === 0) {
+    throw new Error("--page takes a page id, such as components/actions/button");
+  }
 
   const themes = orNone(listed(stringAt(values, "theme")));
   const modes = orNone(listed(stringAt(values, "mode")).map((mode) => named("mode", mode, MODES)));
@@ -188,8 +188,8 @@ export function resolved(values: Values): Resolved {
 }
 
 /**
- * Reads what every target shares: the browser, the port, the height, the scale, and the
- * conditions the page is read under.
+ * Parses the target fields that do not vary per combination: base URL, browser, viewport height,
+ * scale, emulated media and the controls to press.
  */
 function sharedOf(values: Values): Omit<Target, "mode" | "page" | "theme" | "width"> {
   const open = stringAt(values, "open");
@@ -208,15 +208,14 @@ function sharedOf(values: Values): Omit<Target, "mode" | "page" | "theme" | "wid
 }
 
 /**
- * Stands one absent choice in for an empty list, so a loop over the list runs once.
+ * Returns `[undefined]` for an empty list, so a loop over the list runs once with no value.
  */
 function orNone<Value>(values: readonly Value[]): ReadonlyArray<undefined | Value> {
   return values.length === 0 ? [undefined] : values;
 }
 
 /**
- * Writes the slug a target is filed under: the page, the scene, the theme, the mode, the width,
- * and any state or condition it was read under.
+ * Builds the file slug for a target: page, extra parts, theme, mode, width and emulated media.
  */
 export function slugOf(target: Target, ...more: ReadonlyArray<string | undefined>): string {
   const parts = [
@@ -233,11 +232,11 @@ export function slugOf(target: Target, ...more: ReadonlyArray<string | undefined
 }
 
 /**
- * Parses the command line for a command, with its own options beside the shared ones.
+ * Parses the command line with a command's own options added to the shared ones.
  *
  * @param own - The command's own options.
- * @param argv - The arguments, without the runtime and the script.
- * @returns The options by name.
+ * @param argv - Arguments after the runtime and the script path.
+ * @returns Options by name.
  */
 export function parsed(own: ParseArgsConfig["options"], argv: readonly string[]): Values {
   const read = parseArgs({ args: [...argv], options: { ...SHARED, ...own }, strict: true });
