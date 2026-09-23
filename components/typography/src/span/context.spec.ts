@@ -8,7 +8,7 @@ import { recipeClasses } from "@stealthscale/testing-theme";
 import { withContext } from "#span/context.ts";
 
 describe("context", () => {
-  it("draws the recipe's class on an element it binds", () => {
+  it("applies the span class to a bound element", () => {
     const Probe = withContext("i");
     const { container } = render(createElement(Probe, null, "a run"));
 

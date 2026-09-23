@@ -1,11 +1,9 @@
 /**
- * Binds the span element to its recipe.
+ * Renders a span through the span recipe.
  *
  * @remarks
- *   `span` carries no meaning, so a screen reader reads its words as part of the line around it.
- *   Reach for a span where part of a sentence needs a class, a ref or a data attribute and nothing
- *   else. A run that carries meaning takes the element that states it: `Em` for stress, `Strong`
- *   for importance, `Mark` for a highlight, `Quote` for a quotation.
+ *   A `span` has no semantics, so a screen reader reads its text as part of the line. `Em` marks
+ *   stress, `Strong` importance, `Mark` a highlight and `Quote` a quotation.
  */
 
 import { type ComponentProps } from "react";
@@ -13,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#span/context.ts";
 
 /**
- * Draws a run of words inside a line without starting a block.
+ * Renders a `span` element with the classes of the span recipe.
  */
 export const Span = withContext("span");
 
 /**
- * Describes the props a span element takes.
+ * Describes the props of Span: the recipe's variants and the props of a `span` element.
  */
 export type SpanProps = ComponentProps<typeof Span>;

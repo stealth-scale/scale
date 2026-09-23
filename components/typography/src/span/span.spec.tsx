@@ -8,29 +8,29 @@ import { recipe } from "#span/recipe.ts";
 import { Span } from "#span/span.ts";
 
 describe("Span", () => {
-  it("conforms as a span element", () => {
+  it("passes the component conformance checks as a span element", () => {
     expect(violations(Span, { as: true, children: true, element: "SPAN" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule", async () => {
+  it("returns no accessibility violation", async () => {
     await expect(
       accessibilityViolations(Span, { props: { children: "a run" } }),
     ).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(recipe, (props) => render(<Span {...props}>a run</Span>).container),
     ).toStrictEqual([]);
   });
 
-  it("writes no class of its own when nothing is picked", () => {
+  it("applies only the span class when no variant is set", () => {
     const { container } = render(<Span>a run</Span>);
 
     expect([...recipeElement(container, "span").classList]).toStrictEqual(["span"]);
   });
 
-  it("writes the truncate class when a caller cuts the run", () => {
+  it("applies the truncate class when truncate is true", () => {
     const { container } = render(<Span truncate>a long run</Span>);
 
     expect([...recipeElement(container, "span").classList]).toContain(
@@ -38,7 +38,7 @@ describe("Span", () => {
     );
   });
 
-  it("draws the element as names", () => {
+  it("renders an i element when as is i", () => {
     const { container } = render(<Span as="i">a run</Span>);
 
     expect(recipeElement(container, "span").tagName).toBe("I");
