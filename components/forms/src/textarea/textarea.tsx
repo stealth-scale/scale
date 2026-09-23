@@ -4,8 +4,9 @@
  * @remarks
  *   With `grows` set, the component writes the value into an attribute on the root, and the recipe
  *   renders a hidden copy of it in the same grid cell as the `textarea`. The cell takes the height
- *   of the copy, so the field resizes in the same frame as the edit and no layout is measured. The
- *   component holds the value when the caller does not, and writes the attribute from whichever
+ *   of the copy, so the field resizes in the same frame as the edit and no layout is measured.
+ *   Without `grows` the root has no copy, so the field keeps the height of its `rows` and scrolls.
+ *   The component holds the value when the caller does not, and writes the attribute from whichever
  *   value is in force, so a controlled field grows the same way.
  */
 
@@ -31,59 +32,59 @@ const Typed = withContext("textarea", "control");
  *
  * @remarks
  *   The type is written by hand. The styled root's props include every CSS property, so deriving an
- *   axis from them would pick up the style prop of the same name. The variants sit on the root
+ *   axis from them would pick up the style prop of the same name. The variants are on the root
  *   because a slot recipe resolves them where the provider receives them.
  */
 interface Variants {
   /**
-   * The axes the resize handle drags along. Default: `vertical`.
+   * Axes the resize handle drags along. Defaults to `vertical`.
    */
   readonly grip?: "both" | "none" | "vertical" | undefined;
 
   /**
-   * Whether the field takes its height from its content instead of from `rows`.
+   * Whether the field takes its height from its content, with `rows` as the least height.
    */
   readonly grows?: boolean | undefined;
 
   /**
-   * The inset around the text. Default: `md`.
+   * Text size and inset. Defaults to `md`.
    */
   readonly size?: "lg" | "md" | "sm" | undefined;
 
   /**
-   * The status palette the border uses.
+   * Status the edge and the focus ring report.
    */
   readonly status?: "error" | "info" | "success" | "warning" | undefined;
 
   /**
-   * The border treatment. Default: `outline`.
+   * Edges and surface of the field. Defaults to `outline`.
    */
   readonly variant?: "flushed" | "outline" | "subtle" | undefined;
 }
 
 /**
- * Describes the props of `Textarea`: the variants, the value, and the styled `textarea` props.
+ * Describes the props of `Textarea`: the variants, the value, and the props of a styled `textarea`.
  */
 export interface TextareaProps
   extends Omit<ComponentProps<typeof Typed>, "defaultValue" | "onChange" | "value">, Variants {
   /**
-   * The initial value when the caller does not control it.
+   * Initial value when the caller does not control the value.
    */
   readonly defaultValue?: string | undefined;
 
   /**
-   * Receives the new value on every change.
+   * Called with the new value on every change.
    */
   readonly onValueChange?: ((value: string) => void) | undefined;
 
   /**
-   * The controlled value.
+   * Controlled value.
    */
   readonly value?: string | undefined;
 }
 
 /**
- * Renders the field inside the root that sizes it.
+ * Renders the `textarea` inside the root that sizes it.
  *
  * @remarks
  *   `omitUndefined` removes the variants the caller left unset, because the styled root's props
@@ -109,7 +110,7 @@ export function Textarea({
   const variants = omitUndefined({ grip, grows, size, status, variant });
 
   return (
-    <Sized {...{ [VALUE]: held }} {...variants}>
+    <Sized {...(grows === true ? { [VALUE]: held } : {})} {...variants}>
       <Typed
         {...rest}
         onChange={(event) => {

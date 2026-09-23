@@ -8,7 +8,7 @@ import { slotClass, slotClasses, variantClass } from "@stealthscale/testing-them
 import { withContext, withProvider } from "#textarea/context.ts";
 
 describe("context", () => {
-  it("draws the slot's class on an element it binds", () => {
+  it("applies the slot class to an element it binds", () => {
     const Box = withProvider("div", "root");
     const Typed = withContext("textarea", "control");
     const { container } = render(createElement(Box, null, createElement(Typed)));
@@ -18,7 +18,7 @@ describe("context", () => {
     );
   });
 
-  it("hands the root's variants to the control below it", () => {
+  it("applies the root's variant to the control inside it", () => {
     const Box = withProvider("div", "root");
     const Typed = withContext("textarea", "control");
     const { container } = render(createElement(Box, { grip: "none" }, createElement(Typed)));

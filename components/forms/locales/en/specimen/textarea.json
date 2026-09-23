@@ -1,22 +1,30 @@
 {
-  "about": "Draws a box a person types several lines into.",
+  "about": "Renders a multi-line text field that keeps the height of its rows or grows with its text.",
+  "answer": "Thanks for the photos. The refund is on its way.",
+  "delivery": "Delivery notes",
   "grip": {
-    "about": "Where a reader can drag the box: nowhere, down, or either way.",
+    "about": "The resize handle drags nowhere, down, or both ways. Each value sets the CSS `resize` property.",
     "title": "Grip"
   },
   "grows": {
-    "about": "A box of three rows beside one that takes its height from the text.",
+    "about": "Both fields contain more lines than their three rows. Without `grows` the field keeps its rows and scrolls. With `grows` it takes the height of its text.",
     "title": "Grows"
   },
   "notes": "Notes",
+  "prompt": "Add a note for the courier",
+  "reply": "Reply",
+  "size": {
+    "about": "Every size in every look. The text reads the body role, and the inset is one size smaller than the size, the same as the input's.",
+    "title": "Sizes and looks"
+  },
+  "states": {
+    "about": "Rest, keyboard focus, disabled, read-only and invalid in every look. The subtle and flushed looks report focus by widening their edge to 2px in the ring color. A read-only field dashes its edges.",
+    "title": "States"
+  },
   "status": {
-    "about": "Every status in every look.",
+    "about": "Every status in every look. A status sets the edge and the focus ring from its palette.",
     "title": "Statuses"
   },
   "title": "Textarea",
-  "variant": {
-    "about": "Every look at every size.",
-    "title": "Looks and sizes"
-  },
-  "written": "The delivery was left with a neighbour on Thursday.\nThe neighbour was out on Friday.\nSaturday it was on the step.\nSunday it was gone."
+  "written": "The parcel was left with a neighbour on Thursday.\nThe neighbour was out on Friday.\nOn Saturday it was on the step.\nOn Sunday it was gone."
 }

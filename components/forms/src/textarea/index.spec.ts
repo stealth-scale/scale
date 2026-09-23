@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#textarea/index.ts";
 
 describe("index", () => {
-  it("names every export and nothing beside it", () => {
+  it("exports Textarea only", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual(["Textarea"]);
   });
 
-  it("publishes neither the recipe nor the binding", () => {
+  it("exports no recipe binding or hook", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {

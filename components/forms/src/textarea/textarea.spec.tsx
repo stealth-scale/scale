@@ -10,9 +10,7 @@ import { recipe } from "#textarea/recipe.ts";
 import { Textarea, type TextareaProps } from "#textarea/textarea.tsx";
 
 /**
- * Draws a textarea a caller drives, so a case can read what a driven one does.
- *
- * @returns The box, holding whatever the last change reported.
+ * Renders a textarea whose value the caller holds.
  */
 function Driven(): ReactElement {
   const [held, setHeld] = useState("");
@@ -21,13 +19,13 @@ function Driven(): ReactElement {
 }
 
 describe("Textarea", () => {
-  it("breaks no accessibility rule where a caller names it", async () => {
+  it("returns no accessibility violation when named with aria-label", async () => {
     await expect(
       accessibilityViolations(Textarea, { props: { "aria-label": "Notes" } }),
     ).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(
         recipe,
@@ -37,32 +35,38 @@ describe("Textarea", () => {
     ).toStrictEqual([]);
   });
 
-  it("draws a textarea inside the box that measures it", () => {
+  it("renders a textarea inside the root", () => {
     const { container } = render(<Textarea aria-label="Notes" />);
 
     expect(slotElement(container, "textarea", "control").tagName).toBe("TEXTAREA");
   });
 
-  it("is three lines tall before it grows", () => {
+  it("defaults rows to 3", () => {
     render(<Textarea aria-label="Notes" />);
 
     expect(screen.getByRole("textbox").getAttribute("rows")).toBe("3");
   });
 
-  it("copies the text onto the box that measures it", () => {
+  it("copies the value onto the root when grows is set", () => {
     const { container } = render(<Textarea aria-label="Notes" defaultValue="two lines" grows />);
 
     expect(slotElement(container, "textarea", "root").dataset["value"]).toBe("two lines");
   });
 
-  it("copies the text again as a person types", () => {
+  it("writes no copy onto the root when grows is unset", () => {
+    const { container } = render(<Textarea aria-label="Notes" defaultValue="two lines" />);
+
+    expect(slotElement(container, "textarea", "root").dataset["value"]).toBeUndefined();
+  });
+
+  it("updates the copy on every change when grows is set", () => {
     const { container } = render(<Textarea aria-label="Notes" grows />);
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "a line" } });
 
     expect(slotElement(container, "textarea", "root").dataset["value"]).toBe("a line");
   });
 
-  it("tells a caller what it holds as a person types", () => {
+  it("calls onValueChange with the new value on every change", () => {
     const told = vi.fn<(value: string) => void>();
 
     render(<Textarea aria-label="Notes" onValueChange={told} />);
@@ -71,7 +75,7 @@ describe("Textarea", () => {
     expect(told).toHaveBeenLastCalledWith("ab");
   });
 
-  it("follows a caller that drives it", () => {
+  it("renders the value its caller holds", () => {
     render(<Driven />);
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "abc" } });
 
