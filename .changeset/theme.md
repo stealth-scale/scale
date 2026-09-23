@@ -318,3 +318,9 @@ theme: add paletteVariants
 - `paletteVariants()` writes a `palette` axis over the eight semantic palettes: `primary`,
   `secondary`, `accent`, `neutral` and the four statuses. Each value sets `colorPalette`, and the
   recipe reads the palette's roles.
+
+theme: kebab-case the slot in a slot compound's class
+
+- `defineSlotRecipe` builds each compound's `className` from `slotClass`, which kebab-cases the
+  slot. A compound on the `closeTrigger` slot declared `alert__closeTrigger--contrasted` while the
+  element carried `alert__close-trigger--contrasted`, so `boundViolations` reported both classes.

@@ -1,17 +1,15 @@
 /**
- * Defines a recipe: how a component draws itself, as the styles of its base, its variants and its
- * compounds, typed against the vocabulary.
+ * Defines recipes and slot recipes typed against the theme's tokens, and names their compounds.
  *
  * @remarks
- *   Each definition returns the recipe typed over the compiler's own recipe types, so a recipe file
- *   carries no compiler code and is safe to import from a component at run time and from a
- *   configuration in Node. The types come from the generated runtime, so a value a recipe writes is
- *   checked against the tokens the foundation defines. A compound is named here, because the
- *   compiler emits its styles under the class the recipe states and the runtime reads the same name
- *   from the same object.
+ *   Each definition returns the recipe typed over the compiler's generated recipe types, so a
+ *   recipe file holds no compiler code and loads both in a component at run time and in a Node
+ *   configuration. The generated types check every value against the foundation's tokens. The
+ *   definitions write each compound's `className`, because the compiler emits the compound's styles
+ *   under that class and the runtime reads it from the same object.
  */
 
-import { compoundClass } from "@stealthscale/pandacss-naming";
+import { compoundClass, slotClass } from "@stealthscale/pandacss-naming";
 
 import type {
   RecipeCompoundSelection,
@@ -25,87 +23,87 @@ import { type RecipeRule } from "#pandacss.ts";
 import { recordOf } from "#record.ts";
 
 /**
- * Describes what a recipe states about itself beyond its styles.
+ * Describes the recipe fields other than styles.
  */
 interface Meta {
   /**
-   * The prefix of every class the recipe emits.
+   * Prefix of every class the recipe emits.
    */
   className: string;
 
   /**
-   * Why the recipe exists, carried into the generated documentation.
+   * Purpose of the recipe, copied into the generated documentation.
    */
   description?: string;
 
   /**
-   * Every tag that carries the recipe's variant props, as a name or a pattern. Without it only a
-   * tag named after the recipe is extracted, and a wrapper under another name draws nothing.
+   * JSX tags that take the recipe's variant props, as names or patterns. Without it the compiler
+   * extracts only a tag named after the recipe.
    */
   jsx?: Array<RegExp | string>;
 
   /**
-   * Variants written into the stylesheet whether or not a source file reads them, for the ones a
-   * component picks while it runs.
+   * Variant values emitted whether or not source code references them, for values a component
+   * picks at run time.
    */
   staticCss?: RecipeRule[];
 }
 
 /**
- * Carries the name of a compound and the class its styles are emitted under.
+ * Describes the name of a compound and the class its styles are emitted under.
  */
 interface Named {
   /**
-   * The class name. `defineRecipe` and `defineSlotRecipe` write it from the name, as
-   * `<class>--<name>`, and the compiler emits the compound's styles under it.
+   * Class of the compound. `defineRecipe` and `defineSlotRecipe` write it as `<class>--<name>`,
+   * and the compiler emits the compound's styles under it.
    */
   className?: string | undefined;
 
   /**
-   * The name the author gives the compound, which reads on the element as `button--hero` reads.
-   * `defineRecipe` and `defineSlotRecipe` remove it once the class is written, because the
-   * compiler and the runtime read every other key of a compound as an axis.
+   * Author's name for the compound, applied to the element as `button--hero`. The definitions
+   * remove it after writing the class, because the compiler and the runtime read every other key
+   * of a compound as an axis.
    */
   name?: string | undefined;
 }
 
 /**
- * Carries the styles of a compound that draws one element.
+ * Describes the styles of a compound in a recipe with one element.
  */
 interface Styled {
   /**
-   * The styles that apply where every axis the compound names matches.
+   * Styles applied where every axis the compound names matches.
    */
   css: SystemStyleObject;
 }
 
 /**
- * Carries the styles of a compound that draws several parts, by slot.
+ * Describes the styles of a compound in a slot recipe, keyed by slot.
  *
- * @typeParam Slots - Every part the recipe styles.
+ * @typeParam Slots - Every slot the recipe styles.
  */
 interface SlotStyled<Slots extends string> {
   /**
-   * The styles that apply where every axis the compound names matches, keyed by slot.
+   * Styles applied where every axis the compound names matches, keyed by slot.
    */
   css: SlotRecord<Slots, SystemStyleObject>;
 }
 
 /**
- * Describes one compound of a recipe that draws one element: the values it matches on, the class
- * its styles are emitted under, and the styles.
+ * Describes one compound of a recipe with one element: the values it matches, its class and its
+ * styles.
  *
- * @typeParam Variants - Each axis the recipe offers, against the values it takes.
+ * @typeParam Variants - Each axis of the recipe and its values.
  */
 export type Compound<Variants extends RecipeVariantRecord> = Named &
   RecipeCompoundSelection<Variants> &
   Styled;
 
 /**
- * Describes one compound of a recipe that draws several parts.
+ * Describes one compound of a slot recipe.
  *
- * @typeParam Slots - Every part the recipe styles.
- * @typeParam Variants - Each axis it offers, against the values it takes.
+ * @typeParam Slots - Every slot the recipe styles.
+ * @typeParam Variants - Each axis of the recipe and its values.
  */
 export type SlotCompound<
   Slots extends string,
@@ -113,76 +111,75 @@ export type SlotCompound<
 > = Named & RecipeCompoundSelection<Variants> & SlotStyled<Slots>;
 
 /**
- * Describes a whole recipe for a component that draws one element.
+ * Describes a recipe for a component with one element.
  *
- * @typeParam Variants - Each axis the recipe offers, against the values it takes.
+ * @typeParam Variants - Each axis of the recipe and its values.
  */
 export interface Recipe<Variants extends RecipeVariantRecord = RecipeVariantRecord> extends Meta {
   /**
-   * The styles every instance is drawn with.
+   * Styles of every instance.
    */
   base?: SystemStyleObject | undefined;
 
   /**
-   * The styles that apply where a combination of values matches, each under a class of its own.
+   * Styles applied where a combination of values matches, each under its own class.
    */
   compoundVariants?: Array<Compound<Variants>> | undefined;
 
   /**
-   * The value of each axis where a caller picks none.
+   * Value of each axis when the caller passes none.
    */
   defaultVariants?: RecipeSelection<Variants> | undefined;
 
   /**
-   * Each axis the recipe offers, against the values it takes and the styles of each value.
+   * Each axis, its values and the styles of each value.
    */
   variants?: undefined | Variants;
 }
 
 /**
- * Describes a whole recipe for a component that draws several parts.
+ * Describes a recipe for a component with several slots.
  *
- * @typeParam Slots - Every part the recipe styles.
- * @typeParam Variants - Each axis it offers, against the values it takes.
+ * @typeParam Slots - Every slot the recipe styles.
+ * @typeParam Variants - Each axis of the recipe and its values.
  */
 export interface SlotRecipe<
   Slots extends string = string,
   Variants extends SlotRecipeVariantRecord<Slots> = SlotRecipeVariantRecord<Slots>,
 > extends Meta {
   /**
-   * The styles every instance is drawn with, keyed by slot.
+   * Styles of every instance, keyed by slot.
    */
   base?: SlotRecord<Slots, SystemStyleObject> | undefined;
 
   /**
-   * The styles that apply where a combination of values matches, each under a class of its own
-   * per slot it styles.
+   * Styles applied where a combination of values matches, each under its own class per slot.
    */
   compoundVariants?: Array<SlotCompound<Slots, Variants>> | undefined;
 
   /**
-   * The value of each axis where a caller picks none.
+   * Value of each axis when the caller passes none.
    */
   defaultVariants?: RecipeSelection<Variants> | undefined;
 
   /**
-   * Every part the recipe styles.
+   * Every slot the recipe styles.
    */
   slots: Slots[];
 
   /**
-   * Each axis the recipe offers, against the values it takes and the styles of each value by slot.
+   * Each axis, its values and the styles of each value by slot.
    */
   variants?: undefined | Variants;
 }
 
 /**
- * Takes the props a recipe lets a caller choose.
+ * Derives the props a recipe's variants give a component.
  *
  * @remarks
- *   The binding works this out for itself, so a component whose props it types needs nothing
- *   here. A component the binding cannot type, such as a list with a type parameter of its own,
- *   states its own props and takes the choices from here rather than writing them out again.
+ *   The binding derives these for the components it creates. A component the binding cannot type,
+ *   such as a list with its own type parameter, declares its props and takes the variant props
+ *   from this type.
  * @typeParam Bound - The recipe to read.
  */
 export type RecipeProps<Bound> =
@@ -193,31 +190,31 @@ export type RecipeProps<Bound> =
       : never;
 
 /**
- * Fixes the character the compiler writes between an axis and its value in a class name.
+ * Separator the compiler writes between an axis and its value in a class name.
  *
  * @remarks
- *   The build plugin configures the compiler with the same character, so a class the runtime
- *   writes and a selector the stylesheet carries agree. The compiler's default underscore, which
- *   neither an axis nor a value contains, so the first one is the boundary between them.
+ *   The build plugin configures the compiler with the same character, so the class the runtime
+ *   writes matches the stylesheet's selector. It is the compiler's default underscore, which no
+ *   axis or value contains, so the first underscore splits the axis from the value.
  */
 export const SEPARATOR = "_";
 
 /**
- * Fixes what the compiler writes between a class and the selection a compound matches on.
+ * Infix the compiler writes between a class and the selection of an unnamed compound.
  */
 const COMPOUND = "--compound__";
 
 /**
- * Lists the keys of a compound that are not axes.
+ * Keys of a compound that are not axes.
  */
 const UNMATCHED = new Set(["className", "css", "name"]);
 
 /**
- * Writes one value a compound matches on the way a class name carries it, or nothing where a
- * class name cannot carry it.
+ * Formats one matched value as a class name segment, or returns undefined for a value a class name
+ * cannot hold.
  *
  * @remarks
- *   An array is the values the axis may hold, joined by a bar.
+ *   An array lists the values the axis may take, joined by a bar.
  */
 function written(value: unknown): string | undefined {
   if (Array.isArray(value)) {
@@ -232,7 +229,7 @@ function written(value: unknown): string | undefined {
 }
 
 /**
- * Lists the axes a compound matches on, sorted, against the value each is matched on.
+ * Lists the axes a compound matches, sorted, with the value of each.
  */
 function matched(compound: object): ReadonlyArray<readonly [axis: string, value: unknown]> {
   return Object.keys(compound)
@@ -242,14 +239,13 @@ function matched(compound: object): ReadonlyArray<readonly [axis: string, value:
 }
 
 /**
- * Writes the selection a compound matches on, in the scheme the compiler names it by, or nothing
- * where a class name cannot carry one of the values.
+ * Formats the selection of a compound in the compiler's naming scheme, or returns undefined when a
+ * matched value cannot be part of a class name.
  *
  * @remarks
- *   The axes sorted, each written as the axis, the separator and the value, with a list joined by
- *   a bar and the pairs joined by two underscores. A reader that has a compound and wants the name
- *   the compiler gave it asks for this rather than taking a class apart.
- * @param compound - The compound, read for every key but `css` and `className`.
+ *   The axes are sorted, each pair is written as axis, separator and value, array values are joined
+ *   by a bar, and the pairs are joined by two underscores.
+ * @param compound - The compound. Every key except `css` and `className` is read as an axis.
  */
 export function compoundSelection(compound: object): string | undefined {
   const pairs = matched(compound).map(([axis, value]) => {
@@ -262,17 +258,16 @@ export function compoundSelection(compound: object): string | undefined {
 }
 
 /**
- * Writes the class a compound's styles are emitted under, from the recipe's class and the values
- * the compound matches on.
+ * Returns the class the compiler emits an unnamed compound's styles under.
  *
  * @remarks
- *   The scheme is the compiler's own, which it names a compound by where nothing names it. A
- *   compound the author named is written by the naming scheme instead, and the build plugin gives
- *   a theme's compound for the same selection the same class, so this form is the one the testing
- *   kit reports as a compound without a name.
- * @param className - The class of the recipe, or of the slot for a slot recipe.
- * @param compound - The compound, read for every key but `css`, `className` and `name`.
- * @throws {@link Error} When the compound matches an axis on a value a class name cannot carry.
+ *   A named compound takes its class from the naming scheme instead. The build plugin gives a
+ *   theme's compound with the same selection the same class, so the testing kit reports an unnamed
+ *   compound in this form.
+ * @param className - The recipe's class, or the slot's class for a slot recipe.
+ * @param compound - The compound. Every key except `css`, `className` and `name` is read as an
+ *   axis.
+ * @throws {@link Error} When the compound matches an axis on a value a class name cannot hold.
  */
 export function compoundClassName(className: string, compound: object): string {
   const pairs = matched(compound).map(([axis, value]) => {
@@ -289,8 +284,7 @@ export function compoundClassName(className: string, compound: object): string {
 }
 
 /**
- * Writes the class a compound's styles are emitted under: from its name where the author gave one,
- * and by the compiler's own scheme otherwise.
+ * Returns a compound's class: from its name when it has one, and from its selection otherwise.
  */
 function classOf(className: string, compound: Named & object): string {
   return compound.name === undefined
@@ -299,9 +293,9 @@ function classOf(className: string, compound: Named & object): string {
 }
 
 /**
- * Returns a compound with the class its styles are emitted under and without its name.
+ * Returns a compound with its `className` written and its `name` removed.
  *
- * @typeParam Variants - Each axis the recipe offers, against the values it takes.
+ * @typeParam Variants - Each axis of the recipe and its values.
  */
 function named<Variants extends RecipeVariantRecord>(
   className: string,
@@ -315,11 +309,15 @@ function named<Variants extends RecipeVariantRecord>(
 }
 
 /**
- * Returns a compound restricted to one slot, with the class its styles are emitted under for that
- * slot and without its name.
+ * Returns a compound restricted to one slot, with the slot's `className` written and its `name`
+ * removed.
  *
- * @typeParam Slots - Every part the recipe styles.
- * @typeParam Variants - Each axis it offers, against the values it takes.
+ * @remarks
+ *   The slot class comes from `slotClass`, which kebab-cases the slot the way the binding writes
+ *   it. A class built from the raw slot declared `alert__closeTrigger--contrasted` while the
+ *   element carried `alert__close-trigger--contrasted`.
+ * @typeParam Slots - Every slot the recipe styles.
+ * @typeParam Variants - Each axis of the recipe and its values.
  */
 function forSlot<Slots extends string, Variants extends SlotRecipeVariantRecord<Slots>>(
   className: string,
@@ -329,7 +327,7 @@ function forSlot<Slots extends string, Variants extends SlotRecipeVariantRecord<
 ): SlotCompound<Slots, Variants> {
   const built: SlotCompound<Slots, Variants> = {
     ...compound,
-    className: classOf(`${className}__${slot}`, compound),
+    className: classOf(slotClass(className, slot), compound),
     css: recordOf([slot], () => styles),
   };
 
@@ -339,14 +337,13 @@ function forSlot<Slots extends string, Variants extends SlotRecipeVariantRecord<
 }
 
 /**
- * Splits a compound into one per slot it styles, each named for that slot.
+ * Splits a compound into one compound per slot it styles, each with the slot's class.
  *
  * @remarks
- *   The compiler takes one class per compound and applies it to every slot the compound styles, so
- *   a compound that styled two slots under one class would draw each slot's declarations on the
- *   other. One compound per slot gives each slot a class of its own.
- * @typeParam Slots - Every part the recipe styles.
- * @typeParam Variants - Each axis it offers, against the values it takes.
+ *   The compiler applies a compound's one class to every slot the compound styles, so a compound
+ *   with styles for two slots under one class applies both slots' declarations to each slot.
+ * @typeParam Slots - Every slot the recipe styles.
+ * @typeParam Variants - Each axis of the recipe and its values.
  */
 function split<Slots extends string, Variants extends SlotRecipeVariantRecord<Slots>>(
   className: string,
@@ -361,13 +358,13 @@ function split<Slots extends string, Variants extends SlotRecipeVariantRecord<Sl
 }
 
 /**
- * Returns a recipe for a component that draws one element, typed, with every compound named.
+ * Returns a recipe for a component with one element, typed, with a class on every compound.
  *
  * @remarks
- *   `const` keeps the literal values of each variant, which is what the binding types a
- *   component's props from. The compiler's own helper widens them to `string`. A recipe without
- *   compounds is returned as it was handed.
- * @typeParam Variants - Each axis the recipe offers, against the values it takes.
+ *   The `const` type parameter keeps the literal values of each variant, from which the binding
+ *   types a component's props. The compiler's own helper widens them to `string`. A recipe without
+ *   compounds is returned unchanged.
+ * @typeParam Variants - Each axis of the recipe and its values.
  */
 export function defineRecipe<const Variants extends RecipeVariantRecord>(
   recipe: Recipe<Variants>,
@@ -383,11 +380,11 @@ export function defineRecipe<const Variants extends RecipeVariantRecord>(
 }
 
 /**
- * Returns a recipe for a component that draws several parts, typed, with every compound split per
- * slot it styles and named.
+ * Returns a recipe for a component with several slots, typed, with every compound split per slot
+ * and given the slot's class.
  *
- * @typeParam Slots - Every part the component draws.
- * @typeParam Variants - Each axis the recipe offers, against the values it takes.
+ * @typeParam Slots - Every slot the component renders.
+ * @typeParam Variants - Each axis of the recipe and its values.
  */
 export function defineSlotRecipe<
   const Slots extends string,
@@ -406,7 +403,7 @@ export function defineSlotRecipe<
 }
 
 /**
- * Returns a style object unchanged, typed, for a fragment two recipes share.
+ * Returns a style object unchanged and typed, for a fragment two recipes share.
  */
 export function defineStyles(styles: SystemStyleObject): SystemStyleObject {
   return styles;
