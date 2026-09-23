@@ -1,8 +1,7 @@
 # @stealthscale/component-primitives
 
-Decides what is drawn and where, and draws nothing itself. No component here renders an element of
-its own, so the package carries no recipe and no preset, and it reaches an application's bundle
-through its barrel alone.
+Components that decide where content renders and render no element of their own. The package has no
+recipe and no preset.
 
 ## Install
 
@@ -14,28 +13,34 @@ The package peers on `react` and `react-dom`.
 
 ## Portal
 
-Draws what it holds somewhere else in the document rather than where it is written. A box positioned
-against the viewport inside a page that clips or stacks is clipped or stacked with it, which is the
-reason to use a portal at all.
+`Portal` renders its children into another element of the document. An ancestor with `overflow`
+clipping or its own stacking context clips and stacks a fixed or absolute descendant, and a portal
+moves the content out of that ancestor.
 
 ```tsx
 import { Portal } from "@stealthscale/component-primitives";
 
 <Portal>
-  <div>Over everything</div>
+  <Toast>Invoice sent</Toast>
 </Portal>;
-<Portal container={panel}>…</Portal>;
+<Portal container={actions}>
+  <Button size="sm">Send invoice</Button>
+</Portal>;
 <Portal disabled>…</Portal>;
 ```
 
-The content goes to the document's body where a caller names no `container`. A caller who wants the
-content where it was written passes `disabled` rather than leaving the portal out, so the tree is
-the same either way.
+The content renders into `document.body` when `container` is absent or null. `disabled` renders the
+content in place, so the component tree is the same with and without the move.
 
-The portal draws nothing until it has mounted. Drawing on a server is impossible, because a portal
-needs a document, and drawing on the first client render instead would be a mismatch a browser
-reports. A page rendered to a string therefore carries no portalled content, and the client fills it
-in.
+The portal renders nothing on the server and in the hydrating render. The server has no document,
+and the hydrating render must match the server's HTML. The client adds the content after hydration.
+A root created with `createRoot` renders the content on its first render.
+
+## Types
+
+| Type          | Props of                                      |
+| ------------- | --------------------------------------------- |
+| `PortalProps` | `Portal`: `children`, `container`, `disabled` |
 
 ## Licence
 

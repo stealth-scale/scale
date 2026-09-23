@@ -1,18 +1,19 @@
 {
-  "about": "Draws what it holds somewhere else in the document rather than where it is written.",
+  "about": "Renders its children into another element of the document, `document.body` by default.",
   "panels": {
-    "first": "The first panel",
-    "second": "The second panel"
+    "first": "First panel",
+    "second": "Second panel"
   },
+  "place": "Place of the card",
   "places": {
-    "first": "Into the first panel",
-    "here": "Left where it is written",
-    "second": "Into the second panel"
+    "first": "First panel",
+    "here": "In place",
+    "second": "Second panel"
   },
   "placing": {
-    "about": "One tile, written once under the two panels, and three places to draw it. Press a control and the tile moves in the document without moving in the tree. Sent into a panel, the portal takes that panel as its container and the tile becomes its child. Left where it is written, the portal is disabled and the tile stays under both.",
+    "about": "The card is written once, after the two panels. Each control moves the card to another place in the document. Its parent in the React tree does not change. For a panel, the portal's `container` is an empty element inside that panel. For In place, the portal is `disabled` and renders the card where it is written.",
     "title": "Placing"
   },
-  "tile": "The tile",
+  "tile": "Invoice INV-2041",
   "title": "Portal"
 }

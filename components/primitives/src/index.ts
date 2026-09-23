@@ -1,7 +1,6 @@
 /**
- * Publishes this package's components for deciding what renders and where. None of them renders an
- * element of its own, so the package ships neither a recipe nor a preset and reaches an
- * application through this entry point alone.
+ * Publishes components that decide where content renders and render no element of their own, so
+ * the package has no recipe and no preset.
  *
  * @packageDocumentation
  */

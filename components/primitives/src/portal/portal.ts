@@ -1,72 +1,69 @@
 /**
- * Renders its children into another part of the document.
+ * Renders its children into another element of the document.
  *
  * @remarks
- *   An element positioned against the viewport is still clipped and stacked by an ancestor that
- *   clips or opens a stacking context, which is the reason to portal out of one at all. Nothing is
- *   rendered before mount: the server has no document to portal into, and rendering on the first
- *   client pass instead would be a hydration mismatch the browser reports. A caller who wants the
- *   content left where it was written passes `disabled` rather than dropping the portal, which
- *   keeps the component tree identical either way.
+ *   An ancestor with `overflow` clipping or its own stacking context clips and stacks a fixed or
+ *   absolute descendant, and a portal moves the content out of that ancestor. The portal renders
+ *   nothing on the server and in the hydrating render, because the server has no document and the
+ *   hydrating render must match the server's HTML. `disabled` renders the children in place, so
+ *   the component tree is the same with and without the move.
  */
 
 import { type ReactNode, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 
 /**
- * Cancels a subscription that has nothing to cancel.
+ * Does nothing, because the subscription has nothing to release.
  */
 function unsubscribe(): void {}
 
 /**
- * Registers a listener that is never called, since the presence of a document never changes.
- *
- * @returns The unsubscribe function React calls on unmount.
+ * Returns the no-op unsubscribe, because the presence of a document never changes.
  */
 function subscribe(): () => void {
   return unsubscribe;
 }
 
 /**
- * Reports the client snapshot, which is true wherever a document exists.
+ * Returns the client snapshot: true, because the client has a document.
  */
-function drawn(): boolean {
+function clientSnapshot(): boolean {
   return true;
 }
 
 /**
- * Reports the server snapshot, which is false because rendering to a string has no document.
+ * Returns the server snapshot: false, because rendering to a string has no document.
  */
-function undrawn(): boolean {
+function serverSnapshot(): boolean {
   return false;
 }
 
 /**
- * Carries the content, the destination and the opt-out.
+ * Describes the props of Portal: the content, the destination and the opt-out.
  */
 export interface PortalProps {
   /**
-   * The content to render at the destination.
+   * Content to render at the destination.
    */
   children?: ReactNode | undefined;
 
   /**
-   * The element to render into, `document.body` when the caller passes none.
+   * Element to render into. Defaults to `document.body`.
    */
   container?: Element | null | undefined;
 
   /**
-   * Whether to leave the content where it was written instead of moving it.
+   * Renders the content in place instead of moving it.
    */
   disabled?: boolean | undefined;
 }
 
 /**
- * Renders the children into the container, in place while `disabled`, or not at all before mount.
+ * Renders the children into the container, in place while `disabled`, and nothing on the server.
  */
 export function Portal(props: PortalProps): ReactNode {
   const { children, container, disabled = false } = props;
-  const mounted = useSyncExternalStore(subscribe, drawn, undrawn);
+  const mounted = useSyncExternalStore(subscribe, clientSnapshot, serverSnapshot);
 
   if (disabled) return children;
   if (!mounted) return undefined;
