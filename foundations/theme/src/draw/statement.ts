@@ -58,6 +58,13 @@ export interface Colors extends Intents {
    * reach the foundation's text ratio on its page is drawn to the ratio it can reach.
    */
   ratios?: Partial<Ratios> | undefined;
+
+  /**
+   * How far each of the three wells sinks below the page, in lightness, from the shallowest:
+   * `bg.subtle`, `bg.muted` and `bg.emphasized`. The foundation's steps, 0.04, 0.08 and 0.13,
+   * unless stated.
+   */
+  wells?: readonly [number, number, number] | undefined;
 }
 
 /**
@@ -66,7 +73,12 @@ export interface Colors extends Intents {
  */
 export function drawColors(colors: Colors): ThemeColors {
   const modes: Inked = { dark: colors.dark, light: colors.light };
-  const options: DrawOptions = { ...colors.ratios, chroma: colors.chroma, keep: colors.keep };
+  const options: DrawOptions = {
+    ...colors.ratios,
+    chroma: colors.chroma,
+    keep: colors.keep,
+    wells: colors.wells,
+  };
   const named = colors.hues === true ? {} : colors.hues;
 
   return {

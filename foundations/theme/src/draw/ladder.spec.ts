@@ -19,7 +19,7 @@ function percents(colors: readonly string[]): readonly number[] {
 }
 
 describe("ladder", () => {
-  it("tells a dark side from a light one by which of the two is lighter", () => {
+  it("reports a side dark when its ink is lighter than its page", () => {
     expect(isDark(DARK)).toBe(true);
     expect(isDark(LIGHT)).toBe(false);
   });
@@ -37,26 +37,41 @@ describe("ladder", () => {
     expect(percents(ladderOf(DARK).wells)).toStrictEqual([11, 7, 2]);
   });
 
-  it("steps the fills with the wells on a light page and lifts them above the popover on a dark one", () => {
+  it("sinks the wells by the steps a theme states", () => {
+    expect(percents(ladderOf(LIGHT, { wells: [0.015, 0.035, 0.06] }).wells)).toStrictEqual([
+      95.5, 93.5, 91,
+    ]);
+  });
+
+  it("sinks the fills of a light page by the foundation's steps when a theme states wells", () => {
+    expect(percents(ladderOf(LIGHT, { wells: [0.015, 0.035, 0.06] }).fills)).toStrictEqual([
+      93, 89, 84,
+    ]);
+  });
+
+  it("sets the fills of a light page equal to the wells", () => {
     const light = ladderOf(LIGHT);
 
     expect(light.fills).toStrictEqual(light.wells);
+  });
+
+  it("lifts the fills of a dark page above the popover", () => {
     expect(percents(ladderOf(DARK).fills)).toStrictEqual([26, 31, 37]);
   });
 
-  it("sinks the fills with the wells where the ink cannot keep the text ratio on a lifted fill", () => {
+  it("sinks the fills with the wells when the ink misses the text ratio on a lifted fill", () => {
     const dusk = ladderOf({ ink: "oklch(96% 0.02 16)", page: "oklch(46% 0.05 250)" });
 
     expect(dusk.fills).toStrictEqual(dusk.wells);
   });
 
-  it("sinks the fills where a secondary ink would have no room on the deepest lift", () => {
+  it("sinks the fills when a secondary ink has no room on the deepest lift", () => {
     const regatta = ladderOf({ ink: "oklch(94% 0.03 195)", page: "oklch(20% 0.02 260)" });
 
     expect(regatta.fills).toStrictEqual(regatta.wells);
   });
 
-  it("sinks the wells only as far as a secondary ink keeps reading on them", () => {
+  it("stops the wells where a secondary ink would miss the text ratio", () => {
     const weak = ladderOf({ ink: "oklch(40% 0 0)", page: "oklch(97% 0 0)" });
     const deepest = lightnessOf(weak.wells[2]);
 
@@ -65,7 +80,7 @@ describe("ladder", () => {
     expect(lightnessOf(weak.wells[0]) - deepest).toBeCloseTo((0.97 - deepest) * (9 / 13), 2);
   });
 
-  it("raises the surfaces only as far as a secondary ink keeps reading on them", () => {
+  it("stops the raised surfaces where a secondary ink would miss the text ratio", () => {
     const weak = ladderOf({ ink: "oklch(78% 0.05 150)", page: "oklch(25% 0.02 200)" });
 
     expect(lightnessOf(weak.popover)).toBeLessThan(0.25 + 0.07);
@@ -90,13 +105,13 @@ describe("ladder", () => {
     expect(lightnessOf(beyond.popover)).toBeCloseTo(0.45, 3);
   });
 
-  it("keeps the ladder's shape where the ink cannot read on the page at all", () => {
+  it("uses the full steps when the ink cannot read on the page at all", () => {
     const unreadable = ladderOf({ ink: "oklch(90% 0 0)", page: "oklch(97% 0 0)" });
 
     expect(percents(unreadable.wells)).toStrictEqual([93, 89, 84]);
   });
 
-  it("moves a line a step on from the one before it where the two would be too close", () => {
+  it("moves a line one step past the line before it when the two are too close", () => {
     expect(apart("oklch(30% 0 0)", "oklch(31% 0 0)", "oklch(97% 0 0)", 0.025)).toBe(
       "oklch(32.5% 0.0000 0.0)",
     );
@@ -108,19 +123,19 @@ describe("ladder", () => {
     );
   });
 
-  it("keeps a stated panel and places the popover a step above it", () => {
+  it("uses a stated panel and places the popover one step above it", () => {
     const ladder = ladderOf({ ...DARK, panel: "oklch(30% 0 0)" });
 
     expect(ladder.panel).toBe("oklch(30% 0 0)");
     expect(percents([ladder.popover])).toStrictEqual([33]);
   });
 
-  it("keeps the page and the ink as stated", () => {
+  it("returns the page and the ink as stated", () => {
     expect(ladderOf(LIGHT).page).toBe(PAGES.light);
     expect(ladderOf(LIGHT).ink).toBe(PAGES.dark);
   });
 
-  it("reads the foundation's ratios with any a theme restates over them", () => {
+  it("returns the foundation's ratios with the ratios a theme restates", () => {
     expect(ratiosOf()).toStrictEqual(RATIOS);
     expect(ratiosOf({ hairline: 1.6, text: 6 })).toStrictEqual({
       boundary: 3,
@@ -131,14 +146,14 @@ describe("ladder", () => {
     });
   });
 
-  it("holds every ratio a theme lowers at the floor", () => {
+  it("clamps every ratio a theme lowers to the floor", () => {
     expect(ratiosOf({ boundary: 1, hairline: 1.1, label: 3, tertiary: 3, text: 2 })).toStrictEqual({
       ...FLOOR,
       hairline: 1.1,
     });
   });
 
-  it("keeps a share of the page's chroma on every raised surface and well where a theme tapers", () => {
+  it("tapers the chroma of every raised surface and well to the share a theme states", () => {
     const page = "oklch(20% 0.1400 292)";
     const full = ladderOf({ ink: "oklch(95% 0.02 90)", page });
     const tapered = ladderOf({ ink: "oklch(95% 0.02 90)", page }, { chroma: 0.5 });
@@ -157,11 +172,11 @@ describe("ladder", () => {
     expect(contrast(ink, PAGES.light)).toBeLessThan(7.1);
   });
 
-  it("returns an ink that fails the ratio before it moves as it is", () => {
+  it("returns an ink that misses the ratio before it moves unchanged", () => {
     expect(faded("oklch(50% 0 0)", WHITE, [WHITE], 7)).toBe("oklch(50% 0 0)");
   });
 
-  it("fades all the way where the ratio holds at the page", () => {
+  it("fades all the way to the page when the ratio holds there", () => {
     expect(lightnessOf(faded(PAGES.dark, PAGES.light, [PAGES.light], 1))).toBeCloseTo(0.97, 3);
   });
 
@@ -172,15 +187,15 @@ describe("ladder", () => {
     expect(contrast(line, PAGES.light)).toBeLessThan(1.47);
   });
 
-  it("returns a color that already clears the ratio as it is", () => {
+  it("returns a color that already clears the ratio unchanged", () => {
     expect(raised(PAGES.dark, PAGES.light, [PAGES.light], 3)).toBe(PAGES.dark);
   });
 
-  it("raises a color all the way to the ink where even the ink fails the ratio", () => {
+  it("raises a color to the ink when even the ink misses the ratio", () => {
     expect(lightnessOf(raised(PAGES.light, PAGES.dark, [PAGES.light], 30))).toBeCloseTo(0.15, 3);
   });
 
-  it("holds a raised color to every surface it is measured on", () => {
+  it("measures a raised color against every surface given", () => {
     const line = raised(PAGES.light, PAGES.dark, [PAGES.light, "oklch(93% 0 0)"], 1.45);
 
     expect(contrast(line, "oklch(93% 0 0)")).toBeGreaterThanOrEqual(1.45);

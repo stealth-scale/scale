@@ -331,3 +331,40 @@ theme: dim the siblings of a focused or pressed child
   `[aria-pressed=true]` one, while the container has such a child. It reacted to `:hover` only.
   Keyboard focus did not dim the siblings, and a pressed toggle did not show the choice at rest.
 - At rest a pressed child keeps its siblings at opacity 0.64 with `blur(4px)`.
+
+theme: report keyboard focus on the edge of a subtle or flushed field
+
+- The `subtle` and `flushed` field looks draw their block-end edge in the focus ring color and at
+  the ring width, 2px, under keyboard focus. Both looks kept the 1px rest edge and set the outline
+  to `none` under focus. The look writes the edge after the status axis, so a field with a status
+  also shows focus.
+- A control in either look pads its block end by the width the edge gains, 1px, at rest and drops
+  the padding on focus, so its text does not move. A box around a control pulls its block-end margin
+  in by 1px on focus, so the elements after it do not move.
+- A read-only field that is not disabled dashes its drawn edges on every field look. On the subtle
+  look the read-only fill differed from rest by 0.04 in lightness, and forced colors removed it.
+
+theme: stop the label role shrinking at 2xl
+
+- `label.2xl` reads `xl`, 20.25px, in place of `lg`, 18px, so no control size sets its text smaller
+  than the size below it. Buttons and inputs at `2xl` show the change.
+
+theme: read a field box's state from every control inside it
+
+- `wrappedField()` reads focus, invalid, disabled and read-only from any `input`, `select` or
+  `textarea` in the box, at any depth. It read the box's direct children before. A select inside an
+  addon did not report its state to the box.
+- A box is disabled when no control in it is enabled. It is read-only when every text control in it
+  is read-only and none is disabled. A focused button in the box draws its own ring, and the box
+  draws none.
+- `FIELD_EDGE` is published from the authoring entry, so a recipe draws a divider inside a field in
+  the field's edge color.
+- `cursor.field` is the text cursor. A field box reads it over its marks and padding.
+- The subtle field look rests on `bg.subtle`, where it rested on `bg.muted`.
+
+theme: let a theme state how far its wells sink
+
+- `colors.wells` states how far `bg.subtle`, `bg.muted` and `bg.emphasized` sink below the page,
+  from the shallowest. The foundation's steps are 0.04, 0.08 and 0.13.
+- A light page's palette fills keep the foundation's steps, so a subtle button keeps its distance
+  from the page in a theme with lighter wells.

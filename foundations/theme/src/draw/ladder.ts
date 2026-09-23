@@ -131,6 +131,16 @@ export interface DrawOptions extends Partial<Ratios> {
    * where it is `true`, and the intents named where it is a list.
    */
   keep?: boolean | readonly Palette[] | undefined;
+
+  /**
+   * How far each of the three wells sinks below the page, in lightness, from the shallowest. The
+   * foundation's steps unless stated.
+   *
+   * @remarks
+   *   The steps move `bg.subtle`, `bg.muted` and `bg.emphasized` only. A control's quiet fills keep
+   *   the foundation's steps, so a lighter well does not weaken a subtle button.
+   */
+  wells?: readonly [number, number, number] | undefined;
 }
 
 /**
@@ -323,9 +333,11 @@ function tapered(surface: string, page: string, share: number): string {
  *
  * @remarks
  *   A stated panel is kept as stated. The popover above it rises a step further, but no further
- *   than the secondary ink allows, and no lower than the panel itself. Every raised surface and
- *   every well is tapered towards grey where the theme states a share of its page's chroma, and
- *   the fills are not, because a fill carries a palette's own hue.
+ *   than the secondary ink allows, and no lower than the panel itself. The wells sink by the steps
+ *   the theme states, or the foundation's. The fills of a light page sink by the foundation's steps
+ *   whatever the theme states. Every raised surface and every well is tapered towards grey where
+ *   the theme states a share of its page's chroma, and the fills are not, because a fill carries a
+ *   palette's own hue.
  * @param side - The page and the ink, and the panel where the theme states one.
  * @param options - The ratios the theme draws to and the chroma its surfaces keep.
  */
@@ -339,7 +351,9 @@ export function ladderOf(side: Written, options: DrawOptions = {}): Ladder {
       : Math.max(POPOVER[mode], lightnessOf(side.panel) + PANEL.light - lightnessOf(side.page));
   const rise = reach(side, ceiling, text);
   const rises = within([PANEL[mode], POPOVER[mode], POPOVER[mode]], rise);
-  const sinks = within(STEPS, reach(side, -STEPS[2], text));
+  const steps = options.wells ?? STEPS;
+  const sinks = within(steps, reach(side, -steps[2], text));
+  const fillSinks = within(STEPS, reach(side, -STEPS[2], text));
   const panel = side.panel ?? moved(side.page, rises[0]);
   const popover =
     side.panel === undefined
@@ -357,8 +371,14 @@ export function ladderOf(side: Written, options: DrawOptions = {}): Ladder {
     moved(side.page, -sinks[2]),
   ];
 
+  const sunk: [string, string, string] = [
+    moved(side.page, -fillSinks[0]),
+    moved(side.page, -fillSinks[1]),
+    moved(side.page, -fillSinks[2]),
+  ];
+
   return {
-    fills: fillsOf(side, wells, text),
+    fills: fillsOf(side, sunk, text),
     ink: side.ink,
     page: side.page,
     panel: tapered(panel, side.page, share),
