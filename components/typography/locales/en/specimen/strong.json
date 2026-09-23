@@ -1,15 +1,14 @@
 {
-  "about": "Marks a run of words as more important than the words around it, in the strong role.",
-  "after": " once it has been run.",
-  "before": "The migration",
-  "cannot": "cannot be undone",
+  "about": "Marks text as more important than the surrounding text. The element has the strong role.",
   "motion": {
-    "about": "How the run enters the line.",
+    "about": "The animation a strong run enters with. Each one runs once when the run mounts.",
     "title": "Motion"
   },
+  "permanent": "cannot be undone.",
+  "subject": "Deleting a workspace",
   "title": "Strong",
   "tone": {
-    "about": "Every weight in every ink, inside a line of ordinary words.",
+    "about": "Every weight in every text ink, inside a line of body text. The inverted ink is for a dark surface, so its row renders on `bg.inverted`.",
     "title": "Weights and inks"
   }
 }

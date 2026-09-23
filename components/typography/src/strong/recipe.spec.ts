@@ -11,35 +11,35 @@ describe("recipe", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+  it("has no scene that writes a value the recipe does not offer", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Strong"] })).toStrictEqual([]);
   });
 
-  it("names its class strong", () => {
+  it("sets className to strong", () => {
     expect(recipe.className).toBe("strong");
   });
 
-  it("offers an entrance axis and an ink axis and a weight axis", () => {
+  it("declares three variant axes", () => {
     expect(axesOf(recipe)).toStrictEqual(["motion", "tone", "weight"]);
   });
 
-  it("draws the semibold step when nothing is asked for", () => {
+  it("defaults to the semibold weight", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ weight: "semibold" });
   });
 
-  it("offers the three steps heavier than the running text", () => {
+  it("declares three weights on the weight axis", () => {
     expect(valuesOf(recipe, "weight")).toStrictEqual(["bold", "medium", "semibold"]);
   });
 
-  it("leaves out the normal step because a run drawn at the text's weight states nothing", () => {
+  it("declares no normal weight", () => {
     expect(valuesOf(recipe, "weight")).not.toContain("normal");
   });
 
-  it("offers the eight inks", () => {
+  it("declares eight inks on the tone axis", () => {
     expect(valuesOf(recipe, "tone")).toStrictEqual([
       "default",
       "error",
@@ -52,7 +52,7 @@ describe("recipe", () => {
     ]);
   });
 
-  it("tracks every tag whose name ends in Strong", () => {
+  it("matches every JSX tag that ends in Strong", () => {
     expect(recipe.jsx).toStrictEqual([/Strong$/u]);
   });
 });
