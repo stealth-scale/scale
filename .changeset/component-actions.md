@@ -123,3 +123,12 @@ component-actions: render the clipboard scenes from examples
 - The clipboard specimen renders each scene from a file under `clipboard/examples/`. The size scene
   renders the three sizes itself, and the field and the rows take a phone's width.
 - Docblocks, case names, the README section and the scene text are rewritten in the house register.
+
+component-actions: zero the inline padding of every square button
+
+- The `squared` compound sets `paddingInline: 0` on every `shape="square"` button. It applied only
+  to a square whose first child is an `svg`, so `Clipboard.Trigger`, which wraps its icon in
+  `Clipboard.Indicator`, kept the size's padding. At `md`, 16px each side left a 6px content box for
+  a 16px icon, and the content measured 43px in a 40px box.
+- The `shape` variant sets only `aspectRatio`. The compiler emits the size axis after it, so its
+  padding never applied.

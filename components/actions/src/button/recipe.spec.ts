@@ -156,10 +156,10 @@ describe("recipe", () => {
     ]);
   });
 
-  it("zeroes the inline padding of a square whose first child is an svg", () => {
+  it("zeroes the inline padding of every square", () => {
     expect(recipe.compoundVariants?.[0]).toStrictEqual({
       className: "button--squared",
-      css: { "&:has(> svg:first-child)": { paddingInline: "0" } },
+      css: { paddingInline: "0" },
       shape: "square",
     });
   });

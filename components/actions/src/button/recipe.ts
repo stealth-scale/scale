@@ -28,10 +28,10 @@ import {
  * @remarks
  *   A button is on when it has `aria-pressed="true"` or `aria-current="page"`, so the fill matches
  *   what a screen reader announces. The styles go in a compound variant, not the base, because the
- *   compiler emits a look's background in a later cascade layer than the base, and the later layer
- *   wins whatever the selector's specificity. Pass `colorPalette.subtle` for a look with no resting
- *   fill and `colorPalette.muted` for a look that rests on the subtle fill, so the on state is one
- *   step deeper in both.
+ *   compiler emits a look's background in a later cascade layer than the base, and a later layer
+ *   applies over an earlier one at any specificity. Pass `colorPalette.subtle` for a look with no
+ *   resting fill and `colorPalette.muted` for a look that rests on the subtle fill, so the on state
+ *   is one step deeper in both.
  */
 function on(background: "colorPalette.muted" | "colorPalette.subtle"): SystemStyleObject {
   return {
@@ -44,10 +44,10 @@ function on(background: "colorPalette.muted" | "colorPalette.subtle"): SystemSty
  * Returns the `_currentPage` and `_pressed` styles of the solid look.
  *
  * @remarks
- *   The solid look has no deeper fill left, and any other fill would match its hover fill. An inset
- *   shadow in the label ink stays visible under hover, beside a focus ring drawn outside the
- *   element, and in forced colors mode, where the browser replaces every background. `:active`
- *   stays the momentary press.
+ *   The solid look has no deeper fill, and any other fill matches its hover fill. The on state is
+ *   an inset shadow in the label ink, which is visible under hover, beside a focus ring outside the
+ *   element, and in forced colors mode, where the browser replaces every background. `:active` is
+ *   the momentary press.
  */
 function marked(): SystemStyleObject {
   return {
@@ -79,8 +79,16 @@ export const recipe = defineRecipe({
   },
   className: "button",
   compoundVariants: [
+    /**
+     * Zeroes the inline padding of a square button.
+     *
+     * @remarks
+     *   The compiler emits the size axis after the shape axis, and the size axis sets the padding,
+     *   so the reset is a compound. `aspect-ratio` fixes the width, so padding only narrows the
+     *   content box: at md, 16px each side leaves 6px for a 16px icon.
+     */
     {
-      css: { "&:has(> svg:first-child)": { paddingInline: "0" } },
+      css: { paddingInline: "0" },
       name: "squared",
       shape: "square",
     },
@@ -109,9 +117,9 @@ export const recipe = defineRecipe({
      *
      * @remarks
      *   `pulse` sets `boxShadowColor` because its keyframe writes the whole `box-shadow`, which
-     *   would replace a static glow. No moving border is offered. `border.moving` paints over the
-     *   padding box and hides the look's fill, and a ring drawn without it needs a pseudo-element,
-     *   but `::after` holds the ripple and `::before` the touch target.
+     *   replaces a static glow. The axis offers no moving border. `border.moving` paints over the
+     *   padding box and hides the look's fill, and a ring without it needs a pseudo-element, but
+     *   `::after` renders the ripple and `::before` the touch target.
      */
     effect: {
       glow: { layerStyle: "glow.md" },
@@ -120,14 +128,14 @@ export const recipe = defineRecipe({
     elevation: liftVariants(),
 
     /**
-     * The palette every look draws in. The base draws in `primary`.
+     * Palette of every look. The base sets `primary`.
      *
      * @remarks
-     *   `neutral` draws a control in the ink of the text around it, for a button in a toolbar.
+     *   `neutral` renders the control in the surrounding text ink, for a button in a toolbar.
      */
     palette: paletteVariants(),
     shape: {
-      square: { aspectRatio: "square", paddingInline: "0" },
+      square: { aspectRatio: "square" },
     },
     size: controlSizes(),
     variant: { ...lookVariants(), glass: { layerStyle: "glass" } },
