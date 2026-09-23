@@ -46,7 +46,7 @@ export function Typography(): ReactElement {
       <Text size="xs">A paragraph in the smallest body size.</Text>
       <Text>
         A paragraph in the body size, holding <Code>pnpm add</Code> as a snippet of code and{" "}
-        <Kbd>Esc</Kbd> as a key a reader is asked to press.
+        <Kbd.Root>Esc</Kbd.Root> as a key a reader is asked to press.
       </Text>
       <Text size="sm" tone="muted" truncate>
         A small muted line cut to one line where the box ends, however long it runs on past the edge

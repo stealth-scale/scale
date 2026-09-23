@@ -1,58 +1,74 @@
 /**
- * Shows the keycap: every look at every size, and every status in every look.
+ * Catalogue page for the keycap.
  *
  * @remarks
- *   The scenes are generated from the recipe, so an axis added to it reaches the page without this
- *   file changing. The size is crossed with the look and the look with the status, because each
- *   pair reads as a grid rather than as two lists. The keys are the keys themselves and are not
- *   translated: the escape key where the look and the size are what change, and a shortcut where
- *   the status is. The scene words are keys under `kbd` in the catalogue's namespace, kept beside
- *   this file in `locales/en/specimen/kbd.json`.
+ *   `scenesOf` generates the look scene, crossed with the size axis, and the palette scene, crossed
+ *   with the look axis. Hand-written scenes render the modifier and named keys, a combination
+ *   inside a line of body text, and a list of commands with their combinations in a 384px room.
+ *   Every scene renders a component from `examples/` and shows that file as its source. Key labels
+ *   are literal and the other words are keys under `kbd` in `locales/en/specimen/kbd.json`.
  */
 
-import { type ReactElement } from "react";
+import { Room, type Scene, scenesOf, specimen } from "@stealthscale/specimen";
 
-import { scenesOf, specimen } from "@stealthscale/specimen";
-
-import { Kbd, type KbdProps } from "#kbd/kbd.ts";
+import * as escape from "#kbd/examples/escape.example.tsx";
+import * as keys from "#kbd/examples/keys.example.tsx";
+import * as sentence from "#kbd/examples/sentence.example.tsx";
+import * as shortcuts from "#kbd/examples/shortcuts.example.tsx";
 import { recipe } from "#kbd/recipe.ts";
 
 /**
- * The call site every scene's source snippet is generated from.
+ * Hand-written scene for the modifier and named keys.
  */
-const SAMPLE = {
-  children: "Esc",
-  imports: 'import { Kbd } from "@stealthscale/component-typography";',
-  name: "Kbd",
+export const named: Scene = {
+  about: "kbd.keys.about",
+  draw: keys.Keys,
+  example: keys,
+  title: "kbd.keys.title",
 };
 
 /**
- * Draws the escape key, which is what a look and a size are read against.
+ * Hand-written scene for a combination inside a line of body text.
  */
-function Escape(props: KbdProps): ReactElement {
-  return <Kbd {...props}>Esc</Kbd>;
-}
+export const inline: Scene = {
+  about: "kbd.sentence.about",
+  draw: sentence.Sentence,
+  example: sentence,
+  title: "kbd.sentence.title",
+};
 
 /**
- * Draws a shortcut, which is what a status is read against.
+ * Hand-written scene for a list of commands in a 384px room.
  */
-function Shortcut(props: KbdProps): ReactElement {
-  return <Kbd {...props}>⌘K</Kbd>;
-}
+export const listed: Scene = {
+  about: "kbd.shortcuts.about",
+  draw: () => (
+    <Room size="sm">
+      <shortcuts.Shortcuts />
+    </Room>
+  ),
+  example: shortcuts,
+  title: "kbd.shortcuts.title",
+};
 
 export default specimen({
   about: "kbd.about",
   id: "components/typography/kbd",
   imports: 'import { Kbd } from "@stealthscale/component-typography";',
-  scenes: scenesOf<KbdProps>(recipe, {
-    axes: {
-      status: { across: "variant", draw: (props) => <Shortcut {...props} /> },
-      variant: { across: "size" },
-    },
-    draw: (props) => <Escape {...props} />,
-    namespace: "kbd",
-    order: ["variant", "status"],
-    sample: SAMPLE,
-  }),
+  scenes: [
+    ...scenesOf<Parameters<typeof escape.Escape>[0]>(recipe, {
+      axes: {
+        palette: { across: "variant" },
+        variant: { across: "size" },
+      },
+      draw: (props) => <escape.Escape {...props} />,
+      example: escape,
+      namespace: "kbd",
+      order: ["variant", "palette"],
+    }),
+    named,
+    inline,
+    listed,
+  ],
   title: "kbd.title",
 });
