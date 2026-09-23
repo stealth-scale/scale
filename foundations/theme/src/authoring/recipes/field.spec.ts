@@ -3,20 +3,21 @@ import { describe, expect, it } from "vitest";
 import { recipeViolations } from "@stealthscale/testing-theme";
 
 import { defineRecipe } from "#authoring/recipe.ts";
-import { field, wrappedField } from "#authoring/recipes/field.ts";
+import { field, FIELD_EDGE, wrappedField } from "#authoring/recipes/field.ts";
 
 describe("field", () => {
   it("draws the panel surface with the control's boundary at the control's width", () => {
     expect(field()).toMatchObject({
       background: "bg.panel",
-      borderColor: "border.emphasized",
+      borderColor: `var(${FIELD_EDGE})`,
       borderWidth: "control",
       color: "fg",
+      [FIELD_EDGE]: "{colors.border.emphasized}",
     });
   });
 
   it("darkens the edge to the tertiary ink under a pointer", () => {
-    expect(field()).toMatchObject({ _hover: { borderColor: "fg.subtle" } });
+    expect(field()).toMatchObject({ _hover: { [FIELD_EDGE]: "{colors.fg.subtle}" } });
   });
 
   it("draws the placeholder in the muted ink", () => {
@@ -25,12 +26,13 @@ describe("field", () => {
 
   it("draws an invalid field in the error palette", () => {
     expect(field()).toMatchObject({
-      _invalid: { borderColor: "border.error", focusRingColor: "error.focusRing" },
+      _invalid: { [FIELD_EDGE]: "{colors.border.error}", focusRingColor: "error.focusRing" },
     });
   });
 
-  it("draws the focus ring inside the box", () => {
+  it("draws the focus ring over the edge rather than beside it", () => {
     expect(field()).toMatchObject({
+      _focusVisible: { outlineOffset: "calc({borderWidths.ring} * -1)" },
       focusRingColor: "colorPalette.focusRing",
       focusVisibleRing: "inside",
     });
@@ -64,9 +66,10 @@ describe("wrappedField", () => {
   it("rests the same way a field does", () => {
     expect(wrappedField()).toMatchObject({
       background: "bg.panel",
-      borderColor: "border.emphasized",
+      borderColor: `var(${FIELD_EDGE})`,
       borderWidth: "control",
       color: "fg",
+      [FIELD_EDGE]: "{colors.border.emphasized}",
     });
   });
 

@@ -4,20 +4,25 @@
  * drawn around one that does.
  *
  * @remarks
- *   Each look restates the hover, invalid and read-only rules the `field` fragment writes, because
- *   the compiler layers a recipe's variants over its base. A look that wrote its edge alone won
- *   over the fragment's states whatever their specificity, so an outlined input neither darkened
- *   under a pointer nor reddened when invalid. The edge is the control's boundary, which stands
- *   from every surface at the ratio 1.4.11 asks of a control. The subtle look carries that edge at
- *   its block end alone, because an empty field has no text and no placeholder, so its fill is the
- *   only thing a reader could identify it by, and a fill two steps below the page stands at 1.39:1
- *   from the panel around it rather than the 3:1 that identifying a control asks for.
- *   The wrapped looks are the same colors read through the control the box holds. `:read-only`
- *   matches every element that is not editable, a box among them, so an outlined textarea rested
- *   on the read-only fill whatever its control was doing. The colors are written once and the two
- *   sets differ only in where the state is read from.
+ *   A look decides which edges are drawn and what the field rests on. What those edges are drawn in
+ *   is the field fragment's `--field-edge`, which the hover, the invalid state and the status axis
+ *   write and every look reads. Each look used to restate those three rules, because the compiler
+ *   layers a recipe's variants over its base and a look that wrote a color won over them; read
+ *   through the property there is nothing left to restate and nothing left to fall out of step.
+ *   The edge is the control's boundary, which stands from every surface at the ratio 1.4.11 asks of
+ *   a control. The subtle look carries that edge at its block end alone, because an empty field has
+ *   no text and no placeholder, so its fill is the only thing a reader could identify it by, and a
+ *   fill two steps below the page stands at 1.39:1 from the panel around it rather than the 3:1
+ *   that identifying a control asks for.
+ *   A look drawn at its block end alone reports focus by that edge rather than by a ring. A ring
+ *   round a field with no box drew the box the look had taken away, which is what a reader saw
+ *   instead of the field they had reached.
+ *   The wrapped looks are the same declarations read through the control the box holds.
+ *   `:read-only` matches every element that is not editable, a box among them, so an outlined
+ *   textarea rested on the read-only fill whatever its control was doing.
  */
 
+import { FIELD_EDGE } from "#authoring/recipes/field.ts";
 import { type LayerStyle } from "#pandacss.ts";
 import { type Look } from "#preset/styles/look.ts";
 
@@ -27,8 +32,12 @@ import { type Look } from "#preset/styles/look.ts";
 type FieldLook = "flushed" | "outline" | "subtle";
 
 /**
- * Describes one look: how it rests, and what it changes under a pointer, when it is wrong, and
- * when it takes no input.
+ * Reports focus by the edge the look already draws, with no ring over it.
+ */
+const EDGED: LayerStyle = { outlineStyle: "none" };
+
+/**
+ * Describes one look: what it rests on, and what it rests on where the control takes no input.
  */
 interface Stated {
   /**
@@ -37,78 +46,81 @@ interface Stated {
   blocked: LayerStyle;
 
   /**
-   * The look under a pointer.
+   * The look where the control holds focus. A look that reports focus with the ring the fragment
+   * already draws leaves it out.
    */
-  hovered: LayerStyle;
+  focused?: LayerStyle | undefined;
 
   /**
-   * How the look rests.
+   * How the look rests, its edges read from the field's own property.
    */
   rested: LayerStyle;
-
-  /**
-   * The look where the control holds something wrong.
-   */
-  wrong: LayerStyle;
 }
 
 /**
- * Fixes what each look rests in and what each state changes.
+ * Fixes what each look rests in and which of its edges are drawn.
  */
 const LOOKS: Readonly<Record<FieldLook, Stated>> = {
   flushed: {
     blocked: { background: "bg.subtle" },
-    hovered: { borderBlockEndColor: "fg.subtle" },
+    focused: EDGED,
     rested: {
       background: "transparent",
-      borderBlockEndColor: "border.emphasized",
+      borderBlockEndColor: `var(${FIELD_EDGE})`,
       borderColor: "transparent",
       borderRadius: "0",
     },
-    wrong: { borderBlockEndColor: "border.error" },
   },
   outline: {
     blocked: { background: "bg.subtle" },
-    hovered: { borderColor: "fg.subtle" },
-    rested: { background: "bg.panel", borderColor: "border.emphasized" },
-    wrong: { borderColor: "border.error" },
+    rested: { background: "bg.panel", borderColor: `var(${FIELD_EDGE})` },
   },
   subtle: {
     blocked: { background: "bg.subtle" },
-    hovered: { borderBlockEndColor: "fg.subtle" },
+    focused: EDGED,
     rested: {
       background: "bg.muted",
-      borderBlockEndColor: "border.emphasized",
+      borderBlockEndColor: `var(${FIELD_EDGE})`,
       borderBlockEndWidth: "control",
       borderColor: "transparent",
     },
-    wrong: { borderBlockEndColor: "border.error" },
   },
 };
 
 /**
  * Writes one look for a control that carries its own states.
  */
-function own({ blocked, hovered, rested, wrong }: Stated): Look {
-  return { value: { _hover: hovered, _invalid: wrong, _readOnly: blocked, ...rested } };
-}
-
-/**
- * Writes one look for a box drawn around the control that carries the states.
- */
-function around({ blocked, hovered, rested, wrong }: Stated): Look {
+function own({ blocked, focused, rested }: Stated): Look {
   return {
     value: {
-      _hover: hovered,
-      "&:has(> :read-only:not(:disabled))": blocked,
-      "&:has(> :user-invalid, > [data-invalid], > [aria-invalid=true])": wrong,
+      _readOnly: blocked,
+      ...(focused === undefined ? {} : { _focusVisible: focused }),
       ...rested,
     },
   };
 }
 
 /**
- * Lists the field looks, each with its surface, its edge, and the states it restates.
+ * Writes one look for a box drawn around the control that carries the states.
+ *
+ * @remarks
+ *   The focused rule is keyed off the control rather than off the box, because a box holds no focus
+ *   of its own.
+ */
+function around({ blocked, focused, rested }: Stated): Look {
+  return {
+    value: {
+      "&:has(> :read-only:not(:disabled))": blocked,
+      ...(focused === undefined
+        ? {}
+        : { "&:has(> :focus-visible, > [data-focus-visible])": focused }),
+      ...rested,
+    },
+  };
+}
+
+/**
+ * Lists the field looks, each with its surface, its edges, and where it takes no input.
  */
 export const fieldLooks: Readonly<Record<FieldLook, Look>> = {
   flushed: own(LOOKS.flushed),

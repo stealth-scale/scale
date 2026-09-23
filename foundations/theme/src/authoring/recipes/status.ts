@@ -10,6 +10,7 @@
  */
 
 import { type Axis, axis } from "#authoring/recipes/axis.ts";
+import { FIELD_EDGE } from "#authoring/recipes/field.ts";
 import { type Status, STATUSES } from "#contract.ts";
 import { type RecipeRule } from "#pandacss.ts";
 
@@ -21,17 +22,26 @@ export const statusVariants: Axis<Status> = axis(STATUSES, (status) => ({ colorP
 
 /**
  * Writes the `status` axis of a form field, each status pointing the palette at the semantic
- * palette of its name and drawing the edge in the line family's member of the same name.
+ * palette of its name and writing the field's edge property with the line family's member of the
+ * same name.
  *
  * @remarks
  *   A field states its edge outright rather than leaving it to the palette. The line family holds
  *   one border per status at the step the contrast gate measured against a panel, and the palette's
  *   own border role sits two steps darker, so a field that read the palette for its edge would be
  *   drawn heavier than the invalid state the same field already has.
+ *   The edge goes to the property rather than to a color, so the look a field is drawn in paints
+ *   with it rather than over it: a subtle or a flushed field reported its status in its message and
+ *   left its own edge grey.
+ *   The status is written again under the invalid state, at the specificity that state carries.
+ *   A field reporting a warning is usually marked invalid as well, so that a screen reader reads
+ *   the fault, and the fragment's own invalid rule would otherwise have drawn every such field red
+ *   whatever it was reporting.
  */
 export const fieldStatusVariants: Axis<Status> = axis(STATUSES, (status) => ({
-  borderColor: `border.${status}`,
+  _invalid: { [FIELD_EDGE]: `{colors.border.${status}}` },
   colorPalette: status,
+  [FIELD_EDGE]: `{colors.border.${status}}`,
 }));
 
 /**

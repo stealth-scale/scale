@@ -46,9 +46,15 @@ describe("surface", () => {
   it("draws a hairline down the page when asked", () => {
     expect(divider("vertical")).toStrictEqual({
       alignSelf: "stretch",
+      blockSize: "auto",
       borderColor: "border",
       borderInlineEndWidth: "hairline",
     });
+  });
+
+  it("gives a standing line its height back before asking to stretch it", () => {
+    expect(divider("vertical")).toMatchObject({ alignSelf: "stretch", blockSize: "auto" });
+    expect(divider("horizontal")).not.toHaveProperty("blockSize");
   });
 
   it("passes the recipe checks for a panel and for a hairline", () => {

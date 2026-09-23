@@ -170,6 +170,8 @@ describe("layerStyles", () => {
     expect(tokenAt(layerStyles, "indicator.bottom")).toStrictEqual({
       _before: {
         background: "colorPalette.solid",
+        borderEndEndRadius: "inherit",
+        borderEndStartRadius: "inherit",
         bottom: "0",
         content: '""',
         height: "{borderWidths.indicator}",
@@ -180,6 +182,12 @@ describe("layerStyles", () => {
     });
     expect(tokenAt(layerStyles, "indicator.start")).toMatchObject({
       _before: { insetBlock: "0", insetInlineStart: "0", width: "{borderWidths.indicator}" },
+    });
+    expect(tokenAt(layerStyles, "indicator.start")).toMatchObject({
+      _before: { borderEndStartRadius: "inherit", borderStartStartRadius: "inherit" },
+    });
+    expect(tokenAt(layerStyles, "indicator.top")).toMatchObject({
+      _before: { borderStartEndRadius: "inherit", borderStartStartRadius: "inherit" },
     });
     expect(tokenAt(layerStyles, "indicator.end")).toMatchObject({
       _before: { width: "{borderWidths.indicator}" },

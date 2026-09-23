@@ -28,6 +28,12 @@ export type Justify = "around" | "between" | "center" | "end" | "evenly" | "star
 
 /**
  * Lists the places a child takes across the flow, each already what CSS calls it.
+ *
+ * @remarks
+ *   The middle is deliberately absent, and a container that runs across centres its children
+ *   already. The two axes share no value between them, so `start` belongs to one and `flex-start`
+ *   to the other and neither is read for the wrong prop; `center` is spelt the same way on both
+ *   and is the one value that could not be told apart.
  */
 export const ALIGNMENTS: readonly Align[] = ["flex-start", "flex-end", "stretch", "baseline"];
 

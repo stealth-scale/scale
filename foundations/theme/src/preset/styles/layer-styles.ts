@@ -98,6 +98,11 @@ function flat(background: string, color = "colorPalette.fg"): Look {
 /**
  * Writes an indicator: a bar in the palette's solid along one edge of a positioned box, at the
  * indicator's stroke width.
+ *
+ * @remarks
+ *   The bar takes the box's corner on the two corners it shares with it. Drawn square against a
+ *   rounded box it ran past the curve at either end, so a rounded alert with a bar down its start
+ *   edge had a straight line standing outside two rounded corners.
  */
 function indicator(edge: LayerStyle): Look {
   return {
@@ -178,14 +183,34 @@ export const layerStyles: LayerStyles = {
     },
   },
   indicator: {
-    bottom: indicator({ bottom: "0", height: "{borderWidths.indicator}", insetInline: "0" }),
-    end: indicator({ insetBlock: "0", insetInlineEnd: "0", width: "{borderWidths.indicator}" }),
+    bottom: indicator({
+      borderEndEndRadius: "inherit",
+      borderEndStartRadius: "inherit",
+      bottom: "0",
+      height: "{borderWidths.indicator}",
+      insetInline: "0",
+    }),
+    end: indicator({
+      borderEndEndRadius: "inherit",
+      borderStartEndRadius: "inherit",
+      insetBlock: "0",
+      insetInlineEnd: "0",
+      width: "{borderWidths.indicator}",
+    }),
     start: indicator({
+      borderEndStartRadius: "inherit",
+      borderStartStartRadius: "inherit",
       insetBlock: "0",
       insetInlineStart: "0",
       width: "{borderWidths.indicator}",
     }),
-    top: indicator({ height: "{borderWidths.indicator}", insetInline: "0", top: "0" }),
+    top: indicator({
+      borderStartEndRadius: "inherit",
+      borderStartStartRadius: "inherit",
+      height: "{borderWidths.indicator}",
+      insetInline: "0",
+      top: "0",
+    }),
   },
   outline: {
     solid: outlined("colorPalette.solid", "colorPalette.solid"),

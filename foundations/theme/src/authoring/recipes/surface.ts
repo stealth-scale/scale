@@ -65,10 +65,20 @@ export const liftVariants: Axis<Lift> = axis(LIFTED, (lift) => {
 /**
  * Writes a hairline between things, along the page or down a row.
  *
+ * @remarks
+ *   A line standing up gives its height back to the browser before asking to be stretched. The
+ *   element a divider is drawn as is `hr`, and every reset in use states `height: 0` on it. An
+ *   explicit height beats `align-self`, so a standing line came out a pixel wide and nothing tall
+ *   however much room the row beside it had.
  * @param orientation - Which way the line runs. Across unless the caller says otherwise.
  */
 export function divider(orientation: "horizontal" | "vertical" = "horizontal"): SystemStyleObject {
   return orientation === "horizontal"
     ? { borderBlockEndWidth: "hairline", borderColor: "border", inlineSize: "100%" }
-    : { alignSelf: "stretch", borderColor: "border", borderInlineEndWidth: "hairline" };
+    : {
+        alignSelf: "stretch",
+        blockSize: "auto",
+        borderColor: "border",
+        borderInlineEndWidth: "hairline",
+      };
 }
