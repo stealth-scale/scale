@@ -1,77 +1,72 @@
 /**
- * Runs the listbox's machine and carries what it answers down to the parts.
+ * Connects the listbox machine and provides its api to the parts.
  *
  * @remarks
- *   The machine is connected once, at the root, so every part reads one api from one running
- *   machine. A part drawn outside the root throws where it was written rather than drawing wrongly
- *   and saying nothing.
- *   The id is the machine's and never an element's. It builds every reference between the label,
- *   the field and the list from it, so a caller naming their own passes it here and the references
- *   follow.
+ *   The root starts one machine and every part reads its api from context, so the label, the input
+ *   and the rows report the same highlight and selection. The machine derives every element id and
+ *   ARIA reference between the label, the input and the list from `id`.
  */
 
 import * as listbox from "@zag-js/listbox";
 import { normalizeProps, useMachine } from "@zag-js/react";
 
-import { createRequiredContext, splitEnumerable } from "@stealthscale/hooks";
-
-import { stated } from "#stated.ts";
+import { createRequiredContext, omitUndefined, splitEnumerable } from "@stealthscale/hooks";
 
 /**
- * Describes what one row of a list holds, as far as a part is concerned.
+ * Describes one item of a collection as the parts see it.
  *
  * @remarks
- *   The machine types a row as `any`, because a collection holds whatever a caller put in it. A
- *   part takes `unknown` instead and hands it straight back, which keeps the looser type at the one
- *   boundary that needs it rather than letting it reach every file that draws a row.
+ *   Zag types a collection item as `any`. The parts accept `unknown` and pass it back to the
+ *   machine unchanged, so `any` stays at this boundary instead of spreading into every part file.
  */
 export type ListboxItem = unknown;
 
 /**
- * Describes what the machine answers: a prop getter per part, beside its state and its methods.
+ * Describes the api `listbox.connect` returns: a prop getter per part plus the machine's state and
+ * methods.
  *
  * @remarks
- *   Inferred off `connect` rather than named, so the parts take exactly what the machine hands
- *   them. The inferred type reaches `@zag-js/types`, which this package declares for that reason
- *   alone: a declaration file naming a type from a package nobody declared is not portable.
+ *   The type is inferred from `connect`, so it follows the installed machine version. The inferred
+ *   type references `@zag-js/types`, so the package declares that package as a dependency. A
+ *   declaration file that references an undeclared package does not resolve for a consumer.
  */
 export type ListboxApi = ReturnType<typeof listbox.connect>;
 
 /**
- * Describes what a caller sets on the machine, less the id it is given.
+ * Describes the machine settings a caller can pass to the root.
  *
  * @remarks
- *   The collection stays required, because a list with no rows to draw is not a list. The id is
- *   optional here and generated at the root, so a caller who names nothing still gets the
- *   references between the label, the field and the rows.
+ *   `collection` stays required. `id` is optional because the root generates one when the caller
+ *   passes none.
  */
 export type ListboxOptions = {
   /**
-   * The identifier every reference between the parts is built from.
+   * The value the machine embeds in every element id it generates.
    */
   id?: string | undefined;
 } & Omit<listbox.Props, "id">;
 
 /**
- * Hands the running machine to every part, and reads it back.
+ * Creates the context through which the root provides the connected api to its parts.
+ *
+ * @remarks
+ *   `useListbox` throws when no `Listbox.Root` is mounted above the calling part.
  */
 export const [ApiProvider, useListbox] = createRequiredContext<ListboxApi>("Listbox");
 
 /**
- * Starts the machine and connects it.
+ * Starts the listbox machine and returns its connected api.
  *
- * @param options - The settings the root split out, the id among them.
- * @returns The api every part reads.
+ * @param options - Machine settings split from the root's props, with `id` already resolved.
  */
 export function useListboxMachine(options: listbox.Props): ListboxApi {
-  return listbox.connect(useMachine(listbox.machine, stated(options)), normalizeProps);
+  return listbox.connect(useMachine(listbox.machine, omitUndefined(options)), normalizeProps);
 }
 
 /**
- * Splits what the machine reads from what the element does.
+ * Splits the root's props into machine settings and element props.
  *
  * @remarks
- *   The machine states which props are its own, so the root never lists them and never drifts from
- *   the version it is built against.
+ *   The key list comes from the machine's own `splitProps`, so it follows the installed version.
  */
 export const splitListboxProps = splitEnumerable(listbox.splitProps);

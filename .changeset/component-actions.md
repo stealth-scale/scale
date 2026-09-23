@@ -84,3 +84,8 @@ component-actions: split the clipboard root's props over a copy
 - `Clipboard.Root` splits its props through `splitEnumerable` from `@stealthscale/hooks`. Rendered
   with a `key`, it logged React's `key is not a prop` warning and spread `key` onto its element in
   development.
+
+component-actions: import omitUndefined from the hooks package
+
+- The clipboard machine takes `omitUndefined` from `@stealthscale/hooks`. The package's private
+  copy, `stated`, is removed.

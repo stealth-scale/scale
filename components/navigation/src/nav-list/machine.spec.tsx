@@ -9,13 +9,13 @@ import {
   splitBranchProps,
   useBranch,
   useBranchMachine,
-} from "#nav-list/state.ts";
+} from "#nav-list/machine.ts";
 
 /**
- * Runs the machine and reports what it answers, so a case can read its state off the screen.
+ * Starts the machine and provides its api to a reader.
  *
- * @param props - The settings the machine is started with.
- * @returns The state, drawn as text.
+ * @param props - The settings the machine starts with.
+ * @returns The provider, holding the reader.
  */
 function Running(props: BranchOptions): ReactElement {
   const api = useBranchMachine(props);
@@ -28,9 +28,9 @@ function Running(props: BranchOptions): ReactElement {
 }
 
 /**
- * Reads the running machine through the hook a part reads it through.
+ * Renders the open state read through `useBranch`.
  *
- * @returns Whether the list is open.
+ * @returns A span holding `open` or `closed`.
  */
 function Reader(): ReactElement {
   const api = useBranch();
@@ -39,13 +39,13 @@ function Reader(): ReactElement {
 }
 
 describe("splitBranchProps", () => {
-  it("takes the machine's settings out of what the branch was handed", () => {
+  it("returns the machine settings as the first element", () => {
     const [options] = splitBranchProps({ defaultOpen: true, disabled: true });
 
     expect(options).toStrictEqual({ defaultOpen: true, disabled: true });
   });
 
-  it("leaves everything the element takes behind", () => {
+  it("returns the element props as the second element", () => {
     const [, rest] = splitBranchProps({ className: "mine", defaultOpen: true });
 
     expect(rest).toStrictEqual({ className: "mine" });
@@ -53,13 +53,13 @@ describe("splitBranchProps", () => {
 });
 
 describe("useBranchMachine", () => {
-  it("answers a running machine a part can read", () => {
+  it("returns an open api when defaultOpen is true", () => {
     render(<Running defaultOpen />);
 
     expect(screen.getByTestId("state").textContent).toBe("open");
   });
 
-  it("starts closed where a caller says nothing", () => {
+  it("returns a closed api when defaultOpen is absent", () => {
     render(<Running />);
 
     expect(screen.getByTestId("state").textContent).toBe("closed");
@@ -67,7 +67,7 @@ describe("useBranchMachine", () => {
 });
 
 describe("useBranch", () => {
-  it("throws where no branch stands above the reader", () => {
+  it("throws when no branch is mounted above the caller", () => {
     expect(() => render(<Reader />)).toThrow(/NavList\.Branch/u);
   });
 });

@@ -1,13 +1,11 @@
 /**
- * Draws the row that opens a branch.
+ * Renders the row that expands and collapses a branch.
  *
  * @remarks
- *   The element is `button`, because it acts on the page rather than going anywhere. The machine
- *   writes what tells a screen reader what it does: whether the list is expanded, and which list
- *   it controls. Neither is this component's to state, because the machine holds the id both sides
- *   are named by.
- *   A branch whose own page is the one being read states `aria-current="page"` here, the same as a
- *   link does, and the `highlight` axis marks it the same way.
+ *   The element is `button`, because the row changes state instead of navigating. The machine sets
+ *   `aria-expanded`, and sets `aria-controls` to the content id it generates. A branch whose own
+ *   page is current sets `aria-current="page"` on the trigger, and the `highlight` axis marks it
+ *   the same way as a link.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,15 +13,15 @@ import { type ComponentProps, type ReactElement } from "react";
 import { mergeProps } from "@zag-js/react";
 
 import { withContext } from "#nav-list/context.ts";
-import { useBranch } from "#nav-list/state.ts";
+import { useBranch } from "#nav-list/machine.ts";
 
 /**
- * Draws the row at the size the list states.
+ * Renders the trigger `button` with the list's variants.
  */
 const Opened = withContext("button", "trigger");
 
 /**
- * Describes what a trigger takes.
+ * Describes the props of `Trigger`, less the attributes the machine sets.
  */
 export type TriggerProps = Omit<
   ComponentProps<typeof Opened>,
@@ -31,10 +29,7 @@ export type TriggerProps = Omit<
 >;
 
 /**
- * Shows the list beneath the row where it is hidden, and hides it where it is shown.
- *
- * @param props - Everything a styled button takes, less what the machine states.
- * @returns The row, saying what it controls and whether that list is open.
+ * Renders the trigger with the machine's trigger props merged under the caller's.
  */
 export function Trigger(props: TriggerProps): ReactElement {
   const api = useBranch();

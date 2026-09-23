@@ -214,20 +214,25 @@ component-collections: add StatusMatrix
 - A state with no `mark` falls back to a filled dot, so two states sharing a tone are still
   rendered.
 - The grid is sized to its content rather than the container and overflows the scroll box when it
-  does not fit. Rows with `group` set are rendered as one `tbody` per heading. <<<<<<< HEAD
+  does not fit. Rows with `group` set are rendered as one `tbody` per heading.
 
 component-collections: split the listbox root's props over a copy
 
 - `Listbox.Root` splits its props through `splitEnumerable` from `@stealthscale/hooks`, the way
   every other root built on a state machine does, so a `key` React defines on its props in
-  development never reaches the machine's splitter. =======
-- `Table` and `Listbox` list `surface` before `plain`, which is the order every other set of looks
-  is read in. The styles each look draws are unchanged. <<<<<<< HEAD
+  development never reaches the machine's splitter.
 
-> > > > > > > 2b6da67f (refactor: order every axis by its vocabulary rather than alphabetically)
-> > > > > > > =======
+component-collections: order the look axes by their vocabulary
+
+- `Table` and `Listbox` list `surface` before `plain`, which is the order every other set of looks
+  is read in. The styles each look draws are unchanged.
+
+component-collections: spell the table's align axis like every other
 
 - `Table`'s `align` axis takes `start`, `center` and `end` rather than `top`, `middle` and `bottom`,
   which is what every other `align` axis in the library takes.
 
-> > > > > > > c25f54ef (refactor: spell and order the cross axis one way across the library)
+component-collections: import omitUndefined from the hooks package
+
+- The listbox machine takes `omitUndefined` from `@stealthscale/hooks`. The package's private copy,
+  `stated`, is removed.

@@ -1,12 +1,10 @@
 /**
- * Runs the tooltip's machine and carries what it answers down to the parts.
+ * Connects the tooltip machine and provides its api to the parts.
  *
  * @remarks
- *   The machine is connected once, at the root, so every part reads one api from one running
- *   machine. A part drawn outside the root throws where it was written rather than drawing wrongly
- *   and saying nothing.
- *   The id is the machine's and never an element's. It names the box so the trigger can point at it
- *   with `aria-describedby`, so a caller naming their own passes it here and the reference follows.
+ *   The root starts one machine and every part reads its api from context, so the trigger and the
+ *   content report the same state. The machine derives the content's id from `id`, and the trigger
+ *   references that id through `aria-describedby`.
  */
 
 import { useId } from "react";
@@ -14,49 +12,50 @@ import { useId } from "react";
 import { normalizeProps, useMachine } from "@zag-js/react";
 import * as tooltip from "@zag-js/tooltip";
 
-import { createRequiredContext, splitEnumerable } from "@stealthscale/hooks";
-
-import { stated } from "#stated.ts";
+import { createRequiredContext, omitUndefined, splitEnumerable } from "@stealthscale/hooks";
 
 /**
- * Describes what the machine answers: a prop getter per part, beside its state and its methods.
+ * Describes the api `tooltip.connect` returns: a prop getter per part plus the machine's state and
+ * methods.
  *
  * @remarks
- *   Inferred off `connect` rather than named, so the parts take exactly what the machine hands
- *   them. The inferred type reaches `@zag-js/types`, which this package declares for that reason.
+ *   The type is inferred from `connect`, so it follows the installed machine version. The inferred
+ *   type references `@zag-js/types`, so the package declares that package as a dependency.
  */
 export type TooltipApi = ReturnType<typeof tooltip.connect>;
 
 /**
- * Describes what a caller sets on the machine, every setting of it optional.
+ * Describes the machine settings a caller can pass to the root, all optional.
  */
 export type TooltipOptions = Partial<tooltip.Props>;
 
 /**
- * Hands the running machine to every part, and reads it back.
+ * Creates the context through which the root provides the connected api to its parts.
+ *
+ * @remarks
+ *   `useTooltip` throws when no `Tooltip.Root` is mounted above the calling part.
  */
 export const [ApiProvider, useTooltip] = createRequiredContext<TooltipApi>("Tooltip");
 
 /**
- * Splits what the machine reads from what the element does.
+ * Splits the root's props into machine settings and element props.
  *
  * @remarks
- *   The machine states which props are its own, so the root never lists them and never drifts from
- *   the version it is built against.
+ *   The key list comes from the machine's own `splitProps`, so it follows the installed version.
  */
 export const splitTooltipProps = splitEnumerable(tooltip.splitProps);
 
 /**
- * Starts the machine and connects it.
+ * Starts the tooltip machine and returns its connected api.
  *
- * @param options - The settings the caller handed the root, less the id where it named none.
- * @returns The api every part reads.
+ * @param options - Machine settings split from the root's props. A generated id is used when `id`
+ *   is absent.
  */
 export function useTooltipMachine(options: TooltipOptions): TooltipApi {
   const generated = useId();
 
   return tooltip.connect(
-    useMachine(tooltip.machine, { ...stated(options), id: options.id ?? generated }),
+    useMachine(tooltip.machine, { ...omitUndefined(options), id: options.id ?? generated }),
     normalizeProps,
   );
 }

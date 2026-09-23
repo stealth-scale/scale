@@ -1,12 +1,12 @@
 /**
- * Draws a row that opens onto a list of its own, and runs the machine that shows and hides it.
+ * Renders a list row that expands a nested list, and runs the collapsible machine for it.
  *
  * @remarks
- *   The element is `li`, because a branch is a row of the list around it. It takes the machine's
- *   own settings, `open`, `defaultOpen` and `onOpenChange` among them, so a caller that opens the
- *   branch holding the current page drives it and a caller that does not is served by the same
- *   component. The element's own `id` and `dir` are left out, because the machine states both: it
- *   builds every ARIA reference from the id, and it reads the direction to place the mark.
+ *   The element is `li`, so the branch is an item of the surrounding list. It accepts the machine's
+ *   settings, `open`, `defaultOpen` and `onOpenChange` among them, so a caller can open the branch
+ *   that contains the current page or leave the branch uncontrolled. `id` and `dir` are omitted
+ *   from the element props because the machine sets both. It derives the ARIA references from `id`
+ *   and reads `dir` for the indicator's direction.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -17,24 +17,21 @@ import {
   BranchProvider,
   splitBranchProps,
   useBranchMachine,
-} from "#nav-list/state.ts";
+} from "#nav-list/machine.ts";
 
 /**
- * Draws the branch at the size the list states.
+ * Renders the branch `li` with the list's variants.
  */
 const Held = withContext("li", "branch");
 
 /**
- * Describes what a branch takes: the machine's settings and everything a styled list item takes.
+ * Describes the props of `Branch`: the machine settings and the styled `li` props.
  */
 export interface BranchProps
   extends BranchOptions, Omit<ComponentProps<typeof Held>, "dir" | "id"> {}
 
 /**
- * Shows and hides the list beneath its row.
- *
- * @param props - The machine's settings and the element's props together.
- * @returns The branch, holding the trigger and the list under the running machine.
+ * Renders the branch and provides the running machine to its trigger, indicator and content.
  */
 export function Branch(props: BranchProps): ReactElement {
   const [options, rest] = splitBranchProps(props);

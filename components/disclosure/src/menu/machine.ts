@@ -1,16 +1,12 @@
 /**
- * Runs the menu's machine, carries what it answers down to the parts, and registers a submenu with
- * the menu it opens from.
+ * Connects the menu machine, provides its api to the parts, and registers a submenu with its parent
+ * menu.
  *
  * @remarks
- *   The machine is connected once, at the root, so every part reads one api from one running
- *   machine. A part drawn outside the root throws where it was written rather than drawing wrongly
- *   and saying nothing.
- *   A root also carries the running machine itself and the level above it. Registering a submenu
- *   takes the two machines rather than their apis, and a submenu's control takes the api of the
- *   menu above it, so neither is reachable from the api alone.
- *   The id is the machine's and never an element's. It names the panel, every row and every group,
- *   so a caller naming their own passes it here and every reference follows.
+ *   The root starts one machine and every part reads its api from context. The context also holds
+ *   the running service and the parent level, because registering a submenu needs both services
+ *   and a submenu's trigger needs its parent's api. The machine derives the ids of the content,
+ *   every item and every group from `id`.
  */
 
 import { useEffect, useId } from "react";
@@ -18,134 +14,134 @@ import { useEffect, useId } from "react";
 import * as menu from "@zag-js/menu";
 import { normalizeProps, useMachine } from "@zag-js/react";
 
-import { createRequiredContext, splitEnumerable } from "@stealthscale/hooks";
+import { createRequiredContext, omitUndefined, splitEnumerable } from "@stealthscale/hooks";
 
 import { type MenuVariants } from "#menu/variants.ts";
-import { stated } from "#stated.ts";
 
 /**
- * Describes what the machine answers: a prop getter per part, beside its state and its methods.
+ * Describes the api `menu.connect` returns: a prop getter per part plus the machine's state and
+ * methods.
  *
  * @remarks
- *   Inferred off `connect` rather than named, so the parts take exactly what the machine hands
- *   them. The inferred type reaches `@zag-js/types`, which this package declares for that reason.
+ *   The type is inferred from `connect`, so it follows the installed machine version. The inferred
+ *   type references `@zag-js/types`, so the package declares that package as a dependency.
  */
 export type MenuApi = ReturnType<typeof menu.connect>;
 
 /**
- * Describes what a caller sets on the machine, every setting of it optional.
+ * Describes the machine settings a caller can pass to the root, all optional.
  */
 export type MenuOptions = Partial<menu.Props>;
 
 /**
- * Describes one menu of a nest: the api its parts read, the machine a submenu registers with, and
- * the menu this one opens from.
+ * Describes one menu in a nest: the api its parts read, its running service, and its parent.
  */
 export interface MenuLevel {
   /**
-   * The connected api every part of this menu reads.
+   * The connected api the parts of this menu read.
    */
   readonly api: MenuApi;
 
   /**
-   * How many menus this one opens from: zero for the outermost, one for a submenu of it, and so on.
+   * The number of menus above this one: 0 for the outermost menu, 1 for its submenu.
    *
    * @remarks
-   *   The panel raises itself by this much, because a submenu has to stand over the menu it opened
-   *   from and every panel of a nest is drawn on the same rung of the theme's stack. Both panels
-   *   are portalled to the document, so neither is an ancestor of the other and nothing about
-   *   where they sit in the document decides which is on top: a nest stacked by the order its
-   *   portals happened to mount, which put the submenu under the row a reader had just pointed at.
+   *   The content raises its stacking level by this depth. Every panel of a nest uses the same
+   *   z-index token and is portalled to the document, so no panel is an ancestor of another.
+   *   Without the offset, portal mount order decides which panel is on top, and a submenu can
+   *   render under the items of its parent.
    */
   readonly depth: number;
 
   /**
-   * The direction this menu reads in, or undefined where nobody stated one.
+   * The writing direction of this menu, or `undefined` when no menu in the nest sets one.
    *
    * @remarks
-   *   A submenu takes it from the menu it opens from. The engine picks the side a submenu opens on
-   *   from the direction of that submenu's own machine, and a caller states the direction once, on
-   *   the outermost menu: a submenu left to work it out for itself decided it read left to right
-   *   and opened to the right, out over the menu that had opened it, inside a menu that read the
-   *   other way.
+   *   A submenu inherits it from its parent. Zag chooses the side a submenu opens on from the
+   *   submenu machine's own `dir`, and a caller sets the direction once, on the outermost menu.
+   *   Without inheritance, a submenu inside a right-to-left menu uses left-to-right and opens over
+   *   its parent.
    */
   readonly dir: "ltr" | "rtl" | undefined;
 
   /**
-   * The menu this one opens from, or undefined where this is the outermost.
+   * The parent menu, or `undefined` for the outermost menu.
    */
   readonly parent: MenuLevel | undefined;
 
   /**
-   * The running machine, which the menu above registers as its child.
+   * The running machine, registered as the child of the parent's machine.
    */
   readonly service: menu.Service;
 
   /**
-   * The variants this menu is drawn in, which a submenu inside it starts from.
+   * The recipe variants of this menu, which a submenu uses as its defaults.
    */
   readonly variants: MenuVariants;
 }
 
 /**
- * Hands the running menu to every part, reads it back, and reads the menu a root opens from.
+ * Creates the context through which a root provides its menu level to its parts.
+ *
+ * @remarks
+ *   `useMenu` throws when no `Menu.Root` is mounted above the calling part. `useEnclosingMenu`
+ *   returns `undefined` instead, which a root uses to find its parent menu.
  */
 export const [ApiProvider, useMenu, useEnclosingMenu] = createRequiredContext<MenuLevel>("Menu");
 
 /**
- * Describes the row a label or a mark is drawn inside.
+ * Describes the item that contains an item's text and indicator parts.
  *
  * @remarks
- *   The machine identifies a row by its value and reads its checked state to decide what a mark
- *   and a label report. A row hands both to the parts inside it, so a caller writes the value on
- *   the row alone rather than on the row, its label and its mark alike.
+ *   The machine identifies an item by `value` and reads `checked` for its indicator and text parts.
+ *   The item provides both through context, so a caller sets `value` once, on the item.
  */
 export interface MenuItemState {
   /**
-   * Whether the row is ticked, for a row that offers a choice.
+   * Whether a checkbox or radio item is checked.
    */
   readonly checked?: boolean | undefined;
 
   /**
-   * Whether a reader can choose the row at all.
+   * Whether the item rejects selection.
    */
   readonly disabled?: boolean | undefined;
 
   /**
-   * The value the machine identifies the row by.
+   * The value the machine identifies the item by.
    */
   readonly value: string;
 
   /**
-   * The words typeahead matches the row on, where they differ from what it shows.
+   * The text typeahead matches, when it differs from the rendered label.
    */
   readonly valueText?: string | undefined;
 }
 
 /**
- * Hands the row to the label and the mark inside it, and reads it back.
+ * Creates the context through which an item provides its state to its text and indicator parts.
  */
 export const [ItemProvider, useMenuItem] = createRequiredContext<MenuItemState>("Menu.Item");
 
 /**
- * Splits what the machine reads from what the element does.
+ * Splits the root's props into machine settings and element props.
  *
  * @remarks
- *   The machine states which props are its own, so the root never lists them and never drifts from
- *   the version it is built against.
+ *   The key list comes from the machine's own `splitProps`, so it follows the installed version.
  */
 export const splitMenuProps = splitEnumerable(menu.splitProps);
 
 /**
- * Starts the machine and connects it.
+ * Starts the menu machine and returns its connected api and its running service.
  *
- * @param options - The settings the caller handed the root, less the id where it named none.
- * @returns The api every part reads, beside the machine a submenu registers with.
+ * @param options - Machine settings split from the root's props. A generated id is used when `id`
+ *   is absent.
+ * @returns The api the parts read, and the service a submenu registers with.
  */
 export function useMenuMachine(options: MenuOptions): readonly [MenuApi, menu.Service] {
   const generated = useId();
   const service = useMachine(menu.machine, {
-    ...stated(options),
+    ...omitUndefined(options),
     id: options.id ?? generated,
   });
 
@@ -153,17 +149,16 @@ export function useMenuMachine(options: MenuOptions): readonly [MenuApi, menu.Se
 }
 
 /**
- * Registers a menu with the one it opens from, so the two move as a nest.
+ * Registers a menu's machine with its parent's machine, and the parent's with the menu's.
  *
  * @remarks
- *   Each machine holds the other, which is what lets a pointer travel from a row into the submenu
- *   it opened without the submenu closing under it, and what sends the focus back up on the arrow
- *   key that closes it. The machines are registered rather than the apis, and a machine keeps the
- *   same identity for as long as its root is drawn, so the pair is registered once however often
- *   either menu redraws. The apis are read from the machines here rather than passed in, because a
- *   connected api is a fresh object on every draw and would register the pair again each time.
+ *   Zag needs each machine to reference the other. The parent keeps a submenu open while the
+ *   pointer moves into it, and the submenu returns focus to the parent when the arrow key closes
+ *   it. The effect depends on the two services, which keep their identity for the lifetime of their
+ *   roots, so the pair registers once. A connected api is a new object on every render, so the
+ *   effect connects the services itself rather than taking apis as arguments.
  * @param service - The machine of the menu being registered.
- * @param parent - The machine of the menu it opens from, or undefined where there is none.
+ * @param parent - The parent menu's machine, or `undefined` for the outermost menu.
  */
 export function useNestedMenu(service: menu.Service, parent: menu.Service | undefined): void {
   useEffect(() => {

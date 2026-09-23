@@ -87,3 +87,10 @@ component-navigation: split a root's props over a copy
 - `NavList.Branch` and `Toc.Root` split their props through `splitEnumerable` from
   `@stealthscale/hooks`. Rendered with a `key`, each logged React's `key is not a prop` warning and
   spread `key` onto its element in development.
+
+component-navigation: import omitUndefined from the hooks package
+
+- The nav-list branch and table of contents machines take `omitUndefined` from
+  `@stealthscale/hooks`. The package's private copy, `stated`, is removed.
+- The branch machine moves from `nav-list/state.ts` to `nav-list/machine.ts`, the file name every
+  other machine component uses.

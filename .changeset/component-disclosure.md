@@ -70,17 +70,23 @@ component-disclosure: add ItemMark, ItemLines, ItemDescription and ItemCommand t
   the rows. The panel's corners are `l2`. Its shadow is `md` for `surface` and `lg` for `elevated`.
 - A checkbox `Menu.OptionItem` keeps the menu open on select. A radio item closes it.
   `closeOnSelect` overrides either.
-- `Menu.Indicator` no longer rotates when the menu opens. <<<<<<< HEAD
+- `Menu.Indicator` no longer rotates when the menu opens.
 
 component-disclosure: split a root's props over a copy
 
 - `Collapsible.Root`, `Menu.Root`, `Popover.Root`, `Tabs.Root` and `Tooltip.Root` split their props
   through `splitEnumerable` from `@stealthscale/hooks`. Rendered with a `key`, each logged React's
-  `key is not a prop` warning and spread `key` onto its element in development. =======
+  `key is not a prop` warning and spread `key` onto its element in development.
+
+component-disclosure: style the popover's trigger as a control
+
 - `Popover.Trigger` takes the cursor, the focus ring and the disabled look of a control, and lays
   its children out in a row a gap apart. It carried no rules at all, so it fell back to the
   browser's own focus ring and the arrow cursor. It still draws no fill, edge or padding: a caller
   who wants a button passes one through `as`.
 - `Collapsible`'s `variant` lists its looks from the loudest down rather than alphabetically.
 
-> > > > > > > 28ef1271 (fix(component-disclosure): style the popover's trigger as a control)
+component-disclosure: import omitUndefined from the hooks package
+
+- The collapsible, menu, popover, tabs and tooltip machines take `omitUndefined` from
+  `@stealthscale/hooks`. The package's private copy, `stated`, is removed.
