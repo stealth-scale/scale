@@ -1010,6 +1010,9 @@ importers:
       '@rolldown/plugin-babel':
         specifier: 'catalog:'
         version: 0.2.4(@babel/core@7.29.7(supports-color@10.2.2))(@babel/runtime@7.29.7)(@voidzero-dev/vite-plus-core@0.3.3(@arethetypeswrong/core@0.18.5)(@types/node@26.5.1)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(rolldown@1.2.7)
+      '@stealthscale/component-collections':
+        specifier: workspace:^
+        version: link:../collections
       '@stealthscale/component-layout':
         specifier: workspace:^
         version: link:../layout
@@ -1182,6 +1185,9 @@ importers:
       '@stealthscale/component-actions':
         specifier: workspace:^
         version: link:../actions
+      '@stealthscale/component-layout':
+        specifier: workspace:^
+        version: link:../layout
       '@stealthscale/component-surfaces':
         specifier: workspace:^
         version: link:../surfaces
