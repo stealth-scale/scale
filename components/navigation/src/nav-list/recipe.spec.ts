@@ -190,7 +190,7 @@ describe("recipe", () => {
       "&:has(> :is(.nav-list__action, .nav-list__badge)) > :is(.nav-list__link, .nav-list__trigger)":
         {
           paddingInlineEnd:
-            "calc(calc({spacing.inset.sm} * var(--density, 1)) + calc({spacing.gap.sm} * var(--density, 1)) + calc({sizes.tag.sm} * var(--density, 1)))",
+            "calc(calc({spacing.inset.sm} * var(--density, 1)) + calc({spacing.gap.sm} * var(--density, 1)) + max({sizes.6}, calc({sizes.tag.sm} * var(--density, 1))))",
         },
     });
   });
@@ -209,7 +209,7 @@ describe("recipe", () => {
   });
 
   it("sizes the count the control and the indicator to the same square", () => {
-    const square = "calc({sizes.tag.sm} * var(--density, 1))";
+    const square = "max({sizes.6}, calc({sizes.tag.sm} * var(--density, 1)))";
     const room = "calc({spacing.inset.sm} * var(--density, 1))";
 
     expect(recipe.variants?.["size"]?.["md"]?.["action"]).toMatchObject({
@@ -248,7 +248,7 @@ describe("recipe", () => {
     });
   });
 
-  it("fills a hovered control two steps over the hovered row", () => {
+  it("fills a hovered control with colorPalette.emphasized", () => {
     expect(recipe.base?.["action"]).toMatchObject({
       _hover: { background: "colorPalette.emphasized", color: "fg" },
     });
@@ -262,7 +262,7 @@ describe("recipe", () => {
     });
   });
 
-  it("inks the control on a current row with the fill contrast", () => {
+  it("sets the control beside the current row to colorPalette.contrast", () => {
     expect(
       recipe.compoundVariants?.find((each) => each.className === "nav-list__action--inked")?.css?.[
         "action"

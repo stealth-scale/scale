@@ -3,7 +3,7 @@
  *
  * @remarks
  *   The module covers the row, its leading icon, the end column and the nested list's margin. It is
- *   separate from the recipe, which keeps the recipe under the 300-line limit.
+ *   a separate module so the recipe is under the 300-line limit.
  */
 
 import { below, dense, type Scale, type SystemStyleObject } from "@stealthscale/theme/authoring";
@@ -42,13 +42,13 @@ export function glyph(size: Step): string {
  * Returns the size styles of a link or a trigger.
  *
  * @remarks
- *   The label, the inset and the gap are one size smaller than the row. Rows set at a control's
- *   label read as a column of buttons. The current row is set semibold here and not in the base,
- *   because the label text style sets its own weight and the compiler emits variants after the
- *   base. The `highlight` axis sets the current row's ink. The compiler emits `size` after
- *   `highlight`, so an ink written here would put the page ink on the solid fill. The row is never
- *   shorter than `sizes.6` (24px) at any density, the WCAG 2.5.8 target size. The recipe sizes the
- *   icon so the line down a nested list can be aligned with the icon's centre.
+ *   The label, the inset and the gap are one size smaller than the row, so a row is lighter than a
+ *   button of the same height. The current row is semibold here and not in the base, because the
+ *   label text style sets its own weight and the compiler emits variants after the base. The
+ *   `highlight` axis sets the current row's ink, and the compiler emits `size` after `highlight`,
+ *   so this function sets no ink. The row is at least `sizes.6` (24px) tall at any density, the
+ *   WCAG 2.5.8 target size. The recipe sizes the icon, so the line down a nested list is aligned
+ *   with the icon's centre.
  * @param size - The row's size.
  * @returns The styles of a link or a trigger at that size.
  */
@@ -64,7 +64,20 @@ export function rowed(size: Step): SystemStyleObject {
 }
 
 /**
- * Returns the styles that make the end column a square on the tag scale with its content centred.
+ * Returns the side of the end column's square: the tag size one step below the row, and never
+ * under `sizes.6`.
+ *
+ * @remarks
+ *   The control is positioned over the row's link, so the WCAG 2.5.8 spacing exception does not
+ *   apply and the control needs a 24px target. The square is at least 24px at every size and
+ *   density.
+ */
+function square(size: Scale): string {
+  return `max({sizes.6}, ${dense(`{sizes.tag.${below(size)}}`)})`;
+}
+
+/**
+ * Returns the styles that make the end column a square with its content centred.
  *
  * @remarks
  *   The count, the control and the indicator share this square, so their centres are at one
@@ -74,14 +87,12 @@ export function rowed(size: Step): SystemStyleObject {
  * @returns The styles of the count, the control or the indicator at that size.
  */
 export function trailing(size: Scale): SystemStyleObject {
-  const square = dense(`{sizes.tag.${below(size)}}`);
-
   return {
     alignItems: "center",
-    blockSize: square,
+    blockSize: square(size),
     display: "flex",
     justifyContent: "center",
-    minInlineSize: square,
+    minInlineSize: square(size),
   };
 }
 
@@ -101,15 +112,15 @@ export function tucked(size: Scale): SystemStyleObject {
  * square.
  *
  * @remarks
- *   The count and the control are positioned over the row, so without this padding the row's text
- *   runs under them.
+ *   The count and the control are positioned over the row, and the padding keeps the row's text
+ *   clear of them.
  * @param size - The row's size.
  * @returns The row's end padding.
  */
 export function reserved(size: Scale): string {
   const inset = dense(`{spacing.inset.${below(size)}}`);
 
-  return `calc(${inset} + ${dense(`{spacing.gap.${below(size)}}`)} + ${dense(`{sizes.tag.${below(size)}}`)})`;
+  return `calc(${inset} + ${dense(`{spacing.gap.${below(size)}}`)} + ${square(size)})`;
 }
 
 /**

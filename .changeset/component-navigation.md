@@ -123,3 +123,30 @@ component-navigation: add palette, effect and guide axes to NavList
   or `none`. When the trigger starts with an `svg`, the line is centred on the icon. At `md` the
   line and the icon's centre both measured 20px from the list's start.
 - The row geometry functions move from `nav-list/recipe.ts` to `nav-list/metrics.ts`.
+
+component-navigation: add a palette axis to Link and underline plain links on hover
+
+- `palette` sets `colorPalette` and reads the ink from `colorPalette.fg`, visited state included.
+  Without a palette the link reads `fg.link`. `staticCss` lists every palette for
+  `LinkPropsProvider`.
+- `variant="plain"` restates `_hover: { textDecoration: "underline" }`. The compiler emits its
+  `none` in the variants layer, which overrode the base hover rule, so a plain link never underlined
+  on hover.
+
+component-navigation: add a palette axis to Toc and align its title with the links
+
+- `palette` sets `colorPalette` on the root. The indicator and the focus ring use it. Without a
+  palette the root reads `primary`.
+- `Toc.Title` takes the link's inline start padding. The title text started 4px left of the link
+  text at every size.
+- Under forced colors the indicator paints `CanvasText` with `forced-color-adjust: none`. The
+  browser replaced its background with Canvas and the indicator disappeared.
+- The root's minimum width is `min(11rem, 100%)`. At a 420px viewport an 11rem rail overflowed a
+  107px grid column.
+
+component-navigation: size the NavList end column to at least 24px
+
+- The count, the control and the indicator share a square of `max({sizes.6}, sizes.tag.*)`, and a
+  row's reserved end padding uses the same square. At `md` the control measured 21.6px over the
+  row's link, which fails WCAG 2.5.8, and axe `target-size` reported 29 violations on the NavList
+  page. The page reports none, and the three parts measure 24 by 24px at one x.

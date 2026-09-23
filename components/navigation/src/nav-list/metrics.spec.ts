@@ -25,8 +25,13 @@ describe("rowed", () => {
 describe("trailing", () => {
   it("sets a minimum width instead of a width so a long count can extend the square", () => {
     expect(trailing("md")).toMatchObject({
-      blockSize: "calc({sizes.tag.sm} * var(--density, 1))",
-      minInlineSize: "calc({sizes.tag.sm} * var(--density, 1))",
+      minInlineSize: "max({sizes.6}, calc({sizes.tag.sm} * var(--density, 1)))",
+    });
+  });
+
+  it("keeps the square at least 24px tall at any density", () => {
+    expect(trailing("sm")).toMatchObject({
+      blockSize: "max({sizes.6}, calc({sizes.tag.xs} * var(--density, 1)))",
     });
   });
 });
@@ -42,7 +47,7 @@ describe("tucked", () => {
 describe("reserved", () => {
   it("sums the inset with the gap and the square", () => {
     expect(reserved("md")).toBe(
-      "calc(calc({spacing.inset.sm} * var(--density, 1)) + calc({spacing.gap.sm} * var(--density, 1)) + calc({sizes.tag.sm} * var(--density, 1)))",
+      "calc(calc({spacing.inset.sm} * var(--density, 1)) + calc({spacing.gap.sm} * var(--density, 1)) + max({sizes.6}, calc({sizes.tag.sm} * var(--density, 1))))",
     );
   });
 });
