@@ -1,156 +1,73 @@
 /**
- * Shows the list: both looks, every marker, every gap, the alignments of a plain entry's mark, and
- * the motions.
+ * Catalogue page for the list.
  *
  * @remarks
- *   The scenes are generated from the recipe, so an axis added to it reaches the page without this
- *   file changing. Each axis carries the entries it reads best against: three groceries where the
- *   axis turns the marker, the gap or the motion, entries that draw their own mark where it turns
- *   the look, and one entry long enough to wrap where it places that mark.
- *   A marker that counts is drawn on an ordered list, so the numbers mean something. The words are
- *   keys under `list` in the catalogue's namespace, kept beside this file in
- *   `locales/en/specimen/list.json`.
+ *   `scenesOf` generates the marker, gap, alignment and motion scenes. The marker scene renders a
+ *   counting marker on an `ol` and the others on a `ul`. The alignment scene renders the feature
+ *   list in a 320px room, where its last item wraps. A hand-written scene renders the `plain` look
+ *   with a lucide check in each indicator, and every other scene renders the `marker` look. Every
+ *   scene renders a component from `examples/` and shows that file as its source. The words are
+ *   keys under `list` in `locales/en/specimen/list.json`.
  */
 
-import { type ReactElement } from "react";
+import { Room, type Scene, scenesOf, specimen } from "@stealthscale/specimen";
 
-import { Room, scenesOf, specimen, useWords } from "@stealthscale/specimen";
-
-import * as List from "#list/index.ts";
+import * as features from "#list/examples/features.example.tsx";
+import * as steps from "#list/examples/steps.example.tsx";
 import { recipe } from "#list/recipe.ts";
 
 /**
- * The markers that count, which an ordered list draws.
+ * Lists the markers that count, which render on an `ol`.
  */
-const COUNTING = new Set([
+const COUNTING = new Set<unknown>([
   "decimal",
   "leading-zero",
-  "lower-roman",
-  "upper-roman",
   "lower-alpha",
-  "upper-alpha",
   "lower-greek",
+  "lower-roman",
+  "upper-alpha",
+  "upper-roman",
 ]);
 
 /**
- * The call site every scene's source snippet is generated from.
+ * Hand-written scene for the plain look with an indicator on each item.
  */
-const SAMPLE = {
-  children: [
-    "<List.Item>Milk</List.Item>",
-    "<List.Item>Bread</List.Item>",
-    "<List.Item>Butter</List.Item>",
-  ].join("\n"),
-  imports: 'import { List } from "@stealthscale/component-typography";',
-  name: "List.Root",
+export const plain: Scene = {
+  about: "list.variant.about",
+  axes: ["variant"],
+  draw: features.Features,
+  example: features,
+  title: "list.variant.title",
 };
-
-/**
- * Draws three groceries as plain entries.
- */
-function Groceries(): ReactElement {
-  const { t } = useWords("list");
-
-  return (
-    <>
-      <List.Item>{t("milk")}</List.Item>
-      <List.Item>{t("bread")}</List.Item>
-      <List.Item>{t("butter")}</List.Item>
-    </>
-  );
-}
-
-/**
- * Draws the groceries under whatever the scene hands over.
- */
-function Shopping(props: List.RootProps): ReactElement {
-  return (
-    <List.Root {...props}>
-      <Groceries />
-    </List.Root>
-  );
-}
-
-/**
- * Draws the groceries under the marker the scene hands over, on the element that marker needs.
- *
- * @remarks
- *   A marker that counts belongs on an ordered list, so the numbers stand for the order of the
- *   entries rather than decorating them.
- */
-function Marked({ marker, ...rest }: List.RootProps): ReactElement {
-  const counting = typeof marker === "string" && COUNTING.has(marker);
-
-  return (
-    <Shopping as={counting ? "ol" : "ul"} {...(marker === undefined ? {} : { marker })} {...rest} />
-  );
-}
-
-/**
- * Draws the groceries, the plain look carrying a mark of its own on each entry.
- *
- * @remarks
- *   The mark is drawn for the plain look alone. The browser's marker already draws one, and an
- *   entry carrying both reads as two lists laid over each other.
- */
-function Checked({ variant, ...rest }: List.RootProps): ReactElement {
-  const { t } = useWords("list");
-  const own = variant === "plain";
-
-  return (
-    <List.Root {...(variant === undefined ? {} : { variant })} {...rest}>
-      <List.Item>
-        {own ? <List.Indicator>✓</List.Indicator> : null}
-        {t("milk")}
-      </List.Item>
-      <List.Item>
-        {own ? <List.Indicator>✓</List.Indicator> : null}
-        {t("bread")}
-      </List.Item>
-      <List.Item>
-        {own ? <List.Indicator>✗</List.Indicator> : null}
-        {t("butter")}
-      </List.Item>
-    </List.Root>
-  );
-}
-
-/**
- * Draws a plain entry running to more than one line, with its own mark beside it.
- *
- * @remarks
- *   The entry stands in a room at the smallest measure, which is what makes it run to a second
- *   line: given a cell of the catalogue it sat on one, and the three places read the same.
- */
-function Wrapped(props: List.RootProps): ReactElement {
-  const { t } = useWords("list");
-
-  return (
-    <Room size="xs">
-      <List.Root variant="plain" {...props}>
-        <List.Item>
-          <List.Indicator>✓</List.Indicator>
-          {t("note")}
-        </List.Item>
-      </List.Root>
-    </Room>
-  );
-}
 
 export default specimen({
   about: "list.about",
   id: "components/typography/list",
   imports: 'import { List } from "@stealthscale/component-typography";',
-  scenes: scenesOf<List.RootProps>(recipe, {
-    axes: {
-      align: { draw: (props) => <Wrapped {...props} /> },
-      marker: { draw: (props) => <Marked {...props} /> },
-      variant: { draw: (props) => <Checked {...props} /> },
-    },
-    draw: (props) => <Shopping {...props} />,
-    namespace: "list",
-    order: ["variant", "marker", "gap", "align", "motion"],
-    sample: SAMPLE,
-  }),
+  scenes: [
+    ...scenesOf<Parameters<typeof steps.Steps>[0]>(recipe, {
+      axes: {
+        align: {
+          draw: (props) => (
+            <Room size="xs">
+              <features.Features {...props} />
+            </Room>
+          ),
+          example: features,
+        },
+        marker: {
+          draw: (props) => <steps.Steps as={COUNTING.has(props.marker) ? "ol" : "ul"} {...props} />,
+        },
+      },
+      draw: (props) => <steps.Steps {...props} />,
+      example: steps,
+      namespace: "list",
+      order: ["marker", "gap", "align", "motion"],
+      skip: {
+        variant: "The plain scene renders the plain look, and every other scene the marker look.",
+      },
+    }),
+    plain,
+  ],
   title: "list.title",
 });

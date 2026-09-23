@@ -11,11 +11,11 @@ describe("recipe", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+  it("has no scene that writes a value the recipe does not offer", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(
       recipeViolations(recipe, {
         names: ["List.Root", "List.Item", "List.Indicator"],
@@ -24,19 +24,19 @@ describe("recipe", () => {
     ).toStrictEqual([]);
   });
 
-  it("names its class list", () => {
+  it("sets className to list", () => {
     expect(recipe.className).toBe("list");
   });
 
-  it("styles the root and the item and the indicator", () => {
+  it("declares three slots in the order a caller nests the parts", () => {
     expect(recipe.slots).toStrictEqual(["root", "item", "indicator"]);
   });
 
-  it("offers the five axes a list takes", () => {
+  it("declares five variant axes", () => {
     expect(axesOf(recipe)).toStrictEqual(["align", "gap", "marker", "motion", "variant"]);
   });
 
-  it("offers the eleven markers the browser draws", () => {
+  it("declares eleven browser marker types on the marker axis", () => {
     expect(valuesOf(recipe, "marker")).toStrictEqual([
       "circle",
       "dash",
@@ -52,11 +52,11 @@ describe("recipe", () => {
     ]);
   });
 
-  it("draws the browser's markers at the middle gap when nothing is asked for", () => {
+  it("defaults to the marker look at the md gap", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ gap: "md", variant: "marker" });
   });
 
-  it("offers the eight gaps", () => {
+  it("declares eight gaps on the gap axis", () => {
     expect(valuesOf(recipe, "gap")).toStrictEqual([
       "2xl",
       "3xl",
@@ -69,15 +69,23 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers the marker look and the plain look", () => {
+  it("declares two looks on the variant axis", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual(["marker", "plain"]);
   });
 
-  it("offers the two motions an entry enters with", () => {
+  it("declares two entrance motions on the motion axis", () => {
     expect(valuesOf(recipe, "motion")).toStrictEqual(["reveal", "rise"]);
   });
 
-  it("tracks the namespace and every tag whose name opens with List", () => {
+  it("sets the indicator to one line tall", () => {
+    expect(recipe.base?.indicator).toMatchObject({ alignItems: "center", height: "1lh" });
+  });
+
+  it("sizes an svg inside the indicator to the text", () => {
+    expect(recipe.base?.indicator).toMatchObject({ "& > svg": { boxSize: "1em" } });
+  });
+
+  it("matches every JSX tag that opens with List", () => {
     expect(recipe.jsx).toStrictEqual([/^List(\.\w+)?$/u]);
   });
 });
