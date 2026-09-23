@@ -10,6 +10,10 @@
     "about": "Both fields contain more lines than their three rows. Without `grows` the field keeps its rows and scrolls. With `grows` it takes the height of its text.",
     "title": "Grows"
   },
+  "limit": {
+    "about": "A growing field stops at `maxRows` and scrolls. Both fields start at two rows and hold the same text. The field at 3 stops after three lines and scrolls, and the field at 5 grows further.",
+    "title": "Row limit"
+  },
   "notes": "Notes",
   "prompt": "Add a note for the courier",
   "reply": "Reply",

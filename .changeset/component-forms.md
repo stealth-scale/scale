@@ -186,3 +186,10 @@ component-forms: rebuild SearchInput on the input group
 - The clear control is a square of the tag height, at least 24px, and the group places it 4px from
   the box's end. The recipe drops the negative inline margin it wrote, which pushed the square past
   its mark at every size.
+
+component-forms: stop a growing textarea at maxRows
+
+- `Textarea` takes `maxRows`. A growing field stops at that many lines and scrolls, where it grew
+  without end. The limit is held at `rows` or more, and a field without `grows` ignores it.
+- The component writes `data-capped` and the limit, in `--textarea-max-rows`, onto the root. The
+  recipe caps the hidden copy of the text at that many lines and lets the control scroll.

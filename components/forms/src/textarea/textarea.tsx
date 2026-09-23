@@ -5,9 +5,11 @@
  *   With `grows` set, the component writes the value into an attribute on the root, and the recipe
  *   renders a hidden copy of it in the same grid cell as the `textarea`. The cell takes the height
  *   of the copy, so the field resizes in the same frame as the edit and no layout is measured.
- *   Without `grows` the root has no copy, so the field keeps the height of its `rows` and scrolls.
- *   The component holds the value when the caller does not, and writes the attribute from whichever
- *   value is in force, so a controlled field grows the same way.
+ *   `maxRows` writes a row limit onto the root, which caps the copy, so the field stops growing at
+ *   that many lines and scrolls. Without `grows` the root has no copy, so the field keeps the
+ *   height of its `rows` and scrolls. The component holds the value when the caller does not, and
+ *   writes the attribute from whichever value is in force, so a controlled field grows the same
+ *   way.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,7 +17,7 @@ import { type ComponentProps, type ReactElement } from "react";
 import { omitUndefined, useControllableState } from "@stealthscale/hooks";
 
 import { withContext, withProvider } from "#textarea/context.ts";
-import { VALUE } from "#textarea/recipe.ts";
+import { CAPPED, MAX_ROWS, VALUE } from "#textarea/recipe.ts";
 
 /**
  * Renders the root grid cell that sizes the field, with the recipe's variants.
@@ -63,7 +65,8 @@ interface Variants {
 }
 
 /**
- * Describes the props of `Textarea`: the variants, the value, and the props of a styled `textarea`.
+ * Describes the props of `Textarea`: the variants, the value, the row limit, and the props of a
+ * styled `textarea`.
  */
 export interface TextareaProps
   extends Omit<ComponentProps<typeof Typed>, "defaultValue" | "onChange" | "value">, Variants {
@@ -71,6 +74,12 @@ export interface TextareaProps
    * Initial value when the caller does not control the value.
    */
   readonly defaultValue?: string | undefined;
+
+  /**
+   * Most lines a growing field takes before it scrolls. Held at `rows` or more. A field without
+   * `grows` ignores it.
+   */
+  readonly maxRows?: number | undefined;
 
   /**
    * Called with the new value on every change.
@@ -84,6 +93,25 @@ export interface TextareaProps
 }
 
 /**
+ * Returns the attributes the root carries: the copy of the value on a growing field, and the row
+ * limit where one is set.
+ */
+function sizing(
+  held: string,
+  grows: boolean | undefined,
+  rows: number,
+  maxRows: number | undefined,
+): Readonly<Record<string, unknown>> {
+  if (grows !== true) return {};
+
+  if (maxRows === undefined) return { [VALUE]: held };
+
+  const limit: Record<string, string> = { [MAX_ROWS]: String(Math.max(maxRows, rows)) };
+
+  return { [CAPPED]: "", style: limit, [VALUE]: held };
+}
+
+/**
  * Renders the `textarea` inside the root that sizes it.
  *
  * @remarks
@@ -94,6 +122,7 @@ export function Textarea({
   defaultValue = "",
   grip,
   grows,
+  maxRows,
   onValueChange,
   rows = 3,
   size,
@@ -110,7 +139,7 @@ export function Textarea({
   const variants = omitUndefined({ grip, grows, size, status, variant });
 
   return (
-    <Sized {...(grows === true ? { [VALUE]: held } : {})} {...variants}>
+    <Sized {...sizing(held, grows, rows, maxRows)} {...variants}>
       <Typed
         {...rest}
         onChange={(event) => {

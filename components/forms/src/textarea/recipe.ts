@@ -7,8 +7,10 @@
  *   read through the control inside the box. A growing field measures nothing in JavaScript: the
  *   root is a grid of one cell that holds the control and a hidden copy of its text, and the copy
  *   sets the cell's height. The copy is the root's `::after`, whose `content` reads an attribute
- *   the component writes. The trailing space in the copy keeps a final empty line open. The root
- *   carries the inset and the two measured boxes carry none, so both wrap at the same width. The
+ *   the component writes. The trailing space in the copy keeps a final empty line open. A growing
+ *   field with a row limit caps the copy at that many lines, so the cell stops growing and the
+ *   control scrolls. The root carries the inset and the two measured boxes carry none, so both wrap
+ *   at the same width. The
  *   inset is one size smaller than the size, the same as the input's inline inset. The recipe has
  *   no `palette` axis, because a field's color reports a state, and no `effect` axis, because a
  *   glow or a pulse would compete with the focus ring and the status edge.
@@ -33,6 +35,16 @@ import {
  * Attribute on the root that carries a copy of the text.
  */
 export const VALUE = "data-value";
+
+/**
+ * Attribute on the root of a growing field that has a row limit.
+ */
+export const CAPPED = "data-capped";
+
+/**
+ * Custom property on the root that carries the row limit of a growing field.
+ */
+export const MAX_ROWS = "--textarea-max-rows";
 
 /**
  * Styles the control and the copy alike, so both wrap at the same width and the copy measures what
@@ -99,9 +111,24 @@ export const recipe = defineSlotRecipe({
     },
 
     /**
-     * Whether the field takes its height from its content. The control hides its own scrollbar.
+     * Whether the field takes its height from its content. The control hides its own scrollbar
+     * until the field reaches its row limit.
+     *
+     * @remarks
+     *   The limit is written here and not in the base, because the compiler puts the variants in a
+     *   later cascade layer and this value's `overflow` would override a base rule.
      */
-    grows: { true: { control: { overflow: "hidden" } } },
+    grows: {
+      true: {
+        control: { [`[${CAPPED}] > &`]: { overflowY: "auto" }, overflow: "hidden" },
+        root: {
+          [`&[${CAPPED}]::after`]: {
+            maxBlockSize: `calc(var(${MAX_ROWS}) * 1lh)`,
+            overflow: "hidden",
+          },
+        },
+      },
+    },
 
     /**
      * Text size and inset. The text reads the body role, and the inset on every side reads the

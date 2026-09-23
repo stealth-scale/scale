@@ -257,7 +257,7 @@ import { Input } from "@stealthscale/component-forms";
 ```tsx
 import { Textarea } from "@stealthscale/component-forms";
 
-<Textarea aria-label="Notes" grows rows={2} />;
+<Textarea aria-label="Notes" grows maxRows={6} rows={2} />;
 <Textarea aria-label="Notes" grip="none" onValueChange={setNotes} value={notes} />;
 ```
 
@@ -272,6 +272,8 @@ import { Textarea } from "@stealthscale/component-forms";
 - `rows` sets the height and defaults to 3. Without `grows` the field keeps that height and scrolls.
 - With `grows` the field takes the height of its text, with `rows` as the least height. The height
   follows the text in the same frame, and no layout is read.
+- `maxRows` stops a growing field at that many lines, and the field scrolls past it. It is held at
+  `rows` or more, and a field without `grows` ignores it.
 - `grip` sets the CSS `resize` property. A style prop named `resize` would shadow an axis of that
   name.
 - `value` and `defaultValue` serve a controlled and an uncontrolled field. `onValueChange` receives

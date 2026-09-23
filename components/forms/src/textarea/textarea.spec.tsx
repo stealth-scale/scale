@@ -66,6 +66,30 @@ describe("Textarea", () => {
     expect(slotElement(container, "textarea", "root").dataset["value"]).toBe("a line");
   });
 
+  it("writes the row limit onto the root of a growing field", () => {
+    const { container } = render(<Textarea aria-label="Notes" grows maxRows={6} />);
+    const root = slotElement(container, "textarea", "root");
+
+    expect(root.dataset["capped"]).toBe("");
+    expect(root.style.getPropertyValue("--textarea-max-rows")).toBe("6");
+  });
+
+  it("holds the row limit at rows when maxRows is smaller", () => {
+    const { container } = render(<Textarea aria-label="Notes" grows maxRows={2} rows={4} />);
+
+    expect(
+      slotElement(container, "textarea", "root").style.getPropertyValue("--textarea-max-rows"),
+    ).toBe("4");
+  });
+
+  it("writes no row limit onto the root of a field that does not grow", () => {
+    const { container } = render(<Textarea aria-label="Notes" maxRows={6} />);
+    const root = slotElement(container, "textarea", "root");
+
+    expect(root.dataset["capped"]).toBeUndefined();
+    expect(root.style.getPropertyValue("--textarea-max-rows")).toBe("");
+  });
+
   it("calls onValueChange with the new value on every change", () => {
     const told = vi.fn<(value: string) => void>();
 

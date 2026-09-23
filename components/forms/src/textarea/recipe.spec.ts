@@ -89,6 +89,22 @@ describe("recipe", () => {
     ]);
   });
 
+  it("caps the copy of a growing field at its row limit", () => {
+    expect(recipe.variants?.["grows"]?.["true"]?.["root"]).toStrictEqual({
+      "&[data-capped]::after": {
+        maxBlockSize: "calc(var(--textarea-max-rows) * 1lh)",
+        overflow: "hidden",
+      },
+    });
+  });
+
+  it("scrolls the control of a growing field that has a row limit", () => {
+    expect(recipe.variants?.["grows"]?.["true"]?.["control"]).toStrictEqual({
+      "[data-capped] > &": { overflowY: "auto" },
+      overflow: "hidden",
+    });
+  });
+
   it("tracks JSX named Textarea", () => {
     expect(recipe.jsx).toStrictEqual([/^Textarea$/u]);
   });
