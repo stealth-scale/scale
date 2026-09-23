@@ -237,6 +237,14 @@ describe("recipe", () => {
     expect(stacked?.css?.["header"]?.["gridTemplateAreas"]).toContain('"meta meta meta"');
   });
 
+  it("gives back the room those marks kept beside the title once they are under it", () => {
+    const stacked = recipe.compoundVariants?.find((each) =>
+      (each.className ?? "").endsWith("meta--stacked"),
+    );
+
+    expect(stacked?.css?.["meta"]).toStrictEqual({ marginInlineStart: "0" });
+  });
+
   it("pulls the gutter in by one step on a folded page", () => {
     expect(recipe.variants?.["folded"]?.["true"]?.["root"]).toStrictEqual({
       [GUTTER]: "{spacing.inset.sm}",

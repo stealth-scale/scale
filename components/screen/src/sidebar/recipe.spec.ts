@@ -24,6 +24,22 @@ const PARTS = [
 ];
 
 describe("recipe", () => {
+  it("keeps the words of the bands that stay put out of sight once the column is a rail", () => {
+    const railed = { "& > :not(svg)": { srOnly: true }, justifyContent: "center" };
+
+    expect(recipe.base?.["header"]?.["[data-iconic] &"]).toStrictEqual(railed);
+    expect(recipe.base?.["footer"]?.["[data-iconic] &"]).toStrictEqual(railed);
+  });
+
+  it("puts a block's action beside the label it belongs to rather than under it", () => {
+    expect(recipe.base?.["nav"]).toMatchObject({
+      display: "grid",
+      gridTemplateColumns: "minmax(0, 1fr) auto",
+    });
+    expect(recipe.base?.["navAction"]).toMatchObject({ gridColumn: "2 / 3" });
+    expect(recipe.base?.["navLabel"]).toMatchObject({ gridColumn: "1 / 2" });
+  });
+
   it("covers every variant axis in the scenes of its specimen page", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });

@@ -184,7 +184,7 @@ export const recipe = defineSlotRecipe({
       gridArea: "body",
       minBlockSize: "0",
     },
-    context: { ...ROW, gridArea: "context" },
+    context: { ...ROW, gridArea: "context", minInlineSize: "0" },
     description: {
       color: "fg.muted",
       gridArea: "description",
@@ -207,6 +207,10 @@ export const recipe = defineSlotRecipe({
      *   The rows are parted by a gap a step below the size, because a trail, a title and a
      *   sentence are three things rather than one block of text, and flush against each other they
      *   read as one. The columns are not: what sits beside the title belongs on its line.
+     *   Every part names the area it goes in. A part that named none was placed in the first free
+     *   cell instead, which put the trail in the column the leading mark takes and sized that
+     *   column to the trail's width: the title, in the column after it, began where the words above
+     *   it had ended and the head read as a staircase.
      */
     header: {
       ...BAND,
@@ -246,10 +250,18 @@ export const recipe = defineSlotRecipe({
     tabs: { "&": { borderBlockEndWidth: "0" } },
     title: { gridArea: "title", minInlineSize: "0", overflowWrap: "anywhere" },
     toolbar: { ...BAND, ...ROW, "&[data-sticky]": STUCK, gridArea: "toolbar" },
-    trail: { color: "fg.muted" },
+    trail: { color: "fg.muted", gridArea: "context", justifySelf: "start", minInlineSize: "0" },
   },
   className: CLASS,
   compoundVariants: [
+    /**
+     * A header that has folded stacks what was beside the title under it.
+     *
+     * @remarks
+     *   The line about the page stands off the title while the two share a line. On a line of its
+     *   own that room became an indent, and the line was drawn 8 pixels to the right of the title
+     *   above it and the description below it, so it gives the room back here.
+     */
     {
       css: {
         header: {
@@ -257,6 +269,7 @@ export const recipe = defineSlotRecipe({
             '"context context context" "leading title actions" "meta meta meta" "description description description"',
           gridTemplateColumns: "auto minmax(0, 1fr) auto",
         },
+        meta: { marginInlineStart: "0" },
       },
       folded: true,
       name: "stacked",
