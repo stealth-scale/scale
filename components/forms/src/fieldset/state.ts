@@ -1,5 +1,5 @@
 /**
- * Carries what a fieldset knows about itself down to its parts and to the fields inside it.
+ * Provides a fieldset's state to its parts and to the fields inside it.
  */
 
 import { createContext, useContext } from "react";
@@ -7,48 +7,54 @@ import { createContext, useContext } from "react";
 import { type Ids, idsOf } from "#field/ids.ts";
 
 /**
- * Describes what a group's parts and the fields inside it read.
+ * Describes the state a group's parts and the fields inside it read.
  */
 export interface FieldsetState {
   /**
-   * Whether every control in the group is out of reach.
+   * Whether every control in the group is disabled.
    */
   disabled: boolean;
 
   /**
-   * The identifiers the group's own texts are referenced by.
+   * Identifiers of the group's legend and texts.
    */
   ids: Ids;
 
   /**
-   * Whether what the group holds is wrong.
+   * Whether the group's value is invalid.
    */
   invalid: boolean;
+
+  /**
+   * Size of the group, which a field inside it takes unless it states its own.
+   */
+  size?: "lg" | "md" | "sm" | undefined;
+
+  /**
+   * Status the group reports, or nothing where it reports none.
+   */
+  status?: string | undefined;
 }
 
 /**
- * The state a field reads where no group is above it, which is the common case.
+ * State a field reads outside any group: nothing disabled, invalid, sized or reported.
  */
 const LOOSE: FieldsetState = { disabled: false, ids: idsOf("fieldset"), invalid: false };
 
 /**
- * Hands the group's state down.
- *
- * @remarks
- *   The context answers rather than throwing, because a field outside a group is ordinary. A
- *   group's own parts are never drawn outside one, so the default they would read is unused.
+ * Context that carries the group's state, with the loose state outside a group.
  */
 const FieldsetContext = createContext<FieldsetState>(LOOSE);
 
 /**
- * Hands the group's state to its parts and to the fields inside it.
+ * Provides the group's state to its parts and to the fields inside it.
  */
 export const FieldsetProvider = FieldsetContext;
 
 /**
- * Reads the group around a field or a part.
+ * Returns the state of the group around a part or a field.
  *
- * @returns The group's state, or nothing disabled where there is no group.
+ * @returns The group's state, or the loose state outside a group.
  */
 export function useFieldset(): FieldsetState {
   return useContext(FieldsetContext);

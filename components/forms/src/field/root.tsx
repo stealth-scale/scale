@@ -4,10 +4,10 @@
  * @remarks
  *   The element is a `div` with no role. The control keeps its own role, and the label names it.
  *   Every part reads the state from the root: one `invalid` marks the control and renders the
- *   error text. A field inside a disabled fieldset is disabled until it states `disabled` itself.
- *   The root derives every identifier from one: `id` when the caller states it, otherwise one
- *   React generates. `maxLength` limits the control and sets the counter's maximum. The root's
- *   `size` reaches the control unless the control states its own.
+ *   error text. A field inside a fieldset takes the group's disabled state and size until it
+ *   states its own. The root derives every identifier from one: `id` when the caller states it,
+ *   otherwise one React generates. `maxLength` limits the control and sets the counter's maximum.
+ *   The root's size reaches the control unless the control states its own.
  */
 
 import { type ComponentProps, type ReactElement, useId, useMemo } from "react";
@@ -78,6 +78,7 @@ export function Root({
   const group = useFieldset();
   const counted = useConst(tally);
   const unreachable = disabled ?? group.disabled;
+  const sized = size ?? group.size;
   const state = useMemo<FieldState>(
     () => ({
       disabled: unreachable,
@@ -86,18 +87,18 @@ export function Root({
       maxLength,
       readOnly,
       required,
-      size,
+      size: sized,
       status,
       tally: counted,
     }),
-    [counted, generated, id, invalid, maxLength, readOnly, required, size, status, unreachable],
+    [counted, generated, id, invalid, maxLength, readOnly, required, sized, status, unreachable],
   );
 
   return (
     <FieldProvider value={state}>
       <Framed
         {...rest}
-        {...(size === undefined ? {} : { size })}
+        {...(sized === undefined ? {} : { size: sized })}
         {...(status === undefined ? {} : { status })}
         data-disabled={unreachable || undefined}
         data-invalid={invalid || undefined}

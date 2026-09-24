@@ -8,7 +8,7 @@ import { slotClass, slotClasses, variantClass } from "@stealthscale/testing-them
 import { withContext, withProvider } from "#fieldset/context.ts";
 
 describe("context", () => {
-  it("draws the slot's class on an element it binds", () => {
+  it("applies the slot class to an element it binds", () => {
     const Box = withProvider("fieldset", "root");
     const Words = withContext("legend", "legend");
     const { container } = render(createElement(Box, null, createElement(Words, null, "Delivery")));
@@ -16,7 +16,7 @@ describe("context", () => {
     expect(slotClasses(container, "fieldset", "legend")).toContain(slotClass("fieldset", "legend"));
   });
 
-  it("hands the root's variants to a part below it", () => {
+  it("applies the root's variant to a part inside it", () => {
     const Box = withProvider("fieldset", "root");
     const Words = withContext("legend", "legend");
     const { container } = render(

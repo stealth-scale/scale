@@ -52,13 +52,20 @@ component-forms: publish Fieldset, Field, Checkbox, Switch, Textarea and InputGr
   and then `onValueChange` with the value. `className` goes to the box that draws the edge. Inside a
   field, render `Field.Textarea`.
 
-- `Fieldset` groups fields that belong together and names the group. Four parts under one namespace:
+- `Fieldset` groups fields that belong together under one name. Four parts under one namespace:
   `Root`, `Legend`, `HelperText` and `ErrorText`.
-- `Fieldset.Root` is a `fieldset` and `disabled` is the element's own attribute, so a browser takes
-  every control in the group out of reach, out of the tab order and out of what the form submits,
-  and leaves the first legend alone. The state also goes down a context, so the labels beside those
-  controls draw as unreachable. A field states its own `disabled` to override it.
-- The root is described by both of its texts and carries `aria-invalid`. It clears the minimum
+- `Fieldset.Root` is a `fieldset` and `disabled` is the element's own attribute, so the browser
+  disables every control in the group, takes it out of the tab order and out of the form's
+  submission, and leaves the first legend enabled. The state also reaches the fields through a
+  context, so their labels take the disabled look. A field states its own `disabled` to override it.
+- The group's `size` reaches every field inside that states none, and so reaches the controls.
+- The legend floats, so it is not the rendered legend a browser lays out apart from the flex items,
+  and the root's gap separates it from the next part: 6, 8 and 12px at `sm`, `md` and `lg`. It still
+  names the group.
+- The helper and error texts read the body role one size smaller, the same as a field's.
+- `ErrorText` renders while the group is invalid or reports a status, and sets `role="alert"` only
+  while the group is invalid. A leading `svg` is centred on the first line.
+- The root lists both texts in `aria-describedby` and carries `aria-invalid`. It clears the minimum
   inline size a `fieldset` defaults to, so one inside a flex or grid parent shrinks.
 - Three axes: `size`, `orientation` and `status`.
 

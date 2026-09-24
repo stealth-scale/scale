@@ -1,16 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { slotElement } from "@stealthscale/testing-theme";
+import { slotElement, variantClass } from "@stealthscale/testing-theme";
 
 import * as Field from "#field/index.ts";
 import { composed, grouped } from "#fieldset/fieldset.fixtures.tsx";
 import { useFieldset } from "#fieldset/state.ts";
 
 /**
- * Reads the group back and draws what it found, so a case can assert on it.
+ * Renders whether the group is disabled, as text.
  *
- * @returns Whether the group is disabled, as text.
+ * @returns `true` or `false`.
  */
 function Reader(): string {
   return String(useFieldset().disabled);
@@ -23,19 +23,19 @@ describe("state", () => {
     expect(screen.getByText("false")).toBeDefined();
   });
 
-  it("hands the group's state down", () => {
+  it("provides the group's disabled state", () => {
     render(grouped(<Reader />, { disabled: true }));
 
     expect(screen.getByText("true")).toBeDefined();
   });
 
-  it("draws a field inside a disabled group as unreachable", () => {
+  it("gives the label of a field inside a disabled group the disabled look", () => {
     const { container } = render(composed({ disabled: true }));
 
     expect(slotElement(container, "field", "label").dataset["disabled"]).toBe("true");
   });
 
-  it("keeps a field's own state over the group's", () => {
+  it("keeps a field's own disabled state over the group's", () => {
     const { container } = render(
       grouped(
         <Field.Root disabled={false}>
@@ -47,5 +47,29 @@ describe("state", () => {
     );
 
     expect(slotElement(container, "field", "label").dataset["disabled"]).toBeUndefined();
+  });
+
+  it("gives a field inside the group the group's size", () => {
+    render(composed({ size: "sm" }));
+
+    expect([...screen.getByRole("textbox").classList]).toContain(
+      variantClass("input", "size", "sm"),
+    );
+  });
+
+  it("keeps a field's own size over the group's", () => {
+    render(
+      grouped(
+        <Field.Root size="lg">
+          <Field.Label>Address</Field.Label>
+          <Field.Control />
+        </Field.Root>,
+        { size: "sm" },
+      ),
+    );
+
+    expect([...screen.getByRole("textbox").classList]).toContain(
+      variantClass("input", "size", "lg"),
+    );
   });
 });

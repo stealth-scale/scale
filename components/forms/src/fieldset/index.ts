@@ -1,6 +1,6 @@
 /**
- * Publishes the fieldset's parts, which a caller composes as `Fieldset.Root` holding a legend and
- * the fields the group is made of.
+ * Exports the fieldset's parts, composed as `Fieldset.Root` around a legend, the group's fields and
+ * its texts, and the hook that reads the group's state.
  */
 
 export { ErrorText, type ErrorTextProps } from "#fieldset/error-text.tsx";

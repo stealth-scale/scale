@@ -19,7 +19,7 @@ The package peers on `react`, `@stealthscale/hooks` and `@stealthscale/theme`. L
 
 ## Fieldset
 
-Groups fields that belong together and names the group.
+`Fieldset` groups fields that belong together under one name.
 
 ```tsx
 import { Field, Fieldset } from "@stealthscale/component-forms";
@@ -31,7 +31,7 @@ import { Field, Fieldset } from "@stealthscale/component-forms";
     <Field.Label>Address</Field.Label>
     <Field.Control />
   </Field.Root>
-  <Fieldset.ErrorText>Choose one before going on.</Fieldset.ErrorText>
+  <Fieldset.ErrorText>Fill in both before going on.</Fieldset.ErrorText>
 </Fieldset.Root>;
 ```
 
@@ -39,27 +39,26 @@ import { Field, Fieldset } from "@stealthscale/component-forms";
 | ------------- | ------------------------------------- | ---------- |
 | `size`        | `sm`, `md`, `lg`                      | `md`       |
 | `orientation` | `vertical`, `horizontal`              | `vertical` |
-| `status`      | `info`, `success`, `warning`, `error` | `error`    |
+| `status`      | `info`, `success`, `warning`, `error` | none       |
 
-| Part         | Element    | What it draws                          |
-| ------------ | ---------- | -------------------------------------- |
-| `Root`       | `fieldset` | The group, and the state it hands down |
-| `Legend`     | `legend`   | The words naming the group             |
-| `HelperText` | `p`        | What a person needs to know            |
-| `ErrorText`  | `p`        | What went wrong with the group         |
+| Part         | Element    | What it renders                                |
+| ------------ | ---------- | ---------------------------------------------- |
+| `Root`       | `fieldset` | The group, and the state its fields read       |
+| `Legend`     | `legend`   | The group's name                               |
+| `HelperText` | `p`        | What a person needs to know about the group    |
+| `ErrorText`  | `p`        | What is wrong, or the status the group reports |
 
-`Fieldset.Root` also takes `disabled` and `invalid`.
-
-Write the legend first. A browser takes the first `legend` as the group's name and reads a later one
-as ordinary content.
-
-`disabled` takes every control in the group out of reach, out of the tab order and out of what the
-form submits. It leaves the legend alone. Fields inside inherit the state and draw their labels as
-unreachable. State `disabled` on a field to override it.
-
-Use `Fieldset.ErrorText` for a fault belonging to the group, such as a set of options none of which
-was chosen or two dates in the wrong order. A fault belonging to one field goes in that field's
-message.
+- `Fieldset.Root` takes `disabled` and `invalid`. Write the legend as the first child, because a
+  browser names the group from the first `legend`.
+- `disabled` is the element's own attribute: the browser disables every control in the group, takes
+  it out of the tab order and out of the form's submission, and leaves the legend enabled. Fields
+  inside take the disabled look. State `disabled` on a field to override it.
+- The group's `size` reaches every field inside that states none, and the field passes it to its
+  control.
+- `Fieldset.ErrorText` renders while the group is invalid or reports a status, and sets
+  `role="alert"` only while it is invalid. Use it for a fault of the group, such as no option chosen
+  or two dates in the wrong order. A fault of one field goes in that field's error text.
+- The legend floats, so the root's gap separates it from the next part.
 
 ## Field
 

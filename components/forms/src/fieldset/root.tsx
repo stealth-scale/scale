@@ -1,20 +1,14 @@
 /**
- * Draws the box a group of fields sits in.
+ * Renders the fieldset's root and provides the group's state to its parts and fields.
  *
  * @remarks
- *   The element is `fieldset`, and `disabled` is its own attribute rather than something the
- *   component wires. A browser takes every control inside a disabled fieldset out of reach, out of
- *   the tab order and out of what a form submits, which is four behaviours for one attribute. The
- *   first `legend` stays reachable, which is the exception the specification makes and the reason
- *   a group can still be named while its controls are not.
- *   The state also goes down a context, because the browser disables the controls and not the
- *   labels beside them. A field inside the group draws itself as unreachable from that.
- *   The identifiers are derived from one, as a field's are, and the root is described by both of
- *   its texts. A screen reader that reads a group's description reads them; one that does not
- *   reaches them in document order instead, which is why they are drawn under the legend.
- *   The legend has to be the first child. A browser takes the first `legend` as the group's name
- *   and treats a later one as ordinary content, and nothing in a component can enforce the order a
- *   caller writes its children in.
+ *   The element is a `fieldset`, and `disabled` is the element's own attribute, so the browser
+ *   disables every control inside the group, takes it out of the tab order and out of the form's
+ *   submission, and leaves the first legend enabled. The state also reaches the fields through the
+ *   context, so their labels take the disabled look. The group's `size` reaches every field that
+ *   states none. The root derives its identifiers from one, as a field does, and lists the helper
+ *   and error texts in `aria-describedby`. Write the legend as the first child, because a browser
+ *   names the group from the first `legend`.
  */
 
 import { type ComponentProps, type ReactElement, useId, useMemo } from "react";
@@ -24,37 +18,44 @@ import { withProvider } from "#fieldset/context.ts";
 import { FieldsetProvider, type FieldsetState } from "#fieldset/state.ts";
 
 /**
- * Draws the box and sets the variants every part below it reads.
+ * Renders the root `fieldset` with the recipe's variants.
  */
 const Framed = withProvider("fieldset", "root");
 
 /**
- * Describes what a group takes: the recipe's variants, what it knows about itself, and everything
- * a styled fieldset takes.
+ * Describes the props of the root: the recipe's variants, the group's state, and the props of a
+ * `fieldset`.
  */
 export interface RootProps extends ComponentProps<typeof Framed> {
   /**
-   * Whether every control in the group is out of reach. Default: false.
+   * Whether every control in the group is disabled. Defaults to false.
    */
   readonly disabled?: boolean | undefined;
 
   /**
-   * Whether what the group holds is wrong. Default: false.
+   * Whether the group's value is invalid. Defaults to false.
    */
   readonly invalid?: boolean | undefined;
 }
 
 /**
- * Draws the group, with its state in scope for its parts and the fields inside it.
+ * Renders the group and provides its state to the parts and fields inside it.
  *
- * @param props - The variants, the group's state, and the element's own props.
- * @returns The box, holding the fields, under the state they read.
+ * @param props - The variants, the group's state, and the props of a `fieldset`.
+ * @returns The `fieldset` element, with the state in scope.
  */
-export function Root({ disabled = false, id, invalid = false, ...rest }: RootProps): ReactElement {
+export function Root({
+  disabled = false,
+  id,
+  invalid = false,
+  size,
+  status,
+  ...rest
+}: RootProps): ReactElement {
   const generated = useId();
   const state = useMemo<FieldsetState>(
-    () => ({ disabled, ids: idsOf(id ?? generated), invalid }),
-    [disabled, generated, id, invalid],
+    () => ({ disabled, ids: idsOf(id ?? generated), invalid, size, status }),
+    [disabled, generated, id, invalid, size, status],
   );
 
   return (
@@ -63,6 +64,8 @@ export function Root({ disabled = false, id, invalid = false, ...rest }: RootPro
         aria-describedby={describedBy(state.ids)}
         aria-invalid={invalid || undefined}
         {...rest}
+        {...(size === undefined ? {} : { size })}
+        {...(status === undefined ? {} : { status })}
         data-invalid={invalid || undefined}
         disabled={disabled}
       />

@@ -1,12 +1,10 @@
 /**
- * Draws the words naming the group.
+ * Renders the group's name.
  *
  * @remarks
- *   The element is `legend`. A screen reader reads it before each control in the group, so a set of
- *   radio options is announced as "Delivery, Standard, radio button 1 of 3" rather than as three
- *   unrelated buttons. Nothing else gives a group of controls one name.
- *   It stays reachable while the group is disabled, which is the exception the specification makes
- *   for the first legend.
+ *   The element is a `legend`. Assistive technology reads it with each control in the group, so
+ *   three radio buttons are announced as options of "Delivery". It stays enabled while the group is
+ *   disabled, because the first legend is exempt from the `fieldset`'s `disabled`.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,20 +13,20 @@ import { withContext } from "#fieldset/context.ts";
 import { useFieldset } from "#fieldset/state.ts";
 
 /**
- * Draws the words at the size the root states.
+ * Renders the `legend` with the fieldset's legend class.
  */
 const Worded = withContext("legend", "legend");
 
 /**
- * Describes what the legend takes: everything a styled legend takes.
+ * Describes the props of the legend: the props of a `legend`.
  */
 export type LegendProps = ComponentProps<typeof Worded>;
 
 /**
- * Labels the group, for every control inside it.
+ * Renders the legend.
  *
- * @param props - Everything a styled legend takes.
- * @returns The words, carrying the identifier the group's texts are keyed by.
+ * @param props - Attributes and children of the `legend` element.
+ * @returns The `legend` element, with the group's label identifier.
  */
 export function Legend(props: LegendProps): ReactElement {
   const { ids } = useFieldset();
