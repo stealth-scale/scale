@@ -8,10 +8,10 @@ import { pressed } from "@stealthscale/testing-react";
 import { useRevealed } from "#app-shell/revealed.ts";
 
 /**
- * Draws the answer the hook holds, and a control that shows the sheet.
+ * Renders the hook's state in a button whose press opens the sheet.
  *
- * @param props - Whether the shell is too narrow to hold the panel beside the page.
- * @returns What the hook answers, and the control that sets it.
+ * @param props - Whether the shell is too narrow for the panel beside the page.
+ * @returns A button with `shown` or `hidden`.
  */
 function Reader({ narrow }: { readonly narrow: boolean }): ReactElement {
   const [shown, setOpen] = useRevealed(narrow);
@@ -35,7 +35,7 @@ describe("useRevealed", () => {
     expect(screen.getByRole("button").textContent).toBe("hidden");
   });
 
-  it("shows the sheet when something asks for it", async () => {
+  it("shows the sheet when set open", async () => {
     render(<Reader narrow />);
 
     await pressed(screen.getByRole("button"));
@@ -43,7 +43,7 @@ describe("useRevealed", () => {
     expect(screen.getByRole("button").textContent).toBe("shown");
   });
 
-  it("hides the sheet again once the shell is wide enough to hold the panel", async () => {
+  it("hides the sheet when the shell widens", async () => {
     const { rerender } = render(<Reader narrow />);
 
     await pressed(screen.getByRole("button"));
@@ -52,7 +52,7 @@ describe("useRevealed", () => {
     expect(screen.getByRole("button").textContent).toBe("hidden");
   });
 
-  it("starts hidden every time the shell narrows anew", async () => {
+  it("starts hidden again when the shell narrows again", async () => {
     const { rerender } = render(<Reader narrow />);
 
     await pressed(screen.getByRole("button"));

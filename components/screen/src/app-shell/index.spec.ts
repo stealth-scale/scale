@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#app-shell/index.ts";
 
 describe("index", () => {
-  it("names every part a caller composes and every hook it reads the shell through", () => {
+  it("exports every part and hook", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Aside",
       "Body",
@@ -21,7 +21,7 @@ describe("index", () => {
     ]);
   });
 
-  it("publishes neither the recipe nor the binding", () => {
+  it("exports no internal module", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {

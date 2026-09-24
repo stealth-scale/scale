@@ -1,5 +1,5 @@
 {
-  "about": "Lays an application out: bars across the top and the bottom, and a body between them holding a panel down either side of the page.",
+  "about": "Lays an application out: bars across the top and the bottom, and a body between them with a panel on either side of the page.",
   "acme": "Acme",
   "alerts": "Alerts",
   "april": "April invoices",
@@ -7,7 +7,7 @@
   "contoso": "Contoso",
   "detail": "Invoice detail",
   "divided": {
-    "about": "A hairline on the inner edge of each bar and each panel, beside a shell with none.",
+    "about": "A hairline on the inner edge of each bar and each panel, and a shell without them.",
     "title": "Divided"
   },
   "everything": "Everything raised this month.",
@@ -22,14 +22,14 @@
   "overview": "Overview",
   "raised": "Raised 12 April, due in 30 days.",
   "scroll": {
-    "about": "The page scrolling inside a shell the height of the window, and the document growing under bars that stick.",
+    "about": "The main region scrolling inside a shell the height of the window, and the window scrolling under sticky bars.",
     "title": "Scroll"
   },
   "search": "Search",
   "signedIn": "Ada Lovelace",
   "title": "App shell",
   "variant": {
-    "about": "Every look. Plain sets the page against the ground; inset raises the page as a card on a muted ground; floating raises the contents of each panel instead.",
+    "about": "The three looks. `plain` puts every region on the page ground. `inset` gives the main region the panel ground, a hairline and a shadow over a muted root, and `floating` gives each panel's content the same instead.",
     "title": "Looks"
   },
   "workspace": "Workspace"

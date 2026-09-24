@@ -1,10 +1,10 @@
 /**
- * Carries the shell down to its parts, and one panel down to what it holds.
+ * Provides the shell's state to its parts, and a panel's state to its content.
  *
  * @remarks
- *   Two contexts. The shell's reaches every part and holds the store the panels write to and the
- *   element they measure themselves against. A panel's reaches only what that panel holds, so a
- *   rail on its edge knows which panel it is on without being told.
+ *   The module has two contexts. The shell context is available to every part and provides the
+ *   panel store and the root element the panels measure. The panel context is available only to
+ *   that panel's content, so a part inside a panel reads its panel without a prop.
  */
 
 import { type RefObject, useMemo } from "react";
@@ -14,89 +14,82 @@ import { createRequiredContext } from "@stealthscale/hooks";
 import { type Panel, type PanelStore, usePanels } from "#app-shell/panels.ts";
 
 /**
- * The two sides of the page a panel sits on.
+ * Selects the side of the page a panel is on.
  */
 export type Side = "end" | "start";
 
 /**
- * How much of a panel closing it in the body leaves: nothing, or a rail wide enough for the marks
- * inside it.
+ * Selects what closing a panel in the body leaves: nothing, or a rail wide enough for its icons.
  */
 export type Collapse = "hide" | "icons";
 
 /**
- * Lists what closing a panel leaves, for a specification and a README to read.
+ * Every `Collapse` value.
  */
 export const COLLAPSES: readonly Collapse[] = ["hide", "icons"];
 
 /**
- * Where a panel goes when the shell is too narrow to hold it beside the page.
+ * Selects where a panel goes when the shell is too narrow to fit it beside the page.
  *
  * @remarks
- *   `over` lays it over the page behind a backdrop, which is what navigation does on a phone.
- *   `under` drops it under the page as a block that is always shown, which is how a panel of detail
- *   about the page reads on a phone.
+ *   `over` lays it over the page behind a backdrop, the usual navigation on a phone. `under` drops
+ *   it under the page as a block that is always shown, the usual detail panel on a phone.
  */
 export type Fold = "over" | "under";
 
 /**
- * Lists where a folded panel goes, for a specification and a README to read.
+ * Every `Fold` value.
  */
 export const FOLDS: readonly Fold[] = ["over", "under"];
 
 /**
- * Describes what every part of a shell reads.
+ * Describes the state every part of a shell reads.
  */
 export interface ShellState {
   /**
-   * The store the panels write what they are doing to.
+   * Store the panels publish their state to.
    */
   readonly panels: PanelStore;
 
   /**
-   * The shell's own element, which each panel measures itself against.
+   * The root element, which each panel measures.
    *
    * @remarks
-   *   The root rather than the window, so a shell drawn in a frame or a catalogue collapses on the
-   *   room it was given. The root is as wide as the shell whatever its panels do, so a panel
-   *   opening never changes the measurement that decided whether it could open.
+   *   A panel measures the root and not the window, so a shell in a frame or a catalogue folds on
+   *   its own width. The root is as wide as the shell whatever the panels do, so opening a panel
+   *   never changes the measurement that allowed it.
    */
   readonly root: RefObject<HTMLDivElement | null>;
 }
 
 /**
- * Hands the shell to its parts, and reads it back.
+ * Provides the shell's state and reads it, throwing outside `AppShell.Root`.
  */
 export const [ShellProvider, useShell] = createRequiredContext<ShellState>("AppShell.Root");
 
 /**
- * Hands one panel to what it holds, and reads it back.
+ * Provides a panel's state to its content and reads it, throwing outside a panel.
  */
 export const [PanelProvider, useNearestPanel] = createRequiredContext<Panel>("an AppShell panel");
 
 /**
- * Reads one panel of the shell by the name it was drawn under.
+ * Reads one panel of the shell by name.
  *
  * @remarks
- *   What an application reads to close its navigation when a destination is pressed, or to keep
- *   what a reader last opened. Nothing is answered for a name no panel was drawn under and for the
- *   render in which a panel first draws, because a panel writes itself to the store once it is laid
- *   out.
- * @param name - The name the panel was drawn under.
- * @returns The panel, or nothing where none by that name is drawn.
+ *   An application uses it to close its navigation when a destination is pressed. It returns
+ *   `undefined` when no panel has the name, and on a panel's first render, because a panel
+ *   publishes itself in a layout effect.
+ * @param name - The `name` the panel was rendered with, `navbar` or `aside` by default.
+ * @returns The panel's state, or `undefined`.
  */
 export function useAppShellPanel(name: string): Panel | undefined {
   return usePanels(useShell().panels)[name];
 }
 
 /**
- * Reads the panels that are laid over the page and shown.
+ * Returns the panels that are open over the page, which the backdrop and every inert part read.
  *
- * @remarks
- *   What the body reads to draw its backdrop, and what every part behind the backdrop reads to make
- *   itself inert. A panel over the page is read the way a sheet is, so nothing behind it takes a
- *   press or a Tab.
- * @returns The panels over the page, which is usually none.
+ * @returns The open panels over the page, or an empty array.
  */
 export function useOverlaid(): readonly Panel[] {
   const panels = usePanels(useShell().panels);

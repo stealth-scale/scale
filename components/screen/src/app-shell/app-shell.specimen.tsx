@@ -1,19 +1,14 @@
 /**
- * Shows the application shell: every look, both ways of scrolling, and the hairlines beside none.
+ * Catalogue page for the app shell.
  *
  * @remarks
- *   The scenes are generated from the recipe, so a value added to it reaches the page without this
- *   file changing. A shell is the height of the window, so each cell is a screen and the cells run
- *   down the page, and every scene says it fills the window, so a device shows a shell at the
- *   window's edges.
- *   Every shell is drawn as an application rather than as a set of labelled boxes: a bar holding
- *   the navigation's trigger, a sidebar of destinations under a workspace and over an account, a
- *   block of invoices in the page, a panel of detail beside it and a bar under it. What each look
- *   does is to set those against one another, and a shell of five grey rectangles showed the
- *   rectangles moving and nothing about the application they stand for.
- *   The page, the panel beside it, the bar under it and the block of destinations are each drawn as
- *   a `div`, which the drawing below says why.
- *   The words are keys under `app-shell` in the catalogue's namespace, kept beside this file in
+ *   `scenesOf` generates the looks, the scroll modes and the hairlines, each shell filling the
+ *   device window. Every shell renders an application: a header with the navigation trigger, a
+ *   sidebar in the navbar, a page of invoices in the main region, a detail panel in the aside and a
+ *   footer. The scenes render inline in the catalogue's own `main`, so the staging renders the main
+ *   region, the aside, the footer and the sidebar's block as `div`s: a document has one `main`, and
+ *   seven shells would repeat every landmark name. The sources come from `SAMPLE` until the scenes
+ *   render in their own documents. The words are keys under `app-shell` in
  *   `locales/en/specimen/app-shell.json`.
  */
 
@@ -30,12 +25,12 @@ import * as Page from "#page/index.ts";
 import * as Toolbar from "#toolbar/index.ts";
 
 /**
- * The look the one control in the shell's page takes, set through the button's own provider.
+ * Size and look of the page's one action, set through the button's provider.
  */
 const LOOK = { size: "sm", variant: "solid" } as const;
 
 /**
- * The call site every scene's source snippet is generated from.
+ * Source shown for every generated scene.
  */
 const SAMPLE = {
   children: [
@@ -49,13 +44,11 @@ const SAMPLE = {
 };
 
 /**
- * Draws the parts every shell holds.
+ * Renders the parts of every shell: the header, the body with its three regions, and the footer.
  *
  * @remarks
- *   The page, the panel beside it, the bar under it and the block of destinations are each drawn
- *   as a `div`. A document holds one `main`, and this page draws eight shells, so eight of them
- *   cannot be `main` whatever they are named. The rest follow for the same reason: a panel beside
- *   a page that is not the page is a complementary region attached to nothing.
+ *   The main region, the aside and the footer render as `div`s, because a document has one `main`
+ *   and the page renders seven shells inside the catalogue's own.
  */
 function Application(): ReactElement {
   const { t } = useWords("app-shell");
@@ -115,7 +108,7 @@ function Application(): ReactElement {
 }
 
 /**
- * Draws the whole application inside whatever the scene hands over.
+ * Renders the application inside a shell with the scene's props.
  */
 function Shell(props: AppShell.RootProps): ReactElement {
   return (

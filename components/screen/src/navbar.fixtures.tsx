@@ -1,12 +1,10 @@
 /**
- * Draws the column of destinations the shell keeps beside its page.
+ * Renders the sidebar the app shell's specimen puts in its navbar.
  *
  * @remarks
- *   Written beside the shell's own page rather than in it. The shell holds six other things
- *   already, and a file that names eleven modules is one nobody reads to the end; the column is
- *   the part of it that is a component of its own rather than a region of the shell.
- *   The words are the shell's, because this is the shell's navigation rather than the sidebar
- *   page's own.
+ *   The words are the app shell's, because this sidebar is the shell's navigation. The block
+ *   renders as a `div`, because the page renders seven shells and a `nav` in each would repeat the
+ *   landmark name.
  */
 
 import { type ComponentType, type ReactElement } from "react";
@@ -19,7 +17,7 @@ import { useWords } from "@stealthscale/specimen";
 import * as Sidebar from "#sidebar/index.ts";
 
 /**
- * The destinations the column lists, each with the mark it is known by.
+ * Destinations of the sidebar, each with its icon.
  */
 const DESTINATIONS: ReadonlyArray<readonly [string, ComponentType]> = [
   ["overview", House],
@@ -29,7 +27,7 @@ const DESTINATIONS: ReadonlyArray<readonly [string, ComponentType]> = [
 ];
 
 /**
- * Draws the workspace, the destinations under it and who is signed in under those.
+ * Renders the workspace in the header, the destinations and the signed-in person in the footer.
  */
 export function Navbar(): ReactElement {
   const { t } = useWords("app-shell");

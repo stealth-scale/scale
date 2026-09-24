@@ -8,37 +8,37 @@ import { composed, narrowed, shell } from "#app-shell/app-shell.fixtures.tsx";
 import { Header } from "#app-shell/header.tsx";
 
 describe("Header", () => {
-  it("draws a bar inside the column it needs above it", () => {
+  it("renders a header inside the root", () => {
     const { container } = render(shell(<Header>Acme</Header>));
 
     expect(slotElement(container, "app-shell", "header").tagName).toBe("HEADER");
   });
 
-  it("is a landmark a screen reader can jump to", () => {
+  it("exposes the banner landmark", () => {
     render(shell(<Header>Acme</Header>));
 
     expect(screen.getByRole("banner")).toBeTruthy();
   });
 
-  it("stands still where nothing tells it to pin", () => {
+  it("omits data-sticky when sticky is not passed", () => {
     const { container } = render(shell(<Header>Acme</Header>));
 
     expect(slotElement(container, "app-shell", "header").dataset["sticky"]).toBeUndefined();
   });
 
-  it("pins where it is told to", () => {
+  it("writes data-sticky when sticky is passed", () => {
     const { container } = render(shell(<Header sticky>Acme</Header>));
 
     expect(slotElement(container, "app-shell", "header").dataset["sticky"]).toBe("");
   });
 
-  it("takes a Tab while nothing stands over the page", () => {
+  it("stays interactive while no panel is over the page", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "app-shell", "header").inert).toBe(false);
   });
 
-  it("takes neither a press nor a Tab while a panel stands over the page", async () => {
+  it("becomes inert while a panel is over the page", async () => {
     const { container } = render(narrowed(composed()));
 
     await pressed(screen.getByRole("button", { name: "Navigation" }));

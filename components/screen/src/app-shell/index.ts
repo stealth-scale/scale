@@ -1,6 +1,6 @@
 /**
- * Publishes the shell's parts, which a caller composes as `AppShell.Root` holding bars and a body,
- * and the body holding a panel down either side of `AppShell.Main`.
+ * Exports the shell's parts and hooks. A caller composes `AppShell.Root` with bars and a body, and
+ * the body with a panel on either side of `AppShell.Main`.
  */
 
 export { Aside, type AsideProps } from "#app-shell/aside.tsx";

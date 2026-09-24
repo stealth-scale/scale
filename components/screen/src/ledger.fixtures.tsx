@@ -1,13 +1,9 @@
 /**
- * Draws the block of invoices the page and the shell both put in their main region.
+ * Renders the block of invoices the app shell's specimen puts in its main region.
  *
  * @remarks
- *   One block written once. The page shows where its own edges fall by holding something real, and
- *   the shell shows what a main region is for by holding the same thing, so a reader moving between
- *   the two pages recognises what they are looking at. Written twice it drifted: the page drew a
- *   ledger and the shell drew four grey blocks standing in for one.
- *   The words are the page's, because that is the namespace the block was written in and a block
- *   drawn on two pages cannot have two sets.
+ *   The words are the page's, in the `page` namespace, because the page's locale defines the
+ *   invoice keys.
  */
 
 import { type ReactElement } from "react";
@@ -19,7 +15,7 @@ import { useWords } from "@stealthscale/specimen";
 import * as Section from "#section/index.ts";
 
 /**
- * The invoices the block lists: who owes it, what they owe, and where it has got to.
+ * Invoices of the block: the payer, the amount and the state.
  */
 const ROWS = [
   ["northwind", "1,250.00", "overdue"],
@@ -29,16 +25,16 @@ const ROWS = [
 ] as const;
 
 /**
- * The ink each state of an invoice is told by.
+ * Text tone of each invoice state.
  *
  * @remarks
- *   The ink rather than a badge. A row of a ledger carries a state on every line, and a filled
- *   shape on every line reads as a column of marks rather than as a list of invoices.
+ *   The state is coloured text and not a badge, because a badge on every row reads as a column of
+ *   marks instead of a list.
  */
 const TONES = { overdue: "error", paid: "success", sent: "info" } as const;
 
 /**
- * Draws the invoices as a block of a page: who owes it, where it has got to, and what it comes to.
+ * Renders the invoices in a `surface` section, each row with its payer, state and amount.
  */
 export function Ledger(): ReactElement {
   const { t } = useWords("page");

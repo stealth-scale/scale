@@ -15,11 +15,11 @@ import { recipe } from "#app-shell/recipe.ts";
 import { Root, type RootProps } from "#app-shell/root.tsx";
 
 describe("Root", () => {
-  it("breaks no accessibility rule holding two bars a page and two panels", async () => {
+  it("returns no accessibility violation for a whole shell", async () => {
     await expect(accessibilityViolations(() => composed())).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(<Root {...props} />).container, {
         slot: "root",
@@ -27,13 +27,13 @@ describe("Root", () => {
     ).toStrictEqual([]);
   });
 
-  it("draws a column", () => {
+  it("renders a div", () => {
     const { container } = render(<Root />);
 
     expect(slotElement(container, "app-shell", "root").tagName).toBe("DIV");
   });
 
-  it("claims no landmark of its own", () => {
+  it("renders no landmark of its own", () => {
     render(composed());
 
     expect(screen.getAllByRole("banner")).toHaveLength(1);
@@ -41,13 +41,13 @@ describe("Root", () => {
     expect(screen.getAllByRole("contentinfo")).toHaveLength(1);
   });
 
-  it("offers one landmark per panel that claims one", () => {
+  it("exposes the aside as a named complementary landmark", () => {
     render(composed());
 
     expect(screen.getByRole("complementary", { name: "Detail" })).toBeTruthy();
   });
 
-  it("scrolls the page where nothing else is asked for", () => {
+  it("defaults to the page scroll and the plain look", () => {
     const { container } = render(<Root />);
 
     expect(classesOf(slotElement(container, "app-shell", "root"))).toStrictEqual([
@@ -57,7 +57,7 @@ describe("Root", () => {
     ]);
   });
 
-  it("marks itself settled once it has mounted", () => {
+  it("writes data-settled after it mounts", () => {
     const { container } = render(<Root />);
 
     expect(slotElement(container, "app-shell", "root").dataset["settled"]).toBe("");

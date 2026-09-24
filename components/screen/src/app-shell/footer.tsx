@@ -1,12 +1,10 @@
 /**
- * Draws a bar across the bottom of the shell.
+ * Renders a bar across the bottom of the shell.
  *
  * @remarks
- *   The element is `footer`, which carries the `contentinfo` landmark at the bottom of a document.
- *   Draw as many as the layout needs and they stack in the order written.
- *   A bar told to stick pins to the bottom of the window and clears the home bar where the
- *   application draws under it. It goes inert while a panel is laid over the page, for the same
- *   reason a bar across the top does.
+ *   The element is `footer`, which is the `contentinfo` landmark at the top level of a document.
+ *   Several bars stack in source order. A `sticky` bar pins to the bottom of the window and pads
+ *   itself by the safe area. The bar is inert while a panel is over the page.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,12 +13,12 @@ import { withContext } from "#app-shell/context.ts";
 import { useOverlaid } from "#app-shell/state.ts";
 
 /**
- * Draws the bar at the room the shell states.
+ * Renders the bar `footer`.
  */
 const Barred = withContext("footer", "footer");
 
 /**
- * Describes what a bar across the bottom takes.
+ * Describes the props of `Footer`.
  */
 export interface FooterProps extends ComponentProps<typeof Barred> {
   /**
@@ -30,10 +28,10 @@ export interface FooterProps extends ComponentProps<typeof Barred> {
 }
 
 /**
- * Draws a bar across the bottom, the height of what it holds.
+ * Renders a bar across the bottom.
  *
- * @param props - Whether it pins, and everything a styled footer takes.
- * @returns The bar.
+ * @param props - `sticky` and the `footer` element's props.
+ * @returns The bar, inert while a panel is over the page.
  */
 export function Footer({ sticky = false, ...rest }: FooterProps): ReactElement {
   const sheets = useOverlaid();

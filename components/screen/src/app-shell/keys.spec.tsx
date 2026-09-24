@@ -6,15 +6,15 @@ import { describe, expect, it } from "vitest";
 import { type Keyed, useKeys } from "#app-shell/keys.ts";
 
 /**
- * Records what the panel was told, so a case can read it back.
+ * States the listener's setter was called with, in order.
  */
 const told: string[] = [];
 
 /**
- * Listens for one panel's keys, and writes down what the listener asked for.
+ * Registers the key listener with a setter that records each call.
  *
- * @param props - What the panel is doing, less how it is opened and closed.
- * @returns A field, so a case can press a key while standing somewhere.
+ * @param props - The panel state, without the setter.
+ * @returns A text field, so a case can press a key inside it.
  */
 function Listener(props: Omit<Keyed, "setOpen">): ReactElement {
   useKeys({
@@ -28,7 +28,7 @@ function Listener(props: Omit<Keyed, "setOpen">): ReactElement {
 }
 
 describe("useKeys", () => {
-  it("closes a panel over the page on Escape", () => {
+  it("closes an open panel over the page on Escape", () => {
     told.length = 0;
     render(<Listener open overlaid shortcut={undefined} />);
 
@@ -37,7 +37,7 @@ describe("useKeys", () => {
     expect(told).toStrictEqual(["closed"]);
   });
 
-  it("leaves a panel beside the page alone on Escape", () => {
+  it("ignores Escape for a panel beside the page", () => {
     told.length = 0;
     render(<Listener open overlaid={false} shortcut={undefined} />);
 
@@ -46,7 +46,7 @@ describe("useKeys", () => {
     expect(told).toStrictEqual([]);
   });
 
-  it("leaves a panel over the page alone on Escape while it is already closed", () => {
+  it("ignores Escape for a closed panel over the page", () => {
     told.length = 0;
     render(<Listener open={false} overlaid shortcut={undefined} />);
 
@@ -55,7 +55,7 @@ describe("useKeys", () => {
     expect(told).toStrictEqual([]);
   });
 
-  it("opens a closed panel on its shortcut", () => {
+  it("opens a closed panel on its shortcut with Control", () => {
     told.length = 0;
     render(<Listener open={false} overlaid={false} shortcut="b" />);
 
@@ -64,7 +64,7 @@ describe("useKeys", () => {
     expect(told).toStrictEqual(["open"]);
   });
 
-  it("closes an open panel on its shortcut", () => {
+  it("closes an open panel on its shortcut with Command", () => {
     told.length = 0;
     render(<Listener open overlaid={false} shortcut="b" />);
 
@@ -73,7 +73,7 @@ describe("useKeys", () => {
     expect(told).toStrictEqual(["closed"]);
   });
 
-  it("leaves the key alone where the modifier is not held", () => {
+  it("ignores the shortcut key without a modifier", () => {
     told.length = 0;
     render(<Listener open overlaid={false} shortcut="b" />);
 
@@ -82,7 +82,7 @@ describe("useKeys", () => {
     expect(told).toStrictEqual([]);
   });
 
-  it("hears the key while the reader is standing in a field", () => {
+  it("handles Escape pressed inside a text field", () => {
     told.length = 0;
     render(<Listener open overlaid shortcut={undefined} />);
 
@@ -91,7 +91,7 @@ describe("useKeys", () => {
     expect(told).toStrictEqual(["closed"]);
   });
 
-  it("listens for nothing where the panel states no shortcut", () => {
+  it("ignores a chord when no shortcut is set", () => {
     told.length = 0;
     render(<Listener open overlaid={false} shortcut={undefined} />);
 
@@ -100,7 +100,7 @@ describe("useKeys", () => {
     expect(told).toStrictEqual([]);
   });
 
-  it("stops listening once the panel has left", () => {
+  it("removes the listener on unmount", () => {
     told.length = 0;
 
     const { unmount } = render(<Listener open overlaid shortcut={undefined} />);

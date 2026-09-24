@@ -9,20 +9,20 @@ import { narrowed, shell } from "#app-shell/app-shell.fixtures.tsx";
 import { type PanelOptions, usePanel } from "#app-shell/use-panel.ts";
 
 /**
- * Describes what the reader is drawn with.
+ * Describes the props of the reader: the panel options and the side.
  */
 interface ReaderProps extends PanelOptions {
   /**
-   * Which side of the page the panel it stands for sits on.
+   * Side of the page the panel is on.
    */
   readonly side?: "end" | "start" | undefined;
 }
 
 /**
- * Works one panel out and writes down what it answered, without drawing a panel.
+ * Renders the state `usePanel` returns in a button whose press toggles the panel.
  *
- * @param props - How the panel folds and closes, and which side it is on.
- * @returns What the panel says about itself, and a control that opens and closes it.
+ * @param props - The panel options and the side.
+ * @returns A button with the state in its text and data attributes.
  */
 function Reader({ side = "start", ...options }: ReaderProps): ReactElement {
   const inner = useRef<HTMLDivElement>(null);
@@ -44,37 +44,37 @@ function Reader({ side = "start", ...options }: ReaderProps): ReactElement {
 }
 
 describe("usePanel", () => {
-  it("opens the panel where nothing says otherwise", () => {
+  it("defaults to open", () => {
     render(shell(<Reader />));
 
     expect(screen.getByRole("button").textContent).toBe("open");
   });
 
-  it("sits the panel beside the page while the shell is wide enough for it", () => {
+  it("keeps the panel beside the page while the shell is wide enough", () => {
     render(shell(<Reader />));
 
     expect(screen.getByRole("button").dataset["overlaid"]).toBeUndefined();
   });
 
-  it("lays the panel over the page once the shell is too narrow for it", () => {
+  it("folds the panel over the page at a phone width", () => {
     render(narrowed(shell(<Reader />)));
 
     expect(screen.getByRole("button").dataset["overlaid"]).toBe("");
   });
 
-  it("drops the panel under the page where it is told to", () => {
+  it("drops the panel under the page when folds is under", () => {
     render(narrowed(shell(<Reader folds="under" />)));
 
     expect(screen.getByRole("button").dataset["stacked"]).toBe("");
   });
 
-  it("shows a panel under the page whatever else it was told", () => {
+  it("shows a panel under the page when defaultOpen is false", () => {
     render(narrowed(shell(<Reader defaultOpen={false} folds="under" />)));
 
     expect(screen.getByRole("button").textContent).toBe("open");
   });
 
-  it("opens and closes the panel beside the page", async () => {
+  it("toggles a panel beside the page", async () => {
     render(shell(<Reader />));
 
     await pressed(screen.getByRole("button"));
@@ -82,7 +82,7 @@ describe("usePanel", () => {
     expect(screen.getByRole("button").textContent).toBe("closed");
   });
 
-  it("opens and closes the panel over the page", async () => {
+  it("toggles a panel over the page", async () => {
     render(narrowed(shell(<Reader />)));
 
     await pressed(screen.getByRole("button"));
@@ -90,7 +90,7 @@ describe("usePanel", () => {
     expect(screen.getByRole("button").textContent).toBe("open");
   });
 
-  it("tells a caller that is listening what the panel was set to", async () => {
+  it("calls onOpenChange with the new state", async () => {
     const told: boolean[] = [];
 
     render(
@@ -108,19 +108,19 @@ describe("usePanel", () => {
     expect(told).toStrictEqual([false]);
   });
 
-  it("holds the panel inert where it is closed to nothing", () => {
+  it("marks a panel closed to nothing inert", () => {
     render(shell(<Reader defaultOpen={false} />));
 
     expect(screen.getByRole("button").dataset["inert"]).toBe("");
   });
 
-  it("keeps a panel closed to a rail of marks reachable", () => {
+  it("keeps a panel closed to a rail interactive", () => {
     render(shell(<Reader collapse="icons" defaultOpen={false} />));
 
     expect(screen.getByRole("button").dataset["inert"]).toBeUndefined();
   });
 
-  it("writes down nothing where the reader was standing on no element", async () => {
+  it("opens when no element has focus", async () => {
     render(narrowed(shell(<Reader />)));
 
     Object.defineProperty(document, "activeElement", { configurable: true, value: null });
@@ -130,7 +130,7 @@ describe("usePanel", () => {
     expect(screen.getByRole("button").textContent).toBe("open");
   });
 
-  it("folds the end side at a wider screen than the start side", () => {
+  it("folds the end side over the page at a phone width", () => {
     render(narrowed(shell(<Reader side="end" />)));
 
     expect(screen.getByRole("button").dataset["overlaid"]).toBe("");

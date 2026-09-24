@@ -1,12 +1,10 @@
 /**
- * Answers the keys a panel listens for wherever the reader is.
+ * Handles the keys of a panel anywhere in the document.
  *
  * @remarks
- *   Escape closes a panel laid over the page, the way it closes anything else drawn over what a
- *   reader was looking at. A shortcut opens and closes a panel from anywhere with the platform's
- *   modifier held, which is how an application offers ⌘B for its navigation.
- *   Both listen on the document rather than on the panel, because the reader pressing the key is
- *   usually reading the page rather than standing in the panel.
+ *   Escape closes an open panel over the page. A shortcut toggles a panel with the platform's
+ *   modifier held, such as ⌘B for the navigation. The listener is on the document, because focus
+ *   is in the page, not in the panel, when the reader presses the shortcut.
  */
 
 import { useEffect } from "react";
@@ -14,16 +12,16 @@ import { useEffect } from "react";
 import { useLiveRef } from "@stealthscale/hooks";
 
 /**
- * Describes what a panel tells the listener about itself.
+ * Describes the panel state the listener reads.
  */
 export interface Keyed {
   /**
-   * Whether the panel is shown now.
+   * Whether the panel is shown.
    */
   readonly open: boolean;
 
   /**
-   * Whether the panel is laid over the page, which is when Escape closes it.
+   * Whether the panel is over the page, which is when Escape closes it.
    */
   readonly overlaid: boolean;
 
@@ -33,13 +31,13 @@ export interface Keyed {
   readonly setOpen: (open: boolean) => void;
 
   /**
-   * The key that opens and closes the panel with the platform's modifier held, or nothing.
+   * Key that toggles the panel with the platform's modifier held, or `undefined`.
    */
   readonly shortcut: string | undefined;
 }
 
 /**
- * Reports whether a key press is the platform's modifier held with a key.
+ * Returns whether a key press is the shortcut with Control or Command held.
  */
 function chorded(event: KeyboardEvent, shortcut: string | undefined): boolean {
   return shortcut !== undefined && (event.ctrlKey || event.metaKey) && event.key === shortcut;
@@ -49,18 +47,18 @@ function chorded(event: KeyboardEvent, shortcut: string | undefined): boolean {
  * Listens for the keys that open and close one panel.
  *
  * @remarks
- *   The listener is wired once and reads the panel through a ref, so a panel that changes what it
- *   is doing on every keystroke does not tear the listener down and rebuild it.
- * @param panel - The panel's state, and how to open and close it.
+ *   The listener is added once and reads the panel through a ref, so a panel whose state changes on
+ *   every key press does not re-register it.
+ * @param panel - The panel's state and setter.
  */
 export function useKeys(panel: Keyed): void {
   const live = useLiveRef(panel);
 
   useEffect((): (() => void) => {
     /**
-     * Answers one key press.
+     * Handles one key press.
      *
-     * @param event - The key that was pressed.
+     * @param event - The key press.
      */
     function onKeyDown(event: KeyboardEvent): void {
       const { open, overlaid, setOpen, shortcut } = live.current;

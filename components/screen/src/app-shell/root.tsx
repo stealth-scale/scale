@@ -1,20 +1,14 @@
 /**
- * Draws the column an application is laid out in.
+ * Renders the column an application is laid out in.
  *
  * @remarks
- *   The element is `div` and carries no landmark. The bars and the page inside it carry their own,
- *   and a landmark round the whole screen names nothing a reader can act on.
- *   The root states nothing about the panels. Each panel says how wide it is and how it closes
- *   where it is drawn, and writes that to the store the root opens, so a trigger anywhere in the
- *   shell reaches a panel it was never handed.
- *   The root is also what every panel measures itself against. It is as wide as the shell whatever
- *   the panels do, so a panel opening never changes the measurement that let it open.
- *   The root marks itself settled in an effect after its first paint, and the recipe lets nothing
- *   in the shell move before that. A panel's first render answers for a narrow shell until it has
- *   measured the root, so a panel beside the page on a wide screen is first drawn closed and then
- *   opened, and the page beside it slid into place on every load. The mark is written on the
- *   element rather than held as state, because it changes once and nothing reads it but the
- *   stylesheet.
+ *   The element is a `div` with no landmark role, because the bars and the main region inside it
+ *   are the landmarks. The root opens the store the panels publish to, so a trigger anywhere in the
+ *   shell reads a panel by name. Every panel measures the root, which is as wide as the shell
+ *   whatever the panels do, so opening a panel never changes the measurement that allowed it. The
+ *   root writes `data-settled` in an effect after its first paint, and the recipe transitions
+ *   nothing before that, so a panel takes its measured state without a slide on load. The attribute
+ *   is written to the element and not held in state, because only the stylesheet reads it.
  */
 
 import { type ComponentProps, type ReactElement, useEffect, useMemo, useRef } from "react";
@@ -27,12 +21,12 @@ import { SETTLED, STICKY_OFFSET, STICKY_TOP } from "#app-shell/recipe.ts";
 import { ShellProvider } from "#app-shell/state.ts";
 
 /**
- * Which bars are pinned, in the order they stack, and what each is told.
+ * Selects the pinned bars in stacking order, and names the properties their offsets are written to.
  *
  * @remarks
- *   A second pinned bar sticks under the first, so each needs the height of the bars above it,
- *   which a sticky offset in CSS alone cannot express. The root is told the height of all of them,
- *   which the panels stick under.
+ *   A second pinned bar sticks under the first, so each bar needs the height of the bars above it,
+ *   which a CSS sticky offset cannot compute. The root receives the total height, which the panels
+ *   stick under.
  */
 const PINNED = {
   bands: ":scope > .app-shell__header[data-sticky]",
@@ -41,21 +35,21 @@ const PINNED = {
 };
 
 /**
- * Draws the column and sets the variants every part below it reads.
+ * Renders the column and provides the variants to every part below it.
  */
 const Columned = withProvider("div", "root");
 
 /**
- * Describes what the shell takes.
+ * Describes the props of `Root`.
  */
 export type RootProps = ComponentProps<typeof Columned>;
 
 /**
- * Lays an application out: bars across the top and the bottom, and a body between them holding a
- * panel down either side of the page.
+ * Renders the shell: bars across the top and the bottom, and a body between them with a panel on
+ * either side of the page.
  *
- * @param props - The recipe's variants and everything a styled div takes.
- * @returns The column, with the shell in scope.
+ * @param props - The recipe's variants and the `div` element's props.
+ * @returns The column, with the shell's state in context.
  */
 export function Root({ scroll = "page", ...rest }: RootProps): ReactElement {
   const measured = useRef<HTMLDivElement>(null);
