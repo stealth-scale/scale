@@ -1,9 +1,9 @@
 /**
- * Draws the strip the controls sit in.
+ * Renders the list of tabs.
  *
  * @remarks
- *   The machine writes the tablist role and the orientation, which is what tells a screen reader
- *   that the controls inside are one set and which arrow keys move between them.
+ *   The machine sets `role="tablist"` and `aria-orientation`, so a screen reader announces the
+ *   tabs as one set and the arrow keys along the orientation move between them.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -14,20 +14,20 @@ import { withContext } from "#tabs/context.ts";
 import { useTabs } from "#tabs/machine.ts";
 
 /**
- * Draws the strip, which turns into a column where the set runs down.
+ * Renders the `div` with the tabs' list class.
  */
 const Strip = withContext("div", "list");
 
 /**
- * Describes what the strip takes.
+ * Describes the props of the list: the props of a `div`.
  */
 export type ListProps = ComponentProps<typeof Strip>;
 
 /**
- * Draws the controls in a row, with the bar that marks the one in force.
+ * Renders the list with the machine's list props merged over the caller's.
  *
- * @param props - Everything a styled div takes.
- * @returns The strip, carrying its role and its orientation.
+ * @param props - The props of a `div`.
+ * @returns The `div` element.
  */
 export function List(props: ListProps): ReactElement {
   const api = useTabs();

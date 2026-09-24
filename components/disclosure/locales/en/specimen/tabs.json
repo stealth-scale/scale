@@ -1,30 +1,34 @@
 {
-  "about": "Shows one panel at a time, chosen from a strip of controls.",
+  "about": "Renders a list of tabs and the panel of the selected tab.",
   "activity": "Activity",
   "fitted": {
-    "about": "Controls taking what they need, and controls sharing the strip's width between them.",
+    "about": "Tabs at their own width, and tabs sharing the list's width equally, in the enclosed look, where each tab's width shows.",
     "title": "Fitted"
   },
-  "holds": "What the account holds.",
+  "holds": "The balance, the limits and the owners of the account.",
   "justify": {
-    "about": "Where the controls sit in a strip they do not fill.",
+    "about": "Every distribution of the tabs in a list wider than they are.",
     "title": "Distribution"
   },
-  "lately": "What has happened lately.",
+  "lately": "The payments and changes of the last thirty days.",
   "orientation": {
-    "about": "The strip across the top, and down the side. Which way it runs is the machine's setting, not an axis, and the bar follows it.",
+    "about": "The list across the top, and down the start. The machine's `orientation` option sets it, and the indicator and the arrow keys follow.",
     "title": "Orientation"
   },
   "overview": "Overview",
+  "palette": {
+    "about": "Every palette in the line look. The palette colours the indicator and the selected tab's text.",
+    "title": "Palettes"
+  },
   "settings": "Settings",
   "size": {
-    "about": "Every step the strip is read at. The step sets the tab, the words on it and the room round them.",
+    "about": "Every size. The size sets the tab's height and text on the control scale, and the panel's padding.",
     "title": "Sizes"
   },
   "title": "Tabs",
-  "tuned": "What can be changed.",
+  "tuned": "The notifications, the currency and the statement day.",
   "variant": {
-    "about": "Every look, one under another so each set is read at the width a strip of tabs is given.",
+    "about": "Every look.",
     "title": "Looks"
   }
 }

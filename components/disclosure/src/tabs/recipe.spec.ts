@@ -7,23 +7,23 @@ import { recipe } from "#tabs/recipe.ts";
 import page from "#tabs/tabs.specimen.tsx";
 
 describe("recipe", () => {
-  it("covers every variant axis in the scenes of its specimen page", () => {
+  it("covers every axis in the scenes of its specimen", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+  it("leaves no scene naming a value the recipe lacks", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Tabs"] })).toStrictEqual([]);
   });
 
-  it("names its class tabs", () => {
+  it("sets className to tabs", () => {
     expect(recipe.className).toBe("tabs");
   });
 
-  it("draws the five parts a set of tabs is composed of", () => {
+  it("declares five slots", () => {
     expect([...recipe.slots].toSorted()).toStrictEqual([
       "content",
       "indicator",
@@ -33,11 +33,11 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers the four axes a set of tabs takes", () => {
-    expect(axesOf(recipe)).toStrictEqual(["fitted", "justify", "size", "variant"]);
+  it("declares five axes", () => {
+    expect(axesOf(recipe)).toStrictEqual(["fitted", "justify", "palette", "size", "variant"]);
   });
 
-  it("offers every way the theme distributes a row", () => {
+  it("declares every distribution on the justify axis", () => {
     expect(valuesOf(recipe, "justify")).toStrictEqual([
       "around",
       "between",
@@ -48,15 +48,27 @@ describe("recipe", () => {
     ]);
   });
 
-  it("shares the strip's width between the controls where a caller asks", () => {
+  it("grows every tab equally when fitted is true", () => {
     expect(recipe.variants?.["fitted"]?.["true"]).toStrictEqual({ trigger: { flex: "1" } });
   });
 
-  it("draws a line of tabs at the middle size by default", () => {
+  it("sets the palette on the root", () => {
+    expect(recipe.variants?.["palette"]?.["info"]).toStrictEqual({
+      root: { colorPalette: "info" },
+    });
+  });
+
+  it("emits every palette", () => {
+    expect(recipe.staticCss).toContainEqual({
+      palette: ["primary", "secondary", "accent", "neutral", "info", "success", "warning", "error"],
+    });
+  });
+
+  it("defaults to the line look at md", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md", variant: "line" });
   });
 
-  it("offers the eight sizes every component shares", () => {
+  it("declares the eight shared sizes", () => {
     expect(valuesOf(recipe, "size")).toStrictEqual([
       "2xl",
       "3xl",
@@ -69,36 +81,36 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers the four ways a strip is drawn", () => {
+  it("declares four looks", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual(["enclosed", "line", "plain", "subtle"]);
   });
 
-  it("offers no axis for the way the set runs because the machine states it", () => {
+  it("declares no orientation axis", () => {
     expect(axesOf(recipe)).not.toContain("orientation");
   });
 
-  it("turns the strip into a column where the set runs down", () => {
+  it("lays the list out as a column when vertical", () => {
     expect(recipe.base?.["list"]).toMatchObject({
       _horizontal: { flexDirection: "row" },
       _vertical: { flexDirection: "column" },
     });
   });
 
-  it("moves the bar to the inline edge where the set runs down", () => {
+  it("puts the line indicator at the inline start when vertical", () => {
     expect(recipe.variants?.["variant"]?.["line"]?.["indicator"]).toMatchObject({
       _vertical: { insetInlineStart: "0" },
     });
   });
 
-  it("states the bar's thickness and never its place", () => {
+  it("rounds the indicator and stacks it at zero", () => {
     expect(recipe.base?.["indicator"]).toMatchObject({ borderRadius: "l1", zIndex: "0" });
   });
 
-  it("paints every tab over the indicator so a filled one never covers the words", () => {
+  it("stacks every tab over the indicator", () => {
     expect(recipe.base?.["trigger"]).toMatchObject({ position: "relative", zIndex: "1" });
   });
 
-  it("tracks the tag named Tabs and every part under it", () => {
+  it("matches every Tabs tag", () => {
     expect(recipe.jsx).toStrictEqual([/^Tabs(\.\w+)?$/u]);
   });
 });

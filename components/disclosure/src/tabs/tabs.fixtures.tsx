@@ -1,5 +1,5 @@
 /**
- * Builds the set of tabs a part's specification needs above it, every part reading one machine.
+ * Fixtures for the tabs specs: a root around one part and a set of three tabs.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -11,20 +11,21 @@ import { Root, type RootProps } from "#tabs/root.tsx";
 import { Trigger } from "#tabs/trigger.tsx";
 
 /**
- * Draws whatever a case wants measured inside the root that runs the machine.
+ * Renders a part inside a root that runs the machine.
  *
  * @param children - The part under test.
- * @returns The root, holding it.
+ * @returns The root with the part inside it.
  */
 export function tabbed(children: ReactNode): ReactElement {
   return <Root>{children}</Root>;
 }
 
 /**
- * Draws a whole set of three, so a case can choose one and read what the panels do.
+ * Renders three tabs, the third disabled, and their panels, open on the first, with the props the
+ * case sets on the root.
  *
- * @param props - Whatever the case sets on the root.
- * @returns The five parts composed the way a caller composes them.
+ * @param props - The props the case sets on the root.
+ * @returns The tabs.
  */
 export function composed(props: RootProps = {}): ReactElement {
   return (

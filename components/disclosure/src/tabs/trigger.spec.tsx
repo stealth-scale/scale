@@ -10,13 +10,13 @@ import { composed, tabbed } from "#tabs/tabs.fixtures.tsx";
 import { Trigger } from "#tabs/trigger.tsx";
 
 describe("Trigger", () => {
-  it("draws a button inside the root it needs above it", async () => {
+  it("renders a button", async () => {
     const { container } = await drawn(tabbed(<Trigger value="first">First</Trigger>));
 
     expect(slotElement(container, "tabs", "trigger").tagName).toBe("BUTTON");
   });
 
-  it("writes the class of every value its recipe offers", async () => {
+  it("applies the class of every value its recipe offers", async () => {
     await expect(
       boundMachineViolations(
         recipe,
@@ -26,33 +26,33 @@ describe("Trigger", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("carries the tab role and says whether it is the one in force", async () => {
+  it("sets aria-selected on the selected tab alone", async () => {
     await drawn(composed());
 
     expect(screen.getByRole("tab", { name: "First" }).getAttribute("aria-selected")).toBe("true");
     expect(screen.getByRole("tab", { name: "Second" }).getAttribute("aria-selected")).toBe("false");
   });
 
-  it("names the panel it shows", async () => {
+  it("sets aria-controls", async () => {
     await drawn(composed());
 
     expect(screen.getByRole("tab", { name: "First" }).getAttribute("aria-controls")).toBeTruthy();
   });
 
-  it("holds the only tab stop of the strip so a keyboard reaches the set once", async () => {
+  it("puts the selected tab alone in the tab order", async () => {
     await drawn(composed());
 
     expect(screen.getByRole("tab", { name: "First" }).getAttribute("tabindex")).toBe("0");
     expect(screen.getByRole("tab", { name: "Second" }).getAttribute("tabindex")).toBe("-1");
   });
 
-  it("is disabled where a caller says so", async () => {
+  it("sets disabled", async () => {
     await drawn(composed());
 
     expect(screen.getByRole("tab", { name: "Third" }).hasAttribute("disabled")).toBe(true);
   });
 
-  it("keeps a handler a caller hands it beside the machine's own", async () => {
+  it("calls a caller's onClick beside the machine's handler", async () => {
     const heard = vi.fn<() => void>();
 
     await drawn(

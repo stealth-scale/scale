@@ -8,26 +8,26 @@ import { Content } from "#tabs/content.tsx";
 import { composed, tabbed } from "#tabs/tabs.fixtures.tsx";
 
 describe("Content", () => {
-  it("draws a div inside the root it needs above it", async () => {
+  it("renders a div", async () => {
     const { container } = await drawn(tabbed(<Content value="first">The panel</Content>));
 
     expect(slotElement(container, "tabs", "content").tagName).toBe("DIV");
   });
 
-  it("shows the panel whose control is in force", async () => {
+  it("shows the selected tab's panel", async () => {
     await drawn(composed());
 
     expect(screen.getByRole("tabpanel").textContent).toBe("The first panel");
   });
 
-  it("hides every panel whose control is not", async () => {
+  it("hides every other panel", async () => {
     const { container } = await drawn(composed());
     const panels = [...container.querySelectorAll("[data-part=content]")];
 
     expect(panels.filter((panel) => panel.hasAttribute("hidden"))).toHaveLength(2);
   });
 
-  it("shows another panel once its control is pressed", async () => {
+  it("shows another panel on a press of its tab", async () => {
     await drawn(composed());
     fireEvent.click(screen.getByRole("tab", { name: "Second" }));
     await settled();
@@ -35,7 +35,7 @@ describe("Content", () => {
     expect(screen.getByRole("tabpanel").textContent).toBe("The second panel");
   });
 
-  it("is named by the control that shows it", async () => {
+  it("sets aria-labelledby to its tab's id", async () => {
     await drawn(composed());
 
     expect(screen.getByRole("tabpanel").getAttribute("aria-labelledby")).toBe(
@@ -43,13 +43,13 @@ describe("Content", () => {
     );
   });
 
-  it("takes a tab stop so a person tabbing out of the strip lands on what they chose", async () => {
+  it("sets tabindex 0", async () => {
     await drawn(composed());
 
     expect(screen.getByRole("tabpanel").getAttribute("tabindex")).toBe("0");
   });
 
-  it("draws the element as names", async () => {
+  it("renders the element as names", async () => {
     const { container } = await drawn(
       tabbed(
         <Content as="section" value="first">

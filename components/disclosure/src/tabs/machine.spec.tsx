@@ -14,10 +14,10 @@ import {
 } from "#tabs/machine.ts";
 
 /**
- * Runs the machine and reports what it answers, so a case can read its state off the screen.
+ * Runs the machine and renders its state through a part that reads the context.
  *
- * @param props - The settings the machine is started with.
- * @returns The state, drawn as text.
+ * @param props - The machine's options.
+ * @returns The state as text.
  */
 function Running(props: TabsOptions): ReactElement {
   const api = useTabsMachine(props);
@@ -30,9 +30,9 @@ function Running(props: TabsOptions): ReactElement {
 }
 
 /**
- * Reads the running machine through the hook a part reads it through.
+ * Renders the selected value and the orientation the context reports.
  *
- * @returns Which panel is in force, and which way the set runs.
+ * @returns A `span` with the value and the orientation.
  */
 function Reader(): ReactElement {
   const api = useTabs();
@@ -44,45 +44,54 @@ function Reader(): ReactElement {
 }
 
 describe("splitTabsProps", () => {
-  it("takes the machine's settings out of what the root was handed", () => {
+  it("returns the machine's options first", () => {
     const [options] = splitTabsProps({ defaultValue: "first", orientation: "vertical" });
 
     expect(options).toStrictEqual({ defaultValue: "first", orientation: "vertical" });
   });
 
-  it("leaves everything the element takes behind", () => {
+  it("returns the element's props second", () => {
     const [, rest] = splitTabsProps({ defaultValue: "first", size: "lg" });
 
     expect(rest).toStrictEqual({ size: "lg" });
   });
+
+  it("drops translations from the machine's options", () => {
+    const [options] = splitTabsProps({
+      defaultValue: "first",
+      translations: { listLabel: "Views" },
+    });
+
+    expect(options).toStrictEqual({ defaultValue: "first" });
+  });
 });
 
 describe("useTabsMachine", () => {
-  it("answers a running machine a part can read", async () => {
+  it("provides a running machine to a part", async () => {
     await drawn(<Running defaultValue="first" />);
 
     expect(screen.getByTestId("state").textContent).toBe("first horizontal");
   });
 
-  it("runs across where a caller says nothing", async () => {
+  it("defaults to horizontal with no value", async () => {
     await drawn(<Running />);
 
     expect(screen.getByTestId("state").textContent).toBe("none horizontal");
   });
 
-  it("takes the way the set runs from a caller that names one", async () => {
+  it("takes the orientation", async () => {
     await drawn(<Running defaultValue="first" orientation="vertical" />);
 
     expect(screen.getByTestId("state").textContent).toBe("first vertical");
   });
 
-  it("keeps the machine's own default where a caller hands over nothing for it", async () => {
+  it("keeps the machine's default for an undefined option", async () => {
     await drawn(<Running defaultValue="first" orientation={undefined} />);
 
     expect(screen.getByTestId("state").textContent).toBe("first horizontal");
   });
 
-  it("passes every setting the machine defaults through where a caller names them", async () => {
+  it("passes the machine's other options through", async () => {
     await drawn(
       <Running activationMode="manual" defaultValue="first" loopFocus orientation="vertical" />,
     );

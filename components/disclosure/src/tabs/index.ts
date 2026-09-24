@@ -1,6 +1,6 @@
 /**
- * Publishes the tabs' five parts, which a caller composes as `Tabs.Root` holding a strip of
- * controls and a panel for each.
+ * Exports the tabs' five parts, composed as `Tabs.Root` around a list of tabs and a panel for
+ * each.
  */
 
 export { Content, type ContentProps } from "#tabs/content.tsx";

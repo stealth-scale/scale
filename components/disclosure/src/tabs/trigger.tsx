@@ -1,11 +1,10 @@
 /**
- * Draws one control of the strip.
+ * Renders one tab.
  *
  * @remarks
- *   A control names the panel it shows with `value`, which is the one thing the machine cannot work
- *   out for itself. Everything else is the machine's: the tab role, whether it is selected, which
- *   panel it controls, and the tab stop, which moves with the selection so a keyboard reaches the
- *   strip once and then moves inside it with the arrows.
+ *   The tab takes the `value` of the panel it shows. The machine sets `role="tab"`,
+ *   `aria-selected`, `aria-controls` and the tab index. Only the selected tab is in the tab order,
+ *   so Tab reaches the list once and the arrow keys move inside it.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -16,30 +15,30 @@ import { withContext } from "#tabs/context.ts";
 import { useTabs } from "#tabs/machine.ts";
 
 /**
- * Draws the control at the size the root states.
+ * Renders the `button` with the tabs' trigger class.
  */
 const Pressed = withContext("button", "trigger");
 
 /**
- * Describes what a control takes.
+ * Describes the props of a tab: its value, whether it is disabled and the props of a `button`.
  */
 export interface TriggerProps extends ComponentProps<typeof Pressed> {
   /**
-   * Whether a person can reach it at all.
+   * Whether the tab is disabled.
    */
   readonly disabled?: boolean | undefined;
 
   /**
-   * Says which panel this control shows.
+   * Value of the panel the tab shows.
    */
   readonly value: string;
 }
 
 /**
- * Shows the panel it names.
+ * Renders a tab with the machine's trigger props merged over the caller's.
  *
- * @param props - The panel it names, and everything a styled button takes.
- * @returns The control, carrying its role and its selection.
+ * @param props - The panel's value, the disabled flag and the props of a `button`.
+ * @returns The `button` element.
  */
 export function Trigger({ disabled, value, ...rest }: TriggerProps): ReactElement {
   const api = useTabs();
