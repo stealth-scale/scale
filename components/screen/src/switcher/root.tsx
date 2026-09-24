@@ -1,13 +1,10 @@
 /**
- * Holds the switcher together and sets the variants every part reads.
+ * Renders the switcher's menu and provides the variants to the control's parts.
  *
  * @remarks
- *   It is the disclosure package's menu, drawing no element of its own, so the roles, the keyboard,
- *   the escape and the placing come from that component.
- *   It takes the variants rather than the control does, because the panel is placed outside the
- *   control in the document and a control that held them would leave every row in the panel with
- *   nothing to read. The size goes to the menu as well, so the rows are drawn at the step the
- *   control was asked for.
+ *   `Switcher.Root` is the disclosure package's `Menu.Root`, so the roles, the keyboard, Escape and
+ *   the positioning come from the menu. It renders no element. It provides the switcher's variants
+ *   to the control's parts and passes `size` to the menu, so the rows render at the control's size.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -19,47 +16,46 @@ import { recipe } from "#switcher/recipe.ts";
 import { Sized } from "#switcher/sized.tsx";
 
 /**
- * Wraps the menu and hands the variants down to every part.
+ * Binds the sized menu as the root that provides the variants.
  */
 const Bound = withRootProvider(Sized);
 
 /**
- * Describes the variants the switcher's own recipe offers.
+ * Variant props of the switcher's recipe.
  */
 type Variants = RecipeProps<typeof recipe>;
 
 /**
- * The binding's props, with the variants typed as the recipe types them.
+ * Props of the binding, with the variants typed as the recipe types them.
  */
 type ProvidedProps = Omit<ComponentProps<typeof Bound>, keyof Variants> & Variants;
 
 /**
- * The binding, with the variants restated as the recipe types them.
+ * The binding, with its props typed as `ProvidedProps`.
  *
  * @remarks
- *   The binding types a variant without `undefined`, and a caller that leaves one out under
- *   `exactOptionalPropertyTypes` hands it as `undefined`, which the recipe's own props allow. The
- *   values reach the same runtime, which splits the switcher's off before the menu sees them.
+ *   The binding types a variant without `undefined`, and under `exactOptionalPropertyTypes` an
+ *   omitted variant arrives as `undefined`, which the recipe's props allow. The runtime is the
+ *   same: the binding splits the switcher's variants off before the menu receives the rest.
  */
 // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the parameter type is restated over the same runtime, see the remarks
 const Provided = Bound as (props: ProvidedProps) => ReactElement;
 
 /**
- * Describes what the switcher takes: its own variants, and everything the menu takes apart from
- * the axes the two recipes both name.
+ * Describes the props of `Root`: the switcher's variants and the menu's props.
  *
  * @remarks
- *   The menu's recipe offers `size` and `variant` as well. Bound over the menu's root, the two
- *   `variant` axes intersect to a type no value satisfies, so the switcher's axes are stated over
- *   the menu's here. The step the menu is handed is the switcher's size and is not stated twice.
+ *   The menu's recipe also offers `size` and `variant`. Over the menu's root the two `variant` axes
+ *   intersect to a type no value satisfies, so the switcher's axes replace the menu's here. The
+ *   menu's size is the switcher's `size`, so `step` is omitted.
  */
 export type RootProps = Omit<ProvidedProps, "step">;
 
 /**
- * Wraps the menu and hands the variants down to every part, the size to the menu among them.
+ * Renders the menu with the switcher's variants, at the switcher's size.
  *
- * @param props - The variants, and whatever the menu takes.
- * @returns The menu, carrying the switcher's variants.
+ * @param props - The switcher's variants and the menu's props.
+ * @returns The menu, providing the variants.
  */
 export function Root({ size = "md", ...rest }: RootProps): ReactElement {
   return <Provided {...rest} size={size} step={size} />;

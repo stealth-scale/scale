@@ -1,6 +1,6 @@
 /**
- * Publishes the switcher's six parts, the control a caller composes inside `Switcher.Root` beside
- * the menu's own panel holding what the screen could switch to.
+ * Exports the switcher's seven parts. A caller composes the control inside `Switcher.Root`, beside
+ * the menu's own positioner and content.
  */
 
 export { Detail, type DetailProps } from "#switcher/detail.ts";

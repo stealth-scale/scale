@@ -1,34 +1,36 @@
 {
-  "about": "Draws the control that names what is being worked in and opens the list of what else could be.",
-  "account": "Account",
+  "about": "Shows the current workspace, project or environment in a control that opens a menu of the others. The control is a menu trigger, so the roles, the keys and the positioning are the menu's.",
   "acme": "Acme",
-  "billing": "Billing",
+  "deploy": "Deploy",
+  "deployments": "Deployments",
   "enterprise": "Enterprise",
+  "environment": "Environment",
   "fathom": "Fathom",
   "globex": "Globex",
-  "head": {
-    "about": "At the head of a sidebar, the row the width of the column. Press it and the list opens as wide as the row: the workspaces, one of them suspended, then a rule and what else there is to do.",
-    "title": "At the head of a sidebar"
-  },
-  "invoices": "Invoices",
-  "members": "Members",
   "new": "New workspace",
   "oldBooks": "Old Books",
-  "overview": "Overview",
+  "opened": {
+    "about": "The control at a sidebar's width with its menu open. Each workspace has a row with its initial, its name and its plan, and the suspended workspace is disabled. A separator divides the workspaces from two actions. The menu is as wide as its rows and at least 176 pixels wide, whatever the control's width.",
+    "title": "Open"
+  },
   "placement": {
-    "about": "Where the control is placed, which decides how wide it is. At the head of a sidebar it is a row the width of the column, so the name and the detail have the column to read in. Anywhere else it takes the width of its words and the detail is dropped: the catalogue’s own bar draws three of these in a toolbar.",
+    "about": "At the head of a sidebar the control fills the column. In a toolbar it is as wide as its words and hides the detail. Both render in the subtle look, so the control's width shows.",
     "title": "Placements"
   },
-  "platform": "Platform",
+  "preview": "Preview",
   "pro": "Pro plan",
-  "profile": "Profile",
+  "production": "Production",
   "settings": "Workspace settings",
-  "signedIn": "Signed in as Ada",
+  "staging": "Staging",
   "suspended": "Suspended",
   "title": "Switcher",
+  "toolbar": {
+    "about": "An environment switcher in a toolbar, rendered through `Toolbar.Item`, so it is one of the row's arrow-key stops. The menu is open.",
+    "title": "In a toolbar"
+  },
   "trial": "Trial, 12 days left",
   "variant": {
-    "about": "Every look at every size. Press a control and the list opens beneath it.",
+    "about": "The three looks at the three sizes. At rest, `plain` has no fill and `subtle` has a muted fill. `outline` adds an edge. Hover, press and an open menu fill each look darker.",
     "title": "Looks and sizes"
   },
   "workspace": "Workspace"

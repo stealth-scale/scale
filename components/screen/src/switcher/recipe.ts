@@ -1,21 +1,16 @@
 /**
- * Defines the styles a switcher is drawn with.
+ * Declares the switcher's slot recipe, which styles the control that shows the current workspace,
+ * project or environment and opens the menu of the others.
  *
  * @remarks
- *   A switcher names the thing a screen is showing and opens the list of what else it could show: a
- *   workspace, a project, an environment. The control carries a mark, the current thing's name over
- *   a detail, and the sign that there is a list behind it. Six parts. The root is the control, and
- *   the mark, label, name, detail and indicator are what it holds. The control is the root because
- *   it is the only element the switcher draws itself. `Switcher.Root` wraps the menu, draws nothing
- *   and carries the variants, because the panel is placed outside the control in the document. The
- *   panel and its rows are the menu's, drawn as the menu draws them, with the menu's own mark,
- *   lines and description, and nothing of them is stated here. The mark is a tinted square, because
- *   it holds an initial, an icon or an avatar and each of those needs a box round it. The name and
- *   the detail are cut short rather than wrapped, so the control keeps one height whatever the
- *   current thing is called. The mark that opens the list holds still as the list opens: it is a
- *   pair of chevrons saying the control switches, not an arrow saying which way the panel went. The
- *   control is set in the muted ink, a step quieter than the page's, so it reads as a control among
- *   the controls of a bar rather than as a heading in it.
+ *   The recipe has six slots. The root slot is the trigger, and the mark, the label, the name, the
+ *   detail and the indicator are inside it. `Switcher.Root` is the disclosure package's menu and
+ *   renders no element, so the menu's recipe styles the panel and its rows. The mark is a tinted
+ *   square for an initial, an icon or an avatar. The name and the detail truncate to keep the
+ *   control at one height. A pair of chevrons marks a control that switches and not a direction,
+ *   so the indicator does not rotate while the menu is open. The control's ink is `fg.muted` in
+ *   the neutral palette. The recipe has no `palette` and no `effect` axis: the control is neutral,
+ *   and `Switcher.Root` passes the menu's own `palette` to `Menu.Root`.
  */
 
 import {
@@ -30,8 +25,8 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * Writes what a look drawn on the ground behind it turns under a pointer, under a press, and while
- * its list stands open.
+ * Styles the fills of a look that rests on its container's ground: under a pointer, under a press
+ * and while the menu is open.
  */
 const ON_GROUND = {
   _active: { background: "bg.emphasized" },
@@ -40,12 +35,11 @@ const ON_GROUND = {
 };
 
 /**
- * Writes what a look already resting on a fill turns for the same three.
+ * Styles the same three fills for a look that rests on a fill.
  *
  * @remarks
- *   One step further down the surface ladder than the look rests on. Sharing the ladder with the
- *   looks that rest on the ground gave the subtle look a hover of the fill it was already drawn in,
- *   and a control that turned nothing under a pointer.
+ *   `subtle` rests on `bg.muted`, so its hover, press and open fills are `bg.emphasized`, one step
+ *   darker than its resting fill.
  */
 const ON_FILL = {
   _active: { background: "bg.emphasized" },
@@ -54,7 +48,7 @@ const ON_FILL = {
 };
 
 /**
- * Draws a plain switcher at the middle size.
+ * Styles a plain switcher at the middle size in a sidebar.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -113,16 +107,14 @@ export const recipe = defineSlotRecipe({
   slots: ["root", "mark", "label", "name", "detail", "indicator"],
   variants: {
     /**
-     * Where the control is placed, which decides how wide it is.
+     * Where the control is placed, which sets its width.
      *
      * @remarks
-     *   At the head of a sidebar the control is a row the width of the column, so the name and the
-     *   detail have the column to read in. In a toolbar it is one control among others and takes
-     *   the width of its words, fitted rather than left to the element, because a control drawn
-     *   as a flex box fills the block around it, and the detail goes, because a row of controls is
-     *   one line tall. The mark shrinks to an icon's box there, through the `marked` compound,
-     *   because the size axis draws it a control's box for the sidebar and a compound is applied
-     *   after an axis.
+     *   At the head of a sidebar the control fills the column. In a toolbar it is as wide as its
+     *   words (`inlineSize: fit`, because a flex container fills its line otherwise) and hides the
+     *   detail, because a toolbar row is one line tall. The `marked` compound sizes the mark to
+     *   `icon.lg` in a toolbar, because the size axis sizes it for a sidebar and a compound
+     *   applies over an axis.
      */
     placement: {
       sidebar: { root: { inlineSize: "full" } },
@@ -155,17 +147,13 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * How the control is set against what holds it.
+     * The control's look against its container.
      *
      * @remarks
-     *   A switcher is usually at the head of a sidebar, where the sidebar is already a surface and
-     *   a second one round the control reads as a box inside a box. `plain` is that case and the
-     *   default.
-     *   Each look states what it rests on, what it turns under a pointer, and what it turns while
-     *   its list is open. The three are written here rather than on the root, because the compiler
-     *   layers a recipe's variants over its base: a look that stated its resting fill alone won
-     *   over any state the base had written, and the control read the same at rest, under a pointer
-     *   and with its list standing open under it.
+     *   `plain`, the default, has no fill at rest, so a switcher at the head of a sidebar shows the
+     *   sidebar's own look. Each look states its hover, press and open fills, because the compiler
+     *   layers the variants over the base, so a look's resting fill applies over any state the base
+     *   writes.
      */
     variant: onSlot("root", {
       subtle: { ...ON_FILL, background: "bg.muted" },

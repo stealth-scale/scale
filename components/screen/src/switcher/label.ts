@@ -1,9 +1,9 @@
 /**
- * Draws the column holding the current thing's name over its detail.
+ * Renders the column of the name over the detail.
  *
  * @remarks
- *   Two lines rather than one, because a workspace has a name and a plan, a project has a name and
- *   an environment, and the second line is what tells two things of the same name apart.
+ *   A workspace has a name and a plan, and a project has a name and an environment, so the label
+ *   has two lines. The second line tells two things with the same name apart.
  */
 
 import { type ComponentProps } from "react";
@@ -11,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#switcher/context.ts";
 
 /**
- * Draws the column at the room the control states.
+ * Renders the label `span` at the switcher's size.
  */
 export const Label = withContext("span", "label");
 
 /**
- * Describes what the label column takes.
+ * Describes the props of `Label`.
  */
 export type LabelProps = ComponentProps<typeof Label>;

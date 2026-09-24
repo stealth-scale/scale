@@ -7,7 +7,7 @@ import { slotClass, slotClasses, variantClass } from "@stealthscale/testing-them
 import { Sized } from "#switcher/sized.tsx";
 
 describe("Sized", () => {
-  it("draws the menu at the step it is handed", async () => {
+  it("renders the menu at the step", async () => {
     const { container } = await drawn(
       <Sized open step="sm">
         <Menu.Trigger>Workspace</Menu.Trigger>

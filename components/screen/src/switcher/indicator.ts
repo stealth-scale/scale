@@ -1,11 +1,10 @@
 /**
- * Draws the mark saying there is a list behind the control.
+ * Renders the icon at the end of the control that marks the menu.
  *
  * @remarks
- *   The menu's own indicator drawn under a slot of this recipe, so it reports the panel's state
- *   without this component tracking whether it is open, and the recipe holds it still.
- *   It says nothing a screen reader needs. The control already carries `aria-expanded`, so a reader
- *   is told once rather than twice.
+ *   The indicator is the menu's `Menu.Indicator` bound to a slot of the switcher, so it reports the
+ *   menu's state in `data-state`. The recipe keeps it still while the menu is open. Screen readers
+ *   do not announce it, because the control's `aria-expanded` reports the state.
  */
 
 import { type ComponentProps } from "react";
@@ -15,11 +14,11 @@ import { Menu } from "@stealthscale/component-disclosure";
 import { withContext } from "#switcher/context.ts";
 
 /**
- * Draws the mark at the end of the control.
+ * Renders the menu's indicator with the indicator slot's class.
  */
 export const Indicator = withContext(Menu.Indicator, "indicator");
 
 /**
- * Describes what the mark takes.
+ * Describes the props of `Indicator`.
  */
 export type IndicatorProps = ComponentProps<typeof Indicator>;

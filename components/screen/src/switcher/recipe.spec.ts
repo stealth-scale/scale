@@ -6,10 +6,13 @@ import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/te
 import { recipe } from "#switcher/recipe.ts";
 import page from "#switcher/switcher.specimen.tsx";
 
+/**
+ * Slots of the switcher recipe, in declaration order.
+ */
 const PARTS = ["root", "mark", "label", "name", "detail", "indicator"];
 
 describe("recipe", () => {
-  it("turns a fill under a pointer and under a press and while its list stands open", () => {
+  it("fills the plain look in its interactive states", () => {
     expect(recipe.variants?.["variant"]?.["plain"]?.["root"]).toStrictEqual({
       _active: { background: "bg.emphasized" },
       _hover: { background: "bg.muted" },
@@ -18,7 +21,7 @@ describe("recipe", () => {
     });
   });
 
-  it("moves a look already resting on a fill one step further down the ladder", () => {
+  it("fills the subtle look one step darker in its interactive states", () => {
     expect(recipe.variants?.["variant"]?.["subtle"]?.["root"]).toStrictEqual({
       _active: { background: "bg.emphasized" },
       _hover: { background: "bg.emphasized" },
@@ -27,7 +30,7 @@ describe("recipe", () => {
     });
   });
 
-  it("states those fills inside each look rather than on the root", () => {
+  it("writes the hover and open fills inside every look", () => {
     const looks = recipe.variants?.["variant"];
 
     expect([
@@ -47,23 +50,23 @@ describe("recipe", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Switcher"], parts: PARTS })).toStrictEqual([]);
   });
 
-  it("names its class switcher", () => {
+  it("sets className to switcher", () => {
     expect(recipe.className).toBe("switcher");
   });
 
-  it("styles the six parts of the control and nothing of the menu's", () => {
+  it("declares six slots", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
   });
 
-  it("offers the three axes a switcher takes", () => {
+  it("declares three axes", () => {
     expect(axesOf(recipe)).toStrictEqual(["placement", "size", "variant"]);
   });
 
-  it("draws a plain control at the middle size in a sidebar when nothing is asked for", () => {
+  it("defaults to a plain switcher at md in a sidebar", () => {
     expect(defaultsOf(recipe)).toStrictEqual({
       placement: "sidebar",
       size: "md",
@@ -71,7 +74,7 @@ describe("recipe", () => {
     });
   });
 
-  it("shrinks the mark to an icon's box in a toolbar", () => {
+  it("sizes the mark to icon.lg in a toolbar", () => {
     expect(recipe.compoundVariants).toStrictEqual([
       {
         className: "switcher__mark--marked",
@@ -81,7 +84,7 @@ describe("recipe", () => {
     ]);
   });
 
-  it("reads the control a step below the size it was asked for and rounds its corners", () => {
+  it("sets the control's text style one size smaller than its size", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["root"]).toStrictEqual({
       borderRadius: "l2",
       gap: "calc({spacing.gap.md} * var(--density, 1))",
@@ -93,21 +96,24 @@ describe("recipe", () => {
     expect(recipe.base?.["name"]).toMatchObject({ fontWeight: "medium" });
   });
 
-  it("fills a sidebar's column and fits the width of its words in a toolbar", () => {
+  it("fills the column in a sidebar", () => {
     expect(recipe.variants?.["placement"]?.["sidebar"]?.["root"]).toStrictEqual({
       inlineSize: "full",
     });
+  });
+
+  it("fits its words in a toolbar", () => {
     expect(recipe.variants?.["placement"]?.["toolbar"]).toStrictEqual({
       detail: { display: "none" },
       root: { inlineSize: "fit" },
     });
   });
 
-  it("offers the three ways the control is set against what holds it", () => {
+  it("declares three looks", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual(["outline", "plain", "subtle"]);
   });
 
-  it("cuts a long name short rather than wrapping the control", () => {
+  it("truncates the name", () => {
     expect(recipe.base?.["name"]).toMatchObject({
       overflow: "hidden",
       textOverflow: "ellipsis",
@@ -115,7 +121,7 @@ describe("recipe", () => {
     });
   });
 
-  it("stacks the name over the detail and lets the pair fill the control", () => {
+  it("stacks the name over the detail in a column that grows", () => {
     expect(recipe.base?.["label"]).toMatchObject({
       display: "flex",
       flex: "1",
@@ -123,11 +129,11 @@ describe("recipe", () => {
     });
   });
 
-  it("draws the detail quieter than the name", () => {
+  it("sets the detail in fg.subtle at the caption style", () => {
     expect(recipe.base?.["detail"]).toMatchObject({ color: "fg.subtle", textStyle: "caption" });
   });
 
-  it("pushes the mark that opens the list to the end of the control and holds it still", () => {
+  it("places the indicator at the control's end without rotating it", () => {
     expect(recipe.base?.["indicator"]).toMatchObject({
       _open: { rotate: "0deg" },
       alignItems: "center",
@@ -136,7 +142,7 @@ describe("recipe", () => {
     });
   });
 
-  it("draws the mark as a tinted square and centres whatever it holds", () => {
+  it("renders the mark as a tinted square with its content centred", () => {
     expect(recipe.base?.["mark"]).toStrictEqual({
       alignItems: "center",
       background: "bg.muted",
@@ -151,18 +157,18 @@ describe("recipe", () => {
     });
   });
 
-  it("sizes the mark two steps under the control's box and sets its initial a step under", () => {
+  it("sizes the mark two control sizes smaller than the switcher", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["mark"]).toStrictEqual({
       boxSize: "calc({sizes.control.xs} * var(--density, 1))",
       fontSize: "sm",
     });
   });
 
-  it("sets the control in the muted ink", () => {
+  it("sets the control's ink to fg.muted in the neutral palette", () => {
     expect(recipe.base?.["root"]).toMatchObject({ color: "fg.muted", colorPalette: "neutral" });
   });
 
-  it("tracks every tag under the Switcher namespace", () => {
+  it("matches every Switcher tag", () => {
     expect(recipe.jsx).toStrictEqual([/^Switcher(\.\w+)?$/u]);
   });
 });

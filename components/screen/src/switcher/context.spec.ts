@@ -8,7 +8,7 @@ import { slotClass, slotClasses, variantClass } from "@stealthscale/testing-them
 import { withContext, withRootProvider } from "#switcher/context.ts";
 
 describe("context", () => {
-  it("draws the slot's class on an element it binds", () => {
+  it("applies the slot class to a bound element", () => {
     const Held = withRootProvider("div");
     const Named = withContext("span", "name");
     const { container } = render(createElement(Held, null, createElement(Named)));
@@ -16,7 +16,7 @@ describe("context", () => {
     expect(slotClasses(container, "switcher", "name")).toContain(slotClass("switcher", "name"));
   });
 
-  it("hands the switcher's variants to a part below it", () => {
+  it("applies the root's size to a part below it", () => {
     const Held = withRootProvider("div");
     const Named = withContext("span", "name");
     const { container } = render(createElement(Held, { size: "lg" }, createElement(Named)));

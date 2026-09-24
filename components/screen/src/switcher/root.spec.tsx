@@ -9,7 +9,7 @@ import { composed } from "#switcher/switcher.fixtures.tsx";
 import { Trigger } from "#switcher/trigger.tsx";
 
 describe("Root", () => {
-  it("draws the control and nothing of its own inside it", () => {
+  it("renders the trigger as its only element", () => {
     const { container } = render(
       <Root>
         <Trigger label="Workspace">Acme</Trigger>
@@ -19,7 +19,7 @@ describe("Root", () => {
     expect(container.querySelector("button")).toBeTruthy();
   });
 
-  it("hands its variants to the control below it", () => {
+  it("applies its size to the trigger", () => {
     const { container } = render(
       <Root size="lg">
         <Trigger label="Workspace">Acme</Trigger>
@@ -31,7 +31,7 @@ describe("Root", () => {
     );
   });
 
-  it("hands its size to the menu so the rows are drawn at the control's step", async () => {
+  it("passes its size to the menu", async () => {
     const { container } = await drawn(composed({ size: "lg" }));
 
     expect(slotClasses(container, "menu", "content")).toContain(
@@ -39,7 +39,7 @@ describe("Root", () => {
     );
   });
 
-  it("draws the menu at the middle step where none is asked for", async () => {
+  it("renders the menu at md without a size", async () => {
     const { container } = await drawn(composed());
 
     expect(slotClasses(container, "menu", "content")).toContain(
@@ -47,7 +47,7 @@ describe("Root", () => {
     );
   });
 
-  it("draws the control in the look it is given", () => {
+  it("applies its variant to the trigger", () => {
     const { container } = render(
       <Root variant="outline">
         <Trigger label="Workspace">Acme</Trigger>
@@ -59,7 +59,7 @@ describe("Root", () => {
     );
   });
 
-  it("keeps the menu closed until it is asked to open", () => {
+  it("renders the menu closed by default", () => {
     render(
       <Root>
         <Trigger label="Workspace">Acme</Trigger>
