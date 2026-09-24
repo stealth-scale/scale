@@ -97,17 +97,6 @@ specimen: fill the container with Contained
 - `Contained` sets `inline-size: 100%`. In a sample's flex body it shrank to its content, so a
   focused field in a matrix rendered 231px wide beside fields of 647px at 2560.
 
-specimen: add Floated and STAGED
-
-- `Floated` renders a contained box that measures every `[data-part=positioner]` inside it after a
-  machine positions it, and pads each side the positioner crosses. An open tooltip, popover or menu
-  renders inside its scene. It measures again on every style change inside it, and stops after eight
-  changes of padding.
-- `STAGED` turns off a machine's flip, slide and size middleware. Passed as `positioning`, it keeps
-  a part staged open at the placement the scene sets and at its full height at any scroll position,
-  so the `Floated` box around it pads once.
-- The preset registers the `floated` recipe.
-
 specimen: write an object prop as an object literal
 
 - `written()` and `propped()` write an object or an array prop member by member, so a placement

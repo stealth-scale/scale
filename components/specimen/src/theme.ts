@@ -11,7 +11,6 @@ import { definePreset } from "@stealthscale/theme/authoring";
 
 import { recipe as contained } from "#contained/recipe.ts";
 import { recipe as device } from "#device/recipe.ts";
-import { recipe as floated } from "#floated/recipe.ts";
 import { FRAMED_ATTRIBUTE } from "#framed/attribute.ts";
 import { recipe as pane } from "#framed/pane.recipe.ts";
 import { recipe as matrix } from "#matrix/recipe.ts";
@@ -24,7 +23,7 @@ export default definePreset({
   name: "@stealthscale/specimen",
   theme: {
     extend: {
-      recipes: { contained, floated, pane, room, tile },
+      recipes: { contained, pane, room, tile },
       slotRecipes: { device, matrix, sample },
     },
   },

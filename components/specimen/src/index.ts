@@ -20,7 +20,6 @@ export * from "#catalogue/index.ts";
 export * from "#contained/index.ts";
 export { type CoverageOptions, uncovered } from "#covered.ts";
 export * from "#device/index.ts";
-export * from "#floated/index.ts";
 export * from "#focused/index.ts";
 export * from "#framed/index.ts";
 export { landmarked } from "#landmark.ts";
