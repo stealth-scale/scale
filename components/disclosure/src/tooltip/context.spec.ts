@@ -8,14 +8,14 @@ import { slotClasses, slotVariantClass } from "@stealthscale/testing-theme";
 import { withContext, withProvider } from "#tooltip/context.ts";
 
 describe("context", () => {
-  it("draws the root's slot class on the element it binds", () => {
+  it("applies the root's slot class to a bound element", () => {
     const Root = withProvider("div", "root");
     const { container } = render(createElement(Root));
 
     expect(slotClasses(container, "tooltip", "root")).toContain("tooltip__root");
   });
 
-  it("hands the root's variants to a part below it", () => {
+  it("passes the root's variants to a part below it", () => {
     const Root = withProvider("div", "root");
     const Tip = withContext("div", "arrowTip");
     const { container } = render(createElement(Root, { variant: "surface" }, createElement(Tip)));
@@ -25,7 +25,7 @@ describe("context", () => {
     );
   });
 
-  it("keeps a variant's class off a part that value does not style", () => {
+  it("applies no variant class to a part the value does not style", () => {
     const Root = withProvider("div", "root");
     const Arrow = withContext("div", "arrow");
     const { container } = render(createElement(Root, { variant: "surface" }, createElement(Arrow)));

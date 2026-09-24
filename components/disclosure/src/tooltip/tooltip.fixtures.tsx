@@ -1,5 +1,5 @@
 /**
- * Builds the tooltip a part's specification needs above it, every part reading one machine.
+ * Fixtures for the tooltip specs: a root around one part and a whole tooltip.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -12,20 +12,21 @@ import { Root, type RootProps } from "#tooltip/root.tsx";
 import { Trigger } from "#tooltip/trigger.tsx";
 
 /**
- * Draws whatever a case wants measured inside the root that runs the machine.
+ * Renders a part inside a root that runs the machine.
  *
  * @param children - The part under test.
- * @returns The root, holding it.
+ * @returns The root with the part inside it.
  */
 export function hinted(children: ReactNode): ReactElement {
   return <Root>{children}</Root>;
 }
 
 /**
- * Draws a whole tooltip, so a case can rest on the control and read what the box does.
+ * Renders a trigger and its positioned content with an arrow, with the props the case sets on the
+ * root.
  *
- * @param props - Whatever the case sets on the root.
- * @returns The six parts composed the way a caller composes them.
+ * @param props - The props the case sets on the root.
+ * @returns The tooltip.
  */
 export function composed(props: RootProps = {}): ReactElement {
   return (

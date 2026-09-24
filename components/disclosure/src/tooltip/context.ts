@@ -1,10 +1,10 @@
 /**
- * Binds the tooltip's recipe to the elements that draw its parts.
+ * Binds the tooltip's recipe to its parts.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. The content provides the variants rather than a root, because
- *   the machine draws no root and the content is the part a caller sizes.
+ *   The binding is apart from the recipe, because a compiler reads the recipe at build time and the
+ *   binding imports the runtime. The root provides the variants, and the trigger, the positioner,
+ *   the content and the arrow read them.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";
@@ -12,6 +12,6 @@ import { createSlotRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#tooltip/recipe.ts";
 
 /**
- * Binds the recipe once. The content provides the variants and every other part reads them.
+ * Binds the recipe once. The root provides the variants and every other part reads them.
  */
 export const { withContext, withProvider } = createSlotRecipeContext(recipe);

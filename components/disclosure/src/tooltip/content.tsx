@@ -1,11 +1,9 @@
 /**
- * Draws the box the words appear in.
+ * Renders the tooltip's content.
  *
  * @remarks
- *   The machine gives it the tooltip role and the id the trigger points at, so a screen reader
- *   reads the words as a description of the control rather than as something beside it.
- *   It states its surface once as a custom property, which the point inside it reads, so the two
- *   are never filled in different colours.
+ *   The machine sets `role="tooltip"` and the id the trigger's `aria-describedby` references. The
+ *   content sets `--tooltip-surface`, which the arrow tip reads, so the two share one fill.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -16,20 +14,20 @@ import { withContext } from "#tooltip/context.ts";
 import { useTooltip } from "#tooltip/machine.ts";
 
 /**
- * Draws the box at the size the root states.
+ * Renders the `div` with the tooltip's content class.
  */
 const Boxed = withContext("div", "content");
 
 /**
- * Describes what the box takes.
+ * Describes the props of the content: the props of a `div`.
  */
 export type ContentProps = ComponentProps<typeof Boxed>;
 
 /**
- * Appears beside the control while a pointer rests on it.
+ * Renders the content with the machine's content props merged over the caller's.
  *
- * @param props - The recipe's variants, and everything a styled div takes.
- * @returns The box, named and placed by the machine.
+ * @param props - The props of a `div`.
+ * @returns The `div` element.
  */
 export function Content(props: ContentProps): ReactElement {
   const api = useTooltip();

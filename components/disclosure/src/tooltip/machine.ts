@@ -19,8 +19,8 @@ import { createRequiredContext, omitUndefined, splitEnumerable } from "@stealths
  * methods.
  *
  * @remarks
- *   The type is inferred from `connect`, so it follows the installed machine version. The inferred
- *   type references `@zag-js/types`, so the package declares that package as a dependency.
+ *   The type comes from `connect`, so it follows the installed machine version. It references
+ *   `@zag-js/types`, so the package declares that package as a dependency.
  */
 export type TooltipApi = ReturnType<typeof tooltip.connect>;
 

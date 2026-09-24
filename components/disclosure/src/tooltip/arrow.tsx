@@ -1,10 +1,9 @@
 /**
- * Draws the point that ties the box to its control.
+ * Renders the element the machine positions against the content's edge for the arrow.
  *
  * @remarks
- *   Two elements rather than one. The machine positions the outer against whichever edge it placed
- *   the box on, and the tip inside it is the turned square that draws the shape. Both are hidden
- *   from a screen reader, the words in the box saying everything there is to say.
+ *   The arrow is two elements: this one, which the machine places, and the tip inside it, which is
+ *   the rotated square. Neither has text, so a screen reader announces neither.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,20 +14,20 @@ import { withContext } from "#tooltip/context.ts";
 import { useTooltip } from "#tooltip/machine.ts";
 
 /**
- * Draws the outer element the machine places.
+ * Renders the `div` with the tooltip's arrow class.
  */
 const Placed = withContext("div", "arrow");
 
 /**
- * Describes what the arrow takes.
+ * Describes the props of the arrow: the props of a `div`.
  */
 export type ArrowProps = ComponentProps<typeof Placed>;
 
 /**
- * Points from the box back at the control.
+ * Renders the arrow with the machine's arrow props merged over the caller's.
  *
- * @param props - Everything a styled div takes.
- * @returns The arrow, placed by the machine.
+ * @param props - The props of a `div`.
+ * @returns The `div` element.
  */
 export function Arrow(props: ArrowProps): ReactElement {
   const api = useTooltip();

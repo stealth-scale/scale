@@ -1,14 +1,14 @@
 {
-  "about": "Shows a short label beside whatever a pointer rests on.",
+  "about": "Renders a short label beside a control, shown on hover and on keyboard focus.",
   "placement": {
-    "about": "The box on each side of the control, which the machine's positioning decides.",
+    "about": "The content on each side of the trigger, set by the machine's `positioning.placement`.",
     "title": "Placement"
   },
   "save": "Save",
   "saves": "Saves without closing",
   "title": "Tooltip",
   "variant": {
-    "about": "Both looks at every size. Rest the pointer on a control, or reach it from the keyboard, and the box opens.",
+    "about": "Both looks at every size, open. A tooltip opens on hover after `openDelay`, and on keyboard focus.",
     "title": "Looks and sizes"
   }
 }

@@ -7,29 +7,29 @@ import { accessibilityViolations, drawn, settled } from "@stealthscale/testing-r
 import { composed } from "#tooltip/tooltip.fixtures.tsx";
 
 describe("Root", () => {
-  it("breaks no accessibility rule holding a control and its box", async () => {
+  it("returns no accessibility violation", async () => {
     await expect(accessibilityViolations(() => composed())).resolves.toStrictEqual([]);
   });
 
-  it("draws an element that takes part in no layout", async () => {
+  it("renders a div", async () => {
     const { container } = await drawn(composed());
 
     expect(container.firstElementChild?.tagName).toBe("DIV");
   });
 
-  it("keeps the box shut until something opens it", async () => {
+  it("starts closed", async () => {
     await drawn(composed());
 
     expect(screen.queryByRole("tooltip")).toBeNull();
   });
 
-  it("opens the box where a caller says it starts open", async () => {
+  it("starts open with defaultOpen", async () => {
     await drawn(composed({ defaultOpen: true }));
 
     expect(screen.getByRole("tooltip")).toBeDefined();
   });
 
-  it("opens the box when a keyboard reaches the control", async () => {
+  it("opens on keyboard focus of the trigger", async () => {
     await drawn(composed({ openDelay: 0 }));
     setInteractionModality("keyboard");
     fireEvent.focus(screen.getByRole("button"));
@@ -38,7 +38,7 @@ describe("Root", () => {
     expect(screen.getByRole("tooltip")).toBeDefined();
   });
 
-  it("leaves the box shut where a pointer moved the focus rather than a keyboard", async () => {
+  it("stays closed on pointer focus of the trigger", async () => {
     await drawn(composed({ openDelay: 0 }));
     setInteractionModality("pointer");
     fireEvent.focus(screen.getByRole("button"));
@@ -47,7 +47,7 @@ describe("Root", () => {
     expect(screen.queryByRole("tooltip")).toBeNull();
   });
 
-  it("tells a caller each time the box opens and shuts", async () => {
+  it("calls onOpenChange with the new state", async () => {
     const told = vi.fn<(details: { readonly open: boolean }) => void>();
 
     await drawn(composed({ onOpenChange: told, openDelay: 0 }));
@@ -58,13 +58,13 @@ describe("Root", () => {
     expect(told).toHaveBeenLastCalledWith(expect.objectContaining({ open: true }));
   });
 
-  it("follows a caller that drives it", async () => {
+  it("opens with a controlled open", async () => {
     await drawn(composed({ open: true }));
 
     expect(screen.getByRole("tooltip")).toBeDefined();
   });
 
-  it("stays shut where a caller disables it", async () => {
+  it("ignores focus while disabled", async () => {
     await drawn(composed({ disabled: true, openDelay: 0 }));
     fireEvent.focus(screen.getByRole("button"));
     await settled();
