@@ -116,66 +116,71 @@ import { Field } from "@stealthscale/component-forms";
 
 ## Checkbox
 
-Draws a box a person turns on and off, and the words that name it.
+`Checkbox` renders a box a person checks and unchecks, and the text that names it.
 
 ```tsx
+import { CheckIcon, MinusIcon } from "lucide-react";
+
 import { Checkbox } from "@stealthscale/component-forms";
 
-<Checkbox.Root name="terms" onCheckedChange={({ checked }) => setAccepted(checked)}>
+<Checkbox.Root name="terms" onCheckedChange={({ checked }) => setAccepted(checked === true)}>
   <Checkbox.Control>
     <Checkbox.Indicator>
-      <TickIcon />
+      <CheckIcon strokeWidth={3} />
     </Checkbox.Indicator>
     <Checkbox.Indicator indeterminate>
-      <DashIcon />
+      <MinusIcon strokeWidth={3} />
     </Checkbox.Indicator>
   </Checkbox.Control>
   <Checkbox.Label>Accept the terms</Checkbox.Label>
 </Checkbox.Root>;
 ```
 
-| Axis      | Values                                | Default  |
-| --------- | ------------------------------------- | -------- |
-| `size`    | `sm`, `md`, `lg`                      | `md`     |
-| `variant` | `solid`, `subtle`, `outline`          | `solid`  |
-| `status`  | `info`, `success`, `warning`, `error` | none     |
-| `radius`  | `l1`, `l2`, `full`                    | `l1`     |
-| `align`   | `center`, `start`                     | `center` |
-| `spread`  | `true`                                | off      |
-| `motion`  | `fade`, `rise`, `reveal`              | none     |
+| Axis      | Values                                      | Default   |
+| --------- | ------------------------------------------- | --------- |
+| `size`    | `sm`, `md`, `lg`                            | `md`      |
+| `variant` | `solid`, `subtle`, `outline`                | `solid`   |
+| `palette` | `primary`, `secondary`, `accent`, `neutral` | `primary` |
+| `status`  | `info`, `success`, `warning`, `error`       | none      |
+| `radius`  | `l1`, `l2`, `full`                          | `l1`      |
+| `align`   | `center`, `start`                           | `center`  |
+| `spread`  | `true`                                      | off       |
+| `motion`  | `fade`, `rise`, `reveal`                    | none      |
 
-| Part        | Element | What it draws                    |
-| ----------- | ------- | -------------------------------- |
-| `Root`      | `label` | The row, and the checkbox itself |
-| `Control`   | `div`   | The box the state is seen in     |
-| `Indicator` | `span`  | A mark, for one of the states    |
-| `Label`     | `span`  | The words naming the checkbox    |
+| Part        | Element | What it renders                   |
+| ----------- | ------- | --------------------------------- |
+| `Root`      | `label` | The row, and the input it toggles |
+| `Control`   | `div`   | The box                           |
+| `Indicator` | `span`  | The mark for one checked state    |
+| `Label`     | `span`  | The text that names the checkbox  |
 
-`Checkbox.Root` also takes `checked`, `defaultChecked`, `disabled`, `form`, `invalid`, `name`,
-`onCheckedChange`, `readOnly`, `required` and `value`.
+- `Checkbox.Root` also takes `checked`, `defaultChecked`, `disabled`, `form`, `invalid`, `name`,
+  `onCheckedChange`, `readOnly`, `required` and `value`.
+- The root renders the input a form submits. Do not add an input of your own.
+- Name the checkbox with `Checkbox.Label`, or state `aria-label` on the root for a box with no text.
+- `checked` takes `true`, `false` or `"indeterminate"`. A partly-on box takes the same fill as a
+  checked one. Set `indeterminate` on the indicator that renders the partly-on mark, and render a
+  second indicator without it for the checked mark. A box that is never partly on needs one
+  indicator.
+- An `svg` in the indicator fills the box, so the mark scales with `size`. The box is 16, 20 and
+  24px at `sm`, `md` and `lg`.
+- `palette` sets the fill of a checked box. A `status` sets the edge and the fill, and overrides the
+  palette.
+- Set `align="start"` for a label that wraps. It puts the box on the first line instead of halfway
+  down the text.
+- Set `spread` for a settings row. The row takes the width it is given and puts the box at the far
+  end.
 
-`checked` takes `true`, `false` or `"indeterminate"`, so it serves a box that goes partly on. Set
-`indeterminate` on the indicator that draws the partly-on mark. Write a second indicator without it
-for the on mark. A box that never goes partly on needs one indicator.
-
-The root draws the checkbox a form submits. Do not add an input of your own.
-
-Name the checkbox. Write `Checkbox.Label`, or state `aria-label` on the root for a box that carries
-no words.
-
-A label that runs to more than one line takes `align="start"`, which puts the box on the first line
-rather than halfway down the block.
-
-Set `spread` for a settings row. The row takes the width it is given, the label keeps the start, and
-the box goes to the far end.
-
-Put the checkbox inside a `Field` and it takes the field's `disabled`, `invalid`, `readOnly` and
-`required`, and is described by the field's texts:
+Inside a `Field`, the checkbox takes the field's `disabled`, `invalid`, `readOnly`, `required` and
+`size`, and its input lists the field's texts in `aria-describedby`. Inside a `Fieldset` with no
+field around it, it takes the group's `disabled` and `size`. A prop stated on the checkbox overrides
+both.
 
 ```tsx
-<Field.Root invalid={!accepted}>
+<Field.Root invalid={!accepted} required>
   <Checkbox.Root>…</Checkbox.Root>
-  <Field.ErrorText>Accept the terms to go on.</Field.ErrorText>
+  <Field.HelperText>Read them before you continue.</Field.HelperText>
+  <Field.ErrorText>Accept the terms to continue.</Field.ErrorText>
 </Field.Root>
 ```
 

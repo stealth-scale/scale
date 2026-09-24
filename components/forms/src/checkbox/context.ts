@@ -1,10 +1,10 @@
 /**
- * Turns the checkbox slot recipe into React components, one per slot.
+ * Binds the checkbox recipe to React.
  *
  * @remarks
- *   A consuming application's compiler parses `recipe.ts` statically at build time, so that module
- *   cannot import anything that exists only at runtime and this wiring has to live in its own file.
- *   It is separate from `machine.ts` because styling and behaviour change for unrelated reasons.
+ *   The binding is a separate module because an application's compiler reads `recipe.ts` at build
+ *   time and the binding needs the runtime. It is apart from `machine.ts`, which holds the
+ *   behaviour.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";
@@ -12,11 +12,6 @@ import { createSlotRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#checkbox/recipe.ts";
 
 /**
- * Creates the two slot factories for the checkbox recipe.
- *
- * @remarks
- *   The root is built with `withProvider`, which resolves the variant values once and publishes
- *   them on a context. Every other slot is built with `withContext` and reads that resolved result,
- *   so a variant is set in one place and applied throughout the subtree.
+ * Binds the recipe once. The root receives the variants and every other part reads them.
  */
 export const { withContext, withProvider } = createSlotRecipeContext(recipe);

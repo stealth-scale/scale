@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#checkbox/index.ts";
 
 describe("index", () => {
-  it("names every part a caller composes", () => {
+  it("exports the four parts", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual(["Control", "Indicator", "Label", "Root"]);
   });
 
-  it("publishes neither the recipe nor the binding", () => {
+  it("exports no recipe binding or hook", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {

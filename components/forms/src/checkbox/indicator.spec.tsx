@@ -7,40 +7,40 @@ import { boxed, composed, pressed } from "#checkbox/checkbox.fixtures.tsx";
 import { Indicator } from "#checkbox/indicator.tsx";
 
 describe("Indicator", () => {
-  it("draws a span inside the root it needs above it", () => {
+  it("renders a span inside the root", () => {
     const { container } = render(boxed(<Indicator>t</Indicator>));
 
     expect(slotElement(container, "checkbox", "indicator").tagName).toBe("SPAN");
   });
 
-  it("hides the mark while the checkbox is off", () => {
+  it("hides the mark while the box is unchecked", () => {
     const { container } = render(boxed(<Indicator>t</Indicator>));
 
     expect(slotElement(container, "checkbox", "indicator").hidden).toBe(true);
   });
 
-  it("shows the mark once the checkbox is on", async () => {
+  it("shows the mark after a press checks the box", async () => {
     const { container } = render(composed());
     await pressed(screen.getByRole("checkbox"));
 
     expect(slotElement(container, "checkbox", "indicator").hidden).toBe(false);
   });
 
-  it("draws the on mark for a checkbox that is on", () => {
+  it("shows only the checked mark on a checked box", () => {
     render(composed({ defaultChecked: true }));
 
     expect(screen.getByText("t").hidden).toBe(false);
     expect(screen.getByText("-").hidden).toBe(true);
   });
 
-  it("draws the partly-on mark for a checkbox that is partly on", () => {
+  it("shows only the partly-on mark on a partly-on box", () => {
     render(composed({ checked: "indeterminate" }));
 
     expect(screen.getByText("-").hidden).toBe(false);
     expect(screen.getByText("t").hidden).toBe(true);
   });
 
-  it("hides the on mark while the checkbox is partly on", () => {
+  it("hides the checked mark while the box is partly on", () => {
     const { container } = render(boxed(<Indicator>t</Indicator>, { checked: "indeterminate" }));
 
     expect(slotElement(container, "checkbox", "indicator").hidden).toBe(true);

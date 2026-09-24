@@ -1,22 +1,23 @@
 /**
- * Defines the styles a checkbox is drawn with.
+ * Recipe for the checkbox: a row that holds the box and its label.
  *
  * @remarks
- *   Four parts. The root is the label the whole control sits in, the control is the box, the
- *   indicator is the mark inside it, and the label is the words beside it.
- *   The box reads the theme's field fragment, so its edge, its hover and its invalid state are the
- *   ones every text field in the same form is drawn with. Three of the fragment's rules are
- *   restated. The ring is drawn outside, because a ring inside a box this small covers the mark.
- *   The coarse-pointer height is dropped, because the fragment raises a field to the middle control
- *   height and that would stretch a square into a rectangle. The target is widened by `touchTarget`
- *   instead, which leaves the drawn box alone and gives a coarse pointer a square of `control.md`,
- *   measuring 2.5rem against the theme's own base.
- *   The drawn box is 1rem, 1.25rem and 1.5rem across the three sizes. WCAG 2.2 asks for 24 by 24
- *   CSS pixels, which the root clears rather than the box: the root is the label and a press
- *   anywhere along it toggles, so the target is the row and its words. A checkbox drawn without a
- *   label at the small size is the one case that rests on the spacing exception.
- *   The indicator is hidden by the machine until the box is checked or indeterminate. A display of
- *   its own would defeat the attribute, so the slot restates `display: none` under it.
+ *   Four slots: the root is the `label` the row sits in, the control is the box, the indicator is
+ *   the mark inside the box, and the label is the text. The box reads the theme's field fragment,
+ *   so its edge, hover and invalid state match every text field in the form. Three rules differ
+ *   from the fragment: the focus ring is drawn outside, because a ring inside a box this small
+ *   covers the mark; the coarse-pointer height is dropped, because it would stretch the square;
+ *   and `touchTarget` widens the target to a `control.md` square, 40px, without changing the box.
+ *   The box is 16, 20 and 24px at `sm`, `md` and `lg`. The root is the `label`, so a press anywhere
+ *   on the row toggles, and the row with its text clears the 24px target of WCAG 2.5.8. The checked
+ *   and partly-on states take the look's fill. An `svg` in the indicator fills the box, so the mark
+ *   scales with it. The indicator restates `display: none` under
+ *   `[hidden]`, because its own display would override the attribute the machine sets. The palette
+ *   axis offers the four palettes that are not statuses: primary, secondary, accent and neutral.
+ *   The status axis offers the four statuses, sets the edge as well as the palette, and is declared
+ *   after the palette so it overrides it. The two axes cannot share a value, because the class name
+ *   leaves out the axis. The recipe has no `effect` axis, because a glow or a pulse on a 16px box
+ *   competes with the focus ring.
  */
 
 import {
@@ -29,18 +30,32 @@ import {
   motionVariants,
   onSlot,
   onSlots,
+  paletteVariants,
   sizeVariants,
   statusEmitted,
+  type SystemStyleObject,
   touchTarget,
 } from "@stealthscale/theme/authoring";
 
 /**
- * Writes how the space along the row is shared out where the box sits at the far end.
+ * Palettes the palette axis offers: the ones that are not statuses.
+ */
+const HUES = ["primary", "secondary", "accent", "neutral"] as const;
+
+/**
+ * Distribution of a spread row, which puts the box at the far end.
  */
 const SPREAD = justifyVariants(["between"]);
 
 /**
- * Draws a filled checkbox at the middle size until a caller says otherwise.
+ * Returns a look that fills the box with a layer style while it is checked or partly on.
+ */
+function filled(layerStyle: string): SystemStyleObject {
+  return { _checked: { layerStyle }, _indeterminate: { layerStyle } };
+}
+
+/**
+ * Defines the checkbox recipe: a solid box at size `md` in the primary palette by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -55,6 +70,7 @@ export const recipe = defineSlotRecipe({
     },
     indicator: {
       "&[hidden]": { display: "none" },
+      "& svg": { boxSize: "full" },
       alignItems: "center",
       blockSize: "full",
       color: "inherit",
@@ -71,13 +87,22 @@ export const recipe = defineSlotRecipe({
     },
   },
   className: "checkbox",
-  defaultVariants: { align: "center", radius: "l1", size: "md", variant: "solid" },
+  defaultVariants: {
+    align: "center",
+    palette: "primary",
+    radius: "l1",
+    size: "md",
+    variant: "solid",
+  },
   jsx: [/^Checkbox(\.\w+)?$/u],
   slots: ["root", "control", "indicator", "label"],
-  staticCss: [statusEmitted()],
+  staticCss: [statusEmitted(), { palette: [...HUES] }],
   variants: {
     /**
      * Where the box sits against a label that runs to more than one line.
+     *
+     * @remarks
+     *   `start` puts the box on the first line, `center` halfway down the text.
      */
     align: {
       start: { root: { alignItems: "flex-start" } },
@@ -85,10 +110,26 @@ export const recipe = defineSlotRecipe({
       center: { root: { alignItems: "center" } },
     },
 
+    /**
+     * Entrance animation of the mark when the box turns on.
+     */
     motion: onSlot("indicator", motionVariants(["fade", "rise", "reveal"])),
 
+    /**
+     * Palette the box fills with while checked or partly on: primary, secondary, accent or
+     * neutral. A status color comes from the status axis.
+     */
+    palette: onSlot("control", paletteVariants(HUES)),
+
+    /**
+     * Corner radius of the box.
+     */
     radius: onSlot("control", cornerVariants(["l1", "l2", "full"])),
 
+    /**
+     * Box size, text size and gap. The box reads the icon scale, the text the label role and the
+     * gap the gap scale, each at the size.
+     */
     size: onSlots({
       control: sizeVariants(
         (size) => ({ boxSize: dense(`{sizes.icon.${size}}`) }),
@@ -99,29 +140,27 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * Whether the box sits at the far end of the row rather than beside its words.
-     *
-     * @remarks
-     *   A row that pushes the box to the far end takes the width it is given, which a row packed
-     *   at the start does not, so the value states the width with the distribution.
+     * Whether the row takes the width it is given and puts the box at the far end.
      */
     spread: { true: { root: { ...SPREAD.between, inlineSize: "full" } } },
 
+    /**
+     * Status the box reports. Each value sets the edge and the palette, over the palette axis.
+     */
     status: onSlot("control", fieldStatusVariants()),
 
     /**
-     * How the box is drawn resting and once it is checked.
+     * Surface of the box at rest, and its fill while checked or partly on.
      *
      * @remarks
-     *   No value writes a border color, so a status always reaches the edge. The three differ
-     *   resting in their surface and checked in the layer style the palette fills them with.
+     *   No value writes a border color, so a status always reaches the edge.
      */
     variant: onSlot("control", {
-      solid: { _checked: { layerStyle: "fill.solid" } },
+      solid: filled("fill.solid"),
 
-      subtle: { _checked: { layerStyle: "fill.subtle" }, background: "bg.muted" },
+      subtle: { ...filled("fill.subtle"), background: "bg.muted" },
 
-      outline: { _checked: { layerStyle: "outline.solid" }, background: "transparent" },
+      outline: { ...filled("outline.solid"), background: "transparent" },
     }),
   },
 });

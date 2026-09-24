@@ -1,24 +1,23 @@
 /**
- * Draws the label the box and the words sit in, and runs the machine they share.
+ * Renders the checkbox's row and runs the machine its parts share.
  *
  * @remarks
- *   The element is `label` and points at the input this part draws beside the caller's children,
- *   so a press anywhere on the row toggles the box and the whole row is one target. The input is
- *   the checkbox a screen reader reads and the value a form submits. It is drawn here rather than
- *   published as a part, because a checkbox that omits it reports nothing to a form and nothing to
- *   a reader, and a part a caller has to remember is a part a caller forgets.
- *   The box itself is `aria-hidden`. The input carries the state, so a reader is told the checkbox
- *   is checked once rather than twice.
- *   A checkbox inside a field takes that field's state and is described by its texts. The field's
- *   values are read before the caller's, so a checkbox that states its own overrides the field.
- *   The partly-on state is written onto the input on every commit. The machine writes it when the
- *   state changes and not when it mounts, so a checkbox drawn partly on would otherwise be
- *   announced as unchecked. It is a property rather than `aria-checked`, because a native checkbox
- *   takes `aria-checked` only where it already agrees with the element, which axe reports as
+ *   The element is a `label` that points at the `input` the root renders after its children, so a
+ *   press anywhere on the row toggles the box. The input is the checkbox assistive technology
+ *   reads and the value a form submits. The root renders it, so a caller cannot leave it out. The
+ *   box is `aria-hidden`, so the state is announced once.
+ *   Inside a field the checkbox takes the field's disabled, invalid, read-only and required states
+ *   and size, and the input lists the field's texts in `aria-describedby`. Inside a fieldset
+ *   without a field it takes the group's disabled state and size. A prop the caller states
+ *   overrides each. The input's `indeterminate` property is written on every commit, because the
+ *   machine writes it only on a change and a box rendered partly on would read as unchecked. It is
+ *   the property and not `aria-checked`, which axe reports on a native checkbox as
  *   `aria-conditional-attr`.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
+
+import { omitUndefined } from "@stealthscale/hooks";
 
 import { withProvider } from "#checkbox/context.ts";
 import {
@@ -28,45 +27,68 @@ import {
   useCheckboxMachine,
 } from "#checkbox/machine.ts";
 import { describedBy } from "#field/ids.ts";
-import { useOptionalField } from "#field/state.ts";
+import { type FieldState, useOptionalField } from "#field/state.ts";
+import { type FieldsetState, useFieldset } from "#fieldset/state.ts";
 
 /**
- * Draws the row and sets the variants every part below it reads.
+ * Renders the root `label` with the recipe's variants.
  */
 const Framed = withProvider("label", "root");
 
 /**
- * Describes what the root takes: the machine's options, the recipe's variants, and the element's.
+ * Describes the props of the root: the machine's options, the recipe's variants and the props of
+ * a `label`.
  *
  * @remarks
- *   Every prop the machine owns is taken off the element's, so the two never offer one name under
- *   two types. `htmlFor` goes with them: the machine states it, pointing the label at the input it
- *   draws.
+ *   The label's own props of the same names as the machine's options, and `htmlFor`, which the
+ *   machine sets, are left out, so no prop has two types.
  */
 export interface RootProps
   extends CheckboxOptions, Omit<ComponentProps<typeof Framed>, "htmlFor" | keyof CheckboxOptions> {}
 
 /**
- * Toggles a value a person turns on and off.
- *
- * @param props - The machine's options, the recipe's variants and the element's props together.
- * @returns The row, holding the parts and the input a form reads.
+ * Returns the machine options a checkbox takes from the field or the fieldset around it.
  */
-export function Root(props: RootProps): ReactElement {
-  const field = useOptionalField();
-  const [options, rest] = splitCheckboxProps(props);
-  const { children, ...attributes } = rest;
-  const api = useCheckboxMachine({
-    disabled: field?.disabled,
+function inherited(field: FieldState | undefined, group: FieldsetState): CheckboxOptions {
+  return {
+    disabled: field?.disabled ?? (group.disabled || undefined),
     invalid: field?.invalid,
     readOnly: field?.readOnly,
     required: field?.required,
-    ...options,
-  });
+  };
+}
+
+/**
+ * Returns the size the checkbox renders at: its own, then the field's, then the fieldset's.
+ */
+function sized(
+  size: RootProps["size"],
+  field: FieldState | undefined,
+  group: FieldsetState,
+): RootProps["size"] {
+  return size ?? field?.size ?? group.size;
+}
+
+/**
+ * Renders the checkbox and provides the machine's api to its parts.
+ *
+ * @param props - The machine's options, the recipe's variants and the props of a `label`.
+ * @returns The `label` element, holding the parts and the `input` a form reads.
+ */
+export function Root(props: RootProps): ReactElement {
+  const field = useOptionalField();
+  const group = useFieldset();
+  const [options, rest] = splitCheckboxProps(props);
+  const { children, size, ...attributes } = rest;
+  const api = useCheckboxMachine({ ...inherited(field, group), ...options });
 
   return (
     <ApiProvider value={api}>
-      <Framed {...attributes} {...api.getRootProps()}>
+      <Framed
+        {...attributes}
+        {...omitUndefined({ size: sized(size, field, group) })}
+        {...api.getRootProps()}
+      >
         {children}
         <input
           aria-describedby={field ? describedBy(field.ids) : undefined}

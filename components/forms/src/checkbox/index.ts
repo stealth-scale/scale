@@ -1,6 +1,6 @@
 /**
- * Publishes the checkbox's four parts, which a caller composes as `Checkbox.Root` holding the box
- * and the words that name it.
+ * Exports the checkbox's parts, composed as `Checkbox.Root` around the box and its text, and the
+ * type of its three states.
  */
 
 export { Control, type ControlProps } from "#checkbox/control.tsx";

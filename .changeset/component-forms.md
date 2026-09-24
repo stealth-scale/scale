@@ -30,13 +30,22 @@ component-forms: publish Fieldset, Field, Checkbox, Switch, Textarea and InputGr
   checked value, which runs on a change and not on a mount, so a checkbox drawn partly on was
   announced as unchecked. It is the `indeterminate` property rather than `aria-checked="mixed"`,
   because axe reports the attribute on a native checkbox as `aria-conditional-attr`.
-- A checkbox inside a `Field` takes that field's `disabled`, `invalid`, `readOnly` and `required`,
-  and its input is described by the field's helper text and error message. A checkbox that states
-  one of them overrides the field.
+- A checkbox inside a `Field` takes that field's `disabled`, `invalid`, `readOnly`, `required` and
+  `size`, and its input is described by the field's helper text and error message. Inside a
+  `Fieldset` with no field around it, a checkbox takes the group's `disabled` and `size`. A checkbox
+  that states one of them overrides both. The root passes the group's disabled state to the machine,
+  so the box is disabled on its first render.
 - `Indicator` takes `indeterminate`, which states which of the two marked states the mark belongs
   to. A checkbox that never goes partly on draws one indicator and no flag.
-- Seven axes: `size`, `variant`, `status`, `radius`, `align`, `spread` and `motion`. No value of
-  `variant` writes a border color, so a status always reaches the edge.
+- A partly-on box takes the same fill as a checked one in every look. `_checked` does not match a
+  box whose state is `indeterminate`, so the look states both conditions.
+- An `svg` in the indicator fills the box inside its edge, so the mark scales with the box: 14, 18
+  and 22px at `sm`, `md` and `lg`. An icon no longer renders at its own size.
+- Eight axes: `size`, `variant`, `palette`, `status`, `radius`, `align`, `spread` and `motion`. No
+  value of `variant` writes a border color, so a status always reaches the edge.
+- `palette` offers `primary`, `secondary`, `accent` and `neutral`, and fills a checked box. The four
+  statuses are left out, because a class name omits the axis and a palette and a status of the same
+  name would write one class. `status` is declared after `palette`, so it overrides it.
 - The box reads the theme's field fragment, so its edge and its states match every text field in the
   same form. The ring is drawn outside, the coarse-pointer height is dropped, and `touchTarget`
   widens the target to a `control.md` square instead of stretching the box.

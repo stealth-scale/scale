@@ -13,15 +13,15 @@ import page from "#checkbox/checkbox.specimen.tsx";
 import { recipe } from "#checkbox/recipe.ts";
 
 describe("recipe", () => {
-  it("covers every variant axis in the scenes of its specimen page", () => {
+  it("covers every axis in the scenes of its specimen", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+  it("leaves no scene naming a value the recipe lacks", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(
       recipeViolations(recipe, {
         names: ["Checkbox"],
@@ -30,18 +30,19 @@ describe("recipe", () => {
     ).toStrictEqual([]);
   });
 
-  it("names its class checkbox", () => {
+  it("uses the class name checkbox", () => {
     expect(recipe.className).toBe("checkbox");
   });
 
-  it("styles the four parts a checkbox draws", () => {
+  it("declares the four slots", () => {
     expect(recipe.slots).toStrictEqual(["root", "control", "indicator", "label"]);
   });
 
-  it("offers the seven axes a checkbox takes", () => {
+  it("declares eight axes", () => {
     expect(axesOf(recipe)).toStrictEqual([
       "align",
       "motion",
+      "palette",
       "radius",
       "size",
       "spread",
@@ -50,20 +51,59 @@ describe("recipe", () => {
     ]);
   });
 
-  it("draws a filled box beside its words when nothing is asked for", () => {
+  it("defaults to a solid box at size md in the primary palette", () => {
     expect(defaultsOf(recipe)).toStrictEqual({
       align: "center",
+      palette: "primary",
       radius: "l1",
       size: "md",
       variant: "solid",
     });
   });
 
-  it("offers the three ways the box is drawn", () => {
+  it("offers three looks", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual(["outline", "solid", "subtle"]);
   });
 
-  it("leaves the edge to the status on every look", () => {
+  it("offers the four palettes that are not statuses", () => {
+    expect(valuesOf(recipe, "palette")).toStrictEqual([
+      "accent",
+      "neutral",
+      "primary",
+      "secondary",
+    ]);
+  });
+
+  it("emits every palette it offers", () => {
+    expect(recipe.staticCss).toContainEqual({
+      palette: ["primary", "secondary", "accent", "neutral"],
+    });
+  });
+
+  it("declares the palette axis before the status axis so a status overrides it", () => {
+    const axes = Object.keys(recipe.variants ?? {});
+
+    expect(axes.indexOf("palette")).toBeLessThan(axes.indexOf("status"));
+  });
+
+  it("fills a partly-on box the same as a checked box in every look", () => {
+    const looks = recipe.variants?.["variant"];
+
+    expect(looks?.["solid"]?.["control"]).toMatchObject({
+      _checked: { layerStyle: "fill.solid" },
+      _indeterminate: { layerStyle: "fill.solid" },
+    });
+    expect(looks?.["subtle"]?.["control"]).toMatchObject({
+      _checked: { layerStyle: "fill.subtle" },
+      _indeterminate: { layerStyle: "fill.subtle" },
+    });
+    expect(looks?.["outline"]?.["control"]).toMatchObject({
+      _checked: { layerStyle: "outline.solid" },
+      _indeterminate: { layerStyle: "outline.solid" },
+    });
+  });
+
+  it("writes no border color on any look so a status reaches the edge", () => {
     expect.hasAssertions();
 
     for (const look of scaleOf(recipe, "variant", "control", ["outline", "solid", "subtle"])) {
@@ -71,24 +111,28 @@ describe("recipe", () => {
     }
   });
 
-  it("keeps the mark out of the layout while the machine hides it", () => {
+  it("sizes a mark's svg to the box", () => {
+    expect(recipe.base?.["indicator"]).toMatchObject({ "& svg": { boxSize: "full" } });
+  });
+
+  it("hides the mark while the machine sets hidden", () => {
     expect(recipe.base?.["indicator"]?.["&[hidden]"]).toStrictEqual({ display: "none" });
   });
 
-  it("draws the focus ring outside a box too small to hold one", () => {
+  it("draws the focus ring outside the box", () => {
     expect(recipe.base?.["control"]).toMatchObject({ focusVisibleRing: "outside" });
   });
 
-  it("widens the target under a coarse pointer rather than raising the box", () => {
+  it("widens the target under a coarse pointer without raising the box", () => {
     expect(recipe.base?.["control"]?.["_touch"]).toHaveProperty("_before");
     expect(recipe.base?.["control"]?.["_touch"]).not.toHaveProperty("minBlockSize");
   });
 
-  it("takes the width it is given where the box sits at the far end", () => {
+  it("takes the full width on a spread row", () => {
     expect(scaleOf(recipe, "spread", "root", ["true"])[0]).toMatchObject({ inlineSize: "full" });
   });
 
-  it("tracks every tag under the Checkbox namespace", () => {
+  it("tracks JSX named Checkbox and its parts", () => {
     expect(recipe.jsx).toStrictEqual([/^Checkbox(\.\w+)?$/u]);
   });
 });

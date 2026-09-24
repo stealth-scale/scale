@@ -1,22 +1,21 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { accessibilityViolations } from "@stealthscale/testing-react";
-import { boundViolations, slotElement } from "@stealthscale/testing-theme";
+import { accessibilityViolations, drawn } from "@stealthscale/testing-react";
+import { boundViolations, slotElement, variantClass } from "@stealthscale/testing-theme";
 
 import { composed, pressed } from "#checkbox/checkbox.fixtures.tsx";
 import { recipe } from "#checkbox/recipe.ts";
 import { type RootProps } from "#checkbox/root.tsx";
-import { ErrorText } from "#field/error-text.tsx";
-import { HelperText } from "#field/helper-text.tsx";
-import { Root as FieldRoot } from "#field/root.tsx";
+import * as Field from "#field/index.ts";
+import { Root as FieldsetRoot } from "#fieldset/root.tsx";
 
 describe("Root", () => {
-  it("breaks no accessibility rule holding a box and its words", async () => {
+  it("returns no accessibility violation for a box and its label", async () => {
     await expect(accessibilityViolations(() => composed())).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "root",
@@ -24,25 +23,25 @@ describe("Root", () => {
     ).toStrictEqual([]);
   });
 
-  it("draws a label the whole row sits in", () => {
+  it("renders a label around the row", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "checkbox", "root").tagName).toBe("LABEL");
   });
 
-  it("draws the checkbox a form submits and a reader is told about", () => {
+  it("renders the input a form submits", () => {
     render(composed({ name: "terms", value: "yes" }));
 
     expect(screen.getByRole("checkbox").getAttribute("name")).toBe("terms");
   });
 
-  it("names the checkbox from the words beside the box", () => {
+  it("names the checkbox from its label", () => {
     render(composed());
 
     expect(screen.getByRole("checkbox", { name: "Accept the terms" })).toBeTruthy();
   });
 
-  it("points the label at the checkbox it holds", () => {
+  it("points the label's for attribute at the input", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "checkbox", "root").getAttribute("for")).toBe(
@@ -50,14 +49,14 @@ describe("Root", () => {
     );
   });
 
-  it("turns the checkbox on when the row is pressed", async () => {
+  it("checks the box on a press", async () => {
     render(composed());
     await pressed(screen.getByRole("checkbox"));
 
     expect(screen.getByRole<HTMLInputElement>("checkbox").checked).toBe(true);
   });
 
-  it("reports the state it moved to", async () => {
+  it("calls onCheckedChange with the new state", async () => {
     const heard = vi.fn<(details: { checked: "indeterminate" | boolean }) => void>();
 
     render(composed({ onCheckedChange: heard }));
@@ -66,49 +65,49 @@ describe("Root", () => {
     expect(heard).toHaveBeenCalledWith({ checked: true });
   });
 
-  it("breaks no accessibility rule while the checkbox is partly on", async () => {
+  it("returns no accessibility violation while partly on", async () => {
     await expect(
       accessibilityViolations(() => composed({ checked: "indeterminate" })),
     ).resolves.toStrictEqual([]);
   });
 
-  it("reports the checkbox as mixed on the frame it is drawn partly on", () => {
+  it("sets the input's indeterminate property on the first render", () => {
     render(composed({ checked: "indeterminate" }));
 
     expect(screen.getByRole<HTMLInputElement>("checkbox").indeterminate).toBe(true);
   });
 
-  it("leaves the checkbox unmixed where it is plainly on", () => {
+  it("clears the input's indeterminate property on a checked box", () => {
     render(composed({ defaultChecked: true }));
 
     expect(screen.getByRole<HTMLInputElement>("checkbox").indeterminate).toBe(false);
   });
 
-  it("takes a checkbox out of reach where a caller disables it", () => {
+  it("disables the input when the caller disables the box", () => {
     render(composed({ disabled: true }));
 
     expect(screen.getByRole<HTMLInputElement>("checkbox").disabled).toBe(true);
   });
 
-  it("takes the disabled state of the field it stands in", () => {
-    render(<FieldRoot disabled>{composed()}</FieldRoot>);
+  it("takes the disabled state of the field around it", () => {
+    render(<Field.Root disabled>{composed()}</Field.Root>);
 
     expect(screen.getByRole<HTMLInputElement>("checkbox").disabled).toBe(true);
   });
 
-  it("takes the required state of the field it stands in", () => {
-    render(<FieldRoot required>{composed()}</FieldRoot>);
+  it("takes the required state of the field around it", () => {
+    render(<Field.Root required>{composed()}</Field.Root>);
 
     expect(screen.getByRole<HTMLInputElement>("checkbox").required).toBe(true);
   });
 
-  it("is described by the texts of the field it stands in", () => {
+  it("lists the field's helper and error texts in aria-describedby", () => {
     render(
-      <FieldRoot id="terms" invalid>
+      <Field.Root id="terms" invalid>
         {composed()}
-        <HelperText>Read them first.</HelperText>
-        <ErrorText>Accept them to go on.</ErrorText>
-      </FieldRoot>,
+        <Field.HelperText>Read them first.</Field.HelperText>
+        <Field.ErrorText>Accept them to go on.</Field.ErrorText>
+      </Field.Root>,
     );
 
     expect(screen.getByRole("checkbox").getAttribute("aria-describedby")?.split(" ")).toStrictEqual(
@@ -116,15 +115,44 @@ describe("Root", () => {
     );
   });
 
-  it("describes a checkbox standing on its own by nothing", () => {
+  it("sets no aria-describedby outside a field", () => {
     render(composed());
 
     expect(screen.getByRole("checkbox").getAttribute("aria-describedby")).toBeNull();
   });
 
-  it("keeps its own state where it states one inside a field", () => {
-    render(<FieldRoot disabled>{composed({ disabled: false })}</FieldRoot>);
+  it("keeps its own disabled state over the field's", () => {
+    render(<Field.Root disabled>{composed({ disabled: false })}</Field.Root>);
 
     expect(screen.getByRole<HTMLInputElement>("checkbox").disabled).toBe(false);
+  });
+
+  it("takes the size of the field around it", () => {
+    const { container } = render(<Field.Root size="lg">{composed()}</Field.Root>);
+
+    expect([...slotElement(container, "checkbox", "control").classList]).toContain(
+      variantClass("checkbox__control", "size", "lg"),
+    );
+  });
+
+  it("takes the size and disabled state of a fieldset around it", async () => {
+    const { container } = await drawn(
+      <FieldsetRoot disabled size="sm">
+        {composed()}
+      </FieldsetRoot>,
+    );
+
+    const control = slotElement(container, "checkbox", "control");
+
+    expect([...control.classList]).toContain(variantClass("checkbox__control", "size", "sm"));
+    expect(control.dataset["disabled"]).toBe("");
+  });
+
+  it("keeps its own size over the field's", () => {
+    const { container } = render(<Field.Root size="lg">{composed({ size: "sm" })}</Field.Root>);
+
+    expect([...slotElement(container, "checkbox", "control").classList]).toContain(
+      variantClass("checkbox__control", "size", "sm"),
+    );
   });
 });

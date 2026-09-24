@@ -1,9 +1,10 @@
 /**
- * Draws the box a person sees the state in.
+ * Renders the checkbox's box.
  *
  * @remarks
- *   The machine hides the box from the accessibility tree. The input inside the root is the
- *   checkbox a reader is told about, so a box that announced itself would be read as a second one.
+ *   The element is a `div` that the machine hides from assistive technology, because the root's
+ *   `input` already reports the state. It carries the machine's `data-state` and the other state
+ *   attributes the recipe reads.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -14,20 +15,20 @@ import { withContext } from "#checkbox/context.ts";
 import { useCheckbox } from "#checkbox/machine.ts";
 
 /**
- * Draws the box at the size the root states.
+ * Renders the `div` with the checkbox's control class.
  */
 const Boxed = withContext("div", "control");
 
 /**
- * Describes what the control takes.
+ * Describes the props of the control: the props of a `div`.
  */
 export type ControlProps = ComponentProps<typeof Boxed>;
 
 /**
- * Fills once the checkbox is on, and holds the mark a caller draws in it.
+ * Renders the box with the machine's control props.
  *
- * @param props - Everything a styled div takes.
- * @returns The box, carrying the state the machine is in.
+ * @param props - Attributes and children of the `div` element, merged over the machine's.
+ * @returns The `div` element, holding the indicators.
  */
 export function Control(props: ControlProps): ReactElement {
   const api = useCheckbox();

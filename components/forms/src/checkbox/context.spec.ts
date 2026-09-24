@@ -8,7 +8,7 @@ import { slotClass, slotClasses, variantClass } from "@stealthscale/testing-them
 import { withContext, withProvider } from "#checkbox/context.ts";
 
 describe("context", () => {
-  it("applies the control slot class to a component built with withContext", () => {
+  it("applies the slot class to an element it binds", () => {
     const Row = withProvider("label", "root");
     const Boxed = withContext("div", "control");
     const { container } = render(createElement(Row, null, createElement(Boxed)));
@@ -18,7 +18,7 @@ describe("context", () => {
     );
   });
 
-  it("hands the root's variants to the box below it", () => {
+  it("applies the root's variant to a part inside it", () => {
     const Row = withProvider("label", "root");
     const Boxed = withContext("div", "control");
     const { container } = render(createElement(Row, { radius: "full" }, createElement(Boxed)));
