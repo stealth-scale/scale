@@ -127,3 +127,29 @@ component-disclosure: add a palette axis to the menu
 - The README's Menu section gains a parts table. It no longer lists `anchorPoint`, which the
   machine's types declare and the machine never reads, and it gives the panel's minimum width as
   `sizes.44`.
+
+component-disclosure: round the subtle collapsible's trigger
+
+- The subtle look's trigger reads `borderRadius: l2`, the root's radius, so its hover fill follows
+  the root's corners. It filled a square box inside the rounded root. An open trigger squares its
+  two bottom corners against the content.
+
+component-disclosure: keep a menu or popover open when its press closes another
+
+- `Menu.Root` and `Popover.Root` pass `onRequestDismiss` to the machine. The handler cancels a
+  dismissal unless the removed overlay contains the control whose `aria-controls` names the closing
+  panel, then calls the caller's `onRequestDismiss`.
+- Zag 1.44 closes an overlay one animation frame after a press outside it, and removing a layer
+  dismisses every layer registered after it. A press on a second menu's trigger opened that menu and
+  closed it within the frame, so it took a second press. A submenu still closes with its menu, and a
+  popover opened from inside another popover still closes with it.
+
+component-disclosure: line up a menu's inset rows with its icon rows
+
+- A row sizes an `svg` it starts with to `sizes.icon` one size smaller than the row: 16px at `md`.
+- `inset` pads only a row that starts with neither an `svg` nor a `Menu.ItemMark`. It padded every
+  row, so the text of an icon row started a gutter further in than the text of a plain row. With
+  `inset`, the text of every row in the catalogue's column menu starts 36px from the row's edge.
+- The gutter multiplies each of its three terms by the density, as the row does.
+- `Menu.Indicator` mirrors under `dir="rtl"`, so a submenu row's chevron points to the side the
+  submenu opens on.

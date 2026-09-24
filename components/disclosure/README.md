@@ -182,6 +182,8 @@ import { Popover } from "@stealthscale/component-disclosure";
 - The title is an `h2`. Pass another heading level through `as` to fit the page's outline.
 - The size sets the panel's padding, the title and the description, and the panel is at least as
   wide as the trigger.
+- A press on the trigger of another popover or menu closes this panel and opens the other. A popover
+  opened from inside another popover's panel closes with it.
 - The package does not portal. Wrap `Popover.Positioner` in a portal when an ancestor clips the
   panel.
 
@@ -325,13 +327,19 @@ import { Menu } from "@stealthscale/component-disclosure";
 - `Menu.ItemGroup` and `Menu.ItemGroupLabel` take the same `value`, and the group sets
   `aria-labelledby` to the label. `Menu.ItemMark` sets `aria-hidden`.
 - `tone="critical"` sets a row in the error palette. The panel sets the `palette`, and every row and
-  the highlight inherit it. `inset` pads every row by the room an icon and its gap take.
+  the highlight inherit it.
+- A row sizes the `svg` it starts with to the icon size one size smaller than the row. `inset` pads
+  a row that starts with neither an icon nor a `Menu.ItemMark` by the room an icon and its gap take,
+  so its text starts where the text of an icon row starts.
 - A `Menu.Root` inside another menu's content is a submenu, and its `Menu.TriggerItem` is a row of
   the parent. The submenu takes the parent's variants and `dir` unless it sets its own.
   `Menu.TriggerItem` throws outside a submenu.
 - A submenu opens beside the parent's panel, level with its row, at `right-start` in a left-to-right
   document and at `left-start` in a right-to-left one. The machine sets that placement over the
-  submenu's own `positioning.placement`.
+  submenu's own `positioning.placement`. `Menu.Indicator` mirrors in a right-to-left menu, so a
+  submenu row's chevron points to the side the submenu opens on.
+- A press on the trigger of another menu or popover closes this menu and opens the other. A submenu
+  closes with its menu.
 - `Menu.ContextTrigger` opens the menu at the pointer on a right click, and on a 700 ms press from
   touch or a pen. It stops the browser's own menu. The machine positions a context menu once, as it
   opens. Give the region `tabIndex={0}` or render it as a focusable element, so Shift+F10 opens the
@@ -342,6 +350,8 @@ import { Menu } from "@stealthscale/component-disclosure";
 - The panel takes the `dropdown` z-index plus its depth in the nest, so a submenu renders above its
   parent.
 - The package does not portal. Wrap `Menu.Positioner` in a portal when an ancestor clips the panel.
+  Wrap a submenu's positioner in a portal too, because the parent's panel scrolls and clips a
+  submenu rendered inside it.
 
 ## Licence
 
