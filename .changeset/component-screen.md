@@ -247,3 +247,22 @@ component-screen: render the switcher's list with the menu's own parts
   pins its own bars. The header, the navigation, the toolbar and the footer all move.
 - `Section`, `Sidebar`, `Switcher` and `Toolbar` list their looks from the loudest down rather than
   alphabetically. The styles each look draws are unchanged.
+
+component-screen: style the sidebar's block control
+
+- `Sidebar.NavAction` is a square of `max(sizes.6, sizes.tag.<one size smaller>)`, 24px at every
+  size, in the navigation list's end column. The rows' end inset follows it: 8, 12 and 16px at `sm`,
+  `md` and `lg`. Its icon is the rows' icon size, its fill is transparent and hovers to
+  `colorPalette.muted`, its ink is `fg.muted`, and it has the focus ring. It rendered as an unstyled
+  button.
+- A `Sidebar.Nav` given `aria-label` omits `aria-labelledby`, so the caller's name replaces the
+  label's name.
+
+component-screen: correct the README
+
+- `Page.When` takes `when`, not `width`. The page's `gutter` offers `xs` to `4xl` with `xl` as the
+  default.
+- The switcher's menu is as wide as its rows and at least `sizes.44`. No rule sizes it to the
+  control.
+- The sidebar section documents `Sidebar.NavHeading`, `Sidebar.NavAction`, `Sidebar.Empty` and the
+  `aria-label` precedence.

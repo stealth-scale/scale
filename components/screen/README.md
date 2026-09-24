@@ -1,13 +1,12 @@
 # @stealthscale/component-screen
 
-Lays an application out on whatever screen it is opened on: the shell around everything, the page
-inside it, the sidebar of destinations, the toolbar over a table and the section a page is built
-from. Every component binds a recipe and draws nothing of its own, so a theme restyles all of them
-by extending the recipe. The preset under `./theme` registers the recipes with an application's
-compiler.
+Lays out an application's screen: the shell around everything, the page inside it, the sections of a
+page, the sidebar of destinations, the switcher at the head of a sidebar and the toolbar over a
+table. Every component takes its styles from a recipe, so a theme restyles all six by extending the
+recipes. The preset under `./theme` registers the recipes with an application's compiler.
 
-Every value a theme can change on a component is an axis of its recipe, so a caller sets it as a
-prop and writes no style. A caller changes the element a component draws with `as`.
+Every value a theme can change is an axis of a recipe, so a caller sets it as a prop and writes no
+style. A caller changes the element a component renders with `as`.
 
 ## Install
 
@@ -20,39 +19,34 @@ application lists the preset under `./theme` among the presets its compiler inst
 
 ## Folding
 
-A component here folds on its own width and never on the window's. It measures the element it draws
-and compares that against the width a breakpoint starts at. A page beside an open sidebar therefore
-folds on the room the sidebar left it while the window is still wide, and a caller writes no
-breakpoint and no media query.
+A component folds on its own width, not on the window's. It compares its element's width with the
+width a breakpoint starts at and writes `data-narrow`, which the recipes select on. A page beside an
+open sidebar folds on the width the sidebar leaves it, and a caller does not write a breakpoint or a
+media query. Before the element is laid out, and where the browser does not report a size, the
+viewport's width decides, so a phone never lays out wide first.
 
-The measurement is written to the element as `data-narrow`, which the recipes select on. Before the
-element has been laid out, and where the browser reports no size, the answer comes from the viewport
-instead. A phone never lays out wide first.
+A row of actions folds by priority. Each action sets `priority`:
 
-A row of actions folds by priority rather than by measurement. Each action states how much it
-matters. The row's rules decide the rest:
+| `priority`  | On a wide row  | On a narrow row                                    |
+| ----------- | -------------- | -------------------------------------------------- |
+| `primary`   | Icon and label | Icon and label                                     |
+| `secondary` | Icon and label | Icon, with the label hidden visually               |
+| `tertiary`  | Icon and label | Removed from the document, listed in a folded menu |
 
-| `priority`  | On a wide row | On a narrow row                              |
-| ----------- | ------------- | -------------------------------------------- |
-| `primary`   | Mark and name | Mark and name                                |
-| `secondary` | Mark and name | Mark, with the name kept for a screen reader |
-| `tertiary`  | Mark and name | Out of the document, into the folded control |
-
-A secondary action keeps its name rather than dropping it. A control with no accessible name is one
-no screen reader can announce. A tertiary action leaves the document rather than being hidden, which
-takes it out of the tab order with everything else a reader cannot see.
+A secondary action keeps its label for screen readers. A control needs an accessible name. A
+tertiary action is removed from the document and from the tab order.
 
 ## AppShell
 
-Lays an application out: bars across the top and the bottom, and a body between them holding a panel
-down either side of the page. Composed as `AppShell.Root`.
+Lays out an application: bars across the top and the bottom, and a body between them with a panel on
+either side of the main region.
 
 ```tsx
 import { AppShell, Sidebar } from "@stealthscale/component-screen";
 
 <AppShell.Root>
   <AppShell.Header sticky>
-    <AppShell.Trigger>Navigation</AppShell.Trigger>
+    <AppShell.Trigger aria-label="Navigation">…</AppShell.Trigger>
   </AppShell.Header>
   <AppShell.Body>
     <AppShell.Navbar collapse="icons" shortcut="b">
@@ -63,7 +57,7 @@ import { AppShell, Sidebar } from "@stealthscale/component-screen";
       …
     </AppShell.Aside>
   </AppShell.Body>
-  <AppShell.Footer />
+  <AppShell.Footer>…</AppShell.Footer>
 </AppShell.Root>;
 ```
 
@@ -73,65 +67,69 @@ import { AppShell, Sidebar } from "@stealthscale/component-screen";
 | `scroll`  | `page`, `window`             | `page`  |
 | `variant` | `floating`, `inset`, `plain` | `plain` |
 
-`divided` draws a hairline on the inner edge of each bar and each panel. The lines are the shell's,
-so a sidebar inside a panel draws its ground and no line of its own.
+- `divided` renders a hairline on the inner edge of each bar and each panel. A sidebar inside a
+  panel sets its ground and no line.
+- `scroll="page"` sets the shell to the window's height and scrolls the main region.
+  `scroll="window"` scrolls the document, pins each `sticky` bar under the bars before it, and
+  sticks the panels under the pinned bars. A pinned bar is filled with `bg.panel`.
+- `variant="inset"` gives the main region the panel ground, a hairline and a shadow over a muted
+  root. `variant="floating"` gives each panel's content the same instead.
 
-`scroll` decides what moves under the bars. `page` makes the shell the height of the window and
-scrolls the page inside it, which is how an application reads. `window` lets the document grow, pins
-every bar that asks to stick under the ones before it, and sticks the panels under all of them. A
-bar that sticks takes the page's surface as its fill, because the page scrolls under it.
+The shell has no `palette` and no `effect` axis, because its parts are containers.
 
-`variant` decides how the page and the panels are set against the ground behind them. `inset` raises
-the page as a card on a muted ground. `floating` raises the contents of each panel as a card
-instead.
+### Parts
+
+| Part               | Element  | Landmark        |
+| ------------------ | -------- | --------------- |
+| `AppShell.Root`    | `div`    | none            |
+| `AppShell.Header`  | `header` | `banner`        |
+| `AppShell.Body`    | `div`    | none            |
+| `AppShell.Navbar`  | `div`    | none            |
+| `AppShell.Main`    | `main`   | `main`          |
+| `AppShell.Aside`   | `aside`  | `complementary` |
+| `AppShell.Footer`  | `footer` | `contentinfo`   |
+| `AppShell.Trigger` | `button` | none            |
+
+`AppShell.Navbar` has no landmark, because a sidebar inside it renders its own navigation landmarks.
+Name `AppShell.Aside` with `aria-label` when an application renders more than one.
 
 ### Panels
 
-`AppShell.Navbar` and `AppShell.Aside` are the same panel on the two sides. Each says how it closes
-and where it goes when the shell runs out of room for it.
+`AppShell.Navbar` and `AppShell.Aside` are the same panel on the two sides.
 
-| Prop          | Values          | Default                                        |
-| ------------- | --------------- | ---------------------------------------------- |
-| `collapse`    | `hide`, `icons` | `hide`                                         |
-| `folds`       | `over`, `under` | `over`                                         |
-| `foldsBelow`  | a breakpoint    | `md` on the start side, `lg` on the end        |
-| `defaultOpen` | `true`, `false` | `true`                                         |
-| `name`        | any string      | `navbar` on the start side, `aside` on the end |
-| `shortcut`    | a key           | none                                           |
+| Prop           | Values          | Default                                        |
+| -------------- | --------------- | ---------------------------------------------- |
+| `collapse`     | `hide`, `icons` | `hide`                                         |
+| `folds`        | `over`, `under` | `over`                                         |
+| `foldsBelow`   | a breakpoint    | `md` on the start side, `lg` on the end side   |
+| `defaultOpen`  | `true`, `false` | `true`                                         |
+| `open`         | `true`, `false` | uncontrolled                                   |
+| `onOpenChange` | a function      | none                                           |
+| `name`         | a string        | `navbar` on the start side, `aside` on the end |
+| `shortcut`     | a key           | none                                           |
 
-`collapse` decides what closing the panel beside the page leaves. `hide` leaves nothing. `icons`
-leaves a rail wide enough for the marks inside it.
+- `collapse` sets what closing the panel beside the page leaves: `hide` hides it, and `icons` leaves
+  a rail of `sizes.rail`. Pass `iconic` to a sidebar inside the panel while it is closed.
+- `folds` sets where the panel goes when the shell is narrower than `foldsBelow`: `over` lays it
+  over the page behind a backdrop, and `under` drops it under the main region as a block that is
+  always shown.
+- `shortcut` toggles the panel with Control or Command held: `shortcut="b"` for ⌘B and Ctrl+B.
+- A panel over the page starts closed, and closes again every time the shell narrows. An application
+  that passes `open` controls the panel at every width.
+- While a panel is over the page, the bars, the main region and the other panels are inert, focus
+  moves into the panel, and Escape or a press on the backdrop closes it and returns focus to the
+  control that opened it. The panel has no dialog role, because the inert page and the returned
+  focus give a reader the same behaviour.
 
-`folds` decides where the panel goes once the shell is too narrow to hold it beside the page. `over`
-lays it over the page behind a backdrop. `under` drops it under the page as a block that is always
-shown.
+### Triggers and hooks
 
-`shortcut` opens and closes the panel from anywhere with the platform's modifier held. Write
-`shortcut="b"` for ⌘B and Ctrl+B.
+`AppShell.Trigger` finds its panel by the name passed as `panel`, `navbar` by default, and sets
+`aria-controls`, `aria-expanded` and `data-state` from it. It renders `null` while its panel is
+under the page, because that panel is always shown. Name the trigger for the panel, such as
+`Navigation`, so a screen reader announces "Navigation, collapsed, button".
 
-A panel over the page starts closed whatever it was beside the page, and starts closed again every
-time the shell narrows anew. An application opened on a phone should not open with its navigation
-across the page. An application that states `open` decides instead, at every width.
-
-While a panel is over the page, the bars, the page and the other panels go inert, the reader is put
-in the panel, and Escape and the backdrop put it away and give focus back to the control that opened
-it. The panel claims no dialog role, because what a reader needs is what inert already gives them:
-nothing behind it to reach, a key to leave by, and the control they pressed still under the cursor
-when they come back.
-
-`AppShell.Navbar` claims no landmark. What it holds says what it is. A sidebar's blocks of
-destinations each name their own navigation, so a reader hears `Workspace` and `Account` rather than
-one nameless region around them. `AppShell.Aside` is an `aside`, which carries `complementary`. Name
-it with `aria-label` where an application draws more than one.
-
-### Reaching a panel from anywhere
-
-`AppShell.Trigger` points at a panel by name. It states `aria-controls`, `aria-expanded` and
-`data-state`, so a mark inside it turns with the panel. A trigger pointing at a panel that has
-dropped under the page leaves the document, because there is then nothing to open.
-
-An application reads the same panel from its own code with `useAppShellPanel(name)`. This is how a
-navigation closes when a destination is pressed:
+`useAppShellPanel(name)` reads a panel from an application's own code, for example to close the
+navigation when a destination is pressed:
 
 ```tsx
 const navbar = useAppShellPanel("navbar");
@@ -141,26 +139,29 @@ const navbar = useAppShellPanel("navbar");
 </Link>;
 ```
 
-A part inside a panel reads its own panel with `useNearestPanel()`. Anything behind a sheet reads
-what stands over the page with `useOverlaid()`.
+`useNearestPanel()` reads the panel a part is inside, and `useOverlaid()` returns the panels that
+are open over the page.
 
 ## Page
 
-Lays a page out: a banner, a header with everything that names the page, a navigation, a body and a
-footer. Composed as `Page.Root`.
+Lays out a page as a column of bands: a banner, a header, a navigation, a toolbar, a body with an
+optional aside, and a footer.
 
 ```tsx
 import { Page } from "@stealthscale/component-screen";
 
 <Page.Root measure="wide">
   <Page.Header>
-    <Page.Trail>…</Page.Trail>
+    <Page.Trail href="/invoices">Invoices</Page.Trail>
     <Page.Title>April invoices</Page.Title>
     <Page.Description>Everything raised this month.</Page.Description>
     <Page.Actions>
-      <Page.Action priority="primary">Export</Page.Action>
-      <Page.Action priority="tertiary">Archive</Page.Action>
-      <Page.Folded>More</Page.Folded>
+      <Page.Action as={Button} priority="primary">
+        Export
+      </Page.Action>
+      <Page.Action as={Button} priority="tertiary">
+        Archive
+      </Page.Action>
     </Page.Actions>
   </Page.Header>
   <Page.Body>…</Page.Body>
@@ -171,48 +172,28 @@ import { Page } from "@stealthscale/component-screen";
 | --------- | ------------------------ | ------- |
 | `align`   | `center`, `start`        | `start` |
 | `divided` | `true`, `false`          | `true`  |
-| `gutter`  | `sm`, `md`, `lg`         | `md`    |
+| `gutter`  | `xs` to `4xl`            | `xl`    |
 | `measure` | `full`, `narrow`, `wide` | `full`  |
 | `size`    | `sm`, `md`, `lg`         | `md`    |
 
-Every band runs edge to edge, so a band that sticks draws its fill and its hairline across the whole
-width, and what each band holds starts at the gutter. The gutter and the measure are properties the
-root states and every band reads, so one value moves all of them. `size` sets the title one heading
-step above a section's at the same size, so the outline the headings draw keeps its levels.
-
-The root carries no landmark. `AppShell.Main` draws `main`, and a page that claimed one as well
-would give a reader two to choose between on the same screen. The header names itself from
-`Page.Title`, so a caller writes no identifier.
-
-Write `<Page.When width="narrow">` around what a folded page shows, and `width="wide"` around what
-it drops. `Page.Picker` is the control a folded page offers in place of a strip of tabs. Draw it as
-a disclosure's trigger, `<Menu.Trigger as={Page.Picker} />`, which gives it `aria-expanded` and
-`aria-controls` against the list the disclosure draws.
-
-`Page.Aside` stands beside the body: an activity trail, a panel of metadata, a list of the headings
-on the page. Draw it after the body and name it, because it is a complementary landmark. From the
-`lg` breakpoint up the page becomes a grid, every band across and the body beside the aside, which
-is as wide as what it holds. Below that the aside stacks under the body, or leaves the page with
-`folds="hide"`, for a rail a phone has no room for. Set `sticky` to keep it in view under the
-shell's pinned bars while the body scrolls past.
-
-```tsx
-<Page.Root>
-  <Page.Header>…</Page.Header>
-  <Page.Body>…</Page.Body>
-  <Page.Aside aria-label="On this page" folds="hide" sticky>
-    <Toc.Root items={items}>…</Toc.Root>
-  </Page.Aside>
-</Page.Root>
-```
-
-A section scrolled to by its id stops a gap under the shell's pinned bars, so a title reached from a
-table of contents is read rather than covered.
+- Every band runs edge to edge, and its content starts at the gutter. The root sets the gutter and
+  the measure as custom properties that every band reads.
+- `size` sets the title one heading size larger than a section's title at the same size.
+- The root has no landmark, because `AppShell.Main` is the `main` landmark. The header takes its
+  name from `Page.Title`.
+- `<Page.When when="narrow">` renders its children on a folded page only, and `when="wide"` on an
+  unfolded page only.
+- `Page.Picker` is the control a folded page shows in place of a row of links. Render it as a menu's
+  trigger, `<Menu.Trigger as={Page.Picker}>`, and the menu's content as `Page.Palette`.
+- `Page.Aside` is a complementary landmark beside the body from the `lg` breakpoint. Name it with
+  `aria-label`. Below `lg` it stacks under the body, or leaves the page with `folds="hide"`.
+  `sticky` keeps it in view under the shell's pinned bars.
+- A section scrolled to by its id stops a gap under the shell's pinned bars.
+- The page has no `palette` and no `effect` axis, because it is a layout.
 
 ## Section
 
-Draws one block of a page under its own heading, with the controls that act on that block. Composed
-as `Section.Root`.
+Renders one part of a page under its own heading, with the actions that apply to it.
 
 ```tsx
 import { Section } from "@stealthscale/component-screen";
@@ -222,7 +203,9 @@ import { Section } from "@stealthscale/component-screen";
     <Section.Title>Payment methods</Section.Title>
     <Section.Description>Cards this account can be charged on.</Section.Description>
     <Section.Actions>
-      <Section.Action priority="secondary">Add a card</Section.Action>
+      <Section.Action as={Button} priority="secondary">
+        Add a card
+      </Section.Action>
     </Section.Actions>
   </Section.Header>
   <Section.Body>…</Section.Body>
@@ -235,35 +218,40 @@ import { Section } from "@stealthscale/component-screen";
 | `size`      | `sm`, `md`, `lg`   | `md`    |
 | `variant`   | `plain`, `surface` | `plain` |
 
-The element is `section` and it names itself from `Section.Title`, so a reader jumping by landmark
-hears the heading rather than an unnamed region. A section states no size of its own takes the
-page's, so one value on `Page.Root` sets every section under it. A plain section after another draws
-one hairline above itself with a large gap on either side.
-
-`annotated` lays the heading and the body out as two columns on a wide screen, which is how a
-settings page reads. The heading column explains what the block is. The body column holds the
-controls that change it.
+- The element is `section`, named by `Section.Title`, so it is a region landmark with the title as
+  its name.
+- A section without `size` takes the page's size, so one `size` on `Page.Root` sets every section in
+  it.
+- A plain section after another renders a hairline above itself with a gap on either side.
+- `annotated` lays out the header and the body as two columns on a wide section, the layout of a
+  settings page.
+- The section has no `palette` and no `effect` axis, because it is a layout.
 
 ## Sidebar
 
-Gathers what a person moves around an application by. Three bands: a fixed head, blocks of
-destinations that scroll between them, and a fixed foot. Composed as `Sidebar.Root`.
+Lays out an application's navigation as a column: a fixed header, scrolling content with nav blocks,
+and a fixed footer.
 
 ```tsx
-import { Sidebar } from "@stealthscale/component-screen";
 import { NavList } from "@stealthscale/component-navigation";
+import { Sidebar } from "@stealthscale/component-screen";
 
-<Sidebar.Root variant="outline">
-  <Sidebar.Header>Acme</Sidebar.Header>
+<Sidebar.Root variant="subtle">
+  <Sidebar.Header>…</Sidebar.Header>
   <Sidebar.Content>
+    <Sidebar.Search>
+      <SearchInput aria-label="Search" />
+    </Sidebar.Search>
     <Sidebar.Nav>
       <Sidebar.NavLabel>Workspace</Sidebar.NavLabel>
       <NavList.Root>…</NavList.Root>
     </Sidebar.Nav>
     <Sidebar.Separator />
     <Sidebar.Nav>
-      <Sidebar.NavLabel>Account</Sidebar.NavLabel>
-      <Sidebar.NavAction>Add a project</Sidebar.NavAction>
+      <Sidebar.NavLabel>Projects</Sidebar.NavLabel>
+      <Sidebar.NavAction aria-label="Add project">
+        <PlusIcon />
+      </Sidebar.NavAction>
       <NavList.Root>…</NavList.Root>
     </Sidebar.Nav>
   </Sidebar.Content>
@@ -276,28 +264,30 @@ import { NavList } from "@stealthscale/component-navigation";
 | `size`    | `sm`, `md`, `lg`                        | `md`    |
 | `variant` | `outline`, `plain`, `subtle`, `surface` | `plain` |
 
-`subtle` is the muted ground and no line, for a sidebar inside a shell panel. The shell draws the
-hairline between the panel and the page.
-
-The content scrolls rather than the column, so a switcher at the head and an account at the foot
-stay where a reader left them however long the list of destinations grows.
-
-Each `Sidebar.Nav` is a `nav` that names itself from its own `Sidebar.NavLabel`, so a reader jumping
-by landmark hears `Workspace` and `Account` rather than two unnamed navigations. A block that draws
-no heading states `aria-label` instead.
-
-`iconic` collapses the sidebar to a rail of marks. It is a prop the shell passes rather than
-something the sidebar measures, because the shell decides how wide the sidebar is and a sidebar that
-measured itself would disagree with the shell for one frame every time it moved. Every heading and
-the search leave the rail, and the destinations keep their words out of sight so a screen reader
-still names each one.
+- `subtle` is a muted ground without an edge, for a sidebar inside a shell panel, where the shell
+  renders the hairline.
+- The content scrolls and the root does not, so the header and the footer remain visible.
+- Each `Sidebar.Nav` is a `nav` landmark named by its `Sidebar.NavLabel` through `aria-labelledby`.
+  A block without a label takes `aria-label`, and a caller's `aria-label` replaces the label's name.
+- `Sidebar.NavHeading` renders a heading over one list inside a block. Pass it an `id`, and pass the
+  same identifier to the list's `aria-labelledby`.
+- `Sidebar.NavAction` is a 24px ghost square in the navigation list's end column, with the rows' end
+  inset. Pass the icon as its child and name it with `aria-label`.
+- `Sidebar.Empty` renders the message a search shows when nothing matches. Name what was searched:
+  `No pages match`.
+- `iconic` collapses the sidebar to a rail of icons. The app shell sets the width, so the caller
+  passes `iconic` while the shell's panel is closed to icons, and passes `iconic` to each
+  `NavList.Root` too. The labels, the headings and the words in the header and footer are hidden
+  visually and kept for screen readers. The search, the empty message and the block controls are
+  removed.
+- The sidebar has no `palette` and no `effect` axis. Its looks are neutral grounds, and the
+  navigation list offers its own palette and effect for the current row.
 
 ## Switcher
 
-Draws the control at the head of a sidebar that names what is being worked in and opens the rest.
-Composed as `Switcher.Root`, which is the disclosure package's menu, draws nothing itself and
-carries the variants. The control is the switcher's. The list is the menu's, with the menu's own
-mark, lines and description in each row.
+Renders the control that shows the current workspace, project or environment and opens a menu of the
+others. `Switcher.Root` is the disclosure package's `Menu.Root`, so the roles, the keyboard and the
+positioning are the menu's. The panel and its rows are the menu's parts.
 
 ```tsx
 import { Menu } from "@stealthscale/component-disclosure";
@@ -339,42 +329,48 @@ import { Switcher } from "@stealthscale/component-screen";
 | `size`      | `sm`, `md`, `lg`             | `md`      |
 | `variant`   | `outline`, `plain`, `subtle` | `plain`   |
 
-The root carries the variants without drawing anything, and hands `size` to the menu as well, so the
-rows are drawn at the control's step. `Switcher.Trigger` states a `label`. A screen reader reads
-that before the name, so `Workspace Acme` says what pressing the control changes. The list opens at
-least as wide as the control, which is the menu's own rule.
-
-`placement` says where the control sits. At the head of a sidebar it is a row the width of the
-column. In a toolbar it takes the width of its words and drops the detail, and the trigger is drawn
-through `Toolbar.Item` so it takes the row's tab stop:
+- `Switcher.Trigger` renders its `label` as visually hidden text before the name, so a screen reader
+  announces `Workspace Acme`, and the visible name stays in the accessible name.
+- `Switcher.Root` passes its `size` to the menu, so the rows render at the control's size, and
+  passes the menu's own props, `palette` among them, to `Menu.Root`.
+- The menu is as wide as its rows and at least `sizes.44` wide, whatever the control's width.
+- `placement="sidebar"` fills the column. `placement="toolbar"` is as wide as its words and hides
+  the detail. Render the trigger through `Toolbar.Item`, so it is one of the row's arrow-key stops:
 
 ```tsx
 <Switcher.Root placement="toolbar">
-  <Toolbar.Item as={Switcher.Trigger} label="Theme">
+  <Toolbar.Item as={Switcher.Trigger} label="Environment">
     <Switcher.Label>
-      <Switcher.Name>Graphite</Switcher.Name>
+      <Switcher.Name>Production</Switcher.Name>
     </Switcher.Label>
   </Toolbar.Item>
   <Menu.Positioner>…</Menu.Positioner>
 </Switcher.Root>
 ```
 
+- The switcher has no `palette` and no `effect` axis. The control is neutral, and the menu takes its
+  own `palette`.
+- Render the positioner in a `Portal` when the switcher is inside an element that clips, such as an
+  app shell panel.
+
 ## Toolbar
 
-Draws a row of controls over a table or a list: a band at each end, a band in the middle, and a
-search that covers the row on a screen too narrow to hold both. Composed as `Toolbar.Root`.
+Renders a row of controls over a table or a list: a band at each end, a band in the middle, and a
+search that covers a narrow row.
 
 ```tsx
 import { Toolbar } from "@stealthscale/component-screen";
 
 <Toolbar.Root aria-label="Invoices">
   <Toolbar.Start>
-    <Toolbar.Item>Filter</Toolbar.Item>
+    <Toolbar.Action as={Button}>Filter</Toolbar.Action>
     <Toolbar.Separator />
-    <Toolbar.Item priority="tertiary">Columns</Toolbar.Item>
+    <Toolbar.Action as={Button} priority="tertiary">
+      Columns
+    </Toolbar.Action>
   </Toolbar.Start>
   <Toolbar.End>
-    <Toolbar.Folded>More</Toolbar.Folded>
+    <Toolbar.Folded aria-label="More" as={Menu.Trigger} />
   </Toolbar.End>
   <Toolbar.Search opened={searching}>
     <SearchInput aria-label="Search invoices" />
@@ -388,18 +384,14 @@ import { Toolbar } from "@stealthscale/component-screen";
 | `size`    | `sm`, `md`, `lg`              | `md`    |
 | `variant` | `outline`, `plain`, `surface` | `plain` |
 
-The row carries `role="toolbar"` and moves focus with the arrow keys, so the whole row is one stop
-in the tab order rather than one stop per control. Name it with `aria-label`. `Toolbar.Item` picks
-its own element from whether it was given an `href`, so a link in the row is a link and a control is
-a button, and both stay in the roving focus group. Give it `as` to draw another component as the
-item, with the stop on the element that component renders: `as={Button}` for the library's button,
-`as={Switcher.Trigger}` for a switcher's control. The item takes that component's props beside its
-own.
-
-The row measures its own width and writes `data-narrow` below the small breakpoint, which is what
-folds a `Toolbar.Action` by its priority and shows `Toolbar.Folded`. A row beside an open sidebar
-folds on its own room, and a consumer writes no breakpoint.
-
-`Toolbar.Search` is laid over the row while `opened`. Opening it puts the reader in the field and
-closing it puts them back on the control they pressed, because the control is under the field while
-the field is open.
+- The row has `role="toolbar"`, and the arrow keys move focus between its controls, so the row is
+  one tab stop. Name it with `aria-label`.
+- `Toolbar.Item` renders a link when it has an `href` and a button otherwise, and both stay in the
+  arrow-key group. Pass `as` to render another component as the item: `as={Button}` or
+  `as={Switcher.Trigger}`.
+- The row measures its own width and writes `data-narrow` below `sm`, which folds each
+  `Toolbar.Action` by its priority and shows `Toolbar.Folded`.
+- `Toolbar.Search` covers the row while `opened`. Opening it moves focus into the field, and closing
+  it returns focus to the control that opened it.
+- The toolbar has no `palette` and no `effect` axis, because it is a layout for controls that have
+  their own.
