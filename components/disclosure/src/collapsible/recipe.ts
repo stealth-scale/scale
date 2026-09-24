@@ -93,12 +93,18 @@ export const recipe = defineSlotRecipe({
      *
      * @remarks
      *   `surface` uses the theme's `surface()` fragment, with its shadow. Every look reads the
-     *   palette, so the palette tints the fill and the edge.
+     *   palette, so the palette tints the fill and the edge. The subtle trigger takes the root's
+     *   radius, so its hover fill follows the root's corners, and its end corners are square while
+     *   the content is open under it.
      */
     variant: {
       subtle: {
         root: { background: "colorPalette.subtle", borderRadius: "l2" },
-        trigger: { _hover: { background: "colorPalette.muted" } },
+        trigger: {
+          _hover: { background: "colorPalette.muted" },
+          _open: { borderEndEndRadius: "0", borderEndStartRadius: "0" },
+          borderRadius: "l2",
+        },
       },
 
       surface: {

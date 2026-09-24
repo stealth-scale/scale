@@ -69,6 +69,16 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual(["outline", "plain", "subtle", "surface"]);
   });
 
+  it("rounds the subtle trigger with the root's radius", () => {
+    expect(recipe.variants?.["variant"]?.["subtle"]?.["trigger"]).toMatchObject({
+      _open: { borderEndEndRadius: "0", borderEndStartRadius: "0" },
+      borderRadius: "l2",
+    });
+    expect(recipe.variants?.["variant"]?.["subtle"]?.["root"]).toMatchObject({
+      borderRadius: "l2",
+    });
+  });
+
   it("declares three motions", () => {
     expect(valuesOf(recipe, "motion")).toStrictEqual(["fade", "none", "slide"]);
   });
