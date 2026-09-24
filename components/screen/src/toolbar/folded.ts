@@ -1,10 +1,10 @@
 /**
- * Draws the control that holds whatever the row dropped as it narrowed.
+ * Renders the control that opens the actions a narrow row folds away.
  *
  * @remarks
- *   It appears only on a narrow row, because a row keeping every control has nothing to put behind
- *   it. Put a menu in it holding the same actions the tertiary controls do.
- *   Name it. `More` says nothing about what it opens; `More invoice actions` does.
+ *   The control renders only while the row is narrow. Render a menu's trigger as it with `as`, with
+ *   the tertiary actions in the menu. Name it after the row, such as `More invoice actions`,
+ *   because `More` does not say what it opens.
  */
 
 import { type ComponentProps } from "react";
@@ -13,11 +13,11 @@ import { withContext } from "#toolbar/context.ts";
 import { Item } from "#toolbar/item.tsx";
 
 /**
- * Draws the control under both the toolbar's slot and the roving focus group's own.
+ * Renders the item with the recipe's folded class.
  */
 export const Folded = withContext(Item, "folded");
 
 /**
- * Describes what the folded control takes.
+ * Describes the props of the folded control: the props of an item.
  */
 export type FoldedProps = ComponentProps<typeof Folded>;

@@ -15,7 +15,7 @@ describe("recipe", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(
       recipeViolations(recipe, {
         names: ["Toolbar"],
@@ -24,11 +24,11 @@ describe("recipe", () => {
     ).toStrictEqual([]);
   });
 
-  it("names its class toolbar", () => {
+  it("sets className to toolbar", () => {
     expect(recipe.className).toBe("toolbar");
   });
 
-  it("styles the eight parts a toolbar draws", () => {
+  it("declares eight slots", () => {
     expect(recipe.slots).toStrictEqual([
       "root",
       "start",
@@ -41,25 +41,25 @@ describe("recipe", () => {
     ]);
   });
 
-  it("folds a control by the priority the control states", () => {
+  it("folds an action by its priority", () => {
     expect(recipe.base?.["action"]?.["&[data-priority=tertiary]"]).toStrictEqual({
       "[data-narrow] &": { display: "none" },
     });
   });
 
-  it("offers the three axes a toolbar takes", () => {
+  it("declares three axes", () => {
     expect(axesOf(recipe)).toStrictEqual(["radius", "size", "variant"]);
   });
 
-  it("draws a plain row at the middle size when nothing is asked for", () => {
+  it("defaults to a plain row at md", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ radius: "l2", size: "md", variant: "plain" });
   });
 
-  it("offers the three ways a row is set against what holds it", () => {
+  it("declares three looks", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual(["outline", "plain", "surface"]);
   });
 
-  it("insets a row with an edge by its own gap and leaves a plain row flush", () => {
+  it("pads an outlined or surface row by its gap alone", () => {
     expect(recipe.variants?.["variant"]?.["outline"]?.["root"]).toMatchObject({
       padding: `var(${GAP})`,
     });
@@ -69,7 +69,7 @@ describe("recipe", () => {
     expect(recipe.variants?.["variant"]?.["plain"]?.["root"]).not.toHaveProperty("padding");
   });
 
-  it("states the gap two steps below the size as one property every band reads", () => {
+  it("sets the gap two sizes smaller as one property every band reads", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["root"]).toStrictEqual({
       [GAP]: "{spacing.gap.xs}",
     });
@@ -79,7 +79,7 @@ describe("recipe", () => {
     expect(recipe.base?.["start"]).toMatchObject({ gap: `var(${GAP})` });
   });
 
-  it("cuts a long centre short rather than wrapping the row", () => {
+  it("truncates a long centre", () => {
     expect(recipe.base?.["center"]).toMatchObject({
       overflow: "hidden",
       textOverflow: "ellipsis",
@@ -87,11 +87,11 @@ describe("recipe", () => {
     });
   });
 
-  it("pushes the end band to the end whatever the centre holds", () => {
+  it("pushes the end band to the row's end", () => {
     expect(recipe.base?.["end"]).toMatchObject({ marginInlineStart: "auto" });
   });
 
-  it("lays an opened search over the row rather than beside it", () => {
+  it("lays an opened search over the row", () => {
     expect(recipe.base?.["search"]?.["&[data-opened]"]).toMatchObject({
       inset: "0",
       position: "absolute",
@@ -102,11 +102,11 @@ describe("recipe", () => {
     expect(recipe.base?.["separator"]).toMatchObject({ alignSelf: "stretch" });
   });
 
-  it("names neither a group of controls nor a rule as parts of its own", () => {
+  it("declares no group slot", () => {
     expect(recipe.slots).not.toContain("group");
   });
 
-  it("tracks every tag under the Toolbar namespace", () => {
+  it("matches every Toolbar tag", () => {
     expect(recipe.jsx).toStrictEqual([/^Toolbar(\.\w+)?$/u]);
   });
 });

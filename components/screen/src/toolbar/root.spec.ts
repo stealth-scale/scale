@@ -8,11 +8,11 @@ import { recipe } from "#toolbar/recipe.ts";
 import { composed, type Settings } from "#toolbar/toolbar.fixtures.tsx";
 
 describe("Root", () => {
-  it("breaks no accessibility rule holding three bands of controls", async () => {
+  it("passes axe with three bands", async () => {
     await expect(accessibilityViolations(() => composed())).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(recipe, (props: Settings) => render(composed(props)).container, {
         slot: "root",
@@ -20,19 +20,19 @@ describe("Root", () => {
     ).toStrictEqual([]);
   });
 
-  it("carries the role that tells a reader the arrows move between the controls", () => {
+  it("sets role toolbar", () => {
     render(composed());
 
     expect(screen.getByRole("toolbar")).toBeTruthy();
   });
 
-  it("names what the toolbar acts on", () => {
+  it("takes its name from aria-label", () => {
     render(composed());
 
     expect(screen.getByRole("toolbar", { name: "Invoice" })).toBeTruthy();
   });
 
-  it("leaves one tab stop across the controls rather than one each", () => {
+  it("leaves one tab stop across the controls", () => {
     render(composed());
 
     expect(screen.getAllByRole("button").filter((control) => control.tabIndex === 0)).toHaveLength(
@@ -40,13 +40,13 @@ describe("Root", () => {
     );
   });
 
-  it("draws the row the recipe binds", () => {
+  it("renders a div", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "toolbar", "root")).toBeTruthy();
   });
 
-  it("reports no narrowness in a document that measures nothing", () => {
+  it("sets no data-narrow where the document measures no width", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "toolbar", "root").dataset["narrow"]).toBeUndefined();

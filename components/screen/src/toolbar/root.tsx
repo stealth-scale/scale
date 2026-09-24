@@ -1,16 +1,12 @@
 /**
- * Draws the row the bands sit in, moves one tab stop across the controls inside it, and measures
- * its own width.
+ * Renders the row with `role="toolbar"`, one tab stop across its controls, and its measured width.
  *
  * @remarks
- *   The element carries `role="toolbar"`, which is what tells a screen reader that the arrow keys
- *   move between the controls and that Tab leaves the row rather than walking it. The roving focus
- *   group behind it is the accessibility package's, so the keyboard behaviour is written once.
- *   Name the row. A screen holds more than one toolbar, and an unnamed one is announced as
- *   `toolbar` with nothing to say what it acts on.
- *   The row measures itself rather than the window and writes `data-narrow` below the small
- *   breakpoint, which is what the recipe folds the actions on. A row beside an open sidebar is
- *   narrow while the window is wide, and a consumer writes no breakpoint.
+ *   `role="toolbar"` tells a screen reader that the arrow keys move between the controls and Tab
+ *   leaves the row. The roving focus group is the accessibility package's. Name the row with
+ *   `aria-label`, because a screen reader announces an unnamed one as "toolbar". The row measures
+ *   its own width and sets `data-narrow` below the `sm` breakpoint, and the recipe folds the
+ *   actions on it, so a row beside an open sidebar folds on its own width.
  */
 
 import { type ComponentProps, type ReactElement, useRef } from "react";
@@ -21,30 +17,31 @@ import { useNarrow, widthOf } from "@stealthscale/provider-viewport";
 import { withProvider } from "#toolbar/context.ts";
 
 /**
- * The breakpoint whose width the row folds its actions below.
+ * Breakpoint whose start width the row compares its own width against.
  */
 const FOLDS_BELOW = "sm";
 
 /**
- * Draws the row under both the toolbar's slot and the roving focus group's own.
+ * Renders the roving focus root with the recipe's root class.
  */
 const Rowed = withProvider(RovingFocus.Root, "root");
 
 /**
- * Describes what the row takes.
+ * Describes the props of the toolbar: its accessible name, the recipe's variants, the roving focus
+ * options and the props of a `div`.
  */
 export interface RootProps extends ComponentProps<typeof Rowed> {
   /**
-   * The words naming what the toolbar acts on.
+   * The accessible name of the row.
    */
   readonly "aria-label": string;
 }
 
 /**
- * Gathers the controls that act on what is beside them, under one tab stop.
+ * Renders the row with its measured width.
  *
- * @param props - The recipe's variants, the group's options and the element's props together.
- * @returns The row, holding the bands and carrying whether it is narrow.
+ * @param props - The name, the variants, the roving focus options and the props of a `div`.
+ * @returns The `div` element with `role="toolbar"`.
  */
 export function Root(props: RootProps): ReactElement {
   const measured = useRef<HTMLDivElement>(null);

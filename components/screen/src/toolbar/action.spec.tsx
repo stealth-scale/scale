@@ -7,31 +7,31 @@ import { Action } from "#toolbar/action.tsx";
 import { ranged } from "#toolbar/toolbar.fixtures.tsx";
 
 describe("Action", () => {
-  it("draws a button inside the row it needs above it", () => {
+  it("renders a button", () => {
     const { container } = render(ranged(<Action>Filter</Action>));
 
     expect(slotElement(container, "toolbar", "action").tagName).toBe("BUTTON");
   });
 
-  it("takes the row's tab stop rather than one of its own", () => {
+  it("takes the row's roving tab stop", () => {
     render(ranged(<Action>Filter</Action>));
 
     expect(screen.getByRole("button").tabIndex).toBe(0);
   });
 
-  it("keeps its words at every width where nothing says otherwise", () => {
+  it("defaults data-priority to primary", () => {
     const { container } = render(ranged(<Action>Filter</Action>));
 
     expect(slotElement(container, "toolbar", "action").dataset["priority"]).toBe("primary");
   });
 
-  it("gives way in the order the priority states", () => {
+  it("sets data-priority to its priority", () => {
     const { container } = render(ranged(<Action priority="tertiary">Export</Action>));
 
     expect(slotElement(container, "toolbar", "action").dataset["priority"]).toBe("tertiary");
   });
 
-  it("leaves one stop where a row holds several controls", () => {
+  it("leaves one tab stop in a row of several controls", () => {
     render(
       ranged(
         <>

@@ -1,29 +1,16 @@
 /**
- * Defines the styles a toolbar is drawn with.
+ * Recipe for a toolbar: a row of controls with a start, a centre and an end band, and a search.
  *
  * @remarks
- *   Five parts. The root is the row, the start, centre and end are the bands inside it, the
- *   separator parts one set of controls from the next, and the search covers the row where it is
- *   opened on a narrow one.
- *   A band left out takes no room. The centre takes what the other two leave and cuts a long title
- *   short rather than wrapping the row, because a toolbar that grows to two lines moves everything
- *   under it.
- *   The gap is stated once on the root as a property every band reads, so one value moves all of
- *   them and a band drawn by a caller reads the same number. It is the gap two steps below the
- *   toolbar's own size, because the controls in a bar sit close: a bar of icon buttons at the
- *   gap of a form reads as a row of separate things rather than as one bar.
- *   Neither a group of controls nor a rule between them is a part here. The layout package draws a
- *   `Group`, which joins controls into one and knows how to square the corners between them, and
- *   this restyles only the rule, which has to stretch to the row's height rather than sit at a
- *   length of its own.
- *   The search and whatever it holds each take no minimum width. A text field carries one of its
- *   own, some twenty characters wide, and a field that kept it pushed the row past its own edge on
- *   the narrowest rows rather than giving way like everything else in them.
- *   The search is the one thing in the row that gives way. The bands of controls hold their width
- *   and the search takes whatever is left, down to nothing. Left to give way themselves, they were
- *   assigned less room than the controls inside them take, because a control does not shrink, and
- *   the controls ran out of the band and under whatever sat next in the row: the folded control was
- *   drawn on top of the last action in the start band, two marks in one square.
+ *   A band left out takes no room. The centre takes the room the other bands leave and truncates a
+ *   long title, because a toolbar on two lines moves everything under it. The root sets the gap as
+ *   `--toolbar-gap`, which every band reads. The gap is two gap sizes smaller than the toolbar's
+ *   size, so a row of controls reads as one bar. The layout package's `Group` joins controls, and
+ *   the separator is the layout divider stretched to the row's height. The search and its content
+ *   have no minimum width, and the search takes the room the bands leave, down to zero, because the
+ *   bands keep the width of their controls. An opened search covers the row. The recipe has no
+ *   `palette` axis, because the controls in the row set their own palettes, and no `effect` axis,
+ *   because the row is not a control.
  */
 
 import {
@@ -41,17 +28,17 @@ import {
 import { FOLDED, FOLDING } from "#folding/index.ts";
 
 /**
- * The property the root states the gap between controls in, which every band reads.
+ * Custom property the root sets to the gap between controls, which every band reads.
  */
 export const GAP = "--toolbar-gap";
 
 /**
- * Writes what every band shares: a row of controls, centred on their middle.
+ * Styles every band: a row of controls, centred on the cross axis.
  */
 const BAND = { alignItems: "center", display: "flex", gap: `var(${GAP})`, minInlineSize: "0" };
 
 /**
- * Draws a plain toolbar at the middle size.
+ * Defines the toolbar recipe: a plain row at size `md` with `l2` corners by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -88,20 +75,25 @@ export const recipe = defineSlotRecipe({
   jsx: [/^Toolbar(\.\w+)?$/u],
   slots: ["root", "start", "center", "end", "action", "folded", "separator", "search"],
   variants: {
+    /**
+     * Corner radius of an outlined or surface row.
+     */
     radius: onSlot("root", cornerVariants(["l1", "l2", "l3"])),
 
+    /**
+     * Size of the gap and of the separator's block margin.
+     */
     size: onSlots({
       root: sizeVariants((size) => ({ [GAP]: `{spacing.gap.${below(below(size))}}` })),
       separator: sizeVariants((size) => ({ marginBlock: dense(`{spacing.gap.${size}}`) })),
     }),
 
     /**
-     * Whether the row is raised on a surface of its own or drawn against what holds it.
+     * Look of the row.
      *
      * @remarks
-     *   A row with an edge is inset by its own gap, so the controls stand off the edge. Without
-     *   it a filled control sat against the edge and a field at the end drew its border over the
-     *   row's. The plain row has no edge and keeps its controls flush with what holds it.
+     *   `outline` and `surface` pad the row by its gap, so the controls start inside the row's
+     *   edge. `plain` has no edge and no padding.
      */
     variant: {
       surface: { root: { ...surface(), padding: `var(${GAP})` } },

@@ -1,9 +1,9 @@
 /**
- * Binds the toolbar's recipe to the elements that draw its parts.
+ * Binds the toolbar recipe to its parts.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime.
+ *   The binding is apart from the recipe, because a compiler reads the recipe at build time and the
+ *   binding imports the runtime.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";

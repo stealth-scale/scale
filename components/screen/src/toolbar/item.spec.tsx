@@ -11,31 +11,31 @@ function Owned(props: ComponentProps<"button">): ReactElement {
 }
 
 describe("Item", () => {
-  it("draws a button where nothing says it goes anywhere", () => {
+  it("renders a button without href", () => {
     render(ranged(<Item>Filter</Item>));
 
     expect(screen.getByRole("button", { name: "Filter" })).toBeTruthy();
   });
 
-  it("says it submits nothing, so a control inside a form does not", () => {
+  it("sets type button", () => {
     render(ranged(<Item>Filter</Item>));
 
     expect(screen.getByRole("button").getAttribute("type")).toBe("button");
   });
 
-  it("draws a link where a caller says where it goes", () => {
+  it("renders an a with href", () => {
     render(ranged(<Item href="/invoices">Invoices</Item>));
 
     expect(screen.getByRole("link", { name: "Invoices" }).getAttribute("href")).toBe("/invoices");
   });
 
-  it("takes the row's tab stop rather than one of its own", () => {
+  it("takes the row's roving tab stop", () => {
     render(ranged(<Item>Filter</Item>));
 
     expect(screen.getByRole("button").tabIndex).toBe(0);
   });
 
-  it("draws the component a caller names with the stop on what it renders", () => {
+  it("renders the as component with the tab stop", () => {
     render(ranged(<Item as={Owned}>Filter</Item>));
 
     expect(screen.getByRole("button", { name: "Filter" }).getAttribute("id")).toBe("owned");
@@ -43,7 +43,7 @@ describe("Item", () => {
     expect(screen.getByRole("button", { name: "Filter" }).getAttribute("type")).toBeNull();
   });
 
-  it("leaves one stop where a row holds several controls", () => {
+  it("leaves one tab stop in a row of several controls", () => {
     render(
       ranged(
         <>
@@ -56,7 +56,7 @@ describe("Item", () => {
     expect(screen.getAllByRole("button").filter((each) => each.tabIndex === 0)).toHaveLength(1);
   });
 
-  it("passes the arrows over a control that cannot be reached", () => {
+  it("puts the tab stop on the first enabled control", () => {
     render(
       ranged(
         <>

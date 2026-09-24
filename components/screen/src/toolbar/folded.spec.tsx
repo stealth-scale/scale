@@ -7,19 +7,19 @@ import { Folded } from "#toolbar/folded.ts";
 import { ranged } from "#toolbar/toolbar.fixtures.tsx";
 
 describe("Folded", () => {
-  it("draws a button inside the row it needs above it", () => {
+  it("renders a button", () => {
     const { container } = render(ranged(<Folded aria-label="More actions" />));
 
     expect(slotElement(container, "toolbar", "folded").tagName).toBe("BUTTON");
   });
 
-  it("takes the row's tab stop rather than one of its own", () => {
+  it("takes the row's roving tab stop", () => {
     render(ranged(<Folded aria-label="More actions" />));
 
     expect(screen.getByRole("button").tabIndex).toBe(0);
   });
 
-  it("takes the name a caller gives it", () => {
+  it("takes its name from aria-label", () => {
     render(ranged(<Folded aria-label="More invoice actions" />));
 
     expect(screen.getByRole("button", { name: "More invoice actions" })).toBeTruthy();

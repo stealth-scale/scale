@@ -1,26 +1,33 @@
 {
-  "about": "Draws a row of controls over a table or a list, folding what matters least on a narrow row.",
+  "about": "Renders a row of controls over a table or a list, with one tab stop for the row. The arrow keys move between the controls, and a narrow row folds the controls that matter least.",
+  "april": "April",
+  "closeSearch": "Close the search",
   "columns": "Columns",
   "export": "Export",
   "filter": "Filter",
   "invoices": "Invoices",
-  "more": "More",
+  "more": "More invoice actions",
+  "openSearch": "Open the search",
   "radius": {
     "about": "Every corner of an outlined row.",
     "title": "Corners"
   },
   "room": {
-    "about": "One row in three widths. A row folds on its own width rather than the window's, so the way to read the fold is to change the room and leave the row alone: the search gives up the end of the row, then the controls behind the separator give up their words, and what is left goes under the folded control.",
+    "about": "One row in three rooms. The row folds on its own width: in the narrow room, the secondary action shows its icon alone, and the tertiary action moves behind the folded control.",
     "title": "Rooms"
   },
   "search": "Search invoices",
+  "searching": {
+    "about": "The search covers a narrow row while it is open. Opening it moves focus to the field, and closing it moves focus back to the control that opened it.",
+    "title": "Search"
+  },
   "size": {
-    "about": "Every size. The size moves the gaps, the separator and the controls together, so a row at one step and controls at another never happens.",
+    "about": "The three sizes. The size sets the gaps and the separator, and the buttons and the search field take the same size through their providers.",
     "title": "Sizes"
   },
   "title": "Toolbar",
   "variant": {
-    "about": "Every look. The row is one stop in the tab order and the arrows move along it.",
+    "about": "The three looks: plain, outline and surface. An outlined or surface row pads its controls by its own gap.",
     "title": "Looks"
   }
 }

@@ -1,16 +1,11 @@
 /**
- * Draws the search, which covers the row while it is open on one too narrow to hold both.
+ * Renders the search, which covers a narrow row while it is open.
  *
  * @remarks
- *   A search field and a row of controls do not fit on a phone, and a field squeezed to nothing is
- *   a field nobody types in. Opened, the field is laid over the row and fills it; closed, it sits
- *   in the band it was written in.
- *   Whether it is open is the caller's, because the control that opens it is the caller's too and
- *   the two would otherwise each hold half the answer.
- *   Opening it puts the reader in the field, and closing it puts them back on the control they
- *   pressed. The control is under the field while the field is open, so a reader who was left on it
- *   would be standing on something out of sight, which is what WCAG calls a focus order that does
- *   not follow meaning.
+ *   A search field and a row of controls do not fit on a phone. An opened search covers the row
+ *   and fills it, and a closed search renders in its band. The caller sets `opened`, because the
+ *   control that opens the search is the caller's too. Opening moves focus to the field, and
+ *   closing moves focus back to the control that opened it, which the open search covers.
  */
 
 import { type ComponentProps, type ReactElement, useRef } from "react";
@@ -19,30 +14,30 @@ import { useFocused } from "#focus/index.ts";
 import { withContext } from "#toolbar/context.ts";
 
 /**
- * Selects what the reader is put in when the search opens, which is whatever takes typing.
+ * Selects the element that takes focus when the search opens.
  */
 const FIELD = "input, textarea, [contenteditable=true]";
 
 /**
- * Draws the search at the room the row states.
+ * Renders the `div` with the recipe's search class.
  */
 const Sought = withContext("div", "search");
 
 /**
- * Describes what the search takes.
+ * Describes the props of the search: `opened` and the props of a `div`.
  */
 export interface SearchProps extends ComponentProps<typeof Sought> {
   /**
-   * Whether the field is laid over the row rather than sitting in its band.
+   * Whether the search covers the row.
    */
   readonly opened?: boolean | undefined;
 }
 
 /**
- * Covers the row while it is open, and sits in its band while it is not.
+ * Renders the search, with `data-opened` while it covers the row.
  *
- * @param props - Whether it is open, and everything a styled div takes.
- * @returns The search, carrying whether it covers the row.
+ * @param props - Whether it is open, and the props of a `div`.
+ * @returns The `div` element.
  */
 export function Search({ opened, ...rest }: SearchProps): ReactElement {
   const sought = useRef<HTMLDivElement>(null);

@@ -1,6 +1,6 @@
 /**
- * Publishes the toolbar's six parts, which a caller composes as `Toolbar.Root` holding the bands
- * that act on what the toolbar sits above.
+ * Exports the toolbar's nine parts. A caller composes `Toolbar.Root` around the start, centre and
+ * end bands and a search.
  */
 
 export { Action, type ActionProps } from "#toolbar/action.tsx";

@@ -1,13 +1,10 @@
 /**
- * Draws one control in the row, and says how far it survives as the row narrows.
+ * Renders one control in the row, with the priority that decides how it folds.
  *
  * @remarks
- *   The control takes the row's roving tab stop, so it is drawn as an item rather than inside one.
- *   A control nested in an item carries a second stop and the row then has two for one control,
- *   which is not what `role="toolbar"` promises.
- *   The priority is an attribute rather than an axis of the recipe. A slot recipe's variants are
- *   set on the root and read by every part, so an axis would fold every control in the row the same
- *   way, and each one has to say for itself.
+ *   The action is a roving focus item, so it has the row's tab stop. The priority is a prop of the
+ *   action, because a slot recipe resolves its variants once, at the root, and each action folds
+ *   on its own priority.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -17,25 +14,25 @@ import { withContext } from "#toolbar/context.ts";
 import { Item } from "#toolbar/item.tsx";
 
 /**
- * Draws the control under both the toolbar's slot and the roving focus group's own.
+ * Renders the item with the recipe's action class.
  */
 const Acted = withContext(Item, "action");
 
 /**
- * Describes what an action takes.
+ * Describes the props of an action: its priority and the props of an item.
  */
 export interface ActionProps extends ComponentProps<typeof Acted> {
   /**
-   * How much the control matters, which decides what a narrow row does with it.
+   * Priority of the control, which decides how a narrow row folds it.
    */
   readonly priority?: Priority | undefined;
 }
 
 /**
- * Acts on what the toolbar sits above, and gives way in the order its priority states.
+ * Renders the control with its priority as `data-priority`.
  *
- * @param props - How much it matters, and everything an item takes.
- * @returns The control, carrying the row's tab stop and how far it survives.
+ * @param props - The priority and the props of an item.
+ * @returns The control element.
  */
 export function Action({ priority = "primary", ...rest }: ActionProps): ReactElement {
   return <Acted {...rest} {...{ [PRIORITY]: priority }} />;

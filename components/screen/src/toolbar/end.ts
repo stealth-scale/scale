@@ -1,9 +1,9 @@
 /**
- * Draws the band at the end of the row.
+ * Renders the band at the end of the row.
  *
  * @remarks
- *   It is pushed to the end whatever the centre holds, so the controls a reader reaches for last
- *   are always in the same place.
+ *   The band is pushed to the row's end, so the controls a reader uses last are in the same place
+ *   in every row.
  */
 
 import { type ComponentProps } from "react";
@@ -11,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#toolbar/context.ts";
 
 /**
- * Draws the band at the gap the row states.
+ * Renders the `div` with the recipe's end class.
  */
 export const End = withContext("div", "end");
 
 /**
- * Describes what the end band takes.
+ * Describes the props of the end band: the props of a `div`.
  */
 export type EndProps = ComponentProps<typeof End>;

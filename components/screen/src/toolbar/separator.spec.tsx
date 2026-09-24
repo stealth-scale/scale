@@ -7,25 +7,25 @@ import { Separator } from "#toolbar/separator.ts";
 import { ranged } from "#toolbar/toolbar.fixtures.tsx";
 
 describe("Separator", () => {
-  it("draws the rule inside the row it needs above it", () => {
+  it("renders a divider", () => {
     const { container } = render(ranged(<Separator />));
 
     expect(slotElement(container, "toolbar", "separator")).toBeTruthy();
   });
 
-  it("keeps the separator role, one set of controls being parted from the next", () => {
+  it("sets role separator", () => {
     render(ranged(<Separator />));
 
     expect(screen.getByRole("separator")).toBeTruthy();
   });
 
-  it("says nothing where a caller draws one for rhythm alone", () => {
+  it("leaves the accessibility tree with aria-hidden", () => {
     render(ranged(<Separator aria-hidden />));
 
     expect(screen.queryByRole("separator")).toBeNull();
   });
 
-  it("runs down the row rather than across it", () => {
+  it("sets aria-orientation vertical", () => {
     const { container } = render(ranged(<Separator />));
 
     expect(slotElement(container, "toolbar", "separator").getAttribute("aria-orientation")).toBe(
@@ -33,7 +33,7 @@ describe("Separator", () => {
     );
   });
 
-  it("draws the rule on its end rather than a line stretched to the row's height", () => {
+  it("applies the vertical divider class", () => {
     const { container } = render(ranged(<Separator />));
 
     expect(slotElement(container, "toolbar", "separator").className).toContain("divider--vertical");
