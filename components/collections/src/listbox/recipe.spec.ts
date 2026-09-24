@@ -162,6 +162,10 @@ describe("recipe", () => {
     expect(recipe.base?.["item"]).toMatchObject({ alignItems: "center" });
   });
 
+  it("grows a row's text into the width the row leaves", () => {
+    expect(recipe.base?.["itemText"]).toMatchObject({ flex: "1", minInlineSize: "0" });
+  });
+
   it("truncates a row's text", () => {
     expect(recipe.base?.["itemText"]).toMatchObject({
       overflow: "hidden",

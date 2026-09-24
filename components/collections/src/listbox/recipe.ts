@@ -144,7 +144,13 @@ export const recipe = defineSlotRecipe({
       lineHeight: "tight",
       minInlineSize: "0",
     },
-    itemText: { ...truncate(), display: "block", minInlineSize: "0", textAlign: "start" },
+    itemText: {
+      ...truncate(),
+      display: "block",
+      flex: "1",
+      minInlineSize: "0",
+      textAlign: "start",
+    },
     label: { color: "fg", fontWeight: "semibold" },
     root: { display: "flex", flexDirection: "column", minBlockSize: "0", minInlineSize: "0" },
     selectAll: {

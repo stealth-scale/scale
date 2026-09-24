@@ -274,3 +274,9 @@ component-collections: add a palette axis to the transfer and size its lists in 
 - A side sets `--transfer-rows`, and the recipe sizes the list from it and `--listbox-row`. The side
   set the list's `flex` and `minBlockSize` in an inline `style`.
 - The README gains a `Transfer` section.
+
+component-collections: grow a listbox row's text into the row
+
+- `Listbox.ItemText` takes `flex: 1`, so a row's text fills the width its marks leave and starts
+  after the leading mark. The row spaces its children apart, so a row with a leading mark and no end
+  mark, such as a row of the command palette, put its text at the row's end.
