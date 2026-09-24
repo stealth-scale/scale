@@ -13,15 +13,15 @@ import { COLLECTION, ROWS } from "#listbox/rows.fixtures.ts";
 import { Window } from "#listbox/window.tsx";
 
 /**
- * How tall one row of the list is taken to be.
+ * Row height of the windowed list, in pixels.
  */
 const ROW = 40;
 
 /**
- * Draws a list whose rows are drawn through a window.
+ * Renders a list whose rows render through a window.
  *
- * @param props - Whatever the case sets on the root.
- * @returns The list, holding a window over its rows.
+ * @param props - The props of the root.
+ * @returns The list.
  */
 function windowed(props: Omit<RootProps, "collection"> = {}): ReactElement {
   return (
@@ -42,7 +42,7 @@ function windowed(props: Omit<RootProps, "collection"> = {}): ReactElement {
 }
 
 describe("Root", () => {
-  it("scrolls through the window rather than by its own means once one says how", async () => {
+  it("scrolls through the window's function on an arrow key", async () => {
     await drawn(windowed());
 
     const list = screen.getByRole("listbox");
@@ -54,7 +54,7 @@ describe("Root", () => {
     expect(went).toHaveBeenCalled();
   });
 
-  it("leaves a caller's own way of scrolling in place, window or no window", async () => {
+  it("calls the caller's scrollToIndexFn over the window's", async () => {
     const reached = vi.fn<(details: { index: number }) => void>();
 
     await drawn(windowed({ scrollToIndexFn: reached }));
@@ -65,7 +65,7 @@ describe("Root", () => {
     expect(reached).toHaveBeenCalled();
   });
 
-  it("draws every row a window says is near enough to be seen", () => {
+  it("renders every row in the window's range", () => {
     render(windowed());
 
     expect(screen.getAllByRole("option")).toHaveLength(ROWS.length);

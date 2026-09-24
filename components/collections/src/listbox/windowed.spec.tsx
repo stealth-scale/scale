@@ -6,9 +6,9 @@ import { describe, expect, it, vi } from "vitest";
 import { scrolledBy, useWindowed, type Windowed, WindowedProvider } from "#listbox/windowed.ts";
 
 /**
- * Hands a way of scrolling up to the list above it and says it did.
+ * Passes a scroll function to the provider's slot while rendering.
  *
- * @returns A note that the way was handed up.
+ * @returns A `span` with a test id.
  */
 function Reader(): ReactElement {
   const { hold } = useWindowed();
@@ -19,7 +19,7 @@ function Reader(): ReactElement {
 }
 
 describe("useWindowed", () => {
-  it("hands a window's way of scrolling up to the list", () => {
+  it("returns the provider's slot", () => {
     const hold = vi.fn<Windowed["hold"]>();
 
     render(
@@ -31,7 +31,7 @@ describe("useWindowed", () => {
     expect(hold).toHaveBeenCalledWith(expect.any(Function));
   });
 
-  it("draws the window that handed it up", () => {
+  it("renders the component that reads it", () => {
     render(
       <WindowedProvider value={{ hold: vi.fn<Windowed["hold"]>() }}>
         <Reader />
@@ -41,13 +41,13 @@ describe("useWindowed", () => {
     expect(screen.getByTestId("held")).toBeTruthy();
   });
 
-  it("throws where a window is drawn outside a list", () => {
+  it("throws outside a provider", () => {
     expect(() => render(<Reader />)).toThrow(/Listbox/u);
   });
 });
 
 describe("scrolledBy", () => {
-  it("hands the machine's position on to the window that knows the distance", () => {
+  it("calls the window's function with the machine's index", () => {
     const scroll = vi.fn<(index: number) => void>();
 
     scrolledBy(scroll)({ index: 12 });

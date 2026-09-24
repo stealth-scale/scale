@@ -13,10 +13,10 @@ import {
 import { COLLECTION } from "#listbox/rows.fixtures.ts";
 
 /**
- * Runs the machine and reports what it answers, so a case can read its state off the screen.
+ * Runs the machine with the options the case sets and renders its value through a part's hook.
  *
- * @param props - The settings the machine is started with.
- * @returns The chosen values, drawn as text.
+ * @param props - The machine options.
+ * @returns The provider around the reader.
  */
 function Running(props: ListboxOptions): ReactElement {
   const api = useListboxMachine({ ...props, id: props.id ?? "probe" });
@@ -29,9 +29,9 @@ function Running(props: ListboxOptions): ReactElement {
 }
 
 /**
- * Reads the running machine through the hook a part reads it through.
+ * Renders the selected values from the api a part reads.
  *
- * @returns The values the list holds as chosen.
+ * @returns A `span` with the values joined by commas.
  */
 function Reader(): ReactElement {
   const api = useListbox();
@@ -40,7 +40,7 @@ function Reader(): ReactElement {
 }
 
 describe("splitListboxProps", () => {
-  it("takes the machine's settings out of what the root was handed", () => {
+  it("returns the machine's options first", () => {
     const [options] = splitListboxProps({
       collection: COLLECTION,
       id: "probe",
@@ -50,7 +50,7 @@ describe("splitListboxProps", () => {
     expect(options).toMatchObject({ id: "probe", loopFocus: true });
   });
 
-  it("leaves everything the element takes behind", () => {
+  it("returns the element's props second", () => {
     const [, rest] = splitListboxProps({ collection: COLLECTION, id: "probe", size: "lg" });
 
     expect(rest).toStrictEqual({ size: "lg" });
@@ -58,13 +58,13 @@ describe("splitListboxProps", () => {
 });
 
 describe("useListboxMachine", () => {
-  it("answers a running machine a part can read", () => {
+  it("returns an api that reports the value", () => {
     render(<Running collection={COLLECTION} value={["reports"]} />);
 
     expect(screen.getByTestId("value").textContent).toBe("reports");
   });
 
-  it("holds nothing chosen where a caller says nothing", () => {
+  it("returns an api with no value by default", () => {
     render(<Running collection={COLLECTION} />);
 
     expect(screen.getByTestId("value").textContent).toBe("");

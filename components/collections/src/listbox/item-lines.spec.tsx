@@ -8,7 +8,7 @@ import { ItemLines } from "#listbox/item-lines.ts";
 import { offered } from "#listbox/listbox.fixtures.tsx";
 
 describe("ItemLines", () => {
-  it("draws a span inside the root it needs above it", () => {
+  it("renders a span", () => {
     const { container } = render(offered(<ItemLines>Fathom</ItemLines>));
 
     expect(slotElement(container, "listbox", "itemLines").tagName).toBe("SPAN");
@@ -26,17 +26,21 @@ describe("ItemLines", () => {
     ).toStrictEqual([]);
   });
 
-  it("holds what it is given", () => {
+  it("renders its children", () => {
     const { container } = render(offered(<ItemLines>Fathom</ItemLines>));
 
     expect(slotElement(container, "listbox", "itemLines").textContent).toBe("Fathom");
   });
 
-  it("names nothing of its own, because the row's words name the row", () => {
+  it("sets no role", () => {
     const { container } = render(offered(<ItemLines>Fathom</ItemLines>));
-    const drawn = slotElement(container, "listbox", "itemLines");
 
-    expect(drawn.getAttribute("role")).toBeNull();
-    expect(drawn.getAttribute("aria-label")).toBeNull();
+    expect(slotElement(container, "listbox", "itemLines").getAttribute("role")).toBeNull();
+  });
+
+  it("sets no aria-label", () => {
+    const { container } = render(offered(<ItemLines>Fathom</ItemLines>));
+
+    expect(slotElement(container, "listbox", "itemLines").getAttribute("aria-label")).toBeNull();
   });
 });

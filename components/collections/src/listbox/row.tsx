@@ -1,16 +1,10 @@
 /**
- * Draws a whole row: its box, its mark, its words, the line under them and the check at its end.
+ * Renders a ready-made row: its checkbox or end mark, its icon, its text and its description.
  *
  * @remarks
- *   The parts a row is built from are published beside this, and a row that holds something else
- *   composes them. This draws the row almost every list wants, so a caller writes one element per
- *   row rather than six, and every row of a list comes out the same shape.
- *   The box or the check comes from the list rather than from the row. The root states which once,
- *   with the mark to draw, so a list cannot end up with a box on some rows and a check on others.
- *   The words and the line under them are held in a column, which keeps the mark at the end level
- *   with the first line however tall the row grows. A row with no line under it is the same column
- *   holding one thing, because a row that changed its layout when a description appeared would
- *   shift its mark by a pixel or two against the rows around it.
+ *   The root states `boxed` and the mark once, so every row of a list renders the same checkbox or
+ *   end mark. The text and the description render in one column, and the row centres the checkbox,
+ *   the icon and the end mark on its height.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -27,25 +21,26 @@ import {
 import { useShown } from "#listbox/shown.ts";
 
 /**
- * Describes what a ready-made row takes.
+ * Describes the props of a ready-made row: a description, an icon and the props of an item.
  */
 export interface RowProps extends ItemProps {
   /**
-   * Written under the row's words, for a name that does not tell a reader enough to choose.
+   * Description rendered under the row's text.
    */
   readonly description?: ReactNode | undefined;
 
   /**
-   * Drawn before the row's words, saying what kind of thing the row is.
+   * Icon rendered before the row's text.
    */
   readonly icon?: ReactNode | undefined;
 }
 
 /**
- * Draws one row of a list the way almost every list draws one.
+ * Renders one row with the checkbox or end mark the root states.
  *
- * @param props - The row of the collection, its words, and what it draws beside them.
- * @returns The row, holding its box or its check, its mark, its words and the line under them.
+ * @param props - The collection item, the text as children, an icon, a description and the props
+ *   of an item.
+ * @returns The item `div` with `role="option"`.
  */
 export function Row({ children, description, icon, item, ...rest }: RowProps): ReactElement {
   const { boxed, mark } = useShown();

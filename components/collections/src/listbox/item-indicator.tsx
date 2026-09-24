@@ -1,13 +1,11 @@
 /**
- * Draws the mark saying a row is chosen.
+ * Renders the mark at the end of a selected row.
  *
  * @remarks
- *   The mark says nothing a screen reader needs. The row already carries `aria-selected`, so a
- *   reader is told once rather than twice, and a caller hands over a glyph without naming it.
- *   The machine hides the mark with the `hidden` attribute, which takes it out of the layout. The
- *   attribute is dropped here and the recipe hides the mark by visibility instead, so every row
- *   keeps the room the mark takes. A list that gave the room back changed width as the picked row
- *   moved, and a list beside a summary jumped every time a reader chose something.
+ *   The mark is `aria-hidden`, because the row reports `aria-selected`. The machine sets `hidden`
+ *   on the mark of an unselected row. The part drops the attribute and the recipe hides the mark
+ *   with `visibility`, so every row keeps the mark's width and the list's width does not change
+ *   with the selection.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -18,25 +16,25 @@ import { withContext } from "#listbox/context.ts";
 import { type ListboxItem, useListbox } from "#listbox/machine.ts";
 
 /**
- * Draws the mark at the end of the row.
+ * Renders the `span` with the listbox's item indicator class, hidden from assistive technology.
  */
 const Marked = withContext("span", "itemIndicator", { defaultProps: { "aria-hidden": true } });
 
 /**
- * Describes what a row's mark takes.
+ * Describes the props of a row's mark: its collection item and the props of a `span`.
  */
 export interface ItemIndicatorProps extends ComponentProps<typeof Marked> {
   /**
-   * The row of the collection this mark belongs to.
+   * Collection item the mark belongs to.
    */
   readonly item: ListboxItem;
 }
 
 /**
- * Appears at the end of a row that is chosen.
+ * Renders a row's mark with the machine's indicator props, without `hidden`.
  *
- * @param props - The row it belongs to, and everything a styled span takes.
- * @returns The mark, drawn where the row is chosen.
+ * @param props - The collection item, and the attributes and children of the `span` element.
+ * @returns The `span` element, visible while the row is selected.
  */
 export function ItemIndicator({ item, ...rest }: ItemIndicatorProps): ReactElement {
   const api = useListbox();

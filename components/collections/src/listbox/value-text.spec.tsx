@@ -7,25 +7,25 @@ import { offered } from "#listbox/listbox.fixtures.tsx";
 import { ValueText } from "#listbox/value-text.tsx";
 
 describe("ValueText", () => {
-  it("draws a span inside the root it needs above it", () => {
+  it("renders a span", () => {
     const { container } = render(offered(<ValueText />));
 
     expect(slotElement(container, "listbox", "valueText").tagName).toBe("SPAN");
   });
 
-  it("draws the placeholder while nothing is chosen", () => {
+  it("renders the placeholder while nothing is selected", () => {
     render(offered(<ValueText placeholder="Nothing chosen" />));
 
     expect(screen.getByText("Nothing chosen")).toBeTruthy();
   });
 
-  it("reports the words of the row that is chosen", () => {
+  it("renders the selected row's text", () => {
     render(offered(<ValueText placeholder="Nothing chosen" />, { value: ["reports"] }));
 
     expect(screen.getByText("Reports")).toBeTruthy();
   });
 
-  it("draws what a caller puts inside it over both", () => {
+  it("renders its children in place of the text and the placeholder", () => {
     render(offered(<ValueText placeholder="Nothing chosen">Three places</ValueText>));
 
     expect(screen.getByText("Three places")).toBeTruthy();

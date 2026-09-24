@@ -10,11 +10,11 @@ import { Row } from "#listbox/row.tsx";
 import { COLLECTION, ROWS } from "#listbox/rows.fixtures.ts";
 
 /**
- * Draws a row inside a list stating whatever shape a case wants.
+ * Renders a row inside a root with the mark `check`.
  *
  * @param children - The row under test.
- * @param props - Whatever the case sets on the root.
- * @returns The root, holding it.
+ * @param props - The props of the root.
+ * @returns The root with the row inside it.
  */
 function listed(children: ReactNode, props: Omit<RootProps, "collection"> = {}): ReactElement {
   return (
@@ -25,13 +25,13 @@ function listed(children: ReactNode, props: Omit<RootProps, "collection"> = {}):
 }
 
 describe("Row", () => {
-  it("draws the words it is given", () => {
+  it("names the option from its children", () => {
     render(listed(<Row item={ROWS[0]}>Invoices</Row>));
 
     expect(screen.getByRole("option", { name: /Invoices/u })).toBeTruthy();
   });
 
-  it("holds the words and the line under them in one column", () => {
+  it("renders the text and the description in the lines part", () => {
     const { container } = render(
       listed(
         <Row description="Settles nightly" item={ROWS[0]}>
@@ -45,31 +45,31 @@ describe("Row", () => {
     );
   });
 
-  it("draws no line under the words where a caller writes none", () => {
+  it("renders no description without the prop", () => {
     const { container } = render(listed(<Row item={ROWS[0]}>Invoices</Row>));
 
     expect(container.querySelector("[class*=itemDescription]")).toBeNull();
   });
 
-  it("draws the mark at the end of a row while the list holds one row at a time", () => {
+  it("renders the mark at the row's end in a list without boxed", () => {
     const { container } = render(listed(<Row item={ROWS[0]}>Invoices</Row>));
 
     expect(slotElement(container, "listbox", "itemIndicator").textContent).toBe("check");
   });
 
-  it("draws a box at the start of a row where the list says its set may hold several", () => {
+  it("renders the mark in a checkbox at the row's start in a boxed list", () => {
     const { container } = render(listed(<Row item={ROWS[0]}>Invoices</Row>, { boxed: true }));
 
     expect(slotElement(container, "listbox", "itemCheckbox").textContent).toBe("check");
   });
 
-  it("draws the check or the box, never both", () => {
+  it("renders no end mark in a boxed list", () => {
     const { container } = render(listed(<Row item={ROWS[0]}>Invoices</Row>, { boxed: true }));
 
     expect(container.querySelector("[class*=itemIndicator]")).toBeNull();
   });
 
-  it("draws the mark a caller puts before the words", () => {
+  it("renders the icon it is given", () => {
     render(
       listed(
         <Row icon={<span data-testid="kind">bank</span>} item={ROWS[0]}>
@@ -81,7 +81,7 @@ describe("Row", () => {
     expect(screen.getByTestId("kind")).toBeTruthy();
   });
 
-  it("leaves a boxed list's picked rows unfilled, because the box already says so", () => {
+  it("defaults selected to none in a boxed list", () => {
     const { container } = render(listed(<Row item={ROWS[0]}>Invoices</Row>, { boxed: true }));
 
     expect([...slotElement(container, "listbox", "item").classList]).toContain(
@@ -89,7 +89,7 @@ describe("Row", () => {
     );
   });
 
-  it("fills a boxed list's picked rows where a caller asks for it", () => {
+  it("applies the selected fill a boxed list states", () => {
     const { container } = render(
       listed(<Row item={ROWS[0]}>Invoices</Row>, { boxed: true, selected: "solid" }),
     );

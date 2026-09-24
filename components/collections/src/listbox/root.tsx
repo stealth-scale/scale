@@ -1,23 +1,15 @@
 /**
- * Draws the frame the label, the field and the list sit in, and runs the machine they share.
+ * Renders the listbox's root and runs the machine its parts share.
  *
  * @remarks
- *   The element is `div` and carries no role. The list inside it is the `listbox`, and a role on
- *   the frame around it would announce a second one that holds nothing.
- *   The collection is the caller's. It decides which rows exist and in what order, so a list that
- *   narrows as a person types hands a new collection rather than asking the machine to filter.
- *   The orientation reaches the machine and the recipe from one prop. The machine decides which
- *   arrows move the highlight and says so on the list, and the recipe draws the rows the way they
- *   move, so a list a reader moves through sideways is never drawn as a column.
- *   A boxed list leaves its picked rows unfilled unless a caller says otherwise. The box at the
- *   start of a row already says the row is in the set, and a fill behind it says the same thing a
- *   second time.
- *   The machine is told how to scroll to a row only while a window says how. Left alone it scrolls
- *   the highlighted row into view itself, which is right for every list that draws all its rows,
- *   and a function installed unconditionally would replace that with one that knows nothing.
- *   The window's function is held behind one of its own. A state setter handed a function calls it
- *   to work out the next state rather than storing it, so the window's way of scrolling was called
- *   once with the state before it and never again.
+ *   The element is a `div` with no role. The content is the `listbox`. The collection is the
+ *   caller's: a list that filters as a person types passes a new collection, and the machine never
+ *   filters. `orientation` reaches the machine and the recipe from one prop, so the arrow keys
+ *   follow the layout. A boxed list defaults `selected` to `none`, because the checkbox already
+ *   shows the selection. The root passes `scrollToIndexFn` to the machine only while a window
+ *   provides one. Without it the machine scrolls the highlighted row into view itself. The root
+ *   stores the window's function inside an updater, because a state setter calls a function it is
+ *   given to compute the next state.
  */
 
 import {
@@ -40,35 +32,36 @@ import { type Shown, ShownProvider } from "#listbox/shown.ts";
 import { scrolledBy, type Windowed, WindowedProvider } from "#listbox/windowed.ts";
 
 /**
- * Draws the frame and sets the variants every part below it reads.
+ * Renders the root `div` with the recipe's variants.
  */
 const Framed = withProvider("div", "root");
 
 /**
- * Describes what the root takes beyond the machine's options and the element's props.
+ * Describes the props that set how every row renders its selection.
  */
 export interface RowShape {
   /**
-   * Whether a box at the start of every row says the set may hold several.
+   * Whether every row renders a checkbox at its start.
    */
   readonly boxed?: boolean | undefined;
 
   /**
-   * The mark a chosen row draws, in its box or at its end.
+   * Mark a selected row renders, in its checkbox or at its end.
    */
   readonly mark?: ReactNode | undefined;
 
   /**
-   * The mark a box draws while part of the list is on rather than all of it.
+   * Mark the select-all checkbox renders while part of the list is selected.
    */
   readonly mixedMark?: ReactNode | undefined;
 }
 
 /**
- * Describes what the root takes: the machine's options, the recipe's variants, and the element's.
+ * Describes the props of the root: the machine's options, the recipe's variants, `RowShape` and
+ * the props of a `div`.
  *
  * @remarks
- *   Every prop the machine owns is taken off the element's, so the two never offer one name under
+ *   The element's props of the same names as the machine's options are left out, so no prop has
  *   two types.
  */
 export interface RootProps
@@ -78,10 +71,12 @@ export interface RootProps
     RowShape {}
 
 /**
- * Offers a set of rows a person picks from.
+ * Renders the listbox and provides the machine's api, `boxed`, the marks and the window slot to
+ * its parts.
  *
- * @param props - The machine's options, the recipe's variants and the element's props together.
- * @returns The frame, holding the parts, under the running machine.
+ * @param props - The machine's options, the recipe's variants, `boxed`, the marks and the props of
+ *   a `div`.
+ * @returns The root `div`.
  */
 export function Root({
   boxed = false,

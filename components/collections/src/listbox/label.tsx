@@ -1,10 +1,9 @@
 /**
- * Draws the words naming the whole set.
+ * Renders the label of the list.
  *
  * @remarks
- *   The machine points the list's `aria-labelledby` at this part, so the words a reader hears on
- *   reaching the list are the words on the screen. A list drawn without one states `aria-label` on
- *   the content instead, and a list with neither is announced as an unnamed listbox.
+ *   The machine points the list's `aria-labelledby` at the label. A list without a label states
+ *   `aria-label` on the content.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,20 +14,20 @@ import { withContext } from "#listbox/context.ts";
 import { useListbox } from "#listbox/machine.ts";
 
 /**
- * Draws the words at the size the root states.
+ * Renders the `span` with the listbox's label class.
  */
 const Named = withContext("span", "label");
 
 /**
- * Describes what the label takes.
+ * Describes the props of the label: the props of a `span`.
  */
 export type LabelProps = ComponentProps<typeof Named>;
 
 /**
- * Labels the set, for a reader and on the screen alike.
+ * Renders the label with the machine's label props.
  *
- * @param props - Everything a styled span takes.
- * @returns The words, pointed at by the list.
+ * @param props - Attributes and children of the `span` element, merged over the machine's.
+ * @returns The `span` element the list's `aria-labelledby` references.
  */
 export function Label(props: LabelProps): ReactElement {
   const api = useListbox();

@@ -1,10 +1,9 @@
 /**
- * Publishes the parts a listbox is built from, so a composed component names one module rather
- * than a dozen.
+ * Exports the parts a listbox is composed from.
  *
  * @remarks
- *   The ready-made components are not here. `Listbox.Row` and `Listbox.Simple` are built from these
- *   parts, and a module they could import would be a module that imports them back.
+ *   `Listbox.Row` and `Listbox.Simple` are composed from these parts and import this module, so
+ *   they are exported from `index.ts` instead.
  */
 
 export { Content, type ContentProps } from "#listbox/content.tsx";

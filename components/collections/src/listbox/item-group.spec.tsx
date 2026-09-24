@@ -8,19 +8,19 @@ import { ItemGroup } from "#listbox/item-group.tsx";
 import { offered } from "#listbox/listbox.fixtures.tsx";
 
 describe("ItemGroup", () => {
-  it("draws a div inside the root it needs above it", () => {
+  it("renders a div", () => {
     const { container } = render(offered(<ItemGroup id="recent" />));
 
     expect(slotElement(container, "listbox", "itemGroup").tagName).toBe("DIV");
   });
 
-  it("carries the group role", () => {
+  it("renders the element with the group role", () => {
     render(offered(<ItemGroup id="recent" />));
 
     expect(screen.getByRole("group")).toBeTruthy();
   });
 
-  it("is named by the heading that shares its identifier", () => {
+  it("takes its name from the label with its identifier", () => {
     render(
       offered(
         <ItemGroup id="recent">

@@ -1,11 +1,10 @@
 /**
- * Publishes the listbox's parts, which a caller composes as `Listbox.Root` holding a list of rows a
- * person picks from.
+ * Exports the listbox's parts, `Listbox.Row` and `Listbox.Simple`.
  *
  * @remarks
- *   `Listbox.Simple` draws a whole list from props and is what most callers want. `Listbox.Row`
- *   draws the row almost every list wants. Both are built from the parts published beside them,
- *   which a list that wants something else composes itself.
+ *   `Listbox.Simple` renders a whole list from props. `Listbox.Row` renders one row with its
+ *   checkbox or mark, its text and its description. A list with another structure composes the
+ *   parts.
  */
 
 export * from "#listbox/parts.ts";

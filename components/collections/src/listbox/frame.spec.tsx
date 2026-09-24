@@ -10,7 +10,7 @@ import { Root } from "#listbox/root.tsx";
 import { COLLECTION } from "#listbox/rows.fixtures.ts";
 
 describe("Frame", () => {
-  it("draws a div inside the root it needs above it", () => {
+  it("renders a div", () => {
     const { container } = render(offered(<Frame />));
 
     expect(slotElement(container, "listbox", "frame").tagName).toBe("DIV");
@@ -28,7 +28,7 @@ describe("Frame", () => {
     ).toStrictEqual([]);
   });
 
-  it("takes the look the root states", () => {
+  it("applies the root's variant class", () => {
     const { container } = render(
       <Root collection={COLLECTION} variant="surface">
         <Frame />

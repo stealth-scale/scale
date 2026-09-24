@@ -10,9 +10,9 @@ import { COLLECTION, type Row } from "#listbox/rows.fixtures.ts";
 import { Simple, type SimpleProps } from "#listbox/simple.tsx";
 
 /**
- * Draws a whole list, less whatever a case states itself.
+ * Renders a whole list named Places over the three-row collection.
  *
- * @param props - Whatever the case sets on the list.
+ * @param props - The props the case sets on the list.
  * @returns The list.
  */
 function whole(props: Partial<SimpleProps<Row>> = {}): ReactElement {
@@ -20,62 +20,62 @@ function whole(props: Partial<SimpleProps<Row>> = {}): ReactElement {
 }
 
 /**
- * Names the rows the list drew.
+ * Returns the text of every rendered option.
  */
 function rowsOf(): readonly string[] {
   return screen.getAllByRole("option").map((row) => row.textContent ?? "");
 }
 
 describe("Simple", () => {
-  it("draws one row per row of the collection", async () => {
+  it("renders one option per collection item", async () => {
     await drawn(whole());
 
     expect(rowsOf()).toHaveLength(3);
   });
 
-  it("names the list from the words above it", async () => {
+  it("names the list from label", async () => {
     await drawn(whole({ label: "Where a thing is filed" }));
 
     expect(screen.getByRole("listbox", { name: "Where a thing is filed" })).toBeTruthy();
   });
 
-  it("names the rows themselves where a caller gives no words above them", async () => {
+  it("names the list from aria-label without a label", async () => {
     await drawn(whole());
 
     expect(screen.getByRole("listbox", { name: "Places" })).toBeTruthy();
   });
 
-  it("draws no label where a caller writes none", async () => {
+  it("renders no label without the prop", async () => {
     const { container } = await drawn(whole());
 
     expect(container.querySelector("[class*=label]")).toBeNull();
   });
 
-  it("says nothing about an empty list while the list holds rows", async () => {
+  it("renders no empty text while the collection has rows", async () => {
     await drawn(whole({ empty: "Nothing here." }));
 
     expect(screen.queryByText("Nothing here.")).toBeNull();
   });
 
-  it("writes a line under a row's name where a caller reads one off the row", async () => {
+  it("renders the description description returns", async () => {
     await drawn(whole({ description: (row) => `Held as ${row.value}` }));
 
     expect(screen.getByText("Held as invoices")).toBeTruthy();
   });
 
-  it("draws a mark before a row's name where a caller reads one off the row", async () => {
+  it("renders the icon icon returns on every row", async () => {
     await drawn(whole({ icon: () => <span data-testid="kind">bank</span> }));
 
     expect(screen.getAllByTestId("kind")).toHaveLength(3);
   });
 
-  it("gathers the rows under headings where a caller says how", async () => {
+  it("renders one group per groupBy key", async () => {
     await drawn(whole({ groupBy: (row) => (row.value === "invoices" ? "owed" : "kept") }));
 
     expect(screen.getAllByRole("group")).toHaveLength(2);
   });
 
-  it("keeps the headings in the order they first appear", async () => {
+  it("orders the groups by first appearance", async () => {
     await drawn(whole({ groupBy: (row) => (row.value === "invoices" ? "owed" : "kept") }));
 
     expect(screen.getAllByRole("group").map((held) => held.textContent?.slice(0, 4))).toStrictEqual(
@@ -83,7 +83,7 @@ describe("Simple", () => {
     );
   });
 
-  it("names a heading with the words a caller reads off its key", async () => {
+  it("renders the group label groupLabel returns", async () => {
     await drawn(
       whole({
         groupBy: () => "owed",
@@ -94,13 +94,13 @@ describe("Simple", () => {
     expect(screen.getByText("Group owed")).toBeTruthy();
   });
 
-  it("draws a field above the rows where a caller asks to narrow them", async () => {
+  it("renders a field with narrowing", async () => {
     await drawn(whole({ narrowing: { onNarrow: vi.fn<(typed: string) => void>() } }));
 
     expect(screen.getByRole("textbox")).toBeTruthy();
   });
 
-  it("reports what was typed, so a caller hands back the rows that are left", async () => {
+  it("calls onNarrow with the typed text", async () => {
     const narrowed = vi.fn<(typed: string) => void>();
 
     await drawn(whole({ narrowing: { onNarrow: narrowed } }));
@@ -109,20 +109,20 @@ describe("Simple", () => {
     expect(narrowed).toHaveBeenCalledWith("inv");
   });
 
-  it("draws a row above the rest that turns the whole list on", async () => {
+  it("selects every row on a press of the select-all row", async () => {
     await drawn(whole({ selectAll: "All places", selectionMode: "multiple" }));
     await pressed(screen.getByRole("button", { name: "All places" }));
 
     expect(screen.getAllByRole("option", { selected: true })).toHaveLength(3);
   });
 
-  it("writes what is picked under the list where a caller asks for it", async () => {
+  it("renders the value text with summary", async () => {
     const { container } = await drawn(whole({ summary: "Nothing picked" }));
 
     expect(slotElement(container, "listbox", "valueText")).toBeTruthy();
   });
 
-  it("holds the list to the rows it is told to stand, and draws only what is near", async () => {
+  it("sets the content's height to tall rows", async () => {
     const { container } = await drawn(whole({ tall: 2 }));
 
     expect(slotElement(container, "listbox", "content").style.blockSize).toBe(
@@ -130,7 +130,7 @@ describe("Simple", () => {
     );
   });
 
-  it("takes every variant its root takes", async () => {
+  it("applies the root's variant class to the frame", async () => {
     const { container } = await drawn(whole({ variant: "surface" }));
 
     expect([...slotElement(container, "listbox", "frame").classList].join(" ")).toContain(
@@ -138,7 +138,7 @@ describe("Simple", () => {
     );
   });
 
-  it("draws the field and the select-all row inside the box the rows sit in", async () => {
+  it("renders the field and the select-all row inside the frame", async () => {
     expect.hasAssertions();
 
     const { container } = await drawn(
@@ -154,7 +154,7 @@ describe("Simple", () => {
     expect(frame.querySelector(`.${slotClass("listbox", "selectAll")}`)).not.toBeNull();
   });
 
-  it("holds nothing but rows inside the element that carries the list role", async () => {
+  it("renders only rows inside the element with the listbox role", async () => {
     expect.hasAssertions();
 
     const { container } = await drawn(

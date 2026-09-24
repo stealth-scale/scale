@@ -9,11 +9,11 @@ import { recipe } from "#listbox/recipe.ts";
 import { type RootProps } from "#listbox/root.tsx";
 
 describe("Root", () => {
-  it("breaks no accessibility rule holding a label and a list of rows", async () => {
+  it("returns no accessibility violation for a label and a list", async () => {
     await expect(accessibilityViolations(() => composed())).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(
         recipe,
@@ -23,26 +23,31 @@ describe("Root", () => {
     ).toStrictEqual([]);
   });
 
-  it("draws a frame carrying no role of its own", () => {
+  it("renders a div", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "listbox", "root").tagName).toBe("DIV");
+  });
+
+  it("sets no role on the root", () => {
+    const { container } = render(composed());
+
     expect(slotElement(container, "listbox", "root").getAttribute("role")).toBeNull();
   });
 
-  it("names the list from the label beside it", () => {
+  it("names the list from its label", () => {
     render(composed());
 
     expect(screen.getByRole("listbox", { name: "Places" })).toBeTruthy();
   });
 
-  it("offers one option per row of the collection", () => {
+  it("renders one option per collection item", () => {
     render(composed());
 
     expect(screen.getAllByRole("option")).toHaveLength(3);
   });
 
-  it("marks the row a caller says is chosen", () => {
+  it("selects the rows in value", () => {
     render(composed({ value: ["reports"] }));
 
     expect(screen.getByRole("option", { name: "Reports" }).getAttribute("aria-selected")).toBe(

@@ -1,5 +1,5 @@
 /**
- * Builds the listbox a part's specification needs above it, every part reading one machine.
+ * Builds the listboxes the part specifications render.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -13,11 +13,11 @@ import { Root, type RootProps } from "#listbox/root.tsx";
 import { COLLECTION, ROWS } from "#listbox/rows.fixtures.ts";
 
 /**
- * Draws whatever a case wants measured inside the root that runs the machine.
+ * Renders the children inside a root over the three-row collection.
  *
  * @param children - The part under test.
- * @param props - Whatever the case sets on the root.
- * @returns The root, holding it.
+ * @param props - The props of the root.
+ * @returns The root with the children inside it.
  */
 export function offered(
   children: ReactNode,
@@ -31,10 +31,10 @@ export function offered(
 }
 
 /**
- * Draws a whole listbox, so a case can walk the rows and read what is chosen.
+ * Renders a listbox with a label and the three rows, each with its text and mark.
  *
- * @param props - Whatever the case sets on the root.
- * @returns The parts composed the way a caller composes them.
+ * @param props - The props of the root.
+ * @returns The listbox.
  */
 export function composed(props: Omit<RootProps, "collection"> = {}): ReactElement {
   return (

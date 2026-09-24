@@ -1,10 +1,10 @@
 /**
- * Connects the listbox machine and provides its api to the parts.
+ * Runs the listbox machine and provides its api to the parts.
  *
  * @remarks
- *   The root starts one machine and every part reads its api from context, so the label, the input
- *   and the rows report the same highlight and selection. The machine derives every element id and
- *   ARIA reference between the label, the input and the list from `id`.
+ *   The root starts one machine and every part reads the api from context, so the label, the field
+ *   and the rows report one highlight and one selection. The machine derives every element's
+ *   identifier and ARIA reference from `id`.
  */
 
 import * as listbox from "@zag-js/listbox";
@@ -13,60 +13,58 @@ import { normalizeProps, useMachine } from "@zag-js/react";
 import { createRequiredContext, omitUndefined, splitEnumerable } from "@stealthscale/hooks";
 
 /**
- * Describes one item of a collection as the parts see it.
+ * Describes one item of a collection as the parts receive it.
  *
  * @remarks
- *   Zag types a collection item as `any`. The parts accept `unknown` and pass it back to the
- *   machine unchanged, so `any` stays at this boundary instead of spreading into every part file.
+ *   The machine types an item as `any`. The parts take `unknown` and pass it back unchanged, so
+ *   `any` stays in the machine's types.
  */
 export type ListboxItem = unknown;
 
 /**
- * Describes the api `listbox.connect` returns: a prop getter per part plus the machine's state and
+ * Describes the api `listbox.connect` returns: a prop getter per part, and the machine's state and
  * methods.
  *
  * @remarks
- *   The type is inferred from `connect`, so it follows the installed machine version. The inferred
- *   type references `@zag-js/types`, so the package declares that package as a dependency. A
- *   declaration file that references an undeclared package does not resolve for a consumer.
+ *   The type is the return type of `connect`, so it follows the installed machine. It references
+ *   `@zag-js/types`, so the package declares that dependency, or a consumer's declarations would
+ *   not resolve.
  */
 export type ListboxApi = ReturnType<typeof listbox.connect>;
 
 /**
- * Describes the machine settings a caller can pass to the root.
- *
- * @remarks
- *   `collection` stays required. `id` is optional because the root generates one when the caller
- *   passes none.
+ * Describes the machine options the root takes. `collection` is required and `id` is optional.
  */
 export type ListboxOptions = {
   /**
-   * The value the machine embeds in every element id it generates.
+   * Base of every element identifier the machine generates. React generates one when the caller
+   * states none.
    */
   id?: string | undefined;
 } & Omit<listbox.Props, "id">;
 
 /**
- * Creates the context through which the root provides the connected api to its parts.
+ * Provides the connected api to the parts, and reads it back.
  *
  * @remarks
- *   `useListbox` throws when no `Listbox.Root` is mounted above the calling part.
+ *   `useListbox` throws for a part rendered outside `Listbox.Root`.
  */
 export const [ApiProvider, useListbox] = createRequiredContext<ListboxApi>("Listbox");
 
 /**
  * Starts the listbox machine and returns its connected api.
  *
- * @param options - Machine settings split from the root's props, with `id` already resolved.
+ * @param options - The machine options split from the root's props, with `id` resolved.
+ * @returns The connected api.
  */
 export function useListboxMachine(options: listbox.Props): ListboxApi {
   return listbox.connect(useMachine(listbox.machine, omitUndefined(options)), normalizeProps);
 }
 
 /**
- * Splits the root's props into machine settings and element props.
+ * Splits the root's props into the machine's options and the element's props.
  *
  * @remarks
- *   The key list comes from the machine's own `splitProps`, so it follows the installed version.
+ *   The key list comes from the machine's own `splitProps`, so it follows the installed machine.
  */
 export const splitListboxProps = splitEnumerable(listbox.splitProps);

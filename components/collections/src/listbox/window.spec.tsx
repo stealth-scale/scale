@@ -7,23 +7,23 @@ import { Window } from "#listbox/window.tsx";
 import { type Windowed, WindowedProvider } from "#listbox/windowed.ts";
 
 /**
- * How tall one row of every case is.
+ * Row height of every case, in pixels.
  */
 const ROW = 40;
 
 /**
- * Takes a window's way of scrolling and drops it, which is all a case needs of a list.
+ * Returns a slot that discards the window's scroll function.
  */
 function ignored(): Windowed["hold"] {
   return vi.fn<Windowed["hold"]>();
 }
 
 /**
- * Draws a window inside a list that reports what the window hands it.
+ * Renders a window inside a scroll container, with a slot for its scroll function.
  *
  * @param children - The window under test.
- * @param hold - What the list does with the window's way of scrolling.
- * @returns The scrolling box, holding the window.
+ * @param hold - The slot the window passes its scroll function to.
+ * @returns The scroll container with the window inside it.
  */
 function scrolling(children: ReactNode, hold: Windowed["hold"] = ignored()): ReactElement {
   return (
@@ -34,24 +34,23 @@ function scrolling(children: ReactNode, hold: Windowed["hold"] = ignored()): Rea
 }
 
 /**
- * Names the rows a window drew.
+ * Returns the text the window rendered.
  */
 function drawn(): string {
   return screen.getByTestId("scroller").textContent ?? "";
 }
 
 /**
- * Draws a window in a box of a stated height, asks it to reach one row, and reports where it
- * scrolled to.
+ * Renders a window in a 400px scroll container, scrolls to one row, and returns the scroll
+ * position the window set.
  *
  * @remarks
- *   The height, the scroll position and both rectangles are stated because a document with no
- *   layout reports every one of them as nothing, and a window told the box shows none of itself
- *   scrolls to every row. The room's rectangle sits as far above the box's as the list is scrolled,
- *   which is where a browser puts it.
- * @param index - The row to reach.
- * @param from - Where the list is scrolled to before the row is reached.
- * @returns What the window asked the box to scroll to.
+ *   Happy-dom has no layout, so the case states the container's height, its scroll position and
+ *   both rectangles. The window's rectangle is offset above the container's by the scroll
+ *   position.
+ * @param index - The row to scroll to.
+ * @param from - The scroll position before the call.
+ * @returns The options the window passed to `scrollTo`.
  */
 function reached(index: number, from = 0): unknown {
   let held: ((index: number) => void) | null = null;
@@ -85,7 +84,7 @@ function reached(index: number, from = 0): unknown {
 }
 
 describe("Window", () => {
-  it("holds the room every row of the list would take", () => {
+  it("sets its height to the row count times the row height", () => {
     const { container } = render(
       scrolling(
         <Window count={1000} rowHeight={ROW}>
@@ -99,7 +98,7 @@ describe("Window", () => {
     );
   });
 
-  it("draws the rows at the start of a list nobody has scrolled", () => {
+  it("renders the overscan rows at the top of an unscrolled list", () => {
     render(
       scrolling(
         <Window count={1000} overscan={2} rowHeight={ROW}>
@@ -111,7 +110,7 @@ describe("Window", () => {
     expect(drawn()).toBe("0:2");
   });
 
-  it("draws further past each end where a caller asks for more room to spare", () => {
+  it("renders more rows with a larger overscan", () => {
     render(
       scrolling(
         <Window count={1000} overscan={9} rowHeight={ROW}>
@@ -123,7 +122,7 @@ describe("Window", () => {
     expect(drawn()).toBe("0:9");
   });
 
-  it("draws no further than the list is long", () => {
+  it("stops the range at the row count", () => {
     render(
       scrolling(
         <Window count={3} overscan={9} rowHeight={ROW}>
@@ -135,7 +134,7 @@ describe("Window", () => {
     expect(drawn()).toBe("0:3");
   });
 
-  it("hands the list a way to scroll to a row the list has not drawn", () => {
+  it("passes a scroll function to the slot", () => {
     const hold = vi.fn<Windowed["hold"]>();
 
     render(
@@ -150,7 +149,7 @@ describe("Window", () => {
     expect(hold).toHaveBeenCalledWith(expect.any(Function));
   });
 
-  it("takes that way back when the window goes, so the list scrolls by its own means again", () => {
+  it("clears the slot on unmount", () => {
     const hold = vi.fn<Windowed["hold"]>();
     const { unmount } = render(
       scrolling(
@@ -166,19 +165,19 @@ describe("Window", () => {
     expect(hold).toHaveBeenLastCalledWith(null);
   });
 
-  it("scrolls far enough to bring a row below the window on to the screen", () => {
+  it("scrolls down to bring a row below the viewport into view", () => {
     expect(reached(12)).toStrictEqual({ top: 120 });
   });
 
-  it("leaves the list where it is for a row already on the screen", () => {
+  it("keeps the scroll position for a row in view", () => {
     expect(reached(2)).toStrictEqual({ top: 0 });
   });
 
-  it("scrolls back to a row above the window", () => {
+  it("scrolls up to a row above the viewport", () => {
     expect(reached(1, 400)).toStrictEqual({ top: 40 });
   });
 
-  it("scrolls nowhere until it knows how tall a row is", () => {
+  it("does not scroll while the row height is unknown", () => {
     let held: ((index: number) => void) | null = null;
 
     render(

@@ -1,14 +1,11 @@
 /**
- * Draws the list itself.
+ * Renders the list of rows.
  *
  * @remarks
- *   This part carries `role="listbox"` and the tab stop. Focus rests here and a highlight moves
- *   over the rows, which is why a row is never focused and why the machine points
- *   `aria-activedescendant` at the highlighted one from this element.
- *   It is what scrolls, so a label and a field above it stay put while the rows move.
- *   The element is `div` rather than `ul`. The role is stated outright and replaces whatever the
- *   element brought, so a list element buys nothing, and a group of rows drawn as a list item
- *   inside a list item is markup no browser accepts.
+ *   The element is a `div` with `role="listbox"` and the tab stop. Focus stays on it, and the
+ *   machine points its `aria-activedescendant` at the highlighted row, so a row never takes focus.
+ *   The content scrolls, so the label and the field stay in place while the rows move. The role
+ *   replaces the element's own semantics, so a `ul` would add nothing.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -19,20 +16,20 @@ import { withContext } from "#listbox/context.ts";
 import { useListbox } from "#listbox/machine.ts";
 
 /**
- * Draws the list at the size the root states.
+ * Renders the `div` with the listbox's content class.
  */
 const Listed = withContext("div", "content");
 
 /**
- * Describes what the content takes.
+ * Describes the props of the content: the props of a `div`.
  */
 export type ContentProps = ComponentProps<typeof Listed>;
 
 /**
- * Carries the rows, and the highlight that moves over them.
+ * Renders the list with the machine's content props.
  *
- * @param props - Everything a styled list takes.
- * @returns The list, carrying its role and the row a reader is on.
+ * @param props - Attributes and children of the `div` element, merged over the machine's.
+ * @returns The `div` element with `role="listbox"`.
  */
 export function Content(props: ContentProps): ReactElement {
   const api = useListbox();

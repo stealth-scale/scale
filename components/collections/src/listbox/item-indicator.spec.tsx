@@ -8,13 +8,13 @@ import { offered } from "#listbox/listbox.fixtures.tsx";
 import { ROWS } from "#listbox/rows.fixtures.ts";
 
 describe("ItemIndicator", () => {
-  it("draws a span inside the root it needs above it", () => {
+  it("renders a span", () => {
     const { container } = render(offered(<ItemIndicator item={ROWS[0]}>t</ItemIndicator>));
 
     expect(slotElement(container, "listbox", "itemIndicator").tagName).toBe("SPAN");
   });
 
-  it("keeps the mark out of the accessibility tree", () => {
+  it("hides the mark from assistive technology", () => {
     const { container } = render(offered(<ItemIndicator item={ROWS[0]}>t</ItemIndicator>));
 
     expect(slotElement(container, "listbox", "itemIndicator").getAttribute("aria-hidden")).toBe(

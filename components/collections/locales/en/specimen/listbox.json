@@ -1,98 +1,98 @@
 {
-  "about": "Draws a list of rows a person picks from, with the keys the ARIA pattern calls for.",
+  "about": "Renders a list of rows a person selects from, with the keyboard interaction of the ARIA listbox pattern.",
   "all": "All clients",
-  "available": "Available",
-  "chosen": "Chosen",
   "clear": "Clear the filter",
   "clients": "Clients",
   "closed": "Closed",
   "columns": {
-    "about": "Rows in columns rather than one after another, at every count. A grid collection is what changes the keys: all four arrows move the highlight, so a reader crosses the tiles the way they see them rather than walking a whole row to reach the one below. The count is told to the collection and to the recipe together, because the arrows reach a tile's neighbours through the one and a reader sees them through the other.",
+    "about": "Tiles in four columns. A grid collection moves the highlight with all four arrow keys. The collection and the recipe take the same column count, because the keys move by the collection's count and the recipe places the tiles by its own.",
     "title": "A grid of tiles"
+  },
+  "consignment": "Consignment {{at}}",
+  "consignments": "Consignments ({{count}})",
+  "described": {
+    "about": "A description under each row's text. The mark at the end centres on the row's height.",
+    "title": "Descriptions"
+  },
+  "effect": {
+    "about": "A glow around the selected row, in the palette's solid.",
+    "title": "Effects"
   },
   "fathom": "Fathom",
   "fathomOf": "Settles nightly, in euro",
   "filter": "Filter clients",
-  "giveBack": "Give back what is picked",
   "grouped": {
-    "about": "Rows gathered under headings. A heading names its group to a screen reader as well as on the screen, and the arrows run through the rows and pass the headings by.",
+    "about": "Rows under group labels. A screen reader announces the group as the highlight enters it, and the arrow keys skip the labels.",
     "title": "Grouped"
   },
   "held": "Held",
   "highlight": {
-    "about": "Every highlight, on the row the keys are on. Move down a list with the arrows.",
+    "about": "Every highlight, on Lantern, beside the selected Fathom. The arrow keys move the highlight.",
     "title": "Highlights"
+  },
+  "kinds": {
+    "about": "An icon before each row's text, set by `icon`. The icon names the kind of client.",
+    "title": "Icons"
   },
   "lantern": "Lantern",
   "lanternOf": "Held pending a customs count",
   "locked": {
-    "about": "A row that cannot be picked. It is still drawn and still read out, because a reader who cannot see it has no way to learn the option exists, and the arrows pass over it.",
-    "title": "A row that cannot be picked"
+    "about": "A disabled row. It renders and a screen reader reads it, so a person learns the option exists. The arrow keys skip it and a press does nothing.",
+    "title": "A disabled row"
   },
-  "consignment": "Consignment {{at}}",
-  "consignments": "Consignments ({{count}})",
   "many": {
-    "about": "Ten thousand rows, of which about twenty are in the document. Hold an arrow key down: the highlight keeps going past what is drawn, because the list is told how to scroll to a row before that row exists. The scrollbar is the length every row would come to, so the list is as long as it says it is.",
-    "title": "Too many rows to draw"
+    "about": "Ten thousand rows, of which about twenty are in the document. Hold an arrow key: the list scrolls to each row before it renders, and the scrollbar matches the whole list.",
+    "title": "Ten thousand rows"
   },
   "modes": {
-    "about": "One row at a time, several, or several the way a file manager does it. Extended is the one that behaves differently rather than merely looking different: a plain press replaces the whole set and a held modifier adds to it, which is powerful and invisible, so reach for it only where a reader already expects it.",
+    "about": "One row, several rows, or several rows the way a file manager selects them. In extended mode a press replaces the selection and a modifier key adds to it. The lists that allow several rows render a checkbox on every row.",
     "title": "Selection modes"
   },
-  "moving": {
-    "about": "Two lists, and what moves between them. Each side is an ordinary list of several; what makes it a transfer is the pair of controls, which are off while nothing on their side is picked so neither ever does nothing.",
-    "title": "Moving rows between two lists"
-  },
   "narrowing": {
-    "about": "A field above the list narrows the rows as a reader types. The arrows still move the highlight and Enter still takes a row without leaving the field. Type three letters that are in none of the names to draw the empty part, which otherwise never appears.",
-    "title": "Narrowing"
+    "about": "A field above the rows filters them as a person types. The arrow keys move the highlight and Enter selects a row without leaving the field. Type text that matches no client to show the empty text.",
+    "title": "Filtering"
   },
-  "nothing": "Nothing picked yet",
-  "nothingHere": "Nothing here.",
+  "none": "No client matches.",
+  "nothing": "Nothing selected",
+  "orientation": {
+    "about": "Rows down a column, and along a row with the left and right arrow keys. In a horizontal list a row takes the width of its text, and the list scrolls sideways.",
+    "title": "Down and across"
+  },
   "outside": {
-    "about": "The picked set is held outside the list, which is what two controls sharing one selection need: a list beside a summary, or a set a URL carries. The controls write to that state rather than reaching into the list, and the list follows.",
-    "title": "Held from outside"
+    "about": "The selection is held in the caller's state, which two buttons also write. The list follows the state.",
+    "title": "Controlled selection"
+  },
+  "palette": {
+    "about": "Every palette, with a solid fill on the selected row. The palette sets the fill, the highlight and the checkboxes.",
+    "title": "Palettes"
   },
   "pebble": "Pebble",
   "pebbleOf": "Settles weekly, in sterling",
-  "orientation": {
-    "about": "The rows down a line, and along one with the arrows following them. Along a line a row takes the width of its own words, and the list scrolls sideways where the words outrun the room.",
-    "title": "Down and across"
-  },
-  "quartz": "Quartz",
-  "quartzOf": "Closed, kept for the record",
-  "rows": {
-    "about": "A row holds whatever is written in it. A mark before the name says what kind of thing each one is, and a second line under it carries what the name does not. The check at the end sits across both lines, so a column of marks reads straight down however tall the rows become.",
-    "title": "What a row holds"
-  },
-  "summarised": {
-    "about": "What the list holds, written outside it. The value text follows the picked rows, so a summary beside a long list says what a reader has chosen without them scrolling back to look.",
-    "title": "What is picked"
-  },
   "pick": "Pick a client",
   "ports": "Ports",
-  "take": "Take what is picked",
+  "quartz": "Quartz",
+  "quartzOf": "Closed, kept for the record",
   "radius": {
-    "about": "Every corner of the list.",
+    "about": "Every corner of a row.",
     "title": "Corners"
   },
   "selected": {
-    "about": "How a picked row is marked. Plain leans on the mark at the row's end alone, which is the one to check a long list against: a row that is on but drawn like the rest is a row nobody finds again.",
-    "title": "Picked rows"
-  },
-  "triggered": {
-    "about": "The same list inside a popover, for a page with no room to hold it open. A listbox is worth reaching for where the options are worth showing; put behind a trigger it is doing a select's job, and a select is the better answer unless the rows need this much room.",
-    "title": "Behind a trigger"
+    "about": "Every fill of a selected row. `plain` relies on the mark at the row's end and a medium weight.",
+    "title": "Selected rows"
   },
   "takeAll": "Take all",
   "takeNone": "Take none",
   "title": "Listbox",
+  "triggered": {
+    "about": "The list inside a popover. A select is the better control unless the rows need this much room.",
+    "title": "In a popover"
+  },
   "variant": {
     "about": "Every look at every size.",
     "title": "Looks and sizes"
   },
   "whole": {
-    "about": "Press the row above the list to turn the whole list on, and again to clear it. Part of the way through it draws a part-checked mark rather than an empty one, so the row says how much of the list is on rather than only whether it was pressed. It counts off the list it is in, so a narrowed list is counted as narrowed.",
+    "about": "A select-all row above the rows, and a summary of the selection below them. The row selects every row, and clears the selection when every row is selected. While part of the list is selected its checkbox shows the mixed mark.",
     "title": "Select all"
   }
 }
