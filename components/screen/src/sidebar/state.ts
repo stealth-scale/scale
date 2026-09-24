@@ -1,25 +1,24 @@
 /**
- * Carries the identifier a block of destinations names itself by down to its heading.
+ * Provides a nav block's label identifier to its `NavLabel`.
  *
  * @remarks
- *   The block derives the identifier and the heading carries it, so a caller writes neither and the
- *   two cannot drift apart. A heading drawn outside a block throws where it was written rather than
- *   naming nothing and saying so nowhere.
+ *   The block creates the identifier and the label reads it, so the two always match without an
+ *   identifier from the caller. A `NavLabel` outside a block throws.
  */
 
 import { createRequiredContext } from "@stealthscale/hooks";
 
 /**
- * Describes what the parts of a block read.
+ * Describes the state a nav block provides.
  */
 export interface NavState {
   /**
-   * The identifier the heading carries and the block names itself by.
+   * Identifier of the label, which the block's `aria-labelledby` points at.
    */
   labelId: string;
 }
 
 /**
- * Hands the block's identifier to its heading, and reads it back.
+ * Provides the block's state and reads it, throwing outside a `Sidebar.Nav`.
  */
 export const [NavProvider, useNav] = createRequiredContext<NavState>("Sidebar.Nav");

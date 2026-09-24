@@ -1,22 +1,17 @@
 /**
- * Defines the styles a sidebar is drawn with.
+ * Declares the sidebar's slot recipe, which lays out a fixed header, scrolling content and a fixed
+ * footer in a column.
  *
  * @remarks
- *   Eleven parts. The root is the column, the header and footer are the bands that stay put, and
- *   the content between them is what scrolls. A nav is a block of destinations under a label, with
- *   an action beside it, and a heading over each list the block holds. The block is a grid of two
- *   columns rather than a plain column, because the action sits beside the label it belongs to and
- *   everything else in the block takes the whole width. Laid out as a column, the auto margin the
- *   action carried moved it to the end of a line of its own under the label, which read as a
- *   destination rather than as a control on the block's heading.
- *   The search narrows what the
- *   blocks hold, and the empty line stands where the search finds nothing. The content scrolls
- *   rather than the column, so a switcher at the head and an account at the foot stay where a
- *   reader left them however long the list of destinations is. `iconic` collapses the sidebar to a
- *   rail of marks. Every heading and the search go, because a heading with nothing under it that a
- *   reader can read says nothing, and the destinations keep their words out of sight so a screen
- *   reader still names each one. The sidebar states nothing about how wide it is: the shell around
- *   it decides that, and this reads the state.
+ *   The recipe has eleven slots. The content scrolls and the root does not, so the header and the
+ *   footer remain in place however long the list of destinations is. A nav block is a grid of two
+ *   columns: the label and the headings take the first, the block's control takes the second, and
+ *   every other child spans both. `iconic` collapses the sidebar to a rail of icons. The labels,
+ *   the headings and the words in the header and footer are hidden visually and kept for screen
+ *   readers, and the search, the empty message and the block's control are removed. The app shell
+ *   sets the sidebar's width, and the caller passes `iconic` while the shell's panel is collapsed
+ *   to icons. The recipe has no `palette` and no `effect` axis: its looks are neutral grounds, and
+ *   the navigation list inside it offers its own palette and effect for the current row.
  */
 
 import {
@@ -24,6 +19,7 @@ import {
   defineSlotRecipe,
   dense,
   divider,
+  interactive,
   onSlot,
   onSlots,
   type Scale,
@@ -33,21 +29,19 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * Selects a part inside a sidebar collapsed to a rail of marks.
+ * Selects a part inside a sidebar collapsed to a rail.
  */
 const ICONIC = "[data-iconic] &";
 
 /**
- * Writes what the bands that stay put are drawn as: their own height, and their words kept for a
- * screen reader once the column is a rail.
+ * Styles the header and the footer as a row that keeps its height and hides its words visually on
+ * a rail.
  *
  * @remarks
- *   A rail is as wide as the marks it holds. The head and the foot were the two bands that kept
- *   their words there, so the name of the workspace and the name of the reader held a rail open to
- *   the width of a column and nothing about it read as a rail.
- *   The words go out of sight rather than out of the document: the head names the workspace and the
- *   foot names who is signed in, and neither is something a rail should stop announcing. A caller
- *   states them in an element, because a bare text node is no child a selector reaches.
+ *   On a rail only the icon remains visible, so the rail is as wide as its icons. The words remain
+ *   in the accessibility tree, because the header's words identify the workspace and the footer's
+ *   words identify the signed-in person. A caller wraps the words in an element, because the
+ *   selector matches element children only.
  */
 const BANDED = {
   ...truncate(),
@@ -58,34 +52,49 @@ const BANDED = {
 };
 
 /**
- * The room a row leaves before its own mark, which every band of the column lines up with.
+ * Returns the inline inset of a navigation list row at the sidebar's size.
  *
  * @remarks
- *   A row is drawn by the navigation list rather than here, and it insets its mark by one step
- *   under the step it is read at. The bands of the column are this recipe's, so this is where the
- *   two are kept the same. Written as one function because three slots read it and a second copy
- *   of the arithmetic drifts from the first.
+ *   The navigation list insets a row by `spacing.inset` one size smaller than the row. The labels,
+ *   the headings and the block's control use the same inset, so their text and icons start and end
+ *   where the rows' do: 8, 12 and 16px at `sm`, `md` and `lg`.
+ * @param size - The sidebar's size.
+ * @returns The inset, multiplied by the density.
  */
 function marked(size: Scale): string {
   return dense(`{spacing.inset.${below(size)}}`);
 }
 
 /**
- * Writes the inset a band outside the scrolling middle takes, so its mark starts in the column the
- * rows' marks start in.
+ * Returns the inline padding of the header and the footer.
  *
  * @remarks
- *   The head and the foot are siblings of the middle rather than children of it, so they keep the
- *   middle's own room as well as the row's. Drawn with the middle's room alone they stood a row's
- *   inset to the left of every row: measured at 8 pixels from the column's edge against the rows'
- *   20 and the block labels' 24, which is three columns in a panel 320 wide.
+ *   The header and the footer are siblings of the content, so their padding is the content's
+ *   padding plus a row's inset. Their icons then start where the rows' icons start: 20px from the
+ *   sidebar's edge at `md`.
+ * @param size - The sidebar's size.
+ * @returns The padding, multiplied by the density.
  */
 function banded(size: Scale): string {
   return `calc(${dense(`{spacing.gap.${size}}`)} + ${marked(size)})`;
 }
 
 /**
- * Draws a plain sidebar at the middle size.
+ * Returns the side of the block control's square: the tag size one size smaller than the sidebar,
+ * and never under `sizes.6`.
+ *
+ * @remarks
+ *   The navigation list sizes the control and the count at the end of a row with the same
+ *   expression, so the block's control is in the rows' end column: 24px at every size.
+ * @param size - The sidebar's size.
+ * @returns The side of the square.
+ */
+function squared(size: Scale): string {
+  return `max({sizes.6}, ${dense(`{sizes.tag.${below(size)}}`)})`;
+}
+
+/**
+ * Styles a plain sidebar at the middle size.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -107,7 +116,22 @@ export const recipe = defineSlotRecipe({
 
       "& > *": { gridColumn: "1 / -1" },
     },
-    navAction: { flexShrink: "0", gridColumn: "2 / 3", [ICONIC]: { display: "none" } },
+    navAction: {
+      ...interactive(),
+      _active: { background: "colorPalette.emphasized" },
+      _hover: { background: "colorPalette.muted", color: "fg" },
+      alignItems: "center",
+      appearance: "none",
+      background: "transparent",
+      borderRadius: "l1",
+      color: "fg.muted",
+      display: "flex",
+      flexShrink: "0",
+      gridColumn: "2 / 3",
+      [ICONIC]: { display: "none" },
+      justifyContent: "center",
+      padding: "0",
+    },
     navHeading: {
       ...truncate(),
       alignItems: "center",
@@ -183,6 +207,20 @@ export const recipe = defineSlotRecipe({
         ["sm", "md", "lg"],
       ),
       nav: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), ["sm", "md", "lg"]),
+
+      /**
+       * The block's control is a square in the rows' end column, with the rows' end inset after
+       * it and an icon the size of a row's leading icon.
+       */
+      navAction: sizeVariants(
+        (size) => ({
+          "& > svg": { boxSize: dense(`{sizes.icon.${below(size)}}`) },
+          blockSize: squared(size),
+          marginInlineEnd: marked(size),
+          minInlineSize: squared(size),
+        }),
+        ["sm", "md", "lg"],
+      ),
       navHeading: sizeVariants(
         (size) => ({
           marginBlockEnd: `calc(${dense(`{spacing.gap.${size}}`)} * -0.5)`,
@@ -202,11 +240,7 @@ export const recipe = defineSlotRecipe({
       ),
 
       /**
-       * The field the blocks are narrowed from takes no room of its own.
-       *
-       * @remarks
-       *   It is a box, and so is every row under it, and the middle of the column already keeps
-       *   room round both. A second inset here stood the field 8 pixels inside the rows it narrows.
+       * The search has zero inline padding, so the field is as wide as the rows under it.
        */
       search: sizeVariants(() => ({ paddingInline: "0" }), ["sm", "md", "lg"]),
       separator: sizeVariants(
@@ -216,11 +250,11 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * How the column is set against the screen around it.
+     * The ground and the edge of the sidebar.
      *
      * @remarks
-     *   `subtle` is the muted ground and no line, for a sidebar inside a shell panel. The shell
-     *   draws the hairline between the panel and the page, so a line here would be a second one.
+     *   `subtle` is a muted ground without an edge, for a sidebar inside an app shell panel. The
+     *   shell renders the hairline between the panel and the page.
      */
     variant: onSlot("root", {
       subtle: { background: "bg.subtle" },

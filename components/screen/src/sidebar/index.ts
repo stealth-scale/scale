@@ -1,6 +1,6 @@
 /**
- * Publishes the sidebar's eleven parts, which a caller composes as `Sidebar.Root` holding a head,
- * the blocks of destinations that scroll, and a foot.
+ * Exports the sidebar's eleven parts, which a caller composes under `Sidebar.Root`: a header, the
+ * scrolling content with its nav blocks, and a footer.
  */
 
 export { Content, type ContentProps } from "#sidebar/content.ts";

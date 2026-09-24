@@ -7,25 +7,25 @@ import { NavHeading } from "#sidebar/nav-heading.tsx";
 import { blocked } from "#sidebar/sidebar.fixtures.tsx";
 
 describe("NavHeading", () => {
-  it("draws a second-level heading inside the block it needs above it", () => {
+  it("renders an h2 inside a block", () => {
     const { container } = render(blocked(<NavHeading id="one">Components</NavHeading>));
 
     expect(slotElement(container, "sidebar", "navHeading").tagName).toBe("H2");
   });
 
-  it("is a heading a screen reader can jump to", () => {
+  it("exposes a level 2 heading with its text as the name", () => {
     render(blocked(<NavHeading id="one">Components</NavHeading>));
 
     expect(screen.getByRole("heading", { level: 2, name: "Components" })).toBeTruthy();
   });
 
-  it("carries the identifier the caller names its list by", () => {
+  it("renders the id passed as id", () => {
     const { container } = render(blocked(<NavHeading id="one">Components</NavHeading>));
 
     expect(slotElement(container, "sidebar", "navHeading").id).toBe("one");
   });
 
-  it("leaves the block's own label to name the landmark", () => {
+  it("leaves the block's name to its label", () => {
     const { container } = render(blocked(<NavHeading id="one">Components</NavHeading>));
 
     expect(slotElement(container, "sidebar", "nav").getAttribute("aria-labelledby")).not.toBe(
@@ -33,7 +33,7 @@ describe("NavHeading", () => {
     );
   });
 
-  it("draws the level a sidebar under a named region needs", () => {
+  it("renders the heading level passed as as", () => {
     render(
       blocked(
         <NavHeading as="h3" id="one">
@@ -45,7 +45,7 @@ describe("NavHeading", () => {
     expect(screen.getByRole("heading", { level: 3 })).toBeTruthy();
   });
 
-  it("throws where no sidebar stands above it", () => {
+  it("throws outside a sidebar", () => {
     expect(() => render(<NavHeading id="one">Components</NavHeading>)).toThrow(/navHeading/u);
   });
 });

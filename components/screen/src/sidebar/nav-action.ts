@@ -1,11 +1,11 @@
 /**
- * Draws the control beside a block's heading.
+ * Renders the control at the end of a nav block's label row.
  *
  * @remarks
- *   What acts on the whole block: add a project, collapse the section, open its settings. It leaves
- *   a collapsed sidebar, because a rail has no room beside a mark and whatever it does is reachable
- *   from the page the rail leads to.
- *   Name it. `Add` says nothing about what it adds to; `Add project` does.
+ *   The control acts on the block, for example to add a project or open its settings. It is a
+ *   square in the end column of the navigation list's rows, with a hover fill and the focus ring.
+ *   Pass the icon as its child and name the control with `aria-label`: `Add project`, not `Add`. A
+ *   collapsed sidebar removes the control, because a rail has no room beside an icon.
  */
 
 import { type ComponentProps } from "react";
@@ -13,13 +13,13 @@ import { type ComponentProps } from "react";
 import { withContext } from "#sidebar/context.ts";
 
 /**
- * Draws the control at the end of the heading's row.
+ * Renders the control `button` at the sidebar's size, typed `button` so it submits no form.
  */
 export const NavAction = withContext("button", "navAction", {
   defaultProps: { type: "button" },
 });
 
 /**
- * Describes what the control takes.
+ * Describes the props of `NavAction`.
  */
 export type NavActionProps = ComponentProps<typeof NavAction>;

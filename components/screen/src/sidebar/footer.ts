@@ -1,9 +1,10 @@
 /**
- * Draws the band at the foot of the sidebar.
+ * Renders the row at the end of the sidebar.
  *
  * @remarks
- *   What a person reaches for last and expects to find in the same place: an account, a help link,
- *   the control that collapses the sidebar. It stays put while the destinations above it scroll.
+ *   The footer contains what a person expects in a fixed place: the account, a help link, the
+ *   control that collapses the sidebar. It remains in place while the content scrolls. On a rail it
+ *   shows its icon and hides its words visually.
  */
 
 import { type ComponentProps } from "react";
@@ -11,11 +12,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#sidebar/context.ts";
 
 /**
- * Draws the band at the room the column states.
+ * Renders the footer `div` at the sidebar's size.
  */
 export const Footer = withContext("div", "footer");
 
 /**
- * Describes what the footer takes.
+ * Describes the props of `Footer`.
  */
 export type FooterProps = ComponentProps<typeof Footer>;

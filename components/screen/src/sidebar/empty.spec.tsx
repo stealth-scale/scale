@@ -7,13 +7,13 @@ import { Empty } from "#sidebar/empty.ts";
 import { blocked } from "#sidebar/sidebar.fixtures.tsx";
 
 describe("Empty", () => {
-  it("draws a line inside the block it needs above it", () => {
+  it("renders a paragraph inside a block", () => {
     const { container } = render(blocked(<Empty>No projects match</Empty>));
 
     expect(slotElement(container, "sidebar", "empty").tagName).toBe("P");
   });
 
-  it("says what was looked through", () => {
+  it("renders its message", () => {
     const { container } = render(blocked(<Empty>No projects match</Empty>));
 
     expect(slotElement(container, "sidebar", "empty").textContent).toBe("No projects match");

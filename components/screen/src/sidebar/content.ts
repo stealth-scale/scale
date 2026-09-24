@@ -1,9 +1,9 @@
 /**
- * Draws what scrolls between the head and the foot.
+ * Renders the scrolling region between the header and the footer.
  *
  * @remarks
- *   This is what scrolls rather than the column, so a switcher at the head and an account at the
- *   foot stay where a reader left them however long the list of destinations grows.
+ *   The content scrolls and the root does not, so the header and the footer remain in place however
+ *   long the list of destinations is.
  */
 
 import { type ComponentProps } from "react";
@@ -11,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#sidebar/context.ts";
 
 /**
- * Draws the scroller at the room the column states.
+ * Renders the content `div` at the sidebar's size.
  */
 export const Content = withContext("div", "content");
 
 /**
- * Describes what the content takes.
+ * Describes the props of `Content`.
  */
 export type ContentProps = ComponentProps<typeof Content>;

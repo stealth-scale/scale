@@ -1,13 +1,12 @@
 /**
- * Draws one block of destinations under a heading.
+ * Renders one block of destinations under a label.
  *
  * @remarks
- *   The element is `nav`, and it names itself from its own heading, so a reader jumping by landmark
- *   hears `Workspace` and `Account` rather than two unnamed navigations. A block without a heading
- *   points at nothing, which resolves to no name, so state `aria-label` on one that draws none.
- *   The identifier is derived rather than registered. A heading that told the block it existed
- *   would be writing state from an effect, which React 19 reports, and the block would draw once
- *   without a name before a second render gave it one.
+ *   The element is `nav`, and its `aria-labelledby` points at the block's `NavLabel`, so a screen
+ *   reader lists the landmark as `Workspace` or `Account`. A block without a label takes
+ *   `aria-label`, and a caller's `aria-label` replaces the label's name. The identifier comes from
+ *   `useId` in the block and reaches the label through context, so the name is present on the
+ *   first render.
  */
 
 import { type ComponentProps, type ReactElement, useId, useMemo } from "react";
@@ -16,20 +15,20 @@ import { withContext } from "#sidebar/context.ts";
 import { NavProvider } from "#sidebar/state.ts";
 
 /**
- * Draws the block at the room the column states.
+ * Renders the block `nav` at the sidebar's size.
  */
 const Blocked = withContext("nav", "nav");
 
 /**
- * Describes what a block takes.
+ * Describes the props of `Nav`, less the `aria-labelledby` the block sets.
  */
 export type NavProps = Omit<ComponentProps<typeof Blocked>, "aria-labelledby">;
 
 /**
- * Gathers destinations under one heading, and names itself by it.
+ * Renders a block of destinations named by its label or by `aria-label`.
  *
- * @param props - Everything a styled nav takes, less the reference it states itself.
- * @returns The block, named by its heading.
+ * @param props - The `nav` element's props, less `aria-labelledby`.
+ * @returns The block, with `aria-labelledby` unless `aria-label` is passed.
  */
 export function Nav(props: NavProps): ReactElement {
   const labelId = useId();
@@ -37,7 +36,10 @@ export function Nav(props: NavProps): ReactElement {
 
   return (
     <NavProvider value={state}>
-      <Blocked aria-labelledby={labelId} {...props} />
+      <Blocked
+        aria-labelledby={props["aria-label"] === undefined ? labelId : undefined}
+        {...props}
+      />
     </NavProvider>
   );
 }

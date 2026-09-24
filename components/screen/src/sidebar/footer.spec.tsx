@@ -7,13 +7,13 @@ import { Footer } from "#sidebar/footer.ts";
 import { aside } from "#sidebar/sidebar.fixtures.tsx";
 
 describe("Footer", () => {
-  it("draws a band inside the column it needs above it", () => {
+  it("renders a div inside the root", () => {
     const { container } = render(aside(<Footer>Account</Footer>));
 
     expect(slotElement(container, "sidebar", "footer").tagName).toBe("DIV");
   });
 
-  it("holds whatever a person reaches for last", () => {
+  it("renders its children", () => {
     const { container } = render(aside(<Footer>Account</Footer>));
 
     expect(slotElement(container, "sidebar", "footer").textContent).toBe("Account");

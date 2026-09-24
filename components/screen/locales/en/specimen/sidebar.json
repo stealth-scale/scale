@@ -1,25 +1,55 @@
 {
-  "about": "Gathers what a person moves around an application by: a fixed head, blocks of destinations that scroll, and a fixed foot.",
-  "account": "Account",
+  "about": "Lays out the navigation of an application as a column: a fixed header, scrolling content with blocks of destinations, and a fixed footer. Each block is a navigation landmark named by its label.",
   "acme": "Acme",
-  "add": "Add a project",
+  "active": "Active",
+  "addProject": "Add project",
+  "archived": "Archived",
   "billing": "Billing",
-  "iconic": {
-    "about": "The column as it is, and collapsed to a rail of marks. The headings and the search leave the rail, and the destinations keep their words out of sight for a screen reader.",
-    "title": "Iconic"
+  "button": "Button",
+  "card": "Card",
+  "clear": "Clear filter",
+  "components": "Components",
+  "customers": "Customers",
+  "documentation": "Documentation",
+  "expenses": "Expenses",
+  "filterPages": "Filter pages",
+  "filtering": {
+    "about": "A search field that filters the pages. The query matches no page, so the block shows the empty message.",
+    "title": "Filter"
+  },
+  "general": "General",
+  "guides": "Guides",
+  "handbook": "Acme handbook",
+  "headings": {
+    "about": "One nav block named by `aria-label`, with a heading over each list. Each list takes its name from its heading through `aria-labelledby`.",
+    "title": "Headings"
   },
   "invoices": "Invoices",
+  "launch": "Spring launch",
+  "migration": "Data migration",
+  "noMatch": "No pages match",
   "overview": "Overview",
-  "profile": "Profile",
+  "pages": "Pages",
+  "projects": "Projects",
+  "query": "Zebra",
+  "rail": {
+    "about": "The sidebar collapsed to a rail of icons. The labels and the words in the header and the footer are hidden visually and remain available to screen readers. The search and the block controls are removed.",
+    "title": "Rail"
+  },
+  "reports": "Reports",
+  "revenue": "Revenue",
   "search": "Search",
+  "settings": "Settings",
   "signedIn": "Signed in as Ada",
   "size": {
-    "about": "Every size. The size moves the insets, the gaps and the words of every band together.",
+    "about": "The three sizes. The size sets the padding, the gaps and the text of the header, the labels and the footer. The navigation list and the search field take the same size through their own props.",
     "title": "Sizes"
   },
+  "start": "Getting started",
+  "theming": "Theming",
   "title": "Sidebar",
   "variant": {
-    "about": "Every look. Each column is drawn in a room the width of a sidebar, because a sidebar states nothing about how wide it is and the shell around it decides that.",
+    "about": "The four looks. `outline` has a hairline at the inline end, `plain` is transparent, `subtle` has a muted ground, and `surface` has the panel ground, a hairline on every side and a shadow. The app shell sets the width, so each sidebar renders in a room the width of a sidebar.",
     "title": "Looks"
   },
   "workspace": "Workspace"

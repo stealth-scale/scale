@@ -1,11 +1,10 @@
 /**
- * Draws the line standing where the search finds nothing.
+ * Renders the message shown when the search matches no destination.
  *
  * @remarks
- *   Say what was looked through. `No projects match` tells a reader the sidebar searched and found
- *   nothing, where `No results` leaves them unsure whether it searched at all.
- *   Draw it only where nothing matches, so the words are in the document exactly when they are
- *   true.
+ *   Name what was searched: `No projects match` tells the reader that the search ran and found
+ *   nothing, and `No results` does not. Render the message only while nothing matches. A collapsed
+ *   sidebar removes it.
  */
 
 import { type ComponentProps } from "react";
@@ -13,11 +12,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#sidebar/context.ts";
 
 /**
- * Draws the line at the room the column states.
+ * Renders the message `p` at the sidebar's size.
  */
 export const Empty = withContext("p", "empty");
 
 /**
- * Describes what the empty line takes.
+ * Describes the props of `Empty`.
  */
 export type EmptyProps = ComponentProps<typeof Empty>;

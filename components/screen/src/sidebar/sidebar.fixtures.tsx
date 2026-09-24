@@ -1,5 +1,5 @@
 /**
- * Builds the sidebar a part's specification needs above it.
+ * Builds the sidebars the part specifications render.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -12,22 +12,22 @@ import { Nav } from "#sidebar/nav.tsx";
 import { Root, type RootProps } from "#sidebar/root.tsx";
 
 /**
- * Draws whatever a case wants measured inside the column that hands down the variants.
+ * Renders a part inside the root, which provides the variants.
  *
  * @param children - The part under test.
- * @param props - Whatever the case sets on the column.
- * @returns The column, holding it.
+ * @param props - The root's props.
+ * @returns The root with the part inside it.
  */
 export function aside(children: ReactNode, props: RootProps = {}): ReactElement {
   return <Root {...props}>{children}</Root>;
 }
 
 /**
- * Draws whatever a case wants measured inside a block of destinations.
+ * Renders a part inside a nav block inside the root.
  *
  * @param children - The part under test.
- * @param props - Whatever the case sets on the column.
- * @returns The column, holding the block, holding it.
+ * @param props - The root's props.
+ * @returns The root with a block around the part.
  */
 export function blocked(children: ReactNode, props: RootProps = {}): ReactElement {
   return (
@@ -38,10 +38,10 @@ export function blocked(children: ReactNode, props: RootProps = {}): ReactElemen
 }
 
 /**
- * Draws a whole sidebar, so a case can read how its bands are placed.
+ * Renders a sidebar with a header and a footer around a block that contains a label and a link.
  *
- * @param props - Whatever the case sets on the column.
- * @returns The parts composed the way a caller composes them.
+ * @param props - The root's props.
+ * @returns The sidebar.
  */
 export function composed(props: RootProps = {}): ReactElement {
   return (

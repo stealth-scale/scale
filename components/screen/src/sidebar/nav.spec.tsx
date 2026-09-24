@@ -8,13 +8,13 @@ import { Nav } from "#sidebar/nav.tsx";
 import { aside } from "#sidebar/sidebar.fixtures.tsx";
 
 describe("Nav", () => {
-  it("draws a navigation inside the column it needs above it", () => {
+  it("renders a nav inside the root", () => {
     const { container } = render(aside(<Nav />));
 
     expect(slotElement(container, "sidebar", "nav").tagName).toBe("NAV");
   });
 
-  it("names itself from its own heading", () => {
+  it("takes its name from its label", () => {
     render(
       aside(
         <Nav>
@@ -26,19 +26,37 @@ describe("Nav", () => {
     expect(screen.getByRole("navigation", { name: "Workspace" })).toBeTruthy();
   });
 
-  it("carries no name where no heading is drawn", () => {
+  it("has no name without a label", () => {
     render(aside(<Nav />));
 
     expect(screen.queryByRole("navigation", { name: /./u })).toBeNull();
   });
 
-  it("takes the name a caller states over the one it derives", () => {
+  it("takes its name from aria-label without a label", () => {
     render(aside(<Nav aria-label="Account" />));
 
     expect(screen.getByRole("navigation", { name: "Account" })).toBeTruthy();
   });
 
-  it("names two blocks apart", () => {
+  it("takes its name from aria-label over its label", () => {
+    render(
+      aside(
+        <Nav aria-label="Account">
+          <NavLabel>Workspace</NavLabel>
+        </Nav>,
+      ),
+    );
+
+    expect(screen.getByRole("navigation", { name: "Account" })).toBeTruthy();
+  });
+
+  it("omits aria-labelledby when aria-label is passed", () => {
+    const { container } = render(aside(<Nav aria-label="Account" />));
+
+    expect(slotElement(container, "sidebar", "nav").getAttribute("aria-labelledby")).toBeNull();
+  });
+
+  it("gives two blocks distinct names", () => {
     render(
       aside(
         <>
@@ -52,9 +70,7 @@ describe("Nav", () => {
       ),
     );
 
-    expect(
-      screen.getAllByRole("navigation").map((each) => each.getAttribute("aria-labelledby")),
-    ).toHaveLength(2);
+    expect(screen.getByRole("navigation", { name: "Workspace" })).toBeTruthy();
     expect(screen.getByRole("navigation", { name: "Account" })).toBeTruthy();
   });
 });

@@ -9,11 +9,11 @@ import { type RootProps } from "#sidebar/root.tsx";
 import { composed } from "#sidebar/sidebar.fixtures.tsx";
 
 describe("Root", () => {
-  it("breaks no accessibility rule holding a head and a block and a foot", async () => {
+  it("returns no accessibility violation for a whole sidebar", async () => {
     await expect(accessibilityViolations(() => composed())).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "root",
@@ -21,25 +21,25 @@ describe("Root", () => {
     ).toStrictEqual([]);
   });
 
-  it("draws a column", () => {
+  it("renders a div", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "sidebar", "root").tagName).toBe("DIV");
   });
 
-  it("leaves the one landmark it holds to the block of destinations drawing it", () => {
+  it("renders no landmark of its own", () => {
     render(composed());
 
     expect(screen.getAllByRole("navigation")).toHaveLength(1);
   });
 
-  it("says nothing about collapsing where the shell says nothing", () => {
+  it("omits data-iconic when iconic is not passed", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "sidebar", "root").dataset["iconic"]).toBeUndefined();
   });
 
-  it("carries the collapse the shell states", () => {
+  it("writes data-iconic when iconic is passed", () => {
     const { container } = render(composed({ iconic: true }));
 
     expect(slotElement(container, "sidebar", "root").dataset["iconic"]).toBe("");

@@ -7,13 +7,13 @@ import { Search } from "#sidebar/search.ts";
 import { aside } from "#sidebar/sidebar.fixtures.tsx";
 
 describe("Search", () => {
-  it("draws a band inside the column it needs above it", () => {
+  it("renders a div inside the root", () => {
     const { container } = render(aside(<Search />));
 
     expect(slotElement(container, "sidebar", "search").tagName).toBe("DIV");
   });
 
-  it("holds the field a caller puts in it", () => {
+  it("renders the field passed as a child", () => {
     const { container } = render(
       aside(
         <Search>

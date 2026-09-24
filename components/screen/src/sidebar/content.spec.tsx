@@ -7,13 +7,13 @@ import { Content } from "#sidebar/content.ts";
 import { aside } from "#sidebar/sidebar.fixtures.tsx";
 
 describe("Content", () => {
-  it("draws the middle band inside the column it needs above it", () => {
+  it("renders a div inside the root", () => {
     const { container } = render(aside(<Content />));
 
     expect(slotElement(container, "sidebar", "content").tagName).toBe("DIV");
   });
 
-  it("holds the blocks that scroll", () => {
+  it("renders its children", () => {
     const { container } = render(
       aside(
         <Content>

@@ -8,19 +8,19 @@ import { NavAction } from "#sidebar/nav-action.ts";
 import { blocked } from "#sidebar/sidebar.fixtures.tsx";
 
 describe("NavAction", () => {
-  it("draws a control inside the block it needs above it", () => {
+  it("renders a button inside a block", () => {
     const { container } = render(blocked(<NavAction>Add project</NavAction>));
 
     expect(slotElement(container, "sidebar", "navAction").tagName).toBe("BUTTON");
   });
 
-  it("submits nothing a form around the sidebar holds", () => {
+  it("defaults type to button", () => {
     const { container } = render(blocked(<NavAction>Add project</NavAction>));
 
     expect(slotElement(container, "sidebar", "navAction").getAttribute("type")).toBe("button");
   });
 
-  it("answers a press", async () => {
+  it("calls onClick on a press", async () => {
     let added = 0;
     render(
       blocked(
