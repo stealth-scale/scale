@@ -77,8 +77,14 @@ describe("recipe", () => {
     });
   });
 
-  it("sets the md legend in the md label role", () => {
-    expect(recipe.variants?.["size"]?.["md"]?.["legend"]).toStrictEqual({ textStyle: "label.md" });
+  it("sets the md legend in the sm heading role", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["legend"]).toStrictEqual({
+      textStyle: "heading.sm",
+    });
+  });
+
+  it("leaves the legend's weight to the heading role", () => {
+    expect(recipe.base?.["legend"]).not.toHaveProperty("fontWeight");
   });
 
   it("centres an error text's mark on its first line", () => {

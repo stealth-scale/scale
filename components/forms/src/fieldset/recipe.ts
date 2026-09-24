@@ -7,8 +7,10 @@
  *   The root is a flex container with the size's gap between every child. The legend floats,
  *   because a floated legend is not the rendered legend a browser draws in the border and lays out
  *   apart from the flex items, so the gap reaches it. It still names the group, because the
- *   accessible name reads the first `legend` child. The helper and error texts read the body role
- *   one size smaller, the same as a field's. The status axis sets the palette of the error text.
+ *   accessible name reads the first `legend` child. The legend reads the heading role one size
+ *   smaller than the group, which sets it one font size above the field labels, so it reads as the
+ *   heading of the group. The helper and error texts read the body role one size smaller, the
+ *   same as a field's. The status axis sets the palette of the error text.
  *   The recipe has no `palette` axis, because the group's only color reports a state, and no
  *   `effect` axis, because the group draws no box of its own.
  */
@@ -56,7 +58,7 @@ export const recipe = defineSlotRecipe({
       display: "flex",
     },
     helperText: { color: "fg.muted" },
-    legend: { float: "inline-start", fontWeight: "semibold", inlineSize: "full", padding: "0" },
+    legend: { float: "inline-start", inlineSize: "full", padding: "0" },
     root: {
       borderStyle: "none",
       colorPalette: "error",
@@ -92,9 +94,10 @@ export const recipe = defineSlotRecipe({
     },
 
     /**
-     * Text size and gap. The legend reads the label role at the size, the texts read the body role
-     * one size smaller, and the gap reads the gap scale at the size. The size also reaches every
-     * field inside the group that states none.
+     * Text size and gap. The legend reads the heading role one size smaller: 16, 18 and 20.25px at
+     * `sm`, `md` and `lg`, over field labels of 14.2, 16 and 18px. The texts read the body role one
+     * size smaller, and the gap reads the gap scale at the size. The size also reaches every field
+     * inside the group that states none.
      */
     size: onSlots({
       errorText: sizeVariants(
@@ -102,7 +105,7 @@ export const recipe = defineSlotRecipe({
         SIZES,
       ),
       helperText: sizeVariants(described, SIZES),
-      legend: sizeVariants((size) => ({ textStyle: `label.${size}` }), SIZES),
+      legend: sizeVariants((size) => ({ textStyle: `heading.${below(size)}` }), SIZES),
       root: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), SIZES),
     }),
 

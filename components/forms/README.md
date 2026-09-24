@@ -58,7 +58,8 @@ import { Field, Fieldset } from "@stealthscale/component-forms";
 - `Fieldset.ErrorText` renders while the group is invalid or reports a status, and sets
   `role="alert"` only while it is invalid. Use it for a fault of the group, such as no option chosen
   or two dates in the wrong order. A fault of one field goes in that field's error text.
-- The legend floats, so the root's gap separates it from the next part.
+- The legend reads the heading role one font size above the field labels, so it reads as the heading
+  of the group. It floats, so the root's gap separates it from the next part.
 
 ## Field
 

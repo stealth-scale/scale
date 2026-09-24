@@ -23,7 +23,7 @@
     "warning": "We could not reach this number last time."
   },
   "size": {
-    "about": "Every size. The legend reads the label role at the size, the texts read the body role one size smaller, and the fields inside take the size.",
+    "about": "Every size. The legend reads the heading role one font size above the field labels, the texts read the body role one size smaller, and the fields inside take the size.",
     "title": "Sizes"
   },
   "states": {

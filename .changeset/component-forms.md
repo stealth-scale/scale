@@ -62,6 +62,10 @@ component-forms: publish Fieldset, Field, Checkbox, Switch, Textarea and InputGr
 - The legend floats, so it is not the rendered legend a browser lays out apart from the flex items,
   and the root's gap separates it from the next part: 6, 8 and 12px at `sm`, `md` and `lg`. It still
   names the group.
+- The legend reads the heading role one size smaller than the group: 16, 18 and 20.25px at `sm`,
+  `md` and `lg`, one font size above the field labels, at the heading role's weight. In the label
+  role it rendered at the labels' size and weight, because the size axis's text style overrode the
+  base weight.
 - The helper and error texts read the body role one size smaller, the same as a field's.
 - `ErrorText` renders while the group is invalid or reports a status, and sets `role="alert"` only
   while the group is invalid. A leading `svg` is centred on the first line.
