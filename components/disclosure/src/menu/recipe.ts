@@ -10,10 +10,13 @@
  *   panel takes the `dropdown` z-index plus its depth in the nest, because the machine writes
  *   `z-index: var(--z-index)` inline on the positioner from the panel's value. The panel has no
  *   focus ring, because the machine focuses it on opening and the highlight marks the row. A row
- *   reads the body role one size smaller and truncates. `inset` leaves a mark's gutter on every
- *   row. The panel sets the palette, and the rows and the highlight inherit it. A critical row
- *   reads `error`. The recipe has no `effect` axis, because the highlight moves with the pointer
- *   and the arrow keys, and a glow would move with it.
+ *   reads the body role one size smaller, truncates, and sizes a leading icon to the icon size one
+ *   size smaller. `inset` pads a row without a leading icon or mark by the gutter a leading icon
+ *   takes, so its text starts where an icon row's text starts. The indicator mirrors in a
+ *   right-to-left menu, so a submenu row's chevron points to the side the submenu opens on. The
+ *   panel sets the palette, and the rows and the highlight inherit it. A critical row reads
+ *   `error`. The recipe has no `effect` axis, because the highlight moves with the pointer and the
+ *   arrow keys, and a glow would move with it.
  */
 
 import {
@@ -41,6 +44,16 @@ import {
 const SIZES: readonly Scale[] = ["sm", "md", "lg"];
 
 /**
+ * The recipe's class name, which the selectors across parts are built from.
+ *
+ * @remarks
+ *   The binding writes one class per part and no part attribute. A selector names a part by the
+ *   compiler's class, such as `menu__itemMark`, and the naming step renames it to the class the
+ *   element carries, `menu__item-mark`.
+ */
+const CLASS = "menu";
+
+/**
  * Custom property a panel sets to its depth in the nest, which the panel adds to its z-index.
  *
  * @remarks
@@ -59,9 +72,17 @@ export const MENU_DEPTH = "--menu-depth";
 export const NESTED = "data-nested";
 
 /**
- * Custom property the size axis sets to the gutter a row's mark takes, which `inset` reads.
+ * Custom property the size axis sets to the gutter a leading icon takes, which `inset` reads.
  */
 const GUTTER = "--menu-gutter";
+
+/**
+ * Selects a row whose first element is neither an icon nor a mark.
+ *
+ * @remarks
+ *   The selector matches element children only, so the text before an icon does not count.
+ */
+const UNMARKED = `&:not(:has(> svg:first-child, > .${CLASS}__itemMark:first-child))`;
 
 /**
  * Custom property each look sets to the panel's fill, which the arrow reads.
@@ -69,10 +90,18 @@ const GUTTER = "--menu-gutter";
 const SURFACE = "var(--menu-surface)";
 
 /**
- * Returns the gutter a mark takes at a size: the row's inline padding, the icon and the gap.
+ * Returns the side of a row's leading icon at a size: the icon size one size smaller.
+ */
+function icon(size: Scale): string {
+  return dense(`{sizes.icon.${below(size)}}`);
+}
+
+/**
+ * Returns the gutter a leading icon takes at a size: the row's inline padding, the icon and the
+ * gap, each multiplied by the density as the row multiplies them.
  */
 function gutter(size: Scale): string {
-  return `calc({spacing.inset.${below(size)}} + {sizes.icon.${below(size)}} + {spacing.gap.${size}})`;
+  return `calc(${dense(`{spacing.inset.${below(size)}}`)} + ${icon(size)} + ${dense(`{spacing.gap.${size}}`)})`;
 }
 
 /**
@@ -101,11 +130,12 @@ function cleared(room: string): SystemStyleObject {
 }
 
 /**
- * Returns a row's styles at a size: its padding, the gap after a mark, the gutter and the body role
- * one size smaller.
+ * Returns a row's styles at a size: its padding, the leading icon, the gap after a mark, the gutter
+ * and the body role one size smaller.
  */
 function rowOf(size: Scale): SystemStyleObject {
   return {
+    "& > svg": { boxSize: icon(size), flexShrink: "0" },
     gap: dense(`{spacing.gap.${size}}`),
     [GUTTER]: gutter(size),
     paddingBlock: dense(`{spacing.gap.${below(size)}}`),
@@ -135,6 +165,7 @@ export const recipe = defineSlotRecipe({
     },
     contextTrigger: { cursor: "menuitem" },
     indicator: {
+      _rtl: { scale: "-1 1" },
       "& > svg": { boxSize: "100%" },
       alignItems: "center",
       display: "inline-flex",
@@ -188,7 +219,7 @@ export const recipe = defineSlotRecipe({
     trigger: { ...interactive() },
     triggerItem: { ...row(), borderRadius: "l1" },
   },
-  className: "menu",
+  className: CLASS,
   defaultVariants: { highlight: "tint", palette: "neutral", size: "md", variant: "surface" },
   jsx: [/^Menu(\.\w+)?$/u],
   slots: [
@@ -223,12 +254,13 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * Whether every row leaves the gutter a mark takes, for a menu whose rows lead with an icon.
+     * Whether a row without a leading icon or mark starts its text after the gutter an icon takes,
+     * for a menu where some rows lead with an icon.
      */
     inset: {
       true: {
-        item: { paddingInlineStart: `var(${GUTTER})` },
-        triggerItem: { paddingInlineStart: `var(${GUTTER})` },
+        item: { [UNMARKED]: { paddingInlineStart: `var(${GUTTER})` } },
+        triggerItem: { [UNMARKED]: { paddingInlineStart: `var(${GUTTER})` } },
       },
     },
 

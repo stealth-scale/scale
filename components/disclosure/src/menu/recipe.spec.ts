@@ -137,22 +137,35 @@ describe("recipe", () => {
     expect(recipe.base?.["item"]).not.toHaveProperty("&[data-type]");
   });
 
-  it("leaves the gutter on every row when inset is true", () => {
+  it("pads only a row without a leading icon or mark by the gutter when inset is true", () => {
+    const unmarked = {
+      "&:not(:has(> svg:first-child, > .menu__itemMark:first-child))": {
+        paddingInlineStart: "var(--menu-gutter)",
+      },
+    };
+
     expect(recipe.variants?.["inset"]?.["true"]).toStrictEqual({
-      item: { paddingInlineStart: "var(--menu-gutter)" },
-      triggerItem: { paddingInlineStart: "var(--menu-gutter)" },
+      item: unmarked,
+      triggerItem: unmarked,
     });
   });
 
-  it("sizes the gutter from the row's padding the icon and the gap", () => {
+  it("sizes the gutter from the row's padding the icon and the gap at the density", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["item"]).toMatchObject({
-      "--menu-gutter": "calc({spacing.inset.sm} + {sizes.icon.sm} + {spacing.gap.md})",
+      "--menu-gutter":
+        "calc(calc({spacing.inset.sm} * var(--density, 1)) + calc({sizes.icon.sm} * var(--density, 1)) + calc({spacing.gap.md} * var(--density, 1)))",
+    });
+  });
+
+  it("sizes a leading icon one size smaller than the row", () => {
+    expect(recipe.variants?.["size"]?.["lg"]?.["item"]?.["& > svg"]).toStrictEqual({
+      boxSize: "calc({sizes.icon.md} * var(--density, 1))",
+      flexShrink: "0",
     });
   });
 
   it("sets a row on the body role one size smaller with rounded corners", () => {
-    expect(recipe.variants?.["size"]?.["md"]?.["item"]).toStrictEqual({
-      "--menu-gutter": "calc({spacing.inset.sm} + {sizes.icon.sm} + {spacing.gap.md})",
+    expect(recipe.variants?.["size"]?.["md"]?.["item"]).toMatchObject({
       gap: "calc({spacing.gap.md} * var(--density, 1))",
       paddingBlock: "calc({spacing.gap.sm} * var(--density, 1))",
       paddingInline: "calc({spacing.inset.sm} * var(--density, 1))",
@@ -272,7 +285,7 @@ describe("recipe", () => {
   });
 
   it("puts the indicator at its trigger's end", () => {
-    expect(recipe.base?.["indicator"]).toStrictEqual({
+    expect(recipe.base?.["indicator"]).toMatchObject({
       "& > svg": { boxSize: "100%" },
       alignItems: "center",
       display: "inline-flex",
@@ -280,6 +293,10 @@ describe("recipe", () => {
       justifyContent: "center",
       marginInlineStart: "auto",
     });
+  });
+
+  it("mirrors the indicator in a right-to-left menu", () => {
+    expect(recipe.base?.["indicator"]?.["_rtl"]).toStrictEqual({ scale: "-1 1" });
   });
 
   it("sizes the indicator like a checked row's mark", () => {
