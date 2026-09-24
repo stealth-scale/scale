@@ -374,11 +374,3 @@ theme: read a field's read-only state from its attributes
 - `field()` sets the subtle surface on a control marked `[readonly]`, `[data-readonly]` or
   `[aria-readonly=true]`. It read `:read-only`, which matches every element that is not editable, so
   a switch track and a checkbox box rendered on the read-only surface at rest.
-
-theme: publish FOCUS_RING and WITHIN_FOCUS
-
-- `FOCUS_RING` is the focus ring's color with the compiler's fallbacks, and `WITHIN_FOCUS` selects a
-  box whose `input`, `select` or `textarea` has keyboard focus. A box that rings the control inside
-  it sets `--focus-ring-color` to `FOCUS_RING` and paints its outline under `WITHIN_FOCUS`, as
-  `wrappedField()` does. The command palette's bar copied the color's fallback, a raw hex, into its
-  recipe.

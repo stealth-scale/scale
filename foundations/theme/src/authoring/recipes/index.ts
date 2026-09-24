@@ -8,13 +8,7 @@
 
 export { type Axis, axis } from "#authoring/recipes/axis.ts";
 export { dense } from "#authoring/recipes/density.ts";
-export {
-  field,
-  FIELD_EDGE,
-  FOCUS_RING,
-  WITHIN_FOCUS,
-  wrappedField,
-} from "#authoring/recipes/field.ts";
+export { field, FIELD_EDGE, wrappedField } from "#authoring/recipes/field.ts";
 export { floating, overlay } from "#authoring/recipes/floating.ts";
 export {
   type Align,
