@@ -5,7 +5,7 @@
 import { type ReactNode } from "react";
 
 /**
- * One command a palette can list and run.
+ * Describes one command a palette lists and runs.
  */
 export interface CommandAction {
   /**
@@ -25,7 +25,7 @@ export interface CommandAction {
   icon?: ReactNode;
 
   /**
-   * Extra terms the action should match on, so typing `add` finds `New document`.
+   * Extra terms the action matches on, so typing `add` finds `New document`.
    */
   keywords?: string | undefined;
 
@@ -40,7 +40,7 @@ export interface CommandAction {
   shortcut?: string | undefined;
 
   /**
-   * The value handed back when the action is chosen.
+   * The value `onRun` receives when the action runs.
    */
   value: string;
 }
@@ -49,9 +49,8 @@ export interface CommandAction {
  * Returns the label of an action.
  *
  * @remarks
- *   Declared here rather than written as an arrow at the call site, so the collection keeps a
- *   stable identity across renders instead of rebuilding every row on a keystroke that matched
- *   nothing.
+ *   A module-level function keeps one identity across renders, so the collection does not rebuild
+ *   on a keystroke that changes no match.
  */
 export function labelOf(action: CommandAction): string {
   return action.label;
@@ -65,13 +64,14 @@ export function valueOf(action: CommandAction): string {
 }
 
 /**
- * Buckets actions by their group, preserving the order they arrived in.
+ * Groups actions by heading, in the order each heading first appears.
  *
  * @remarks
  *   An action with no group falls under the empty string, which the list renders without a heading.
- *   Headings come out in the order their first action appeared, so the caller controls what a
- *   reader sees first simply by ordering the input.
- * @returns One entry per heading, each holding the actions under it.
+ *   A heading's position is the position of its first action, so the caller orders the groups by
+ *   ordering the actions.
+ * @param actions - The actions, in the order the caller gave them.
+ * @returns One entry per heading, each with the actions under it.
  */
 export function gathered(
   actions: readonly CommandAction[],

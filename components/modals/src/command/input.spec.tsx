@@ -7,19 +7,19 @@ import { composed, palette, typed } from "#command/command.fixtures.tsx";
 import { Input } from "#command/input.tsx";
 
 describe("Input", () => {
-  it("renders an input element for the input slot", () => {
+  it("renders an input", () => {
     const { container } = render(palette(<Input aria-label="Type a command" />));
 
     expect(slotElement(container, "command", "input").tagName).toBe("INPUT");
   });
 
-  it("renders no indicator element when the indicator prop is absent", () => {
+  it("renders no indicator without the indicator prop", () => {
     const { container } = render(palette(<Input aria-label="Type a command" />));
 
     expect(container.querySelector("[data-part=indicator]")).toBeNull();
   });
 
-  it("renders the indicator prop inside the indicator slot", () => {
+  it("renders the indicator prop in the indicator slot", () => {
     const { container } = render(palette(<Input aria-label="Type a command" indicator="s" />));
 
     expect(slotElement(container, "command", "indicator").textContent).toBe("s");

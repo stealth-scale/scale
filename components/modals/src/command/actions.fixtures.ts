@@ -1,11 +1,11 @@
 /**
- * Supplies the action list shared by every command palette specification.
+ * Defines the actions every command specification lists.
  */
 
 import { type CommandAction } from "#command/action.ts";
 
 /**
- * Three actions: two sharing a group, and one ungrouped that carries keywords and a shortcut.
+ * Three actions: two in one group, and one without a group that has keywords and a shortcut.
  */
 export const ACTIONS: readonly CommandAction[] = [
   { group: "Go to", label: "Invoices", value: "invoices" },

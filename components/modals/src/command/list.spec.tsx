@@ -7,13 +7,13 @@ import { composed, palette } from "#command/command.fixtures.tsx";
 import { List } from "#command/list.tsx";
 
 describe("List", () => {
-  it("renders a div element for the list slot", () => {
+  it("renders a div", () => {
     const { container } = render(palette(<List />));
 
     expect(slotElement(container, "command", "list").tagName).toBe("DIV");
   });
 
-  it("labels the listbox with the name carried in the palette state", () => {
+  it("labels the listbox with the palette's aria-label", () => {
     render(composed());
 
     expect(screen.getByRole("listbox", { name: "Commands" })).toBeTruthy();

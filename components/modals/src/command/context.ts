@@ -1,10 +1,10 @@
 /**
- * Connects the slot recipe to React.
+ * Binds the command recipe to its parts.
  *
  * @remarks
- *   Kept apart from `recipe.ts` so an application's compiler can read the recipe at build time
- *   without pulling React in with it, and apart from `state.ts` because styling and filtering are
- *   independent concerns that happen to share a component tree.
+ *   The binding is apart from the recipe, because a compiler reads the recipe at build time and the
+ *   binding imports the runtime. It is apart from `state.ts`, because the recipe styles the parts
+ *   and the state filters the actions.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";
@@ -12,7 +12,6 @@ import { createSlotRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#command/recipe.ts";
 
 /**
- * A single binding of the recipe: `withProvider` wraps the root, `withContext` wraps every other
- * slot beneath it.
+ * Binds the recipe once. The root provides the variants and every other part reads them.
  */
 export const { withContext, withProvider } = createSlotRecipeContext(recipe);

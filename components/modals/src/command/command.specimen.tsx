@@ -1,156 +1,115 @@
 /**
- * Shows the command palette: every size, what it draws while nothing matches, and the controls
- * inside the query bar.
+ * Catalogue page for the command palette.
  *
  * @remarks
- *   The size scene is generated from the recipe, so an axis added to it reaches the page without
- *   this file changing. The actions are passed as data and chosen to exercise every kind of row:
- *   two groups, shortcuts on three, and one that is disabled. The message for an empty list goes
- *   inside `Command.List`, which draws its children in place of the rows when nothing matches.
- *   Written beside the list it was a paragraph the palette always drew, so every palette on the
- *   page said no command matched under a list of five that did. The empty scene opens the palette
- *   holding a query rather than describing what one would do. The message and the control that
- *   empties the query are both things a palette draws only once there is a query, and neither can
- *   be read off a palette that holds none. Copy comes from the `command` namespace in
+ *   `scenesOf` generates the sizes and the palettes from the commands example. The narrowed,
+ *   keyword and empty scenes open the same example with a query, which the Source shows as `query`.
+ *   Every palette renders in an `md` room. The machine marks the highlighted row only while the
+ *   field has keyboard focus, so the specimen sets `data-highlighted` on the first row. The room
+ *   and the highlight never appear in the example. The words are keys under `command` in
  *   `locales/en/specimen/command.json`.
  */
 
-import { type ReactElement } from "react";
+import { type ReactElement, type ReactNode, useEffect, useState } from "react";
 
-import { type Scene, scenesOf, specimen, useWords } from "@stealthscale/specimen";
+import { Room, type Scene, scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
-import { type CommandAction } from "#command/action.ts";
-import * as Command from "#command/index.ts";
+import * as examples from "#command/examples/index.ts";
+import type * as Command from "#command/index.ts";
 import { recipe } from "#command/recipe.ts";
 
 /**
- * The path of the glass that says what the query bar is for, in a 24 unit box.
+ * Describes the props of the highlight staging.
  */
-const GLASS = "M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14M16 16l4 4";
+interface HighlightedProps {
+  /**
+   * The palette to stage.
+   */
+  readonly children: ReactNode;
+}
 
 /**
- * The path of the cross that empties the query, in the same box.
+ * Renders a palette in an `md` room and sets `data-highlighted` on its first row after it mounts.
+ *
+ * @remarks
+ *   The machine sets the attribute only while the field has keyboard focus, and one field on a page
+ *   has focus at a time. The staging never appears in an example.
  */
-const CROSS = "M6 6l12 12M18 6L6 18";
+function Highlighted({ children }: HighlightedProps): ReactElement {
+  const [box, setBox] = useState<HTMLDivElement | null>(null);
+
+  useEffect((): (() => void) | undefined => {
+    const row = box?.querySelector<HTMLElement>('[role="option"][data-value="new"]');
+
+    if (row === undefined || row === null) return undefined;
+
+    row.dataset["highlighted"] = "";
+
+    return () => {
+      delete row.dataset["highlighted"];
+    };
+  }, [box]);
+
+  return (
+    <Room size="md">
+      <div ref={setBox}>{children}</div>
+    </Room>
+  );
+}
 
 /**
- * The call site the scene's source snippet is generated from.
+ * Describes the props of a palette opened with a query.
  */
-const SAMPLE = {
-  children: [
-    '<Command.Input indicator={<Mark d={GLASS} />} placeholder="Type a command">',
-    '  <Command.Clear aria-label="Clear the query">',
-    "    <Mark d={CROSS} />",
-    "  </Command.Clear>",
-    "</Command.Input>",
-    "<Command.List>",
-    "  <Command.Empty>No command matches</Command.Empty>",
-    "</Command.List>",
-  ].join("\n"),
-  imports: 'import { Command } from "@stealthscale/component-modals";',
-  name: "Command.Root",
+interface QueriedProps {
+  /**
+   * The scene whose query the palette opens with, a key under `command.queries`.
+   */
+  readonly query: "empty" | "keywords" | "narrowed";
+}
+
+/**
+ * Renders the commands example opened with a scene's query, in the reader's language.
+ */
+function Queried({ query }: QueriedProps): ReactElement {
+  const { t } = useWords("command");
+
+  return (
+    <Highlighted>
+      <examples.commands.Commands query={t(`queries.${query}`)} />
+    </Highlighted>
+  );
+}
+
+/**
+ * Hand-written scene for a query that narrows the list.
+ */
+export const narrowed: Scene = {
+  about: "command.narrowed.about",
+  draw: () => <Queried query="narrowed" />,
+  example: examples.commands,
+  props: { query: "invoice" },
+  title: "command.narrowed.title",
 };
 
 /**
- * Builds the scene's five actions with their labels and groups translated.
+ * Hand-written scene for a query that matches an action through its keywords.
  */
-function useActions(): readonly CommandAction[] {
-  const { t } = useWords("command");
-
-  return [
-    { group: t("invoices"), label: t("new"), shortcut: "⌘N", value: "new" },
-    { group: t("invoices"), label: t("duplicate"), value: "duplicate" },
-    { disabled: true, group: t("invoices"), label: t("archive"), value: "archive" },
-    { group: t("navigation"), label: t("overview"), shortcut: "G O", value: "overview" },
-    { group: t("navigation"), label: t("settings"), shortcut: "G S", value: "settings" },
-  ];
-}
+export const keywords: Scene = {
+  about: "command.keywords.about",
+  draw: () => <Queried query="keywords" />,
+  example: examples.commands,
+  props: { query: "add" },
+  title: "command.keywords.title",
+};
 
 /**
- * Draws one mark at the box the slot sizes it to.
- *
- * @remarks
- *   Written out rather than taken from an icon set. The package ships none and depends on none, and
- *   a palette needs exactly two marks: the glass that says what the bar is for and the cross that
- *   empties it.
- */
-function Mark({ d }: { readonly d: string }): ReactElement {
-  return (
-    <svg fill="none" height="100%" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-      <path d={d} strokeLinecap="round" />
-    </svg>
-  );
-}
-
-/**
- * Draws the query bar every palette holds: the glyph, the field and the way out of what was typed.
- */
-function Bar(): ReactElement {
-  const { t } = useWords("command");
-
-  return (
-    <Command.Input indicator={<Mark d={GLASS} />} placeholder={t("type")}>
-      <Command.Clear aria-label={t("clear")}>
-        <Mark d={CROSS} />
-      </Command.Clear>
-    </Command.Input>
-  );
-}
-
-/**
- * Draws the palette in whatever the scene hands over.
- */
-function Palette(props: Command.RootProps): ReactElement {
-  const { t } = useWords("command");
-  const actions = useActions();
-
-  return (
-    <Command.Root {...props} actions={actions} aria-label={t("commands")}>
-      <Bar />
-      <Command.List>
-        <Command.Empty>{t("none")}</Command.Empty>
-      </Command.List>
-    </Command.Root>
-  );
-}
-
-/**
- * Draws a palette holding a query nothing matches.
- */
-function Narrowed(): ReactElement {
-  const { t } = useWords("command");
-  const actions = useActions();
-
-  return (
-    <Command.Root actions={actions} aria-label={t("commands")} query={t("missing")}>
-      <Bar />
-      <Command.List>
-        <Command.Empty>{t("none")}</Command.Empty>
-      </Command.List>
-    </Command.Root>
-  );
-}
-
-/**
- * The hand-written scene for what a palette draws once a query matches nothing.
+ * Hand-written scene for a query that matches no action.
  */
 export const empty: Scene = {
   about: "command.empty.about",
-  draw: Narrowed,
-  source: [
-    'import { Command } from "@stealthscale/component-modals";',
-    "",
-    '<Command.Root actions={actions} aria-label="Commands" query="zzz">',
-    '  <Command.Input indicator={<Mark d={GLASS} />} placeholder="Type a command">',
-    '    <Command.Clear aria-label="Clear the query">',
-    "      <Mark d={CROSS} />",
-    "    </Command.Clear>",
-    "  </Command.Input>",
-    "  <Command.List>",
-    "    <Command.Empty>No command matches</Command.Empty>",
-    "  </Command.List>",
-    "</Command.Root>",
-  ].join("\n"),
+  draw: () => <Queried query="empty" />,
+  example: examples.commands,
+  props: { query: "reconcile" },
   title: "command.empty.title",
 };
 
@@ -159,11 +118,18 @@ export default specimen({
   id: "components/modals/command",
   imports: 'import { Command } from "@stealthscale/component-modals";',
   scenes: [
-    ...scenesOf<Command.RootProps>(recipe, {
-      draw: (props) => <Palette {...props} />,
+    ...scenesOf<Omit<Command.RootProps, "actions" | "aria-label">>(recipe, {
+      draw: (props) => (
+        <Highlighted>
+          <examples.commands.Commands {...props} />
+        </Highlighted>
+      ),
+      example: examples.commands,
       namespace: "command",
-      sample: SAMPLE,
+      order: ["size", "palette"],
     }),
+    narrowed,
+    keywords,
     empty,
   ],
   title: "command.title",

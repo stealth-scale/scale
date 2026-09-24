@@ -37,3 +37,14 @@ component-modals: mark the command palette's focused input
 
 - The control band draws a ring when the input inside it takes focus. The input's own outline is
   removed and nothing replaced it, so an inline palette showed no focused surface.
+
+component-modals: add a palette axis to the command palette
+
+- `Command.Root` takes `palette`, over the eight palettes, and sets it on the panel. The default is
+  `neutral`. The highlighted row and the bar's focus ring read it. Every palette is emitted.
+- The palette has no `effect` axis. It is a panel, and its highlight moves with the arrow keys.
+- The bar reads the theme's `FOCUS_RING` and `WITHIN_FOCUS`, and draws its ring inside its edge
+  while the field has keyboard focus. The ring was drawn outside the edge, inside a panel that clips
+  its descendants with `overflow: clip`, and a focused clear control ringed the whole bar.
+- The README's Command section gains a parts table. Its sample puts `Command.Empty` inside
+  `Command.List`, which renders it in place of the rows.

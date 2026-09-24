@@ -7,26 +7,26 @@ import { composed, palette, typed } from "#command/command.fixtures.tsx";
 import { Empty } from "#command/empty.ts";
 
 describe("Empty", () => {
-  it("renders a p element for the empty slot", () => {
+  it("renders a p", () => {
     const { container } = render(palette(<Empty>No commands match</Empty>));
 
     expect(slotElement(container, "command", "empty").tagName).toBe("P");
   });
 
-  it("stays out of the document while the collection has matches", () => {
+  it("renders nothing while an action matches", () => {
     render(composed());
 
     expect(screen.queryByText("No commands match")).toBeNull();
   });
 
-  it("enters the document once a query matches no action", async () => {
+  it("renders once a query matches no action", async () => {
     render(composed());
     await typed(screen.getByRole("textbox"), "zzz");
 
     expect(screen.getByText("No commands match")).toBeTruthy();
   });
 
-  it("replaces the rows rather than sitting beside them when nothing matches", async () => {
+  it("replaces the rows when nothing matches", async () => {
     render(composed());
     await typed(screen.getByRole("textbox"), "zzz");
 

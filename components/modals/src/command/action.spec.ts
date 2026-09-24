@@ -8,7 +8,7 @@ import { type CommandAction, gathered, labelOf, valueOf } from "#command/action.
 const INVOICES: CommandAction = { group: "Go to", label: "Invoices", value: "invoices" };
 
 /**
- * A second action carrying the same group, so grouping has something to collect.
+ * A second action in the same group.
  */
 const REPORTS: CommandAction = { group: "Go to", label: "Reports", value: "reports" };
 

@@ -8,13 +8,13 @@ import { palette, pressed, typed } from "#command/command.fixtures.tsx";
 import { Input } from "#command/input.tsx";
 
 describe("Clear", () => {
-  it("stays out of the document while the field is empty", () => {
+  it("renders nothing while the field is empty", () => {
     render(palette(<Clear aria-label="Clear the query" />));
 
     expect(screen.queryByRole("button")).toBeNull();
   });
 
-  it("renders a button for the clear slot once something has been typed", async () => {
+  it("renders a button once a query is typed", async () => {
     const { container } = render(
       palette(
         <Input aria-label="Type a command">
@@ -28,7 +28,7 @@ describe("Clear", () => {
     expect(slotElement(container, "command", "clear").tagName).toBe("BUTTON");
   });
 
-  it("states a type so a palette inside a form does not submit it", async () => {
+  it("sets type button", async () => {
     const { container } = render(
       palette(
         <Input aria-label="Type a command">
@@ -59,7 +59,7 @@ describe("Clear", () => {
     expect(field).toHaveProperty("value", "");
   });
 
-  it("returns the reader to the field it emptied", async () => {
+  it("moves focus to the field", async () => {
     render(
       palette(
         <Input aria-label="Type a command">
@@ -76,7 +76,7 @@ describe("Clear", () => {
     expect(document.activeElement).toBe(field);
   });
 
-  it("opens drawn where the palette was given a query to open on", () => {
+  it("renders at mount when the palette opens with a query", () => {
     render(
       palette(
         <Input aria-label="Type a command">

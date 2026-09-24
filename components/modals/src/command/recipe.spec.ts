@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations } from "@stealthscale/testing-theme";
+import { FOCUS_RING, PALETTES, WITHIN_FOCUS } from "@stealthscale/theme/authoring";
 
 import page from "#command/command.specimen.tsx";
 import { recipe } from "#command/recipe.ts";
@@ -41,12 +42,34 @@ describe("recipe", () => {
     ]);
   });
 
-  it("declares size as its only variant", () => {
-    expect(axesOf(recipe)).toStrictEqual(["size"]);
+  it("declares the palette and size axes", () => {
+    expect(axesOf(recipe)).toStrictEqual(["palette", "size"]);
   });
 
-  it("defaults size to md", () => {
-    expect(defaultsOf(recipe)).toStrictEqual({ size: "md" });
+  it("defaults to md in the neutral palette", () => {
+    expect(defaultsOf(recipe)).toStrictEqual({ palette: "neutral", size: "md" });
+  });
+
+  it("sets the palette on the root", () => {
+    expect(Object.keys(recipe.variants?.["palette"]?.["primary"] ?? {})).toStrictEqual(["root"]);
+  });
+
+  it("emits every palette", () => {
+    expect(recipe.staticCss).toStrictEqual([{ palette: [...PALETTES] }]);
+  });
+
+  it("sets --focus-ring-color on the bar to FOCUS_RING", () => {
+    expect(recipe.base?.["control"]).toMatchObject({ "--focus-ring-color": FOCUS_RING });
+  });
+
+  it("rings the bar inside its edge while its field has keyboard focus", () => {
+    expect(recipe.base?.["control"]).toMatchObject({
+      [WITHIN_FOCUS]: {
+        outlineColor: "var(--focus-ring-color)",
+        outlineOffset: "calc({borderWidths.ring} * -1)",
+        outlineWidth: "ring",
+      },
+    });
   });
 
   it("clears the border and the outline on the input slot", () => {

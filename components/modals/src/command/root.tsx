@@ -1,20 +1,15 @@
 /**
- * Renders the panel, owns the palette state and reports the action a user runs.
+ * Renders the palette's panel, filters its actions and reports the action a reader runs.
  *
  * @remarks
- *   The palette is modelled as a combobox rather than a menu, and assistive technology treats the
- *   two differently. In a menu a letter key jumps to a matching item instead of filtering, so a
- *   user cannot type and navigate at the same time. Here typing moves the active option while focus
- *   stays in the input, which is the pattern the APG documents for a combobox owning a listbox.
- *   Selection is held empty deliberately: running a command is not the same as picking a value, and
- *   a palette that remembered the last command would announce it as still selected the next time it
- *   opened.
- *   The size is handed to the listbox as well as to the panel. The rows are the listbox's, so a
- *   palette that kept its size to itself moved the query bar and the padding and left every row at
- *   the listbox's own default: the three sizes differed by the height of one bar.
- *   The bar and the rows go inside the listbox's own box, which is what that box is for. Written
- *   straight under the list they were two of its parts, and a list spaces its parts a step of the
- *   scale apart: the bar's rule was followed by a band of dead space before the first row.
+ *   The palette is a combobox that controls a listbox, the pattern the APG documents for a list a
+ *   reader filters by typing. Focus remains in the field, the arrow keys move the highlight, and
+ *   the machine points `aria-activedescendant` at the highlighted row. A menu would move to a row
+ *   on a letter key instead of filtering. The listbox's selection is always empty, because running
+ *   a command picks no value, and a kept selection would announce the last command as selected when
+ *   the palette opens again. The root passes its size to the listbox, so the rows follow the
+ *   palette's size. The field and the list render inside `Listbox.Frame`, because the listbox root
+ *   spaces its parts a gap apart and the frame does not.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -26,20 +21,21 @@ import { withProvider } from "#command/context.ts";
 import { CommandProvider, useCommandState } from "#command/state.ts";
 
 /**
- * The styled element carrying the recipe's root slot, which resolves the variants for the parts
- * below it.
+ * Renders the `div` with the recipe's root class, which provides the variants to the parts below
+ * it.
  */
 const Panelled = withProvider("div", "root");
 
 /**
- * Formats the result count in English, used when the caller supplies no formatter of their own.
+ * Formats the result count in English, the default of `count`.
  */
 function counted(matches: number): string {
   return matches === 1 ? "1 result" : `${String(matches)} results`;
 }
 
 /**
- * Props of the palette root, plus everything the styled element accepts.
+ * Describes the props of the palette: its actions, the list's name, the announcement, the handler,
+ * the opening query, the recipe's variants and the props of a `div`.
  */
 export interface RootProps extends Omit<ComponentProps<typeof Panelled>, "onSelect"> {
   /**
@@ -59,19 +55,23 @@ export interface RootProps extends Omit<ComponentProps<typeof Panelled>, "onSele
   readonly count?: ((matches: number) => string) | undefined;
 
   /**
-   * Called with the value of the action the user ran.
+   * Called with the value of the action the reader ran.
    */
   readonly onRun?: ((value: string) => void) | undefined;
 
   /**
-   * The query the palette opens holding, for a page that opens one from something a reader has
-   * already typed. Empty when absent.
+   * The query the palette opens with, such as text a reader typed before opening it. Empty when
+   * absent.
    */
   readonly query?: string | undefined;
 }
 
 /**
- * Lists every action a page offers and narrows the list as the user types.
+ * Renders the panel, provides the palette state to the parts and runs the listbox.
+ *
+ * @param props - The actions, the list's name, the announcement, the handler, the opening query,
+ *   the recipe's variants and the props of a `div`.
+ * @returns The `div` element inside the state provider.
  */
 export function Root({
   actions,

@@ -1,22 +1,39 @@
 {
-  "about": "Draws the palette a person opens with a keystroke, types into, and runs one thing from.",
+  "about": "Filters a list of commands as the reader types, and runs the command the reader picks. The field keeps focus, the arrow keys move the highlight, and Enter runs the highlighted command.",
   "archive": "Archive invoice",
   "clear": "Clear the query",
   "commands": "Commands",
   "duplicate": "Duplicate invoice",
   "empty": {
-    "about": "A palette holding a query nothing matches. The message takes the place of the rows, and the control at the end of the bar empties the query and returns the reader to the field. Both are drawn only once there is something to clear, so neither can be read off a palette nobody has typed into.",
+    "about": "A query that matches no command. `Command.Empty` takes the place of the rows, and `Command.Clear` empties the query and moves focus back to the field.",
     "title": "Nothing matches"
   },
   "invoices": "Invoices",
-  "missing": "reconcile",
+  "keywords": {
+    "about": "The query `add` matches New invoice through its keywords, which the row does not show. Matching ignores case and accents.",
+    "title": "Keywords"
+  },
+  "narrowed": {
+    "about": "The query `invoice` keeps the three invoice rows under their heading. The disabled row remains in the list and does not run.",
+    "title": "Narrowed"
+  },
   "navigation": "Navigation",
   "new": "New invoice",
+  "newKeywords": "add create",
   "none": "No command matches",
   "overview": "Go to overview",
+  "palette": {
+    "about": "The eight palettes on the highlighted row. The palette also colours the bar's focus ring while the field has keyboard focus.",
+    "title": "Palettes"
+  },
+  "queries": {
+    "empty": "reconcile",
+    "keywords": "add",
+    "narrowed": "invoice"
+  },
   "settings": "Go to settings",
   "size": {
-    "about": "Every size. The size reaches the rows as well as the bar, so a small palette is a small list rather than a short bar over rows of the usual height. Type into a field to narrow the list, and move down it with the arrows.",
+    "about": "The three sizes, each with the first row highlighted. The size reaches the rows as well as the bar and the list's padding.",
     "title": "Sizes"
   },
   "title": "Command",

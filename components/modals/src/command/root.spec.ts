@@ -9,16 +9,16 @@ import { recipe } from "#command/recipe.ts";
 import { type RootProps } from "#command/root.tsx";
 
 /**
- * The props a case may override, excluding the two the fixture already supplies.
+ * Describes the props a case sets: the root's props without the two the fixture sets.
  */
 type Settings = Omit<RootProps, "actions" | "aria-label">;
 
 describe("Root", () => {
-  it("reports no axe violation with every part composed", async () => {
+  it("passes axe with every part", async () => {
     await expect(accessibilityViolations(() => composed())).resolves.toStrictEqual([]);
   });
 
-  it("emits a class for every variant value the recipe declares", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(recipe, (props: Settings) => render(composed(props)).container, {
         slot: "root",
@@ -26,7 +26,7 @@ describe("Root", () => {
     ).toStrictEqual([]);
   });
 
-  it("renders a div element for the root slot", () => {
+  it("renders a div", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "command", "root").tagName).toBe("DIV");

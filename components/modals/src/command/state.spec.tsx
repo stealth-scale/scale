@@ -9,14 +9,15 @@ import { ACTIONS } from "#command/actions.fixtures.ts";
 import { type CommandOptions, useCommandState } from "#command/state.ts";
 
 /**
- * Formats the result count in a shape a case can recognise on screen.
+ * Formats the result count as `<count> left`.
  */
 function counted(matches: number): string {
   return `${String(matches)} left`;
 }
 
 /**
- * Drives the hook from a button and renders the matching labels and the query as text.
+ * Narrows the hook's collection from a button, and renders the matching labels and the query as
+ * text.
  */
 function Reader(props: { to: string } & Partial<CommandOptions>): ReactElement {
   const { to, ...rest } = props;
@@ -44,7 +45,7 @@ function Reader(props: { to: string } & Partial<CommandOptions>): ReactElement {
 }
 
 describe("useCommandState", () => {
-  it("keeps every action in the collection before any query is entered", () => {
+  it("keeps every action before a query is typed", () => {
     render(<Reader to="" />);
 
     expect(screen.getByTestId("left").textContent).toBe("Invoices,Reports,New document");
@@ -71,9 +72,9 @@ describe("useCommandState", () => {
     expect(screen.getByTestId("typed").textContent).toBe("rep");
   });
 
-  it("builds its state without throwing when it is given a label", () => {
-    render(<Reader to="" />);
+  it("narrows to the query the palette opens with", () => {
+    render(<Reader query="rep" to="" />);
 
-    expect(screen.getByTestId("left")).toBeTruthy();
+    expect(screen.getByTestId("left").textContent).toBe("Reports");
   });
 });
