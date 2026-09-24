@@ -3,7 +3,7 @@
   "after": "to see every axis it offers.",
   "before": "Open",
   "inline": {
-    "about": "A route link rendered through createLink(Link) inside a sentence. It takes the link ink and the underline from the navigation package's Link.",
+    "about": "A link inside a sentence. useRouteHref resolves the route ID to its path, and createLink(Link) links to the path with the navigation package's link ink and underline.",
     "title": "In a sentence"
   },
   "named": "the button's page",

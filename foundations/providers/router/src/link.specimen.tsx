@@ -2,29 +2,18 @@
  * Catalogue page for the route link.
  *
  * @remarks
- *   `RouteLink` has no recipe, so `scenesOf` has no axes to generate scenes from and both scenes
- *   are hand-written. The links resolve against the routes the catalogue compiles, because the
- *   catalogue's route map is the only one mounted around a specimen. The layout and typography
- *   packages are development dependencies, because only the catalogue reads this file. The words
- *   are keys under `route-link` in `locales/en/specimen/route-link.json`.
+ *   `RouteLink` has no recipe, so both scenes are hand-written. The links resolve against the
+ *   routes the catalogue compiles, because the catalogue's route map is the one mounted around a
+ *   specimen. The resolving scene renders the open example once per route ID and states the first
+ *   ID as `Scene.props`. The sentence scene resolves an ID with `useRouteHref` and links to the
+ *   path through `createLink(Link)`, which gives the link the navigation package's styles. The
+ *   layout and typography packages are development dependencies, because only the catalogue reads
+ *   this file. The words are keys under `route-link` in `locales/en/specimen/route-link.json`.
  */
 
-import { type ReactElement } from "react";
+import { Matrix, type Scene, specimen } from "@stealthscale/specimen";
 
-import { Stack } from "@stealthscale/component-layout";
-import { Link } from "@stealthscale/component-navigation";
-import { Text } from "@stealthscale/component-typography";
-import { createLink, RouteLink } from "@stealthscale/provider-router";
-import { Matrix, type Scene, specimen, useWords, written } from "@stealthscale/specimen";
-
-/**
- * Route link rendered through the navigation package's `Link`.
- *
- * @remarks
- *   `RouteLink` renders a bare `a`, which the page's reset leaves in the text color, so inside a
- *   sentence it is indistinguishable from the text around it.
- */
-const Inlined = createLink(Link);
+import * as examples from "#examples/index.ts";
 
 /**
  * IDs of three routes the catalogue compiles.
@@ -40,50 +29,17 @@ const ROUTES = [
 ] as const;
 
 /**
- * Call site the source of each scene is written from.
- */
-const SAMPLE = {
-  children: "Open the page",
-  imports: 'import { RouteLink } from "@stealthscale/provider-router";',
-  name: "RouteLink",
-};
-
-/**
- * Renders one route link per ID in `ROUTES`.
- */
-function Resolving(): ReactElement {
-  const { t } = useWords("route-link");
-
-  return (
-    <Matrix knob="to" of={ROUTES}>
-      {(to) => <RouteLink to={to}>{t("opens")}</RouteLink>}
-    </Matrix>
-  );
-}
-
-/**
- * Renders a route link inside a sentence.
- */
-function Inline(): ReactElement {
-  const { t } = useWords("route-link");
-
-  return (
-    <Stack gap="sm">
-      <Text>
-        {t("before")} <Inlined to="specimen.components.actions.button">{t("named")}</Inlined>{" "}
-        {t("after")}
-      </Text>
-    </Stack>
-  );
-}
-
-/**
  * Hand-written scene for route IDs resolved through the route map.
  */
 export const resolving: Scene = {
   about: "route-link.resolving.about",
-  draw: Resolving,
-  source: written(SAMPLE, { to: "specimen.components.actions.button" }),
+  draw: () => (
+    <Matrix knob="to" of={ROUTES}>
+      {(to) => <examples.open.Open to={to} />}
+    </Matrix>
+  ),
+  example: examples.open,
+  props: { to: ROUTES[0] },
   title: "route-link.resolving.title",
 };
 
@@ -92,8 +48,8 @@ export const resolving: Scene = {
  */
 export const inline: Scene = {
   about: "route-link.inline.about",
-  draw: Inline,
-  source: written(SAMPLE, { to: "specimen.components.actions.button" }),
+  draw: examples.sentence.Sentence,
+  example: examples.sentence,
   title: "route-link.inline.title",
 };
 
