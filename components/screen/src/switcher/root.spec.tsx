@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { drawn } from "@stealthscale/testing-react";
-import { slotClass, slotClasses, variantClass } from "@stealthscale/testing-theme";
+import { slotClass, slotClasses, slotElement, variantClass } from "@stealthscale/testing-theme";
 
 import { Root } from "#switcher/root.tsx";
 import { composed } from "#switcher/switcher.fixtures.tsx";
@@ -57,6 +57,24 @@ describe("Root", () => {
     expect(slotClasses(container, "switcher", "root")).toContain(
       variantClass(slotClass("switcher", "root"), "variant", "outline"),
     );
+  });
+
+  it("sizes the menu to the control at the head of a sidebar", async () => {
+    const { container } = await drawn(composed());
+
+    expect(slotElement(container, "menu", "positioner").style.width).toBe("var(--reference-width)");
+  });
+
+  it("sizes the menu to its rows in a toolbar", async () => {
+    const { container } = await drawn(composed({ placement: "toolbar" }));
+
+    expect(slotElement(container, "menu", "positioner").style.width).toBe("");
+  });
+
+  it("applies a caller's positioning over the sidebar width", async () => {
+    const { container } = await drawn(composed({ positioning: { sameWidth: false } }));
+
+    expect(slotElement(container, "menu", "positioner").style.width).toBe("");
   });
 
   it("renders the menu closed by default", () => {

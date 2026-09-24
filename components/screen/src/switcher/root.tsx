@@ -5,6 +5,8 @@
  *   `Switcher.Root` is the disclosure package's `Menu.Root`, so the roles, the keyboard, Escape and
  *   the positioning come from the menu. It renders no element. It provides the switcher's variants
  *   to the control's parts and passes `size` to the menu, so the rows render at the control's size.
+ *   At the head of a sidebar it sets the machine's `positioning.sameWidth`, so the menu is as wide
+ *   as the control. In a toolbar the menu is as wide as its widest row.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -54,9 +56,24 @@ export type RootProps = Omit<ProvidedProps, "step">;
 /**
  * Renders the menu with the switcher's variants, at the switcher's size.
  *
+ * @remarks
+ *   A caller's `positioning` applies over the width the placement sets.
  * @param props - The switcher's variants and the menu's props.
  * @returns The menu, providing the variants.
  */
-export function Root({ size = "md", ...rest }: RootProps): ReactElement {
-  return <Provided {...rest} size={size} step={size} />;
+export function Root({
+  placement = "sidebar",
+  positioning,
+  size = "md",
+  ...rest
+}: RootProps): ReactElement {
+  return (
+    <Provided
+      {...rest}
+      placement={placement}
+      positioning={{ sameWidth: placement === "sidebar", ...positioning }}
+      size={size}
+      step={size}
+    />
+  );
 }
