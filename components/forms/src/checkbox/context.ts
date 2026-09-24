@@ -3,8 +3,7 @@
  *
  * @remarks
  *   The binding is a separate module because an application's compiler reads `recipe.ts` at build
- *   time and the binding needs the runtime. It is apart from `machine.ts`, which holds the
- *   behaviour.
+ *   time and the binding needs the runtime. The behaviour is in `machine.ts`.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";

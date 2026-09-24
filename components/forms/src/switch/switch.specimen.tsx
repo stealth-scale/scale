@@ -1,145 +1,84 @@
 /**
- * Shows the switch: every look at every size, every status in every look, every corner, the
- * states, the alignment against a long label, and a settings row.
+ * Catalogue page for the switch.
  *
  * @remarks
- *   The axis scenes are generated from the recipe, so a value added to it reaches the page without
- *   this file changing. The states scene is written by hand, because off, on and out of reach are
- *   two attributes a page sets on the element and the recipe declares no axis for either.
- *   Every switch the recipe's own axes turn is drawn thrown on, because a track that is off shows
- *   the look's ground and not its fill. The words are keys under `switch` in the catalogue's
- *   namespace, kept beside this file in `locales/en/specimen/switch.json`.
+ *   `scenesOf` generates the looks by sizes, palettes and statuses by looks, corners, alignment and
+ *   spread scenes, each from an example, with the switch checked so the fill shows. The alignment
+ *   scene renders in a room of a sidebar's width, so the label wraps. The states scene is
+ *   hand-written, because off, on, invalid and disabled are props of the root and not recipe axes.
+ *   The channels scene shows switches inside a fieldset that sets their size, and the field scene
+ *   shows a switch described by a field's helper text. Every scene renders a component from
+ *   `examples/` and shows that file as its source. The words are keys under `switch` in
+ *   `locales/en/specimen/switch.json`.
  */
 
-import { type ReactElement } from "react";
+import { Matrix, Room, type Scene, scenesOf, specimen, valuesOf } from "@stealthscale/specimen";
 
-import {
-  Matrix,
-  Room,
-  type Scene,
-  scenesOf,
-  specimen,
-  useWords,
-  valuesOf,
-  written,
-} from "@stealthscale/specimen";
-
-import * as Switch from "#switch/index.ts";
+import * as examples from "#switch/examples/index.ts";
+import type * as Switch from "#switch/index.ts";
 import { recipe } from "#switch/recipe.ts";
 
 /**
- * The states a switch can be in: off, on, and out of reach.
+ * States of the states scene, in reading order.
  */
-const STATES = ["off", "on", "disabled"] as const;
+const STATES = ["off", "on", "invalid", "disabled"] as const;
 
 /**
- * Every look the recipe draws, which the states are crossed with.
+ * Maps each state to the root props that put the switch in it.
+ */
+const STATED: Readonly<Record<(typeof STATES)[number], Switch.RootProps>> = {
+  disabled: { defaultChecked: true, disabled: true },
+  invalid: { defaultChecked: false, invalid: true },
+  off: { defaultChecked: false },
+  on: { defaultChecked: true },
+};
+
+/**
+ * Looks the states scene crosses the states with.
  */
 const LOOKS = valuesOf(recipe, "variant");
 
 /**
- * The call site every scene's source snippet is generated from.
- */
-const SAMPLE = {
-  children: [
-    "<Switch.Label>Dark mode</Switch.Label>",
-    "<Switch.Control>",
-    "  <Switch.Thumb />",
-    "</Switch.Control>",
-  ].join("\n"),
-  imports: 'import { Switch } from "@stealthscale/component-forms";',
-  name: "Switch.Root",
-};
-
-/**
- * Draws the track with its thumb.
- */
-function Track(): ReactElement {
-  return (
-    <Switch.Control>
-      <Switch.Thumb />
-    </Switch.Control>
-  );
-}
-
-/**
- * Draws the switch thrown on, labelled for the setting it stands for.
- */
-function Thrown(props: Switch.RootProps): ReactElement {
-  const { t } = useWords("switch");
-
-  return (
-    <Switch.Root defaultChecked {...props}>
-      <Switch.Label>{t("dark")}</Switch.Label>
-      <Track />
-    </Switch.Root>
-  );
-}
-
-/**
- * Draws a settings row, which is what a spread row is read against.
- */
-function Setting(props: Switch.RootProps): ReactElement {
-  const { t } = useWords("switch");
-
-  return (
-    <Switch.Root {...props}>
-      <Switch.Label>{t("notifications")}</Switch.Label>
-      <Track />
-    </Switch.Root>
-  );
-}
-
-/**
- * Draws the switch against a label that runs to more than one line.
- *
- * @remarks
- *   The row stands in a room at the smallest measure, which is what makes the label wrap: given a
- *   cell of the catalogue it sat on one line, and the two places read the same.
- */
-function Signed(props: Switch.RootProps): ReactElement {
-  const { t } = useWords("switch");
-
-  return (
-    <Room size="xs">
-      <Switch.Root {...props}>
-        <Track />
-        <Switch.Label>{t("long")}</Switch.Label>
-      </Switch.Root>
-    </Room>
-  );
-}
-
-/**
- * Draws the switch in every state in every look.
- */
-function States(): ReactElement {
-  const { t } = useWords("switch");
-
-  return (
-    <Matrix across={{ knob: "variant", of: LOOKS }} knob="state" of={STATES}>
-      {(state, variant) => (
-        <Switch.Root
-          defaultChecked={state !== "off"}
-          disabled={state === "disabled"}
-          variant={variant}
-        >
-          <Switch.Label>{t("notifications")}</Switch.Label>
-          <Track />
-        </Switch.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * The hand-written scene for off, on and out of reach.
+ * Hand-written scene for off, on, invalid and disabled in every look.
  */
 export const states: Scene = {
   about: "switch.states.about",
-  draw: States,
-  source: written(SAMPLE, { defaultChecked: true, disabled: true }),
+  draw: () => (
+    <Matrix across={{ knob: "variant", of: LOOKS }} knob="state" of={STATES}>
+      {(state, variant) => <examples.theme.Theme {...STATED[state]} variant={variant} />}
+    </Matrix>
+  ),
+  example: examples.theme,
+  props: { defaultChecked: false, variant: "outline" },
   title: "switch.states.title",
+};
+
+/**
+ * Hand-written scene for three switches inside a fieldset.
+ */
+export const channels: Scene = {
+  about: "switch.group.about",
+  draw: () => (
+    <Room size="sm">
+      <examples.channels.Channels />
+    </Room>
+  ),
+  example: examples.channels,
+  title: "switch.group.title",
+};
+
+/**
+ * Hand-written scene for a switch inside a field.
+ */
+export const sync: Scene = {
+  about: "switch.field.about",
+  draw: () => (
+    <Room size="sm">
+      <examples.sync.Sync />
+    </Room>
+  ),
+  example: examples.sync,
+  title: "switch.field.title",
 };
 
 export default specimen({
@@ -149,17 +88,31 @@ export default specimen({
   scenes: [
     ...scenesOf<Switch.RootProps>(recipe, {
       axes: {
-        align: { draw: (props) => <Signed {...props} /> },
-        spread: { direction: "column", draw: (props) => <Setting {...props} /> },
+        align: {
+          draw: (props) => (
+            <Room size="xs">
+              <examples.session.Session {...props} />
+            </Room>
+          ),
+          example: examples.session,
+        },
+        palette: { across: "variant" },
+        spread: {
+          direction: "column",
+          draw: (props) => <examples.setting.Setting {...props} />,
+          example: examples.setting,
+        },
         status: { across: "variant" },
         variant: { across: "size" },
       },
-      draw: (props) => <Thrown {...props} />,
+      draw: (props) => <examples.theme.Theme {...props} />,
+      example: examples.theme,
       namespace: "switch",
-      order: ["variant", "status", "radius", "align", "spread"],
-      sample: SAMPLE,
+      order: ["variant", "palette", "status", "radius", "align", "spread"],
     }),
     states,
+    channels,
+    sync,
   ],
   title: "switch.title",
 });

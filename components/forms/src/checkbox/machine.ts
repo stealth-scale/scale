@@ -19,7 +19,7 @@ import { createRequiredContext, omitUndefined, splitEnumerable } from "@stealths
  * and methods.
  *
  * @remarks
- *   The type is inferred from `connect`, so it follows the installed machine. It references
+ *   The type is the return type of `connect`, so it follows the installed machine. It references
  *   `@zag-js/types`, so the package declares that dependency, or a consumer's declarations would
  *   not resolve.
  */

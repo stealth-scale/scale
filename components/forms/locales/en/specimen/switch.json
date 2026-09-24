@@ -1,31 +1,52 @@
 {
-  "about": "Draws a track a person throws on and off, and the words that name it.",
+  "about": "Renders a track a person switches on and off, and the text that names it. A press anywhere on the row toggles the switch.",
   "align": {
-    "about": "Where the track sits against a label that runs to more than one line.",
+    "about": "The track's position against a label that wraps: on the first line, or halfway down the text.",
     "title": "Alignment"
   },
+  "channels": {
+    "email": "Email",
+    "push": "Push notifications",
+    "sms": "Text messages"
+  },
   "dark": "Dark mode",
+  "devices": "Applies to every device you sign in on.",
+  "field": {
+    "about": "A switch inside a field takes the field's disabled, invalid, read-only and required states and size, and its input lists the field's texts in `aria-describedby`.",
+    "title": "In a field"
+  },
+  "group": {
+    "about": "Switches inside a fieldset take the group's size and disabled state. Each row takes the group's width and puts its track at the far end.",
+    "title": "In a fieldset"
+  },
   "long": "Keep me signed in on this device until I sign out, even after the browser is closed",
   "notifications": "Notifications",
+  "palette": {
+    "about": "Every palette in every look. The palette fills a checked track.",
+    "title": "Palettes"
+  },
+  "quiet": "Nothing is sent between 22:00 and 07:00.",
   "radius": {
-    "about": "Every corner of the track.",
+    "about": "Every corner. The thumb takes the track's corner.",
     "title": "Corners"
   },
   "spread": {
-    "about": "A row that takes what it needs, and a settings row that takes the width it is given with the track at the far end.",
+    "about": "A row at its own width, and a settings row that takes the width it is given with the track at the far end.",
     "title": "Spread"
   },
   "states": {
-    "about": "Off, on, and out of reach, in every look.",
+    "about": "Off, on, invalid and disabled, in every look. The off thumb takes the edge color, so it turns the error color on an invalid switch.",
     "title": "States"
   },
   "status": {
-    "about": "Every status in every look.",
+    "about": "Every status in every look. A status sets the edge, the off thumb and the fill, and overrides the palette.",
     "title": "Statuses"
   },
+  "sync": "Sync settings",
   "title": "Switch",
   "variant": {
-    "about": "Every look at every size, each thrown on so the fill shows.",
+    "about": "Every look at every size, each checked so the fill shows.",
     "title": "Looks and sizes"
-  }
+  },
+  "weekly": "Weekly summary"
 }

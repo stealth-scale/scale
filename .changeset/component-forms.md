@@ -4,22 +4,28 @@
 
 component-forms: publish Fieldset, Field, Checkbox, Switch, Textarea and InputGroup
 
-- `Switch` draws a track a person throws on and off. Four parts under one namespace: `Root`,
+- `Switch` renders a track a person switches on and off. Four parts under one namespace: `Root`,
   `Control`, `Thumb` and `Label`. It binds Zag's switch machine.
-- The input carries `role="switch"` and `aria-checked`. The machine draws it as a checkbox and
-  states neither, so a reader announced a switch as a checkbox. The role is the pattern the APG
-  names for a native checkbox, and axe accepts `aria-checked` where it agrees with the element.
-- `label` is taken off the root's props. The machine's splitter claims the name and the machine
-  reads it nowhere, so a caller stating it lost the prop off the element and gained nothing.
-- The geometry comes from three scales and one rule. The track is `control` wide and `tag` tall,
-  which hold one ratio at every step because both read the control shares. The thumb fills the
-  track's content box as a square, so the track's padding is the inset and the thumb states no size.
-  The size axis writes the track's width less its height into `--switch-travel` and the thumb reads
-  it, so one rule moves the thumb whatever the padding is.
-- Six axes: `size`, `variant`, `status`, `radius`, `align` and `spread`. The track rests on the
-  muted surface rather than the panel, because the thumb is drawn on the panel.
-- A switch inside a `Field` takes that field's `disabled`, `invalid`, `readOnly` and `required`, and
-  its input is described by the field's texts.
+- The input sets `role="switch"` and `aria-checked`. The machine renders a checkbox with neither, so
+  a screen reader announced a switch as a checkbox. ARIA in HTML allows the role on a checkbox
+  input. axe accepts `aria-checked` where it agrees with the element.
+- `label` is left out of the root's props. The machine's splitter takes the prop and the machine
+  reads it nowhere. A `label` prop was removed from the element with no effect.
+- The track is `control` wide and `tag` tall: 36×21.6, 40×24 and 44×26.4px at `sm`, `md` and `lg`.
+  The thumb fills the track's content box as a square, 5px from the edge. It states no size. The
+  size axis writes the track's width less its height to `--switch-travel`. A checked thumb
+  translates by that distance.
+- Seven axes: `size`, `variant`, `palette`, `status`, `radius`, `align` and `spread`. `palette`
+  offers `primary`, `secondary`, `accent` and `neutral`. `status` overrides it.
+- The off thumb takes the field's edge color, at 3.00:1 or more against the track in both modes. In
+  the panel color it measured 1.00 to 1.17:1 and showed only its shadow. A solid track rests on the
+  panel, a subtle one on `bg.subtle` and an outline one on the surface around it.
+- A checked solid thumb takes the palette's `contrast` ink. Under forced colors a checked thumb is
+  filled with `CanvasText`, so on and off differ by more than position.
+- A switch inside a `Field` takes that field's `disabled`, `invalid`, `readOnly`, `required` and
+  `size`, and its input is described by the field's texts. Inside a `Fieldset` with no field around
+  it, a switch takes the group's `disabled` and `size`. A switch that states one of them overrides
+  both.
 
 - `Checkbox` draws a box a person turns on and off. Four parts under one namespace: `Root`,
   `Control`, `Indicator` and `Label`. It binds Zag's checkbox machine.
@@ -42,7 +48,7 @@ component-forms: publish Fieldset, Field, Checkbox, Switch, Textarea and InputGr
 - An `svg` in the indicator fills the box inside its edge, so the mark scales with the box: 14, 18
   and 22px at `sm`, `md` and `lg`. An icon no longer renders at its own size.
 - Eight axes: `size`, `variant`, `palette`, `status`, `radius`, `align`, `spread` and `motion`. No
-  value of `variant` writes a border color, so a status always reaches the edge.
+  value of `variant` writes a border color, so a status sets the edge in every look.
 - `palette` offers `primary`, `secondary`, `accent` and `neutral`, and fills a checked box. The four
   statuses are left out, because a class name omits the axis and a palette and a status of the same
   name would write one class. `status` is declared after `palette`, so it overrides it.

@@ -4,7 +4,7 @@
  * @remarks
  *   `scenesOf` generates the looks by sizes, palettes and statuses by looks, corners, alignment,
  *   spread and motion scenes, each from an example, with the box checked so the fill shows. The
- *   alignment scene stands in a room of a sidebar's width, so the label wraps. The states scene is
+ *   alignment scene renders in a room of a sidebar's width, so the label wraps. The states scene is
  *   hand-written, because off, on, partly on and disabled are props of the root and not recipe
  *   axes. The select-all scene shows the partly-on state as a caller uses it, and the field scene
  *   shows a checkbox described by a field's texts. Every scene renders a component from

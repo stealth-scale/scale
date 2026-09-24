@@ -1,9 +1,10 @@
 /**
- * Draws the track the thumb slides along.
+ * Renders the switch's track.
  *
  * @remarks
- *   The machine hides the track from the accessibility tree. The input inside the root is the
- *   control a reader is told about, so a track that announced itself would be read as a second one.
+ *   The element is a `span` that the machine hides from assistive technology, because the root's
+ *   `input` already reports the state. The machine sets `data-state` and the other state attributes
+ *   the recipe reads on it.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -14,20 +15,20 @@ import { withContext } from "#switch/context.ts";
 import { useSwitch } from "#switch/machine.ts";
 
 /**
- * Draws the track at the size the root states.
+ * Renders the `span` with the switch's control class.
  */
 const Tracked = withContext("span", "control");
 
 /**
- * Describes what the control takes.
+ * Describes the props of the control: the props of a `span`.
  */
 export type ControlProps = ComponentProps<typeof Tracked>;
 
 /**
- * Fills once the switch is on, and holds the thumb that crosses it.
+ * Renders the track with the machine's control props.
  *
- * @param props - Everything a styled span takes.
- * @returns The track, carrying the state the machine is in.
+ * @param props - Attributes and children of the `span` element, merged over the machine's.
+ * @returns The `span` element that contains the thumb.
  */
 export function Control(props: ControlProps): ReactElement {
   const api = useSwitch();

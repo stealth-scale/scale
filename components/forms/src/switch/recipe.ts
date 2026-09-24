@@ -1,21 +1,20 @@
 /**
- * Defines the styles a switch is drawn with.
+ * Recipe for the switch: a row that contains the track, its thumb and the label.
  *
  * @remarks
- *   Four parts. The root is the label the whole control sits in, the control is the track, the
- *   thumb is the knob that slides along it, and the label is the words beside it.
- *   The track reads the theme's field fragment, so its edge, its hover and its invalid state are
- *   the ones every field in the same form is drawn with. Three of the fragment's rules are
- *   restated. The ring is drawn outside, because a ring inside a track this short covers the thumb.
- *   The surface is the muted one rather than the panel, because the thumb is drawn on the panel and
- *   a thumb on a panel track is invisible. The coarse-pointer height is dropped and `touchTarget`
- *   widens the target instead, which leaves the drawn track alone.
- *   The geometry comes from three scales and one rule. The track is `control` wide and `tag` tall,
- *   which hold the same ratio at every step because both read the control shares. The thumb fills
- *   the track's content box as a square, so the inset is the track's padding and nothing states the
- *   thumb's size. The travel is the track's width less its height, which is what the thumb has left
- *   to cross whatever the padding is. The size axis writes it into a property and the thumb reads
- *   it, so one rule moves the thumb and the scales decide how far.
+ *   Four slots: the root is the `label` the row renders in, the control is the track, the thumb is
+ *   the knob inside the track, and the label is the text. The track reads the theme's field
+ *   fragment, so its edge, hover and invalid state match every text field in the form. Two rules
+ *   differ from the fragment. The focus ring renders outside, because a ring inside the track
+ *   covers the thumb. The coarse-pointer height is dropped, and `touchTarget` widens the target to
+ *   a `control.md` square without changing the track. The off thumb takes the edge color, which
+ *   the theme's contrast gate measures at 3:1 or more against `bg.panel` and `bg.subtle`, the
+ *   surfaces a track rests on. The track is `control` wide and `tag` tall, and the thumb fills its
+ *   content box as a square, so the track's padding is the thumb's inset. The palette axis offers
+ *   the four palettes that are not
+ *   statuses, because the class name leaves out the axis and a palette and a status of one name
+ *   would write one class. The status axis is declared after it and overrides it. The recipe has
+ *   no `effect` axis, because a glow or a pulse on a 20px track competes with the focus ring.
  */
 
 import {
@@ -23,27 +22,50 @@ import {
   defineSlotRecipe,
   dense,
   field,
+  FIELD_EDGE,
   fieldStatusVariants,
   onSlot,
   onSlots,
+  paletteVariants,
   sizeVariants,
   statusEmitted,
+  type SystemStyleObject,
   touchTarget,
 } from "@stealthscale/theme/authoring";
 
 /**
- * The property the track states the distance the thumb crosses in, which the thumb reads.
+ * Palettes the palette axis offers: the ones that are not statuses.
+ */
+const HUES = ["primary", "secondary", "accent", "neutral"] as const;
+
+/**
+ * Custom property the track sets to the distance the thumb travels, and the thumb reads.
  *
  * @remarks
- *   The distance is positive and the thumb crosses it the way the page runs. `translate` is a
- *   physical property with no logical form, so the direction is reversed where the page runs
- *   right to left: a checked thumb travelling the same way there left the track's far edge by
- *   nine pixels.
+ *   The distance is the track's width less its height. `translate` has no logical form, so a
+ *   checked thumb in a right-to-left row translates by the negated distance.
  */
 const TRAVEL = "--switch-travel";
 
 /**
- * Draws a filled switch at the middle size until a caller says otherwise.
+ * Returns a thumb look that fills a checked thumb with a palette role, and with `CanvasText` under
+ * forced colors.
+ *
+ * @remarks
+ *   Forced colors replace every fill, so a checked thumb opts out of the adjustment and takes the
+ *   text color. A filled thumb reads as on and an empty one as off, apart from their position.
+ */
+function checkedThumb(background: string): SystemStyleObject {
+  return {
+    _checked: {
+      _highContrast: { background: "CanvasText", forcedColorAdjust: "none" },
+      background,
+    },
+  };
+}
+
+/**
+ * Defines the switch recipe: a solid track at size `md` in the primary palette by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -51,7 +73,6 @@ export const recipe = defineSlotRecipe({
       ...field(),
       ...touchTarget(),
       alignItems: "center",
-      background: "bg.muted",
       display: "inline-flex",
       flexShrink: 0,
       focusVisibleRing: "outside",
@@ -73,7 +94,7 @@ export const recipe = defineSlotRecipe({
       },
       _motionReduce: { transitionDuration: "0s" },
       aspectRatio: "square",
-      background: "bg.panel",
+      background: `var(${FIELD_EDGE})`,
       blockSize: "full",
       borderRadius: "inherit",
       boxShadow: "sm",
@@ -83,13 +104,22 @@ export const recipe = defineSlotRecipe({
     },
   },
   className: "switch",
-  defaultVariants: { align: "center", radius: "full", size: "md", variant: "solid" },
+  defaultVariants: {
+    align: "center",
+    palette: "primary",
+    radius: "full",
+    size: "md",
+    variant: "solid",
+  },
   jsx: [/^Switch(\.\w+)?$/u],
   slots: ["root", "control", "thumb", "label"],
-  staticCss: [statusEmitted()],
+  staticCss: [statusEmitted(), { palette: [...HUES] }],
   variants: {
     /**
-     * Where the track sits against a label that runs to more than one line.
+     * Position of the track against a label that runs to more than one line.
+     *
+     * @remarks
+     *   `start` puts the track on the first line, `center` halfway down the text.
      */
     align: {
       start: { root: { alignItems: "flex-start" } },
@@ -97,8 +127,22 @@ export const recipe = defineSlotRecipe({
       center: { root: { alignItems: "center" } },
     },
 
+    /**
+     * Palette the track fills with while checked: primary, secondary, accent or neutral. A status
+     * color comes from the status axis.
+     */
+    palette: onSlot("control", paletteVariants(HUES)),
+
+    /**
+     * Corner radius of the track. The thumb inherits it.
+     */
     radius: onSlot("control", cornerVariants(["l1", "l2", "full"])),
 
+    /**
+     * Track size, text size and gap. The track reads the control scale for its width and the tag
+     * scale for its height. It writes the difference to `--switch-travel`, the distance a checked
+     * thumb translates.
+     */
     size: onSlots({
       control: sizeVariants(
         (size) => ({
@@ -113,43 +157,40 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * Whether the track sits at the far end of the row rather than beside its words.
-     *
-     * @remarks
-     *   A row that pushes the track to the far end takes the width it is given, which a row packed
-     *   at the start does not, so the value states the width with the distribution.
+     * Whether the row takes the width it is given and puts the track at the far end.
      */
     spread: { true: { root: { inlineSize: "full", justifyContent: "space-between" } } },
 
+    /**
+     * Status the switch reports. Each value sets the edge, the off thumb and the palette, over the
+     * palette axis.
+     */
     status: onSlot("control", fieldStatusVariants()),
 
     /**
-     * How the track is drawn resting and once the switch is on.
+     * Surface of the track at rest and while checked, and the thumb's fill on it.
      *
      * @remarks
-     *   No value writes a border color, so a status always reaches the edge. The three differ in
-     *   the layer style the palette fills the track with once it is on. The knob is drawn against
-     *   whatever the track is filled with. A solid track is the palette's own colour, so the knob
-     *   stays the panel's and reads against it. A subtle track is a tint of the page and an outline
-     *   track is the page itself, and a panel-coloured knob on either was a white disc on a
-     *   near-white ground. Those two fill the knob with the palette instead, once the switch is on.
-     *   Resting, every look leaves it the panel's colour, which is what the knob's own shadow is
-     *   drawn to stand out from.
+     *   No value writes a border color, so a status sets the edge in every look. A solid track
+     *   rests on the panel, a subtle one on `bg.subtle` and an outline one on the surface around
+     *   it. The off thumb reads the field's edge color in every look. A checked solid track takes
+     *   the palette's solid fill and a thumb in its contrast ink. A checked subtle or outline track
+     *   is near the page's lightness, so its thumb takes the palette's solid fill.
      */
     variant: onSlots({
       control: {
         solid: { _checked: { layerStyle: "fill.solid" } },
 
-        subtle: { _checked: { layerStyle: "fill.subtle" } },
+        subtle: { _checked: { layerStyle: "fill.subtle" }, background: "bg.subtle" },
 
         outline: { _checked: { layerStyle: "outline.solid" }, background: "transparent" },
       },
       thumb: {
-        solid: {},
+        solid: checkedThumb("colorPalette.contrast"),
 
-        subtle: { _checked: { background: "colorPalette.solid" } },
+        subtle: checkedThumb("colorPalette.solid"),
 
-        outline: { _checked: { background: "colorPalette.solid" } },
+        outline: checkedThumb("colorPalette.solid"),
       },
     }),
   },

@@ -103,7 +103,7 @@ describe("recipe", () => {
     });
   });
 
-  it("writes no border color on any look so a status reaches the edge", () => {
+  it("writes no border color on any look", () => {
     expect.hasAssertions();
 
     for (const look of scaleOf(recipe, "variant", "control", ["outline", "solid", "subtle"])) {
@@ -119,7 +119,7 @@ describe("recipe", () => {
     expect(recipe.base?.["indicator"]?.["&[hidden]"]).toStrictEqual({ display: "none" });
   });
 
-  it("draws the focus ring outside the box", () => {
+  it("renders the focus ring outside the box", () => {
     expect(recipe.base?.["control"]).toMatchObject({ focusVisibleRing: "outside" });
   });
 

@@ -3,8 +3,8 @@
  *
  * @remarks
  *   The element is a `div` that the machine hides from assistive technology, because the root's
- *   `input` already reports the state. It carries the machine's `data-state` and the other state
- *   attributes the recipe reads.
+ *   `input` already reports the state. The machine sets `data-state` and the other state
+ *   attributes the recipe reads on it.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -28,7 +28,7 @@ export type ControlProps = ComponentProps<typeof Boxed>;
  * Renders the box with the machine's control props.
  *
  * @param props - Attributes and children of the `div` element, merged over the machine's.
- * @returns The `div` element, holding the indicators.
+ * @returns The `div` element that contains the indicators.
  */
 export function Control(props: ControlProps): ReactElement {
   const api = useCheckbox();

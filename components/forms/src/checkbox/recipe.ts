@@ -1,23 +1,22 @@
 /**
- * Recipe for the checkbox: a row that holds the box and its label.
+ * Recipe for the checkbox: a row that contains the box and its label.
  *
  * @remarks
- *   Four slots: the root is the `label` the row sits in, the control is the box, the indicator is
- *   the mark inside the box, and the label is the text. The box reads the theme's field fragment,
- *   so its edge, hover and invalid state match every text field in the form. Three rules differ
- *   from the fragment: the focus ring is drawn outside, because a ring inside a box this small
- *   covers the mark; the coarse-pointer height is dropped, because it would stretch the square;
- *   and `touchTarget` widens the target to a `control.md` square, 40px, without changing the box.
- *   The box is 16, 20 and 24px at `sm`, `md` and `lg`. The root is the `label`, so a press anywhere
- *   on the row toggles, and the row with its text clears the 24px target of WCAG 2.5.8. The checked
- *   and partly-on states take the look's fill. An `svg` in the indicator fills the box, so the mark
- *   scales with it. The indicator restates `display: none` under
- *   `[hidden]`, because its own display would override the attribute the machine sets. The palette
- *   axis offers the four palettes that are not statuses: primary, secondary, accent and neutral.
- *   The status axis offers the four statuses, sets the edge as well as the palette, and is declared
- *   after the palette so it overrides it. The two axes cannot share a value, because the class name
- *   leaves out the axis. The recipe has no `effect` axis, because a glow or a pulse on a 16px box
- *   competes with the focus ring.
+ *   Four slots: the root is the `label` the row renders in, the control is the box, the indicator
+ *   is the mark inside the box, and the label is the text. The box reads the theme's field
+ *   fragment, so its edge, hover and invalid state match every text field in the form. Two rules
+ *   differ from the fragment. The focus ring renders outside, because a ring inside a 16px box
+ *   covers the mark. The coarse-pointer height is dropped, and `touchTarget` widens the target to a
+ *   `control.md` square, 40px, without changing the box. The box is 16, 20 and 24px at `sm`, `md`
+ *   and `lg`. The root is the `label`, so a press anywhere on the row toggles the box, and the row
+ *   with its text meets the 24px target of WCAG 2.5.8. The checked and partly-on states take the
+ *   look's fill. An `svg` in the indicator fills the box, so the mark scales with it. The indicator
+ *   restates `display: none` under `[hidden]`, because its own display would override the attribute
+ *   the machine sets. The palette axis offers the four palettes that are not statuses: primary,
+ *   secondary, accent and neutral. The status axis offers the four statuses, sets the edge as well
+ *   as the palette, and is declared after the palette so it overrides it. The two axes cannot share
+ *   a value, because the class name leaves out the axis. The recipe has no `effect` axis, because a
+ *   glow or a pulse on a 16px box competes with the focus ring.
  */
 
 import {
@@ -99,7 +98,7 @@ export const recipe = defineSlotRecipe({
   staticCss: [statusEmitted(), { palette: [...HUES] }],
   variants: {
     /**
-     * Where the box sits against a label that runs to more than one line.
+     * Position of the box against a label that runs to more than one line.
      *
      * @remarks
      *   `start` puts the box on the first line, `center` halfway down the text.
@@ -153,7 +152,7 @@ export const recipe = defineSlotRecipe({
      * Surface of the box at rest, and its fill while checked or partly on.
      *
      * @remarks
-     *   No value writes a border color, so a status always reaches the edge.
+     *   No value writes a border color, so a status sets the edge in every look.
      */
     variant: onSlot("control", {
       solid: filled("fill.solid"),

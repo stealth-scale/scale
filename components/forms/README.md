@@ -1,12 +1,21 @@
 # @stealthscale/component-forms
 
-Draws what a person fills in: the group, the field that explains a control, the checkbox, the
-switch, the text field, the multi-line box, the box that holds fields, marks and addons, and the
-search field with a control that empties it.
+React components for form input, styled by the theme's recipes.
 
-Every value a theme can change is an axis of a component's recipe, so set it as a prop and write no
-style. Change the element a component draws with `as`. A component with parts is published as a
-namespace, `Field.Root` and `InputGroup.Root`.
+| Component     | Renders                                                        |
+| ------------- | -------------------------------------------------------------- |
+| `Fieldset`    | A group of fields under one legend                             |
+| `Field`       | A control with its label, helper text, counter and error text  |
+| `Checkbox`    | A box a person checks and unchecks                             |
+| `Switch`      | A track a person switches on and off                           |
+| `Input`       | A single-line text field                                       |
+| `Textarea`    | A multi-line text field                                        |
+| `InputGroup`  | One field box that contains fields, marks and addons           |
+| `SearchInput` | A search field with a search mark and a control that clears it |
+
+Every value a theme can change is an axis of a component's recipe. Set it as a prop, and write no
+style. Change the element a component renders with `as`. A component with parts is exported as a
+namespace, such as `Field.Root` and `InputGroup.Root`.
 
 ## Install
 
@@ -186,7 +195,7 @@ both.
 
 ## Switch
 
-Draws a track a person throws on and off, and the words that name it.
+`Switch` renders a track a person switches on and off, and the text that names it.
 
 ```tsx
 import { Switch } from "@stealthscale/component-forms";
@@ -199,37 +208,40 @@ import { Switch } from "@stealthscale/component-forms";
 </Switch.Root>;
 ```
 
-| Axis      | Values                                | Default  |
-| --------- | ------------------------------------- | -------- |
-| `size`    | `sm`, `md`, `lg`                      | `md`     |
-| `variant` | `solid`, `subtle`, `outline`          | `solid`  |
-| `status`  | `info`, `success`, `warning`, `error` | none     |
-| `radius`  | `l1`, `l2`, `full`                    | `full`   |
-| `align`   | `center`, `start`                     | `center` |
-| `spread`  | `true`                                | off      |
+| Axis      | Values                                      | Default   |
+| --------- | ------------------------------------------- | --------- |
+| `size`    | `sm`, `md`, `lg`                            | `md`      |
+| `variant` | `solid`, `subtle`, `outline`                | `solid`   |
+| `palette` | `primary`, `secondary`, `accent`, `neutral` | `primary` |
+| `status`  | `info`, `success`, `warning`, `error`       | none      |
+| `radius`  | `l1`, `l2`, `full`                          | `full`    |
+| `align`   | `center`, `start`                           | `center`  |
+| `spread`  | `true`                                      | off       |
 
-| Part      | Element | What it draws                   |
-| --------- | ------- | ------------------------------- |
-| `Root`    | `label` | The row, and the control itself |
-| `Control` | `span`  | The track the thumb crosses     |
-| `Thumb`   | `span`  | The knob that crosses it        |
-| `Label`   | `span`  | The words naming the switch     |
+| Part      | Element | What it renders                   |
+| --------- | ------- | --------------------------------- |
+| `Root`    | `label` | The row, and the input it toggles |
+| `Control` | `span`  | The track                         |
+| `Thumb`   | `span`  | The knob inside the track         |
+| `Label`   | `span`  | The text that names the switch    |
 
-`Switch.Root` also takes `checked`, `defaultChecked`, `disabled`, `form`, `invalid`, `name`,
-`onCheckedChange`, `readOnly`, `required` and `value`.
+- `Switch.Root` also takes `checked`, `defaultChecked`, `disabled`, `form`, `invalid`, `name`,
+  `onCheckedChange`, `readOnly`, `required` and `value`.
+- The root renders the input a form submits, with `role="switch"` and `aria-checked`. Do not add an
+  input of your own.
+- Name the switch with `Switch.Label`, or state `aria-label` on the root.
+- The track is 36, 40 and 44px wide at `sm`, `md` and `lg`. `Switch.Thumb` states no size. It fills
+  the track's height less a 5px inset.
+- The off thumb takes the field's edge color, at 3:1 against the track, and turns the status or
+  error color with the edge. `palette` sets the fill of a checked track. A `status` overrides it.
+- Under forced colors a checked thumb is filled and an off thumb is empty.
+- Set `spread` for a settings row, with the label before the track. The row takes the width it is
+  given and puts the track at the far end.
 
-The root draws the control a form submits, and a reader hears it as a switch that is on or off. Do
-not add an input of your own.
-
-Name the switch. Write `Switch.Label`, or state `aria-label` on the root.
-
-Write the label before the track for a settings row, and set `spread`. The row takes the width it is
-given, the label keeps the start, and the track goes to the far end.
-
-`Switch.Thumb` states no size. It fills the track, so one `size` moves both.
-
-Put the switch inside a `Field` and it takes the field's `disabled`, `invalid`, `readOnly` and
-`required`, and is described by the field's texts.
+Inside a `Field`, the switch takes the field's `disabled`, `invalid`, `readOnly`, `required` and
+`size`, and its input lists the field's texts in `aria-describedby`. Inside a `Fieldset` with no
+field around it, it takes the group's `disabled` and `size`. A prop stated on the switch overrides
+both.
 
 ## Input
 

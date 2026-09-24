@@ -27,8 +27,9 @@ import {
   useCheckboxMachine,
 } from "#checkbox/machine.ts";
 import { describedBy } from "#field/ids.ts";
-import { type FieldState, useOptionalField } from "#field/state.ts";
-import { type FieldsetState, useFieldset } from "#fieldset/state.ts";
+import { inherited, sized } from "#field/inherited.ts";
+import { useOptionalField } from "#field/state.ts";
+import { useFieldset } from "#fieldset/state.ts";
 
 /**
  * Renders the root `label` with the recipe's variants.
@@ -45,29 +46,6 @@ const Framed = withProvider("label", "root");
  */
 export interface RootProps
   extends CheckboxOptions, Omit<ComponentProps<typeof Framed>, "htmlFor" | keyof CheckboxOptions> {}
-
-/**
- * Returns the machine options a checkbox takes from the field or the fieldset around it.
- */
-function inherited(field: FieldState | undefined, group: FieldsetState): CheckboxOptions {
-  return {
-    disabled: field?.disabled ?? (group.disabled || undefined),
-    invalid: field?.invalid,
-    readOnly: field?.readOnly,
-    required: field?.required,
-  };
-}
-
-/**
- * Returns the size the checkbox renders at: its own, then the field's, then the fieldset's.
- */
-function sized(
-  size: RootProps["size"],
-  field: FieldState | undefined,
-  group: FieldsetState,
-): RootProps["size"] {
-  return size ?? field?.size ?? group.size;
-}
 
 /**
  * Renders the checkbox and provides the machine's api to its parts.

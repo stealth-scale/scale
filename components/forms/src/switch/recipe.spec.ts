@@ -13,15 +13,15 @@ import { recipe } from "#switch/recipe.ts";
 import page from "#switch/switch.specimen.tsx";
 
 describe("recipe", () => {
-  it("covers every variant axis in the scenes of its specimen page", () => {
+  it("covers every axis in the scenes of its specimen", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+  it("leaves no scene naming a value the recipe lacks", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(
       recipeViolations(recipe, {
         names: ["Switch"],
@@ -30,17 +30,18 @@ describe("recipe", () => {
     ).toStrictEqual([]);
   });
 
-  it("names its class switch", () => {
+  it("uses the class name switch", () => {
     expect(recipe.className).toBe("switch");
   });
 
-  it("styles the four parts a switch draws", () => {
+  it("declares the four slots", () => {
     expect(recipe.slots).toStrictEqual(["root", "control", "thumb", "label"]);
   });
 
-  it("offers the six axes a switch takes", () => {
+  it("declares seven axes", () => {
     expect(axesOf(recipe)).toStrictEqual([
       "align",
+      "palette",
       "radius",
       "size",
       "spread",
@@ -49,20 +50,42 @@ describe("recipe", () => {
     ]);
   });
 
-  it("draws a filled track with a round end when nothing is asked for", () => {
+  it("defaults to a solid round track at size md in the primary palette", () => {
     expect(defaultsOf(recipe)).toStrictEqual({
       align: "center",
+      palette: "primary",
       radius: "full",
       size: "md",
       variant: "solid",
     });
   });
 
-  it("offers the three ways the track is drawn", () => {
+  it("offers three looks", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual(["outline", "solid", "subtle"]);
   });
 
-  it("leaves the edge to the status on every look", () => {
+  it("offers the four palettes that are not statuses", () => {
+    expect(valuesOf(recipe, "palette")).toStrictEqual([
+      "accent",
+      "neutral",
+      "primary",
+      "secondary",
+    ]);
+  });
+
+  it("emits every palette it offers", () => {
+    expect(recipe.staticCss).toContainEqual({
+      palette: ["primary", "secondary", "accent", "neutral"],
+    });
+  });
+
+  it("declares the palette axis before the status axis", () => {
+    const axes = Object.keys(recipe.variants ?? {});
+
+    expect(axes.indexOf("palette")).toBeLessThan(axes.indexOf("status"));
+  });
+
+  it("writes no border color on any look", () => {
     expect.hasAssertions();
 
     for (const look of scaleOf(recipe, "variant", "control", ["outline", "solid", "subtle"])) {
@@ -70,16 +93,57 @@ describe("recipe", () => {
     }
   });
 
-  it("draws the track on the muted surface so the thumb reads against it", () => {
-    expect(recipe.base?.["control"]).toMatchObject({ background: "bg.muted" });
-    expect(recipe.base?.["thumb"]).toMatchObject({ background: "bg.panel" });
+  it("rests the track on the panel", () => {
+    expect(recipe.base?.["control"]).toMatchObject({ background: "bg.panel" });
   });
 
-  it("sizes the thumb from the track rather than from a scale of its own", () => {
+  it("rests a subtle track on the subtle surface", () => {
+    expect(recipe.variants?.["variant"]?.["subtle"]?.["control"]).toMatchObject({
+      background: "bg.subtle",
+    });
+  });
+
+  it("fills the off thumb with the field's edge color", () => {
+    expect(recipe.base?.["thumb"]).toMatchObject({ background: "var(--field-edge)" });
+  });
+
+  it("fills a checked solid thumb with the palette's contrast ink", () => {
+    expect(recipe.variants?.["variant"]?.["solid"]?.["thumb"]).toMatchObject({
+      _checked: { background: "colorPalette.contrast" },
+    });
+  });
+
+  it("fills a checked subtle thumb with the palette's solid", () => {
+    expect(recipe.variants?.["variant"]?.["subtle"]?.["thumb"]).toMatchObject({
+      _checked: { background: "colorPalette.solid" },
+    });
+  });
+
+  it("fills a checked outline thumb with the palette's solid", () => {
+    expect(recipe.variants?.["variant"]?.["outline"]?.["thumb"]).toMatchObject({
+      _checked: { background: "colorPalette.solid" },
+    });
+  });
+
+  it("fills a checked thumb with CanvasText under forced colors in every look", () => {
+    const forced = {
+      thumb: {
+        _checked: { _highContrast: { background: "CanvasText", forcedColorAdjust: "none" } },
+      },
+    };
+
+    expect(recipe.variants?.["variant"]).toMatchObject({
+      outline: forced,
+      solid: forced,
+      subtle: forced,
+    });
+  });
+
+  it("sizes the thumb as a square the height of the track's content box", () => {
     expect(recipe.base?.["thumb"]).toMatchObject({ aspectRatio: "square", blockSize: "full" });
   });
 
-  it("gives the thumb the track's width less its height to cross", () => {
+  it("sets the thumb's travel to the track's width less its height", () => {
     expect(scaleOf(recipe, "size", "control", ["sm", "md", "lg"])).toStrictEqual([
       expect.objectContaining({
         "--switch-travel": "calc({sizes.control.sm} - {sizes.tag.sm})",
@@ -93,14 +157,19 @@ describe("recipe", () => {
     ]);
   });
 
-  it("moves the thumb by the distance the track states", () => {
-    expect(recipe.base?.["thumb"]?.["_checked"]).toStrictEqual({
-      _rtl: { translate: "calc(var(--switch-travel) * -1)" },
+  it("translates a checked thumb by the travel", () => {
+    expect(recipe.base?.["thumb"]?.["_checked"]).toMatchObject({
       translate: "var(--switch-travel)",
     });
   });
 
-  it("marks the thumb's edge where the display replaces every fill", () => {
+  it("negates the travel of a checked thumb in a right-to-left row", () => {
+    expect(recipe.base?.["thumb"]?.["_checked"]?.["_rtl"]).toStrictEqual({
+      translate: "calc(var(--switch-travel) * -1)",
+    });
+  });
+
+  it("borders the thumb in ButtonText under forced colors", () => {
     expect(recipe.base?.["thumb"]?.["_highContrast"]).toStrictEqual({
       borderColor: "ButtonText",
       borderStyle: "solid",
@@ -108,26 +177,30 @@ describe("recipe", () => {
     });
   });
 
-  it("names the property the thumb actually moves in", () => {
+  it("transitions the translate property", () => {
     expect(recipe.base?.["thumb"]).toMatchObject({
       transitionProperty: "translate, background, box-shadow",
     });
   });
 
-  it("holds the thumb still for a reader who asks for less motion", () => {
+  it("drops the transition under reduced motion", () => {
     expect(recipe.base?.["thumb"]?.["_motionReduce"]).toStrictEqual({ transitionDuration: "0s" });
   });
 
-  it("draws the focus ring outside a track too short to hold one", () => {
+  it("renders the focus ring outside the track", () => {
     expect(recipe.base?.["control"]).toMatchObject({ focusVisibleRing: "outside" });
   });
 
-  it("widens the target under a coarse pointer rather than raising the track", () => {
+  it("widens the target under a coarse pointer without raising the track", () => {
     expect(recipe.base?.["control"]?.["_touch"]).toHaveProperty("_before");
     expect(recipe.base?.["control"]?.["_touch"]).not.toHaveProperty("minBlockSize");
   });
 
-  it("tracks every tag under the Switch namespace", () => {
+  it("takes the full width on a spread row", () => {
+    expect(scaleOf(recipe, "spread", "root", ["true"])[0]).toMatchObject({ inlineSize: "full" });
+  });
+
+  it("tracks JSX named Switch and its parts", () => {
     expect(recipe.jsx).toStrictEqual([/^Switch(\.\w+)?$/u]);
   });
 });

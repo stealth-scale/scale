@@ -7,25 +7,25 @@ import { composed, pressed, thrown } from "#switch/switch.fixtures.tsx";
 import { Thumb } from "#switch/thumb.tsx";
 
 describe("Thumb", () => {
-  it("draws a span inside the root it needs above it", () => {
+  it("renders a span", () => {
     const { container } = render(thrown(<Thumb />));
 
     expect(slotElement(container, "switch", "thumb").tagName).toBe("SPAN");
   });
 
-  it("keeps the knob out of the accessibility tree", () => {
+  it("hides the thumb from assistive technology", () => {
     const { container } = render(thrown(<Thumb />));
 
     expect(slotElement(container, "switch", "thumb").getAttribute("aria-hidden")).toBe("true");
   });
 
-  it("rests at the start of the track while the switch is off", () => {
+  it("sets data-state to unchecked by default", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "switch", "thumb").dataset["state"]).toBe("unchecked");
   });
 
-  it("reports the state it crossed to", async () => {
+  it("sets data-state to checked after a press", async () => {
     const { container } = render(composed());
     await pressed(screen.getByRole("switch"));
 
