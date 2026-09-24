@@ -4,13 +4,12 @@
  * @remarks
  *   `scenesOf` generates the looks by sizes from the save example. The placement scene is
  *   hand-written, because the placement is the machine's `positioning` option and not an axis.
- *   Every tooltip renders open through a controlled `open` and the kit's `STAGED` positioning,
- *   inside a `Floated` box that pads itself around the content, so the content shows in a still
- *   image at any scroll position. The box, `open` and `STAGED` never appear in the example. The
- *   words are keys under `tooltip` in `locales/en/specimen/tooltip.json`.
+ *   Every tooltip renders closed and portals its content to the document body, so a shown tooltip
+ *   renders over the page and a scene is as tall as its triggers. The words are keys under
+ *   `tooltip` in `locales/en/specimen/tooltip.json`.
  */
 
-import { Floated, Matrix, type Scene, scenesOf, specimen, STAGED } from "@stealthscale/specimen";
+import { Matrix, type Scene, scenesOf, specimen } from "@stealthscale/specimen";
 
 import * as examples from "#tooltip/examples/index.ts";
 import type * as Tooltip from "#tooltip/index.ts";
@@ -28,11 +27,7 @@ export const placement: Scene = {
   about: "tooltip.placement.about",
   draw: () => (
     <Matrix knob="placement" of={SIDES}>
-      {(side) => (
-        <Floated>
-          <examples.save.Save open positioning={{ ...STAGED, placement: side }} />
-        </Floated>
-      )}
+      {(side) => <examples.save.Save positioning={{ placement: side }} />}
     </Matrix>
   ),
   example: examples.save,
@@ -47,11 +42,7 @@ export default specimen({
   scenes: [
     ...scenesOf<Tooltip.RootProps>(recipe, {
       axes: { variant: { across: "size" } },
-      draw: (props) => (
-        <Floated>
-          <examples.save.Save {...props} open positioning={STAGED} />
-        </Floated>
-      ),
+      draw: (props) => <examples.save.Save {...props} />,
       example: examples.save,
       namespace: "tooltip",
     }),

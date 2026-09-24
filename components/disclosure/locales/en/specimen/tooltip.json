@@ -1,14 +1,14 @@
 {
   "about": "Renders a short label beside a control, shown on hover and on keyboard focus.",
   "placement": {
-    "about": "The content on each side of the trigger, set by the machine's `positioning.placement`.",
+    "about": "The content on each side of the trigger, set by the machine's `positioning.placement`. The machine flips content that would cross the edge of the window to the opposite side.",
     "title": "Placement"
   },
   "save": "Save",
   "saves": "Saves without closing",
   "title": "Tooltip",
   "variant": {
-    "about": "Both looks at every size, open. A tooltip opens on hover after `openDelay`, and on keyboard focus.",
+    "about": "Both looks at every size. A tooltip opens after `openDelay` when the pointer rests on its trigger, and at once when keyboard focus moves to the trigger.",
     "title": "Looks and sizes"
   }
 }

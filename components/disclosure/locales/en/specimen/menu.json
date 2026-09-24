@@ -3,6 +3,7 @@
   "acme": "Acme",
   "acmePlan": "Enterprise plan",
   "actions": "Actions",
+  "amount": "Amount",
   "archive": "Archive",
   "copy": "Copy",
   "createWorkspace": "Create workspace",
@@ -13,15 +14,16 @@
   "export": "Export",
   "globex": "Globex",
   "globexPlan": "Team plan",
+  "hideColumn": "Hide column",
   "highlight": {
-    "about": "Each highlight at each size. The highlight follows the pointer and the arrow keys, and a critical row keeps the error palette under it.",
+    "about": "Each highlight at each size. Open a menu and move the pointer or the arrow keys over its rows. A critical row keeps the error palette under the highlight.",
     "title": "Highlights and sizes"
   },
   "hold": "Hold",
   "initech": "Initech",
   "initechPlan": "Free plan",
   "inset": {
-    "about": "Rows without and with `inset`. With it, every row starts after the room an icon and its gap take.",
+    "about": "A column's menu without and with `inset`. The sort rows and the hide row lead with an icon, and the checkbox row does not. With `inset`, the checkbox row starts its text after the gutter an icon and its gap take, level with the text of the icon rows.",
     "title": "Gutter"
   },
   "json": "JSON",
@@ -43,24 +45,26 @@
     "title": "Context menu"
   },
   "palette": {
-    "about": "The eight palettes on the highlighted row. The panel sets the palette, and every row and submenu inherits it. A critical row keeps the error palette in each.",
+    "about": "The eight palettes. Open a menu and highlight a row to see its palette. The panel sets the palette, and every row and submenu inherits it. A critical row keeps the error palette in each.",
     "title": "Palettes"
   },
   "payout": "Payout",
   "pdf": "PDF",
   "pickLedger": "Pick a ledger",
   "placements": {
-    "about": "Six placements against the trigger, each with an arrow that points at it. Outside the catalogue, the machine flips a panel that would cross the edge of the window.",
+    "about": "Six placements against the trigger, each with an arrow that points at it. The machine flips a panel that would cross the edge of the window to the opposite side.",
     "title": "Placements"
   },
   "release": "Release",
   "rename": "Rename",
   "rightClickCard": "Right-click this card",
   "rtl": {
-    "about": "The menu in a right-to-left document. The panel aligns to the trigger's right edge, and a submenu opens to the left.",
+    "about": "The menu in a right-to-left document. The panel aligns to the trigger's right edge, a submenu opens to the left, and the submenu row's chevron points to the left.",
     "title": "Right to left"
   },
   "settings": "Settings",
+  "sortAscending": "Sort ascending",
+  "sortDescending": "Sort descending",
   "submenus": {
     "about": "A pointer on a row that opens a submenu opens it after a short delay, beside the panel and level with its row. The right arrow opens it from the keyboard, and the left arrow closes it.",
     "title": "Submenus"
@@ -68,9 +72,10 @@
   "switchWorkspace": "Switch workspace",
   "title": "Menu",
   "variant": {
-    "about": "Each look is shown with the first row highlighted. `surface` fills the panel with `bg.popover` inside a hairline edge. `elevated` fills it with `bg.panel` under a large shadow. `glass` applies the theme's glass layer style.",
+    "about": "The three looks. `surface` fills the panel with `bg.popover` inside a hairline edge. `elevated` fills it with `bg.panel` under a large shadow. `glass` applies the theme's glass layer style.",
     "title": "Looks"
   },
   "void": "Void",
-  "workspaces": "Workspaces"
+  "workspaces": "Workspaces",
+  "wrapText": "Wrap text"
 }
