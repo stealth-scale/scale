@@ -70,6 +70,30 @@ describe("written", () => {
     );
   });
 
+  it("writes an object prop as an object literal", () => {
+    expect(written({ name: "Menu.Root" }, { positioning: { placement: "top" } })).toBe(
+      '<Menu.Root positioning={{ placement: "top" }} />',
+    );
+  });
+
+  it("quotes an object key that is no identifier", () => {
+    expect(written({ name: "Menu.Root" }, { ids: { "aria-label": "Menu" } })).toBe(
+      '<Menu.Root ids={{ "aria-label": "Menu" }} />',
+    );
+  });
+
+  it("writes an array prop as an array literal", () => {
+    expect(written({ name: "Menu.Root" }, { sides: ["top", 1] })).toBe(
+      '<Menu.Root sides={["top", 1]} />',
+    );
+  });
+
+  it("writes a nested object prop member by member", () => {
+    expect(written({ name: "Menu.Root" }, { positioning: { offset: { mainAxis: 4 } } })).toBe(
+      "<Menu.Root positioning={{ offset: { mainAxis: 4 } }} />",
+    );
+  });
+
   it("omits an undefined prop", () => {
     expect(written({ name: "Button" }, { size: undefined, variant: "solid" })).toBe(
       '<Button variant="solid" />',

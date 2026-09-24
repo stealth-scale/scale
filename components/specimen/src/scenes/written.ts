@@ -53,17 +53,43 @@ const SPREAD_LINE = /\n([ \t]*)\{\.\.\.props\}(?=\n)/gu;
 const PARAMETER = /\(\s*props(?::[^)]*)?\)/u;
 
 /**
+ * Matches a key an object literal can write without quotes.
+ */
+const IDENTIFIER = /^[$A-Z_a-z][\w$]*$/u;
+
+/**
+ * Writes a value as a JavaScript literal.
+ *
+ * @remarks
+ *   A string is quoted. An array and a plain object are written member by member, so the
+ *   `positioning` object of a placement scene reads `{ placement: "top" }` and not
+ *   `[object Object]`. Any other value is written as `String` writes it.
+ */
+function literal(value: unknown): string {
+  if (typeof value === "string") return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map((each) => literal(each)).join(", ")}]`;
+  if (typeof value !== "object" || value === null) return String(value);
+
+  const members = Object.entries(value).map(
+    ([key, each]) => `${IDENTIFIER.test(key) ? key : JSON.stringify(key)}: ${literal(each)}`,
+  );
+
+  return `{ ${members.join(", ")} }`;
+}
+
+/**
  * Writes one JSX attribute with a leading space.
  *
  * @remarks
  *   `true` becomes a bare attribute. `false` is written in braces, because an omitted attribute
- *   says nothing about the axis. A string is quoted, and any other value is written in braces.
+ *   gives no value for the axis. A string is quoted, and any other value is written in braces as a
+ *   literal.
  */
 function attribute(axis: string, value: unknown): string {
   if (value === true) return ` ${axis}`;
   if (typeof value === "string") return ` ${axis}="${value}"`;
 
-  return ` ${axis}={${String(value)}}`;
+  return ` ${axis}={${literal(value)}}`;
 }
 
 /**
