@@ -1,7 +1,7 @@
 import { type ReactElement } from "react";
 
-import { screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { act, fireEvent, screen, within } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 import { drawn } from "@stealthscale/testing-react";
 
@@ -12,6 +12,29 @@ import {
   usePopover,
   usePopoverMachine,
 } from "#popover/machine.ts";
+import { composed } from "#popover/popover.fixtures.tsx";
+
+/**
+ * Presses an element with the three pointer events in one task, as a browser fires them within one
+ * animation frame, and waits for the frames and timers after it.
+ */
+async function clicked(element: Element): Promise<void> {
+  await act(async () => {
+    fireEvent.pointerDown(element);
+    fireEvent.pointerUp(element);
+    fireEvent.click(element);
+    await new Promise((resolve) => {
+      setTimeout(resolve, 50);
+    });
+  });
+}
+
+/**
+ * Returns the trigger inside a container.
+ */
+function triggerIn(container: HTMLElement): HTMLElement {
+  return within(container).getByRole("button", { name: "Filters" });
+}
 
 /**
  * Runs the machine and renders its state through a part that reads the context.
@@ -84,5 +107,36 @@ describe("usePopoverMachine", () => {
     await drawn(<Running closeOnEscape={undefined} defaultOpen />);
 
     expect(screen.getByTestId("state").textContent).toBe("open");
+  });
+
+  it("opens a popover whose trigger is pressed while another popover is open", async () => {
+    const first = await drawn(composed());
+    const second = await drawn(composed());
+
+    await clicked(triggerIn(first.container));
+    await clicked(triggerIn(second.container));
+
+    expect(triggerIn(second.container).getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("calls a caller's onRequestDismiss when Zag closes the popover with another", async () => {
+    const onRequestDismiss = vi.fn<(event: Event) => void>();
+    const first = await drawn(composed());
+    const second = await drawn(composed({ onRequestDismiss }));
+
+    await clicked(triggerIn(first.container));
+    await clicked(triggerIn(second.container));
+
+    expect(onRequestDismiss).toHaveBeenCalledOnce();
+  });
+
+  it("closes the open popover when another popover's trigger is pressed", async () => {
+    const first = await drawn(composed());
+    const second = await drawn(composed());
+
+    await clicked(triggerIn(first.container));
+    await clicked(triggerIn(second.container));
+
+    expect(triggerIn(first.container).getAttribute("aria-expanded")).toBe("false");
   });
 });

@@ -1,8 +1,8 @@
 import { type ReactElement } from "react";
 
-import { screen } from "@testing-library/react";
+import { act, fireEvent, screen } from "@testing-library/react";
 import * as menu from "@zag-js/menu";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { drawn } from "@stealthscale/testing-react";
 
@@ -16,8 +16,34 @@ import {
   useMenuMachine,
   useNestedMenu,
 } from "#menu/machine.ts";
+import { composed, kept } from "#menu/menu.fixtures.tsx";
 
 const OUTERMOST: menu.Service | undefined = undefined;
+
+/**
+ * Waits for the animation frames and timers a machine defers an outside press to.
+ */
+async function framed(): Promise<void> {
+  await act(async () => {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 50);
+    });
+  });
+}
+
+/**
+ * Presses an element with the three pointer events in one task, as a browser fires them within one
+ * animation frame, and waits for the frames after it.
+ */
+async function clicked(element: Element): Promise<void> {
+  await act(async () => {
+    fireEvent.pointerDown(element);
+    fireEvent.pointerUp(element);
+    fireEvent.click(element);
+    await Promise.resolve();
+  });
+  await framed();
+}
 
 /**
  * Runs the machine and renders its state as text.
@@ -110,6 +136,54 @@ describe("useMenuMachine", () => {
     await drawn(<Running closeOnSelect={false} defaultOpen loopFocus typeahead={false} />);
 
     expect(screen.getByTestId("state").textContent).toBe("open none");
+  });
+
+  it("opens a menu whose trigger is pressed while another menu is open", async () => {
+    await drawn(
+      <>
+        {composed()}
+        {kept()}
+      </>,
+    );
+
+    await clicked(screen.getByRole("button", { name: "Actions" }));
+    await clicked(screen.getByRole("button", { name: "Format" }));
+
+    expect(screen.getByRole("button", { name: "Format" }).getAttribute("aria-expanded")).toBe(
+      "true",
+    );
+  });
+
+  it("calls a caller's onRequestDismiss when Zag closes the menu with another", async () => {
+    const onRequestDismiss = vi.fn<(event: Event) => void>();
+
+    await drawn(
+      <>
+        {composed()}
+        {kept({ onRequestDismiss })}
+      </>,
+    );
+
+    await clicked(screen.getByRole("button", { name: "Actions" }));
+    await clicked(screen.getByRole("button", { name: "Format" }));
+
+    expect(onRequestDismiss).toHaveBeenCalledOnce();
+  });
+
+  it("closes the open menu when another menu's trigger is pressed", async () => {
+    await drawn(
+      <>
+        {composed()}
+        {kept()}
+      </>,
+    );
+
+    await clicked(screen.getByRole("button", { name: "Actions" }));
+    await clicked(screen.getByRole("button", { name: "Format" }));
+
+    expect(screen.getByRole("button", { name: "Actions" }).getAttribute("aria-expanded")).toBe(
+      "false",
+    );
   });
 });
 

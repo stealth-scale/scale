@@ -15,6 +15,8 @@ import { normalizeProps, useMachine } from "@zag-js/react";
 
 import { createRequiredContext, omitUndefined, splitEnumerable } from "@stealthscale/hooks";
 
+import { dismissNested } from "#nesting.ts";
+
 /**
  * Describes the api `popover.connect` returns: a prop getter per part plus the machine's state and
  * methods.
@@ -69,9 +71,19 @@ export function splitPopoverProps<Props extends PopoverOptions>(
  */
 export function usePopoverMachine(options: PopoverOptions): PopoverApi {
   const generated = useId();
+  const service = useMachine(popover.machine, {
+    ...omitUndefined(options),
+    id: options.id ?? generated,
 
-  return popover.connect(
-    useMachine(popover.machine, { ...omitUndefined(options), id: options.id ?? generated }),
-    normalizeProps,
-  );
+    /**
+     * Keeps the popover open when Zag closes it with an overlay it is not nested in, then calls the
+     * caller's handler.
+     */
+    onRequestDismiss(event) {
+      dismissNested(event);
+      options.onRequestDismiss?.(event);
+    },
+  });
+
+  return popover.connect(service, normalizeProps);
 }

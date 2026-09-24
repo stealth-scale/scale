@@ -17,6 +17,7 @@ import { normalizeProps, useMachine } from "@zag-js/react";
 import { createRequiredContext, omitUndefined, splitEnumerable } from "@stealthscale/hooks";
 
 import { type MenuVariants } from "#menu/variants.ts";
+import { dismissNested } from "#nesting.ts";
 
 /**
  * Describes the api `menu.connect` returns: a prop getter per part plus the machine's state and
@@ -143,6 +144,15 @@ export function useMenuMachine(options: MenuOptions): readonly [MenuApi, menu.Se
   const service = useMachine(menu.machine, {
     ...omitUndefined(options),
     id: options.id ?? generated,
+
+    /**
+     * Keeps the menu open when Zag closes it with an overlay it is not nested in, then calls the
+     * caller's handler.
+     */
+    onRequestDismiss(event) {
+      dismissNested(event);
+      options.onRequestDismiss?.(event);
+    },
   });
 
   return [menu.connect(service, normalizeProps), service];
