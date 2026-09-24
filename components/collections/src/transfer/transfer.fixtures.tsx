@@ -1,5 +1,5 @@
 /**
- * Builds the transfer every specification of a part draws, so no case states the same ten props.
+ * Fixtures for the transfer specs: three rows and a transfer builder.
  */
 
 import { type ReactElement } from "react";
@@ -7,22 +7,22 @@ import { type ReactElement } from "react";
 import { Transfer, type TransferProps } from "#transfer/transfer.tsx";
 
 /**
- * Describes one row every case moves between the lists.
+ * Describes one row of the fixture.
  */
 export interface Place {
   /**
-   * The words the row is drawn and announced by.
+   * Text of the row.
    */
   label: string;
 
   /**
-   * The value the row is chosen by.
+   * Value of the row.
    */
   value: string;
 }
 
 /**
- * The rows every case starts from.
+ * Rows of the fixture.
  */
 export const PLACES: readonly Place[] = [
   { label: "Invoices", value: "invoices" },
@@ -31,10 +31,10 @@ export const PLACES: readonly Place[] = [
 ];
 
 /**
- * Draws a transfer, less whatever a case states itself.
+ * Renders a transfer over the fixture's rows with the props the case sets.
  *
- * @param props - Whatever the case sets on the transfer.
- * @returns The two lists and the controls between them.
+ * @param props - The props the case sets.
+ * @returns The transfer.
  */
 export function moving(props: Partial<TransferProps<Place>> = {}): ReactElement {
   return (

@@ -1,11 +1,9 @@
 /**
- * Draws one of the two controls that move rows between the lists.
+ * Renders a control that moves checked rows between the two sides.
  *
  * @remarks
- *   The control is a part of this recipe rather than a button from elsewhere, which keeps this
- *   package off every other component package. It is the one element a transfer adds.
- *   It holds a mark and no words, so a caller names it. A control drawn as an arrow and left
- *   unnamed reads out as "button" and says nothing about which way it points.
+ *   The element is a `button` with `type="button"`, named by `label` through `aria-label`, because
+ *   its content is a mark without text.
  */
 
 import { type ComponentProps, type ReactElement, type ReactNode } from "react";
@@ -13,38 +11,39 @@ import { type ComponentProps, type ReactElement, type ReactNode } from "react";
 import { withContext } from "#transfer/context.ts";
 
 /**
- * Draws the square the mark sits in.
+ * Renders the `button` with the transfer's control class and `type="button"`.
  */
 const Pressed = withContext("button", "control", { defaultProps: { type: "button" } });
 
 /**
- * Describes what one control takes.
+ * Describes the props of a control: its mark, its name, its press handler and the props of a
+ * `button`.
  */
 export interface ControlProps extends Omit<
   ComponentProps<typeof Pressed>,
   "aria-label" | "onClick"
 > {
   /**
-   * Drawn inside the control.
+   * Mark rendered inside the control.
    */
   readonly children: ReactNode;
 
   /**
-   * Reads out as the name of the control.
+   * Accessible name of the control.
    */
   readonly label: string;
 
   /**
-   * Called when the control is pressed.
+   * Called on a press.
    */
   readonly onPress: () => void;
 }
 
 /**
- * Moves whatever is picked on one side over to the other.
+ * Renders a control named by `label` that calls `onPress` on a press.
  *
- * @param props - The mark it draws, the name it reads out as, and what pressing it does.
- * @returns The square, holding the mark.
+ * @param props - The mark, the accessible name, the press handler and the props of a `button`.
+ * @returns The `button` element.
  */
 export function Control({ children, label, onPress, ...rest }: ControlProps): ReactElement {
   return (

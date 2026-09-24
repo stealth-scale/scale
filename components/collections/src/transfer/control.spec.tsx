@@ -10,15 +10,15 @@ import { withProvider } from "#transfer/context.ts";
 import { Control, type ControlProps } from "#transfer/control.tsx";
 
 /**
- * Draws the frame a control needs above it, which sets the variants it reads.
+ * Renders the root `div` that provides the variants.
  */
 const Framed = withProvider("div", "root");
 
 /**
- * Draws one control inside the frame it needs.
+ * Renders one control inside the root with the props the case sets.
  *
- * @param props - Whatever the case sets on the control.
- * @returns The frame, holding the control.
+ * @param props - The props the case sets, without the mark.
+ * @returns The root with the control inside it.
  */
 function between(props: Omit<ControlProps, "children">): ReactElement {
   return (
@@ -29,25 +29,25 @@ function between(props: Omit<ControlProps, "children">): ReactElement {
 }
 
 describe("Control", () => {
-  it("draws a button", () => {
+  it("renders a button", () => {
     const { container } = render(between({ label: "Take", onPress: vi.fn<() => void>() }));
 
     expect(slotElement(container, "transfer", "control").tagName).toBe("BUTTON");
   });
 
-  it("submits nothing, because a pair of lists is not a form", () => {
+  it("sets type button", () => {
     render(between({ label: "Take", onPress: vi.fn<() => void>() }));
 
     expect(screen.getByRole("button").getAttribute("type")).toBe("button");
   });
 
-  it("names itself for a reader who cannot see which way it points", () => {
+  it("names the button by label", () => {
     render(between({ label: "Take what is picked", onPress: vi.fn<() => void>() }));
 
     expect(screen.getByRole("button", { name: "Take what is picked" })).toBeTruthy();
   });
 
-  it("moves the rows when it is pressed", async () => {
+  it("calls onPress on a press", async () => {
     const moved = vi.fn<() => void>();
 
     render(between({ label: "Take", onPress: moved }));
@@ -56,7 +56,7 @@ describe("Control", () => {
     expect(moved).toHaveBeenCalledTimes(1);
   });
 
-  it("moves nothing while it is off", async () => {
+  it("calls no onPress while disabled", async () => {
     const moved = vi.fn<() => void>();
 
     render(between({ disabled: true, label: "Take", onPress: moved }));

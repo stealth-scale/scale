@@ -1,15 +1,9 @@
 /**
- * Draws one side of a transfer: its name, the rows it holds, and what it says when it holds none.
+ * Renders one side of a transfer: a boxed listbox of several, with its title and empty text.
  *
  * @remarks
- *   A side is an ordinary list of several. What makes the pair a transfer is the controls between
- *   them, not anything either list does differently, so this adds nothing to a listbox but the room
- *   it keeps and the rows it is handed.
- *   The room is a floor rather than a fixed measure, counted in rows off the height the list
- *   publishes for one of its own. A side that took its own height would shrink as it emptied and
- *   the pair would jump every time a row crossed between them. A side held to that measure exactly
- *   would come out shorter than the other wherever the rows carry a second line, which the
- *   published height does not account for.
+ *   The side sets `--transfer-rows` to the number of rows it keeps room for, and the recipe sizes
+ *   the list from it. The number is a floor: a side whose rows have a second line grows past it.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -17,72 +11,72 @@ import { type ReactElement, type ReactNode } from "react";
 import { type ListCollection } from "@zag-js/collection";
 
 import * as Listbox from "#listbox/index.ts";
-import { ROW_HEIGHT } from "#listbox/recipe.ts";
 import { withContext } from "#transfer/context.ts";
+import { ROWS } from "#transfer/recipe.ts";
 
 /**
- * Draws the box one list sits in.
+ * Renders the `div` around one list.
  */
 const Held = withContext("div", "side");
 
 /**
- * Describes what one side of a transfer takes.
+ * Describes the props of one side.
  *
- * @typeParam Row - What one row of the list holds.
+ * @typeParam Row - Type of one row.
  */
 export interface SideProps<Row> {
   /**
-   * The rows this side holds, in the order they are drawn.
+   * Rows of this side in render order.
    */
   readonly collection: ListCollection<Row>;
 
   /**
-   * Drawn under a row's name, for a name that does not say enough on its own.
+   * Returns a row's second line.
    */
   readonly description?: ((row: Row) => ReactNode) | undefined;
 
   /**
-   * Reads the value a row is chosen by.
+   * Returns a row's value.
    */
   readonly itemToValue: (row: Row) => string;
 
   /**
-   * The mark a picked row carries in its box.
+   * Mark of a checked row's checkbox.
    */
   readonly mark?: ReactNode | undefined;
 
   /**
-   * Said where this side holds nothing at all.
+   * Content rendered while the side has no rows.
    */
   readonly nothing?: ReactNode | undefined;
 
   /**
-   * Hears which of this side's rows a reader has picked.
+   * Called with the values of the checked rows.
    */
   readonly onPick: (picked: readonly string[]) => void;
 
   /**
-   * The rows of this side a reader has picked.
+   * Values of the checked rows.
    */
   readonly picked: readonly string[];
 
   /**
-   * How many rows of room the side keeps, whichever side the rows are on.
+   * Number of rows the side keeps room for.
    */
   readonly tall: number;
 
   /**
-   * The words this side is named by.
+   * Label of the list.
    */
   readonly title: ReactNode;
 }
 
 /**
- * Draws one list of a transfer.
+ * Renders one side of a transfer.
  *
- * @typeParam Row - What one row of the list holds.
- * @param props - The rows this side holds, what a reader has picked of them, and what names it.
- * @returns The side, holding its list.
+ * @typeParam Row - Type of one row.
+ * @param props - The rows, the checked values, the title and the room to keep.
+ * @returns The `div` with the listbox inside it.
  */
 export function Side<Row>({
   collection,
@@ -95,8 +89,10 @@ export function Side<Row>({
   tall,
   title,
 }: SideProps<Row>): ReactElement {
+  const rowed: Record<string, string> = { [ROWS]: String(tall) };
+
   return (
-    <Held>
+    <Held style={rowed}>
       <Listbox.Root
         boxed
         collection={collection}
@@ -109,10 +105,8 @@ export function Side<Row>({
         variant="surface"
       >
         <Listbox.Label>{title}</Listbox.Label>
-        <Listbox.Frame style={{ flex: 1 }}>
-          <Listbox.Content
-            style={{ flex: 1, minBlockSize: `calc(var(${ROW_HEIGHT}) * ${String(tall)})` }}
-          >
+        <Listbox.Frame>
+          <Listbox.Content>
             {collection.items.map((row) => (
               <Listbox.Row
                 {...(description === undefined ? {} : { description: description(row) })}

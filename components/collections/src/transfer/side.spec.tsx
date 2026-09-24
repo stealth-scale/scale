@@ -12,15 +12,15 @@ import { Side, type SideProps } from "#transfer/side.tsx";
 import { type Place, PLACES } from "#transfer/transfer.fixtures.tsx";
 
 /**
- * Draws the frame a side needs above it, which sets the variants it reads.
+ * Renders the root `div` that provides the variants.
  */
 const Framed = withProvider("div", "root");
 
 /**
- * Draws one side, building the collection it holds from whatever rows a case hands it.
+ * Renders one side over the fixture's rows with the props the case sets.
  *
- * @param props - Whatever the case sets on the side, less the collection.
- * @returns The side, inside the frame it needs.
+ * @param props - The props the case sets, without the collection.
+ * @returns The side inside the root.
  */
 function Held(props: Partial<Omit<SideProps<Place>, "collection">> = {}): ReactElement {
   const { collection } = useListCollection<Place>({
@@ -47,33 +47,39 @@ function Held(props: Partial<Omit<SideProps<Place>, "collection">> = {}): ReactE
 }
 
 describe("Side", () => {
-  it("names itself with the words it is given", async () => {
+  it("names the listbox by its title", async () => {
     await drawn(<Held />);
 
     expect(screen.getByRole("listbox", { name: "Available" })).toBeTruthy();
   });
 
-  it("draws one row per row of the collection", async () => {
+  it("renders an option per row", async () => {
     await drawn(<Held />);
 
     expect(screen.getAllByRole("option")).toHaveLength(3);
   });
 
-  it("draws a box at the start of every row, because a side takes several at a time", async () => {
+  it("renders a checkbox at a row's start", async () => {
     const { container } = await drawn(<Held />);
 
     expect(slotElement(container, "listbox", "itemCheckbox")).toBeTruthy();
   });
 
-  it("keeps room for every row there is, whichever side the rows are on", async () => {
+  it("sets --transfer-rows to tall", async () => {
     const { container } = await drawn(<Held tall={7} />);
 
-    expect(slotElement(container, "listbox", "content").style.minBlockSize).toBe(
-      "calc(var(--listbox-row) * 7)",
-    );
+    expect(
+      slotElement(container, "transfer", "side").style.getPropertyValue("--transfer-rows"),
+    ).toBe("7");
   });
 
-  it("reports the rows a reader picks on it", async () => {
+  it("sets no inline size on the list", async () => {
+    const { container } = await drawn(<Held />);
+
+    expect(slotElement(container, "listbox", "content").style.minBlockSize).toBe("");
+  });
+
+  it("calls onPick with the checked values", async () => {
     const picked = vi.fn<(picked: readonly string[]) => void>();
 
     await drawn(<Held onPick={picked} />);
@@ -82,13 +88,13 @@ describe("Side", () => {
     expect(picked).toHaveBeenCalledWith(["invoices"]);
   });
 
-  it("draws a line under a row's name where a caller writes one", async () => {
+  it("renders a row's description", async () => {
     await drawn(<Held description={(place) => `Value ${place.value}`} />);
 
     expect(screen.getByText("Value invoices")).toBeTruthy();
   });
 
-  it("says nothing of its own where a caller gives it no words for an empty side", () => {
+  it("renders no empty part without nothing", () => {
     const { container } = render(<Held nothing={undefined} />);
 
     expect(container.querySelector("[class*=empty]")).toBeNull();

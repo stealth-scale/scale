@@ -1,21 +1,14 @@
 /**
- * States what a transfer is: two lists side by side and the pair of controls that move rows between
- * them.
+ * Recipe for the transfer: two lists side by side and the column of controls between them.
  *
  * @remarks
- *   Four parts. The root lays the two sides and the controls along one line, a side holds one list,
- *   the controls are the column between them, and a control is one square in that column.
- *   A control is a square holding one mark and no words, drawn from the control scale a step below
- *   the list's size, so it reads as the smaller thing beside two lists rather than a third list.
- *   Both sides take the same share of the width, so the pair keeps still as rows cross between
- *   them. A side that took its own width would step sideways every time the longest name moved.
- *   Both take the same height as well. A side is a grid of one, which stretches the list inside it
- *   to whatever the pair comes to, and the pair comes to whichever side is taller. The floor under
- *   that is the room every row would take, which each list counts off the row height it publishes,
- *   so an empty side is as tall as a full one.
- *   The controls sit against the middle of the pair rather than the top. They act on whichever side
- *   a reader has picked from, and a control pinned to the top of a tall pair reads as belonging to
- *   the first row of it.
+ *   Both sides take an equal share of the width, so the pair keeps its layout as rows move. Both
+ *   take the height of the taller side, with a floor of every row's height, which the side reads
+ *   from the list's `--listbox-row` and its own `--transfer-rows`, so an empty side is as tall as a
+ *   full one. The controls centre on the pair's height. A control's square and its mark are each
+ *   one size smaller than the transfer, on the control scale and the icon scale. The palette is
+ *   set on the root, and both lists inherit it. The recipe has no `effect` axis, because a pick in
+ *   a transfer lasts until the next press of a control, and the checkbox marks it.
  */
 
 import {
@@ -23,12 +16,32 @@ import {
   defineSlotRecipe,
   dense,
   interactive,
+  onSlot,
   onSlots,
+  PALETTES,
+  paletteVariants,
   sizeVariants,
 } from "@stealthscale/theme/authoring";
 
+import { ROW_HEIGHT } from "#listbox/recipe.ts";
+
 /**
- * Draws a transfer at the middle size until a caller says otherwise.
+ * Sizes the transfer offers.
+ */
+const SIZES = ["sm", "md", "lg"] as const;
+
+/**
+ * Class name of the listbox recipe, whose frame and content a side sizes.
+ */
+export const LISTBOX = "listbox";
+
+/**
+ * Custom property a side sets to the number of rows it keeps room for.
+ */
+export const ROWS = "--transfer-rows";
+
+/**
+ * Defines the transfer recipe at size `md` by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -52,26 +65,44 @@ export const recipe = defineSlotRecipe({
       flexShrink: "0",
     },
     root: { alignItems: "stretch", display: "flex", minInlineSize: "0" },
-    side: { display: "grid", flex: "1", minInlineSize: "0" },
+    side: {
+      [`& .${LISTBOX}__content`]: {
+        flex: "1",
+        minBlockSize: `calc(var(${ROW_HEIGHT}) * var(${ROWS}))`,
+      },
+      [`& .${LISTBOX}__frame`]: { flex: "1" },
+      display: "grid",
+      flex: "1",
+      minInlineSize: "0",
+    },
   },
   className: "transfer",
   defaultVariants: { size: "md" },
   jsx: [/^Transfer(\.\w+)?$/u],
   slots: ["root", "side", "controls", "control"],
+  staticCss: [{ palette: [...PALETTES] }],
   variants: {
+    /**
+     * Palette the lists' checkboxes and fills read.
+     *
+     * @remarks
+     *   The palette is set on the root, and both lists inherit its custom properties.
+     */
+    palette: onSlot("root", paletteVariants()),
+
+    /**
+     * Gap between the parts and the size of the controls and their marks.
+     */
     size: onSlots({
       control: sizeVariants(
         (size) => ({
           "& > *": { boxSize: dense(`{sizes.icon.${below(size)}}`) },
           boxSize: dense(`{sizes.control.${below(size)}}`),
         }),
-        ["sm", "md", "lg"],
+        SIZES,
       ),
-      controls: sizeVariants(
-        (size) => ({ gap: dense(`{spacing.gap.${below(size)}}`) }),
-        ["sm", "md", "lg"],
-      ),
-      root: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), ["sm", "md", "lg"]),
+      controls: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${below(size)}}`) }), SIZES),
+      root: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), SIZES),
     }),
   },
 });
