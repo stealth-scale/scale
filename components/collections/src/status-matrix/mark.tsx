@@ -1,16 +1,11 @@
 /**
- * Draws one state, as the mark a crossing carries and as the mark the legend explains.
+ * Renders a state's mark, in a crossing or in the legend.
  *
  * @remarks
- *   The tone is written as an attribute rather than taken as an axis. A slot recipe resolves its
- *   variants once at the root, and a grid whose whole point is that every cell differs cannot hold
- *   its states on one.
- *   A state that states no mark of its own draws a filled disc. Left blank it would draw nothing at
- *   all, and a crossing a reader cannot see is worse than a crossing they cannot tell from its
- *   neighbour.
- *   The words are drawn out of sight and only where a caller asks for them. A cell has nothing else
- *   to read out, so it asks. The legend already writes them beside the mark, so it does not, and a
- *   legend that did would read every state twice.
+ *   The tone is a `data-tone` attribute, because a slot recipe resolves its variants once at the
+ *   root and every cell differs. A state without a mark renders a filled dot. The label renders
+ *   visually hidden, and only when passed: a cell passes it, and the legend writes the label beside
+ *   the mark and does not.
  */
 
 import { type ReactElement } from "react";
@@ -19,40 +14,40 @@ import { withContext } from "#status-matrix/context.ts";
 import { type MatrixState } from "#status-matrix/states.ts";
 
 /**
- * Wraps the mark and the words that name it.
+ * Renders the `span` around the mark and its hidden label.
  */
 const Marked = withContext("span", "mark");
 
 /**
- * Draws the filled disc a state with no mark of its own falls back to.
+ * Renders the filled dot of a state without a mark.
  */
 const Dot = withContext("span", "dot");
 
 /**
- * Reads the mark out, from out of sight.
+ * Renders the visually hidden label.
  */
 const Named = withContext("span", "name");
 
 /**
- * Describes what the mark takes.
+ * Describes the props of a mark: the state and an optional hidden label.
  */
 export interface MarkProps {
   /**
-   * Read out beside the mark, out of sight. Left off where the words are already on the screen.
+   * Visually hidden text read with the mark. Left out where the text is visible beside it.
    */
   readonly label?: string | undefined;
 
   /**
-   * The state to draw.
+   * The state to render.
    */
   readonly state: MatrixState;
 }
 
 /**
- * Draws a state's mark in the state's own tone.
+ * Renders a state's mark in the state's tone.
  *
- * @param props - The state, and the words that name it where they are needed.
- * @returns The mark, and the words where they were asked for.
+ * @param props - The state and the optional hidden label.
+ * @returns The `span` with the mark, and the hidden label when passed.
  */
 export function Mark({ label, state }: MarkProps): ReactElement {
   return (

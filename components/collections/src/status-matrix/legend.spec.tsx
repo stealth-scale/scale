@@ -8,7 +8,7 @@ import { type MatrixState } from "#status-matrix/states.ts";
 import { framed } from "#status-matrix/status-matrix.fixtures.tsx";
 
 /**
- * The states every case explains.
+ * Two states without marks.
  */
 const STATES: readonly MatrixState[] = [
   { label: "Healthy", tone: "success" },
@@ -16,25 +16,25 @@ const STATES: readonly MatrixState[] = [
 ];
 
 describe("Legend", () => {
-  it("names the list it draws", () => {
+  it("names the list by label", () => {
     render(framed(<Legend label="States" states={STATES} />));
 
     expect(screen.getByRole("list", { name: "States" })).toBeTruthy();
   });
 
-  it("writes out every state it was given", () => {
+  it("renders an item per state", () => {
     render(framed(<Legend label="States" states={STATES} />));
 
     expect(screen.getAllByRole("listitem")).toHaveLength(2);
   });
 
-  it("writes the words of a state beside its mark", () => {
+  it("renders a state's label beside its mark", () => {
     render(framed(<Legend label="States" states={STATES} />));
 
     expect(screen.getAllByRole("listitem")[0]?.textContent).toBe("Healthy");
   });
 
-  it("reads no state out twice", () => {
+  it("renders no hidden label", () => {
     const { container } = render(framed(<Legend label="States" states={STATES} />));
 
     expect(container.querySelector(`.${slotClass("status-matrix", "name")}`)).toBeNull();

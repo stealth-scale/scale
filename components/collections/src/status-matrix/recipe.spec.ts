@@ -7,19 +7,19 @@ import { recipe } from "#status-matrix/recipe.ts";
 import page from "#status-matrix/status-matrix.specimen.tsx";
 
 describe("recipe", () => {
-  it("covers every variant axis in the scenes of its specimen page", () => {
+  it("covers every axis in the scenes of its specimen", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+  it("leaves no scene naming a value the recipe lacks", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(
       recipeViolations(recipe, {
         names: ["StatusMatrix"],
-        // A matrix runs no machine and stamps no parts. Every slot is this recipe's own.
+        // The matrix does not run a machine, so every slot is the recipe's own.
         parts: [
           "root",
           "columnHeading",
@@ -37,76 +37,76 @@ describe("recipe", () => {
     ).toStrictEqual([]);
   });
 
-  it("prefixes its classes with the matrix's own name", () => {
+  it("sets className to status-matrix", () => {
     expect(recipe.className).toBe("status-matrix");
   });
 
-  it("styles the eleven parts a matrix adds to a table", () => {
+  it("declares eleven slots", () => {
     expect(recipe.slots).toHaveLength(11);
   });
 
-  it("offers the one axis a matrix takes", () => {
+  it("declares the size axis alone", () => {
     expect(axesOf(recipe)).toStrictEqual(["size"]);
   });
 
-  it("draws at the middle size when nothing is asked for", () => {
+  it("defaults size to md", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md" });
   });
 
-  it("takes the width of its own contents rather than the width of the page", () => {
+  it("sizes the root to its content up to the full width", () => {
     expect(recipe.base?.["root"]).toMatchObject({
       inlineSize: "fit-content",
       maxInlineSize: "full",
     });
   });
 
-  it("lights a crossing one step under the panel it sits on", () => {
+  it("fills a lit cell with bg.subtle", () => {
     expect(recipe.base?.["cell"]).toStrictEqual({ "&[data-lit]": { background: "bg.subtle" } });
   });
 
-  it("lights a row's own name with the row", () => {
+  it("fills a lit row header with bg.subtle", () => {
     expect(recipe.base?.["rowHeading"]).toMatchObject({
       "&[data-lit]": { background: "bg.subtle" },
     });
   });
 
-  it("lights a column's name with the column", () => {
+  it("fills a lit column header with bg.subtle", () => {
     expect(recipe.base?.["columnHeading"]).toStrictEqual({
       "&[data-lit]": { background: "bg.subtle" },
     });
   });
 
-  it("points the palette at the tone a state states", () => {
+  it("maps each data-tone to its palette on the mark", () => {
     expect(recipe.base?.["mark"]).toMatchObject({
       "&[data-tone=error]": { colorPalette: "error" },
       "&[data-tone=success]": { colorPalette: "success" },
     });
   });
 
-  it("centres a column's name over the marks under it", () => {
+  it("centres a column's name in a block", () => {
     expect(recipe.base?.["columnLabel"]).toStrictEqual({
       display: "block",
       textAlign: "center",
     });
   });
 
-  it("takes the words of a mark out of sight", () => {
+  it("hides the mark's label visually", () => {
     expect(recipe.base?.["name"]).toStrictEqual({ srOnly: true });
   });
 
-  it("draws a mark at the size the grid is read at", () => {
+  it("sizes a mark's svg at the icon size of the matrix's size", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["mark"]).toStrictEqual({
       "& > svg": { boxSize: "calc({sizes.icon.md} * var(--density, 1))" },
     });
   });
 
-  it("draws a disc a step under the marks beside it", () => {
+  it("sizes the dot one icon size smaller", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["dot"]).toStrictEqual({
       boxSize: "calc({sizes.icon.sm} * var(--density, 1))",
     });
   });
 
-  it("tracks every tag under the StatusMatrix namespace", () => {
+  it("matches every StatusMatrix tag", () => {
     expect(recipe.jsx).toStrictEqual([/^StatusMatrix(\.\w+)?$/u]);
   });
 });
