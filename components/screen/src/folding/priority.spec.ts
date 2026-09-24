@@ -7,11 +7,11 @@ describe("PRIORITIES", () => {
     expect(PRIORITIES).toHaveLength(3);
   });
 
-  it("lists them from the one that survives to the one that goes first", () => {
+  it("lists them from the one a narrow row keeps to the one it folds first", () => {
     expect(PRIORITIES).toStrictEqual(["primary", "secondary", "tertiary"]);
   });
 
-  it("names a priority the type allows", () => {
+  it("contains a priority the type allows", () => {
     const held: Priority = "secondary";
 
     expect(PRIORITIES).toContain(held);

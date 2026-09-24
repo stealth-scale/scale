@@ -17,11 +17,11 @@ import { type RootProps } from "#section/root.tsx";
 import { blocked, composed } from "#section/section.fixtures.tsx";
 
 describe("Root", () => {
-  it("breaks no accessibility rule holding every band it draws", async () => {
+  it("passes axe with every band", async () => {
     await expect(accessibilityViolations(() => composed())).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "root",
@@ -29,26 +29,26 @@ describe("Root", () => {
     ).toStrictEqual([]);
   });
 
-  it("draws a section element", () => {
+  it("renders a section", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "section", "root").tagName).toBe("SECTION");
   });
 
-  it("becomes a landmark once the title names it", () => {
+  it("sets role region named by its title", () => {
     render(composed());
 
     expect(screen.getByRole("region", { name: "Billing" })).toBeTruthy();
   });
 
-  it("carries no name while no title is drawn", () => {
+  it("has no name without a title", () => {
     const { container } = render(blocked(<Body>The plan</Body>));
 
     expect(screen.queryByRole("region", { name: /./u })).toBeNull();
     expect(slotElement(container, "section", "root").getAttribute("aria-labelledby")).toBeTruthy();
   });
 
-  it("takes its size from the page it stands in", () => {
+  it("takes its size from its page", () => {
     const { container } = render(<PageRoot size="lg">{composed()}</PageRoot>);
 
     expect(slotClasses(container, "section", "title")).toContain(
@@ -56,7 +56,7 @@ describe("Root", () => {
     );
   });
 
-  it("keeps its own size where it states one inside a page", () => {
+  it("keeps its own size inside a page", () => {
     const { container } = render(<PageRoot size="lg">{composed({ size: "sm" })}</PageRoot>);
 
     expect(slotClasses(container, "section", "title")).toContain(
@@ -64,7 +64,7 @@ describe("Root", () => {
     );
   });
 
-  it("reports no narrowness in a document that measures nothing", () => {
+  it("sets no data-narrow where the document measures no width", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "section", "root").dataset["narrow"]).toBeUndefined();

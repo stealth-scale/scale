@@ -7,19 +7,19 @@ import { Folded } from "#section/folded.ts";
 import { blocked } from "#section/section.fixtures.tsx";
 
 describe("Folded", () => {
-  it("draws a button inside the block it needs above it", () => {
+  it("renders a button", () => {
     const { container } = render(blocked(<Folded aria-label="More billing actions" />));
 
     expect(slotElement(container, "section", "folded").tagName).toBe("BUTTON");
   });
 
-  it("says it submits nothing, so a control inside a form does not", () => {
+  it("sets type button", () => {
     render(blocked(<Folded aria-label="More billing actions" />));
 
     expect(screen.getByRole("button").getAttribute("type")).toBe("button");
   });
 
-  it("takes the name a caller gives it", () => {
+  it("takes its name from aria-label", () => {
     render(blocked(<Folded aria-label="More billing actions" />));
 
     expect(screen.getByRole("button", { name: "More billing actions" })).toBeTruthy();

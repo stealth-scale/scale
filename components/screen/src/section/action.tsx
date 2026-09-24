@@ -1,12 +1,10 @@
 /**
- * Draws one control in the header, and says how far it survives as the section narrows.
+ * Renders one control in the header, with the priority that decides how it folds.
  *
  * @remarks
- *   A section folds on its own width rather than the page's, so a section in a narrow column drops
- *   its tertiary controls while the same section beside a wide one keeps them.
- *   The priority is an attribute rather than an axis of the recipe. A slot recipe's variants are
- *   set on the root and read by every part, so an axis would fold every control in the row the same
- *   way, and each one has to say for itself.
+ *   A narrow section folds its actions by priority: a secondary action shows its icon alone, and a
+ *   tertiary one leaves the document. The priority is a prop of the action, because a slot recipe
+ *   resolves its variants once, at the root, and each action folds on its own priority.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,25 +13,25 @@ import { PRIORITY, type Priority } from "#folding/index.ts";
 import { withContext } from "#section/context.ts";
 
 /**
- * Draws the control at the room the block states.
+ * Renders the `button` with the recipe's action class.
  */
 const Acted = withContext("button", "action", { defaultProps: { type: "button" } });
 
 /**
- * Describes what an action takes.
+ * Describes the props of an action: its priority and the props of a `button`.
  */
 export interface ActionProps extends ComponentProps<typeof Acted> {
   /**
-   * How much the control matters, which decides what a narrow section does with it.
+   * Priority of the control, which decides how a narrow section folds it.
    */
   readonly priority?: Priority | undefined;
 }
 
 /**
- * Acts on the section, and gives way in the order its priority states.
+ * Renders the control with its priority as `data-priority`.
  *
- * @param props - How much it matters, and everything a styled button takes.
- * @returns The control, carrying how far it survives.
+ * @param props - The priority and the props of a `button`.
+ * @returns The `button` element.
  */
 export function Action({ priority = "primary", ...rest }: ActionProps): ReactElement {
   return <Acted {...rest} {...{ [PRIORITY]: priority }} />;

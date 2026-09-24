@@ -1,19 +1,13 @@
 /**
- * Draws the block a section of a page sits in, names itself after its title, and measures its own
- * width.
+ * Renders a section of a page, names it after its title and measures its own width.
  *
  * @remarks
- *   The element is `section`, and it points `aria-labelledby` at the identifier its title carries.
- *   A section with a title is therefore a landmark a reader can jump to, and a caller writes no
- *   identifier and no reference.
- *   Draw the title. A section without one points at an element that is not there, which resolves to
- *   no name, and a region nobody can name is one a reader reaches and cannot place. State
- *   `aria-label` on the root instead where the words belong somewhere else on the screen.
- *   The size comes from the page the block sits in, so a page set to `lg` is a page whose sections
- *   are `lg` and a caller states it once. A section states its own to override that, and one
- *   outside a page reads the middle size.
- *   The block measures itself rather than the window, so a section beside an open sidebar folds on
- *   its own room and a consumer writes no breakpoint.
+ *   The element is `section`, with `aria-labelledby` set to the title's id, so a section with a
+ *   title is a landmark and the caller writes no id. A section without `Section.Title` has no name.
+ *   Pass `aria-label` on the root when the section's name is elsewhere on the screen. The size
+ *   defaults to the page's size, so one size on `Page.Root` sets every section under it, and to
+ *   `md` outside a page. The root measures its own width rather than the window's, so a section
+ *   beside an open sidebar folds on its own room.
  */
 
 import { type ComponentProps, type ReactElement, useId, useMemo, useRef } from "react";
@@ -25,29 +19,30 @@ import { withProvider } from "#section/context.ts";
 import { SectionProvider } from "#section/state.ts";
 
 /**
- * The breakpoint whose width the header folds back over the body below.
+ * Breakpoint whose start width the root compares its own width against.
  *
  * @remarks
- *   Read as a width and compared to the block's own, not asked as a media query. A section beside
- *   an open sidebar is narrow while the window is wide, and that is the case this has to answer.
+ *   The root compares widths and asks no media query, because a section beside an open sidebar is
+ *   narrow while the window is wide.
  */
 const FOLDS_BELOW = "sm";
 
 /**
- * Draws the block and sets the variants every part below it reads.
+ * Renders the `section` with the recipe's root class, which provides the variants to the parts.
  */
 const Block = withProvider("section", "root");
 
 /**
- * Describes what the block takes.
+ * Describes the props of the section: the recipe's variants and the props of a `section`, without
+ * `aria-labelledby`, which the root sets.
  */
 export type RootProps = Omit<ComponentProps<typeof Block>, "aria-labelledby">;
 
 /**
- * Groups a title, what it explains and what acts on it.
+ * Renders the section with its title's id and its measured width.
  *
- * @param props - The recipe's variants and everything a styled section takes.
- * @returns The block, named by its title and carrying whether it is narrow.
+ * @param props - The recipe's variants and the props of a `section`.
+ * @returns The `section` element, with `data-narrow` while it is narrow.
  */
 export function Root({ size, ...rest }: RootProps): ReactElement {
   const measured = useRef<HTMLElement>(null);

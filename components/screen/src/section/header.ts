@@ -1,11 +1,10 @@
 /**
- * Draws the band holding the title, what it explains and what acts on it.
+ * Renders the band with the title, the description and the actions.
  *
  * @remarks
- *   The element is `header`, which is a banner landmark only at the top of a document and plain
- *   content inside a `section`, so a page of these adds no landmarks.
- *   It is a grid of two rows, so the title, the actions and the description are written flat and
- *   placed by name rather than nested to get their positions.
+ *   The element is `header`, which is a banner landmark only at the top of a document, and plain
+ *   content inside a `section`. It is a grid of two rows, so its parts are siblings placed by area
+ *   name.
  */
 
 import { type ComponentProps } from "react";
@@ -13,11 +12,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#section/context.ts";
 
 /**
- * Draws the band at the room the block states.
+ * Renders the `header` with the recipe's header class.
  */
 export const Header = withContext("header", "header");
 
 /**
- * Describes what the header takes.
+ * Describes the props of the header: the props of a `header`.
  */
 export type HeaderProps = ComponentProps<typeof Header>;

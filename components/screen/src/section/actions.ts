@@ -1,10 +1,9 @@
 /**
- * Draws the controls that act on the section.
+ * Renders the row of controls at the end of the title's row.
  *
  * @remarks
- *   The element is `div`. The controls keep the end of the title's row at every width and never
- *   wrap under it, so the title is the column that gives and a long title wraps beside them rather
- *   than pushing them onto a line of their own.
+ *   The element is `div`. The row keeps the end of the title's row at every width and does not
+ *   wrap, so a long title wraps beside it.
  */
 
 import { type ComponentProps } from "react";
@@ -12,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#section/context.ts";
 
 /**
- * Draws the controls beside the title.
+ * Renders the `div` with the recipe's actions class.
  */
 export const Actions = withContext("div", "actions");
 
 /**
- * Describes what the actions take.
+ * Describes the props of the actions row: the props of a `div`.
  */
 export type ActionsProps = ComponentProps<typeof Actions>;

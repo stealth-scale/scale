@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { FOLDED, FOLDING, PRIORITY } from "#folding/folding.ts";
 
 describe("FOLDING", () => {
-  it("names the attribute an action states its priority in", () => {
+  it("sets PRIORITY to data-priority", () => {
     expect(PRIORITY).toBe("data-priority");
   });
 
@@ -22,7 +22,7 @@ describe("FOLDING", () => {
     });
   });
 
-  it("draws a folded secondary action as a square around the mark it keeps", () => {
+  it("renders a folded secondary action as a square around its icon", () => {
     expect(FOLDING["&[data-priority=secondary]"]["[data-narrow] &"]).toMatchObject({
       aspectRatio: "square",
       paddingInline: "0",
@@ -35,7 +35,7 @@ describe("FOLDING", () => {
     });
   });
 
-  it("states nothing for a primary action", () => {
+  it("sets nothing for a primary action", () => {
     expect(Object.keys(FOLDING).toSorted()).toStrictEqual([
       "&[data-priority=secondary]",
       "&[data-priority=tertiary]",
@@ -50,7 +50,7 @@ describe("FOLDING", () => {
 });
 
 describe("FOLDED", () => {
-  it("draws the control only where the row is narrow", () => {
+  it("shows the control only while the row is narrow", () => {
     expect(FOLDED).toStrictEqual({
       "[data-narrow] &": { display: "inline-flex" },
       display: "none",

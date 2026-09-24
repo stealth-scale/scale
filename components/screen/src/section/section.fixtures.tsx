@@ -1,5 +1,5 @@
 /**
- * Builds the section a part's specification needs above it.
+ * Renders the sections the part specifications test.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -13,21 +13,21 @@ import { Root, type RootProps } from "#section/root.tsx";
 import { Title } from "#section/title.tsx";
 
 /**
- * Draws whatever a case wants measured inside the block that hands down the variants.
+ * Renders a part inside a section root.
  *
  * @param children - The part under test.
- * @param props - Whatever the case sets on the block.
- * @returns The block, holding it.
+ * @param props - The root's props.
+ * @returns The section.
  */
 export function blocked(children: ReactNode, props: RootProps = {}): ReactElement {
   return <Root {...props}>{children}</Root>;
 }
 
 /**
- * Draws a whole section, so a case can read how its bands are placed.
+ * Renders a section with a header, a body and a footer.
  *
- * @param props - Whatever the case sets on the block.
- * @returns The parts composed the way a caller composes them.
+ * @param props - The root's props.
+ * @returns The section.
  */
 export function composed(props: RootProps = {}): ReactElement {
   return (

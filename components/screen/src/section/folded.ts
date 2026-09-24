@@ -1,10 +1,10 @@
 /**
- * Draws the control that holds whatever the header dropped as the section narrowed.
+ * Renders the control that opens the actions a narrow section folds away.
  *
  * @remarks
- *   It appears only on a narrow section, because a section keeping every control has nothing to put
- *   behind it. Put a menu in it holding the same actions the tertiary controls do.
- *   Name it. `More` says nothing about what it opens; `More billing actions` does.
+ *   The control renders only while the section is narrow. Put a menu behind it with the tertiary
+ *   actions. Name it after the section, such as `More billing actions`, because `More` does not
+ *   say what it opens.
  */
 
 import { type ComponentProps } from "react";
@@ -12,11 +12,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#section/context.ts";
 
 /**
- * Draws the control at the room the block states.
+ * Renders the `button` with the recipe's folded class.
  */
 export const Folded = withContext("button", "folded", { defaultProps: { type: "button" } });
 
 /**
- * Describes what the folded control takes.
+ * Describes the props of the folded control: the props of a `button`.
  */
 export type FoldedProps = ComponentProps<typeof Folded>;

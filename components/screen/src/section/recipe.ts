@@ -1,25 +1,19 @@
 /**
- * Defines the styles a section of a page is drawn with.
+ * Recipe for a section of a page: a header over a body and a footer, plain or on a card.
  *
  * @remarks
- *   Seven parts. The root stacks a header, a body and a footer. The header is a grid of two rows,
- *   so the title, the actions beside it and the description under it are written flat and placed by
- *   name: the title's column is the one that gives, and the actions keep the end of its row at
- *   every width.
- *   The room a card keeps is stated once on the root as a property every band reads, so a body told
- *   to bleed drops the padding and runs to the card's edges while its neighbours keep theirs. One
- *   value moves all of them.
- *   The description stops at the reading measure, which the theme states in characters rather than
- *   in a length, so the line a reader follows holds its count at every type size. It is set a text
- *   step below the section in the page's own ink, and the title a heading step below the page's,
- *   so a section reads as a part of the page it is on rather than as a page of its own. The bands
- *   are parted by the gap two steps above the size, because a title needs more air below it than
- *   two controls need between them.
- *   `annotated` moves the header into a column beside the body, which is how a settings page reads.
- *   It folds back over the body on a narrow root, measured by the component and written as
- *   `data-narrow`, so a consumer writes no breakpoint.
- *   A section scrolled to by its id stops a gap under the shell's pinned bars rather than under
- *   them, so a title reached from a table of contents is read rather than covered.
+ *   The header is a grid of two rows, so the title, the actions and the description are siblings
+ *   placed by area name. The title's column shrinks, and the actions keep the end of the title's
+ *   row at every width. The root sets the card's inner room as `--section-room`, which every band's
+ *   padding reads, so a body with `data-bleed` drops its padding while the other bands keep theirs.
+ *   The description stops at the reading measure and reads the body role one size smaller than the
+ *   section. The title reads the heading role one size smaller, so a section reads as part of its
+ *   page. The gap between the bands is two gap sizes larger than the section's size. `annotated`
+ *   moves the header into a column beside the body and folds it back over the body while the root
+ *   is `data-narrow`, which the component measures. A section scrolled to by its id stops one gap
+ *   under the shell's sticky bars. The recipe has no `palette` axis, because a section is layout
+ *   on the page's surface and its content sets its own palettes, and no `effect` axis, because a
+ *   section is not a control.
  */
 
 import {
@@ -35,22 +29,22 @@ import {
 import { FOLDED, FOLDING } from "#folding/index.ts";
 
 /**
- * Maps each size to the gap two steps above it, which parts the header from the body.
+ * Maps each size to the gap two sizes larger, between the bands.
  */
 const AIRED = { lg: "2xl", md: "xl", sm: "lg" } as const;
 
 /**
- * The property the root states the room a card keeps in, which every band reads.
+ * Custom property the root sets to the card's inner room, which every band's padding reads.
  */
 export const ROOM = "--section-room";
 
 /**
- * Writes a row that wraps: laid across, centred on the middle, and able to shrink.
+ * Styles a row that centres its items, wraps and shrinks.
  */
 const ROW = { alignItems: "center", display: "flex", flexWrap: "wrap", minInlineSize: "0" };
 
 /**
- * Draws a plain section at the middle size, its header over its body.
+ * Defines the section recipe: a plain section at size `md` by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -144,10 +138,13 @@ export const recipe = defineSlotRecipe({
   ],
   variants: {
     /**
-     * Whether the header stands in a column beside the body rather than over it.
+     * Whether the header renders in a column beside the body.
      */
     annotated: { true: { root: { columnGap: dense("{spacing.gap.2xl}") } } },
 
+    /**
+     * Size of the title, the description, the gaps and the card's inner room.
+     */
     size: onSlots({
       actions: sizeVariants(
         (size) => ({
@@ -172,15 +169,13 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * Whether the section is raised on the page as a card or drawn plain against it.
+     * Look of the section: plain on the page, or raised as a card.
      *
      * @remarks
-     *   A plain section draws one hairline, above itself, and only where another section stands
-     *   before it. The rule reads the root's own class on both sides, so it never fires against a
-     *   heading or anything else the page put there. The hairline keeps one large gap on either
-     *   side, so two sections read as two rather than as one list with a line through it.
-     *   A card clips what it holds to its corners, so a body told to bleed runs to the edge without
-     *   squaring the corner it runs into.
+     *   `plain` sets a hairline above a section that follows another section, with the `2xl` gap
+     *   on both sides of it. The selector reads the root's class on both sides, so a heading before
+     *   the section gets no rule. `surface` raises the section as a card and clips its content to
+     *   the card's corners, so a body with `data-bleed` keeps them.
      */
     variant: {
       surface: { root: { overflow: "clip" } },

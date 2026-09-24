@@ -15,7 +15,7 @@ describe("recipe", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(
       recipeViolations(recipe, {
         names: ["Section"],
@@ -34,11 +34,11 @@ describe("recipe", () => {
     ).toStrictEqual([]);
   });
 
-  it("names its class section", () => {
+  it("sets className to section", () => {
     expect(recipe.className).toBe("section");
   });
 
-  it("styles the nine parts a section draws", () => {
+  it("declares nine slots", () => {
     expect(recipe.slots).toStrictEqual([
       "root",
       "header",
@@ -52,25 +52,25 @@ describe("recipe", () => {
     ]);
   });
 
-  it("folds a control in the header by the priority the control states", () => {
+  it("folds an action by its priority", () => {
     expect(recipe.base?.["action"]?.["&[data-priority=tertiary]"]).toStrictEqual({
       "[data-narrow] &": { display: "none" },
     });
   });
 
-  it("offers the three axes a section takes", () => {
+  it("declares three axes", () => {
     expect(axesOf(recipe)).toStrictEqual(["annotated", "size", "variant"]);
   });
 
-  it("draws a plain section at the middle size when nothing is asked for", () => {
+  it("defaults to a plain section at md", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md", variant: "plain" });
   });
 
-  it("offers the two ways a section is set against the page", () => {
+  it("declares two looks", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual(["plain", "surface"]);
   });
 
-  it("places the header as a grid so its parts are written flat", () => {
+  it("lays the header out as a grid of named areas", () => {
     expect(recipe.base?.["header"]).toMatchObject({
       display: "grid",
       gridTemplateAreas: '"title actions" "description description"',
@@ -84,17 +84,17 @@ describe("recipe", () => {
     expect(recipe.base?.["actions"]).toMatchObject({ flexWrap: "nowrap" });
   });
 
-  it("stops the description at the reading measure the theme states", () => {
+  it("stops the description at the reading measure", () => {
     expect(recipe.base?.["description"]).toMatchObject({ maxInlineSize: "prose" });
   });
 
-  it("states the room a card keeps as one property every band reads", () => {
+  it("sets the card's room as one property every band reads", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["root"]).toMatchObject({
       [ROOM]: "{spacing.inset.md}",
     });
   });
 
-  it("parts the bands by the gap two steps above the size", () => {
+  it("separates the bands by the gap two sizes larger", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["root"]).toMatchObject({
       gap: "calc({spacing.gap.xl} * var(--density, 1))",
     });
@@ -103,7 +103,7 @@ describe("recipe", () => {
     });
   });
 
-  it("sets the title a heading step and the description a text step below the size", () => {
+  it("sets the title and the description one size smaller", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["title"]).toStrictEqual({
       textStyle: "heading.sm",
     });
@@ -117,13 +117,13 @@ describe("recipe", () => {
     expect(recipe.variants?.["variant"]?.["surface"]?.["root"]).toStrictEqual({ overflow: "clip" });
   });
 
-  it("stops a gap under the shell's pinned bars when scrolled to", () => {
+  it("stops one gap under the shell's sticky bars when scrolled to", () => {
     expect(recipe.base?.["root"]).toMatchObject({
       scrollMarginBlockStart: "calc(var(--app-shell-sticky-top, 0px) + {spacing.gap.lg})",
     });
   });
 
-  it("parts one plain section from the one before it and from nothing else", () => {
+  it("rules only a plain section that follows another section", () => {
     expect(recipe.variants?.["variant"]?.["plain"]?.["root"]).toStrictEqual({
       "& + &": {
         borderBlockStartWidth: "hairline",
@@ -144,7 +144,7 @@ describe("recipe", () => {
     });
   });
 
-  it("tracks every tag under the Section namespace", () => {
+  it("matches every Section tag", () => {
     expect(recipe.jsx).toStrictEqual([/^Section(\.\w+)?$/u]);
   });
 });

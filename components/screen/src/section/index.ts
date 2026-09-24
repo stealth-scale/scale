@@ -1,6 +1,6 @@
 /**
- * Publishes the section's seven parts, which a caller composes as `Section.Root` holding a header,
- * a body and a footer.
+ * Exports the section's nine parts. A caller composes `Section.Root` around a header, a body and a
+ * footer.
  */
 
 export { Action, type ActionProps } from "#section/action.tsx";

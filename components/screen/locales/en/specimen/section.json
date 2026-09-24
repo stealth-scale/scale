@@ -1,23 +1,39 @@
 {
-  "about": "Draws one block of a page under its own heading, with the controls that act on that block.",
+  "about": "Groups one part of a page under its own heading, with the controls that act on that part. The section is a landmark named by its title.",
   "add": "Add a card",
   "annotated": {
-    "about": "The heading above the body, and the heading beside it as a column explaining the block, which is how a settings page reads.",
+    "about": "The header above the body, and the header in a column beside it, as a settings page lays out. A section narrower than the `sm` breakpoint puts the header back above the body.",
     "title": "Annotated"
   },
+  "billing": "Billing",
+  "cancel": "Cancel subscription",
   "cards": "Cards this account can be charged on.",
   "change": "Change",
+  "changePlan": "Change plan",
+  "contact": "Contact sales",
+  "download": "Download invoices",
+  "edit": "Edit",
   "ending": "{{card}} ending {{digits}}",
   "expires": "Expires {{expiry}}",
+  "folding": {
+    "about": "The same section in a narrow and a wide room. In the narrow one, the secondary action shows its icon alone, the tertiary action moves behind the folded control, and the primary action keeps its text.",
+    "title": "Folding"
+  },
   "mastercard": "Mastercard",
+  "more": "More billing actions",
+  "next": "The next invoice is due on 1 October.",
   "payment": "Payment methods",
+  "plan": "The Team plan, billed monthly.",
+  "profile": "Profile",
+  "profileAbout": "The name and the email address on the account.",
   "size": {
-    "about": "Every size, which sets the title one heading step under a page's at the same size.",
+    "about": "The three sizes. The size sets the title and the description one size smaller, the gaps between the bands and the card's inner room. The buttons take the same size through their provider.",
     "title": "Sizes"
   },
   "title": "Section",
+  "usage": "Twelve of twenty seats are in use.",
   "variant": {
-    "about": "Both looks. Each block is drawn in a room a block of a page is read at, because a section takes the width of what holds it and states none of its own.",
+    "about": "Both looks: plain on the page, and raised as a card. A plain section that follows another has a hairline above it.",
     "title": "Looks"
   },
   "visa": "Visa"
