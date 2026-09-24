@@ -337,13 +337,14 @@ scenesOf<RootProps>(recipe, {
 });
 ```
 
-A hand-written scene shows the example file unchanged. Staging that a consumer does not write, such
-as a `Room`, goes in the scene's `draw`. A generated scene writes the props of its first cell into
-the example. The example component takes one parameter named `props` and spreads it with
+A generated scene writes the props of its first cell into the example, and a hand-written scene
+writes its `props`. The example component takes one parameter named `props` and spreads it with
 `{...props}`. The kit replaces each spread with the attributes and removes the parameter, so the
-Source of the palette scene reads `<Tag.Root palette="primary" variant="solid">`. `scenesOf` takes
-`example` at page level and per axis, and an axis setting takes precedence. A stated `source` takes
-precedence over `example`.
+Source of the palette scene reads `<Tag.Root palette="primary" variant="solid">`. An object prop is
+written as an object literal, such as `positioning={{ placement: "top" }}`. A hand-written scene
+without `props` shows the example file unchanged. Staging that a consumer does not write, such as a
+`Room`, goes in the scene's `draw`. `scenesOf` takes `example` at page level and per axis, and an
+axis setting takes precedence. A stated `source` takes precedence over `example`.
 
 Each component package runs `src/examples.spec.ts`, which renders every example and asserts that axe
 reports no violation.
@@ -442,12 +443,22 @@ its control.
 </Room>
 ```
 
-## Contained and Focused
+## Contained, Focused and Floated
 
 `Contained` is a box with `contain: layout`, which makes it the containing block of a
 `position: fixed` descendant. Render an example with a control that is fixed to the window under
 keyboard focus, such as a skip link, inside it. Tab then reveals the control at the box's corner and
 not over the catalogue.
+
+`Floated` pads itself around the open floating content inside it, and sets `contain: layout` like
+`Contained`. After a machine positions a `[data-part=positioner]` descendant, the box measures it
+and pads each side it crosses, so an open tooltip, popover or menu renders inside the scene and not
+over the next one. Render the example open, with a controlled `open` and `STAGED` as its
+`positioning`, inside it. `STAGED` turns off the machine's flip, slide and size middleware, so the
+panel opens at the placement the scene sets and at its full height wherever the page is scrolled.
+Without it, a menu staged below the fold opens upwards and shrinks to the height left in the window.
+The box does not measure a positioner portalled out of it, and its inline sides assume a
+left-to-right page.
 
 `Focused` is a `Contained` that sets `data-focus-visible` on its first focusable descendant after it
 mounts. Every `_focusVisible` condition matches that attribute, so the descendant renders its focus
@@ -462,13 +473,16 @@ focus, because the staged control then reads as always visible.
 <Focused>
   <Toolbar />
 </Focused>;
+<Floated>
+  <examples.save.Save open positioning={{ ...STAGED, placement: "top" }} />
+</Floated>;
 ```
 
 ## The recipes it states
 
 Every part the catalogue draws is a component of the library: the caption is `Text`, the page is
 `Page`, the rail is `Sidebar.Nav` over `NavList`. The device, the pane, the matrix, the tile, the
-room and the contained box state a recipe each, published as a preset from
+room, the contained box and the floated box state a recipe each, published as a preset from
 `@stealthscale/specimen/theme`, and every value in them is a semantic token, so a theme that moves
 the library moves the catalogue with it. The preset also makes the root of a framed document
 see-through, over the background the theme paints every root in.
