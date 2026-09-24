@@ -1,11 +1,10 @@
 /**
- * Draws the mark that turns as the panel opens.
+ * Renders the mark inside the trigger that turns half a revolution while the popover is open.
  *
  * @remarks
- *   It states `aria-hidden`, because it sits inside the control and everything inside a control is
- *   read as part of that control's name. A chevron drawn here would otherwise be announced after
- *   the words the control was named with, and the control already carries `aria-expanded`. A caller
- *   whose mark says something the name does not can state `aria-hidden={false}`.
+ *   The indicator sets `aria-hidden`, because the trigger reports its state with `aria-expanded`
+ *   and a mark inside a button joins the button's name. A caller whose mark adds information sets
+ *   `aria-hidden={false}`.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -16,20 +15,20 @@ import { withContext } from "#popover/context.ts";
 import { usePopover } from "#popover/machine.ts";
 
 /**
- * Draws the part at the size the root states.
+ * Renders the `span` with the popover's indicator class.
  */
 const Drawn = withContext("span", "indicator");
 
 /**
- * Describes what the part takes.
+ * Describes the props of the indicator: the props of a `span`.
  */
 export type IndicatorProps = ComponentProps<typeof Drawn>;
 
 /**
- * Draws the mark that turns as the panel opens.
+ * Renders the indicator, hidden from assistive technology, with the machine's indicator props.
  *
- * @param props - Everything a styled span takes.
- * @returns The part, carrying what the machine writes onto it.
+ * @param props - The props of a `span`.
+ * @returns The `span` element.
  */
 export function Indicator(props: IndicatorProps): ReactElement {
   const api = usePopover();

@@ -7,13 +7,13 @@ import { ArrowTip } from "#popover/arrow-tip.tsx";
 import { opened } from "#popover/popover.fixtures.tsx";
 
 describe("ArrowTip", () => {
-  it("draws a div inside the root it needs above it", () => {
+  it("renders a div", () => {
     const { container } = render(opened(<ArrowTip />));
 
     expect(slotElement(container, "popover", "arrowTip").tagName).toBe("DIV");
   });
 
-  it("carries the slot class the recipe styles it by", () => {
+  it("applies its slot class", () => {
     const { container } = render(opened(<ArrowTip />));
 
     expect(slotElement(container, "popover", "arrowTip").className).toContain(
@@ -21,7 +21,7 @@ describe("ArrowTip", () => {
     );
   });
 
-  it("draws the element as names", () => {
+  it("renders the element as names", () => {
     const { container } = render(opened(<ArrowTip as="span" />));
 
     expect(slotElement(container, "popover", "arrowTip").tagName).toBe("SPAN");

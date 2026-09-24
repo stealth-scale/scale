@@ -8,13 +8,13 @@ import { composed, handled, opened } from "#popover/popover.fixtures.tsx";
 import { Trigger } from "#popover/trigger.tsx";
 
 describe("Trigger", () => {
-  it("draws a button inside the root it needs above it", async () => {
+  it("renders a button", async () => {
     const { container } = await drawn(opened(<Trigger>Filters</Trigger>));
 
     expect(slotElement(container, "popover", "trigger").tagName).toBe("BUTTON");
   });
 
-  it("says whether the panel is open", async () => {
+  it("sets aria-expanded to the open state", async () => {
     await drawn(composed());
 
     const control = screen.getByRole("button", { name: /Filters/u });
@@ -28,7 +28,7 @@ describe("Trigger", () => {
     );
   });
 
-  it("names the panel it controls", async () => {
+  it("sets aria-controls to the panel's id", async () => {
     await drawn(composed({ defaultOpen: true }));
 
     expect(screen.getByRole("button", { name: /Filters/u }).getAttribute("aria-controls")).toBe(
@@ -36,7 +36,7 @@ describe("Trigger", () => {
     );
   });
 
-  it("keeps a handler a caller hands it beside the machine's own", async () => {
+  it("calls a caller's onClick beside the machine's handler", async () => {
     const heard = vi.fn<() => void>();
 
     await drawn(handled(heard));

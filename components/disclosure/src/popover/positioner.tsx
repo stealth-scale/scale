@@ -1,10 +1,9 @@
 /**
- * Draws the box that holds the panel in place beside its control.
+ * Renders the element the machine positions beside the trigger.
  *
  * @remarks
- *   The machine measures the control and writes this element's position as inline styles. A caller
- *   who needs the panel out of a clipping or stacking ancestor wraps this part in a portal rather
- *   than the popover doing it for them.
+ *   The machine measures the trigger or the anchor and writes the position inline. A caller who
+ *   needs the popover outside a clipping or stacking ancestor wraps this part in a portal.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,20 +14,20 @@ import { withContext } from "#popover/context.ts";
 import { usePopover } from "#popover/machine.ts";
 
 /**
- * Draws the part at the size the root states.
+ * Renders the `div` with the popover's positioner class.
  */
 const Drawn = withContext("div", "positioner");
 
 /**
- * Describes what the part takes.
+ * Describes the props of the positioner: the props of a `div`.
  */
 export type PositionerProps = ComponentProps<typeof Drawn>;
 
 /**
- * Draws the box that holds the panel in place beside its control.
+ * Renders the positioner with the machine's positioner props merged over the caller's.
  *
- * @param props - Everything a styled div takes.
- * @returns The part, carrying what the machine writes onto it.
+ * @param props - The props of a `div`.
+ * @returns The `div` element.
  */
 export function Positioner(props: PositionerProps): ReactElement {
   const api = usePopover();

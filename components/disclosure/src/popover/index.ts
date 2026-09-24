@@ -1,6 +1,6 @@
 /**
- * Publishes the popover's eleven parts, which a caller composes as `Popover.Root` holding a control
- * and the panel it opens.
+ * Exports the popover's eleven parts, composed as `Popover.Root` around a trigger and a positioner
+ * that places the panel.
  */
 
 export { Anchor, type AnchorProps } from "#popover/anchor.tsx";

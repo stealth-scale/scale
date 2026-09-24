@@ -14,10 +14,10 @@ import {
 } from "#popover/machine.ts";
 
 /**
- * Runs the machine and reports what it answers, so a case can read its state off the screen.
+ * Runs the machine and renders its state through a part that reads the context.
  *
- * @param props - The settings the machine is started with.
- * @returns The state, drawn as text.
+ * @param props - The machine's options.
+ * @returns The state as text, inside the positioner and content props.
  */
 function Running(props: PopoverOptions): ReactElement {
   const api = usePopoverMachine(props);
@@ -34,9 +34,9 @@ function Running(props: PopoverOptions): ReactElement {
 }
 
 /**
- * Reads the running machine through the hook a part reads it through.
+ * Renders the open state the context reports.
  *
- * @returns Whether the panel is open.
+ * @returns A `span` with `open` or `shut`.
  */
 function Reader(): ReactElement {
   const api = usePopover();
@@ -45,33 +45,42 @@ function Reader(): ReactElement {
 }
 
 describe("splitPopoverProps", () => {
-  it("takes the machine's settings out of what the root was handed", () => {
+  it("returns the machine's options first", () => {
     const [options] = splitPopoverProps({ defaultOpen: true, modal: true });
 
     expect(options).toStrictEqual({ defaultOpen: true, modal: true });
   });
 
-  it("leaves everything the element takes behind", () => {
+  it("returns the element's props second", () => {
     const [, rest] = splitPopoverProps({ defaultOpen: true, size: "lg" });
 
     expect(rest).toStrictEqual({ size: "lg" });
   });
+
+  it("drops translations from the machine's options", () => {
+    const [options] = splitPopoverProps({
+      defaultOpen: true,
+      translations: { closeTriggerLabel: "Close the filters" },
+    });
+
+    expect(options).toStrictEqual({ defaultOpen: true });
+  });
 });
 
 describe("usePopoverMachine", () => {
-  it("answers a running machine a part can read", async () => {
+  it("provides a running machine to a part", async () => {
     await drawn(<Running defaultOpen />);
 
     expect(screen.getByTestId("state").textContent).toBe("open");
   });
 
-  it("starts shut where a caller says nothing", async () => {
+  it("starts closed", async () => {
     await drawn(<Running />);
 
     expect(screen.getByTestId("state").textContent).toBe("shut");
   });
 
-  it("keeps the machine's own default where a caller hands over nothing for it", async () => {
+  it("keeps the machine's default for an undefined option", async () => {
     await drawn(<Running closeOnEscape={undefined} defaultOpen />);
 
     expect(screen.getByTestId("state").textContent).toBe("open");

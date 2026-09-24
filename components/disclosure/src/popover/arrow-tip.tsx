@@ -1,9 +1,8 @@
 /**
- * Draws the turned square inside the point.
+ * Renders the arrow's tip: a square rotated 45 degrees, one corner past the panel's edge.
  *
  * @remarks
- *   It is filled from the same custom property the panel states its surface as, so the point and
- *   the panel are never two different colours.
+ *   The tip reads `--popover-surface`, so it shares the panel's fill.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -14,20 +13,20 @@ import { withContext } from "#popover/context.ts";
 import { usePopover } from "#popover/machine.ts";
 
 /**
- * Draws the part at the size the root states.
+ * Renders the `div` with the popover's arrow tip class.
  */
 const Drawn = withContext("div", "arrowTip");
 
 /**
- * Describes what the part takes.
+ * Describes the props of the arrow tip: the props of a `div`.
  */
 export type ArrowTipProps = ComponentProps<typeof Drawn>;
 
 /**
- * Draws the turned square inside the point.
+ * Renders the arrow tip with the machine's arrow tip props merged over the caller's.
  *
- * @param props - Everything a styled div takes.
- * @returns The part, carrying what the machine writes onto it.
+ * @param props - The props of a `div`.
+ * @returns The `div` element.
  */
 export function ArrowTip(props: ArrowTipProps): ReactElement {
   const api = usePopover();

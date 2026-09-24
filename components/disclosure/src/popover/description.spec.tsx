@@ -7,13 +7,13 @@ import { Description } from "#popover/description.tsx";
 import { opened } from "#popover/popover.fixtures.tsx";
 
 describe("Description", () => {
-  it("draws a p inside the root it needs above it", () => {
+  it("renders a p", () => {
     const { container } = render(opened(<Description />));
 
     expect(slotElement(container, "popover", "description").tagName).toBe("P");
   });
 
-  it("carries the slot class the recipe styles it by", () => {
+  it("applies its slot class", () => {
     const { container } = render(opened(<Description />));
 
     expect(slotElement(container, "popover", "description").className).toContain(
@@ -21,7 +21,7 @@ describe("Description", () => {
     );
   });
 
-  it("draws the element as names", () => {
+  it("renders the element as names", () => {
     const { container } = render(opened(<Description as="span" />));
 
     expect(slotElement(container, "popover", "description").tagName).toBe("SPAN");

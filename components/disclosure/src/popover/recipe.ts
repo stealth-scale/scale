@@ -1,27 +1,16 @@
 /**
- * States what a popover is: a panel that opens beside a control and holds more than a few words.
+ * Recipe for the popover: a panel beside its trigger, with a heading, a description, a close
+ * button and an arrow.
  *
  * @remarks
- *   The machine names no root, because a popover is a control and a panel that floats beside it
- *   rather than a thing that frames the two. This recipe adds one anyway, drawn with
- *   `display: contents` so it takes part in no layout, because the control and the panel are
- *   siblings and a slot recipe hands its variants down from an element above them both.
- *   The positioner is placed by the machine, which measures the control and writes the panel's
- *   position as inline styles, so this recipe states nothing about where the panel goes. It grows
- *   from whichever corner the machine placed it against, which is a custom property the machine
- *   sets.
- *   The panel is never narrower than the control that opened it. The machine measures that control
- *   already and writes the width as a custom property, and a panel narrower than its trigger reads
- *   as belonging to something else on the page. It is a minimum, so a panel whose contents need
- *   more room still takes it.
- *   A popover is louder than a tooltip. It holds a heading, a paragraph and often a control, so it
- *   reads at body text and takes the room a panel needs.
- *   The control takes the cursor, the focus ring and the disabled look every control in the library
- *   takes, and no fill, no edge and no room of its own. Drawn with none of them it fell back to the
- *   browser's own ring, a hairline in the browser's ink rather than the three the theme draws in
- *   the palette's focus colour, and to the arrow cursor. What it looks like past that is the
- *   caller's: a caller who wants a button draws one through `as`, and the library's own button is
- *   then what a theme moves.
+ *   The machine has no root part. The recipe adds a root with `display: contents`, because the
+ *   trigger and the positioner are siblings and a slot recipe passes its variants from an element
+ *   above both. The machine writes the positioner's position inline, so the recipe sets no
+ *   position. The panel scales from the machine's `--transform-origin` and is at least as wide as
+ *   the trigger, `--reference-width`. The panel reads the body role and the title the heading role.
+ *   The trigger takes a control's cursor, focus ring and disabled look, and no fill, edge or
+ *   padding, so a caller passes a button through `as`. The recipe has no `palette` axis, because
+ *   every look uses a neutral surface, and no `effect` axis, because a panel is not a control.
  */
 
 import {
@@ -36,17 +25,16 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * The property holding the room the panel's heading leaves for the control that closes it.
+ * Custom property the size axis sets to the room the title leaves for the close trigger.
  *
  * @remarks
- *   The control is out of the flow, so a heading long enough to reach the corner ran under it. The
- *   room is written as a property by the size axis and read by the heading, rather than restated at
- *   both ends, so the two cannot fall out of step.
+ *   The close trigger is positioned absolutely, so a long title ran under it. The size axis sets
+ *   the room once, and the title reads it as its inline-end padding.
  */
 const CLOSED = "--popover-closed";
 
 /**
- * Draws a surfaced popover at the middle size until a caller says otherwise.
+ * Defines the popover recipe: the surface look at size `md` by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -109,20 +97,12 @@ export const recipe = defineSlotRecipe({
   ],
   variants: {
     /**
-     * How much room the panel takes, and how loud its heading is.
+     * Padding of the panel, text of the title and the description, and size of the close trigger.
      */
     size: onSlots({
       /**
-       * The control that closes the panel: a square on the control scale two steps under the
-       * panel's own, holding a mark one step under it, inset from the panel's corner by the room
-       * the panel keeps round everything else.
-       *
-       * @remarks
-       *   The slot stated no size at all. The control was whatever mark a caller put in it, pinned
-       *   to the corner of the content box: a bare glyph of some ten pixels overlapping the panel's
-       *   own inset, with no square round it to press and nothing centred against anything.
-       *   The panel keeps room for it at its inline end as well, so a heading long enough to reach
-       *   the corner stops before the control rather than running under it.
+       * Close trigger: a square two sizes smaller on the control scale, with a mark one size
+       * smaller on the icon scale, inset from the panel's corner by the panel's padding.
        */
       closeTrigger: sizeVariants((size) => ({
         "& > svg": { boxSize: dense(`{sizes.icon.${below(size)}}`) },
@@ -139,7 +119,8 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * How the panel is set off from the page behind it.
+     * Surface of the panel: the popover surface inside a hairline edge, the panel surface with a
+     * large shadow, or the glass layer style.
      */
     variant: {
       elevated: {

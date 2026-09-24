@@ -1,10 +1,9 @@
 /**
- * Draws the heading the panel is announced by.
+ * Renders the popover's heading, which names the panel.
  *
  * @remarks
- *   The element is `h2`, and a page whose outline puts the panel deeper states its own level with
- *   `as`. The machine points the panel at this heading, so a panel without one is a panel a screen
- *   reader announces by nothing.
+ *   The element is an `h2`. Pass another heading level through `as` to fit the page's outline.
+ *   The machine points the panel's `aria-labelledby` at the title.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,20 +14,20 @@ import { withContext } from "#popover/context.ts";
 import { usePopover } from "#popover/machine.ts";
 
 /**
- * Draws the part at the size the root states.
+ * Renders the `h2` with the popover's title class.
  */
 const Drawn = withContext("h2", "title");
 
 /**
- * Describes what the part takes.
+ * Describes the props of the title: the props of an `h2`.
  */
 export type TitleProps = ComponentProps<typeof Drawn>;
 
 /**
- * Draws the heading the panel is announced by.
+ * Renders the title with the machine's title props merged over the caller's.
  *
- * @param props - Everything a styled h2 takes.
- * @returns The part, carrying what the machine writes onto it.
+ * @param props - The props of an `h2`.
+ * @returns The heading element.
  */
 export function Title(props: TitleProps): ReactElement {
   const api = usePopover();

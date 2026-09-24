@@ -1,13 +1,10 @@
 /**
- * Runs the machine the control and the panel share, and hands the recipe's variants to both.
+ * Renders the popover's root and starts the machine its parts share.
  *
  * @remarks
- *   The machine names no root part, because a popover is a control and a panel that floats beside
- *   it rather than a thing that frames the two. An element is drawn here all the same, because the
- *   two are siblings and a slot recipe hands its variants down from above them both.
- *   It is drawn with `display: contents`, so it takes part in no layout and a popover attached to a
- *   control inside a row leaves that row as it was. The machine writes nothing onto it, there being
- *   no root among its parts.
+ *   The machine has no root part, so the root receives no machine props. It renders a `div` with
+ *   `display: contents`, which passes the recipe's variants to the trigger and the positioner and
+ *   leaves the layout around the trigger unchanged.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -21,25 +18,26 @@ import {
 } from "#popover/machine.ts";
 
 /**
- * Draws the element that sets the variants every part below it reads, and no box.
+ * Renders the `div` that provides the recipe's variants.
  */
 const Framed = withProvider("div", "root");
 
 /**
- * Describes what the root takes: the machine's settings, the recipe's variants, and the element's.
+ * Describes the props of the root: the machine's options, the recipe's variants and the props of a
+ * `div`.
  *
  * @remarks
- *   The element's own `id` and `dir` are left out, because the machine states both. It names every
- *   part from the id, and it reads the direction to decide which side the panel opens on.
+ *   The element's `id` and `dir` are left out, because the machine takes both. It derives every
+ *   part's id from `id`, and reads `dir` for the placement.
  */
 export interface RootProps
   extends Omit<ComponentProps<typeof Framed>, "dir" | "id">, PopoverOptions {}
 
 /**
- * Opens a panel beside a control.
+ * Renders the root and provides the machine's api to the parts.
  *
- * @param props - The machine's settings, the recipe's variants and the element's props together.
- * @returns The parts, under the running machine.
+ * @param props - The machine's options, the recipe's variants and the props of a `div`.
+ * @returns The `div` element inside the api provider.
  */
 export function Root(props: RootProps): ReactElement {
   const [options, rest] = splitPopoverProps(props);

@@ -8,19 +8,19 @@ import { Content } from "#popover/content.tsx";
 import { composed, opened } from "#popover/popover.fixtures.tsx";
 
 describe("Content", () => {
-  it("draws a div inside the root it needs above it", async () => {
+  it("renders a div", async () => {
     const { container } = await drawn(opened(<Content />));
 
     expect(slotElement(container, "popover", "content").tagName).toBe("DIV");
   });
 
-  it("carries the dialog role so a screen reader knows what opened", async () => {
+  it("sets role dialog", async () => {
     await drawn(composed({ defaultOpen: true }));
 
     expect(screen.getByRole("dialog")).toBeDefined();
   });
 
-  it("is announced by the heading inside it", async () => {
+  it("sets aria-labelledby to the title's id", async () => {
     await drawn(composed({ defaultOpen: true }));
 
     expect(screen.getByRole("dialog").getAttribute("aria-labelledby")).toBe(
@@ -28,7 +28,7 @@ describe("Content", () => {
     );
   });
 
-  it("is described by the paragraph inside it", async () => {
+  it("sets aria-describedby to the description's id", async () => {
     const { container } = await drawn(composed({ defaultOpen: true }));
 
     expect(screen.getByRole("dialog").getAttribute("aria-describedby")).toBe(
@@ -36,7 +36,7 @@ describe("Content", () => {
     );
   });
 
-  it("draws the element as names", async () => {
+  it("renders the element as names", async () => {
     const { container } = await drawn(opened(<Content as="section" />));
 
     expect(slotElement(container, "popover", "content").tagName).toBe("SECTION");
