@@ -9,13 +9,13 @@ import { recipe } from "#field/recipe.ts";
 import { type RootProps } from "#field/root.tsx";
 
 describe("HelperText", () => {
-  it("draws a p inside the field it needs above it", () => {
+  it("renders a p inside the root", () => {
     const { container } = render(fielded(<HelperText>A format</HelperText>));
 
     expect(slotElement(container, "field", "helperText").tagName).toBe("P");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "helperText",
@@ -23,13 +23,13 @@ describe("HelperText", () => {
     ).toStrictEqual([]);
   });
 
-  it("carries the identifier the control is described by", () => {
+  it("carries the identifier the control's aria-describedby lists", () => {
     const { container } = render(composed({ id: "email" }));
 
     expect(slotElement(container, "field", "helperText").getAttribute("id")).toBe("email-helper");
   });
 
-  it("gives its place to the error text where the field is wrong", () => {
+  it("renders nothing while the field is invalid", () => {
     const { container } = render(composed({ invalid: true }));
 
     expect(container.querySelector(".field__helper-text")).toBeNull();

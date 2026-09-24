@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#index.ts";
 
 describe("index", () => {
-  it("names every component the package publishes and nothing beside them", () => {
+  it("exports every component of the package and nothing else", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Checkbox",
       "Field",
@@ -17,7 +17,7 @@ describe("index", () => {
     ]);
   });
 
-  it("publishes a component with parts as a namespace of its short names", () => {
+  it("exports a component with parts as a namespace of the part names", () => {
     expect(Object.keys(barrel.Field).toSorted()).toStrictEqual([
       "Control",
       "Counter",
@@ -26,11 +26,12 @@ describe("index", () => {
       "Label",
       "RequiredIndicator",
       "Root",
+      "Textarea",
       "useField",
     ]);
   });
 
-  it("publishes neither a recipe nor a binding", () => {
+  it("exports no recipe binding or hook at the top level", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {

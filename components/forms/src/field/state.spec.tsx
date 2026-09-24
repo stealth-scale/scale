@@ -5,9 +5,9 @@ import { fielded } from "#field/field.fixtures.tsx";
 import { useField } from "#field/state.ts";
 
 /**
- * Reads the field's state back and draws what it found, so a case can assert on it.
+ * Renders the field's disabled, invalid, read-only and required states as text.
  *
- * @returns The state as text.
+ * @returns The four states, separated by spaces.
  */
 function Reader(): string {
   const { disabled, invalid, readOnly, required } = useField();
@@ -16,19 +16,19 @@ function Reader(): string {
 }
 
 describe("state", () => {
-  it("hands every part what the field knows about itself", () => {
+  it("provides the root's disabled invalid read-only and required states to a part", () => {
     render(fielded(<Reader />, { disabled: true, invalid: true, readOnly: true, required: true }));
 
     expect(screen.getByText("true true true true")).toBeDefined();
   });
 
-  it("reads every state as false where a caller states none", () => {
+  it("defaults every state to false", () => {
     render(fielded(<Reader />));
 
     expect(screen.getByText("false false false false")).toBeDefined();
   });
 
-  it("refuses a part drawn outside a field", () => {
+  it("throws for a part rendered outside a field", () => {
     expect(() => render(<Reader />)).toThrow(/Field/u);
   });
 });

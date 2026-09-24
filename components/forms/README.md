@@ -63,19 +63,19 @@ message.
 
 ## Field
 
-Wraps a control in everything that explains it: a label, the text a person needs in advance, a count
-and what went wrong.
+`Field` wraps a control in a label, the text a person needs in advance, a count and what is wrong.
 
 ```tsx
 import { Field } from "@stealthscale/component-forms";
 
-<Field.Root invalid={!valid} required>
+<Field.Root invalid={!valid} maxLength={80} required>
   <Field.Label>
     Email
     <Field.RequiredIndicator />
   </Field.Label>
   <Field.Control type="email" />
   <Field.HelperText>We only write about invoices.</Field.HelperText>
+  <Field.Counter />
   <Field.ErrorText>That address is not one we recognise.</Field.ErrorText>
 </Field.Root>;
 ```
@@ -83,33 +83,36 @@ import { Field } from "@stealthscale/component-forms";
 | Axis          | Values                                | Default    |
 | ------------- | ------------------------------------- | ---------- |
 | `size`        | `sm`, `md`, `lg`                      | `md`       |
-| `orientation` | `vertical`, `horizontal`              | `vertical` |
-| `status`      | `info`, `success`, `warning`, `error` | `error`    |
+| `orientation` | `vertical`, `horizontal`, `floating`  | `vertical` |
+| `status`      | `info`, `success`, `warning`, `error` | none       |
 
-| Part                | Element | What it draws                               |
-| ------------------- | ------- | ------------------------------------------- |
-| `Root`              | `div`   | The box, and the state every part reads     |
-| `Label`             | `label` | The words naming the control                |
-| `RequiredIndicator` | `span`  | A mark, where the field has to be filled in |
-| `Control`           | `input` | What a person fills in                      |
-| `HelperText`        | `p`     | What a person needs to know in advance      |
-| `Counter`           | `p`     | How much of an allowance is used            |
-| `ErrorText`         | `p`     | What went wrong, where the field is wrong   |
+| Part                | Element    | What it renders                                |
+| ------------------- | ---------- | ---------------------------------------------- |
+| `Root`              | `div`      | The grid, and the state every part reads       |
+| `Label`             | `label`    | The control's name                             |
+| `RequiredIndicator` | `span`     | A mark on a field that requires a value        |
+| `Control`           | `input`    | The control                                    |
+| `Textarea`          | `textarea` | The package's `Textarea`, as the control       |
+| `HelperText`        | `p`        | What a person needs to know in advance         |
+| `Counter`           | `p`        | The length of the value against `maxLength`    |
+| `ErrorText`         | `p`        | What is wrong, or the status the field reports |
 
-`Field.Root` also takes `disabled`, `invalid`, `readOnly` and `required`. Every part reads them, so
-state each condition once.
-
-State `id` on the root where a label outside the field points at the control. The field derives the
-other identifiers from it and generates one where you state none.
-
-`Field.Control` binds the text field. Put another control in its place with `as`. A prop you state
-on the control overrides the field's.
-
-`Field.ErrorText` draws nothing where the field is not wrong, and states `role="alert"` where it is.
-`Field.RequiredIndicator` draws nothing where the field is optional. Both read the palette `status`
-sets, which defaults to the error one.
-
-`Field.Counter` draws the count you pass and measures nothing.
+- `Field.Root` takes `disabled`, `invalid`, `readOnly`, `required` and `maxLength`. Every part reads
+  them, so state each once. The root's `size` also sizes the control.
+- State `id` on the root when a label outside the field points at the control. The field derives the
+  other identifiers from it, and generates one when you state none.
+- `Field.Control` renders an `input`, and `as` renders another element. `Field.Textarea` renders the
+  package's `Textarea` and takes its props, `grows` and `maxRows` included. A prop on the control
+  overrides the field's.
+- `Field.Counter` renders `12 / 80`: the length of the value in UTF-16 code units, the unit
+  `maxLength` limits, against `maxLength`. Without `maxLength` it renders the length alone. The
+  control lists the counter in `aria-describedby`. Pass children to count another way, such as by
+  graphemes.
+- `Field.ErrorText` renders while the field is invalid or reports a status, and sets `role="alert"`
+  only while it is invalid. `Field.RequiredIndicator` renders only on a required field. Both read
+  the palette `status` sets, which defaults to the error palette.
+- A floating label reads whether the control is empty from `:placeholder-shown`, so give the control
+  a placeholder. A single space works.
 
 ## Checkbox
 
@@ -277,14 +280,19 @@ import { Textarea } from "@stealthscale/component-forms";
 - `grip` sets the CSS `resize` property. A style prop named `resize` would shadow an axis of that
   name.
 - `value` and `defaultValue` serve a controlled and an uncontrolled field. `onValueChange` receives
-  the value on every change.
+  the value on every change, after `onChange` receives the event.
 - The text reads the body role. The inset is one size smaller than the size, the same as the
   input's: 12px at `md`.
+- `className` goes to the box that draws the edge, not to the `textarea` element.
 
-Compose it into a `Field` with `as`:
+Inside a `Field`, render `Field.Textarea`, which takes every prop of `Textarea`:
 
 ```tsx
-<Field.Control as={Textarea} grows />
+<Field.Root maxLength={200}>
+  <Field.Label>Delivery notes</Field.Label>
+  <Field.Textarea grows maxRows={6} />
+  <Field.Counter />
+</Field.Root>
 ```
 
 ## InputGroup

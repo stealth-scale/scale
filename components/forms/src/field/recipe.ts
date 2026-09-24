@@ -1,34 +1,18 @@
 /**
- * Defines the styles a field is drawn with.
+ * Recipe for the field: a label, a control and the texts under the control.
  *
  * @remarks
- *   Seven parts. The root lays them out, the label names the control, the required indicator marks
- *   a field that has to be filled in, the control is what a person fills, and the helper text, the
- *   counter and the message sit under it.
- *   The root is a grid rather than a column, so the count takes a gutter at the field's end without
- *   a row of its own. The grid packs densely: the count is written after the control and belongs
- *   above it, and a sparse flow never fills a cell it has already passed.
- *   The count stands on the label's row and the message takes the whole width under the control.
- *   The two shared a row before, with the count against the end of it, and the message was held to
- *   the width the count left on every line it ran to. A message of two lines came out held to 357
- *   of 419 pixels, with the count stranded at the end of the first line and the second running past
- *   underneath it. Nothing a reader is told about what went wrong is worth shortening for a number
- *   saying how much room is left.
- *   Beside the control there is no row the label has to itself, so the count takes a gutter of its
- *   own at the field's end and the control stops where the message under it stops. The gutter is an
- *   `auto` track, so a field stating no count gives up nothing to it.
- *   Every part names the column it stands in rather than leaning on the order a caller writes the
- *   parts in. A caller composes them itself, and dense packing fills the first free cell: written
- *   after the message rather than before it, the count landed under the message instead of above.
- *   The message and the required indicator read the palette, and the status axis sets it on those
- *   two parts and on the control. It is not set on the root: the control reads the palette for its
- *   focus ring, so a field defaulting to the error palette drew a red ring round every untouched
- *   control on the page. Each part that reports a fault states the error palette itself, which
- *   leaves the default red where it was meant to be and the ring in the theme's own colour.
- *   The message replaces the helper text rather than standing under it. A field that is wrong
- *   carried two lines of text otherwise, and a reader had to work out which of them to act on. The
- *   orientation axis puts the label above the control or beside it. Beside it, the label takes a
- *   column of its own and every other part starts in the second.
+ *   Seven slots: root, label, required indicator, control, helper text, counter and error text.
+ *   The root is a dense grid and every part states its column, so the layout does not depend on
+ *   the order a caller writes the parts in. In the vertical and floating orientations the counter
+ *   takes the end of the label's row, and the helper and error texts take the full width under the
+ *   control. In the horizontal orientation the label takes the first column, the control and the
+ *   texts the second, and the counter an `auto` third column that is empty without a counter.
+ *   The status axis sets the palette on the error text, the required indicator and the control,
+ *   and not on the root, because the control's focus ring reads the palette. The error text and
+ *   the required indicator default to the error palette. The recipe has no `palette` axis, because
+ *   a field's colors report a state, and no `effect` axis, because the field draws no box of its
+ *   own.
  */
 
 import {
@@ -45,58 +29,45 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * The steps a field is read at.
+ * Sizes the field offers: `sm`, `md` and `lg`.
  */
 const SIZES = ["sm", "md", "lg"] as const;
 
 /**
- * The class this recipe is compiled under, which the rule raising a floating label reads.
+ * Class name of the recipe, which the floating label's selector reads.
  */
 const CLASS = "field";
 
 /**
- * The property holding how far a floating label drops to reach the middle of the control: the gap
- * it would have left above it, and half the control's own height.
+ * Custom property that carries how far a floating label drops to the middle of the control: the
+ * row gap plus half the control's height.
  */
 const DROP = "--field-drop";
 
 /**
- * The property holding the room the control leaves at its inline start, which a floating label
- * takes so its words begin where the typing does.
+ * Custom property that carries the control's inline inset, which a floating label takes so its
+ * text starts where typed text does.
  */
 const INSET = "--field-inset";
 
 /**
- * Writes what the text under a control reads at one size: a step below the control's own words.
- *
- * @remarks
- *   The helper text, the message and the count share the room under the control, so they share a
- *   size. All three were set in the body text of the field's own step, which read as heavily as the
- *   control's contents and left a field with three lines of equal weight under it.
- *   The leading is the middle of the three the theme offers. A note under a control is a line or
- *   two rather than a passage, and the body's own leading set it at 1.5 against the label's 1.25
- *   above it, which left a one-line note floating in its own row and a two-line one reading as two
- *   separate notes.
+ * Returns the style of the texts under the control at one size: the body role one size smaller,
+ * at the snug line height.
  */
 function described(size: Scale): SystemStyleObject {
   return { lineHeight: "snug", textStyle: `body.${below(size)}` };
 }
 
 /**
- * Writes what the message reads at one size: the text under a control, and the room between the
- * mark of its status and the words.
- *
- * @remarks
- *   The mark stood four pixels from the first letter at every step, which is the room between a
- *   label and the mark saying it is required: two marks side by side rather than a mark leading a
- *   sentence. It takes the step's own gap now, so it moves with the words it leads.
+ * Returns the style of the error text at one size: the texts' style, with the size's gap between
+ * the status mark and the words.
  */
 function messaged(size: Scale): SystemStyleObject {
   return { ...described(size), gap: dense(`{spacing.gap.${size}}`) };
 }
 
 /**
- * Draws a field laid out in a grid at the middle size until a caller says otherwise.
+ * Defines the field recipe: a vertical field at size `md` by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -140,16 +111,11 @@ export const recipe = defineSlotRecipe({
      * Where the label sits against the control.
      *
      * @remarks
-     *   Each value places every part itself rather than departing from a shared placement, because
-     *   the three lay the same seven parts out over a different number of columns and a part that
-     *   read its column from the base would have had to be moved by all of them anyway.
-     *   Beside the control, the label is centred against the control it names. Top-aligned it read
-     *   as a caption over the field, and the padding that had been used to nudge it down was a
-     *   guess that missed at every step other than the one it was measured at.
-     *   Floating, the label keeps its row and is moved down over the control with a translate, so
-     *   the row it leaves behind holds its height and nothing under the field jumps as the label
-     *   rises. Drawn out of the flow instead, the row collapsed and the whole field moved the
-     *   moment a reader typed the first character.
+     *   Each value places all seven parts, because the three lay them out over different columns.
+     *   `horizontal` centres the label and the counter against the control. `floating` translates
+     *   the label down
+     *   over the control and keeps its row, so nothing under the field moves when the label rises
+     *   on focus or once the control holds a value.
      */
     orientation: {
       floating: {
@@ -181,7 +147,7 @@ export const recipe = defineSlotRecipe({
       },
       horizontal: {
         control: { gridColumn: "2 / 3" },
-        counter: { gridColumn: "3 / 4" },
+        counter: { alignSelf: "center", gridColumn: "3 / 4" },
         errorText: { gridColumn: "2 / 3" },
         helperText: { gridColumn: "2 / 3" },
         label: { alignSelf: "center", gridColumn: "1 / 2" },
@@ -197,6 +163,10 @@ export const recipe = defineSlotRecipe({
       },
     },
 
+    /**
+     * Text size and spacing of every part. The label reads the label role at the size, and the
+     * texts under the control read the body role one size smaller.
+     */
     size: onSlots({
       counter: sizeVariants(described, SIZES),
       errorText: sizeVariants(messaged, SIZES),
@@ -214,13 +184,13 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * The palette the message, the required mark and the control's edge are drawn in.
+     * Status the field reports. Each value sets the palette of the error text and the required
+     * indicator, and the control's edge.
      *
      * @remarks
-     *   The control takes the field fragment's own status rule, which states the edge outright
-     *   rather than reading the palette, because the palette's border role sits two steps darker
-     *   than the line family the contrast gate measured against a panel. Without it a field
-     *   reporting a warning drew the warning in its message and left the control looking untouched.
+     *   The control takes the field fragment's status rule, which sets the edge from the line
+     *   family, because the palette's border role is two steps darker than the line the contrast
+     *   gate measures against a panel.
      */
     status: onSlots({
       control: fieldStatusVariants(),

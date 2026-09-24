@@ -48,8 +48,9 @@ component-forms: publish Fieldset, Field, Checkbox, Switch, Textarea and InputGr
 - Five axes: `size`, `variant`, `status`, `grip` and `grows`. `grip` is the CSS `resize` property,
   named apart from it because a styled element takes every CSS property as a prop and a style prop
   of the same name shadows an axis.
-- It takes `value` and `defaultValue`, and reports every change through `onValueChange`. Compose it
-  into a field with `<Field.Control as={Textarea} />`.
+- It takes `value` and `defaultValue`, and reports every change through `onChange` with the event
+  and then `onValueChange` with the value. `className` goes to the box that draws the edge. Inside a
+  field, render `Field.Textarea`.
 
 - `Fieldset` groups fields that belong together and names the group. Four parts under one namespace:
   `Root`, `Legend`, `HelperText` and `ErrorText`.
@@ -61,25 +62,31 @@ component-forms: publish Fieldset, Field, Checkbox, Switch, Textarea and InputGr
   inline size a `fieldset` defaults to, so one inside a flex or grid parent shrinks.
 - Three axes: `size`, `orientation` and `status`.
 
-- `Field` wraps a control in everything that explains it. Seven parts under one namespace: `Root`,
-  `Label`, `RequiredIndicator`, `Control`, `HelperText`, `Counter` and `ErrorText`.
-- `Field.Root` takes `disabled`, `invalid`, `readOnly` and `required`, and every part reads them.
-  One `invalid` marks the control, draws the message and leaves the two in step, where a prop on
-  each part would let them disagree.
-- The root derives four identifiers from one. The label points at the control with `htmlFor`, and
-  the control is described by the helper text and the message. Both identifiers are listed whether
-  or not either is drawn, because an identifier naming no element is passed over. Watching the
-  document to find out which exists would mean writing state from an effect, which React 19 reports,
-  and a second render before the control is described at all.
-- `ErrorText` renders nothing where the field is not wrong, and states `role="alert"` where it does,
-  so a message raised after a submit reaches a reader who is not looking at the field.
-- `RequiredIndicator` renders nothing where the field is optional and states `aria-hidden` where it
-  does, since the control already carries `required`.
-- `Counter` announces politely and stays out of `aria-describedby`. A description is read when the
-  control takes focus, and a number that changes as a person types would be read stale.
-- The message and the required mark read the palette, which `status` sets. A field defaults to the
-  error palette, so the same part draws a green message for a field reporting something else.
-- Three axes: `size`, `orientation` and `status`.
+- `Field` wraps a control in a label, the text a person needs in advance, a count and what is wrong.
+  Eight parts under one namespace: `Root`, `Label`, `RequiredIndicator`, `Control`, `Textarea`,
+  `HelperText`, `Counter` and `ErrorText`.
+- `Field.Root` takes `disabled`, `invalid`, `readOnly`, `required` and `maxLength`, and every part
+  reads them. One `invalid` marks the control and renders the error text. The root's `size` also
+  sizes the control: 36, 40 and 44px at `sm`, `md` and `lg`.
+- The root derives five identifiers from one. The label points at the control with `htmlFor`. The
+  control lists the helper text, the error text and the counter in `aria-describedby`, whether or
+  not each is rendered, because assistive technology skips an identifier that names no element.
+- `Field.Textarea` renders the package's `Textarea` as the control and takes its props, `grows` and
+  `maxRows` included. `Field.Control` with `as` cannot pass them, because `as` does not retype
+  props.
+- `Counter` renders `12 / 80`: the length of the control's value in UTF-16 code units against the
+  root's `maxLength`, or the length alone without one. The control writes the length to a store
+  after layout and the counter reads it through `useSyncExternalStore`, so no state is written from
+  an effect. Children replace the count. It sets no `aria-live`, because a live region would
+  announce every keystroke.
+- `ErrorText` renders nothing while the field is valid and reports no status, and sets
+  `role="alert"` only while the field is invalid, so an error raised on submit is announced.
+- `RequiredIndicator` renders nothing while the field is optional and sets `aria-hidden`, because
+  the control's `required` attribute already reports the state.
+- The error text and the required mark read the palette `status` sets, which defaults to the error
+  palette. A field reporting a status that is not a fault renders its message in that palette
+  without marking the control invalid.
+- Three axes: `size`, `orientation` (`vertical`, `horizontal`, `floating`) and `status`.
 
 - `InputGroup` draws one field box that holds fields, marks and addons in a row, or in stacked rows.
   Five parts under one namespace: `Root`, `Row`, `Field`, `Mark` and `Addon`.

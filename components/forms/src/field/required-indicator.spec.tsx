@@ -9,19 +9,19 @@ import { RequiredIndicator } from "#field/required-indicator.tsx";
 import { type RootProps } from "#field/root.tsx";
 
 describe("RequiredIndicator", () => {
-  it("draws nothing where the field is optional", () => {
+  it("renders nothing while the field is optional", () => {
     render(fielded(<RequiredIndicator />));
 
     expect(screen.queryByText("*")).toBeNull();
   });
 
-  it("draws a span where the field has to be filled in", () => {
+  it("renders a span while the field requires a value", () => {
     const { container } = render(fielded(<RequiredIndicator />, { required: true }));
 
     expect(slotElement(container, "field", "requiredIndicator").tagName).toBe("SPAN");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(
         recipe,
@@ -31,7 +31,7 @@ describe("RequiredIndicator", () => {
     ).toStrictEqual([]);
   });
 
-  it("stays out of what a screen reader reads", () => {
+  it("hides the mark from assistive technology", () => {
     const { container } = render(composed({ required: true }));
 
     expect(slotElement(container, "field", "requiredIndicator").getAttribute("aria-hidden")).toBe(

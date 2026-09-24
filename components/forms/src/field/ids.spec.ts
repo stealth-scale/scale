@@ -3,20 +3,21 @@ import { describe, expect, it } from "vitest";
 import { describedBy, idsOf } from "#field/ids.ts";
 
 describe("ids", () => {
-  it("keeps the control's own identifier so a label outside the field reaches it", () => {
+  it("gives the control the identifier unchanged", () => {
     expect(idsOf("email").control).toBe("email");
   });
 
-  it("derives the other three from it", () => {
+  it("derives the other four identifiers with a suffix each", () => {
     expect(idsOf("email")).toStrictEqual({
       control: "email",
+      counter: "email-counter",
       errorText: "email-error",
       helperText: "email-helper",
       label: "email-label",
     });
   });
 
-  it("describes a control by the helper text and then the message", () => {
+  it("lists the helper text then the error text for aria-describedby", () => {
     expect(describedBy(idsOf("email"))).toBe("email-helper email-error");
   });
 });

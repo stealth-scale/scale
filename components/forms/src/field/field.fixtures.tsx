@@ -1,5 +1,5 @@
 /**
- * Builds the field a part's specification needs above it.
+ * Builds the fields the part specifications render.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -8,21 +8,21 @@ import * as Field from "#field/index.ts";
 import { type RootProps } from "#field/root.tsx";
 
 /**
- * Draws whatever a case wants measured inside the root that states the field's state.
+ * Renders the children inside a root, with the props the case sets on the root.
  *
  * @param children - The part under test.
- * @param props - Whatever the case sets on the root.
- * @returns The root, holding it.
+ * @param props - The props of the root.
+ * @returns The root with the children inside it.
  */
 export function fielded(children: ReactNode, props: RootProps = {}): ReactElement {
   return <Field.Root {...props}>{children}</Field.Root>;
 }
 
 /**
- * Draws a whole field, so a case can read what every part did.
+ * Renders a field with every part: a required label, an email control, both texts and a counter.
  *
- * @param props - Whatever the case sets on the root.
- * @returns The six parts composed the way a caller composes them.
+ * @param props - The props of the root.
+ * @returns The field.
  */
 export function composed(props: RootProps = {}): ReactElement {
   return (
@@ -33,7 +33,7 @@ export function composed(props: RootProps = {}): ReactElement {
       </Field.Label>
       <Field.Control type="email" />
       <Field.HelperText>We only write about invoices.</Field.HelperText>
-      <Field.Counter>12 / 80</Field.Counter>
+      <Field.Counter />
       <Field.ErrorText>That address is not one we recognise.</Field.ErrorText>
     </Field.Root>
   );

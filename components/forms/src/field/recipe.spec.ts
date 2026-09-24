@@ -17,15 +17,15 @@ const PARTS = [
 ];
 
 describe("recipe", () => {
-  it("covers every variant axis in the scenes of its specimen page", () => {
+  it("covers every axis in the scenes of its specimen", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+  it("leaves no scene naming a value the recipe lacks", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(
       recipeViolations(recipe, {
         names: ["Field.Root", "Field.Label", "Field.Control"],
@@ -34,27 +34,27 @@ describe("recipe", () => {
     ).toStrictEqual([]);
   });
 
-  it("names its class field", () => {
+  it("uses the class name field", () => {
     expect(recipe.className).toBe("field");
   });
 
-  it("styles the seven parts a field draws", () => {
+  it("declares the seven slots", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
   });
 
-  it("offers an orientation axis and a size axis and a status axis", () => {
+  it("declares three axes", () => {
     expect(axesOf(recipe)).toStrictEqual(["orientation", "size", "status"]);
   });
 
-  it("stacks the label above the control at the middle size when nothing is asked for", () => {
+  it("defaults to a vertical field at size md", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ orientation: "vertical", size: "md" });
   });
 
-  it("offers the three places a label sits", () => {
+  it("offers three orientations", () => {
     expect(valuesOf(recipe, "orientation")).toStrictEqual(["floating", "horizontal", "vertical"]);
   });
 
-  it("drops a floating label over the control and keeps the row it came from", () => {
+  it("translates a floating label over the control and keeps its row", () => {
     const floating = recipe.variants?.["orientation"]?.["floating"];
 
     expect(floating?.["label"]).toMatchObject({
@@ -65,7 +65,7 @@ describe("recipe", () => {
     expect(floating?.["label"]).not.toHaveProperty("position");
   });
 
-  it("raises a floating label off the control that holds focus or holds something", () => {
+  it("raises a floating label while the control has focus or a value", () => {
     expect(recipe.variants?.["orientation"]?.["floating"]?.["root"]).toMatchObject({
       [`&:has(.field__control:focus) .field__label,
             &:has(.field__control:not(:placeholder-shown)) .field__label`]: {
@@ -76,7 +76,7 @@ describe("recipe", () => {
     });
   });
 
-  it("stacks every part but the label under the control when the label sits beside it", () => {
+  it("places every part but the label in the second column of a horizontal field", () => {
     const horizontal = recipe.variants?.["orientation"]?.["horizontal"];
 
     expect(horizontal?.["root"]).toMatchObject({
@@ -86,17 +86,21 @@ describe("recipe", () => {
     expect(horizontal?.["control"]).toStrictEqual({ gridColumn: "2 / 3" });
     expect(horizontal?.["helperText"]).toStrictEqual({ gridColumn: "2 / 3" });
     expect(horizontal?.["errorText"]).toStrictEqual({ gridColumn: "2 / 3" });
-    expect(horizontal?.["counter"]).toStrictEqual({ gridColumn: "3 / 4" });
+    expect(horizontal?.["counter"]).toMatchObject({ gridColumn: "3 / 4" });
   });
 
-  it("centres the label against the control it names rather than topping the field with it", () => {
+  it("centres a horizontal label and counter against the control", () => {
     expect(recipe.variants?.["orientation"]?.["horizontal"]?.["label"]).toStrictEqual({
       alignSelf: "center",
       gridColumn: "1 / 2",
     });
+    expect(recipe.variants?.["orientation"]?.["horizontal"]?.["counter"]).toStrictEqual({
+      alignSelf: "center",
+      gridColumn: "3 / 4",
+    });
   });
 
-  it("stands the count at the end of the label's row rather than the message's", () => {
+  it("places the counter at the end of the label's row", () => {
     const vertical = recipe.variants?.["orientation"]?.["vertical"];
 
     expect(recipe.base?.["counter"]).toMatchObject({ justifySelf: "end" });
@@ -104,7 +108,7 @@ describe("recipe", () => {
     expect(vertical?.["counter"]).toStrictEqual({ gridColumn: "2 / 3" });
   });
 
-  it("leaves the message the whole width under the control wherever the label sits", () => {
+  it("gives the helper and error texts the full width under the control", () => {
     const orientation = recipe.variants?.["orientation"];
 
     expect(orientation?.["floating"]?.["errorText"]).toStrictEqual({ gridColumn: "1 / -1" });
@@ -113,7 +117,7 @@ describe("recipe", () => {
     expect(orientation?.["vertical"]?.["helperText"]).toStrictEqual({ gridColumn: "1 / -1" });
   });
 
-  it("reads the text under a control a step below the control's own words", () => {
+  it("sets the texts under an md control in the sm body role", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["counter"]).toStrictEqual({
       lineHeight: "snug",
       textStyle: "body.sm",
@@ -125,7 +129,7 @@ describe("recipe", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["label"]).toStrictEqual({ textStyle: "label.md" });
   });
 
-  it("sets the text under a control tighter than a passage and looser than the label", () => {
+  it("sets the md error text at the snug line height with the md gap", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["errorText"]).toStrictEqual({
       gap: "calc({spacing.gap.md} * var(--density, 1))",
       lineHeight: "snug",
@@ -133,18 +137,18 @@ describe("recipe", () => {
     });
   });
 
-  it("draws the message and the required mark in the palette the status sets", () => {
+  it("inks the error text and the required indicator from the palette", () => {
     expect(recipe.base?.["errorText"]).toMatchObject({ color: "colorPalette.fg" });
     expect(recipe.base?.["requiredIndicator"]).toMatchObject({ color: "colorPalette.fg" });
   });
 
-  it("points the parts reporting a fault at the error palette and leaves the root without one", () => {
+  it("defaults the error text and the required indicator to the error palette", () => {
     expect(recipe.base?.["errorText"]).toMatchObject({ colorPalette: "error" });
     expect(recipe.base?.["requiredIndicator"]).toMatchObject({ colorPalette: "error" });
     expect(recipe.base?.["root"]).not.toHaveProperty("colorPalette");
   });
 
-  it("draws the control's edge in the status the field reports", () => {
+  it("sets the control's edge from the warning status", () => {
     expect(recipe.variants?.["status"]?.["warning"]?.["control"]).toStrictEqual({
       _invalid: { "--field-edge": "{colors.border.warning}" },
       "--field-edge": "{colors.border.warning}",
@@ -152,11 +156,11 @@ describe("recipe", () => {
     });
   });
 
-  it("wraps a long word rather than pushing the control out of the field", () => {
+  it("lets the control shrink below its content width", () => {
     expect(recipe.base?.["control"]).toMatchObject({ minInlineSize: "0" });
   });
 
-  it("tracks the field and every part under its namespace", () => {
+  it("tracks JSX named Field and its parts", () => {
     expect(recipe.jsx).toStrictEqual([/^Field(\.\w+)?$/u]);
   });
 });

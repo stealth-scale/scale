@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#field/index.ts";
 
 describe("index", () => {
-  it("names every part and the hook that reads the field's state", () => {
+  it("exports the eight parts and the hook that reads the field's state", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Control",
       "Counter",
@@ -12,11 +12,12 @@ describe("index", () => {
       "Label",
       "RequiredIndicator",
       "Root",
+      "Textarea",
       "useField",
     ]);
   });
 
-  it("publishes neither the recipe nor the binding", () => {
+  it("exports no recipe binding", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {
