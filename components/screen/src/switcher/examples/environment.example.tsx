@@ -4,6 +4,7 @@ import { CheckIcon, ChevronsUpDownIcon, RocketIcon } from "lucide-react";
 
 import { Button } from "@stealthscale/component-actions";
 import { Menu } from "@stealthscale/component-disclosure";
+import { Portal } from "@stealthscale/component-primitives";
 import { useWords } from "@stealthscale/specimen";
 
 import * as Switcher from "#switcher/index.ts";
@@ -27,26 +28,28 @@ export function Environment(props: Switcher.RootProps): ReactElement {
               <ChevronsUpDownIcon size="1em" />
             </Switcher.Indicator>
           </Toolbar.Item>
-          <Menu.Positioner>
-            <Menu.Content>
-              {STAGES.map((stage) => (
-                <Menu.OptionItem
-                  checked={stage === chosen}
-                  key={stage}
-                  onCheckedChange={() => {
-                    setChosen(stage);
-                  }}
-                  type="radio"
-                  value={stage}
-                >
-                  <Menu.ItemIndicator>
-                    <CheckIcon size="1em" />
-                  </Menu.ItemIndicator>
-                  <Menu.ItemText>{t(stage)}</Menu.ItemText>
-                </Menu.OptionItem>
-              ))}
-            </Menu.Content>
-          </Menu.Positioner>
+          <Portal>
+            <Menu.Positioner>
+              <Menu.Content>
+                {STAGES.map((stage) => (
+                  <Menu.OptionItem
+                    checked={stage === chosen}
+                    key={stage}
+                    onCheckedChange={() => {
+                      setChosen(stage);
+                    }}
+                    type="radio"
+                    value={stage}
+                  >
+                    <Menu.ItemIndicator>
+                      <CheckIcon size="1em" />
+                    </Menu.ItemIndicator>
+                    <Menu.ItemText>{t(stage)}</Menu.ItemText>
+                  </Menu.OptionItem>
+                ))}
+              </Menu.Content>
+            </Menu.Positioner>
+          </Portal>
         </Switcher.Root>
       </Toolbar.Start>
       <Toolbar.End>

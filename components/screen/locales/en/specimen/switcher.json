@@ -9,10 +9,6 @@
   "globex": "Globex",
   "new": "New workspace",
   "oldBooks": "Old Books",
-  "opened": {
-    "about": "The control at a sidebar's width with its menu open. Each workspace has a row with its initial, its name and its plan, and the suspended workspace is disabled. A separator divides the workspaces from two actions. The menu is as wide as its rows and at least 176 pixels wide, whatever the control's width.",
-    "title": "Open"
-  },
   "placement": {
     "about": "At the head of a sidebar the control fills the column. In a toolbar it is as wide as its words and hides the detail. Both render in the subtle look, so the control's width shows.",
     "title": "Placements"
@@ -21,11 +17,15 @@
   "pro": "Pro plan",
   "production": "Production",
   "settings": "Workspace settings",
+  "sidebar": {
+    "about": "The control at a sidebar's width. Press it to open the menu, which is as wide as the control. Each workspace has a row with its initial, its name and its plan, and the suspended workspace is disabled. A separator divides the workspaces from two actions.",
+    "title": "In a sidebar"
+  },
   "staging": "Staging",
   "suspended": "Suspended",
   "title": "Switcher",
   "toolbar": {
-    "about": "An environment switcher in a toolbar, rendered through `Toolbar.Item`, so it is one of the row's arrow-key stops. The menu is open.",
+    "about": "An environment switcher in a toolbar, rendered through `Toolbar.Item`, so it is one of the row's arrow-key stops. Its menu is as wide as its widest row.",
     "title": "In a toolbar"
   },
   "trial": "Trial, 12 days left",

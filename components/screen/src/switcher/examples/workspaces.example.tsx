@@ -3,6 +3,7 @@ import { type ReactElement, useState } from "react";
 import { CheckIcon, ChevronsUpDownIcon, PlusIcon, SettingsIcon } from "lucide-react";
 
 import { Menu } from "@stealthscale/component-disclosure";
+import { Portal } from "@stealthscale/component-primitives";
 import { useWords } from "@stealthscale/specimen";
 
 import * as Switcher from "#switcher/index.ts";
@@ -32,40 +33,42 @@ export function Workspaces(props: Switcher.RootProps): ReactElement {
           <ChevronsUpDownIcon size="1em" />
         </Switcher.Indicator>
       </Switcher.Trigger>
-      <Menu.Positioner>
-        <Menu.Content>
-          {WORKSPACES.map((workspace) => (
-            <Menu.OptionItem
-              checked={workspace[0] === name}
-              disabled={workspace[1] === "suspended"}
-              key={workspace[0]}
-              onCheckedChange={() => {
-                setChosen(workspace);
-              }}
-              type="radio"
-              value={workspace[0]}
-            >
-              <Menu.ItemIndicator>
-                <CheckIcon size="1em" />
-              </Menu.ItemIndicator>
-              <Menu.ItemMark>{t(workspace[0]).charAt(0)}</Menu.ItemMark>
-              <Menu.ItemLines>
-                <Menu.ItemText>{t(workspace[0])}</Menu.ItemText>
-                <Menu.ItemDescription>{t(workspace[1])}</Menu.ItemDescription>
-              </Menu.ItemLines>
-            </Menu.OptionItem>
-          ))}
-          <Menu.Separator />
-          <Menu.Item value="new">
-            <PlusIcon size="1em" />
-            {t("new")}
-          </Menu.Item>
-          <Menu.Item value="settings">
-            <SettingsIcon size="1em" />
-            {t("settings")}
-          </Menu.Item>
-        </Menu.Content>
-      </Menu.Positioner>
+      <Portal>
+        <Menu.Positioner>
+          <Menu.Content>
+            {WORKSPACES.map((workspace) => (
+              <Menu.OptionItem
+                checked={workspace[0] === name}
+                disabled={workspace[1] === "suspended"}
+                key={workspace[0]}
+                onCheckedChange={() => {
+                  setChosen(workspace);
+                }}
+                type="radio"
+                value={workspace[0]}
+              >
+                <Menu.ItemIndicator>
+                  <CheckIcon size="1em" />
+                </Menu.ItemIndicator>
+                <Menu.ItemMark>{t(workspace[0]).charAt(0)}</Menu.ItemMark>
+                <Menu.ItemLines>
+                  <Menu.ItemText>{t(workspace[0])}</Menu.ItemText>
+                  <Menu.ItemDescription>{t(workspace[1])}</Menu.ItemDescription>
+                </Menu.ItemLines>
+              </Menu.OptionItem>
+            ))}
+            <Menu.Separator />
+            <Menu.Item value="new">
+              <PlusIcon size="1em" />
+              {t("new")}
+            </Menu.Item>
+            <Menu.Item value="settings">
+              <SettingsIcon size="1em" />
+              {t("settings")}
+            </Menu.Item>
+          </Menu.Content>
+        </Menu.Positioner>
+      </Portal>
     </Switcher.Root>
   );
 }

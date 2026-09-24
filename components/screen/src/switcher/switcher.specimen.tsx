@@ -2,46 +2,42 @@
  * Catalogue page for the switcher.
  *
  * @remarks
- *   The open scene renders the workspaces example at a sidebar's width with its menu staged open
- *   inside the kit's `Floated`, with `positioning={STAGED}`. `scenesOf` generates the placements on
- *   the subtle look, so the control's width shows, and the looks across the sizes, from the same
- *   example with the menu closed. The toolbar scene renders the environment example with its menu
- *   staged open. The rooms, `open` and the positioning never appear in the examples. The words are
- *   keys under `switcher` in `locales/en/specimen/switcher.json`.
+ *   The sidebar scene renders the workspaces example at a sidebar's width. `scenesOf` generates the
+ *   placements on the subtle look, so the control's width shows, and the looks across the sizes,
+ *   from the same example. The toolbar scene renders the environment example in a toolbar. Every
+ *   switcher renders closed and portals its menu to the document body, so an opened menu renders
+ *   over the page. The rooms never appear in the examples. The words are keys under `switcher` in
+ *   `locales/en/specimen/switcher.json`.
  */
 
-import { Floated, Room, type Scene, scenesOf, specimen, STAGED } from "@stealthscale/specimen";
+import { Room, type Scene, scenesOf, specimen } from "@stealthscale/specimen";
 
 import * as examples from "#switcher/examples/index.ts";
 import type * as Switcher from "#switcher/index.ts";
 import { recipe } from "#switcher/recipe.ts";
 
 /**
- * Hand-written scene for the switcher with its menu open.
+ * Hand-written scene for the switcher at a sidebar's width.
  */
-export const opened: Scene = {
-  about: "switcher.opened.about",
+export const sidebar: Scene = {
+  about: "switcher.sidebar.about",
   draw: () => (
     <Room size="xs">
-      <Floated>
-        <examples.workspaces.Workspaces open positioning={STAGED} />
-      </Floated>
+      <examples.workspaces.Workspaces />
     </Room>
   ),
   example: examples.workspaces,
-  title: "switcher.opened.title",
+  title: "switcher.sidebar.title",
 };
 
 /**
- * Hand-written scene for a switcher in a toolbar with its menu open.
+ * Hand-written scene for a switcher in a toolbar.
  */
 export const toolbar: Scene = {
   about: "switcher.toolbar.about",
   draw: () => (
     <Room size="md">
-      <Floated>
-        <examples.environment.Environment open positioning={STAGED} />
-      </Floated>
+      <examples.environment.Environment />
     </Room>
   ),
   example: examples.environment,
@@ -53,7 +49,7 @@ export default specimen({
   id: "components/screen/switcher",
   imports: 'import { Switcher } from "@stealthscale/component-screen";',
   scenes: [
-    opened,
+    sidebar,
     ...scenesOf<Switcher.RootProps>(recipe, {
       axes: {
         placement: {
