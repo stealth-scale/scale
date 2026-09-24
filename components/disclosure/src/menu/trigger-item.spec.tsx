@@ -8,19 +8,19 @@ import { listed, nested } from "#menu/menu.fixtures.tsx";
 import { TriggerItem } from "#menu/trigger-item.tsx";
 
 describe("TriggerItem", () => {
-  it("draws a button inside the nest it needs above it", async () => {
+  it("renders a button", async () => {
     const { container } = await drawn(nested({ defaultOpen: true }));
 
     expect(slotElement(container, "menu", "triggerItem").tagName).toBe("BUTTON");
   });
 
-  it("carries the menu item role so the menu above counts it as one of its rows", async () => {
+  it("sets role menuitem", async () => {
     await drawn(nested({ defaultOpen: true }));
 
     expect(screen.getByRole("menuitem", { name: "Share" })).toBeDefined();
   });
 
-  it("says it opens a menu of its own", async () => {
+  it("sets aria-haspopup menu", async () => {
     await drawn(nested({ defaultOpen: true }));
 
     expect(screen.getByRole("menuitem", { name: "Share" }).getAttribute("aria-haspopup")).toBe(
@@ -28,7 +28,7 @@ describe("TriggerItem", () => {
     );
   });
 
-  it("names the submenu it opens", async () => {
+  it("sets aria-controls to the submenu's id", async () => {
     const { container } = await drawn(nested({ defaultOpen: true }));
     const panels = [...container.querySelectorAll("[data-part=content]")];
 
@@ -37,7 +37,7 @@ describe("TriggerItem", () => {
     );
   });
 
-  it("throws where the menu it belongs to opens from no other menu", async () => {
+  it("throws in a menu without a parent", async () => {
     await expect(drawn(listed(<TriggerItem>Share</TriggerItem>))).rejects.toThrow(
       "Menu.TriggerItem was drawn in a menu that opens from no other menu.",
     );

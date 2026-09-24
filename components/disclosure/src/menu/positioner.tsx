@@ -1,12 +1,10 @@
 /**
- * Draws the box the machine places the panel in.
+ * Renders the element the machine positions beside the trigger.
  *
  * @remarks
- *   The machine measures the control and the room around it and writes the position as inline
- *   styles, beside the height and the width left on the screen. The panel reads the height for its
- *   own cap, so a menu opened near the edge of a window scrolls inside itself. Nothing here states
- *   a position, and a caller wanting the panel out of an overflowing ancestor draws this as their
- *   own portal.
+ *   The machine writes the position inline, with `--available-height` and `--available-width`,
+ *   and the panel caps its height at the first. A caller who needs the menu outside a clipping
+ *   ancestor wraps this part in a portal.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -17,20 +15,20 @@ import { withContext } from "#menu/context.ts";
 import { useMenu } from "#menu/machine.ts";
 
 /**
- * Draws the box at the size the root states.
+ * Renders the `div` with the menu's positioner class.
  */
 const Placed = withContext("div", "positioner");
 
 /**
- * Describes what the box takes.
+ * Describes the props of the positioner: the props of a `div`.
  */
 export type PositionerProps = ComponentProps<typeof Placed>;
 
 /**
- * Places the panel against the control.
+ * Renders the positioner with the machine's positioner props merged over the caller's.
  *
- * @param props - Everything a styled div takes.
- * @returns The box, carrying the position the machine measured.
+ * @param props - The props of a `div`.
+ * @returns The `div` element.
  */
 export function Positioner(props: PositionerProps): ReactElement {
   const { api } = useMenu();

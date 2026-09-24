@@ -1,10 +1,8 @@
 /**
- * Draws the line under a row's words: a plan, a role, a count, what tells two rows of one name
- * apart.
+ * Renders a row's description, such as a plan, a role or a count.
  *
  * @remarks
- *   Set in the caption's type and the subtle ink, a step under the words, so the words are read
- *   first. It is read out with the row, because it is part of what the row says.
+ *   The recipe sets it on the caption role in `fg.subtle`. A screen reader reads it with the row.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -13,20 +11,20 @@ import { withContext } from "#menu/context.ts";
 import { useMenu } from "#menu/machine.ts";
 
 /**
- * Draws the line at the size the root states.
+ * Renders the `span` with the menu's item description class.
  */
 const Described = withContext("span", "itemDescription");
 
 /**
- * Describes what the line takes.
+ * Describes the props of a row's description: the props of a `span`.
  */
 export type ItemDescriptionProps = ComponentProps<typeof Described>;
 
 /**
- * Draws the line, checking a menu stands above it.
+ * Renders the description, and throws when no menu is above it.
  *
- * @param props - Everything a styled span takes.
- * @returns The line, under the row's words.
+ * @param props - The props of a `span`.
+ * @returns The `span` element.
  */
 export function ItemDescription(props: ItemDescriptionProps): ReactElement {
   useMenu();

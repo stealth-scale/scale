@@ -1,18 +1,13 @@
 /**
- * States what a row of a menu is for, which decides the ink it is drawn in.
+ * Types the tone of a menu row.
  *
  * @remarks
- *   This is a prop rather than an axis of the recipe, because a slot recipe resolves its variants
- *   once at the root and a menu draws one row in a different ink from the rest. The row writes it
- *   as a data attribute and the recipe's base styles it, which is the hook a theme extends to add
- *   another.
+ *   The tone is a prop of the row. A slot recipe resolves its variants once, at the root, and one
+ *   row differs from the rest. The row sets the tone as `data-tone`, and the recipe's base styles
+ *   the attribute.
  */
 
 /**
- * Selects what a row is for.
- *
- * @remarks
- *   A row that undoes something is the one case a menu draws differently, and colour is a second
- *   reading of what its words already say rather than the only one.
+ * Tone of a row: `critical` for a row that destroys or undoes something, in the error palette.
  */
 export type Tone = "critical";

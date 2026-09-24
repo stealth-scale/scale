@@ -7,19 +7,19 @@ import { composed, listed } from "#menu/menu.fixtures.tsx";
 import { Positioner } from "#menu/positioner.tsx";
 
 describe("Positioner", () => {
-  it("draws a div inside the root it needs above it", async () => {
+  it("renders a div", async () => {
     const { container } = await drawn(listed(<Positioner />));
 
     expect(slotElement(container, "menu", "positioner").tagName).toBe("DIV");
   });
 
-  it("is placed by the machine rather than by the recipe", async () => {
+  it("takes the machine's absolute position", async () => {
     const { container } = await drawn(composed({ defaultOpen: true }));
 
     expect(slotElement(container, "menu", "positioner").style.position).toBe("absolute");
   });
 
-  it("holds the panel so the panel can read the room left on the screen", async () => {
+  it("contains the content", async () => {
     const { container } = await drawn(composed({ defaultOpen: true }));
 
     expect(
@@ -27,7 +27,7 @@ describe("Positioner", () => {
     ).not.toBeNull();
   });
 
-  it("draws the element as names so a caller can portal it", async () => {
+  it("renders the element as names", async () => {
     const { container } = await drawn(listed(<Positioner as="span" />));
 
     expect(slotElement(container, "menu", "positioner").tagName).toBe("SPAN");

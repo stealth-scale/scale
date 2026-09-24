@@ -1,504 +1,153 @@
 /**
- * Shows the menu: every look, every highlight at every size, where it opens, a list too long for
- * the screen, a menu opened over a region and everything one holds, where a submenu opens, and a
- * page that runs right to left.
+ * Catalogue page for the menu.
  *
  * @remarks
- *   The axis scenes are generated from the recipe, so a value added to it reaches the page without
- *   this file changing. Five scenes are written by hand, because each turns something the recipe
- *   declares no axis for: where the machine opens the menu, how many rows it holds, what opens it,
- *   which side a submenu takes, and which way the page reads.
- *   Every menu holds the same rows: a group with keystrokes, a row that undoes something, a row
- *   that stays on, a set to pick one of, and a submenu, so a look is judged on everything a menu
- *   draws. The rows carry marks on some and none on others, which is what the gutter lines up.
- *   Each positioner sits in a portal, because the card a scene is drawn in clips what it holds and
- *   a menu that has to fit the card is no menu. The words are keys under `menu` in the catalogue's
- *   namespace, kept beside this file in `locales/en/specimen/menu.json`.
+ *   `scenesOf` generates the looks, the highlights by sizes, the gutter and the palettes from the
+ *   actions example, each with its first row highlighted. The placement, mark, long-list,
+ *   context-menu, submenu and right-to-left scenes are hand-written, because each shows a machine
+ *   option, a part or a behaviour that no axis sets. A staged menu renders open through a
+ *   controlled `open` and the kit's `STAGED` positioning, inside a `Floated` box that pads itself
+ *   around the panel. The long list and the context menu render closed and portal their panels,
+ *   because the window sets the long list's height and a context menu opens at the pointer. The
+ *   box, `open`, `STAGED` and the highlighted row never appear in the example. The words are keys
+ *   under `menu` in `locales/en/specimen/menu.json`.
  */
 
-import { type ReactElement, type ReactNode, useState } from "react";
+import { type ReactElement, type ReactNode, useEffect, useState } from "react";
 
-import {
-  CheckIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
-  CopyIcon,
-  FileJsonIcon,
-  FileSpreadsheetIcon,
-  FileTextIcon,
-  FolderInputIcon,
-  PinIcon,
-  ScissorsIcon,
-  TrashIcon,
-} from "lucide-react";
+import { Floated, Matrix, type Scene, scenesOf, specimen, STAGED } from "@stealthscale/specimen";
 
-import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
-import { Portal } from "@stealthscale/component-primitives";
-import { Matrix, type Scene, scenesOf, specimen, useWords } from "@stealthscale/specimen";
-import { type Scale } from "@stealthscale/theme/authoring";
-
-import * as Menu from "#menu/index.ts";
+import * as examples from "#menu/examples/index.ts";
+import type * as Menu from "#menu/index.ts";
 import { recipe } from "#menu/recipe.ts";
 
 /**
- * The call site every generated scene's source snippet is built from.
- */
-const SAMPLE = {
-  children: [
-    "<Menu.Trigger as={Button}>Actions</Menu.Trigger>",
-    "<Menu.Positioner>",
-    "  <Menu.Content>",
-    '    <Menu.Item value="release">Release the payout</Menu.Item>',
-    "  </Menu.Content>",
-    "</Menu.Positioner>",
-  ].join("\n"),
-  imports: 'import { Menu } from "@stealthscale/component-disclosure";',
-  name: "Menu.Root",
-};
-
-/**
- * The six placements a menu is asked to open at.
+ * Placements of the placement scene.
  */
 const PLACEMENTS = ["bottom-start", "bottom", "bottom-end", "top-start", "top", "top-end"] as const;
 
 /**
- * The four sides a submenu is asked to open on.
+ * Describes the props of the hover staging.
  */
-const SIDES = ["right-start", "left-start", "top-start", "bottom-start"] as const;
-
-/**
- * The three formats a region's menu offers to download as, each with its mark.
- */
-const FORMATS = [
-  ["csv", FileSpreadsheetIcon],
-  ["json", FileJsonIcon],
-  ["pdf", FileTextIcon],
-] as const;
-
-/**
- * How many ledgers the long list holds.
- */
-const LEDGERS = 24;
-
-/**
- * Draws the tick a chosen row carries.
- */
-function Tick(): ReactElement {
-  return (
-    <Menu.ItemIndicator>
-      <CheckIcon aria-hidden size="1em" />
-    </Menu.ItemIndicator>
-  );
-}
-
-/**
- * Describes what a control that opens a menu is told.
- */
-interface OpenerProps {
+interface HoveredProps {
   /**
-   * The words on the control, `Actions` unless the scene says otherwise.
-   */
-  readonly children?: ReactNode;
-
-  /**
-   * The step the control is drawn at, which is the menu's own.
-   */
-  readonly size?: Scale;
-}
-
-/**
- * Draws the control that opens a menu: the library's button, with a chevron that turns as the
- * menu opens.
- *
- * @remarks
- *   The button's look and step go in through its own provider, because `as` hands the trigger's
- *   props to the button and knows nothing of the button's own.
- */
-function Opener({ children, size = "md" }: OpenerProps): ReactElement {
-  const { t } = useWords("menu");
-
-  return (
-    <ButtonPropsProvider value={{ size, variant: "subtle" }}>
-      <Menu.Trigger as={Button}>
-        {children ?? t("actions")}
-        <Menu.Indicator>
-          <ChevronDownIcon aria-hidden size="1em" />
-        </Menu.Indicator>
-      </Menu.Trigger>
-    </ButtonPropsProvider>
-  );
-}
-
-/**
- * Draws the rows every menu holds, and remembers what was turned on and picked.
- */
-function Rows(): ReactElement {
-  const { t } = useWords("menu");
-  const [notified, setNotified] = useState(true);
-  const [window, setWindow] = useState("week");
-
-  return (
-    <Portal>
-      <Menu.Positioner>
-        <Menu.Content>
-          <Menu.ItemGroup value="payout">
-            <Menu.ItemGroupLabel value="payout">{t("payout")}</Menu.ItemGroupLabel>
-            <Menu.Item value="release">
-              {t("release")}
-              <Menu.ItemCommand>⌘R</Menu.ItemCommand>
-            </Menu.Item>
-            <Menu.Item value="hold">
-              {t("hold")}
-              <Menu.ItemCommand>⌘H</Menu.ItemCommand>
-            </Menu.Item>
-            <Menu.Item tone="critical" value="void">
-              {t("void")}
-            </Menu.Item>
-          </Menu.ItemGroup>
-          <Menu.Separator />
-          <Menu.OptionItem
-            checked={notified}
-            closeOnSelect={false}
-            onCheckedChange={setNotified}
-            type="checkbox"
-            value="notify"
-          >
-            <Tick />
-            <Menu.ItemText>{t("notify")}</Menu.ItemText>
-          </Menu.OptionItem>
-          <Menu.Separator />
-          <Menu.ItemGroup value="window">
-            <Menu.ItemGroupLabel value="window">{t("window")}</Menu.ItemGroupLabel>
-            {(["week", "month"] as const).map((key) => (
-              <Menu.OptionItem
-                checked={window === key}
-                key={key}
-                onCheckedChange={() => {
-                  setWindow(key);
-                }}
-                type="radio"
-                value={key}
-              >
-                <Tick />
-                <Menu.ItemText>{key === "week" ? t("thisWeek") : t("thisMonth")}</Menu.ItemText>
-              </Menu.OptionItem>
-            ))}
-          </Menu.ItemGroup>
-          <Menu.Separator />
-          <Menu.Root>
-            <Menu.TriggerItem>
-              {t("export")}
-              <Menu.Indicator>
-                <ChevronRightIcon aria-hidden size="1em" />
-              </Menu.Indicator>
-            </Menu.TriggerItem>
-            <Portal>
-              <Menu.Positioner>
-                <Menu.Content>
-                  {FORMATS.map(([key]) => (
-                    <Menu.Item key={key} value={key}>
-                      {t(key)}
-                    </Menu.Item>
-                  ))}
-                </Menu.Content>
-              </Menu.Positioner>
-            </Portal>
-          </Menu.Root>
-        </Menu.Content>
-      </Menu.Positioner>
-    </Portal>
-  );
-}
-
-/**
- * Draws the menu behind its control, in whatever the scene hands over.
- */
-function Opened(props: Menu.RootProps): ReactElement {
-  return (
-    <Menu.Root {...props}>
-      <Opener />
-      <Rows />
-    </Menu.Root>
-  );
-}
-
-/**
- * Draws the menu and its control at one size.
- *
- * @remarks
- *   The size is stated on the control as well as on the menu. A menu at one size behind a control
- *   at another drew the rows stepping while the button stayed put, which reads as two components
- *   rather than one.
- */
-function Sized({ size, ...rest }: Menu.RootProps): ReactElement {
-  const stated = size === undefined ? {} : { size };
-
-  return (
-    <Menu.Root {...stated} {...rest}>
-      <Opener {...stated} />
-      <Rows />
-    </Menu.Root>
-  );
-}
-
-/**
- * Draws a menu asked to open at each placement, named after it.
- */
-function Placements(): ReactElement {
-  return (
-    <Matrix knob="placement" of={PLACEMENTS}>
-      {(placement) => (
-        <Menu.Root positioning={{ placement }}>
-          <Opener>{placement}</Opener>
-          <Rows />
-        </Menu.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws a menu of more rows than fit under its control, which scrolls inside itself.
- */
-function Long(): ReactElement {
-  const { t } = useWords("menu");
-
-  return (
-    <Menu.Root>
-      <Opener>{t("pickLedger")}</Opener>
-      <Portal>
-        <Menu.Positioner>
-          <Menu.Content>
-            {Array.from({ length: LEDGERS }, (_, index) => index + 1).map((number) => (
-              <Menu.Item key={number} value={`ledger-${String(number)}`}>
-                {`${t("ledger")} ${String(number).padStart(2, "0")}`}
-              </Menu.Item>
-            ))}
-          </Menu.Content>
-        </Menu.Positioner>
-      </Portal>
-    </Menu.Root>
-  );
-}
-
-/**
- * Describes what a region a menu opens over is told.
- */
-interface RegionProps {
-  /**
-   * The words the region reads.
+   * The menu to stage.
    */
   readonly children: ReactNode;
 }
 
 /**
- * Draws a region a reader opens the menu over with a right click, a long press or Shift+F10.
+ * Renders a menu and moves a mouse pointer onto its first submenu row after it mounts.
+ *
+ * @remarks
+ *   The event bubbles to the row's own handler, so the submenu opens after the machine's hover
+ *   delay the way it opens under a pointer. The move waits one frame, because the machine joins the
+ *   submenu to its parent in an effect and the row's handler reads the joined state from the next
+ *   render. The staging never appears in an example.
  */
-function Region({ children }: RegionProps): ReactElement {
-  return (
-    <ButtonPropsProvider value={{ size: "lg", variant: "subtle" }}>
-      <Menu.ContextTrigger as={Button}>{children}</Menu.ContextTrigger>
-    </ButtonPropsProvider>
-  );
+function Hovered({ children }: HoveredProps): ReactElement {
+  const [box, setBox] = useState<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      box
+        ?.querySelector("[data-part=trigger-item]")
+        ?.dispatchEvent(new PointerEvent("pointermove", { bubbles: true, pointerType: "mouse" }));
+    });
+
+    return (): void => {
+      cancelAnimationFrame(frame);
+    };
+  }, [box]);
+
+  return <div ref={setBox}>{children}</div>;
 }
 
 /**
- * Draws the same rows, opened over a region rather than from a control.
- */
-function Over(): ReactElement {
-  const { t } = useWords("menu");
-
-  return (
-    <Menu.Root>
-      <Region>{t("rightClickRow")}</Region>
-      <Rows />
-    </Menu.Root>
-  );
-}
-
-/**
- * Draws everything a region's menu holds: groups with marks and keystrokes, a row that stays on,
- * a set to pick one of, a submenu, and a row that destroys something.
- */
-function Everything(): ReactElement {
-  const { t } = useWords("menu");
-  const [pinned, setPinned] = useState(true);
-  const [format, setFormat] = useState("csv");
-
-  return (
-    <Menu.Root inset>
-      <Region>{t("rightClickCard")}</Region>
-      <Portal>
-        <Menu.Positioner>
-          <Menu.Content>
-            <Menu.ItemGroup value="edit">
-              <Menu.ItemGroupLabel value="edit">{t("edit")}</Menu.ItemGroupLabel>
-              <Menu.Item value="cut">
-                <ScissorsIcon aria-hidden size="1em" />
-                {t("cut")}
-                <Menu.ItemCommand>⌘X</Menu.ItemCommand>
-              </Menu.Item>
-              <Menu.Item value="copy">
-                <CopyIcon aria-hidden size="1em" />
-                {t("copy")}
-                <Menu.ItemCommand>⌘C</Menu.ItemCommand>
-              </Menu.Item>
-            </Menu.ItemGroup>
-            <Menu.Separator />
-            <Menu.OptionItem
-              checked={pinned}
-              closeOnSelect={false}
-              onCheckedChange={setPinned}
-              type="checkbox"
-              value="pin"
-            >
-              <Tick />
-              <PinIcon aria-hidden size="1em" />
-              <Menu.ItemText>{t("keepTop")}</Menu.ItemText>
-            </Menu.OptionItem>
-            <Menu.Separator />
-            <Menu.ItemGroup value="download">
-              <Menu.ItemGroupLabel value="download">{t("downloadAs")}</Menu.ItemGroupLabel>
-              {FORMATS.map(([key, Mark]) => (
-                <Menu.OptionItem
-                  checked={format === key}
-                  key={key}
-                  onCheckedChange={() => {
-                    setFormat(key);
-                  }}
-                  type="radio"
-                  value={key}
-                >
-                  <Tick />
-                  <Mark aria-hidden size="1em" />
-                  <Menu.ItemText>{t(key)}</Menu.ItemText>
-                </Menu.OptionItem>
-              ))}
-            </Menu.ItemGroup>
-            <Menu.Separator />
-            <Menu.Root>
-              <Menu.TriggerItem>
-                <FolderInputIcon aria-hidden size="1em" />
-                {t("moveTo")}
-                <Menu.Indicator>
-                  <ChevronRightIcon aria-hidden size="1em" />
-                </Menu.Indicator>
-              </Menu.TriggerItem>
-              <Portal>
-                <Menu.Positioner>
-                  <Menu.Content>
-                    <Menu.Item value="archive">{t("archive")}</Menu.Item>
-                    <Menu.Item value="drafts">{t("drafts")}</Menu.Item>
-                  </Menu.Content>
-                </Menu.Positioner>
-              </Portal>
-            </Menu.Root>
-            <Menu.Separator />
-            <Menu.Item tone="critical" value="delete">
-              <TrashIcon aria-hidden size="1em" />
-              {t("delete")}
-            </Menu.Item>
-          </Menu.Content>
-        </Menu.Positioner>
-      </Portal>
-    </Menu.Root>
-  );
-}
-
-/**
- * Draws a menu whose submenus each open on the side their root asks for.
- */
-function Submenus(): ReactElement {
-  const { t } = useWords("menu");
-
-  return (
-    <Menu.Root>
-      <Region>{t("rightClickRow")}</Region>
-      <Portal>
-        <Menu.Positioner>
-          <Menu.Content>
-            {SIDES.map((side) => (
-              <Menu.Root key={side} positioning={{ placement: side }}>
-                <Menu.TriggerItem>
-                  {t("opens", { side })}
-                  <Menu.Indicator>
-                    <ChevronRightIcon aria-hidden size="1em" />
-                  </Menu.Indicator>
-                </Menu.TriggerItem>
-                <Portal>
-                  <Menu.Positioner>
-                    <Menu.Content>
-                      <Menu.Item value={`${side}-one`}>{t("one")}</Menu.Item>
-                      <Menu.Item value={`${side}-two`}>{t("two")}</Menu.Item>
-                    </Menu.Content>
-                  </Menu.Positioner>
-                </Portal>
-              </Menu.Root>
-            ))}
-          </Menu.Content>
-        </Menu.Positioner>
-      </Portal>
-    </Menu.Root>
-  );
-}
-
-/**
- * Draws the menu on a page that runs the other way.
- */
-function RightToLeft(): ReactElement {
-  const { t } = useWords("menu");
-
-  return (
-    <div dir="rtl">
-      <Menu.Root dir="rtl">
-        <Region>{t("rightClickRtl")}</Region>
-        <Rows />
-      </Menu.Root>
-    </div>
-  );
-}
-
-/**
- * Where the menu opens.
+ * Hand-written scene for six placements, with the arrow on each panel.
  */
 export const placements: Scene = {
   about: "menu.placements.about",
-  draw: Placements,
+  draw: () => (
+    <Matrix knob="placement" of={PLACEMENTS}>
+      {(placement) => (
+        <Floated>
+          <examples.more.More open positioning={{ ...STAGED, placement }} />
+        </Floated>
+      )}
+    </Matrix>
+  ),
+  example: examples.more,
+  props: { positioning: { placement: "bottom-start" } },
   title: "menu.placements.title",
 };
 
 /**
- * A list too long for the screen.
+ * Hand-written scene for rows that lead with a mark and read a name over a description.
  */
-export const long: Scene = { about: "menu.long.about", draw: Long, title: "menu.long.title" };
-
-/**
- * Opened over a region.
- */
-export const over: Scene = { about: "menu.over.about", draw: Over, title: "menu.over.title" };
-
-/**
- * Everything a region's menu holds.
- */
-export const everything: Scene = {
-  about: "menu.everything.about",
-  draw: Everything,
-  title: "menu.everything.title",
+export const marks: Scene = {
+  about: "menu.marks.about",
+  draw: () => (
+    <Floated>
+      <examples.workspaces.Workspaces open positioning={STAGED} />
+    </Floated>
+  ),
+  example: examples.workspaces,
+  title: "menu.marks.title",
 };
 
 /**
- * Where a submenu opens.
+ * Hand-written scene for a list longer than the window, closed until the reader opens it.
+ */
+export const long: Scene = {
+  about: "menu.long.about",
+  draw: examples.ledgers.Ledgers,
+  example: examples.ledgers,
+  title: "menu.long.title",
+};
+
+/**
+ * Hand-written scene for a menu that opens over a region, closed until the reader opens it.
+ */
+export const over: Scene = {
+  about: "menu.over.about",
+  draw: examples.card.Card,
+  example: examples.card,
+  title: "menu.over.title",
+};
+
+/**
+ * Hand-written scene for a submenu, opened by a staged hover over its row.
  */
 export const submenus: Scene = {
   about: "menu.submenus.about",
-  draw: Submenus,
+  draw: () => (
+    <Hovered>
+      <Floated>
+        <examples.actions.Actions open positioning={STAGED} />
+      </Floated>
+    </Hovered>
+  ),
+  example: examples.actions,
   title: "menu.submenus.title",
 };
 
 /**
- * Right to left.
+ * Hand-written scene for a menu in a right-to-left document.
  */
-export const rtl: Scene = { about: "menu.rtl.about", draw: RightToLeft, title: "menu.rtl.title" };
+export const rtl: Scene = {
+  about: "menu.rtl.about",
+  draw: () => (
+    <div dir="rtl">
+      <Floated>
+        <examples.actions.Actions dir="rtl" open positioning={STAGED} />
+      </Floated>
+    </div>
+  ),
+  example: examples.actions,
+  props: { dir: "rtl" },
+  title: "menu.rtl.title",
+};
 
 export default specimen({
   about: "menu.about",
@@ -506,16 +155,25 @@ export default specimen({
   imports: 'import { Menu } from "@stealthscale/component-disclosure";',
   scenes: [
     ...scenesOf<Menu.RootProps>(recipe, {
-      axes: { highlight: { across: "size", draw: (props) => <Sized {...props} /> } },
-      draw: (props) => <Opened {...props} />,
+      axes: { highlight: { across: "size" } },
+      draw: (props) => (
+        <Floated>
+          <examples.actions.Actions
+            {...props}
+            defaultHighlightedValue="release"
+            open
+            positioning={STAGED}
+          />
+        </Floated>
+      ),
+      example: examples.actions,
       namespace: "menu",
-      order: ["variant", "highlight", "inset"],
-      sample: SAMPLE,
+      order: ["variant", "highlight", "inset", "palette"],
     }),
     placements,
+    marks,
     long,
     over,
-    everything,
     submenus,
     rtl,
   ],

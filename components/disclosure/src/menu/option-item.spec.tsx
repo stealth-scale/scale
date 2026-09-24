@@ -8,7 +8,7 @@ import { grouped, listed, optioned } from "#menu/menu.fixtures.tsx";
 import { OptionItem } from "#menu/option-item.tsx";
 
 describe("OptionItem", () => {
-  it("draws a div inside the root it needs above it", async () => {
+  it("renders a div", async () => {
     const { container } = await drawn(
       listed(
         <OptionItem checked type="checkbox" value="gridlines">
@@ -20,19 +20,19 @@ describe("OptionItem", () => {
     expect(slotElement(container, "menu", "item").tagName).toBe("DIV");
   });
 
-  it("carries the checkbox menu item role for a row that stands on its own", async () => {
+  it("sets role menuitemcheckbox for type checkbox", async () => {
     await drawn(grouped({ defaultOpen: true }));
 
     expect(screen.getByRole("menuitemcheckbox", { name: "Gridlines" })).toBeDefined();
   });
 
-  it("carries the radio menu item role for a row that is one of a set", async () => {
+  it("sets role menuitemradio for type radio", async () => {
     await drawn(grouped({ defaultOpen: true }));
 
     expect(screen.getByRole("menuitemradio", { name: "Comfortable" })).toBeDefined();
   });
 
-  it("tells a screen reader whether the row is on", async () => {
+  it("sets aria-checked to its checked state", async () => {
     await drawn(grouped({ defaultOpen: true }));
 
     expect(
@@ -43,7 +43,7 @@ describe("OptionItem", () => {
     ).toBe("false");
   });
 
-  it("says whether the row is on so the recipe can draw the mark", async () => {
+  it("sets data-state checked on a checked row", async () => {
     await drawn(grouped({ defaultOpen: true }));
 
     expect(screen.getByRole("menuitemradio", { name: "Comfortable" }).dataset["state"]).toBe(
@@ -51,7 +51,7 @@ describe("OptionItem", () => {
     );
   });
 
-  it("says which of the two kinds the row is", async () => {
+  it("sets data-type to its type", async () => {
     await drawn(grouped({ defaultOpen: true }));
 
     expect(screen.getByRole("menuitemcheckbox", { name: "Gridlines" }).dataset["type"]).toBe(
@@ -59,7 +59,7 @@ describe("OptionItem", () => {
     );
   });
 
-  it("tells a caller the reader turned the row off", async () => {
+  it("calls onCheckedChange with false when a checked row is pressed", async () => {
     const told = vi.fn<(checked: boolean) => void>();
 
     await drawn(optioned(told, { defaultOpen: true }));
@@ -68,7 +68,7 @@ describe("OptionItem", () => {
     expect(told).toHaveBeenLastCalledWith(false);
   });
 
-  it("says a reader cannot choose it where a caller disables it", async () => {
+  it("sets aria-disabled when disabled", async () => {
     const { container } = await drawn(
       listed(
         <OptionItem checked disabled type="checkbox" value="gridlines">
@@ -80,7 +80,7 @@ describe("OptionItem", () => {
     expect(slotElement(container, "menu", "item").getAttribute("aria-disabled")).toBe("true");
   });
 
-  it("matches typeahead on the words a caller gives it rather than the ones it shows", async () => {
+  it("sets data-valuetext to its valueText", async () => {
     const { container } = await drawn(
       listed(
         <OptionItem checked type="checkbox" value="gridlines" valueText="Show the grid">
@@ -92,7 +92,7 @@ describe("OptionItem", () => {
     expect(slotElement(container, "menu", "item").dataset["valuetext"]).toBe("Show the grid");
   });
 
-  it("leaves the menu open where the row says choosing it does not close", async () => {
+  it("keeps the menu open with closeOnSelect false", async () => {
     const told = vi.fn<(checked: boolean) => void>();
 
     await drawn(optioned(told, { defaultOpen: true }));
@@ -101,7 +101,7 @@ describe("OptionItem", () => {
     expect(screen.getByRole("menu")).toBeDefined();
   });
 
-  it("says what the row is for where a caller states a tone", async () => {
+  it("sets data-tone to its tone", async () => {
     const { container } = await drawn(
       listed(
         <OptionItem checked tone="critical" type="checkbox" value="purge">
@@ -113,7 +113,7 @@ describe("OptionItem", () => {
     expect(slotElement(container, "menu", "item").dataset["tone"]).toBe("critical");
   });
 
-  it("draws the element as names", async () => {
+  it("renders the element as names", async () => {
     const { container } = await drawn(
       listed(
         <OptionItem as="label" checked type="checkbox" value="gridlines">

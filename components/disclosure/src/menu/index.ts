@@ -1,6 +1,6 @@
 /**
- * Publishes the menu's parts, which a caller composes as `Menu.Root` holding a control and the
- * panel of rows it opens, and nests by writing another `Menu.Root` inside that panel.
+ * Exports the menu's parts, composed as `Menu.Root` around a trigger and a positioner that places
+ * the panel, with a submenu as another `Menu.Root` inside the panel.
  */
 
 export { ArrowTip, type ArrowTipProps } from "#menu/arrow-tip.tsx";

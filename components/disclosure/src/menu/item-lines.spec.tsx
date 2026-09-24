@@ -8,7 +8,7 @@ import { Item, ItemDescription, ItemLines, ItemText } from "#menu/index.ts";
 import { listed, rowed } from "#menu/menu.fixtures.tsx";
 
 describe("ItemLines", () => {
-  it("draws a span inside the row it needs above it", async () => {
+  it("renders a span", async () => {
     const { container } = await drawn(
       listed(
         <Item value="acme">
@@ -22,7 +22,7 @@ describe("ItemLines", () => {
     expect(slotElement(container, "menu", "itemLines").tagName).toBe("SPAN");
   });
 
-  it("stacks the words and the line under them inside one row", async () => {
+  it("joins the row's accessible name", async () => {
     await drawn(
       rowed(
         <ItemLines>
@@ -35,7 +35,7 @@ describe("ItemLines", () => {
     expect(screen.getByRole("menuitem", { name: "Globex Enterprise Acme" })).toBeDefined();
   });
 
-  it("draws the element as names", async () => {
+  it("renders the element as names", async () => {
     const { container } = await drawn(rowed(<ItemLines as="div">Globex</ItemLines>));
 
     expect(slotElement(container, "menu", "itemLines").tagName).toBe("DIV");

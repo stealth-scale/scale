@@ -1,10 +1,9 @@
 /**
- * Draws the mark at the start of a row: an initial, an icon or an avatar in a tinted square.
+ * Renders the square at a row's start that shows an initial, an icon or an avatar.
  *
  * @remarks
- *   A square rather than the bare icon a row may also lead with, because an initial or an avatar
- *   wants a box to sit in and a list of them reads as a list only when every box is the same size.
- *   It is hidden from a screen reader, because the words of the row say what it stands for.
+ *   The recipe sizes the square as a tag on `bg.muted`, so every row's mark has one size. The mark
+ *   sets `aria-hidden`, because the row's text already gives the row its name.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -13,20 +12,20 @@ import { withContext } from "#menu/context.ts";
 import { useMenu } from "#menu/machine.ts";
 
 /**
- * Draws the square at the size the root states.
+ * Renders the `span` with the menu's item mark class, hidden from assistive technology.
  */
 const Marked = withContext("span", "itemMark", { defaultProps: { "aria-hidden": true } });
 
 /**
- * Describes what the mark takes.
+ * Describes the props of a row's mark: the props of a `span`.
  */
 export type ItemMarkProps = ComponentProps<typeof Marked>;
 
 /**
- * Draws the mark, checking a menu stands above it.
+ * Renders the mark, and throws when no menu is above it.
  *
- * @param props - Everything a styled span takes.
- * @returns The square, at the row's start.
+ * @param props - The props of a `span`.
+ * @returns The `span` element.
  */
 export function ItemMark(props: ItemMarkProps): ReactElement {
   useMenu();

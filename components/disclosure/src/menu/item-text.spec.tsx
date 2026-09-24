@@ -9,7 +9,7 @@ import { Item } from "#menu/item.tsx";
 import { grouped, listed } from "#menu/menu.fixtures.tsx";
 
 describe("ItemText", () => {
-  it("draws a span inside the row it needs above it", async () => {
+  it("renders a span", async () => {
     const { container } = await drawn(
       listed(
         <Item value="rename">
@@ -21,7 +21,7 @@ describe("ItemText", () => {
     expect(slotElement(container, "menu", "itemText").tagName).toBe("SPAN");
   });
 
-  it("reads the row above it rather than taking its name again", async () => {
+  it("renders its text inside the row", async () => {
     await drawn(grouped({ defaultOpen: true }));
 
     expect(screen.getByRole("menuitemradio", { name: "Comfortable" }).textContent).toContain(
@@ -29,23 +29,23 @@ describe("ItemText", () => {
     );
   });
 
-  it("says the row it labels is on", async () => {
+  it("sets data-state checked on a checked row", async () => {
     const { container } = await drawn(grouped({ defaultOpen: true }));
 
     expect(parts(container, "item-text")[0]?.dataset["state"]).toBe("checked");
   });
 
-  it("says the row it labels is off", async () => {
+  it("sets data-state unchecked on an unchecked row", async () => {
     const { container } = await drawn(grouped({ defaultOpen: true }));
 
     expect(parts(container, "item-text")[1]?.dataset["state"]).toBe("unchecked");
   });
 
-  it("throws where it is drawn outside a row", () => {
+  it("throws outside a row", () => {
     expect(rootedViolations({ ItemText }, "A part of Menu")).toStrictEqual([]);
   });
 
-  it("draws the element as names", async () => {
+  it("renders the element as names", async () => {
     const { container } = await drawn(
       listed(
         <Item value="rename">

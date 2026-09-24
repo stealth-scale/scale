@@ -3,10 +3,10 @@
  * menu.
  *
  * @remarks
- *   The root starts one machine and every part reads its api from context. The context also holds
- *   the running service and the parent level, because registering a submenu needs both services
- *   and a submenu's trigger needs its parent's api. The machine derives the ids of the content,
- *   every item and every group from `id`.
+ *   The root starts one machine and every part reads its api from context. The context also
+ *   contains the running service and the parent level, because registering a submenu needs both
+ *   services and a submenu's trigger needs its parent's api. The machine derives the ids of the
+ *   content, every item and every group from `id`.
  */
 
 import { useEffect, useId } from "react";
@@ -23,7 +23,7 @@ import { type MenuVariants } from "#menu/variants.ts";
  * methods.
  *
  * @remarks
- *   The type is inferred from `connect`, so it follows the installed machine version. The inferred
+ *   The type is the return type of `connect`, so it follows the installed machine version. That
  *   type references `@zag-js/types`, so the package declares that package as a dependency.
  */
 export type MenuApi = ReturnType<typeof menu.connect>;
@@ -47,8 +47,8 @@ export interface MenuLevel {
    *
    * @remarks
    *   The content raises its stacking level by this depth. Every panel of a nest uses the same
-   *   z-index token and is portalled to the document, so no panel is an ancestor of another.
-   *   Without the offset, portal mount order decides which panel is on top, and a submenu can
+   *   z-index token. When a caller portals the panels to the document, no panel is an ancestor of
+   *   another. Without the offset, mount order decides which panel is on top, and a submenu can
    *   render under the items of its parent.
    */
   readonly depth: number;

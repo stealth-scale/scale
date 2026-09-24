@@ -18,10 +18,10 @@ import {
 import { listed } from "#menu/menu.fixtures.tsx";
 
 /**
- * Draws an open menu holding one row that carries a keystroke.
+ * Renders an open menu with one row that ends in a shortcut.
  *
- * @param props - Whatever the case sets on the keys.
- * @returns The menu, open.
+ * @param props - The props the case sets on the shortcut.
+ * @returns The open menu.
  */
 function struck(props: ItemCommandProps = {}): ReactElement {
   return (
@@ -40,7 +40,7 @@ function struck(props: ItemCommandProps = {}): ReactElement {
 }
 
 describe("ItemCommand", () => {
-  it("draws a kbd inside the row it sits at the end of", async () => {
+  it("renders a kbd", async () => {
     const { container } = await drawn(
       listed(
         <Item value="release">
@@ -53,14 +53,14 @@ describe("ItemCommand", () => {
     expect(slotElement(container, "menu", "itemCommand").tagName).toBe("KBD");
   });
 
-  it("is read as part of the row rather than as a row of its own", async () => {
+  it("joins the row's accessible name", async () => {
     await drawn(struck());
 
     expect(screen.getByRole("menuitem", { name: "Release ⌘R" })).toBeDefined();
     expect(screen.getAllByRole("menuitem")).toHaveLength(1);
   });
 
-  it("draws the element as names", async () => {
+  it("renders the element as names", async () => {
     const { container } = await drawn(struck({ as: "span" }));
 
     expect(slotElement(container, "menu", "itemCommand").tagName).toBe("SPAN");

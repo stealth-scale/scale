@@ -1,10 +1,9 @@
 /**
- * Draws the heading over a set of rows.
+ * Renders a group's label.
  *
  * @remarks
- *   It names the set through the value both share, which is what a screen reader reads out as the
- *   reader enters the set. It is read one step below the rows it labels and in the quieter ink, so
- *   it separates the sets without competing with what a reader is choosing between.
+ *   The label takes the `value` its group has, and the machine points the group's
+ *   `aria-labelledby` at it. The recipe sets it two sizes smaller than the rows, in `fg.subtle`.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,25 +14,25 @@ import { withContext } from "#menu/context.ts";
 import { useMenu } from "#menu/machine.ts";
 
 /**
- * Draws the heading at the size the root states.
+ * Renders the `div` with the menu's item group label class.
  */
 const Titled = withContext("div", "itemGroupLabel");
 
 /**
- * Describes what the heading takes.
+ * Describes the props of a group's label: its group's value and the props of a `div`.
  */
 export interface ItemGroupLabelProps extends ComponentProps<typeof Titled> {
   /**
-   * Ties the heading to the set it names.
+   * Value of the group the label names.
    */
   readonly value: string;
 }
 
 /**
- * Says what the rows below it have in common.
+ * Renders the label with the machine's item group label props merged over the caller's.
  *
- * @param props - The name the set shares, beside everything a styled div takes.
- * @returns The heading, carrying what the machine writes onto it.
+ * @param props - The group's value and the props of a `div`.
+ * @returns The `div` element.
  */
 export function ItemGroupLabel({ value, ...rest }: ItemGroupLabelProps): ReactElement {
   const { api } = useMenu();

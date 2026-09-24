@@ -1,36 +1,19 @@
 /**
- * States what a menu is: a list of things a reader chooses from, opened from a control and closed
- * by choosing.
+ * Recipe for the menu: a trigger, a panel of rows and groups, and submenus opened from a row.
  *
  * @remarks
- *   The machine names no root, because a menu is a control and a panel that floats beside it rather
- *   than a thing that frames the two. This recipe adds one anyway, drawn with `display: contents`
- *   so it takes part in no layout, because the control and the panel are siblings and a slot recipe
- *   hands its variants down from an element above them both. The same root carries a submenu, whose
- *   control sits among the rows of the menu above it.
- *   The panel is placed by the machine, which writes its position as inline styles beside four
- *   custom properties the positioner is measured into. The panel reads one of them for its height,
- *   so a menu opened near the edge of a window scrolls inside itself rather than running off the
- *   page. It is held to a width a short list still fills, and grows to its widest row from there,
- *   and a caller wanting the control's width asks the machine for it. The width is a step of the
- *   scale rather than `--reference-width`: read off the control, a menu under a button spanning
- *   the page was a list of six short rows spanning the page with them.
- *   The rung goes on the panel rather than on the positioner the machine places. The machine
- *   writes `z-index: var(--z-index)` on the positioner as an inline style and fills that property
- *   from what the panel computes to, so a rung written on the positioner is overruled by the
- *   machine's own declaration and reaches nothing.
- *   The panel enters from the side it was placed on rather than always from the top, which is what
- *   the `slide-fade` motion reads off the placement the machine writes. It carries no focus ring:
- *   the machine moves focus onto it as it opens, and a ring drawn for that reads as the panel being
- *   selected rather than as the row the highlight marks, which is where the reader's attention is.
- *   A row is read a step under the type of the page it opens over, in the body's weight, with its
- *   words cut short rather than wrapped, so a list of rows is one column of even lines. A row may
- *   lead with a mark, a tinted square holding an initial, an icon or an avatar, sized as a tag so
- *   a list of them reads as a list; may stack its words over a line about them; and ends with the
- *   tick that says it is on, or the keys that run it, set quieter and smaller than the words. A
- *   menu whose rows lead with icons can leave the same gutter on every row, so a row without one
- *   starts its words where the others do. A group's label is set smaller and lighter than the rows
- *   under it, because it names them rather than joining them.
+ *   The machine has no root part. The recipe adds a root with `display: contents`, because the
+ *   trigger and the positioner are siblings and a slot recipe passes its variants from an element
+ *   above both. A submenu's root is a child of the parent menu's panel. The machine writes the
+ *   positioner's position inline and `--available-height`, which caps the panel, so a menu near the
+ *   window's edge scrolls. The panel is at least `sizes.44` wide and grows to its widest row. The
+ *   panel takes the `dropdown` z-index plus its depth in the nest, because the machine writes
+ *   `z-index: var(--z-index)` inline on the positioner from the panel's value. The panel has no
+ *   focus ring, because the machine focuses it on opening and the highlight marks the row. A row
+ *   reads the body role one size smaller and truncates. `inset` leaves a mark's gutter on every
+ *   row. The panel sets the palette, and the rows and the highlight inherit it. A critical row
+ *   reads `error`. The recipe has no `effect` axis, because the highlight moves with the pointer
+ *   and the arrow keys, and a glow would move with it.
  */
 
 import {
@@ -41,7 +24,10 @@ import {
   highlightVariants,
   interactive,
   motion,
+  onSlot,
   onSlots,
+  PALETTES,
+  paletteVariants,
   row,
   type Scale,
   sizeVariants,
@@ -50,64 +36,54 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * Lists the three steps a menu is offered at, which is what a list of rows needs and no more.
+ * Sizes the menu offers.
  */
 const SIZES: readonly Scale[] = ["sm", "md", "lg"];
 
 /**
- * The property a panel states how deep in a nest it sits in, which it adds to the rung.
+ * Custom property a panel sets to its depth in the nest, which the panel adds to its z-index.
  *
  * @remarks
- *   Every panel of a nest stands on the dropdown rung, and both a menu and the submenu it opens are
- *   portalled to the document, so neither is an ancestor of the other and the two stacked by the
- *   order their portals happened to mount. A submenu came out under the menu it opened from.
- *   The depth is counted at run time, so the panel writes the property and this reads it. The rung
- *   itself stays the theme's, which is what a theme moves when it restacks the page.
+ *   When a caller portals a menu and its submenu to the document, neither is an ancestor of the
+ *   other. Without the depth, mount order decides the stacking, and a submenu renders under its
+ *   parent.
  */
 export const MENU_DEPTH = "--menu-depth";
 
 /**
- * The attribute a panel that opened from a row of another menu marks itself with.
+ * Attribute a panel sets when it opened from a row of another menu.
  *
  * @remarks
- *   The depth is a number, and a rule cannot ask whether a number is more than nothing. The panel
- *   states this beside it for the rules that only want to know that there is a menu above this one.
+ *   A selector cannot compare a custom property's number, so the attribute marks a nested panel.
  */
 export const NESTED = "data-nested";
 
 /**
- * Fixes the property the gutter for a row's mark is measured into, which the size axis writes and
- * the inset axis and every marked row read.
+ * Custom property the size axis sets to the gutter a row's mark takes, which `inset` reads.
  */
 const GUTTER = "--menu-gutter";
 
 /**
- * Fixes the property the panel's fill is stated in, which the arrow reads so it is drawn in the
- * same fill as the panel it points away from.
+ * Custom property each look sets to the panel's fill, which the arrow reads.
  */
 const SURFACE = "var(--menu-surface)";
 
 /**
- * Measures the gutter one step leaves for a mark: the room at the row's edge, the mark itself,
- * and the gap between the mark and the words beside it.
+ * Returns the gutter a mark takes at a size: the row's inline padding, the icon and the gap.
  */
 function gutter(size: Scale): string {
   return `calc({spacing.inset.${below(size)}} + {sizes.icon.${below(size)}} + {spacing.gap.${size}})`;
 }
 
 /**
- * Gives a submenu back the room its own menu keeps round its rows, on the side it opened towards.
+ * Returns the margin that moves a submenu off its parent's panel, on the side it opened towards.
  *
  * @remarks
- *   A submenu is placed against the row that opened it rather than against the panel that row sits
- *   in, and the engine states the offset itself, so a caller cannot move it. The row stops one
- *   inset short of the panel's edge, so a submenu began one inset inside the menu it opened from
- *   and the two overlapped by exactly that much.
- *   The side is the engine's and is stated as left or right, and the room is written as a logical
- *   property, which is the pair a direction swaps. A submenu opening right stands off its start in
- *   a menu read left to right and off its end in one read the other way, so each side states both
- *   and zeroes the other.
- * @param room - The inset the panel keeps at this step.
+ *   The machine places a submenu against the row that opened it, and the row stops one padding
+ *   short of the panel's edge, so the submenu overlapped its parent by that padding. The machine
+ *   reports the side as left or right, and the margin is logical, so each side sets both inline
+ *   margins and swaps them under `_rtl`.
+ * @param room - The panel's padding at the size.
  */
 function cleared(room: string): SystemStyleObject {
   return {
@@ -125,9 +101,8 @@ function cleared(room: string): SystemStyleObject {
 }
 
 /**
- * Draws a row at one step: the room round its words, the gap between a mark and them, the gutter a
- * mark takes, and the words a step quieter than the step's own, which is what a list of rows reads
- * as beside a page in the step's type.
+ * Returns a row's styles at a size: its padding, the gap after a mark, the gutter and the body role
+ * one size smaller.
  */
 function rowOf(size: Scale): SystemStyleObject {
   return {
@@ -140,8 +115,8 @@ function rowOf(size: Scale): SystemStyleObject {
 }
 
 /**
- * Draws a surfaced menu at the middle size, tinting the row the reader is on, until a caller says
- * otherwise.
+ * Defines the menu recipe: the surface look at size `md` in the neutral palette, with the tint
+ * highlight, by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -171,7 +146,6 @@ export const recipe = defineSlotRecipe({
       ...row(),
       "&[data-tone=critical]": { color: "colorPalette.fg", colorPalette: "error" },
       borderRadius: "l1",
-      colorPalette: "neutral",
     },
     itemCommand: {
       color: "fg.muted",
@@ -212,10 +186,10 @@ export const recipe = defineSlotRecipe({
     root: { display: "contents" },
     separator: { ...divider(), borderColor: "border.muted", inlineSize: "auto" },
     trigger: { ...interactive() },
-    triggerItem: { ...row(), borderRadius: "l1", colorPalette: "neutral" },
+    triggerItem: { ...row(), borderRadius: "l1" },
   },
   className: "menu",
-  defaultVariants: { highlight: "tint", size: "md", variant: "surface" },
+  defaultVariants: { highlight: "tint", palette: "neutral", size: "md", variant: "surface" },
   jsx: [/^Menu(\.\w+)?$/u],
   slots: [
     "root",
@@ -238,9 +212,10 @@ export const recipe = defineSlotRecipe({
     "arrow",
     "arrowTip",
   ],
+  staticCss: [{ palette: [...PALETTES] }],
   variants: {
     /**
-     * How the row the reader is on is marked.
+     * Look of the highlighted row.
      */
     highlight: onSlots({
       item: highlightVariants(),
@@ -248,7 +223,7 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * Whether every row leaves the gutter a mark sits in, for a menu whose rows lead with an icon.
+     * Whether every row leaves the gutter a mark takes, for a menu whose rows lead with an icon.
      */
     inset: {
       true: {
@@ -258,18 +233,16 @@ export const recipe = defineSlotRecipe({
     },
 
     /**
-     * How much room a row takes, and how loud its words are.
+     * Palette of the rows and the highlight, set on the panel, which a portalled panel keeps.
+     */
+    palette: onSlot("content", paletteVariants()),
+
+    /**
+     * Size of the panel's padding, the rows, the marks and the keys.
      */
     size: onSlots({
       /**
-       * The room the panel keeps round its rows, and the same room given back to a submenu.
-       *
-       * @remarks
-       *   A submenu is placed against the row that opened it rather than against the panel that
-       *   row sits in, and the engine states the offset itself, so a caller cannot move it. The row
-       *   stops one inset short of the panel's edge, so the submenu began one inset inside the menu
-       *   it opened from and the two overlapped by exactly that much. The panel gives the inset
-       *   back on whichever side it opened towards.
+       * The panel's padding, and the margin that moves a submenu off its parent's panel.
        */
       content: sizeVariants(
         (size) => ({
@@ -280,12 +253,7 @@ export const recipe = defineSlotRecipe({
         SIZES,
       ),
       /**
-       * The mark that opens a submenu takes the square the mark of a checked row takes.
-       *
-       * @remarks
-       *   It stated no size at all, so its box was whatever the glyph a caller put in it came to.
-       *   Measured on the toolbar's menus: a 14-pixel glyph in a 12-pixel box, which overruns the
-       *   end of the row the mark is pinned to.
+       * The indicator at the icon size one size smaller, the same square as a checked row's mark.
        */
       indicator: sizeVariants((size) => ({ boxSize: dense(`{sizes.icon.${below(size)}}`) }), SIZES),
       item: sizeVariants((size) => rowOf(size), SIZES),
@@ -326,7 +294,8 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * How the panel is set off from the page behind it.
+     * Surface of the panel: the popover surface inside a hairline edge, the panel surface with a
+     * large shadow, or the glass layer style.
      */
     variant: {
       elevated: {

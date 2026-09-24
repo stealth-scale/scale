@@ -1,10 +1,10 @@
 /**
- * Draws the control that opens the menu.
+ * Renders the button that opens the menu.
  *
  * @remarks
- *   The machine gives it the button role, says whether the menu is open, and points it at the panel
- *   it opens. A caller naming a value turns it into one of several controls that share one menu,
- *   which the machine tracks so the panel is placed against whichever was pressed.
+ *   The machine sets `aria-haspopup`, `aria-expanded` and `aria-controls`. A trigger with a `value`
+ *   is one of several triggers that share one menu, and the machine places the panel against the
+ *   one that opened it.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,25 +15,25 @@ import { withContext } from "#menu/context.ts";
 import { useMenu } from "#menu/machine.ts";
 
 /**
- * Draws the control at the size the root states.
+ * Renders the `button` with the menu's trigger class.
  */
 const Pressed = withContext("button", "trigger");
 
 /**
- * Describes what the control takes.
+ * Describes the props of the trigger: its value and the props of a `button`.
  */
 export interface TriggerProps extends ComponentProps<typeof Pressed> {
   /**
-   * The value that identifies this control, for a menu opened from more than one.
+   * Value that identifies the trigger, for a menu opened from several.
    */
   readonly value?: string | undefined;
 }
 
 /**
- * Opens the menu.
+ * Renders the trigger with the machine's trigger props merged over the caller's.
  *
- * @param props - The name of this control, and everything a styled button takes.
- * @returns The control, carrying what the machine writes onto it.
+ * @param props - The trigger's value and the props of a `button`.
+ * @returns The `button` element.
  */
 export function Trigger({ value, ...rest }: TriggerProps): ReactElement {
   const { api } = useMenu();

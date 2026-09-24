@@ -20,10 +20,10 @@ import {
 const OUTERMOST: menu.Service | undefined = undefined;
 
 /**
- * Runs the machine and reports what it answers, so a case can read its state off the screen.
+ * Runs the machine and renders its state as text.
  *
- * @param props - The settings the machine is started with.
- * @returns The state, drawn as text.
+ * @param props - The machine settings.
+ * @returns The state as text.
  */
 function Running(props: MenuOptions): ReactElement {
   const [api, service] = useMenuMachine(props);
@@ -44,9 +44,9 @@ function Running(props: MenuOptions): ReactElement {
 }
 
 /**
- * Reads the running machine through the hook a part reads it through.
+ * Renders the open state and the highlighted value that `useMenu` returns.
  *
- * @returns Whether the rows are open, and the row the reader is on.
+ * @returns The state as text.
  */
 function Reader(): ReactElement {
   const { api } = useMenu();
@@ -57,7 +57,7 @@ function Reader(): ReactElement {
 }
 
 /**
- * Reads the row a provider above it states.
+ * Renders the value that `useMenuItem` returns.
  *
  * @returns The row's value.
  */
@@ -68,13 +68,13 @@ function Row(): ReactElement {
 }
 
 describe("splitMenuProps", () => {
-  it("takes the machine's settings out of what the root was handed", () => {
+  it("returns the machine's settings first", () => {
     const [options] = splitMenuProps({ closeOnSelect: false, loopFocus: true });
 
     expect(options).toStrictEqual({ closeOnSelect: false, loopFocus: true });
   });
 
-  it("leaves everything the element takes behind", () => {
+  it("returns the element's props second", () => {
     const [, rest] = splitMenuProps({ loopFocus: true, size: "lg" });
 
     expect(rest).toStrictEqual({ size: "lg" });
@@ -82,31 +82,31 @@ describe("splitMenuProps", () => {
 });
 
 describe("useMenuMachine", () => {
-  it("answers a running machine a part can read", async () => {
+  it("provides a running machine to the parts", async () => {
     await drawn(<Running defaultOpen />);
 
     expect(screen.getByTestId("state").textContent).toBe("open none");
   });
 
-  it("starts shut where a caller says nothing", async () => {
+  it("starts closed by default", async () => {
     await drawn(<Running />);
 
     expect(screen.getByTestId("state").textContent).toBe("shut none");
   });
 
-  it("starts on the row a caller names", async () => {
+  it("starts on the defaultHighlightedValue row", async () => {
     await drawn(<Running defaultHighlightedValue="rename" defaultOpen />);
 
     expect(screen.getByTestId("state").textContent).toBe("open rename");
   });
 
-  it("keeps the machine's own default where a caller hands over nothing for it", async () => {
+  it("keeps the machine's default for an undefined setting", async () => {
     await drawn(<Running closeOnSelect={undefined} defaultOpen />);
 
     expect(screen.getByTestId("state").textContent).toBe("open none");
   });
 
-  it("passes every setting the machine defaults through where a caller names them", async () => {
+  it("passes a caller's settings to the machine", async () => {
     await drawn(<Running closeOnSelect={false} defaultOpen loopFocus typeahead={false} />);
 
     expect(screen.getByTestId("state").textContent).toBe("open none");
@@ -114,7 +114,7 @@ describe("useMenuMachine", () => {
 });
 
 describe("useMenuItem", () => {
-  it("hands the row below it the value the row was named with", async () => {
+  it("provides the row's value to a part below it", async () => {
     await drawn(
       <ItemProvider value={{ value: "rename" }}>
         <Row />

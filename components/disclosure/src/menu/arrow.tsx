@@ -1,10 +1,9 @@
 /**
- * Draws the point between the panel and the control it opened from.
+ * Renders the element the machine positions against the panel's edge for the arrow.
  *
  * @remarks
- *   The machine places it against whichever side the panel was put on and sizes it from the custom
- *   property the recipe sets. It holds the tip, which is the rotated square that carries the fill
- *   and the edge, because a point drawn as one element cannot carry an edge on two sides alone.
+ *   The machine places it on the side the panel opened on and sizes it from `--arrow-size`. The
+ *   tip inside it is the rotated square, because one element cannot draw an edge on two sides.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,20 +14,20 @@ import { withContext } from "#menu/context.ts";
 import { useMenu } from "#menu/machine.ts";
 
 /**
- * Draws the point at the size the root states.
+ * Renders the `div` with the menu's arrow class.
  */
 const Pointed = withContext("div", "arrow");
 
 /**
- * Describes what the point takes.
+ * Describes the props of the arrow: the props of a `div`.
  */
 export type ArrowProps = ComponentProps<typeof Pointed>;
 
 /**
- * Points from the panel back at the control.
+ * Renders the arrow with the machine's arrow props merged over the caller's.
  *
- * @param props - Everything a styled div takes.
- * @returns The point, carrying the place the machine measured.
+ * @param props - The props of a `div`.
+ * @returns The `div` element.
  */
 export function Arrow(props: ArrowProps): ReactElement {
   const { api } = useMenu();
