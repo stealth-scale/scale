@@ -1,5 +1,5 @@
 ---
-"@stealthscale/component-disclosure": patch
+"@stealthscale/component-disclosure": minor
 ---
 
 component-disclosure: read the theme's stroke widths
@@ -90,3 +90,40 @@ component-disclosure: import omitUndefined from the hooks package
 
 - The collapsible, menu, popover, tabs and tooltip machines take `omitUndefined` from
   `@stealthscale/hooks`. The package's private copy, `stated`, is removed.
+
+component-disclosure: take a palette on the collapsible
+
+- Breaking: `Collapsible.Root` takes `palette`, the eight semantic palettes, in place of `status`.
+  Replace `status="warning"` with `palette="warning"`. The default is `neutral`, as before.
+- The collapsible has no `effect` axis. Its box holds content as well as the trigger.
+
+component-disclosure: add a palette axis to the tabs
+
+- `Tabs.Root` takes `palette`, over the eight palettes. The line indicator, the subtle indicator and
+  the selected tab's text read it. Every palette is emitted.
+- The tabs have no `effect` axis. The indicator moves on every selection.
+- Breaking: `Tabs.Root` no longer takes `translations`. Pass the list's name as `aria-label` on
+  `Tabs.List`.
+
+component-disclosure: document the tooltip's parts
+
+- The README's Tooltip section gains a parts table. The tooltip has no `palette` axis, because both
+  looks use neutral surfaces, and no `effect` axis, because it is not a control.
+
+component-disclosure: take the popover's close label as a prop
+
+- Breaking: `Popover.Root` no longer takes `translations`. Pass the close trigger's name as
+  `aria-label` on `Popover.CloseTrigger`. Without one the machine names it "close".
+- The README's Popover section gains a parts table. The popover has no `palette` axis, because every
+  look uses a neutral surface, and no `effect` axis, because a panel is not a control.
+
+component-disclosure: add a palette axis to the menu
+
+- `Menu.Root` takes `palette`, over the eight palettes, and sets it on the panel. Every row, the
+  highlight and every submenu inherit it, and a critical row keeps the error palette. The default is
+  `neutral`, which every row set before. Every palette is emitted.
+- The menu has no `effect` axis. The highlight moves with the pointer and the arrow keys, and a glow
+  would move with it.
+- The README's Menu section gains a parts table. It no longer lists `anchorPoint`, which the
+  machine's types declare and the machine never reads, and it gives the panel's minimum width as
+  `sizes.44`.
