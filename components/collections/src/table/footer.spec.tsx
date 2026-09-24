@@ -12,7 +12,7 @@ import { type ScrollerProps } from "#table/scroller.tsx";
 import { composed, scrolled } from "#table/table.fixtures.tsx";
 
 describe("Footer", () => {
-  it("draws a tfoot inside the table it needs above it", () => {
+  it("renders a tfoot", () => {
     const { container } = render(
       scrolled(
         <Root>
@@ -28,7 +28,7 @@ describe("Footer", () => {
     expect(slotElement(container, "table", "footer").tagName).toBe("TFOOT");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(recipe, (props: ScrollerProps) => render(composed(props)).container, {
         slot: "footer",

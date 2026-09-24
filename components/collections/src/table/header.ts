@@ -1,9 +1,9 @@
 /**
- * Draws the band of column names.
+ * Renders the group of header rows.
  *
  * @remarks
- *   The element is `thead`. Set `stickyHeader` on the scroller and the band's row stays put while
- *   the body scrolls under it, drawn on the panel surface so the rows do not read through it.
+ *   The element is a `thead`. With `stickyHeader` its rows stick to the top of the scroller on
+ *   the panel fill.
  */
 
 import { type ComponentProps } from "react";
@@ -11,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#table/context.ts";
 
 /**
- * Opens the table with its row of column names.
+ * Renders the `thead` with the table's header class.
  */
 export const Header = withContext("thead", "header");
 
 /**
- * Describes what the band takes: everything a styled thead takes.
+ * Describes the props of the header: the props of a `thead`.
  */
 export type HeaderProps = ComponentProps<typeof Header>;

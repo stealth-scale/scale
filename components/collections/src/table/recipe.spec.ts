@@ -23,11 +23,11 @@ const PARTS = [
 ];
 
 describe("recipe", () => {
-  it("covers every variant axis in the scenes of its specimen page", () => {
+  it("covers every axis in the scenes of its specimen", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+  it("leaves no scene naming a value the recipe lacks", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
@@ -44,16 +44,23 @@ describe("recipe", () => {
     expect(recipe.className).toBe("table");
   });
 
+  it("fills a selected row with Highlight in forced colours", () => {
+    expect(recipe.base?.["row"]).toMatchObject({
+      _selected: { _highContrast: { background: "Highlight", color: "HighlightText" } },
+    });
+  });
+
   it("declares thirteen slots in markup order", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
   });
 
-  it("declares eleven variant axes", () => {
+  it("declares twelve axes", () => {
     expect(axesOf(recipe)).toStrictEqual([
       "align",
       "banded",
       "interactive",
       "layout",
+      "palette",
       "radius",
       "rules",
       "size",
@@ -75,6 +82,18 @@ describe("recipe", () => {
     });
   });
 
+  it("sets the palette on the scroller", () => {
+    expect(recipe.variants?.["palette"]?.["info"]).toStrictEqual({
+      scroller: { colorPalette: "info" },
+    });
+  });
+
+  it("emits every palette", () => {
+    expect(recipe.staticCss).toContainEqual({
+      palette: ["primary", "secondary", "accent", "neutral", "info", "success", "warning", "error"],
+    });
+  });
+
   it("fills the column headers with bg.subtle when banded is true", () => {
     expect(recipe.variants?.["banded"]?.["true"]).toStrictEqual({
       columnHeader: {
@@ -89,10 +108,16 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual(["plain", "surface"]);
   });
 
-  it("sets bg.panel and the sm shadow on the scroller for the surface variant", () => {
+  it("renders the surface scroller on bg.panel inside a hairline edge", () => {
     expect(recipe.variants?.["variant"]?.["surface"]?.["scroller"]).toMatchObject({
       background: "bg.panel",
-      boxShadow: "sm",
+      borderWidth: "hairline",
+    });
+  });
+
+  it("casts no shadow from the surface scroller", () => {
+    expect(recipe.variants?.["variant"]?.["surface"]?.["scroller"]).toMatchObject({
+      boxShadow: "none",
     });
   });
 

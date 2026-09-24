@@ -9,13 +9,13 @@ import { type ScrollerProps } from "#table/scroller.tsx";
 import { composed, rowed } from "#table/table.fixtures.tsx";
 
 describe("RowHeader", () => {
-  it("draws a th inside the table it needs above it", () => {
+  it("renders a th", () => {
     const { container } = render(rowed(<RowHeader>Fathom</RowHeader>));
 
     expect(slotElement(container, "table", "rowHeader").tagName).toBe("TH");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(recipe, (props: ScrollerProps) => render(composed(props)).container, {
         slot: "rowHeader",
@@ -23,13 +23,13 @@ describe("RowHeader", () => {
     ).toStrictEqual([]);
   });
 
-  it("names the cells across it rather than the ones under it", () => {
+  it("sets scope to row", () => {
     const { container } = render(rowed(<RowHeader>Fathom</RowHeader>));
 
     expect(slotElement(container, "table", "rowHeader").getAttribute("scope")).toBe("row");
   });
 
-  it("is read as a row header", () => {
+  it("renders the element with the rowheader role", () => {
     render(rowed(<RowHeader>Fathom</RowHeader>));
 
     expect(screen.getByRole("rowheader", { name: "Fathom" })).toBeDefined();

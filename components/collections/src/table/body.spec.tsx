@@ -12,7 +12,7 @@ import { type ScrollerProps } from "#table/scroller.tsx";
 import { composed, scrolled } from "#table/table.fixtures.tsx";
 
 describe("Body", () => {
-  it("draws a tbody inside the table it needs above it", () => {
+  it("renders a tbody", () => {
     const { container } = render(
       scrolled(
         <Root>
@@ -28,7 +28,7 @@ describe("Body", () => {
     expect(slotElement(container, "table", "body").tagName).toBe("TBODY");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(recipe, (props: ScrollerProps) => render(composed(props)).container, {
         slot: "body",

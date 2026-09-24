@@ -1,10 +1,8 @@
 /**
- * Draws one row of the table.
+ * Renders one row.
  *
  * @remarks
- *   The element is `tr`. A row a caller has picked states `aria-selected`, which the recipe's
- *   selected styling reads and a screen reader reads too. That is one attribute rather than two
- *   things able to disagree.
+ *   The element is a `tr`. A row with `aria-selected="true"` fills with the palette's subtle fill.
  */
 
 import { type ComponentProps } from "react";
@@ -12,11 +10,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#table/context.ts";
 
 /**
- * Draws one line of cells.
+ * Renders the `tr` with the table's row class.
  */
 export const Row = withContext("tr", "row");
 
 /**
- * Describes what the row takes: everything a styled tr takes.
+ * Describes the props of a row: the props of a `tr`.
  */
 export type RowProps = ComponentProps<typeof Row>;

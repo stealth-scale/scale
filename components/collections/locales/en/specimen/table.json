@@ -1,84 +1,94 @@
 {
-  "about": "Draws a table of records.",
+  "about": "Renders a table of records, with a caption, column and row headers, and a total row.",
   "account": "Account",
   "align": {
-    "about": "Where a cell's words sit against a row taller than one line. It tells nothing apart on a table of single lines, so this one carries a note that wraps.",
+    "about": "Vertical alignment of a cell in a row taller than one line. The notes wrap, so each value shows.",
     "title": "Alignment"
   },
+  "amount": "Amount",
   "banded": {
-    "about": "The column names on a fill of their own. Worth turning on for a reference rather than for a table of figures, and worth it above all on a page of a dozen tables one under another, where the fill is what tells a reader where one ends and the next begins.",
-    "title": "Banded names"
+    "about": "Column headers on `bg.subtle`, in capitals. Use it where several tables follow one another, so the reader sees where each table starts.",
+    "title": "Banded headers"
   },
   "bridge": "Bridge Ledger",
   "bridgeNote": "Held for a customs count, released on the second of the month",
+  "byMonth": "Payouts by month",
   "caption": "Payouts raised this quarter",
-  "due": "Due",
-  "gathered": {
-    "about": "Rows gathered into a section per heading, and a table holding nothing at all. A section is a `tbody` of its own and its heading states `rowgroup` as its scope, so the rows under it answer to it rather than the columns.",
-    "none": "holding nothing",
-    "of": "gathered into sections",
-    "title": "Sections and an empty table"
+  "empty": {
+    "about": "A table with no rows renders the `empty` content in one full-width cell.",
+    "title": "An empty table"
   },
   "halden": "Halden & Co",
   "haldenNote": "Settles nightly",
+  "held": "Held",
   "interactive": {
-    "about": "Rows that answer a pointer, for a table whose rows lead somewhere. A row that lights under the pointer and leads nowhere is a row a reader tries to press.",
-    "title": "Rows that respond"
+    "about": "Body rows that fill under the pointer and while a link inside them has focus. The second row shows the fill.",
+    "title": "Interactive rows"
   },
   "layout": {
-    "about": "Columns sized to their contents, and columns sharing the width evenly. A fixed layout is what a table needs before its columns can be held still while it scrolls.",
+    "about": "Columns sized to their content, and columns sized from declared widths. An auto table shrinks its columns to fit the scroller, so a table that scrolls sideways declares its widths.",
     "title": "Layouts"
   },
   "month": "Month",
-  "nothing": "No payouts to show",
   "note": "Note",
+  "nothing": "No payouts to show",
+  "palette": {
+    "about": "Every palette, on an interactive table. The second row shows the palette's fill.",
+    "title": "Palettes"
+  },
   "perrin": "Perrin Freight",
   "perrinNote": "Queued behind a failed run",
   "quarters": {
-    "about": "A name that spans the columns under it, over a second row naming each one. A spanning name states `colgroup` as its scope rather than `col`, which is what tells a screen reader that every column beneath answers to it.",
-    "title": "Names that span columns"
+    "about": "A header that spans the columns under it, over a row of month headers. A spanning header states `scope=\"colgroup\"`, so a screen reader reads it with each column under it.",
+    "title": "Headers that span columns"
   },
+  "queued": "Queued",
   "radius": {
-    "about": "Every corner of the surface a table sits on.",
+    "about": "Every corner radius of the scroller.",
     "title": "Corners"
   },
   "rules": {
-    "about": "The rules a table is drawn with: between the rows, between the columns as well, or none at all. The rule under the column names is drawn whichever way the rest are.",
+    "about": "Rules between rows, between rows and columns, or none. The rule under the headers and the rule over the total render in every value.",
     "title": "Rules"
   },
-  "settled": "Settled",
-  "held": "Held",
-  "queued": "Queued",
-  "striped": {
-    "about": "Every other row tinted, which helps an eye track across a wide table and fights the hover on a narrow one.",
-    "title": "Striped rows"
-  },
   "runs": {
-    "about": "A name that spans the rows under it, for a table of several records per account. A spanning name states `rowgroup` as its scope, and the rule between the groups is what a reader counts by.",
-    "title": "Names that span rows"
+    "about": "A row header that spans the rows of one account. It states `scope=\"rowgroup\"`, and each account is a `tbody` of its own.",
+    "title": "Headers that span rows"
   },
-  "sortAmount": "Sort by amount",
+  "sections": {
+    "about": "Rows grouped into a `tbody` per state by `groupBy`. Each section's heading states `scope=\"rowgroup\"`.",
+    "title": "Sections"
+  },
+  "settled": "Settled",
+  "size": {
+    "about": "Every size in both looks.",
+    "title": "Sizes and looks"
+  },
+  "sortByAccount": "Sort by account",
+  "sortByAmount": "Sort by amount",
+  "sorting": {
+    "about": "Columns that sort on a press of their names. The table reports the press, and the caller sorts the rows. A sorted column's header states `aria-sort`, and the arrow is part of the column's label.",
+    "title": "Sorting"
+  },
   "state": "State",
   "stickyBoth": {
-    "about": "Both held at once. The corner cell sits at the crossing of the two and is held in each direction, so it covers whatever passes under it rather than letting the two scrolls meet in it.",
-    "title": "Both held at once"
+    "about": "Sticky header rows and a sticky first column, scrolled both ways. The corner cell renders above both.",
+    "title": "Sticky header and column"
   },
   "stickyColumn": {
-    "about": "A table wider than its box, with each week's own name held as the figures scroll sideways. A reader who has scrolled to September still knows which week they are reading.",
-    "title": "The first column held"
+    "about": "A table wider than its scroller, scrolled sideways. The week names stay at the start.",
+    "title": "Sticky first column"
   },
   "stickyHeader": {
-    "about": "A table longer than its box, with the column names held as the figures scroll under them. The box is held to a height and the table is laid out fixed: a header sticks within the box that scrolls, so there has to be a height before there is anything to stick to.",
-    "title": "The column names held"
+    "about": "A table taller than its scroller, scrolled down two rows. The column headers stay at the top. The scroller needs a maximum height.",
+    "title": "Sticky header"
   },
-  "amount": "Amount",
+  "striped": {
+    "about": "Every odd body row on `bg.muted`.",
+    "title": "Striped rows"
+  },
   "title": "Table",
-  "variant": {
-    "about": "Both looks at every size. A table is read rather than looked at, so the size is the decision that matters most.",
-    "title": "Looks and sizes"
-  },
-  "week": "Week",
-  "weekAt": "Week {{at}}",
   "total": "Total",
-  "totals": "Total"
+  "week": "Week",
+  "weekAt": "Week {{at}}"
 }

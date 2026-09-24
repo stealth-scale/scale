@@ -10,7 +10,7 @@ import { type ScrollerProps } from "#table/scroller.tsx";
 import { composed, scrolled } from "#table/table.fixtures.tsx";
 
 describe("Caption", () => {
-  it("draws a caption inside the table it needs above it", () => {
+  it("renders a caption", () => {
     const { container } = render(
       scrolled(
         <Root>
@@ -22,7 +22,7 @@ describe("Caption", () => {
     expect(slotElement(container, "table", "caption").tagName).toBe("CAPTION");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(recipe, (props: ScrollerProps) => render(composed(props)).container, {
         slot: "caption",
@@ -30,7 +30,7 @@ describe("Caption", () => {
     ).toStrictEqual([]);
   });
 
-  it("sits below the figures a reader returns to it about", () => {
+  it("sets caption-side to bottom", () => {
     expect(recipe.base?.["caption"]).toMatchObject({ captionSide: "bottom" });
   });
 });

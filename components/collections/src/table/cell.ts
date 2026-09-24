@@ -1,11 +1,9 @@
 /**
- * Draws one cell of the table.
+ * Renders one data cell.
  *
  * @remarks
- *   The element is `td`. A cell of figures states `data-numeric`, which right-aligns it and sets
- *   it in tabular figures, so a column of numbers lines up at the decimal point and an eye reads
- *   down it. The attribute is a prop rather than an axis, because a slot recipe resolves its
- *   variants once at the root and a per-column switch cannot be one.
+ *   The element is a `td`. A cell with `data-numeric` aligns to the end in tabular figures, so a
+ *   column of figures aligns on the decimal point.
  */
 
 import { type ComponentProps } from "react";
@@ -13,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#table/context.ts";
 
 /**
- * Draws one figure of a row.
+ * Renders the `td` with the table's cell class.
  */
 export const Cell = withContext("td", "cell");
 
 /**
- * Describes what the cell takes: everything a styled td takes.
+ * Describes the props of a cell: the props of a `td`.
  */
 export type CellProps = ComponentProps<typeof Cell>;

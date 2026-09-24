@@ -11,11 +11,12 @@ import { Scroller, type ScrollerProps } from "#table/scroller.tsx";
 import { composed } from "#table/table.fixtures.tsx";
 
 /**
- * Says every box holds more across than it can show, and reports how to stop saying it.
+ * Sets every element's `clientWidth` to 100 and `scrollWidth` to 300, and returns the function
+ * that restores them.
  *
  * @remarks
- *   Stated on the prototype rather than on one element, because the box measures itself as it is
- *   drawn and a document with no layout reports every measure as nothing.
+ *   Happy-dom has no layout, so the case states the widths on the prototype before the scroller
+ *   measures itself.
  */
 function widened(): () => void {
   const held = { clientWidth: 100, scrollWidth: 300 };
@@ -36,11 +37,11 @@ describe("Scroller", () => {
     expect(violations(Scroller, { as: true, children: true, element: "DIV" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule holding a whole table", async () => {
+  it("returns no accessibility violation for a whole table", async () => {
     await expect(accessibilityViolations(() => composed())).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(recipe, (props: ScrollerProps) => render(composed(props)).container, {
         slot: "scroller",
@@ -48,13 +49,13 @@ describe("Scroller", () => {
     ).toStrictEqual([]);
   });
 
-  it("takes no tab stop while the whole table fits", () => {
+  it("sets no tabindex while the table fits", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "table", "scroller").getAttribute("tabindex")).toBeNull();
   });
 
-  it("is reachable by a keyboard once the table runs past it", () => {
+  it("sets tabindex 0 while the table overflows", () => {
     const narrowed = widened();
 
     try {
@@ -66,13 +67,13 @@ describe("Scroller", () => {
     }
   });
 
-  it("stands as no landmark while the whole table fits", () => {
+  it("sets no role while the table fits", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "table", "scroller").getAttribute("role")).toBeNull();
   });
 
-  it("stands as a region once the table runs past it", () => {
+  it("renders a region named by the caption while the table overflows", () => {
     const narrowed = widened();
 
     try {
@@ -84,7 +85,7 @@ describe("Scroller", () => {
     }
   });
 
-  it("hands the box back through a ref a caller passes as a function", () => {
+  it("passes the element to a callback ref", () => {
     let held: HTMLDivElement | null = null;
 
     render(
@@ -98,7 +99,7 @@ describe("Scroller", () => {
     expect((held as HTMLDivElement | null)?.tagName).toBe("DIV");
   });
 
-  it("hands the box back through a ref a caller passes as an object", () => {
+  it("passes the element to an object ref", () => {
     const held = createRef<HTMLDivElement>();
 
     render(composed({ ref: held }));
@@ -106,7 +107,7 @@ describe("Scroller", () => {
     expect(held.current?.tagName).toBe("DIV");
   });
 
-  it("takes the name the caption gives it", () => {
+  it("passes aria-labelledby to the element", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "table", "scroller").getAttribute("aria-labelledby")).toBe(
@@ -114,7 +115,7 @@ describe("Scroller", () => {
     );
   });
 
-  it("draws the element as names", () => {
+  it("renders the element as names", () => {
     const { container } = render(composed({ as: "section" }));
 
     expect(slotElement(container, "table", "scroller").tagName).toBe("SECTION");

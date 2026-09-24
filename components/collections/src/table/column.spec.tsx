@@ -11,7 +11,7 @@ import { type ScrollerProps } from "#table/scroller.tsx";
 import { composed, scrolled } from "#table/table.fixtures.tsx";
 
 describe("Column", () => {
-  it("draws a col inside the group it needs above it", () => {
+  it("renders a col", () => {
     const { container } = render(
       scrolled(
         <Root>
@@ -25,7 +25,7 @@ describe("Column", () => {
     expect(slotElement(container, "table", "column").tagName).toBe("COL");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(recipe, (props: ScrollerProps) => render(composed(props)).container, {
         slot: "column",
@@ -33,7 +33,7 @@ describe("Column", () => {
     ).toStrictEqual([]);
   });
 
-  it("states a width the columns take rather than the first row's cells", () => {
+  it("passes span to the element", () => {
     const { container } = render(
       scrolled(
         <Root>

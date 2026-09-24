@@ -1,23 +1,14 @@
 /**
- * Draws the box a table too wide for the page scrolls inside.
+ * Renders the scroll container around a table, and receives the recipe's variants.
  *
  * @remarks
- *   A region a pointer can scroll has to be reachable by a keyboard. WCAG 2.1.1 fails a table a
- *   pointer can scroll and a keyboard cannot, and it is the failure a table component is most often
- *   reported for. The tab stop appears only while there is something to scroll. A box that always
- *   took one put a stop on every table on a page whether or not the stop went anywhere, and a stop
- *   that does nothing is one a reader presses through on the way to what they wanted. The box is
- *   measured again as it resizes, as its rows change and once the fonts have loaded, so the stop
- *   goes when a wider window makes the table fit. Name it. A focusable box with no name is
- *   announced as nothing at all, so point `aria-labelledby` at the caption's `id` or state
- *   `aria-label`.
- *   The stop is drawn with `role="region"`, which is what the WAI-ARIA practices ask of a
- *   scrollable region and what gives the stop something a screen reader can announce on arrival. A
- *   focusable `div` with a name and no role is announced as the name and nothing else. The role
- *   goes on and off with the stop rather than being stated once, because a landmark on every table
- *   of a page is a landmark list nobody can move through.
- *   The scroller states the variants, not the table, because the look of the edge and the corner
- *   belong to the box that clips them.
+ *   WCAG 2.1.1 requires a keyboard to reach a region a pointer can scroll. While the table
+ *   overflows, the scroller takes `tabIndex={0}` and `role="region"`, the pattern the WAI-ARIA
+ *   practices give for a scrollable region. While it fits it takes neither, so a page of tables
+ *   has no empty tab stops and no extra landmarks. The scroller measures its overflow again on
+ *   resize, on a change of rows and after the fonts load. Name it with `aria-labelledby` pointing
+ *   at the caption, or with `aria-label`. The scroller receives the variants, because the edge and
+ *   the corners belong to the element that clips them.
  */
 
 import { type ComponentProps, type ReactElement, type Ref, useCallback, useRef } from "react";
@@ -27,17 +18,17 @@ import { useIsOverflowing } from "@stealthscale/hooks";
 import { withProvider } from "#table/context.ts";
 
 /**
- * Scrolls the table sideways, and states the variants every part reads.
+ * Renders the `div` with the recipe's variants.
  */
 const Box = withProvider("div", "scroller");
 
 /**
- * Describes what the box takes: the recipe's variants, and everything a styled div takes.
+ * Describes the props of the scroller: the recipe's variants and the props of a `div`.
  */
 export type ScrollerProps = ComponentProps<typeof Box>;
 
 /**
- * Fills a caller's ref with whatever an element was drawn as, whichever kind of ref it is.
+ * Assigns a node to a callback ref or an object ref.
  */
 function filled(ref: Ref<HTMLDivElement> | undefined, node: HTMLDivElement | null): void {
   if (typeof ref === "function") ref(node);
@@ -45,10 +36,10 @@ function filled(ref: Ref<HTMLDivElement> | undefined, node: HTMLDivElement | nul
 }
 
 /**
- * Scrolls the table, and takes a tab stop while there is something to scroll.
+ * Renders the scroller, focusable with the region role while the table overflows it.
  *
- * @param props - The recipe's variants, and everything a styled div takes.
- * @returns The box, focusable where it scrolls.
+ * @param props - The recipe's variants and the props of a `div`.
+ * @returns The `div` element.
  */
 export function Scroller({ ref, ...rest }: ScrollerProps): ReactElement {
   const held = useRef<HTMLDivElement | null>(null);
