@@ -333,9 +333,11 @@ import { Switcher } from "@stealthscale/component-screen";
   announces `Workspace Acme`, and the visible name stays in the accessible name.
 - `Switcher.Root` passes its `size` to the menu, so the rows render at the control's size, and
   passes the menu's own props, `palette` among them, to `Menu.Root`.
-- The menu is as wide as its rows and at least `sizes.44` wide, whatever the control's width.
-- `placement="sidebar"` fills the column. `placement="toolbar"` is as wide as its words and hides
-  the detail. Render the trigger through `Toolbar.Item`, so it is one of the row's arrow-key stops:
+- `placement="sidebar"` fills the column and opens a menu as wide as the control, through the
+  machine's `positioning.sameWidth`. A caller's `positioning` applies over it.
+- `placement="toolbar"` is as wide as its words and hides the detail. Its menu is at least
+  `sizes.44` wide and grows to its widest row. Render the trigger through `Toolbar.Item`, so it is
+  one of the row's arrow-key stops:
 
 ```tsx
 <Switcher.Root placement="toolbar">
@@ -351,7 +353,7 @@ import { Switcher } from "@stealthscale/component-screen";
 - The switcher has no `palette` and no `effect` axis. The control is neutral, and the menu takes its
   own `palette`.
 - Render the positioner in a `Portal` when the switcher is inside an element that clips, such as an
-  app shell panel.
+  app shell panel, so the menu renders over the page.
 
 ## Toolbar
 

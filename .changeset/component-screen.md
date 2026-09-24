@@ -266,3 +266,15 @@ component-screen: correct the README
   control.
 - The sidebar section documents `Sidebar.NavHeading`, `Sidebar.NavAction`, `Sidebar.Empty` and the
   `aria-label` precedence.
+
+component-screen: fill the sidebar's band with its search
+
+- `Sidebar.Search` takes `inlineSize: full` and `minInlineSize: 0`, so the field is as wide as the
+  band it is placed in. A search in `Sidebar.Header` rendered at its content's width.
+
+component-screen: open the sidebar switcher's menu at the control's width
+
+- `Switcher.Root` passes `positioning.sameWidth` to the menu when `placement` is `sidebar`, so the
+  menu is as wide as the control: 320px under a 320px control, where it measured 176px. A caller's
+  `positioning` applies over it.
+- In a toolbar the menu keeps its own width, at least `sizes.44` and as wide as its widest row.
