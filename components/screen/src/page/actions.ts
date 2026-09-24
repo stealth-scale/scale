@@ -1,9 +1,9 @@
 /**
- * Draws the controls that act on the page.
+ * Renders the row of controls at the end of the title's row.
  *
  * @remarks
- *   They keep the end of the title's row at every width and never wrap under it. A control inside
- *   states its own priority, and the page's folding rules decide which survive a narrow row.
+ *   The row keeps the end of the title's row at every width and does not wrap. Each control sets
+ *   its own priority, and the page's folding rules decide which controls a folded page keeps.
  */
 
 import { type ComponentProps } from "react";
@@ -11,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#page/context.ts";
 
 /**
- * Draws the controls at the room the column states.
+ * Renders the `div` with the recipe's actions class.
  */
 export const Actions = withContext("div", "actions");
 
 /**
- * Describes what the actions take.
+ * Describes the props of the actions row: the props of a `div`.
  */
 export type ActionsProps = ComponentProps<typeof Actions>;

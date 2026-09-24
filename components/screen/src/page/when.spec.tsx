@@ -5,11 +5,11 @@ import { PageProvider } from "#page/state.ts";
 import { When } from "#page/when.ts";
 
 /**
- * Draws a switch under a page of the width a case names.
+ * Renders a switch inside a page state of the given width.
  *
  * @param narrow - Whether the page has folded.
- * @param when - The width the parts are drawn at.
- * @returns The switch, under a page of that width.
+ * @param when - The width at which the children render.
+ * @returns The switch inside the page provider.
  */
 function under(narrow: boolean, when?: "narrow" | "wide"): React.ReactElement {
   return (
@@ -22,31 +22,31 @@ function under(narrow: boolean, when?: "narrow" | "wide"): React.ReactElement {
 }
 
 describe("When", () => {
-  it("draws its parts at every width where it names none", () => {
+  it("renders its children at every width without when", () => {
     render(under(false));
 
     expect(screen.getByText("Invoices")).toBeTruthy();
   });
 
-  it("draws a narrow part on a folded page", () => {
+  it("renders a narrow part on a folded page", () => {
     render(under(true, "narrow"));
 
     expect(screen.getByText("Invoices")).toBeTruthy();
   });
 
-  it("takes a narrow part out of a page that has not folded", () => {
+  it("removes a narrow part from an unfolded page", () => {
     render(under(false, "narrow"));
 
     expect(screen.queryByText("Invoices")).toBeNull();
   });
 
-  it("takes a wide part out of a folded page", () => {
+  it("removes a wide part from a folded page", () => {
     render(under(true, "wide"));
 
     expect(screen.queryByText("Invoices")).toBeNull();
   });
 
-  it("draws no element of its own", () => {
+  it("renders no element of its own", () => {
     const { container } = render(under(false));
 
     expect(container.firstElementChild?.tagName).toBe("SPAN");

@@ -7,31 +7,31 @@ import { Action } from "#page/action.tsx";
 import { paged } from "#page/page.fixtures.tsx";
 
 describe("Action", () => {
-  it("draws a button inside the column it needs above it", () => {
+  it("renders a button", () => {
     render(paged(<Action>Download</Action>));
 
     expect(screen.getByRole("button", { name: "Download" })).toBeTruthy();
   });
 
-  it("says it submits nothing, so a control inside a form does not", () => {
+  it("sets type button", () => {
     render(paged(<Action>Download</Action>));
 
     expect(screen.getByRole("button").getAttribute("type")).toBe("button");
   });
 
-  it("keeps its words at every width where nothing says otherwise", () => {
+  it("defaults data-priority to primary", () => {
     const { container } = render(paged(<Action>Download</Action>));
 
     expect(slotElement(container, "page", "action").dataset["priority"]).toBe("primary");
   });
 
-  it("gives way in the order the priority states", () => {
+  it("sets data-priority to its priority", () => {
     const { container } = render(paged(<Action priority="tertiary">Archive</Action>));
 
     expect(slotElement(container, "page", "action").dataset["priority"]).toBe("tertiary");
   });
 
-  it("lets each control in a row say for itself", () => {
+  it("sets each action's own priority", () => {
     render(
       paged(
         <>

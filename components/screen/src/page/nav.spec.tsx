@@ -7,19 +7,19 @@ import { Nav } from "#page/nav.tsx";
 import { paged } from "#page/page.fixtures.tsx";
 
 describe("Nav", () => {
-  it("draws a navigation inside the column it needs above it", () => {
+  it("renders a nav", () => {
     const { container } = render(paged(<Nav aria-label="Invoice">Lines</Nav>));
 
     expect(slotElement(container, "page", "nav").tagName).toBe("NAV");
   });
 
-  it("is a landmark a reader can name and jump to", () => {
+  it("sets role navigation named by aria-label", () => {
     render(paged(<Nav aria-label="Invoice">Lines</Nav>));
 
     expect(screen.getByRole("navigation", { name: "Invoice" })).toBeTruthy();
   });
 
-  it("stays put where a caller asks", () => {
+  it("sets data-sticky when sticky", () => {
     const { container } = render(
       paged(
         <Nav aria-label="Invoice" sticky>

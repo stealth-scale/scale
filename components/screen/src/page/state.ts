@@ -1,66 +1,64 @@
 /**
- * Carries what a page knows about itself down to its parts and to whatever it holds.
+ * Provides the page's size and measured width to its parts and to the sections in it.
  *
  * @remarks
- *   A section inside a page reads its size from here rather than being told, so a page set to `lg`
- *   is a page whose sections are `lg` and a caller states the size once.
- *   The width is here too, because a part that is drawn at one width only has to know which width
- *   the page is at, and the page is the only thing that measured it.
+ *   A section in a page reads its size from here, so one size on `Page.Root` sets every section.
+ *   A part rendered at one width reads the page's measured width from here.
  */
 
 import { createRequiredContext } from "@stealthscale/hooks";
 
 /**
- * Selects how large a page draws what names it.
+ * Size of a page.
  */
 export type PageSize = "lg" | "md" | "sm";
 
 /**
- * Selects which width a part is drawn at.
+ * Width at which a part renders.
  */
 export type PageWidth = "narrow" | "wide";
 
 /**
- * Describes what a page hands down.
+ * Describes the state a page provides.
  */
 export interface PageState {
   /**
-   * Whether the page is too narrow for a header laid out in one row.
+   * Whether the page is narrower than the `md` breakpoint.
    */
   narrow: boolean;
 
   /**
-   * How large the page draws its title, its description and what acts on it.
+   * Size of the title, the description and the actions.
    */
   size: PageSize;
 }
 
 /**
- * Hands the page's state down, and reads it back.
+ * Creates the context through which the root provides the page state.
  */
 export const [PageProvider, usePage, useOptionalPage] = createRequiredContext<PageState>("Page");
 
 /**
- * Describes what any part drawn at one width only takes.
+ * Describes the props of a part rendered at one width.
  */
 export interface WhenProps {
   /**
-   * The width to draw the part at. `narrow` draws it on a folded page alone and `wide` drops it
-   * there, which is how a full trail of crumbs is swapped for a single way back. Left out, the
-   * part is drawn at every width.
+   * Width at which the part renders. `narrow` renders it on a folded page alone, and `wide` on an
+   * unfolded page alone, which swaps a full trail for a single link back. Without it, the part
+   * renders at every width.
    */
   readonly when?: PageWidth | undefined;
 }
 
 /**
- * Answers whether a part drawn at one width only is drawn at this one.
+ * Returns whether a part rendered at one width renders at the page's current width.
  *
  * @remarks
- *   The width is the page's own measurement rather than the window's, so a part inside a page
- *   beside an open sidebar is swapped on the room the page has.
- * @param when - The width the part is drawn at, or nothing for every width.
+ *   The width is the page's own measurement, so a part in a page beside an open sidebar swaps on
+ *   the page's room.
+ * @param when - The width at which the part renders, or nothing for every width.
  * @param narrow - Whether the page has folded.
- * @returns Whether to draw it.
+ * @returns Whether the part renders.
  */
 export function shown(when: PageWidth | undefined, narrow: boolean): boolean {
   return when === undefined || (when === "narrow") === narrow;

@@ -7,13 +7,13 @@ import { Actions } from "#page/actions.ts";
 import { paged } from "#page/page.fixtures.tsx";
 
 describe("Actions", () => {
-  it("draws a div inside the column it needs above it", () => {
+  it("renders a div", () => {
     const { container } = render(paged(<Actions>controls</Actions>));
 
     expect(slotElement(container, "page", "actions").tagName).toBe("DIV");
   });
 
-  it("leaves the controls it holds reachable", () => {
+  it("renders its controls", () => {
     render(
       paged(
         <Actions>

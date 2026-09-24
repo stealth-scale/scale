@@ -1,6 +1,6 @@
 /**
- * Publishes the page's eighteen parts, which a caller composes as `Page.Root` holding a banner, a
- * header, a navigation, a body and a footer.
+ * Exports the page's twenty parts and `When`. A caller composes `Page.Root` around a banner, a
+ * header, a navigation, a toolbar, a body, an aside and a footer.
  */
 
 export { Action, type ActionProps } from "#page/action.tsx";

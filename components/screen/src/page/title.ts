@@ -1,11 +1,10 @@
 /**
- * Draws the words naming the page.
+ * Renders the heading that names the page.
  *
  * @remarks
- *   The element is `h1`. A page has one, and a reader jumping by heading lands here first, so a
- *   screen that draws two pages at once states `as="h2"` on the second.
- *   Its column is the one that gives. A long title wraps beside the actions rather than pushing
- *   them onto a line of their own.
+ *   The element is `h1`. A page has one, and a screen reader that moves by heading moves to it
+ *   first. A screen with two pages renders the second title with `as="h2"`. The title's column
+ *   shrinks, so a long title wraps beside the actions.
  */
 
 import { type ComponentProps } from "react";
@@ -13,11 +12,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#page/context.ts";
 
 /**
- * Draws the words at the size the column states.
+ * Renders the `h1` with the recipe's title class.
  */
 export const Title = withContext("h1", "title");
 
 /**
- * Describes what the title takes.
+ * Describes the props of the title: the props of a heading.
  */
 export type TitleProps = ComponentProps<typeof Title>;

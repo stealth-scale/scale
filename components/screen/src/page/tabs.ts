@@ -1,10 +1,9 @@
 /**
- * Draws the slot a strip of tabs sits in inside the navigation.
+ * Renders the slot for a strip of tabs in the navigation.
  *
  * @remarks
- *   The tabs are the disclosure package's, and this restyles one thing about them: their own
- *   hairline is turned off, because the navigation band already draws one and two read as a double
- *   line. Put `Tabs.List` in here with `as`.
+ *   The tabs are the disclosure package's. The slot removes their own hairline, because the
+ *   navigation band has one. Render `Tabs.List` as it with `as`.
  */
 
 import { type ComponentProps } from "react";
@@ -12,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#page/context.ts";
 
 /**
- * Draws the strip at the room the navigation states.
+ * Renders the `div` with the recipe's tabs class.
  */
 export const Tabs = withContext("div", "tabs");
 
 /**
- * Describes what the tab strip takes.
+ * Describes the props of the tab strip: the props of a `div`.
  */
 export type TabsProps = ComponentProps<typeof Tabs>;

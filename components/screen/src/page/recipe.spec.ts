@@ -7,7 +7,7 @@ import page from "#page/page.specimen.tsx";
 import { GUTTER, MEASURE, recipe } from "#page/recipe.ts";
 
 /**
- * The parts a page draws, which the check is handed to read the slots by.
+ * Slots of the page recipe, which the recipe check reads.
  */
 const PARTS = [
   "root",
@@ -41,19 +41,19 @@ describe("recipe", () => {
     expect(stale(recipe, page.scenes)).toStrictEqual([]);
   });
 
-  it("writes no value a theme cannot move", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Page"], parts: PARTS })).toStrictEqual([]);
   });
 
-  it("names its class page", () => {
+  it("sets className to page", () => {
     expect(recipe.className).toBe("page");
   });
 
-  it("styles the twenty parts a page draws", () => {
+  it("declares twenty slots", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
   });
 
-  it("offers the six axes a page takes", () => {
+  it("declares six axes", () => {
     expect(axesOf(recipe)).toStrictEqual([
       "align",
       "divided",
@@ -64,29 +64,29 @@ describe("recipe", () => {
     ]);
   });
 
-  it("folds a control in the header by the priority the control states", () => {
+  it("folds an action by its priority", () => {
     expect(recipe.base?.["action"]?.["&[data-priority=tertiary]"]).toStrictEqual({
       "[data-narrow] &": { display: "none" },
     });
   });
 
-  it("reads the priority off each control rather than off the page", () => {
+  it("reads the priority from each action", () => {
     expect(axesOf(recipe)).not.toContain("priority");
   });
 
-  it("draws the control holding what was dropped only on a folded page", () => {
+  it("shows the folded control on a folded page alone", () => {
     expect(recipe.base?.["folded"]).toMatchObject({ display: "none" });
     expect(recipe.base?.["folded"]?.["[data-narrow] &"]).toMatchObject({
       display: "inline-flex",
     });
   });
 
-  it("names the measured state apart from the width the measure offers", () => {
+  it("names the measured axis folded apart from measure narrow", () => {
     expect(valuesOf(recipe, "measure")).toContain("narrow");
     expect(axesOf(recipe)).not.toContain("narrow");
   });
 
-  it("draws a full-width page at the middle size with a wide gutter when nothing is asked for", () => {
+  it("defaults to a full-width page at md with the xl gutter", () => {
     expect(defaultsOf(recipe)).toStrictEqual({
       align: "start",
       divided: true,
@@ -104,26 +104,26 @@ describe("recipe", () => {
     });
   });
 
-  it("parts the rows of the head by a gap a step below the size", () => {
+  it("separates the header's rows by a gap one size smaller", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["header"]?.["rowGap"]).toBe(
       "calc({spacing.gap.sm} * var(--density, 1))",
     );
   });
 
-  it("sets the context a text step below the page", () => {
+  it("sets the context one size smaller", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["context"]).toStrictEqual({
       gap: "calc({spacing.gap.md} * var(--density, 1))",
       textStyle: "body.sm",
     });
   });
 
-  it("sets the title one heading step above a section's at the same size", () => {
+  it("sets the title one size larger than a section title", () => {
     expect(recipe.variants?.["size"]?.["sm"]?.["title"]).toStrictEqual({ textStyle: "heading.md" });
     expect(recipe.variants?.["size"]?.["md"]?.["title"]).toStrictEqual({ textStyle: "heading.lg" });
     expect(recipe.variants?.["size"]?.["lg"]?.["title"]).toStrictEqual({ textStyle: "heading.xl" });
   });
 
-  it("insets the body and the banner on the block axis alone so the gutter holds", () => {
+  it("pads the body and the banner on the block axis alone", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["body"]).toStrictEqual({
       paddingBlock: "calc({spacing.inset.md} * var(--density, 1))",
     });
@@ -132,28 +132,28 @@ describe("recipe", () => {
     });
   });
 
-  it("offers the three widths a page reads at", () => {
+  it("declares three measures", () => {
     expect(valuesOf(recipe, "measure")).toStrictEqual(["full", "narrow", "wide"]);
   });
 
-  it("names the width axis apart from the style prop that would shadow it", () => {
+  it("names the width axis measure", () => {
     expect(axesOf(recipe)).not.toContain("width");
   });
 
-  it("runs every band edge to edge and insets what it holds", () => {
+  it("pads the content of every edge-to-edge band", () => {
     const lead = `var(--page-lead, var(${GUTTER}))`;
 
     expect(recipe.base?.["header"]).toMatchObject({ paddingInlineStart: lead });
     expect(recipe.base?.["body"]).toMatchObject({ paddingInlineStart: lead });
   });
 
-  it("stops every band at the measure whatever room it leaves before it", () => {
+  it("stops every band's content at the measure", () => {
     expect(recipe.base?.["header"]?.["paddingInlineEnd"]).toBe(
       `max(var(${GUTTER}), calc(100% - var(${MEASURE}, 100%) - var(--page-lead, var(${GUTTER}))))`,
     );
   });
 
-  it("shares the spare room between the two sides where the page is centred", () => {
+  it("splits the spare room between both sides of a centred page", () => {
     expect(recipe.variants?.["align"]?.["center"]?.["root"]).toStrictEqual({
       "--page-lead": `max(var(${GUTTER}), calc((100% - var(${MEASURE}, 100%)) / 2))`,
     });
@@ -162,28 +162,28 @@ describe("recipe", () => {
     });
   });
 
-  it("places the header as a grid so its parts are written flat", () => {
+  it("lays the header out as a grid of named areas", () => {
     expect(recipe.base?.["header"]).toMatchObject({ display: "grid" });
   });
 
-  it("fills a band that sticks", () => {
+  it("fills a sticky band", () => {
     expect(recipe.base?.["header"]?.["&[data-sticky]"]).toMatchObject({
       background: "bg",
       position: "sticky",
     });
   });
 
-  it("drops the header's hairline where a navigation carries one under it", () => {
+  it("removes the header's hairline above the navigation", () => {
     expect(recipe.base?.["header"]?.["&:has(+ .page__nav)"]).toStrictEqual({
       borderBlockEndWidth: "0",
     });
   });
 
-  it("reaches another band by the class its binding writes rather than by a part attribute", () => {
+  it("selects another band by its class", () => {
     expect(JSON.stringify(recipe)).not.toContain("data-part");
   });
 
-  it("lays the body beside an aside from the large breakpoint up", () => {
+  it("lays the body beside an aside from the lg breakpoint", () => {
     expect(recipe.base?.["root"]?.["&:has(> .page__aside)"]).toStrictEqual({
       lg: {
         columnGap: "calc({spacing.gap.xl} * var(--density, 1))",
@@ -202,13 +202,13 @@ describe("recipe", () => {
     expect(areas.map((band) => recipe.base?.[band]?.["gridArea"])).toStrictEqual([...areas]);
   });
 
-  it("drops an aside that folds to nothing below the large breakpoint", () => {
+  it("hides an aside with folds hide below the lg breakpoint", () => {
     expect(recipe.base?.["aside"]?.["&[data-folds=hide]"]).toStrictEqual({
       lgDown: { display: "none" },
     });
   });
 
-  it("keeps a sticking aside at the top of its row under the shell's pinned bars", () => {
+  it("keeps a sticky aside at the top of its row under the shell's sticky bars", () => {
     expect(recipe.base?.["aside"]?.["&[data-sticky]"]).toStrictEqual({
       alignSelf: "start",
       insetBlockStart: "calc(var(--app-shell-sticky-top, 0px) + {spacing.gap.xl})",
@@ -216,20 +216,20 @@ describe("recipe", () => {
     });
   });
 
-  it("insets an aside beside the body on its end alone", () => {
+  it("pads an aside beside the body at its end alone", () => {
     expect(recipe.base?.["aside"]).toMatchObject({
       lg: { paddingInlineStart: "0" },
       paddingInline: `var(${GUTTER})`,
     });
   });
 
-  it("insets an aside on the block axis as the body is so the two start on one line", () => {
+  it("pads an aside on the block axis like the body", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["aside"]).toStrictEqual(
       recipe.variants?.["size"]?.["md"]?.["body"],
     );
   });
 
-  it("stacks the marks under the title on a narrow page", () => {
+  it("stacks the meta under the title on a folded page", () => {
     const stacked = recipe.compoundVariants?.find((each) =>
       (each.className ?? "").endsWith("header--stacked"),
     );
@@ -237,7 +237,7 @@ describe("recipe", () => {
     expect(stacked?.css?.["header"]?.["gridTemplateAreas"]).toContain('"meta meta meta"');
   });
 
-  it("gives back the room those marks kept beside the title once they are under it", () => {
+  it("removes the meta's start margin on a folded page", () => {
     const stacked = recipe.compoundVariants?.find((each) =>
       (each.className ?? "").endsWith("meta--stacked"),
     );
@@ -245,13 +245,13 @@ describe("recipe", () => {
     expect(stacked?.css?.["meta"]).toStrictEqual({ marginInlineStart: "0" });
   });
 
-  it("pulls the gutter in by one step on a folded page", () => {
+  it("sets the sm gutter on a folded page", () => {
     expect(recipe.variants?.["folded"]?.["true"]?.["root"]).toStrictEqual({
       [GUTTER]: "{spacing.inset.sm}",
     });
   });
 
-  it("tracks every tag under the Page namespace", () => {
+  it("matches every Page tag", () => {
     expect(recipe.jsx).toStrictEqual([/^Page(\.\w+)?$/u]);
   });
 });

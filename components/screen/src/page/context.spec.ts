@@ -8,7 +8,7 @@ import { slotClass, slotClasses, variantClass } from "@stealthscale/testing-them
 import { withContext, withProvider } from "#page/context.ts";
 
 describe("context", () => {
-  it("draws the slot's class on an element it binds", () => {
+  it("applies the slot class to a bound element", () => {
     const Columned = withProvider("div", "root");
     const Banded = withContext("header", "header");
     const { container } = render(createElement(Columned, null, createElement(Banded)));
@@ -16,7 +16,7 @@ describe("context", () => {
     expect(slotClasses(container, "page", "header")).toContain(slotClass("page", "header"));
   });
 
-  it("hands the column's variants to a band below it", () => {
+  it("passes the root's variants to a band below it", () => {
     const Columned = withProvider("div", "root");
     const Banded = withContext("header", "header");
     const { container } = render(createElement(Columned, { size: "lg" }, createElement(Banded)));

@@ -1,10 +1,9 @@
 /**
- * Draws the way back, for a page reached from somewhere in particular.
+ * Renders a single link back to the page one level up.
  *
  * @remarks
- *   A single link up one level, which is what a folded page shows in place of a whole trail. Name
- *   where it goes rather than the direction: `Invoices` tells a reader what they will land on,
- *   where `Back` tells them only that they will leave.
+ *   A folded page shows it in place of a full breadcrumb trail. Name the page it opens, such as
+ *   `Invoices`, because `Back` does not say which page opens.
  */
 
 import { type ComponentProps } from "react";
@@ -12,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#page/context.ts";
 
 /**
- * Draws the link at the size the column states.
+ * Renders the `a` with the recipe's trail class.
  */
 export const Trail = withContext("a", "trail");
 
 /**
- * Describes what the way back takes.
+ * Describes the props of the link back: the props of an `a`.
  */
 export type TrailProps = ComponentProps<typeof Trail>;

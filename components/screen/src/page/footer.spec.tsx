@@ -7,13 +7,13 @@ import { Footer } from "#page/footer.tsx";
 import { paged } from "#page/page.fixtures.tsx";
 
 describe("Footer", () => {
-  it("draws a footer inside the column it needs above it", () => {
+  it("renders a footer", () => {
     const { container } = render(paged(<Footer>Paid on 3 May</Footer>));
 
     expect(slotElement(container, "page", "footer").tagName).toBe("FOOTER");
   });
 
-  it("stays put where a caller asks", () => {
+  it("sets data-sticky when sticky", () => {
     const { container } = render(paged(<Footer sticky>Paid on 3 May</Footer>));
 
     expect(slotElement(container, "page", "footer").dataset["sticky"]).toBe("");

@@ -1,11 +1,10 @@
 /**
- * Draws the control that holds whatever the header dropped as the page narrowed.
+ * Renders the control that opens the actions a folded page removes from the header.
  *
  * @remarks
- *   It appears only on a folded page, because a page keeping every control has nothing to put
- *   behind it. Put a menu in it holding the same actions the tertiary controls do, so what a wide
- *   page offers in the row a narrow one offers in one press.
- *   Name it. `More` says nothing about what it opens; `More invoice actions` does.
+ *   The control renders only on a folded page. Put a menu behind it with the tertiary actions, so a
+ *   narrow page offers them in one press. Name it after the page, such as `More invoice actions`,
+ *   because `More` does not say what it opens.
  */
 
 import { type ComponentProps } from "react";
@@ -13,11 +12,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#page/context.ts";
 
 /**
- * Draws the control at the room the column states.
+ * Renders the `button` with the recipe's folded class.
  */
 export const Folded = withContext("button", "folded", { defaultProps: { type: "button" } });
 
 /**
- * Describes what the folded control takes.
+ * Describes the props of the folded control: the props of a `button`.
  */
 export type FoldedProps = ComponentProps<typeof Folded>;

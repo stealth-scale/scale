@@ -1,27 +1,21 @@
 /**
- * Defines the styles a page is drawn with.
+ * Recipe for a page: a column of bands, from a banner and a header to a body and a footer.
  *
  * @remarks
- *   The root is a column at least as tall as what holds it, so a footer sits at the foot of a short
- *   page. Every band runs edge to edge, so a band that sticks runs its fill and its hairline across
- *   the whole width, and what each band holds starts at the gutter. A page with a measure stops
- *   there and leaves the spare room at the end, which is how an application reads, or centres it
- *   where `align` asks.
- *   The header is a grid of three rows, so the context above the title, what leads it, the title,
- *   the marks beside it, the actions and the description are written flat and placed by name. A
- *   part left out takes no room. The title's column is the one that gives, so its words wrap while
- *   the actions keep the end of its row.
- *   The gutter and the measure are properties the root states and every band reads, so one value
- *   moves all of them and a band that bleeds reads the same numbers to line its own cells up.
- *   Narrowness is measured on the root, not on the window, so a page beside an open sidebar folds
- *   on its own room.
- *   A page holding an aside becomes a grid from the large breakpoint up: every band across the
- *   top and the foot, and the body beside the aside between them, the aside as wide as what it
- *   holds. That is read off the window, because the aside is a rail of the kind a docs page keeps
- *   beside its text, and the width the rail is worth its room at is the one the window gives the
- *   whole screen. Below it the root stays a column and the aside stacks under the body, or leaves
- *   the page where it says it folds to nothing. An aside told to stick keeps to the top of its
- *   row, under the shell's pinned bars, while the body scrolls past.
+ *   The root is a column at least as tall as its container, so the footer of a short page renders
+ *   at the container's end. Every band runs edge to edge, so a sticky band's fill and hairline span
+ *   the full width, and each band's content starts at the gutter. A page with a measure stops its
+ *   content there, at the start or centred as `align` sets. The header is a grid of three rows, so
+ *   the context, the leading mark, the title, the meta, the actions and the description are
+ *   siblings placed by area name, and a part left out takes no room. The title's column shrinks,
+ *   so its text wraps while the actions keep the end of its row. The root sets the gutter and the
+ *   measure as custom properties that every band reads. The page measures its own width and sets
+ *   `folded` below the `md` breakpoint. From the `lg` breakpoint of the window, a page with an
+ *   aside becomes a grid with the aside beside the body, because a rail beside the text needs the
+ *   window's width. Below it the aside stacks under the body, or leaves the page with
+ *   `folds="hide"`. A sticky aside keeps to the top of its row, under the shell's sticky bars. The
+ *   recipe has no `palette` axis, because a page is layout on the page's surface, and no `effect`
+ *   axis, because a page is not a control.
  */
 
 import {
@@ -37,27 +31,27 @@ import {
 import { FOLDED, FOLDING } from "#folding/folding.ts";
 
 /**
- * The property the root states the room at the page's inline edges in.
+ * Custom property the root sets to the room at the page's inline edges.
  */
 export const GUTTER = "--page-gutter";
 
 /**
- * The property the root states how wide the page reads in.
+ * Custom property the root sets to the width of the page's content.
  */
 export const MEASURE = "--page-measure";
 
 /**
- * The property a band reads the room it leaves before the measure from.
+ * Custom property a band reads as its start padding before the measure.
  *
  * @remarks
- *   A band runs edge to edge so its surface is full bleed, and its padding is what holds the
- *   content to the measure. The alignment axis writes this property and every band reads it, so
- *   the header, the body and the footer stay in one column whichever way the page is aligned.
+ *   A band runs edge to edge, so its fill is full bleed, and its padding keeps the content in the
+ *   measure. The `align` axis sets this property and every band reads it, so the header, the body
+ *   and the footer share one column at either alignment.
  */
 const LEAD = "--page-lead";
 
 /**
- * Writes what every band shares: edge to edge, with the content held to the measure by padding.
+ * Styles every band: edge to edge, with padding that keeps the content in the measure.
  */
 const BAND = {
   flexShrink: "0",
@@ -67,24 +61,18 @@ const BAND = {
 };
 
 /**
- * The property the shell states the height of its pinned bars in, which anything that sticks
- * keeps under.
+ * Custom property the shell sets to the height of its sticky bars, under which a sticky band stops.
  */
 const SHELL_TOP = "--app-shell-sticky-top";
 
 /**
- * Writes what a band told to stick shares: it stays put at the top, over the page and filled.
+ * Styles a sticky band: at the top, under the shell's sticky bars, on the page's fill.
  *
  * @remarks
- *   The fill is not optional. A band the page scrolls through is not sticking to anything a reader
- *   can see, so a band that sticks takes the page's own surface.
- *   The edge is not optional either. A sticky element whose inset is `auto` sticks to nothing at
- *   all, which is what every band told to stick did: they were positioned and never moved.
- *   The edge is the shell's own, so a band keeps under whatever bars the shell has pinned rather
- *   than sliding behind them.
- *   The layer is the `sticky` token rather than a number of its own, which is what the shell pins
- *   its own bars at. A band and a bar that stick to the same edge are one order, and two scales
- *   for it means a number here has to be read against a token there every time either moves.
+ *   A sticky band takes the page's fill, because the page scrolls under it. Its inset reads the
+ *   shell's sticky height, because a sticky element with an `auto` inset does not stick. Its
+ *   z-index is the `sticky` token the shell's bars use, so a band and a bar at one edge share one
+ *   order.
  */
 const STUCK = {
   background: "bg",
@@ -94,39 +82,36 @@ const STUCK = {
 };
 
 /**
- * Writes a row that wraps: laid across, centred on the middle, and able to shrink.
+ * Styles a row that centres its items, wraps and shrinks.
  */
 const ROW = { alignItems: "center", display: "flex", flexWrap: "wrap", minInlineSize: "0" };
 
 /**
- * The class this recipe is compiled under, which a selector reaching across bands reads.
+ * Class name of the recipe, which a selector across bands reads.
  *
  * @remarks
- *   The binding writes one class per band, `page__nav`, and stamps no attribute naming the band. A
- *   rule that selects another band therefore selects the class, and builds it from this constant so
- *   the two cannot drift.
+ *   The binding writes one class per band, such as `page__nav`, and no attribute that names the
+ *   band. A selector for another band builds that class from this constant.
  */
 const CLASS = "page";
 
 /**
- * Selects a band with the navigation under it, which carries the hairline then.
+ * Selects a band followed by the navigation, which then has the hairline.
  */
 const BEFORE_NAV = `&:has(+ .${CLASS}__nav)`;
 
 /**
- * Selects a root holding an aside, which lays its bands out as a grid from the large breakpoint.
+ * Selects a root with an aside, which lays its bands out as a grid from the `lg` breakpoint.
  */
 const WITH_ASIDE = `&:has(> .${CLASS}__aside)`;
 
 /**
- * Writes the rows and the columns of a page holding an aside: every band across, and the body
- * beside the aside.
+ * Styles the grid of a page with an aside: every band across, and the body beside the aside.
  *
  * @remarks
- *   The body's row takes the height the page has left over and every other row takes its content's.
- *   The root is at least as tall as the shell's main, and a grid shares its spare height between
- *   every `auto` row, so a short page opened its empty bands as blank rows and stretched the header
- *   until the trail, the title and the description stood a screen apart.
+ *   The body's row takes the remaining height and every other row takes its content's height,
+ *   because the root is at least as tall as the shell's main region and a grid shares spare height
+ *   between its `auto` rows.
  */
 const BESIDE = {
   columnGap: dense("{spacing.gap.xl}"),
@@ -138,17 +123,16 @@ const BESIDE = {
 };
 
 /**
- * The steps a page is read at, which a section inside it reads too.
+ * Sizes the page offers, which a section in the page reads too.
  */
 const STEPS = ["sm", "md", "lg"] as const;
 
 /**
- * The heading role the title is set in at each step, one step above the section's at the same
- * step.
+ * Heading role of the title at each size, one size larger than a section title's at that size.
  *
  * @remarks
- *   A page's title is the one heading above every section on it. Set in the same role as a
- *   section's title, the two read as the same level and the outline the headings draw is flat.
+ *   The page title is the one heading above every section title on the page, so it reads a larger
+ *   role than theirs.
  */
 const TITLES = {
   lg: { textStyle: "heading.xl" },
@@ -157,7 +141,7 @@ const TITLES = {
 };
 
 /**
- * Draws a full-width page at the middle size.
+ * Defines the page recipe: a full-width page at size `md` by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -195,22 +179,18 @@ export const recipe = defineSlotRecipe({
     footer: {
       ...BAND,
       ...ROW,
-      // The one band that sticks to the foot, so it takes the edge back off the shared rule.
+      // The footer sticks to the bottom edge, so it resets the top inset of the shared rule.
       "&[data-sticky]": { ...STUCK, insetBlockEnd: "0", insetBlockStart: "auto" },
       gridArea: "footer",
     },
     /**
-     * The three rows of the head: what stands above the title, the title's own row, and the
-     * opening under it.
+     * Lays the header out in three rows: the context, the title's row and the description.
      *
      * @remarks
-     *   The rows are parted by a gap a step below the size, because a trail, a title and a
-     *   sentence are three things rather than one block of text, and flush against each other they
-     *   read as one. The columns are not: what sits beside the title belongs on its line.
-     *   Every part names the area it goes in. A part that named none was placed in the first free
-     *   cell instead, which put the trail in the column the leading mark takes and sized that
-     *   column to the trail's width: the title, in the column after it, began where the words above
-     *   it had ended and the head read as a staircase.
+     *   The rows are a gap one size smaller apart, so the trail, the title and the description read
+     *   as three parts. The columns have no gap, because the parts beside the title belong to its
+     *   line. Every part names its area, because the grid places a part without one in the first
+     *   free cell.
      */
     header: {
       ...BAND,
@@ -244,9 +224,8 @@ export const recipe = defineSlotRecipe({
       minInlineSize: "0",
       [WITH_ASIDE]: { lg: BESIDE },
     },
-    // Written against the element rather than bare, so it beats the line a strip's own variant
-    // draws. A slot's base and a recipe's variants are separate layers and the variant is the later
-    // of the two, so a bare rule here lost to it and the band drew one line under the strip's.
+    // Nested under `&`, so it overrides the hairline the strip's own variant sets. The variants are
+    // in a later layer than the base, and a bare base rule lost to them.
     tabs: { "&": { borderBlockEndWidth: "0" } },
     title: { gridArea: "title", minInlineSize: "0", overflowWrap: "anywhere" },
     toolbar: { ...BAND, ...ROW, "&[data-sticky]": STUCK, gridArea: "toolbar" },
@@ -255,12 +234,11 @@ export const recipe = defineSlotRecipe({
   className: CLASS,
   compoundVariants: [
     /**
-     * A header that has folded stacks what was beside the title under it.
+     * Moves the meta of a folded header onto its own row under the title.
      *
      * @remarks
-     *   The line about the page stands off the title while the two share a line. On a line of its
-     *   own that room became an indent, and the line was drawn 8 pixels to the right of the title
-     *   above it and the description below it, so it gives the room back here.
+     *   The meta drops the start margin it has beside the title, so it starts where the title and
+     *   the description start.
      */
     {
       css: {
@@ -301,13 +279,11 @@ export const recipe = defineSlotRecipe({
   ],
   variants: {
     /**
-     * Where the column sits when the measure is narrower than the room it is given.
+     * Position of the content when the measure is narrower than the page.
      *
      * @remarks
-     *   The alignment moves the room a band leaves before its content, not the root. The root runs
-     *   edge to edge so a band's surface is full bleed, and automatic margins on a full-width root
-     *   move nothing: a centred page and a start-aligned one measured the same 1,846-pixel root
-     *   with the content held at the start of both.
+     *   The axis sets the start padding of every band. The root runs edge to edge, so a band's fill
+     *   is full bleed, and automatic margins on a full-width root would move nothing.
      */
     align: {
       start: { root: { [LEAD]: `var(${GUTTER})` } },
@@ -318,7 +294,7 @@ export const recipe = defineSlotRecipe({
     },
 
     /**
-     * Whether a hairline parts the bands from one another.
+     * Whether a hairline separates the bands.
      */
     divided: {
       true: {
@@ -330,22 +306,19 @@ export const recipe = defineSlotRecipe({
     },
 
     /**
-     * The room at the page's inline edges, which every band reads.
+     * Room at the page's inline edges, which every band reads.
      *
      * @remarks
-     *   A page opens at the extra-large inset, because a page is read at arm's length and its
-     *   bands want more room at the edge than a control wants inside it. A folded page pulls the
-     *   gutter in.
+     *   The default is the `xl` inset. A folded page sets the `sm` inset.
      */
     gutter: onSlots({ root: sizeVariants((size) => ({ [GUTTER]: `{spacing.inset.${size}}` })) }),
 
     /**
-     * How wide the column reads.
+     * Width of the page's content.
      *
      * @remarks
-     *   Named for the measure rather than for the width, because a styled element already takes
-     *   `width` as a style prop and an axis of that name could never be stated per breakpoint.
-     *   The two measures are the theme's page sizes, so a theme moves them without a recipe.
+     *   The axis is not named `width`, because `width` is a style prop of a styled element.
+     *   `narrow` and `wide` read the theme's page sizes.
      */
     measure: {
       full: { root: { [MEASURE]: "100%" } },
@@ -354,24 +327,21 @@ export const recipe = defineSlotRecipe({
     },
 
     /**
-     * Whether the page has measured itself as too narrow for a header laid out in one row.
+     * Whether the page is narrower than the `md` breakpoint, which the page sets from its own
+     * width.
      *
      * @remarks
-     *   A folded page also pulls its gutter in by one step, because the room that reads as generous
-     *   beside a wide column reads as waste beside a narrow one. The component states this from
-     *   what it measured. A consumer never sets it.
-     *   Named `folded` rather than `narrow` because `measure` already offers `narrow`, and two
-     *   values of that name on the root compile to one class the later of them wins.
+     *   A folded page has the `sm` gutter. The axis is not named `narrow`, because `measure` has a
+     *   `narrow` value and two values of one name compile to one class.
      */
     folded: { true: { root: { [GUTTER]: "{spacing.inset.sm}" } } },
 
     /**
-     * How large the page draws what names it, and how much room its bands keep.
+     * Size of the title, the description, the actions and the bands' padding.
      *
      * @remarks
-     *   Three steps rather than the whole scale, because a page is read at the size a reader reads
-     *   a page at and the steps beyond these belong to a display heading. A section inside a page
-     *   reads this too, so a page states the size once for everything on it.
+     *   The page offers three sizes, because larger steps belong to a display heading. A section in
+     *   the page reads this size too.
      */
     size: onSlots({
       actions: sizeVariants(

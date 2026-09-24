@@ -1,5 +1,5 @@
 /**
- * Builds the page a part's specification needs above it.
+ * Renders the pages the part specifications test.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -14,21 +14,21 @@ import { Root, type RootProps } from "#page/root.tsx";
 import { Title } from "#page/title.ts";
 
 /**
- * Draws whatever a case wants measured inside the column that hands down the variants.
+ * Renders a part inside a page root.
  *
  * @param children - The part under test.
- * @param props - Whatever the case sets on the column.
- * @returns The column, holding it.
+ * @param props - The root's props.
+ * @returns The page.
  */
 export function paged(children: ReactNode, props: RootProps = {}): ReactElement {
   return <Root {...props}>{children}</Root>;
 }
 
 /**
- * Draws a whole page, so a case can read how its bands are placed.
+ * Renders a page with a header, a navigation, a body and a footer.
  *
- * @param props - Whatever the case sets on the column.
- * @returns The parts composed the way a caller composes them.
+ * @param props - The root's props.
+ * @returns The page.
  */
 export function composed(props: RootProps = {}): ReactElement {
   return (

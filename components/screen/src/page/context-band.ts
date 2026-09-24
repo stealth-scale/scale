@@ -1,9 +1,8 @@
 /**
- * Draws the row above the title saying where the page sits.
+ * Renders the row above the title that shows where the page is, such as a breadcrumb trail.
  *
  * @remarks
- *   A trail of crumbs, or a link back to what holds this page. It reads as the description's kin
- *   rather than as part of the title, so a reader takes the title first.
+ *   The row reads the body role one size smaller than the page, so a reader takes the title first.
  */
 
 import { type ComponentProps } from "react";
@@ -11,11 +10,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#page/context.ts";
 
 /**
- * Draws the row at the room the column states.
+ * Renders the `div` with the recipe's context class.
  */
 export const Context = withContext("div", "context");
 
 /**
- * Describes what the context row takes.
+ * Describes the props of the context row: the props of a `div`.
  */
 export type ContextProps = ComponentProps<typeof Context>;

@@ -1,11 +1,10 @@
 /**
- * Draws the band holding the title and everything that names or acts on the page.
+ * Renders the band with the title and the parts that name or act on the page.
  *
  * @remarks
- *   The element is `header`, which is plain content inside a page rather than a banner landmark,
- *   because the shell around it owns the one banner a screen has.
- *   It is a grid, so the parts inside are written flat and placed by name. A part left out takes no
- *   room at all.
+ *   The element is `header`, which is plain content inside a page, because the shell renders the
+ *   one banner landmark a screen has. It is a grid, so its parts are siblings placed by area name
+ *   and a part left out takes no room.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -14,20 +13,20 @@ import { withContext } from "#page/context.ts";
 import { type StickyProps, stuck } from "#page/sticky.ts";
 
 /**
- * Draws the band at the room the column states.
+ * Renders the `header` with the recipe's header class.
  */
 const Banded = withContext("header", "header");
 
 /**
- * Describes what the header takes.
+ * Describes the props of the header: `sticky` and the props of a `header`.
  */
 export interface HeaderProps extends ComponentProps<typeof Banded>, StickyProps {}
 
 /**
- * Labels the page, and carries what acts on it.
+ * Renders the header, with `data-sticky` when it sticks.
  *
- * @param props - Whether it stays put, and everything a styled header takes.
- * @returns The band, carrying whether it sticks.
+ * @param props - Whether it sticks, and the props of a `header`.
+ * @returns The `header` element.
  */
 export function Header({ sticky, ...rest }: HeaderProps): ReactElement {
   return <Banded {...rest} data-sticky={stuck(sticky)} />;

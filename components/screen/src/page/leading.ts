@@ -1,10 +1,9 @@
 /**
- * Draws what stands before the title: an avatar, a logo, a mark for the kind of thing shown.
+ * Renders the mark before the title, such as an avatar, a logo or an icon for the kind of item.
  *
  * @remarks
- *   It keeps its place at every width, because what it stands for is what the title names and the
- *   two read as one line. Label it where it carries meaning, and hide it from a screen reader where
- *   it repeats the title.
+ *   The mark keeps its place at every width, because it and the title read as one line. Give it an
+ *   accessible name when it adds information, and hide it when it repeats the title.
  */
 
 import { type ComponentProps } from "react";
@@ -12,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#page/context.ts";
 
 /**
- * Draws the mark at the room the column states.
+ * Renders the `div` with the recipe's leading class.
  */
 export const Leading = withContext("div", "leading");
 
 /**
- * Describes what the leading mark takes.
+ * Describes the props of the leading mark: the props of a `div`.
  */
 export type LeadingProps = ComponentProps<typeof Leading>;

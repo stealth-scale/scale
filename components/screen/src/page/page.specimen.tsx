@@ -1,172 +1,152 @@
 /**
- * Shows the page: every measure, every size, every gutter, both alignments, the header ruled off
- * beside a page left whole, and the actions folded.
+ * Catalogue page for the page.
  *
  * @remarks
- *   The scenes are generated from the recipe, so a value added to it reaches the page without this
- *   file changing. Every page holds the same header, a trail, a title, a description and
- *   three actions with the folded control, over a body. The title is drawn as an `h3`, under the
- *   scene's own `h2`, because the catalogue's page already holds the `h1`. The cells run down the
- *   page, because a page fills the width it is given. The words are keys under `page` in the
- *   catalogue's namespace, kept beside this file in `locales/en/specimen/page.json`.
+ *   `scenesOf` generates the measures, the sizes, the gutters, the alignments and the rules from
+ *   the invoice example. The page sets `folded` from its own width, so the folding, navigation and
+ *   context scenes render their examples in a narrow and a wide room instead of a generated scene.
+ *   The navigation scene names each cell's `nav` after its room, so the two landmarks have distinct
+ *   names. The bands scene renders the banner, the toolbar, the aside and the footer. The rooms and
+ *   the names never appear in the examples. The words are keys under `page` in
+ *   `locales/en/specimen/page.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Ellipsis } from "lucide-react";
+import {
+  landmarked,
+  Matrix,
+  Room,
+  type Scene,
+  scenesOf,
+  specimen,
+  useWords,
+} from "@stealthscale/specimen";
 
-import { Button, ButtonPropsProvider, IconButton } from "@stealthscale/component-actions";
-import { scenesOf, specimen, useWords } from "@stealthscale/specimen";
-import { type Scale } from "@stealthscale/theme/authoring";
-
-import { Ledger } from "#ledger.fixtures.tsx";
-import * as Page from "#page/index.ts";
+import * as examples from "#page/examples/index.ts";
+import type * as Page from "#page/index.ts";
 import { recipe } from "#page/recipe.ts";
 
 /**
- * Writes the look the controls in a header take, at the step the page is read at.
- *
- * @remarks
- *   A control written as `Page.Action as={Button}` is typed as the slot rather than as the button,
- *   so the button's own axes are set through its props provider rather than as props on the slot.
- *   The step is threaded down from the scene, because the controls are the one part of the header
- *   that would otherwise stand at one size through the whole size axis.
- * @param size - The step the page is read at.
- * @param leading - Whether this is the one control the page leads with.
+ * Rooms of the folding scenes: one narrower than the `md` breakpoint and one wider.
  */
-function looked(size: Scale, leading: boolean): { size: Scale; variant: "solid" | "subtle" } {
-  return { size, variant: leading ? "solid" : "subtle" };
-}
+const ROOMS = ["sm", "4xl"] as const;
 
 /**
- * The call site every scene's source snippet is generated from.
+ * Hand-written scene for the header of a folded page.
  */
-const SAMPLE = {
-  children: [
-    "<Page.Header>",
-    "  <Page.Title>Invoices</Page.Title>",
-    "</Page.Header>",
-    "<Page.Body>…</Page.Body>",
-  ].join("\n"),
-  imports: 'import { Page } from "@stealthscale/component-screen";',
-  name: "Page.Root",
+export const folding: Scene = {
+  about: "page.folding.about",
+  axes: ["folded"],
+  draw: () => (
+    <Matrix direction="column" knob="room" of={ROOMS}>
+      {(room) => (
+        <Room size={room}>
+          <examples.invoice.Invoice />
+        </Room>
+      )}
+    </Matrix>
+  ),
+  example: examples.invoice,
+  title: "page.folding.title",
 };
 
 /**
- * Draws the header and the body every page holds.
+ * Describes the props of the named settings page.
  */
-function Invoices({ size = "md" }: { readonly size?: Scale | undefined }): ReactElement {
+interface NamedProps {
+  /**
+   * The room the page renders in.
+   */
+  readonly room: (typeof ROOMS)[number];
+}
+
+/**
+ * Renders the settings example in a room, with a navigation name that includes the room.
+ *
+ * @remarks
+ *   Both cells render a `nav`, and two landmarks with one name fail axe `landmark-unique`. The name
+ *   is set here, so the example's source keeps its single label.
+ */
+function Named({ room }: NamedProps): ReactElement {
   const { t } = useWords("page");
 
   return (
-    <>
-      <Page.Header>
-        <Page.Trail href="#home">{t("home")}</Page.Trail>
-        <Page.Title as="h3">{t("april")}</Page.Title>
-        <Page.Description>{t("everything")}</Page.Description>
-        <Page.Actions>
-          <ButtonPropsProvider value={looked(size, true)}>
-            <Page.Action as={Button} priority="primary">
-              {t("export")}
-            </Page.Action>
-          </ButtonPropsProvider>
-          <ButtonPropsProvider value={looked(size, false)}>
-            <Page.Action as={Button} priority="tertiary">
-              {t("archive")}
-            </Page.Action>
-            <Page.Folded aria-label={t("more")} as={IconButton}>
-              <Ellipsis />
-            </Page.Folded>
-          </ButtonPropsProvider>
-        </Page.Actions>
-      </Page.Header>
-      <Page.Body>
-        <Ledger />
-      </Page.Body>
-    </>
+    <Room size={room}>
+      <examples.settings.Settings aria-label={landmarked(t("sections"), { room })} />
+    </Room>
   );
 }
 
 /**
- * Draws the page in whatever the scene hands over.
+ * Hand-written scene for the navigation band, with links on a wide page and a picker on a narrow
+ * one.
  */
-function Paged(props: Page.RootProps): ReactElement {
-  return (
-    <Page.Root {...props}>
-      <Invoices {...(props.size === undefined ? {} : { size: props.size })} />
-    </Page.Root>
-  );
-}
+export const navigation: Scene = {
+  about: "page.navigation.about",
+  draw: () => (
+    <Matrix direction="column" knob="room" of={ROOMS}>
+      {(room) => <Named room={room} />}
+    </Matrix>
+  ),
+  example: examples.settings,
+  title: "page.navigation.title",
+};
 
 /**
- * Draws the page held to the narrow measure, which is what an alignment moves it in.
- *
- * @remarks
- *   A page as wide as the room it is given sits at both places alike. The measure is what leaves
- *   room beside the bands for the alignment to move them in.
+ * Hand-written scene for the context row, with a breadcrumb trail on a wide page and a link back
+ * on a narrow one.
  */
-function Narrow(props: Page.RootProps): ReactElement {
-  return <Paged measure="narrow" {...props} />;
-}
+export const context: Scene = {
+  about: "page.context.about",
+  draw: () => (
+    <Matrix direction="column" knob="room" of={ROOMS}>
+      {(room) => (
+        <Room size={room}>
+          <examples.project.Project />
+        </Room>
+      )}
+    </Matrix>
+  ),
+  example: examples.project,
+  title: "page.context.title",
+};
 
 /**
- * Draws the page with a line of meta beside the title, which is what the fold moves.
- *
- * @remarks
- *   The fold is about where the meta goes: unfolded it shares the title's row, folded it takes a
- *   row of its own under it. A header with no meta in it reads the same either way, so this is the
- *   one drawing that carries some.
+ * Hand-written scene for the banner, the toolbar, the aside and the footer.
  */
-function Metaed({ size = "md", ...rest }: Page.RootProps): ReactElement {
-  const { t } = useWords("page");
-
-  return (
-    <Page.Root size={size} {...rest}>
-      <Page.Header>
-        <Page.Trail href="#home">{t("home")}</Page.Trail>
-        <Page.Title as="h3">{t("april")}</Page.Title>
-        <Page.Meta>{t("raised")}</Page.Meta>
-        <Page.Description>{t("everything")}</Page.Description>
-        <Page.Actions>
-          <ButtonPropsProvider value={looked(size, true)}>
-            <Page.Action as={Button} priority="primary">
-              {t("export")}
-            </Page.Action>
-          </ButtonPropsProvider>
-          <ButtonPropsProvider value={looked(size, false)}>
-            <Page.Action as={Button} priority="tertiary">
-              {t("archive")}
-            </Page.Action>
-            <Page.Folded aria-label={t("more")} as={IconButton}>
-              <Ellipsis />
-            </Page.Folded>
-          </ButtonPropsProvider>
-        </Page.Actions>
-      </Page.Header>
-      <Page.Body>
-        <Ledger />
-      </Page.Body>
-    </Page.Root>
-  );
-}
+export const bands: Scene = {
+  about: "page.bands.about",
+  draw: examples.workspace.Workspace,
+  example: examples.workspace,
+  title: "page.bands.title",
+};
 
 export default specimen({
   about: "page.about",
   id: "components/screen/page",
   imports: 'import { Page } from "@stealthscale/component-screen";',
-  scenes: scenesOf<Page.RootProps>(recipe, {
-    axes: {
-      align: { direction: "column", draw: (props) => <Narrow {...props} /> },
-      divided: { direction: "column" },
-      folded: { direction: "column", draw: (props) => <Metaed {...props} /> },
-      gutter: { direction: "column" },
-      measure: { direction: "column" },
-      size: { direction: "column" },
-    },
-    draw: (props) => <Paged {...props} />,
-    namespace: "page",
-    order: ["measure", "size", "gutter", "align", "divided", "folded"],
-    sample: SAMPLE,
-  }),
+  scenes: [
+    ...scenesOf<Page.RootProps>(recipe, {
+      axes: {
+        align: { direction: "column", with: { measure: "narrow" } },
+        divided: { direction: "column" },
+        gutter: { direction: "column" },
+        measure: { direction: "column" },
+        size: { direction: "column" },
+      },
+      draw: (props) => <examples.invoice.Invoice {...props} />,
+      example: examples.invoice,
+      namespace: "page",
+      order: ["measure", "size", "gutter", "align", "divided"],
+      skip: {
+        folded: "The page sets folded from its own width, and the folding scene renders it.",
+      },
+    }),
+    folding,
+    navigation,
+    context,
+    bands,
+  ],
   title: "page.title",
 });

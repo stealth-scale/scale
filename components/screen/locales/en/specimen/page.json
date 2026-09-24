@@ -1,45 +1,81 @@
 {
-  "about": "Lays a page out: a banner, a header with everything that names the page, a navigation, a body and a footer.",
+  "about": "Lays a page out as a column of bands: a banner, a header, a navigation, a toolbar, a body with an optional aside, and a footer. The page measures its own width and folds its header on a narrow page.",
   "align": {
-    "about": "The bands starting at the gutter, and the bands centred in the measure.",
+    "about": "Both alignments of a page at the narrow measure: the content at the gutter, and the content centred in the page.",
     "title": "Alignment"
   },
-  "april": "April invoices",
+  "april": "April invoice",
   "archive": "Archive",
+  "bands": {
+    "about": "The banner above the header, a sticky toolbar, the body with a sticky aside beside it from the `lg` breakpoint, and the footer. Below the breakpoint, this aside leaves the page.",
+    "title": "Bands"
+  },
+  "billing": "Billing",
+  "billingBody": "The plan, the invoices and the payment methods.",
+  "context": {
+    "about": "The context row above the title. A wide page shows the breadcrumb trail, and a narrow page shows a single link back.",
+    "title": "Context"
+  },
+  "contents": "Workspace contents",
   "contoso": "Contoso",
   "divided": {
-    "about": "The header ruled off from the body, beside a page left whole.",
-    "title": "Divided"
+    "about": "The bands with and without the hairline between them.",
+    "title": "Rules"
   },
-  "everything": "Everything raised this month.",
-  "export": "Export",
+  "download": "Download PDF",
+  "everything": "Everything raised for this workspace in April.",
   "fabrikam": "Fabrikam",
-  "folded": {
-    "about": "Where the line of meta beside the title goes. Unfolded it shares the title\u2019s row; folded it takes a row of its own under the title, which is what a narrow page needs once the actions have taken the room.",
-    "title": "Folded header"
+  "filter": "Filter",
+  "folding": {
+    "about": "The same page in a narrow and a wide room. On the narrow page, the meta moves under the title, the secondary action shows its icon alone, the tertiary action moves behind the folded control, and the gutter narrows.",
+    "title": "Folding"
   },
+  "general": "General",
+  "generalBody": "The workspace's name, region and time zone.",
   "gutter": {
-    "about": "Every gutter, which every band reads.",
+    "about": "Every gutter. Every band reads it.",
     "title": "Gutters"
   },
-  "home": "Home",
   "invoices": "Invoices",
+  "launch": "Spring launch",
+  "launchAbout": "The campaign that opens the new billing plans.",
+  "launchBody": "Twelve of twenty tasks are done.",
+  "limits": "Limits",
+  "lines": "Seats, storage and support for twenty members.",
   "measure": {
-    "about": "Every measure the bands hold their contents to.",
+    "about": "The three measures of the content: full, wide and narrow.",
     "title": "Measures"
   },
-  "more": "More",
+  "members": "Members",
+  "membersBody": "The people in the workspace and their roles.",
+  "more": "More invoice actions",
+  "navigation": {
+    "about": "The navigation band. A wide page shows a row of links, and a narrow page shows a picker that names the current section and opens the others.",
+    "title": "Navigation"
+  },
   "northwind": "Northwind",
   "outstanding": "Outstanding",
   "overdue": "Overdue",
   "owed": "What each of them still owes.",
   "paid": "Paid",
+  "projects": "Projects",
   "raised": "Raised 12 April",
+  "seats": "Seats",
+  "sections": "Settings sections",
+  "send": "Send invoice",
   "sent": "Sent",
+  "settings": "Settings",
   "size": {
-    "about": "Every size, which sets the title one heading step above a section's at the same size.",
+    "about": "The three sizes. The title reads one heading size larger than a section title at the same size.",
     "title": "Sizes"
   },
   "tailspin": "Tailspin",
-  "title": "Page"
+  "title": "Page",
+  "trail": "Trail",
+  "trial": "The trial ends in 12 days.",
+  "updated": "Updated 3 minutes ago.",
+  "usage": "Usage",
+  "workspace": "Northwind workspace",
+  "workspaceAbout": "The usage, the seats and the limits of the workspace.",
+  "workspaceBody": "Twelve of twenty seats are in use, and storage is at 40 percent."
 }
