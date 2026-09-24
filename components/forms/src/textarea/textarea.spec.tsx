@@ -90,6 +90,21 @@ describe("Textarea", () => {
     expect(root.style.getPropertyValue("--textarea-max-rows")).toBe("");
   });
 
+  it("applies className to the box", () => {
+    const { container } = render(<Textarea aria-label="Notes" className="placed" />);
+
+    expect(slotElement(container, "textarea", "root").classList.contains("placed")).toBe(true);
+  });
+
+  it("calls the onChange the caller passes on every change", () => {
+    const changed = vi.fn<() => void>();
+
+    render(<Textarea aria-label="Notes" onChange={changed} />);
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "ab" } });
+
+    expect(changed).toHaveBeenCalledOnce();
+  });
+
   it("calls onValueChange with the new value on every change", () => {
     const told = vi.fn<(value: string) => void>();
 

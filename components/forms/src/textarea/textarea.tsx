@@ -9,7 +9,8 @@
  *   that many lines and scrolls. Without `grows` the root has no copy, so the field keeps the
  *   height of its `rows` and scrolls. The component holds the value when the caller does not, and
  *   writes the attribute from whichever value is in force, so a controlled field grows the same
- *   way.
+ *   way. A change calls `onChange` and then `onValueChange`, so `Field.Control` counts a textarea
+ *   rendered through `as`.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -69,7 +70,7 @@ interface Variants {
  * styled `textarea`.
  */
 export interface TextareaProps
-  extends Omit<ComponentProps<typeof Typed>, "defaultValue" | "onChange" | "value">, Variants {
+  extends Omit<ComponentProps<typeof Typed>, "defaultValue" | "value">, Variants {
   /**
    * Initial value when the caller does not control the value.
    */
@@ -116,13 +117,16 @@ function sizing(
  *
  * @remarks
  *   `omitUndefined` removes the variants the caller left unset, because the styled root's props
- *   reject `undefined` under `exactOptionalPropertyTypes`.
+ *   reject `undefined` under `exactOptionalPropertyTypes`. `className` goes to the box, so a class
+ *   a parent part writes, such as the field's control class, styles the element it lays out.
  */
 export function Textarea({
+  className,
   defaultValue = "",
   grip,
   grows,
   maxRows,
+  onChange,
   onValueChange,
   rows = 3,
   size,
@@ -139,10 +143,11 @@ export function Textarea({
   const variants = omitUndefined({ grip, grows, size, status, variant });
 
   return (
-    <Sized {...sizing(held, grows, rows, maxRows)} {...variants}>
+    <Sized {...sizing(held, grows, rows, maxRows)} {...omitUndefined({ className })} {...variants}>
       <Typed
         {...rest}
         onChange={(event) => {
+          onChange?.(event);
           setHeld(event.target.value);
         }}
         rows={rows}
