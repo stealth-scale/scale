@@ -38,6 +38,7 @@ const RECIPE = [
   "flatVariants",
   "floating",
   "FLOOR",
+  "FOCUS_RING",
   "FOREGROUNDS",
   "gapSizes",
   "HIGHLIGHTS",
@@ -83,6 +84,7 @@ const RECIPE = [
   "WEIGHTS",
   "weightVariants",
   "widthSizes",
+  "WITHIN_FOCUS",
   "wrappedField",
   "wrappedFieldVariants",
 ];

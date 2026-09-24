@@ -6,6 +6,7 @@ import { defineRecipe } from "#authoring/recipe.ts";
 import {
   field,
   FIELD_EDGE,
+  FOCUS_RING,
   WITHIN_DISABLED,
   WITHIN_FOCUS,
   WITHIN_INVALID,
@@ -50,8 +51,14 @@ describe("field", () => {
     expect(field()).toMatchObject({ _disabled: { layerStyle: "disabled" } });
   });
 
-  it("sets the subtle surface under the read-only state", () => {
-    expect(field()).toMatchObject({ _readOnly: { background: "bg.subtle" } });
+  it("sets the subtle surface on a control marked read-only by an attribute", () => {
+    expect(field()).toMatchObject({
+      "&:is([readonly], [data-readonly], [aria-readonly=true])": { background: "bg.subtle" },
+    });
+  });
+
+  it("reads no :read-only pseudo-class", () => {
+    expect(field()).not.toHaveProperty("_readOnly");
   });
 
   it("sets the md control height as the least height under a coarse pointer", () => {
@@ -94,6 +101,16 @@ describe("wrappedField", () => {
 
     expect(wrapped).not.toHaveProperty("_readOnly");
     expect(wrapped).not.toHaveProperty("_invalid");
+  });
+
+  it("sets --focus-ring-color to FOCUS_RING", () => {
+    expect(wrappedField()).toMatchObject({ "--focus-ring-color": FOCUS_RING });
+  });
+
+  it("reads the ring color from the compiler's property with its fallbacks", () => {
+    expect(FOCUS_RING).toBe(
+      "var(--focus-ring-color-prop, var(--global-color-focus-ring, #005FCC))",
+    );
   });
 
   it("matches keyboard focus on form controls only", () => {

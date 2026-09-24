@@ -368,3 +368,17 @@ theme: let a theme state how far its wells sink
   from the shallowest. The foundation's steps are 0.04, 0.08 and 0.13.
 - A light page's palette fills keep the foundation's steps, so a subtle button keeps its distance
   from the page in a theme with lighter wells.
+
+theme: read a field's read-only state from its attributes
+
+- `field()` sets the subtle surface on a control marked `[readonly]`, `[data-readonly]` or
+  `[aria-readonly=true]`. It read `:read-only`, which matches every element that is not editable, so
+  a switch track and a checkbox box rendered on the read-only surface at rest.
+
+theme: publish FOCUS_RING and WITHIN_FOCUS
+
+- `FOCUS_RING` is the focus ring's color with the compiler's fallbacks, and `WITHIN_FOCUS` selects a
+  box whose `input`, `select` or `textarea` has keyboard focus. A box that rings the control inside
+  it sets `--focus-ring-color` to `FOCUS_RING` and paints its outline under `WITHIN_FOCUS`, as
+  `wrappedField()` does. The command palette's bar copied the color's fallback, a raw hex, into its
+  recipe.

@@ -68,6 +68,7 @@ export {
   FLATS,
   flatVariants,
   floating,
+  FOCUS_RING,
   gapSizes,
   type Highlight,
   HIGHLIGHTS,
@@ -112,6 +113,7 @@ export {
   WEIGHTS,
   weightVariants,
   widthSizes,
+  WITHIN_FOCUS,
   wrappedField,
   wrappedFieldVariants,
 } from "#authoring/recipes/index.ts";

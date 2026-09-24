@@ -43,6 +43,15 @@ export const WITHIN_READ_ONLY =
   "&:has(:is(input, textarea):read-only:not(:disabled)):not(:has(:is(input, textarea):read-write))";
 
 /**
+ * Selects a control marked read-only by an attribute.
+ *
+ * @remarks
+ *   `:read-only` also matches every element that is not editable, such as the `span` a switch
+ *   renders as its track, so the selector reads the attributes an input, a machine and ARIA set.
+ */
+const MARKED_READ_ONLY = "&:is([readonly], [data-readonly], [aria-readonly=true])";
+
+/**
  * Selects a box that contains an invalid control.
  */
 export const WITHIN_INVALID = `&:has(${CONTROL}:is(:user-invalid, [data-invalid], [aria-invalid=true]))`;
@@ -53,11 +62,11 @@ export const WITHIN_INVALID = `&:has(${CONTROL}:is(:user-invalid, [data-invalid]
  * @remarks
  *   The edge is the control's boundary at the control stroke width, at the 3:1 ratio WCAG 1.4.11
  *   sets, and it darkens to the tertiary ink under a pointer. The placeholder reads the muted ink,
- *   which meets the text ratio. An invalid field draws its edge and ring in the error palette. A
- *   read-only field rests on the subtle surface. A coarse pointer raises the field to the middle
- *   control height, because no pseudo-element renders on a replaced element to widen its target.
- *   The focus ring is drawn over the edge, and the transition uses the press pace every control
- *   uses.
+ *   which meets the text ratio. An invalid field renders its edge and ring in the error palette. A
+ *   control marked read-only rests on the subtle surface. A coarse pointer raises the field to the
+ *   middle control height, because no pseudo-element renders on a replaced element to widen its
+ *   target. The focus ring is drawn over the edge, and the transition uses the press pace every
+ *   control uses.
  */
 export function field(): SystemStyleObject {
   return {
@@ -66,7 +75,6 @@ export function field(): SystemStyleObject {
     _hover: { [FIELD_EDGE]: "{colors.fg.subtle}" },
     _invalid: { [FIELD_EDGE]: "{colors.border.error}", focusRingColor: "error.focusRing" },
     _placeholder: { color: "fg.muted" },
-    _readOnly: { background: "bg.subtle" },
     _touch: { minBlockSize: "control.md" },
     background: "bg.panel",
     borderColor: `var(${FIELD_EDGE})`,
@@ -75,6 +83,7 @@ export function field(): SystemStyleObject {
     [FIELD_EDGE]: "{colors.border.emphasized}",
     focusRingColor: "colorPalette.focusRing",
     focusVisibleRing: "inside",
+    [MARKED_READ_ONLY]: { background: "bg.subtle" },
     transitionDuration: "press",
     transitionProperty: "common",
     transitionTimingFunction: "press",
@@ -84,8 +93,12 @@ export function field(): SystemStyleObject {
 /**
  * Color of the focus ring, read from the property the compiler's focus utilities write, with the
  * same fallbacks.
+ *
+ * @remarks
+ *   A box that rings the control inside it sets `--focus-ring-color` to this value and paints its
+ *   outline from `--focus-ring-color` under {@link WITHIN_FOCUS}.
  */
-const RING = "var(--focus-ring-color-prop, var(--global-color-focus-ring, #005FCC))";
+export const FOCUS_RING = "var(--focus-ring-color-prop, var(--global-color-focus-ring, #005FCC))";
 
 /**
  * Returns the base of a box that draws the field around one or more controls.
@@ -100,7 +113,7 @@ export function wrappedField(): SystemStyleObject {
   return {
     _hover: { [FIELD_EDGE]: "{colors.fg.subtle}" },
     _touch: { minBlockSize: "control.md" },
-    "--focus-ring-color": RING,
+    "--focus-ring-color": FOCUS_RING,
     background: "bg.panel",
     borderColor: `var(${FIELD_EDGE})`,
     borderWidth: "control",
