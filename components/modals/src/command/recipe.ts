@@ -3,15 +3,14 @@
  *
  * @remarks
  *   The rows are the listbox's, and the listbox recipe styles them. The root passes its size to the
- *   listbox, so the rows follow the palette's size. The field has no edge of its own, because the
- *   panel has one. While the field has keyboard focus, the bar shows the focus ring inside its
- *   edge, so the ring surrounds the glyph, the field and the clear control, and the panel's
- *   `overflow: clip` cuts none of it. The clear control is an unfilled mark at the bar's end. The
- *   rule under the bar is the only rule between the bar and the rows. The listbox's control is the
- *   bar's only `div` child: the bar removes its rule and lets it take the width the glyph and the
- *   clear control leave. The list has no inline padding, because the listbox insets its rows. The
- *   panel sets the palette, which the highlighted row and the bar's ring read. The recipe has no
- *   `effect` axis, because the palette is a panel and its highlight moves with the arrow keys.
+ *   listbox, so the rows follow the palette's size. The field has no edge and no focus ring of its
+ *   own: the panel is the edge, and the caret and the highlighted row show where the keys go. The
+ *   clear control is an unfilled mark at the bar's end. The rule under the bar is the only rule
+ *   between the bar and the rows. The listbox's control is the bar's only `div` child: the bar
+ *   removes its rule and lets it take the width the glyph and the clear control leave. The list has
+ *   no inline padding, because the listbox insets its rows. The panel sets the palette, which the
+ *   highlighted row reads. The recipe has no `effect` axis, because the palette is a panel and its
+ *   highlight moves with the arrow keys.
  */
 
 import {
@@ -19,7 +18,6 @@ import {
   defineSlotRecipe,
   dense,
   divider,
-  FOCUS_RING,
   interactive,
   onSlot,
   onSlots,
@@ -29,7 +27,6 @@ import {
   sizeVariants,
   surface,
   truncate,
-  WITHIN_FOCUS,
 } from "@stealthscale/theme/authoring";
 
 /**
@@ -58,18 +55,10 @@ export const recipe = defineSlotRecipe({
     },
     control: {
       ...divider("horizontal"),
-      "--focus-ring-color": FOCUS_RING,
       "& > div": { borderBlockEndWidth: "0", flex: "1", minInlineSize: "0" },
       alignItems: "center",
       display: "flex",
       flexShrink: "0",
-      focusRingColor: "colorPalette.focusRing",
-      [WITHIN_FOCUS]: {
-        outlineColor: "var(--focus-ring-color)",
-        outlineOffset: "calc({borderWidths.ring} * -1)",
-        outlineStyle: "var(--focus-ring-style, solid)",
-        outlineWidth: "ring",
-      },
     },
     empty: { color: "fg.muted", textAlign: "center" },
     indicator: { alignItems: "center", color: "fg.muted", display: "inline-flex", flexShrink: "0" },
@@ -100,7 +89,7 @@ export const recipe = defineSlotRecipe({
   staticCss: [{ palette: [...PALETTES] }],
   variants: {
     /**
-     * Palette of the highlighted row and the bar's focus ring, set on the panel.
+     * Palette of the highlighted row, set on the panel.
      */
     palette: onSlot("root", paletteVariants()),
 

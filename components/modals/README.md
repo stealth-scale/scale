@@ -77,8 +77,8 @@ has these members:
   action matches.
 - `Command.Clear` renders only while the field has a query. Pressing it empties the query and moves
   focus back to the field.
-- The bar draws the focus ring inside its edge while the field has keyboard focus. The palette sets
-  the `palette`, which the highlighted row and the ring read.
+- The bar has no focus ring: the panel is the edge, and the caret and the highlighted row show where
+  the keys go. The root sets the `palette`, which the highlighted row reads.
 - The listbox renders the rows, and the root passes its `size` to the listbox, so the rows follow
   the palette's size.
 - The package renders the panel alone. Place it in a dialog to open it over the page.

@@ -23,7 +23,7 @@
   "none": "No command matches",
   "overview": "Go to overview",
   "palette": {
-    "about": "The eight palettes on the highlighted row. The palette also colours the bar's focus ring while the field has keyboard focus.",
+    "about": "The eight palettes on the highlighted row.",
     "title": "Palettes"
   },
   "queries": {
