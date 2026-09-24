@@ -236,3 +236,41 @@ component-collections: import omitUndefined from the hooks package
 
 - The listbox machine takes `omitUndefined` from `@stealthscale/hooks`. The package's private copy,
   `stated`, is removed.
+
+component-collections: add palette and effect axes to the listbox and centre its marks
+
+- `Listbox` takes `palette`, set on the root, over the eight palettes. The selected fill, the
+  highlight and the checkboxes read it. Every palette is emitted.
+- `effect="glow"` puts the palette's glow around a selected row.
+- A row centres its checkbox, icon and end mark on its height. On a row with a description the mark
+  rendered on the first line.
+- A row takes the inset scale at both ends: 16px at `md` and 12px at `sm`. Its start was 8px and
+  6px. The label, the field, the select-all row, the group labels, the empty text and the summary
+  start on the rows' text line with it.
+- Under forced colors a checkbox has a `CanvasText` edge, and a checked one fills with `CanvasText`
+  around a `Canvas` mark. The unchecked box rendered no edge, because it hides its mark with a
+  transparent color and Firefox paints the forced border in that color.
+
+component-collections: add a palette axis to the table and remove the surface variant's shadow
+
+- `Table` takes `palette`, set on the scroller, over the eight palettes. The selected row and the
+  interactive row fill read it. Every palette is emitted.
+- The table has no `effect` axis. A glow around a row overlaps the rules of the rows beside it.
+- `variant="surface"` does not cast a shadow. After dark the shadow adds a rim inside the edge,
+  under the rows, and a stripe, a filled row or a sticky cell covered it, so the edge changed width
+  down a striped table.
+- Under forced colors a selected row fills with `Highlight`. It rendered no fill.
+- The README's axis table listed the values the recipe dropped, and missed `palette` and `banded`.
+
+component-collections: document StatusMatrix
+
+- The README gains a `StatusMatrix` section: the sparse cells, the rollup's rank, the groups, the
+  crosshair and `onSelectCell`.
+
+component-collections: add a palette axis to the transfer and size its lists in the recipe
+
+- `Transfer` takes `palette`, set on the root, over the eight palettes. Both lists inherit it. Every
+  palette is emitted.
+- A side sets `--transfer-rows`, and the recipe sizes the list from it and `--listbox-row`. The side
+  set the list's `flex` and `minBlockSize` in an inline `style`.
+- The README gains a `Transfer` section.
