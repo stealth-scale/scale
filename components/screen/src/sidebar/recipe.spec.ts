@@ -128,6 +128,10 @@ describe("recipe", () => {
     expect(recipe.base?.["navLabel"]?.["[data-iconic] &"]).toStrictEqual({ srOnly: true });
   });
 
+  it("fills the band the search is placed in", () => {
+    expect(recipe.base?.["search"]).toMatchObject({ inlineSize: "full", minInlineSize: "0" });
+  });
+
   it("removes the search from a rail", () => {
     expect(recipe.base?.["search"]?.["[data-iconic] &"]).toStrictEqual({ display: "none" });
   });

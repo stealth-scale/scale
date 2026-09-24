@@ -158,7 +158,7 @@ export const recipe = defineSlotRecipe({
       minBlockSize: "0",
       minInlineSize: "0",
     },
-    search: { [ICONIC]: { display: "none" } },
+    search: { [ICONIC]: { display: "none" }, inlineSize: "full", minInlineSize: "0" },
     separator: divider("horizontal"),
   },
   className: "sidebar",
