@@ -54,6 +54,7 @@
     "@stealthscale/testing-config": "workspace:^",
     "@stealthscale/vite-config": "workspace:^",
     "@stealthscale/vite-config-react": "workspace:^",
+    "@stealthscale/vite-config-specimen": "workspace:^",
     "@stealthscale/vite-config-typescript": "workspace:^",
     "@tanstack/react-router": "catalog:",
     "@testing-library/react": "catalog:",

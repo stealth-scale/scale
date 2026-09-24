@@ -1474,6 +1474,9 @@ importers:
       happy-dom:
         specifier: 'catalog:'
         version: 20.14.5
+      lucide-react:
+        specifier: 'catalog:'
+        version: 1.47.0(react@19.3.0)
       oxc-transform-react:
         specifier: 'catalog:'
         version: 0.149.0
@@ -3799,6 +3802,9 @@ importers:
       '@stealthscale/vite-config-react':
         specifier: workspace:^
         version: link:../../../packages/vite-config-react
+      '@stealthscale/vite-config-specimen':
+        specifier: workspace:^
+        version: link:../../../packages/vite-config-specimen
       '@stealthscale/vite-config-typescript':
         specifier: workspace:^
         version: link:../../../packages/vite-config-typescript
