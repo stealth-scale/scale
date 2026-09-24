@@ -1,10 +1,10 @@
 /**
- * Binds the collapsible's recipe to the elements that draw its parts.
+ * Binds the collapsible's recipe to its parts.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. Apart from the machine, because the recipe decides how a part
- *   is drawn and the machine decides what it does.
+ *   The binding is apart from the recipe, because a compiler reads the recipe at build time and the
+ *   binding imports the runtime. It is apart from the machine, because the recipe styles a part and
+ *   the machine sets its behaviour.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";

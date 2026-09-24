@@ -8,7 +8,7 @@ import { Indicator } from "#collapsible/indicator.tsx";
 import { Trigger } from "#collapsible/trigger.tsx";
 
 describe("index", () => {
-  it("names every part and nothing beside it", () => {
+  it("exports the four parts alone", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Content",
       "Indicator",
@@ -17,7 +17,7 @@ describe("index", () => {
     ]);
   });
 
-  it("publishes neither the recipe nor the binding nor the machine", () => {
+  it("exports no recipe binding or machine", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {
@@ -25,7 +25,7 @@ describe("index", () => {
     }
   });
 
-  it("refuses every part drawn outside the root that holds it together", () => {
+  it("throws for every part rendered outside a root", () => {
     expect(
       rootedViolations(
         { Content, Indicator, Trigger },

@@ -1,6 +1,6 @@
 /**
- * Publishes the collapsible's four parts, which a caller composes as `Collapsible.Root` holding a
- * trigger and the block it shows.
+ * Exports the collapsible's four parts, composed as `Collapsible.Root` around a trigger and its
+ * content.
  */
 
 export { Content, type ContentProps } from "#collapsible/content.tsx";

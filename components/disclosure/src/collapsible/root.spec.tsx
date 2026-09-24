@@ -9,11 +9,11 @@ import { recipe } from "#collapsible/recipe.ts";
 import { Root, type RootProps } from "#collapsible/root.tsx";
 
 describe("Root", () => {
-  it("breaks no accessibility rule holding a trigger and a block", async () => {
+  it("returns no accessibility violation", async () => {
     await expect(accessibilityViolations(() => composed())).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "root",
@@ -21,38 +21,38 @@ describe("Root", () => {
     ).toStrictEqual([]);
   });
 
-  it("carries no role because the trigger and the block carry their own meaning", () => {
+  it("sets no role", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "collapsible", "root").hasAttribute("role")).toBe(false);
   });
 
-  it("draws the element as names", () => {
+  it("renders the element as names", () => {
     const { container } = render(composed({ as: "section" }));
 
     expect(slotElement(container, "collapsible", "root").tagName).toBe("SECTION");
   });
 
-  it("starts closed until a caller says otherwise", () => {
+  it("starts closed", () => {
     render(composed());
 
     expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("false");
   });
 
-  it("starts open where a caller says so", () => {
+  it("starts open with defaultOpen", () => {
     render(composed({ defaultOpen: true }));
 
     expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("true");
   });
 
-  it("opens when the control is pressed", async () => {
+  it("opens on a press of the trigger", async () => {
     render(composed());
     await pressed(screen.getByRole("button"));
 
     expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("true");
   });
 
-  it("tells a caller each time it opens and closes", async () => {
+  it("calls onOpenChange with the new state", async () => {
     const told = vi.fn<(details: { readonly open: boolean }) => void>();
 
     render(composed({ onOpenChange: told }));
@@ -61,21 +61,21 @@ describe("Root", () => {
     expect(told).toHaveBeenLastCalledWith(expect.objectContaining({ open: true }));
   });
 
-  it("follows a caller that drives it", async () => {
+  it("keeps a controlled open state on a press", async () => {
     render(composed({ open: true }));
     await pressed(screen.getByRole("button"));
 
     expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("true");
   });
 
-  it("stays shut where a caller disables it", async () => {
+  it("ignores a press while disabled", async () => {
     render(composed({ disabled: true }));
     await pressed(screen.getByRole("button"));
 
     expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("false");
   });
 
-  it("builds the reference between the control and the block from the id a caller names", () => {
+  it("derives aria-controls from the id", () => {
     render(composed({ id: "details" }));
 
     const named = screen.getByRole("button").getAttribute("aria-controls");
@@ -84,7 +84,7 @@ describe("Root", () => {
     expect(named).toContain("details");
   });
 
-  it("generates an id where a caller names none", () => {
+  it("generates an id without the prop", () => {
     render(<Root />);
     render(<Root />);
 

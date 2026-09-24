@@ -19,9 +19,9 @@ import { createRequiredContext, omitUndefined, splitEnumerable } from "@stealths
  * and methods.
  *
  * @remarks
- *   The type is inferred from `connect`, so it follows the installed machine version. The inferred
- *   type references `@zag-js/types`, so the package declares that package as a dependency. A
- *   declaration file that references an undeclared package does not resolve for a consumer.
+ *   The type comes from `connect`, so it follows the installed machine version. It references
+ *   `@zag-js/types`, so the package declares that package as a dependency, or a consumer's
+ *   declaration files do not resolve.
  */
 export type CollapsibleApi = ReturnType<typeof collapsible.connect>;
 

@@ -1,5 +1,6 @@
 /**
- * Builds the collapsible a part's specification needs above it, every part reading one machine.
+ * Fixtures for the collapsible specs: a root around one part, a settled press and a whole
+ * collapsible.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -14,23 +15,23 @@ import { Root, type RootProps } from "#collapsible/root.tsx";
 import { Trigger } from "#collapsible/trigger.tsx";
 
 /**
- * Draws whatever a case wants measured inside the root that runs the machine.
+ * Renders a part inside a root that runs the machine.
  *
  * @param children - The part under test.
- * @returns The root, holding it.
+ * @returns The root with the part inside it.
  */
 export function disclosed(children: ReactNode): ReactElement {
   return <Root>{children}</Root>;
 }
 
 /**
- * Presses a control and waits for the machine to settle.
+ * Clicks a control and waits for the machine's update.
  *
  * @remarks
- *   A machine schedules its own update, so the state a case reads back has not changed yet unless
- *   the press is flushed. Every case that presses something goes through this.
- * @param control - The control to press.
- * @returns Nothing. The caller reads the screen.
+ *   The machine schedules its update, so a case reads the new state only after the press is
+ *   flushed.
+ * @param control - The control to click.
+ * @returns A promise that settles after the update.
  */
 export async function pressed(control: HTMLElement): Promise<void> {
   fireEvent.click(control);
@@ -38,10 +39,10 @@ export async function pressed(control: HTMLElement): Promise<void> {
 }
 
 /**
- * Draws a whole collapsible, so a case can press the control and read what the block does.
+ * Renders a trigger with an indicator and its content, with the props the case sets on the root.
  *
- * @param props - Whatever the case sets on the root.
- * @returns The four parts composed the way a caller composes them.
+ * @param props - The props the case sets on the root.
+ * @returns The collapsible.
  */
 export function composed(props: RootProps = {}): ReactElement {
   return (
