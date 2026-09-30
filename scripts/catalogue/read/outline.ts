@@ -56,7 +56,8 @@ export interface Outline {
 export function outlined(root: Locator): Promise<Omit<Outline, "errors" | "scenes">> {
   return root.first().evaluate((element) => {
     const KEY = /^[a-z][a-z-]*(?:\.[a-z][a-z-]*)+$/u;
-    const FILE = /\.(?:[cm]?[jt]sx?|json|css|md|mdx|ya?ml|sh|html|svg|png|webp|log|txt|toml)$/u;
+    const FILE =
+      /\.(?:[cm]?[jt]sx?|json|csv|css|md|mdx|ya?ml|sh|html|svg|png|jpe?g|webp|pdf|log|txt|toml|xlsx|mov)$/u;
     const LANDMARK = /^(?:nav|main|aside|section|form)$/u;
     const CONTROLS =
       "a[href], button, input, select, textarea, [role=menuitem], [role=menuitemradio], [role=menuitemcheckbox], [role=option], [role=tab], [role=switch], [role=checkbox]";

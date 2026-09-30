@@ -53,13 +53,29 @@ interface Report {
 }
 
 /**
+ * Region of the document axe reads: the elements the selectors match, less the elements the
+ * excluding selectors match.
+ */
+interface Region {
+  /**
+   * Selectors of the elements to leave out, each wrapped the way axe takes a selector.
+   */
+  readonly exclude: ReadonlyArray<readonly string[]>;
+
+  /**
+   * Selectors of the elements to read, each wrapped the way axe takes a selector.
+   */
+  readonly include: ReadonlyArray<readonly string[]>;
+}
+
+/**
  * Global axe object the injected script defines.
  */
 interface Audit {
   /**
-   * Runs the enabled rules over an element and resolves to the report.
+   * Runs the enabled rules over an element or a region and resolves to the report.
    */
-  readonly run: (context: Element, options?: RunOptions) => Promise<Report>;
+  readonly run: (context: Element | Region, options?: RunOptions) => Promise<Report>;
 }
 
 declare global {
@@ -100,6 +116,60 @@ export interface Finding {
 }
 
 /**
+ * Injects axe into the page unless an earlier run did.
+ */
+async function injected(page: Page): Promise<void> {
+  const present = await page.evaluate(() => window.axe !== undefined);
+
+  if (present) return;
+
+  const require = createRequire(import.meta.url);
+
+  await page.addScriptTag({ path: require.resolve("axe-core") });
+}
+
+/**
+ * Runs axe over the elements a list of selectors matches, less the elements a second list
+ * matches.
+ *
+ * @param page - The open page.
+ * @param include - Selectors of the elements to audit. The run reads nothing when none matches.
+ * @param exclude - Selectors of the elements to leave out.
+ * @param options - Run options passed to axe unchanged.
+ * @returns Every violation, or an empty array.
+ * @throws {@link Error} When the axe script fails to load.
+ */
+export async function auditedWithin(
+  page: Page,
+  include: readonly string[],
+  exclude: readonly string[],
+  options: RunOptions,
+): Promise<readonly Finding[]> {
+  await injected(page);
+
+  return page.evaluate(
+    async ({ given, left, read }) => {
+      if (window.axe === undefined) throw new Error("the axe script did not load");
+      if (!read.some((selector) => document.querySelector(selector) !== null)) return [];
+
+      const region = {
+        exclude: left.map((selector) => [selector]),
+        include: read.map((selector) => [selector]),
+      };
+      const { violations } = await window.axe.run(region, given);
+
+      return violations.map((violation) => ({
+        help: violation.help,
+        id: violation.id,
+        impact: violation.impact ?? "unknown",
+        targets: violation.nodes.map((node) => node.target.join(" ")),
+      }));
+    },
+    { given: options, left: [...exclude], read: [...include] },
+  );
+}
+
+/**
  * Injects axe into the page and runs it over the first element a locator matches.
  *
  * @param page - The open page.
@@ -113,9 +183,7 @@ export async function audited(
   root: Locator,
   options?: RunOptions,
 ): Promise<readonly Finding[]> {
-  const require = createRequire(import.meta.url);
-
-  await page.addScriptTag({ path: require.resolve("axe-core") });
+  await injected(page);
 
   return root.first().evaluate(async (element, given) => {
     if (window.axe === undefined) throw new Error("the axe script did not load");

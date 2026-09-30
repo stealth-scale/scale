@@ -2,25 +2,46 @@
  * Runs the page review checks on an open catalogue page and returns one verdict per check.
  *
  * @remarks
- *   Every check reads the whole document, chrome included. The axe run adds
- *   `label-content-name-mismatch` to the catalogue's scene rules, and `landmark-unique` then covers
- *   landmark names across scenes and the chrome.
+ *   Every check reads the whole document, chrome included. Axe runs twice, both times with
+ *   `label-content-name-mismatch` on. The first run reads the chrome with the landmark placement
+ *   rules on and leaves the scenes out. The second run reads the scenes with the catalogue's scene
+ *   rules, which turn the landmark placement rules off.
  */
 
 import { type Page } from "playwright";
 
 // eslint-disable-next-line import/no-relative-parent-imports -- the specimen package does not export the rules its Audit control runs, and the review must run the same ones
-import { RULES } from "../../../components/specimen/src/catalogue/audited.ts";
-import { audited } from "./audit.ts";
+import { LANDMARK_RULES, RULES } from "../../../components/specimen/src/catalogue/audited.ts";
+import { auditedWithin } from "./audit.ts";
 import { propped, sourced } from "./bands.ts";
 import { overflowing, unaligned } from "./layout.ts";
 import { outlined } from "./outline.ts";
 
 /**
- * Axe run options: the catalogue's scene rules plus `label-content-name-mismatch`, which axe
- * leaves off by default and which enforces WCAG 2.5.3.
+ * Selector of the element each scene renders into.
  */
-const AXE = { rules: { ...RULES.rules, "label-content-name-mismatch": { enabled: true } } };
+const SCENES = "main section[id] > .section__body";
+
+/**
+ * Run options of the scene audit, which add `label-content-name-mismatch` (WCAG 2.5.3) to the
+ * catalogue's scene rules and keep its other options.
+ */
+const AXE = {
+  ...RULES,
+  rules: { ...RULES.rules, "label-content-name-mismatch": { enabled: true } },
+};
+
+/**
+ * Run options of the chrome audit, which turn every rule in `LANDMARK_RULES` on over the scene
+ * options.
+ */
+const CHROME = {
+  ...AXE,
+  rules: {
+    ...AXE.rules,
+    ...Object.fromEntries(LANDMARK_RULES.map((rule) => [rule, { enabled: true }])),
+  },
+};
 
 /**
  * Result of one check on one page.
@@ -43,11 +64,51 @@ export interface Verdict {
 }
 
 /**
- * Runs axe over the whole document and prefixes each violation with the title of the scene that
- * contains it, or `chrome` outside every scene.
+ * Runs a reading with every scene hidden from screen readers, and shows the scenes again after it.
+ *
+ * @remarks
+ *   Axe counts the `main`, `banner` and `contentinfo` landmarks of the whole document for its
+ *   duplication rules, whatever region a run excludes, and skips an element hidden from screen
+ *   readers. A scene that renders an application's `main` then leaves the catalogue's own `main`
+ *   as the only one the chrome run counts. The chrome run excludes the scenes, so no rule reads
+ *   the hidden elements.
+ * @param page - The open page.
+ * @param read - The reading to run.
+ * @returns The reading's result.
+ */
+async function withoutScenes<T>(page: Page, read: () => Promise<T>): Promise<T> {
+  /**
+   * Sets `aria-hidden` on every scene, or removes it.
+   */
+  const hide = (hidden: boolean): Promise<void> =>
+    page.evaluate(
+      ({ hidden: on, selector }) => {
+        for (const scene of document.querySelectorAll(selector)) {
+          if (on) scene.setAttribute("aria-hidden", "true");
+          else scene.removeAttribute("aria-hidden");
+        }
+      },
+      { hidden, selector: SCENES },
+    );
+
+  await hide(true);
+
+  try {
+    return await read();
+  } finally {
+    await hide(false);
+  }
+}
+
+/**
+ * Runs axe over the chrome and over the scenes, and names in each fault the title of the scene
+ * that contains it, or `chrome`.
  */
 async function accessible(page: Page): Promise<Verdict> {
-  const findings = await audited(page, page.locator("html"), AXE);
+  const findings = [
+    ...(await withoutScenes(page, () => auditedWithin(page, ["html"], [SCENES], CHROME))),
+    ...(await auditedWithin(page, [SCENES], [], AXE)),
+  ];
   const pairs = findings.flatMap((finding) =>
     finding.targets.map((target) => ({ finding, target })),
   );

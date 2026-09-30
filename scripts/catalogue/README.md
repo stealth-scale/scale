@@ -146,7 +146,7 @@ prints one line per check and one indented line per fault, then exits with 1 whe
 
 | Check      | Fails when                                                                                |
 | ---------- | ----------------------------------------------------------------------------------------- |
-| `axe`      | Axe reports a violation. It runs the catalogue's scene rules plus the label-in-name rule  |
+| `axe`      | Axe reports a violation in the chrome or in a scene                                       |
 | `overflow` | A recipe slot's content is wider than its box                                             |
 | `columns`  | Sibling rows of one list end their last part at distances more than 1px apart             |
 | `sources`  | A scene has no Source, or its Source contains `{...props}`, `props.<name>` or `#` imports |
@@ -154,5 +154,12 @@ prints one line per check and one indented line per fault, then exits with 1 whe
 | `raw keys` | Text renders as an untranslated key                                                       |
 | `console`  | The page logs an error while the checks run                                               |
 
-Every check reads the whole document, the catalogue chrome included. Axe reports two landmarks with
-the same name even when one is in a scene and the other is in the chrome.
+Every check reads the whole document, the catalogue chrome included. Axe runs twice, and both runs
+turn on the label-in-name rule, `label-content-name-mismatch`.
+
+- The first run reads the chrome with the landmark placement and duplication rules on. It marks the
+  scenes `aria-hidden` while it runs, because axe counts a hidden landmark out of the duplication
+  rules and an excluded one in.
+- The second run reads the scenes with the catalogue's scene rules. These turn off the rules that
+  judge a whole document, the landmark placement and duplication rules among them, because a scene
+  renders a fragment of an application inside the catalogue's page.

@@ -31,7 +31,13 @@ interface End {
  * @remarks
  *   A slot that truncates with an ellipsis, scrolls, or is visually hidden is excluded, because
  *   each of those clips its own content by design. A visually hidden slot is at most 2px wide with
- *   `overflow: hidden` or `clip`, which is how `srOnly` renders. Only the slot's own style is read,
+ *   `overflow: hidden` or `clip`, which is how `srOnly` renders. A slot is excluded when everything
+ *   past its end is positioned out of flow, because the recipe places that overhang: a badge on an
+ *   avatar's corner. A transform places an overhang too, when the moved element's layout box ends
+ *   inside the slot: a zoomed picture in an image cropper's viewport. A slot that clips content an
+ *   animation moves through it is excluded: a marquee's viewport. Content is measured in painted
+ *   pixels, at the slot's own scale, so a slot inside a scaled layer, such as a node in a graph
+ *   canvas's viewport, is compared with the box it paints. Only the slot's own style is read,
  *   because the catalogue scrolls `main` and every slot has a scrolling ancestor.
  * @param page - The open page.
  * @returns One entry per distinct slot and width pair, or an empty array.
@@ -61,15 +67,75 @@ export function overflowing(page: Page): Promise<readonly string[]> {
       );
     };
 
+    /**
+     * Returns the ratio of the element's painted width to its layout width, which is below 1 inside
+     * a layer scaled down and 1 for an element without a layout box.
+     */
+    // eslint-disable-next-line unicorn/consistent-function-scoping -- as above
+    const scaleOf = (element: Element): number =>
+      element instanceof HTMLElement && element.offsetWidth > 0
+        ? element.getBoundingClientRect().width / element.offsetWidth
+        : 1;
+
+    /**
+     * Returns true when a transform moves the element, and its layout box, which ignores the
+     * transform, ends inside the slot it is placed against.
+     */
+    // eslint-disable-next-line unicorn/consistent-function-scoping -- as above
+    const moved = (node: Element, within: Element): boolean => {
+      const { rotate, scale, transform, translate } = getComputedStyle(node);
+
+      return (
+        [rotate, scale, transform, translate].some((value) => value !== "none") &&
+        node instanceof HTMLElement &&
+        node.offsetParent === within &&
+        node.offsetLeft + node.offsetWidth <= within.clientWidth + 1
+      );
+    };
+
+    /**
+     * Returns true when the element, or an ancestor of it inside the slot, is positioned out of
+     * flow, moved by a transform, or animated inside a slot that clips it.
+     */
+    const loose = (element: Element, within: Element): boolean => {
+      const clips = ["clip", "hidden"].includes(getComputedStyle(within).overflowX);
+
+      for (let node: Element | null = element; node !== null && node !== within;) {
+        const { animationName, position } = getComputedStyle(node);
+        const streamed = clips && animationName !== "none";
+
+        if (position === "absolute" || position === "fixed" || moved(node, within) || streamed) {
+          return true;
+        }
+
+        node = node.parentElement;
+      }
+
+      return false;
+    };
+
+    /**
+     * Returns true when every descendant past the slot's end is positioned out of flow or moved by
+     * a transform.
+     */
+    const overhung = (element: Element): boolean => {
+      const end = element.getBoundingClientRect().right + 1;
+      const past = [...element.querySelectorAll("*")].filter(
+        (child) => child.getBoundingClientRect().right > end,
+      );
+
+      return past.length > 0 && past.every((child) => loose(child, element));
+    };
+
     const found = [...document.querySelectorAll("[class*=__]")]
       .filter((element) => !clipped(element))
       .map((element) => ({
         box: Math.round(element.getBoundingClientRect().width),
-        content: element.scrollWidth,
-        slot: slot(element),
+        content: Math.round(element.scrollWidth * scaleOf(element)),
+        element,
       }))
-      .filter((each) => each.content > each.box + 1)
-      .map((each) => `${each.slot} ${String(each.content)}>${String(each.box)}`);
+      .filter((each) => each.content > each.box + 1 && !overhung(each.element))
+      .map((each) => `${slot(each.element)} ${String(each.content)}>${String(each.box)}`);
 
     return [...new Set(found)];
   });
@@ -81,9 +147,14 @@ export function overflowing(page: Page): Promise<readonly string[]> {
  * @remarks
  *   A set is two or more visible children of one slot that share a slot class and a width, so the
  *   rows of one list qualify and a run of captions or tags does not. A last part wider than 80% of
- *   its row is the row's body and is skipped. Distances within 1px of each other count as one
- *   column. The catalogue kit's own slots are skipped, because its captions differ in length by
- *   design.
+ *   its row is the row's body and is skipped. An inline last part flows with the row's text and
+ *   ends where the text ends, so it is skipped too: a match marked in a search result. A child of
+ *   a flex row is never inline, because a flex container blockifies its items. Rows are compared
+ *   only with rows whose last part is
+ *   the same slot, because rows that end in different parts, such as a timeline's entries on
+ *   alternating sides of its rail, end in different places by design. Distances within 1px of each
+ *   other count as one column. The catalogue kit's own slots are skipped, because its captions
+ *   differ in length by design.
  * @param page - The open page.
  * @returns One entry per set, as `parent > row: ends at a / b (parts)`, or an empty array.
  */
@@ -110,13 +181,17 @@ export function unaligned(page: Page): Promise<readonly string[]> {
 
     /**
      * Returns the distance from the row's end to its last part, or undefined for a row whose last
-     * part is its body.
+     * part is its body or flows with its text.
      */
     const endOf = (row: Element): End | undefined => {
       const last = [...row.children].findLast((child) => visible(child));
       const box = row.getBoundingClientRect();
 
-      if (last === undefined || last.getBoundingClientRect().width > box.width * 0.8) {
+      if (
+        last === undefined ||
+        last.getBoundingClientRect().width > box.width * 0.8 ||
+        getComputedStyle(last).display === "inline"
+      ) {
         return undefined;
       }
 
@@ -137,12 +212,13 @@ export function unaligned(page: Page): Promise<readonly string[]> {
       if (new Set(rows.map((row) => slot(row))).size !== 1 || widths.size !== 1) continue;
 
       const ends = rows.map((row) => endOf(row)).filter((end) => end !== undefined);
-      const gaps = [...new Set(ends.map((end) => end.gap))];
 
-      if (ends.length > 1 && Math.max(...gaps) - Math.min(...gaps) > 1) {
-        const parts = [...new Set(ends.map((end) => end.part))].join(", ");
+      for (const part of new Set(ends.map((end) => end.part))) {
+        const gaps = [...new Set(ends.filter((end) => end.part === part).map((end) => end.gap))];
 
-        reports.add(`${slot(parent)} > ${slot(first)}: ends at ${gaps.join(" / ")} (${parts})`);
+        if (Math.max(...gaps) - Math.min(...gaps) > 1) {
+          reports.add(`${slot(parent)} > ${slot(first)}: ends at ${gaps.join(" / ")} (${part})`);
+        }
       }
     }
 
