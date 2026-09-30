@@ -119,10 +119,11 @@ export const recipe = defineSlotRecipe({
   className: CLASS,
   compoundVariants: [
     /**
-     * Sets the border of an outline card in a palette to the palette's border role.
+     * Sets the border of an outline card in a palette to the palette's muted role, the edge every
+     * outlined look draws.
      */
     {
-      css: { root: { borderColor: "colorPalette.border" } },
+      css: { root: { borderColor: "colorPalette.muted" } },
       name: "toned",
       palette: [...PALETTES],
       variant: "outline",
@@ -130,10 +131,10 @@ export const recipe = defineSlotRecipe({
 
     /**
      * Fills a subtle card in a palette with the palette's subtle role and sets its border to the
-     * palette's border role.
+     * palette's muted role.
      */
     {
-      css: { root: { background: "colorPalette.subtle", borderColor: "colorPalette.border" } },
+      css: { root: { background: "colorPalette.subtle", borderColor: "colorPalette.muted" } },
       name: "tinted",
       palette: [...PALETTES],
       variant: "subtle",

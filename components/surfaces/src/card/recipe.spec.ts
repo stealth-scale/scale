@@ -120,17 +120,17 @@ describe("recipe", () => {
     ]);
   });
 
-  it("sets the border of an outline card in a palette to colorPalette.border", () => {
+  it("sets the border of an outline card in a palette to colorPalette.muted", () => {
     expect(
       recipe.compoundVariants?.find((each) => each.className === "card__root--toned"),
-    ).toMatchObject({ css: { root: { borderColor: "colorPalette.border" } }, variant: "outline" });
+    ).toMatchObject({ css: { root: { borderColor: "colorPalette.muted" } }, variant: "outline" });
   });
 
   it("fills a subtle card in a palette with colorPalette.subtle", () => {
     expect(
       recipe.compoundVariants?.find((each) => each.className === "card__root--tinted"),
     ).toMatchObject({
-      css: { root: { background: "colorPalette.subtle", borderColor: "colorPalette.border" } },
+      css: { root: { background: "colorPalette.subtle", borderColor: "colorPalette.muted" } },
       variant: "subtle",
     });
   });
