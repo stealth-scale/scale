@@ -1,0 +1,88 @@
+{
+  "about": "One turn of a conversation: the sender's avatar and name, a bubble per message, and a footer with the delivery status and the actions. The reader's own turns are at the end of the line.",
+  "ada": "Ada Okafor",
+  "align": {
+    "about": "`end` puts a turn at the end of the line, for the reader's own messages: the avatar moves to the end and the bubbles align to it. A screen reader reads the turns in the order they are written, so the side changes nothing it reads.",
+    "title": "Sides of the line"
+  },
+  "answer": {
+    "about": "The plain look has no fill and no padding, and the bubble takes the whole column, for an assistant's answer in Markdown. The actions under it are visible at rest.",
+    "title": "An answer as a document"
+  },
+  "approve": "Can you approve it before five?",
+  "approved": "Approved. I'll send it to finance.",
+  "assistant": "Assistant",
+  "bad": "Bad answer",
+  "bram": "Bram Visser",
+  "cancel": "Cancel",
+  "copy": "Copy",
+  "delete": "Delete",
+  "deleteNote": "It is removed for everyone in the thread.",
+  "deleteTitle": "Delete this comment?",
+  "delivered": "Delivered",
+  "deliveredText": "I'll bring the printed copy.",
+  "delivery": {
+    "about": "The status shows how far each message has got. The glyph shows the state at a glance and the words are what a screen reader reads, so the glyph is `aria-hidden`. A read message's status is in the primary palette's ink.",
+    "title": "Delivery states"
+  },
+  "edit": "Edit",
+  "editLabel": "Edit your comment",
+  "edited": "Edited",
+  "editing": "Editing your comment",
+  "exchange": {
+    "about": "Another person's turn opens with their avatar and name at the start of the line. The reader's reply is at the end of the line in the primary palette's solid look, with its time and status in the footer. A turn without a visible name takes `aria-label`, so a screen reader names the sender.",
+    "title": "An exchange"
+  },
+  "failed": "Not sent",
+  "failedText": "Here's the draft for Friday.",
+  "failure": {
+    "about": "`failed` paints the bubble in the error palette. A color reports nothing to a screen reader, so the status states the failure in words and the retry action is visible at rest.",
+    "title": "A message that did not send"
+  },
+  "good": "Good answer",
+  "invoice": "The invoice from Northwind is in.",
+  "liked_one": "Thumbs up, {{count}} person",
+  "liked_other": "Thumbs up, {{count}} people",
+  "liked_zero": "Thumbs up",
+  "likedMine_one": "Thumbs up, you",
+  "likedMine_other": "Thumbs up, {{count}} people, including you",
+  "look": {
+    "about": "A bubble takes the flat looks: solid, subtle, surface, outline and plain. A bubble is read and never pressed, so no look repaints under a pointer. The plain look has no fill and no padding.",
+    "title": "Looks"
+  },
+  "move": "Can we move the launch to Thursday? Marketing needs one more day for the assets.",
+  "palette": {
+    "about": "The palette colors the bubbles of the turn. Give the reader's own turns the primary palette and every other sender the neutral one, so the two sides differ by more than their place.",
+    "title": "Palettes"
+  },
+  "reactions": "Reactions",
+  "read": "Read",
+  "readText": "The contract is signed.",
+  "regenerate": "Regenerate",
+  "replyLabel": "Reply to the thread",
+  "replyPlaceholder": "Write a reply",
+  "retry": "Retry",
+  "reveal": {
+    "about": "`hover` keeps the actions transparent until a pointer is over the turn or focus is inside it, and shows them at rest under a coarse pointer, which cannot hover. `always` shows them at rest, for the last turn of a conversation. The actions are in the tab order under both values.",
+    "title": "Actions on hover"
+  },
+  "save": "Save",
+  "send": "Send",
+  "sending": "Sending",
+  "sendingText": "On my way.",
+  "sent": "Sent",
+  "sentText": "Running five minutes late.",
+  "size": {
+    "about": "The size sets the text style of the bubbles, the header and the footer, the padding inside a bubble, and the gap between the avatar and the column.",
+    "title": "Sizes"
+  },
+  "summary": "The quarter closed **12% above** plan.\n\n- Revenue: €4.2M\n- Churn: 1.8%, down from 2.4%\n\nMost of the gain came from annual plans sold in August.",
+  "tell": "Moved it to Thursday. I'll tell support.",
+  "thread": {
+    "about": "Comments are turns in the plain look, each with its time, a reaction and, on the reader's own, the actions. Edit swaps the words for a composer in place: Enter saves, Escape or Cancel keeps the words, and focus returns to Edit. Delete asks first, with focus on Cancel, and a deletion moves focus to the reply box.",
+    "title": "A comment thread"
+  },
+  "title": "Message",
+  "works": "Thursday works for engineering. The release branch is ready.",
+  "you": "You"
+}

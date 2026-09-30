@@ -1,0 +1,66 @@
+{
+  "about": "A file attached to a message or waiting to be sent: a media square with the type's icon, a thumbnail or a spinner, the name and a line of detail, and the actions. A group lists several, stacked as rows or wrapped as tiles.",
+  "ada": "Ada Okafor",
+  "board": {
+    "detail": "WebP image, 1 kB",
+    "name": "whiteboard.webp"
+  },
+  "cancel": "Cancel {{name}}",
+  "contract": "contract-northwind.pdf",
+  "csv": "date,amount\n2026-09-30,4200\n",
+  "done": {
+    "detail": "PDF, 248 kB",
+    "name": "invoice-4471.pdf"
+  },
+  "download": "Download {{name}}",
+  "error": {
+    "detail": "Upload failed: over 25 MB",
+    "name": "site-survey.mov"
+  },
+  "idle": {
+    "detail": "Not sent yet",
+    "name": "notes.txt"
+  },
+  "label": "Attachments",
+  "orientation": {
+    "about": "`horizontal` renders a row: the media square, the name over the detail, and the actions at the end. `vertical` renders a tile with the media across the top and the actions over its corner. A group stacks rows and wraps tiles.",
+    "title": "Rows and tiles"
+  },
+  "photos": "Photos from the planning session.",
+  "photosScene": {
+    "about": "Tiles under a message, the group small and vertical. Each thumbnail has an empty `alt`, because the name under it already names the file.",
+    "title": "Photos in a message"
+  },
+  "payouts": "payouts-september.csv",
+  "payoutsDetail": "CSV, 18 kB",
+  "processing": {
+    "detail": "Checking for viruses",
+    "name": "quarterly-report.xlsx"
+  },
+  "progress": "Uploading, {{percent}}%",
+  "remove": "Remove {{name}}",
+  "retry": "Retry {{name}}",
+  "roadmap": {
+    "detail": "WebP image, 1 kB",
+    "name": "roadmap.webp"
+  },
+  "size": {
+    "about": "The size sets the media square, the padding, the gap and the text styles. A group states the size of every attachment in it.",
+    "title": "Sizes"
+  },
+  "sprint": {
+    "detail": "WebP image, 1 kB",
+    "name": "sprint-board.webp"
+  },
+  "states": {
+    "about": "`idle` dashes the edge of a file not yet sent, and `error` inks the edge, the media and the detail in the error palette. A spinner in the media square shows a file on its way. The detail states each state in words, because a screen reader reads no edge or ink.",
+    "title": "States"
+  },
+  "title": "Attachment",
+  "uploading": {
+    "detail": "Uploading, 64%",
+    "name": "floor-plan.pdf"
+  },
+  "whiteboard": "whiteboard.webp",
+  "whiteboardDetail": "WebP image, 1 kB"
+}

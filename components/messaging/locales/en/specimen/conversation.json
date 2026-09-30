@@ -1,0 +1,70 @@
+{
+  "about": "A transcript of turns that follows the latest message. The view opens at the end and scrolls with each message that arrives or grows, until the reader scrolls up. A control then brings the reader back to the latest message.",
+  "ada": "Ada Okafor",
+  "answer": "Last quarter closed **12% above** plan.\n\n- Revenue: €4.2M, up from €3.7M\n- Churn: 1.8%, down from 2.4%\n- New accounts: 312\n\nMost of the gain came from annual plans sold in August, when the price change took effect. Support volume stayed flat while the customer count grew, so the cost to serve a customer fell for the third quarter in a row.",
+  "approve": "Can you approve it before five?",
+  "approved": "Approved. I'll send it to finance.",
+  "archive": "I'll archive the thread once the payment clears.",
+  "ask": "Ask the assistant",
+  "askPlaceholder": "Ask about last quarter",
+  "asked": "Did the supplier send the corrected invoice?",
+  "assistant": "Assistant",
+  "assistantLabel": "Conversation with the assistant",
+  "assisting": {
+    "about": "The answer opens with the reasoning and the tool call, each in a disclosure `Details`, with the call's arguments and result in a `JsonTreeView`. The answer streams as Markdown in a turn with `aria-busy`, so a screen reader reads it once it is complete. While it streams, the send control stops it. Send a question to replay it.",
+    "title": "An assistant"
+  },
+  "bram": "Bram Visser",
+  "call": "Arguments and result",
+  "cancelled": "Cancelled",
+  "chat": {
+    "about": "The chat runs the scroll engine with `useConversation` and passes it to the root, so a send moves the view to the reader's own message. Ada answers a moment later, after a typing row. Scroll up before she answers, and the view stays where it is and the control to jump back appears. The latest message reads Delivered until Ada answers, and Read after.",
+    "title": "A chat"
+  },
+  "check": "Do you want me to check it against the purchase order?",
+  "cleo": "Cleo Martin",
+  "confirmed": "Finance confirmed the bank details.",
+  "conversations": "Conversations",
+  "delivered": "Delivered",
+  "devi": "Devi Rao",
+  "done": "Done",
+  "found": "Found it in the shared inbox.",
+  "hello": "Morning! The Northwind invoice came in overnight.",
+  "history": {
+    "about": "Scrolling to the top loads the page of messages before the first, while the log is `aria-busy`. The browser keeps the message the reader was looking at in place as older messages are added above it.",
+    "title": "Older messages on demand"
+  },
+  "inbox": {
+    "about": "The conversations are a collections `Listbox`: one tab stop, the arrow keys move between the rows, and typing a name moves to it. Each row shows the avatar, the name, the latest message, its time and the count of unread messages. The count is in words, so a screen reader reads it with the row.",
+    "title": "An inbox"
+  },
+  "jump": "Jump to the latest message",
+  "label": "Conversation with Ada Okafor",
+  "loading": "Loading older messages",
+  "matches": "It matches, apart from the shipping line.",
+  "message": "Message",
+  "opened": "I opened a ticket with Northwind about the invoice.",
+  "placeholder": "Write a message",
+  "please": "Yes please, I'm in meetings until four.",
+  "question": "Summarise last quarter.",
+  "read": "Read",
+  "reasoning": "Last quarter is 2026-Q3. The question needs revenue, churn and new accounts, so I'll ask for all three and compare them with the plan.",
+  "running": "Running",
+  "scheduled": "The payment is scheduled for Friday.",
+  "send": "Send",
+  "sent": "They said they sent it on Monday.",
+  "stop": "Stop the answer",
+  "stopped": "Stopped",
+  "thanks": "Thanks, that settles September.",
+  "thought": "Thought for 4 seconds",
+  "title": "Conversation",
+  "tool": "get_quarter_metrics",
+  "transcript": {
+    "about": "Two days of messages, grouped into turns by `groupTurns`, with the day as the label of a `Divider`. The times are formatted in UTC, so `timeZone` starts each day at midnight UTC and a label names the day its messages were sent. The view opens at the end, under Ada typing. Scroll up and the control at the bottom brings the view back.",
+    "title": "A transcript"
+  },
+  "typing": "Ada is typing",
+  "unread_one": "{{count}} new",
+  "unread_other": "{{count}} new",
+  "you": "You"
+}
