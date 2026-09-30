@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#index.ts";
 
 describe("index", () => {
-  it("exports Portal only", () => {
-    expect(Object.keys(barrel).toSorted()).toStrictEqual(["Portal"]);
+  it("exports Portal and the ScrollArea namespace", () => {
+    expect(Object.keys(barrel).toSorted()).toStrictEqual(["Portal", "ScrollArea"]);
   });
 
   it("exports no recipe binding or hook", () => {

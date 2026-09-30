@@ -1,0 +1,111 @@
+{
+  "about": "Scrolls a region with the theme's thin bars in place of the browser's scrollbars. While its content overflows, the viewport is a named region in the tab order, and the arrow keys, Page Up, Page Down, Home and End scroll it. A bar shows only while its own axis overflows. Press the bar to jump, drag the thumb, or turn the wheel over it.",
+  "fade": {
+    "about": "`fade` fades an edge towards the content scrolled out of view, over the distance left to scroll up to 2rem. An edge the content ends at does not fade.",
+    "title": "Fading edges"
+  },
+  "inset": {
+    "about": "`inset` pads the content from the inset scale, from 8px at `xs` to 20px at `lg`. The viewport clips its content, so a child's focus ring needs `xs` to show whole.",
+    "title": "Insets"
+  },
+  "maxHeight": {
+    "about": "`maxHeight` stops the viewport's height at a named size, from `xs` at 20rem to `lg` at 32rem. Content shorter than the size keeps its own height.",
+    "title": "Heights"
+  },
+  "notes": {
+    "about": "A card's release notes scroll under its title, up to the `xs` height, in line with the title. The area scrolls vertically, the default `scrolls`, so the notes wrap at the viewport's width. Tab onto the notes and use the arrow keys, or hover them to show the bar.",
+    "heading": "Release notes",
+    "releases": {
+      "r35": {
+        "date": "2 March 2026",
+        "summary": "Exports run in the background and email a link when the file is ready.",
+        "version": "Version 3.5"
+      },
+      "r36": {
+        "date": "6 April 2026",
+        "summary": "Invoices take a purchase order number, printed under the address.",
+        "version": "Version 3.6"
+      },
+      "r37": {
+        "date": "11 May 2026",
+        "summary": "Payouts show the fee of each transfer beside its amount.",
+        "version": "Version 3.7"
+      },
+      "r38": {
+        "date": "15 June 2026",
+        "summary": "Reports group their rows by customer, by month or by both.",
+        "version": "Version 3.8"
+      },
+      "r39": {
+        "date": "20 July 2026",
+        "summary": "Two-step sign-in accepts a security key as well as a code.",
+        "version": "Version 3.9"
+      },
+      "r40": {
+        "date": "24 August 2026",
+        "summary": "The ledger opens at the last period you closed.",
+        "version": "Version 4.0"
+      },
+      "r41": {
+        "date": "7 September 2026",
+        "summary": "Search finds an invoice by any line of its address.",
+        "version": "Version 4.1"
+      },
+      "r42": {
+        "date": "21 September 2026",
+        "summary": "Refunds of more than one payment settle in a single transfer.",
+        "version": "Version 4.2"
+      }
+    },
+    "title": "Release notes"
+  },
+  "palette": {
+    "about": "The theme's eight palettes, one row of ten roles each, scroll both ways with `scrolls=\"both\"` inside a room 24rem wide, up to the `xs` height. The corner keeps the two bars apart.",
+    "label": "Theme palettes",
+    "names": {
+      "accent": "Accent",
+      "error": "Error",
+      "info": "Info",
+      "neutral": "Neutral",
+      "primary": "Primary",
+      "secondary": "Secondary",
+      "success": "Success",
+      "warning": "Warning"
+    },
+    "title": "Both directions"
+  },
+  "rtl": {
+    "about": "Under `dir=\"rtl\"` the vertical bar is at the left, and the content and the horizontal thumb start at the right.",
+    "title": "Right to left"
+  },
+  "size": {
+    "about": "`size` sets the thumbs' thickness, from 4px at `xs` to 12px at `lg`. The scenes set `variant=\"always\"`, so the bars show at rest.",
+    "title": "Bar thickness"
+  },
+  "title": "Scroll area",
+  "topics": {
+    "about": "A row of topic filters scrolls sideways with fading edges. `scrolls=\"horizontal\"` lets the row widen the content, so the content's padding follows the last filter. The arrow keys move between the filters, and the area scrolls each focused filter into view.",
+    "filter": "Filter by topic",
+    "label": "Topics",
+    "names": {
+      "all": "All",
+      "design": "Design",
+      "engineering": "Engineering",
+      "finance": "Finance",
+      "legal": "Legal",
+      "marketing": "Marketing",
+      "operations": "Operations",
+      "people": "People",
+      "product": "Product",
+      "research": "Research",
+      "sales": "Sales",
+      "security": "Security",
+      "support": "Support"
+    },
+    "title": "Horizontal"
+  },
+  "variant": {
+    "about": "`hover` shows the bars under the pointer, while the area scrolls and while focus is inside it, over the content's edge. `always` shows them at rest and keeps the content clear of them.",
+    "title": "Visibility"
+  }
+}
