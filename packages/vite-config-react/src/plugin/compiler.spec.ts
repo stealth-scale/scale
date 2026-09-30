@@ -1,20 +1,34 @@
-/**
- * Checks where the compiler lands, which React it writes against, and what it does without one.
- */
-
+import { type Plugin } from "vite";
 import { describe, expect, it, vi } from "vitest";
 
 import { type Override } from "@stealthscale/vite-config";
 
-import { compiler } from "#plugin/compiler.ts";
+import { type Compiled, compiler } from "#plugin/compiler.ts";
 
 type Refining = Parameters<Override["refine"]>[0];
 
 const HERE = new URL("../../", import.meta.url).pathname;
 
-const BRIDGE = "@vitejs/plugin-react";
-
 const VERSION = "#version.ts";
+
+const CONFIG = "@stealthscale/vite-config";
+
+const FILE = "/work/src/counter.tsx";
+
+const COMPONENT = [
+  'import { useState } from "react";',
+  "",
+  "type Props = { readonly label: string };",
+  "",
+  "export function Counter({ label }: Props) {",
+  "  const [count, setCount] = useState(0);",
+  "",
+  "  return <button onClick={() => setCount(count + 1)}>{label} {count}</button>;",
+  "}",
+  "",
+].join("\n");
+
+const BROKEN = "export function Broken() {\n  return <div>;\n}\n";
 
 const BUILDING: Refining = {
   at: HERE,
@@ -25,63 +39,139 @@ const BUILDING: Refining = {
   root: HERE,
 };
 
+const SERVING: Refining = { ...BUILDING, command: "serve", mode: "development" };
+
 const TESTING: Refining = { ...BUILDING, command: "serve", mode: "test" };
 
-interface Preset {
-  reactCompilerPreset: (options: unknown) => unknown;
-}
+const UNMAPPED = { config: { build: { sourcemap: false }, command: "build" } };
 
 interface Read {
   major: () => string;
 }
 
-interface Loaded {
-  compiler: typeof compiler;
-  target: () => unknown;
+interface Output {
+  readonly code: string;
+  readonly map: unknown;
 }
 
+type Locating = (specifier: string, from: string) => string;
+
 /**
- * Stands in for a compiler that cannot be resolved from the package asking for it.
+ * Throws the error the resolver throws for a package that is not installed.
  */
 function missing(): never {
-  throw new Error("Cannot find module 'babel-plugin-react-compiler'");
+  throw new Error("Cannot find module 'oxc-transform-react'");
 }
 
 /**
- * Loads a second copy of the layer against the preset and the React a case describes.
- *
- * @param preset - What the bridge answers in place of the real preset.
- * @param react - The major the installed React declares.
- * @returns The layer, and what target the preset was asked for.
+ * Throws the message a plugin reports, as the bundler's error hook does.
  */
-async function reloaded(preset: unknown, react = "19"): Promise<Loaded> {
-  let seen: unknown;
+function thrown(message: string): never {
+  throw new Error(message);
+}
 
+/**
+ * Loads a second copy of the layer against the React major and the resolver a case describes.
+ *
+ * @param react - The major the installed React declares.
+ * @param locate - The resolver in place of the real one, or undefined for the real one.
+ * @returns The layer's factory.
+ */
+async function reloaded(react: string, locate?: Locating): Promise<typeof compiler> {
   vi.resetModules();
-  vi.doMock(BRIDGE, (): Preset => ({
-    reactCompilerPreset: (options: unknown): unknown => {
-      seen = options;
-
-      return preset;
-    },
-  }));
   vi.doMock(VERSION, (): Read => ({ major: (): string => react }));
+  vi.doMock(CONFIG, async (original: () => Promise<typeof import("@stealthscale/vite-config")>) => {
+    const actual = await original();
 
-  return {
-    compiler: (await import("#plugin/compiler.ts")).compiler,
-    target: () => seen,
-  };
+    return { ...actual, located: locate ?? actual.located };
+  });
+
+  return (await import("#plugin/compiler.ts")).compiler;
 }
 
 /**
  * Takes one of the pair the layer returns, having checked it is an override.
  */
-function layer(index: number, stated?: Parameters<typeof compiler>[0]): Override {
-  const held = compiler(stated)[index];
+function layer(index: number, stated?: Compiled, from = compiler): Override {
+  const found = from(stated)[index];
 
-  if (held?.kind !== "override") throw new Error("the compiler layer is not an override");
+  if (found?.kind !== "override") throw new Error("the compiler layer is not an override");
 
-  return held;
+  return found;
+}
+
+/**
+ * Returns the plugin the first layer adds to a production build.
+ */
+function pluginOf(stated?: Compiled, from = compiler): Plugin {
+  const [found] = layer(0, stated, from).refine(BUILDING, {}).plugins ?? [];
+
+  if (typeof found !== "object" || found === null || !("name" in found)) {
+    throw new Error("the compiler layer added no plugin");
+  }
+
+  return found;
+}
+
+/**
+ * Calls one of a plugin's function hooks with the arguments a case gives.
+ */
+function called(hook: unknown, ...parameters: unknown[]): unknown {
+  if (typeof hook !== "function") throw new Error("the plugin has no such hook");
+
+  return Reflect.apply(hook, undefined, parameters);
+}
+
+/**
+ * Runs a plugin's transform over one module, in the environment a case describes.
+ *
+ * @param plugin - The plugin under test.
+ * @param code - The module's source.
+ * @param id - The module's id, the fixture component's by default.
+ * @param environment - The bundler's environment, or undefined for the packer, which has none.
+ * @returns The compiled code and its source map.
+ */
+async function transformed(
+  plugin: Plugin,
+  code: string,
+  id = FILE,
+  environment?: unknown,
+): Promise<Output> {
+  const handler: unknown = typeof plugin.transform === "object" ? plugin.transform.handler : null;
+
+  if (typeof handler !== "function") throw new Error("the plugin has no transform handler");
+
+  const result: unknown = await Reflect.apply(handler, { environment, error: thrown }, [code, id]);
+
+  if (typeof result !== "object" || result === null || !("map" in result) || !("code" in result)) {
+    throw new Error("the transform returned no code");
+  }
+
+  if (typeof result.code !== "string") throw new Error("the transform returned no code");
+
+  return { code: result.code, map: result.map };
+}
+
+/**
+ * Lists the modules a compiled source imports, in the order it imports them.
+ */
+function importsOf(code: string): ReadonlyArray<string | undefined> {
+  return [...code.matchAll(/from "([^"]+)"/gu)].map((match) => match[1]);
+}
+
+/**
+ * Returns whether the plugin's filter leaves a module id out of the transform.
+ */
+function excluded(plugin: Plugin, id: string): boolean {
+  const filter: unknown = typeof plugin.transform === "object" ? plugin.transform.filter?.id : null;
+
+  if (typeof filter !== "object" || filter === null || !("exclude" in filter)) {
+    throw new Error("the plugin excludes no module id");
+  }
+
+  if (!Array.isArray(filter.exclude)) throw new Error("the plugin excludes a single pattern");
+
+  return filter.exclude.some((pattern: unknown) => pattern instanceof RegExp && pattern.test(id));
 }
 
 describe("compiler", () => {
@@ -92,11 +182,11 @@ describe("compiler", () => {
     ]);
   });
 
-  it("states why a package carries each layer", () => {
+  it("states a reason for each layer", () => {
     expect([layer(0).because, layer(1).because]).not.toContain("");
   });
 
-  it("adds the plugin after whatever plugins the tier built", () => {
+  it("appends the plugin to the plugins the tier built", () => {
     const already = { name: "other" };
     const refined = layer(0).refine(BUILDING, { plugins: [already] });
 
@@ -107,13 +197,11 @@ describe("compiler", () => {
     expect(layer(0).refine(BUILDING, {}).plugins).toHaveLength(1);
   });
 
-  it("hands the bundler a plugin it resolves before it runs", async () => {
-    const [plugin] = layer(0).refine(BUILDING, {}).plugins ?? [];
-
-    await expect(plugin).resolves.toHaveProperty("name");
+  it("returns a plugin named react.plugin.compiler", () => {
+    expect(pluginOf().name).toBe("react.plugin.compiler");
   });
 
-  it("keeps the plugins the packer already held", () => {
+  it("keeps the plugins the packer already runs", () => {
     const already = { name: "other" };
     const refined = layer(1).refine(BUILDING, { pack: { plugins: [already] } });
     const held = Array.isArray(refined.pack) ? [] : (refined.pack?.plugins ?? []);
@@ -131,73 +219,141 @@ describe("compiler", () => {
     ]);
   });
 
-  it("leaves an application alone because it has no packer", () => {
+  it("leaves pack undefined when the config has no packer", () => {
     expect(layer(1).refine(BUILDING, { plugins: [] }).pack).toBeUndefined();
   });
 
-  it("leaves a specification reading what its author wrote", () => {
+  it("adds nothing in test mode", () => {
     expect(layer(0).refine(TESTING, { plugins: [] }).plugins).toStrictEqual([]);
     expect(layer(1).refine(TESTING, { pack: {} }).pack).toStrictEqual({});
   });
 
-  it("leaves a dev server's transforms alone where the caller compiles under a build alone", () => {
-    const serving: Refining = { ...BUILDING, command: "serve", mode: "development" };
-    const building = layer(0, { only: "build" });
-
-    expect(building.refine(serving, { plugins: [] }).plugins).toStrictEqual([]);
-    expect(building.refine(BUILDING, { plugins: [] }).plugins).toHaveLength(1);
-    expect(layer(0).refine(serving, { plugins: [] }).plugins).toHaveLength(1);
+  it("adds no plugin to a dev server when only is build", () => {
+    expect(layer(0, { only: "build" }).refine(SERVING, { plugins: [] }).plugins).toStrictEqual([]);
   });
 
-  it("writes the memo cache against the installed React", async () => {
-    const loaded = await reloaded({ preset: "held" }, "18");
-
-    loaded.compiler();
-
-    expect(loaded.target()).toStrictEqual(expect.objectContaining({ target: "18" }));
+  it("adds the plugin to a build when only is build", () => {
+    expect(layer(0, { only: "build" }).refine(BUILDING, { plugins: [] }).plugins).toHaveLength(1);
   });
 
-  it("writes the memo cache against the React a caller names", async () => {
-    const loaded = await reloaded({ preset: "held" }, "18");
-
-    loaded.compiler({ target: "17" });
-
-    expect(loaded.target()).toStrictEqual(expect.objectContaining({ target: "17" }));
+  it("adds the plugin to a dev server by default", () => {
+    expect(layer(0).refine(SERVING, { plugins: [] }).plugins).toHaveLength(1);
   });
 
-  it("writes the newest memo cache for a React the compiler has no target for", async () => {
-    const loaded = await reloaded({ preset: "held" }, "23");
-
-    loaded.compiler();
-
-    expect(loaded.target()).toStrictEqual(expect.objectContaining({ target: "19" }));
+  it("applies to a client environment", () => {
+    expect(called(pluginOf().applyToEnvironment, { config: { consumer: "client" } })).toBe(true);
   });
 
-  it("names the React to upgrade to where the installed one is too old", async () => {
-    const loaded = await reloaded({ preset: "held" }, "16");
-
-    expect(() => loaded.compiler()).toThrow(/no target for React 16/u);
+  it("skips a server environment", () => {
+    expect(called(pluginOf().applyToEnvironment, { config: { consumer: "server" } })).toBe(false);
   });
 
-  it("raises what the compiler cannot read rather than skipping it", async () => {
-    const loaded = await reloaded({ preset: "held" });
+  it.each([
+    { react: "18", want: "react-compiler-runtime" },
+    { react: "19", want: "react/compiler-runtime" },
+  ])("pre-bundles $want for React $react", async ({ react, want }) => {
+    const plugin = pluginOf(undefined, await reloaded(react));
 
-    loaded.compiler();
+    expect(called(plugin.config, {}, BUILDING)).toStrictEqual({
+      optimizeDeps: { include: [want] },
+    });
+  });
 
-    expect(loaded.target()).toStrictEqual(
-      expect.objectContaining({ panicThreshold: "critical_errors" }),
+  it("imports the runtime of the installed React", async () => {
+    const plugin = pluginOf(undefined, await reloaded("18"));
+
+    expect(importsOf((await transformed(plugin, COMPONENT)).code)).toStrictEqual([
+      "react-compiler-runtime",
+      "react",
+    ]);
+  });
+
+  it("imports the runtime of the React a caller names", async () => {
+    const plugin = pluginOf({ target: "18" }, await reloaded("19"));
+
+    expect(importsOf((await transformed(plugin, COMPONENT)).code)).toStrictEqual([
+      "react-compiler-runtime",
+      "react",
+    ]);
+  });
+
+  it("imports the newest runtime for a React newer than every target", async () => {
+    const plugin = pluginOf(undefined, await reloaded("23"));
+
+    expect(importsOf((await transformed(plugin, COMPONENT)).code)).toStrictEqual([
+      "react/compiler-runtime",
+      "react",
+    ]);
+  });
+
+  it("throws when the installed React is older than every target", async () => {
+    const loaded = await reloaded("16");
+
+    expect(() => loaded()).toThrow(/no target for React 16/u);
+  });
+
+  it("throws naming the package to install when the compiler is not installed", async () => {
+    const loaded = await reloaded("19", missing);
+
+    expect(() => loaded()).toThrow(/add oxc-transform-react to this package/u);
+  });
+
+  it("leaves JSX in place", async () => {
+    const output = await transformed(pluginOf(), COMPONENT);
+
+    expect(output.code).toContain("<button onClick");
+  });
+
+  it("compiles a module whose id ends in a query", async () => {
+    const output = await transformed(pluginOf(), COMPONENT, `${FILE}?v=1`);
+
+    expect(importsOf(output.code)).toStrictEqual(["react/compiler-runtime", "react"]);
+  });
+
+  it("compiles each module one plugin receives", async () => {
+    const plugin = pluginOf();
+    const first = await transformed(plugin, COMPONENT);
+    const second = await transformed(plugin, COMPONENT, "/work/src/other.tsx");
+
+    expect([importsOf(first.code), importsOf(second.code)]).toStrictEqual([
+      ["react/compiler-runtime", "react"],
+      ["react/compiler-runtime", "react"],
+    ]);
+  });
+
+  it.each([
+    "/work/src/preset/index.d.ts",
+    "/work/src/theme.d.mts",
+    "/work/src/page.d.mdx.ts",
+    "/work/src/index.d.ts?v=1",
+  ])("leaves the declaration %s out of the transform", (id) => {
+    expect(excluded(pluginOf(), id)).toBe(true);
+  });
+
+  it.each(["/work/src/card.tsx", "/work/src/audio.data.ts", "/work/src/card.d.tsx"])(
+    "keeps the module %s in the transform",
+    (id) => {
+      expect(excluded(pluginOf(), id)).toBe(false);
+    },
+  );
+
+  it("leaves a module under node_modules out of the transform", () => {
+    expect(excluded(pluginOf(), "/work/node_modules/x/card.tsx")).toBe(true);
+  });
+
+  it("returns a source map when the context has no environment", async () => {
+    await expect(transformed(pluginOf(), COMPONENT)).resolves.toHaveProperty("map.mappings");
+  });
+
+  it("returns no source map when the build writes none", async () => {
+    const output = await transformed(pluginOf(), COMPONENT, FILE, UNMAPPED);
+
+    expect(output.map).toBeNull();
+  });
+
+  it("stops the build with the compiler's diagnostic when a module does not parse", async () => {
+    await expect(transformed(pluginOf(), BROKEN, "/work/src/broken.tsx")).rejects.toThrow(
+      /could not compile \/work\/src\/broken\.tsx\n\nUnexpected token/u,
     );
-  });
-
-  it("names the package to install where the compiler cannot be resolved", async () => {
-    const loaded = await reloaded({ preset: missing });
-
-    expect(() => loaded.compiler()).toThrow(/babel-plugin-react-compiler/u);
-  });
-
-  it("takes a preset the bridge resolves by name rather than by call", async () => {
-    const loaded = await reloaded({ preset: "babel-preset-react-compiler" });
-
-    expect(() => loaded.compiler()).not.toThrow();
   });
 });

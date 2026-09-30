@@ -17,7 +17,7 @@ const AT = "plugins";
 const COMPILED = [/\.[tj]sx?$/u, /\.mdx$/u];
 
 /**
- * Dependency path pattern. Installed packages ship compiled code.
+ * Dependency path pattern. Installed packages contain compiled code.
  */
 const UNTOUCHED = /\/node_modules\//u;
 
@@ -28,7 +28,7 @@ const UNTOUCHED = /\/node_modules\//u;
  *   The plugin still compiles JSX in an excluded file, because `exclude` applies to the refresh
  *   transform only. A specimen exports scenes and constants next to its components. The refresh
  *   runtime rejects such a module as a boundary and invalidates it on every edit, so the update
- *   reaches the application modules. The specimen plugin makes each specimen self-accept instead.
+ *   propagates to the application modules. The specimen plugin makes each specimen self-accept.
  */
 const SPECIMEN = /\.specimen\.[tj]sx$/u;
 
@@ -36,10 +36,9 @@ const SPECIMEN = /\.specimen\.[tj]sx$/u;
  * Example file pattern, excluded from Fast Refresh for the reason {@link SPECIMEN} gives.
  *
  * @remarks
- *   Each example carries the `source` string export that the specimen plugin appends. Measured on
- *   2026-09-23, the invalidation forced a full page reload on every example edit in the bundled dev
- *   server. Without a refresh boundary, the update propagates to the importing specimen, which
- *   self-accepts.
+ *   Each example exports the `source` string that the specimen plugin appends. As a refresh
+ *   boundary, an example is invalidated on every edit, and the bundled dev server reloads the whole
+ *   page. Excluded, the example passes the update to the importing specimen, which self-accepts.
  */
 const EXAMPLE = /\.example\.tsx$/u;
 
@@ -75,11 +74,11 @@ export interface Refreshed {
  * Returns the plugin options for a set of overrides.
  *
  * @remarks
- *   The automatic runtime imports the factory, so no file needs React in scope. The shipped
+ *   The automatic runtime imports the factory, so no file needs React in scope. The published
  *   `web.json` sets the same factory for the type checker, and a caller who changes `from` must
- *   change the tsconfig to match. The plugin's own `compiler` option stays unset. It resolves the
- *   compiler from the plugin directory, which an isolated `node_modules` layout rejects, and it
- *   disables Fast Refresh. The React Compiler runs as a separate Babel pass instead.
+ *   change the tsconfig to match. The plugin's own `compiler` option stays unset, because it
+ *   compiles only the files `include` and `exclude` select, and those leave out every specimen and
+ *   example. `plugin.compiler` runs the React Compiler in a transform of its own.
  */
 export function options(stated: Refreshed): Options {
   return {
