@@ -23,7 +23,6 @@
     "react-dom": "catalog:"
   },
   "devDependencies": {
-    "@rolldown/plugin-babel": "catalog:",
     "@stealthscale/vite-config": "workspace:^",
     "@stealthscale/vite-config-css": "workspace:^",
     "@stealthscale/vite-config-react": "workspace:^",
@@ -32,7 +31,6 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "babel-plugin-react-compiler": "catalog:",
     "happy-dom": "catalog:",
     "oxc-transform-react": "catalog:",
     "typescript": "catalog:",

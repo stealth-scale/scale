@@ -59,7 +59,6 @@
   },
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
-    "@rolldown/plugin-babel": "catalog:",
     "@stealthscale/component-primitives": "workspace:^",
     "@stealthscale/hooks": "workspace:^",
     "@stealthscale/provider-locale": "workspace:^",
@@ -73,7 +72,6 @@
     "@testing-library/react": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "babel-plugin-react-compiler": "catalog:",
     "happy-dom": "catalog:",
     "lucide-react": "catalog:",
     "oxc-transform-react": "catalog:",

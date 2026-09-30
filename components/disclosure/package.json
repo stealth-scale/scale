@@ -65,7 +65,6 @@
   },
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
-    "@rolldown/plugin-babel": "catalog:",
     "@stealthscale/component-a11y": "workspace:^",
     "@stealthscale/component-actions": "workspace:^",
     "@stealthscale/component-primitives": "workspace:^",
@@ -81,7 +80,6 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@zag-js/focus-visible": "catalog:",
-    "babel-plugin-react-compiler": "catalog:",
     "happy-dom": "catalog:",
     "lucide-react": "catalog:",
     "oxc-transform-react": "catalog:",

@@ -31,7 +31,6 @@
     "test": "vp test"
   },
   "devDependencies": {
-    "@rolldown/plugin-babel": "catalog:",
     "@stealthscale/provider-form": "workspace:^",
     "@stealthscale/settings": "workspace:^",
     "@stealthscale/vite-config": "workspace:^",
@@ -41,7 +40,6 @@
     "@testing-library/react": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "babel-plugin-react-compiler": "catalog:",
     "happy-dom": "catalog:",
     "oxc-transform-react": "catalog:",
     "react": "catalog:",
