@@ -274,7 +274,9 @@ export function compoundClassName(className: string, compound: object): string {
     const one = written(value);
 
     if (one === undefined) {
-      throw new Error(`${axis} is matched on a ${typeof value}, which a class name cannot carry`);
+      throw new Error(
+        `${axis} is matched on a value of type ${typeof value}, which cannot be part of a class name`,
+      );
     }
 
     return `${axis}${SEPARATOR}${one}`;

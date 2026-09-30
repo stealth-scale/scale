@@ -120,6 +120,11 @@ function indicator(edge: LayerStyle): Look {
 
 /**
  * Lists the looks, the effects among them.
+ *
+ * @remarks
+ *   An outlined, surface or flat look draws its edge in the palette's muted role, 0.89 lightness in
+ *   the neutral palette by day, and hovers to the emphasized role. `outline.solid` draws its edge
+ *   in the palette's solid, because a checked checkbox and switch report their state with it.
  */
 export const layerStyles: LayerStyles = {
   ...effects,
@@ -140,15 +145,13 @@ export const layerStyles: LayerStyles = {
     ),
     surface: {
       value: {
-        ...fill(
-          "colorPalette.subtle",
-          "colorPalette.fg",
-          "colorPalette.muted",
-          "colorPalette.emphasized",
-        ).value,
+        _active: { background: "colorPalette.emphasized", borderColor: "colorPalette.emphasized" },
+        _hover: { background: "colorPalette.muted", borderColor: "colorPalette.emphasized" },
+        background: "colorPalette.subtle",
         backgroundClip: "padding-box",
-        borderColor: "colorPalette.border",
+        borderColor: "colorPalette.muted",
         borderWidth: "control",
+        color: "colorPalette.fg",
       },
     },
   },
@@ -156,7 +159,7 @@ export const layerStyles: LayerStyles = {
     outline: {
       value: {
         backgroundClip: "padding-box",
-        borderColor: "colorPalette.border",
+        borderColor: "colorPalette.muted",
         borderWidth: "control",
         color: "colorPalette.fg",
       },
@@ -168,7 +171,7 @@ export const layerStyles: LayerStyles = {
       value: {
         ...flat("colorPalette.subtle").value,
         backgroundClip: "padding-box",
-        borderColor: "colorPalette.border",
+        borderColor: "colorPalette.muted",
         borderWidth: "control",
       },
     },
@@ -213,6 +216,7 @@ export const layerStyles: LayerStyles = {
     }),
   },
   outline: {
+    muted: outlined("colorPalette.muted", "colorPalette.emphasized"),
     solid: outlined("colorPalette.solid", "colorPalette.solid"),
     subtle: outlined("colorPalette.border", "colorPalette.border.hover"),
   },

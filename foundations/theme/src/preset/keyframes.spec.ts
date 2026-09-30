@@ -17,6 +17,20 @@ describe("keyframes", () => {
     );
   });
 
+  it("scales in from --scale-distance short of full size", () => {
+    expect(keyframes["scale-in"]).toStrictEqual({
+      from: { opacity: "0", transform: "scale(calc(1 - var(--scale-distance, 0.04)))" },
+      to: { opacity: "1", transform: "scale(1)" },
+    });
+  });
+
+  it("scales out to --scale-distance short of full size", () => {
+    expect(keyframes["scale-out"]).toStrictEqual({
+      from: { opacity: "1", transform: "scale(1)" },
+      to: { opacity: "0", transform: "scale(calc(1 - var(--scale-distance, 0.04)))" },
+    });
+  });
+
   it("expands and collapses a panel on both axes from a measured size", () => {
     expect(keyframes["expand-height"]).toStrictEqual({
       from: { height: "var(--collapsed-height, 0)" },
@@ -45,6 +59,20 @@ describe("keyframes", () => {
       },
     });
     expect(keyframes["bg-drift"]).toMatchObject({ "50%": { backgroundPosition: "100% 50%" } });
+  });
+
+  it("moves a marquee's copy across by the share the component writes", () => {
+    expect(keyframes["marquee-x"]).toStrictEqual({
+      from: { transform: "translateX(0)" },
+      to: { transform: "translateX(var(--marquee-translate, -100%))" },
+    });
+  });
+
+  it("moves a marquee's copy down by the share the component writes", () => {
+    expect(keyframes["marquee-y"]).toStrictEqual({
+      from: { transform: "translateY(0)" },
+      to: { transform: "translateY(var(--marquee-translate, -100%))" },
+    });
   });
 
   it("moves each scrolled motion by a share of the box rather than a length", () => {

@@ -4,13 +4,14 @@
  * @remarks
  *   Every intent is drawn from a color over the theme's pages. A brand intent left unstated takes
  *   the canonical purple, or the primary palette by reference for the accent. A status left
- *   unstated takes the canonical hue of its name, so it keeps its meaning on any page, at the
- *   chroma of the brand's most saturated intent, so a muted brand's statuses do not shout over
- *   it. The neutral is drawn from the ink, and its line, ring and ink point at the families, so a
- *   neutral outline button and an input share one edge. The statuses are drawn in turn, and one
- *   that lands on a solid already drawn, or near one of its own hue as a red brand's error does,
- *   is moved in lightness until it clears, so a destructive action and the primary action are
- *   never one button and an error and a warning are never one badge.
+ *   unstated takes the canonical hue of its name, so its color keeps its meaning on any page, at
+ *   the chroma of the brand's most saturated intent, so the statuses of a muted brand are as muted
+ *   as the brand down to a chroma of 0.1. The neutral is drawn from the ink, and its line, ring and
+ *   ink point at the families, so a neutral outline button and an input share one edge. The
+ *   statuses are drawn in turn. A status whose solid is within a distance of a solid already drawn,
+ *   or of one of its own hue as a red brand's error is, moves in lightness until it clears that
+ *   distance, so a destructive action and the primary action never share a color, and an error and
+ *   a warning never share one either.
  */
 
 import {
@@ -36,8 +37,8 @@ const SIDES: readonly Side[] = ["dark", "light"];
  */
 export interface Intents {
   /**
-   * The attention color: links, focus rings, selection, the active indicator. The primary
-   * palette unless stated.
+   * The color of links, focus rings, selection and the active indicator. The primary palette
+   * unless stated.
    */
   accent?: Solid | undefined;
 
@@ -78,8 +79,8 @@ export interface Intents {
 }
 
 /**
- * Fixes the canonical hue of each status, in degrees around the wheel, which the gate holds a
- * status solid to.
+ * Fixes the canonical hue of each status, in degrees around the wheel, which the gate checks a
+ * status solid against.
  */
 export const STATUS_HUES: Readonly<Record<Status, number>> = {
   error: 25,
@@ -105,13 +106,16 @@ const SECONDARY: Hue = "purple";
 
 /**
  * Fixes the distance in OKLab a status solid keeps from the primary's and the neutral's, which is
- * the distance the gate holds it to.
+ * the distance the gate checks.
  */
 const APART = 0.05;
 
 /**
- * Fixes the distance in OKLab a status solid keeps from a brand solid of its own hue: more than
- * the gate asks, because a red the gate can tell from a red is not yet a button a reader can.
+ * Fixes the distance in OKLab a status solid keeps from a brand solid of its own hue.
+ *
+ * @remarks
+ *   The distance is larger than the gate's, because two reds 0.05 apart pass the gate and still
+ *   look like one button to a reader.
  */
 const APART_IN_HUE = 0.12;
 
@@ -121,20 +125,20 @@ const APART_IN_HUE = 0.12;
 const SAME_HUE = 30;
 
 /**
- * Lists how far a status solid tries moving in lightness, from the smallest move that might clear
- * to the largest one a page has room for.
+ * Lists the lightness moves a status solid is tried at, from the smallest move that can clear to
+ * the largest one a page has room for.
  */
 const NUDGES: readonly number[] = [0.1, 0.15, 0.2, 0.25, 0.3];
 
 /**
- * Fixes the share of its chroma a status solid keeps when it moves, so it is read from its color
- * wherever it lands.
+ * Fixes the share of its chroma a status solid keeps when it moves, so it is still read as its
+ * color after the move.
  *
  * @remarks
- *   A move towards white or black leaves the gamut and the color is put back inside it with its
- *   chroma cut, so a red moved far enough to clear a red brand arrives as a pink and then as a
- *   grey. A status that cannot clear without bleaching stays where it reads, and the gate reports
- *   what is left.
+ *   A move towards white or black leaves the gamut, and the color is put back inside it with less
+ *   chroma, so a red moved far enough to clear a red brand turns pink and then grey. A status that
+ *   cannot clear without losing more than this share of its chroma keeps its lightness, and the
+ *   gate reports the collision.
  */
 const KEPT_CHROMA = 0.5;
 
@@ -146,7 +150,7 @@ const STATUS_CHROMA = 0.1;
 
 /**
  * Reads the options one intent is drawn with: the theme's own, with the list form of `keep`
- * resolved to whether this intent is among the solids the theme holds as stated.
+ * resolved to whether this intent is among the solids the theme keeps as stated.
  */
 function keeping(options: DrawOptions, palette: Palette): DrawOptions {
   const { keep } = options;
@@ -176,6 +180,7 @@ function neutralOf(palette: HuePalette): SemanticPalette {
 function accentOf(): SemanticPalette {
   return {
     border: { DEFAULT: referenced("primary.border"), hover: referenced("primary.border.hover") },
+    chart: referenced("primary.chart"),
     contrast: referenced("primary.contrast"),
     emphasized: referenced("primary.emphasized"),
     fg: referenced("primary.fg"),
@@ -220,8 +225,8 @@ function huesApart(one: string, other: string): number {
 }
 
 /**
- * Reports whether a palette's solid on one side lands on a solid already drawn, or near one of
- * its own hue.
+ * Reports whether a palette's solid on one side is within the distance of a solid already drawn,
+ * or of one of its own hue.
  */
 function crowded(palette: HuePalette, taken: readonly HuePalette[], side: Side): boolean {
   const solid = solidOf(palette, side);
@@ -237,17 +242,16 @@ function crowded(palette: HuePalette, taken: readonly HuePalette[], side: Side):
 }
 
 /**
- * Draws a status from its color, moved in lightness on any side where it lands on a solid already
- * drawn or near one of its own hue, so a status and a brand action are never one color, a red
- * brand's error is not a red a shade off, and two statuses are never one color either.
+ * Draws a status from its color, moved in lightness on any side where its solid is within the
+ * distance of a solid already drawn or of one of its own hue, so a status and a brand action never
+ * share a color, a red brand's error is not a red a shade off, and no two statuses share a color.
  *
  * @remarks
- *   A solid the theme asked to keep is not moved at all, here or anywhere else, and the gate
- *   reports what it collides with. Otherwise the moves are tried from the smallest, away from the
- *   page first, because a solid moved away from the page keeps standing on it. The first move that
- *   clears everything already drawn is kept. Where a page leaves room for none of them, which a
- *   page of middle lightness under a pale ink can do, the move that stands furthest from
- *   everything is kept and the gate reports what is left.
+ *   A solid the theme asked to keep is never moved, and the gate reports what it collides with.
+ *   Otherwise the moves are tried from the smallest, away from the page first, because a solid
+ *   moved away from the page keeps its boundary ratio. The first move that clears everything
+ *   already drawn is kept. When a page leaves room for none of them, as a page of middle lightness
+ *   under a pale ink can, the move furthest from everything is kept and the gate reports the rest.
  */
 function statusOf(
   color: Solid,
@@ -286,9 +290,9 @@ function statusOf(
     ]).filter((move) => polar(solidOf(move, side)).chroma >= floor);
 
     /**
-     * Reads the largest move the search kept, which stands furthest from what is already drawn
-     * because the steps are tried from the smallest. The palette stays where it is where every
-     * move bleached it past the chroma a status is read by.
+     * Returns the last move the search kept, which is the largest because the steps are tried from
+     * the smallest, or the palette itself when every move took its chroma below the share a status
+     * keeps.
      */
     const largest = moves.reduce((furthest, move) => move, palette);
 

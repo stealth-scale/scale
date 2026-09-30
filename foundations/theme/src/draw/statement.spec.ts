@@ -6,10 +6,10 @@ import { canonical } from "#draw/palette.ts";
 import { drawColors } from "#draw/statement.ts";
 import { modedAt } from "#tokens.fixtures.ts";
 
-const FAMILIES = ["bg", "border", "code", "fg"];
+const FAMILIES = ["bg", "border", "code", "fg", "series"];
 
 describe("drawColors", () => {
-  it("draws the four families and the eight intents and no hue palette unless asked", () => {
+  it("draws the five families and the eight intents and no hue palette unless asked", () => {
     const colors = drawColors({ ...FOUNDATION, hues: false });
 
     expect(Object.keys(colors).toSorted()).toStrictEqual([...FAMILIES, ...PALETTES].toSorted());
@@ -27,6 +27,12 @@ describe("drawColors", () => {
     );
     expect(modedAt(own.red, "solid.DEFAULT", "base")).toBe("#d72323");
     expect(modedAt(own.blue, "solid.DEFAULT", "base")).toBe(canonical("blue").light);
+  });
+
+  it("draws the series from the stated hues where the theme names them", () => {
+    const colors = drawColors({ ...FOUNDATION, hues: { yellow: canonical("yellow") } });
+
+    expect(colors.series["2"]).toStrictEqual(drawColors(FOUNDATION).yellow?.chart);
   });
 
   it("draws the code inks from the colors the theme names", () => {

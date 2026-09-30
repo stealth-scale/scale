@@ -10,8 +10,8 @@
  *   the axis is drawn again from the whole, so a theme that restates one corner keeps its parent's
  *   other corners, and one that restates the primary keeps its parent's pages. A theme never names
  *   a component. It has no `conditions`, `utilities`, `patterns` or `breakpoints` member because
- *   the runtime is generated once from the foundation, and a condition a theme added would reach
- *   the stylesheet and not the runtime a recipe is typed against.
+ *   the runtime is generated once from the foundation, and a condition a theme added would be in
+ *   the stylesheet and not in the runtime a recipe is typed against.
  */
 
 import { type RecipeExtension, type SlotRecipeExtension } from "#authoring/extension.ts";
@@ -56,7 +56,7 @@ export interface Looks {
 
   /**
    * Named typography a recipe reads with `textStyle`. Read at build time only, because the
-   * switchable shape carries tokens and nothing else.
+   * switchable shape contains tokens and nothing else.
    */
   textStyles?: TextStyles | undefined;
 }
@@ -81,7 +81,7 @@ export interface DerivedAxes extends Omit<Axes, "colors"> {
 
 /**
  * Describes what every theme states beside its axes: the looks it redraws, the recipes it
- * extends, and the packages and styles it carries.
+ * extends, and the font packages and global styles it adds.
  */
 interface Statement {
   /**
@@ -90,7 +90,7 @@ interface Statement {
   fontface?: GlobalFontface | undefined;
 
   /**
-   * The packages carrying the faces the theme names. The theme depends on them, and the
+   * The packages that provide the faces the theme names. The theme depends on them, and the
    * application's stylesheet imports them.
    */
   fonts?: readonly string[] | undefined;
@@ -173,7 +173,7 @@ export interface Theme {
   axes: Axes;
 
   /**
-   * The packages carrying its faces, its ancestors' included.
+   * The packages that provide its faces, its ancestors' included.
    */
   fonts: readonly string[];
 
@@ -183,25 +183,25 @@ export interface Theme {
   name: string;
 
   /**
-   * The build-time shape: everything the theme states, as a preset. A derived theme nests its
-   * parent's preset here, so the compiler composes the lineage.
+   * Everything the theme states, as the preset the compiler installs at build time. A derived
+   * theme nests its parent's preset here, so the compiler composes the lineage.
    */
   preset: Preset;
 
   /**
-   * The run-time shape: the values alone, switched by an attribute. Recipe extensions travel in
-   * the preset, and the build scopes them under the same attribute.
+   * The theme's values alone, as the variant an attribute switches to at run time. Recipe
+   * extensions are in the preset, and the build scopes them under the same attribute.
    */
   variant: ThemeVariant;
 }
 
 /**
- * Refuses a compound matched on a value a class name cannot carry.
+ * Throws for a compound matched on a value that cannot be part of a class name.
  *
  * @remarks
  *   The compiler names a theme's compound by the same scheme as the component's, so a value it
- *   cannot write is a compound that is compiled and never applied. Refused where the theme is
- *   defined, so no application has to find it in a compiled stylesheet.
+ *   cannot write is a compound that is compiled and never applied. `defineTheme` throws for it,
+ *   so no application has to find it in a compiled stylesheet.
  * @throws {@link Error} When a compound matches an axis on such a value.
  */
 function nameable(extensions: Readonly<Record<string, Registrable>> | undefined): void {
@@ -210,14 +210,14 @@ function nameable(extensions: Readonly<Record<string, Registrable>> | undefined)
       if (compoundSelection(compound) !== undefined) continue;
 
       throw new Error(
-        `${key} is extended with a compound matched on a value a class name cannot carry`,
+        `${key} is extended with a compound matched on a value that cannot be part of a class name`,
       );
     }
   }
 }
 
 /**
- * Reports whether a record holds anything.
+ * Reports whether a record has any key.
  */
 function filled(record: object): boolean {
   return Object.keys(record).length > 0;
@@ -278,7 +278,8 @@ function variant(statement: ThemeStatement, drawn: Drawn): ThemeVariant {
  *   The looks are merged into what the axes drew rather than spread over it, at every level. A
  *   role is a group of named steps, so a theme restating one step of its heading keeps the seven
  *   the axes drew for its siblings, the way a token stated outright keeps the tokens beside it.
- * @throws {@link Error} When a compound matches an axis on a value a class name cannot carry.
+ * @throws {@link Error} When a compound matches an axis on a value that cannot be part of a class
+ *   name.
  */
 function extension(statement: ThemeStatement, drawn: Drawn, own: ThemeVariant): PresetExtension {
   const { looks = {}, recipes, slotRecipes } = statement;

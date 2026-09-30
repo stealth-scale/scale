@@ -11,7 +11,11 @@ const FOCUSED = {
   outlineStyle: "none",
 };
 
-const READ_ONLY = "&:is(:read-only, [aria-readonly=true]):not(:disabled)";
+const BLOCKED =
+  "&:is(:disabled, :is(input, textarea):read-only, [data-readonly], [aria-readonly=true])";
+
+const READ_ONLY =
+  "&:is(:is(input, textarea):read-only, [data-readonly], [aria-readonly=true]):not(:disabled)";
 
 const WRAPPED_FOCUS = WITHIN_FOCUS;
 
@@ -20,8 +24,8 @@ const WRAPPED_READ_ONLY = WITHIN_READ_ONLY;
 describe("fieldLooks", () => {
   it("draws the outline look on the panel surface with every edge from the edge property", () => {
     expect(fieldLooks.outline.value).toStrictEqual({
-      _readOnly: { background: "bg.subtle" },
       background: "bg.panel",
+      [BLOCKED]: { background: "bg.subtle" },
       borderColor: `var(${FIELD_EDGE})`,
       [READ_ONLY]: { borderStyle: "dashed" },
     });
@@ -30,8 +34,8 @@ describe("fieldLooks", () => {
   it("draws the subtle look on the subtle surface with a block-end edge only", () => {
     expect(fieldLooks.subtle.value).toStrictEqual({
       _focusVisible: { ...FOCUSED, paddingBlockEnd: "0" },
-      _readOnly: { background: "bg.subtle" },
       background: "bg.subtle",
+      [BLOCKED]: { background: "bg.subtle" },
       borderBlockEndColor: `var(${FIELD_EDGE})`,
       borderBlockEndWidth: "control",
       borderColor: "transparent",
@@ -43,8 +47,8 @@ describe("fieldLooks", () => {
   it("draws the flushed look with a block-end edge and no corner radius", () => {
     expect(fieldLooks.flushed.value).toStrictEqual({
       _focusVisible: { ...FOCUSED, paddingBlockEnd: "0" },
-      _readOnly: { background: "bg.subtle" },
       background: "transparent",
+      [BLOCKED]: { background: "bg.subtle" },
       borderBlockEndColor: `var(${FIELD_EDGE})`,
       borderColor: "transparent",
       borderRadius: "0",

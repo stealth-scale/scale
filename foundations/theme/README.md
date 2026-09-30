@@ -28,9 +28,9 @@ const { withContext } = createRecipeContext(recipe);
 export const Button = withContext("button");
 ```
 
-A bound element carries the recipe's name as `data-recipe`, which is the handle the testing kit
-finds it by. The attribute is written where `process.env.NODE_ENV` is not `production`, so a test
-runner and a dev server see it and a production page does not.
+A bound element has the recipe's name in `data-recipe`, which the testing kit finds it by. The
+attribute is written where `process.env.NODE_ENV` is not `production`, so a test runner and a dev
+server see it and a production page does not.
 
 A recipe states what a component is. The helpers read semantic tokens, layer styles and text styles,
 so no value in the recipe is a color, a pixel length or a color mode:
@@ -115,12 +115,12 @@ An application that states no theme draws the foundation alone.
 A page switches its theme and its color mode with two attributes, on the document root or on any
 element for a subtree. Five rules decide what a switch covers:
 
-- The element carrying an attribute switches its own tokens, so everything drawn from a token
-  follows. The rules a theme or a recipe writes for that theme or mode apply to the elements below
-  it, because the compiler scopes them to descendants.
+- The element with an attribute switches its own tokens, so everything drawn from a token follows.
+  The rules a theme or a recipe writes for that theme or mode apply to the elements below it,
+  because the compiler scopes them to descendants.
 - A subtree switched to a theme is drawn from that theme and the foundation alone. Every token the
   theme leaves unstated takes the foundation's value there, not the value of the theme around it.
-- A component whose own rules must switch goes inside the element that carries the attribute.
+- A component whose own rules must switch goes inside the element that has the attribute.
 - Where neither attribute is written, the first theme draws the page and the reader's operating
   system decides the mode.
 - Every color is compiled as one `light-dark(light, dark)` value and evaluated where it is used,
@@ -151,8 +151,8 @@ import { ThemeProvider } from "@stealthscale/theme";
 | `./theme`      | The build plugin                                 | The foundation, as a default export                                                                                                                                                                                                           |
 | `./styles.css` | An application                                   | The cascade order, which the build plugin fills with the compiled stylesheet                                                                                                                                                                  |
 
-A recipe file imports `./authoring` and never `.`. The compiler's configuration reaches this package
-through every theme, and a recipe that imported the runtime would put every generated file behind
+A recipe file imports `./authoring` and never `.`. The compiler's configuration loads this package
+through each theme, and a recipe that imported the runtime would make every generated file depend on
 that configuration.
 
 ## Reference
@@ -178,74 +178,95 @@ derived theme states any part of an axis: the part is merged over its parent's s
 axis and the axis is drawn again from the whole, so a theme that restates one corner keeps its
 parent's other corners and one that restates a page keeps its parent's ink.
 
-| Axis      | A theme states                                                                                                                                                                               | `defineTheme` draws                                                                              |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `colors`  | `light` and `dark`, each a page, an ink and an optional panel; `primary`; optionally `secondary`, `accent`, `neutral` and the four statuses; `code` inks; `hues`; `keep`; `chroma`; `ratios` | Every surface, ink, line, palette role and status, at the ratios and distances the gate measures |
-| `faces`   | `body`, `heading` and `mono`, each as CSS writes a `font-family`                                                                                                                             | The face tokens, the heading face following the body face unless stated                          |
-| `type`    | `base` in rem and `ratio`; the `heading` role's `weight`, `tracking` and `leading`, the `label` role's `weight`, the `body` role's `leading`                                                 | Every font size, every size style, and every text role                                           |
-| `motion`  | `pace`, a multiplier on every pace, and the curves `press`, `enter`, `leave` and `move`                                                                                                      | The four semantic paces and curves every control, entrance, exit and panel reads                 |
-| `metrics` | `scale`, and any base moved outright: `control`, `icon`, `tag`, `inset`, `gap`, `sidebar`, `aside`, `rail`, `narrow`, `wide`, `prose`                                                        | Every step of every semantic size and spacing, each multiplied by `--density` at run time        |
-| `shape`   | `corner`, any of `l1`, `l2` and `l3` outright, the stroke widths `hairline`, `control` and `indicator`, and the `ring`'s `width` and `offset`                                                | The three concentric corners, the three widths, and the ring the focus utility reads             |
-| `depth`   | `hue` and `depth`                                                                                                                                                                            | Six heights, an inner shadow and an inset line, per mode                                         |
-| `looks`   | `layerStyles`, `animationStyles` and `textStyles` the theme redraws                                                                                                                          | Nothing. A theme's look wins over the foundation's                                               |
-| `recipes` | Extensions to recipes, by key, and `slotRecipes` likewise                                                                                                                                    | Nothing. The extension merges over the recipe                                                    |
+| Axis      | A theme states                                                                                                                                                                                         | `defineTheme` draws                                                                                            |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| `colors`  | `light` and `dark`, each a page, an ink and an optional panel; `primary`; optionally `secondary`, `accent`, `neutral` and the four statuses; `code` inks; `hues`; `series`; `keep`; `chroma`; `ratios` | Every surface, ink, line, palette role, status and series color, at the ratios and distances the gate measures |
+| `faces`   | `body`, `heading` and `mono`, each as CSS writes a `font-family`                                                                                                                                       | The face tokens, the heading face following the body face unless stated                                        |
+| `type`    | `base` in rem and `ratio`; the `heading` role's `weight`, `tracking` and `leading`, the `label` role's `weight`, the `body` role's `leading`                                                           | Every font size, every size style, and every text role                                                         |
+| `motion`  | `pace`, a multiplier on every pace, and the curves `press`, `enter`, `leave` and `move`                                                                                                                | The four semantic paces and curves every control, entrance, exit and panel reads                               |
+| `metrics` | `scale`, and any base moved outright: `control`, `icon`, `tag`, `inset`, `gap`, `sidebar`, `aside`, `rail`, `narrow`, `wide`, `prose`                                                                  | Every step of every semantic size and spacing, each multiplied by `--density` at run time                      |
+| `shape`   | `corner`, any of `l1`, `l2` and `l3` outright, the stroke widths `hairline`, `control` and `indicator`, and the `ring`'s `width` and `offset`                                                          | The three concentric corners, the three widths, and the ring the focus utility reads                           |
+| `depth`   | `hue` and `depth`                                                                                                                                                                                      | Six heights, an inner shadow and an inset line, per mode                                                       |
+| `looks`   | `layerStyles`, `animationStyles` and `textStyles` the theme redraws                                                                                                                                    | Nothing. A theme's look applies over the foundation's                                                          |
+| `recipes` | Extensions to recipes, by key, and `slotRecipes` likewise                                                                                                                                              | Nothing. The extension merges over the recipe                                                                  |
 
-A solid a theme states is kept where it stands from the page and the panel at 3:1. Where it fails,
-its lightness moves towards the ink, hue and chroma kept, only as far as it has to. Its label never
-moves it: a label falls back to black or white where neither the theme's ink nor its page carries
-it, and the worse of those two clears 4.58:1 on any color there is. `colors.keep` holds a solid
-exactly as stated for the gate to report: every solid where it is `true`, and the intents named
-where it is a list.
+A stated solid that measures 3:1 or more against the page and the panel is kept as stated. Below
+that ratio, the solid's lightness moves towards the ink with its hue and chroma kept, as far as the
+ratio needs. Its label never moves it. A label falls back to black or white when neither the theme's
+ink nor its page meets the label ratio, and the worse of those two clears 4.58:1 on any color.
+`colors.keep` keeps a solid exactly as stated, for the gate to report: every solid where it is
+`true`, and the intents named where it is a list.
 
-A theme whose stated ink cannot reach 7:1 on its stated page states the ratios it draws to under
+A theme whose stated ink is below 7:1 on its stated page states the ratios it draws to under
 `colors.ratios` (`text`, `tertiary`, `label`, `boundary`, `hairline`), and its specification passes
-the same object to the gate as `thresholds`. `FLOOR` is where lowering stops. Text, labels and the
-tertiary ink are held at 4.5:1 and a boundary at 3:1, whatever a theme states, because those are
-what WCAG asks of normal-size text and of the information that identifies a control. A theme whose
-colors cannot reach the floor is reported rather than measured against a lower number, so the
-palette changes rather than the threshold. The hairline is a quality target all the way down: a
-separator carries nothing a reader has to read.
+the same object to the gate as `thresholds`. `FLOOR` is where lowering stops: 4.5:1 for text, labels
+and the tertiary ink, and 3:1 for a boundary. WCAG asks those ratios of normal-size text and of the
+information that identifies a control. The gate reports a theme whose colors measure below the floor
+instead of checking them against a lower ratio, so the palette changes and the threshold does not.
+The hairline is a quality target at any ratio, because a separator contains nothing a reader has to
+read.
 
-A theme whose page is saturated enough that every surface in its tint reads as one wall of color
-states `colors.chroma`, the share of the page's chroma a raised surface and a well keep.
+A theme with a saturated page states `colors.chroma`: the share of the page's chroma a raised
+surface and a well keep. At the page's full chroma, the page, the panels and the wells read as one
+color.
 
-A status a theme leaves unstated keeps the canonical hue of its name, so it is read from its color
-before its word on any page, at the chroma of the brand's most saturated intent and no lower than
-0.1, so a muted brand's statuses do not shout over it. A status that lands within 0.05 of the
-primary or the neutral in OKLab, or within 0.12 of one of its own hue, moves 0.15 in lightness, so a
-red brand's error is not a red a shade off its primary button.
+A status a theme leaves unstated keeps the canonical hue of its name, so a reader recognizes it by
+its color before its word. It takes the chroma of the brand's most saturated intent, 0.1 at least,
+so the statuses of a muted brand are as muted as the brand. A status within 0.05 in OKLab of the
+primary or the neutral, or within 0.12 of a solid of its own hue, moves 0.15 in lightness, so a red
+brand's error is not a red a shade off its primary button.
+
+The series colors, `series.1` to `series.8`, are the colors a chart gives its series in order:
+
+- The first members are the theme's own colors: the primary, the secondary, the accent and the
+  stated hues, in that order, or the list `colors.series` states in their place.
+- A grey is passed over, and so is a color within 0.08 in OKLab of one already taken.
+- The rest are the foundation's hues, each the one furthest from every color taken, red and green
+  left to error and success.
+- A filling hue takes the chroma of the most saturated color taken, 0.1 at least, and never more
+  than the hue's own.
+- Every member is its palette's `chart` role, so each is at least 3:1 against the page and the
+  panel.
 
 The colors of the foundation are published as `FOUNDATION`, and its two pages as `PAGES`, for a
 theme that keeps the foundation's pages and moves the brand alone.
 
 ### The contract
 
-A root theme's colors fill the three families, the code family and the eight intents. The eleven hue
-palettes are optional: a theme draws them with `colors.hues` and an application names a hue in
-`css()`. `ThemeColors` is that type.
+A root theme's colors fill the three families, the code family, the series family and the eight
+intents. A theme draws the eleven hue palettes only when it states `colors.hues`, and an application
+names a hue in `css()`. `ThemeColors` is that type.
 
-| List          | Members                                                                                                          |
-| ------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `ROLES`       | `subtle`, `muted`, `emphasized`, `border`, `border.hover`, `solid`, `solid.hover`, `fg`, `contrast`, `focusRing` |
-| `MODES`       | `base`, `_dark`                                                                                                  |
-| `HUES`        | `blue`, `cyan`, `gray`, `green`, `indigo`, `orange`, `pink`, `purple`, `red`, `teal`, `yellow`                   |
-| `PALETTES`    | `primary`, `secondary`, `accent`, `neutral`, `info`, `success`, `warning`, `error`                               |
-| `BACKGROUNDS` | `DEFAULT`, `subtle`, `muted`, `emphasized`, `inverted`, `panel`, `popover`, `backdrop`                           |
-| `FOREGROUNDS` | `DEFAULT`, `muted`, `subtle`, `inverted`, `link`                                                                 |
-| `BORDERS`     | `DEFAULT`, `muted`, `subtle`, `emphasized`, `inverted`, `focus`                                                  |
-| `CODE`        | `keyword`, `string`, `number`, `function`, `type`, `tag`, `attr`, `comment`, `inserted`, `deleted`               |
+| List          | Members                                                                                                                   |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `ROLES`       | `subtle`, `muted`, `emphasized`, `border`, `border.hover`, `solid`, `solid.hover`, `chart`, `fg`, `contrast`, `focusRing` |
+| `SERIES`      | `1` to `8`                                                                                                                |
+| `MODES`       | `base`, `_dark`                                                                                                           |
+| `HUES`        | `blue`, `cyan`, `gray`, `green`, `indigo`, `orange`, `pink`, `purple`, `red`, `teal`, `yellow`                            |
+| `PALETTES`    | `primary`, `secondary`, `accent`, `neutral`, `info`, `success`, `warning`, `error`                                        |
+| `BACKGROUNDS` | `DEFAULT`, `subtle`, `muted`, `emphasized`, `inverted`, `panel`, `popover`, `backdrop`                                    |
+| `FOREGROUNDS` | `DEFAULT`, `muted`, `subtle`, `inverted`, `link`                                                                          |
+| `BORDERS`     | `DEFAULT`, `muted`, `subtle`, `emphasized`, `inverted`, `focus`                                                           |
+| `CODE`        | `keyword`, `string`, `number`, `function`, `type`, `tag`, `attr`, `comment`, `inserted`, `deleted`                        |
 
 Each family adds `info`, `success`, `warning` and `error` as references into the status palettes.
 `fg.link` reads the accent's ink and `border.focus` the accent's ring, and the accent is the primary
 unless a theme states one.
 
-Each surface has one job. `bg.panel` and `bg.popover` rise above the page in both modes.
-`bg.subtle`, `bg.muted` and `bg.emphasized` are wells, sunk below the page in both modes, for a
-region rather than a control. A palette's `subtle`, `muted` and `emphasized` are fills, stepped
-towards the ink and above the popover, for a control's resting, hovered and pressed states, and
-every palette's fills sit at one lightness and differ by hue alone. `fg.muted` is secondary text at
-7:1 on every surface, `fg.subtle` tertiary text at 4.5:1, `border` the structural hairline, and
-`border.emphasized` a control's boundary at 3:1.
+`bg.panel` and `bg.popover` rise above the page in both modes. `bg.subtle`, `bg.muted` and
+`bg.emphasized` are wells, sunk below the page in both modes, for a region rather than a control. A
+palette's `subtle`, `muted` and `emphasized` are fills, stepped towards the ink and above the
+popover, for a control's resting, hovered and pressed states. Every palette's fills are at one
+lightness and differ by hue alone. `fg.muted` is secondary text at 7:1 on every surface, `fg.subtle`
+tertiary text at 4.5:1, `border` the structural hairline, and `border.emphasized` a control's
+boundary at 3:1.
+
+A palette's `chart` is the color of a chart's lines, bars and sectors. On a light page it is the
+solid moved towards the page, to the lightest lightness that keeps 3.05:1 against the page and the
+panel: the foundation's teal solid measures 5.61:1 on its page, and its chart color 3.05:1. On a
+dark page the chart color is the solid. A grey solid, chroma under 0.03, is the ink or near it after
+dark, so its chart color moves towards the page to 7:1, where the hues' solids stand: ink's neutral
+chart color measures 7.03:1 on its dark panel.
 
 ### The engine
 
@@ -254,10 +275,10 @@ defining a theme.
 
 | Export                                      | Draws                                                                                              |
 | ------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `drawColors(colors)`                        | The four families, the eight intents, and the hue palettes where asked                             |
+| `drawColors(colors)`                        | The four families, the series colors, the eight intents, and the hue palettes where asked          |
 | `drawAxes(axes)`                            | Every stated axis into `semanticTokens`, `tokens` and `textStyles`                                 |
 | `inked(modes, options?)`                    | The three families from the page and the ink of each mode                                          |
-| `drawn(solid, modes, options?)`             | One palette of ten roles from one color, stated for both modes or for each                         |
+| `drawn(solid, modes, options?)`             | One palette of eleven roles from one color, stated for both modes or for each                      |
 | `intents(modes, spec, options?)`            | The eight intents, each unstated status from its canonical hue at the brand's chroma               |
 | `hues(modes, solids?, options?)`            | The eleven hue palettes, the grey from the ink                                                     |
 | `coded(modes, colors?)`                     | The code inks                                                                                      |
@@ -273,14 +294,14 @@ defining a theme.
 | `stepOf(hue, chroma, step)`                 | One step of a ramp                                                                                 |
 | `oklch(lightness, chroma, hue)`             | One color as CSS writes it                                                                         |
 | `mixed(from, to, share)`                    | A mix of two colors in OKLab                                                                       |
-| `lightened(color, lightness)`               | A color moved to a lightness with its hue and chroma kept, and its chroma reduced to stay in gamut |
+| `lightened(color, lightness)`               | A color moved to a lightness with its hue and chroma kept, and its chroma reduced to fit the gamut |
 | `polar(color)`, `lightnessOf(color)`        | A color as OKLCH reads it, and its OKLab lightness                                                 |
 | `stated(light, dark?)`, `referenced(path)`  | A color token written outright per mode, and one written as a reference                            |
 | `slides()`                                  | The sixteen slide keyframes                                                                        |
 
 `RATIOS` fixes the ratios the colors are drawn to and `HAIRLINES` the ratios of the three hairlines.
-`STATUS_HUES` fixes the canonical hue of each status, which the gate holds a status to. `RAMPS`
-places each hue on the wheel with its chroma.
+`STATUS_HUES` fixes the canonical hue of each status, which the gate checks a status against.
+`RAMPS` places each hue on the wheel with its chroma.
 
 ### Recipe helpers
 
@@ -322,8 +343,8 @@ off for a reader who asked for reduced motion.
 
 | Look                                            | Draws                                                                                                       |
 | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `fill.{solid,subtle,muted,surface,ghost,plain}` | A control's fill with its hover, the surface with a border at the control's width                           |
-| `outline.{solid,subtle}`                        | A control's edge at the control's width with its hover                                                      |
+| `fill.{solid,subtle,muted,surface,ghost,plain}` | A control's fill with its hover, the surface with a `colorPalette.muted` edge at the control's width        |
+| `outline.{muted,solid,subtle}`                  | A control's edge at the control's width with its hover. `lookVariants` draws the `outline` look as `muted`  |
 | `indicator.{top,bottom,start,end}`              | A bar along one edge at the indicator's width                                                               |
 | `disabled`                                      | The disabled cursor and opacity                                                                             |
 | `glow.{sm,md,lg}`                               | A shadow in the palette's solid at half strength                                                            |
@@ -341,22 +362,29 @@ off for a reader who asked for reduced motion.
 | `mask.{bottom,edges,radial}`                    | The element faded out at the bottom, at both sides, or towards its edges                                    |
 | `ripple`                                        | A circle of the ink that grows and fades from the centre on release                                         |
 
-| Motion                                         | Runs                                                                            |
-| ---------------------------------------------- | ------------------------------------------------------------------------------- |
-| `fade`, `scale-fade`, `slide-fade`, `collapse` | In and out, the slide from the side the placement states                        |
-| `shimmer`                                      | A background across and back at the slow ambient pace                           |
-| `sweep`                                        | The registered angle round once at the slow ambient pace                        |
-| `marquee`                                      | A row half its width across at the slower ambient pace                          |
-| `float`                                        | A bob of six percent of the element's height                                    |
-| `pulse-glow`                                   | A shadow breathing out to a size token and back                                 |
-| `aurora`                                       | A background drifting across and back at the slower ambient pace                |
-| `meteor`                                       | A streak across the viewport that fades at the end                              |
-| `spin`                                         | A turn round at the ambient pace                                                |
-| `twinkle`                                      | A small decoration's opacity between a fifth and full, staggered by `--stagger` |
-| `rise`                                         | A fade up once, delayed by `--stagger` so a list rises in turn                  |
-| `reveal`                                       | The rise driven by the element's passage into the viewport                      |
-| `parallax`                                     | A drift of fifteen percent either way driven by the scroll                      |
-| `progress`                                     | A bar filled from the left in step with the scroll                              |
+| Motion                                         | Runs                                                                              |
+| ---------------------------------------------- | --------------------------------------------------------------------------------- |
+| `fade`, `scale-fade`, `slide-fade`, `collapse` | In and out, the slide from the side the placement states                          |
+| `slide-up`                                     | In from below and out to the top, with a fade, for one mark that replaces another |
+| `sheet.{top,bottom,left,right}`                | In and out, the whole way from and to one edge of the window, with a fade         |
+| `shimmer`                                      | A background across and back at the slow ambient pace                             |
+| `sweep`                                        | The registered angle round once at the slow ambient pace                          |
+| `marquee`                                      | A row half its width across at the slower ambient pace                            |
+| `marquee-x`, `marquee-y`                       | A copy across or down by `--marquee-translate` at the slower ambient pace         |
+| `float`                                        | A bob of six percent of the element's height                                      |
+| `pulse-glow`                                   | A shadow breathing out to a size token and back                                   |
+| `aurora`                                       | A background drifting across and back at the slower ambient pace                  |
+| `meteor`                                       | A streak across the viewport that fades at the end                                |
+| `spin`                                         | A turn round at the ambient pace                                                  |
+| `twinkle`                                      | A small decoration's opacity between a fifth and full, staggered by `--stagger`   |
+| `rise`                                         | A fade up once, delayed by `--stagger` so a list rises in turn                    |
+| `reveal`                                       | The rise driven by the element's passage into the viewport                        |
+| `parallax`                                     | A drift of fifteen percent either way driven by the scroll                        |
+| `progress`                                     | A bar filled from the left in step with the scroll                                |
+
+A short slide travels `--slide-<edge>-distance`, 0.5rem where unset, and a scale starts or ends
+`--scale-distance` short of full size, 0.04 where unset. A recipe sets either property on the
+element to move it further without restating the motion.
 
 The gradients `brand`, `shine` and `aurora` are semantic tokens, so a theme moves them per mode, and
 `--angle` is registered as an angle so a browser interpolates the sweep. The scrolled motions read
@@ -369,9 +397,9 @@ with a fill writes `backgroundColor`, because the `background` shorthand resets 
 
 `contrast(foreground, background)` measures the ratio WCAG defines, from OKLCH, hex or `rgb()`.
 `luminance(color)`, `oklab(color)`, `linear(color)` and `readable(foreground, background, level)`
-measure the parts. The foundation is held to 7:1 for every ink on every surface, 4.5:1 for the
-tertiary ink and for every label on a solid, 3:1 for every boundary and ring, and 1.45:1 for the
-structural hairline, and its own specification measures every pair.
+measure the parts. The foundation's specification measures every pair: 7:1 for every ink on every
+surface, 4.5:1 for the tertiary ink and for every label on a solid, 3:1 for every boundary, ring and
+chart color, and 1.45:1 for the structural hairline.
 
 ## The foundation
 
@@ -381,8 +409,8 @@ intent left unstated takes its canonical color. Beside the colors it fills every
 compiler reads: reference tokens in nineteen categories, three concentric radii, three stroke
 widths, eight shadows, the semantic sizes and spacing, text styles with roles over the sizes, the
 fills and outlines and indicators as layer styles, the animation styles, the keyframes, the
-breakpoints, the containers, fourteen conditions and the global styles. It holds no recipe. A recipe
-belongs beside the component it draws.
+breakpoints, the containers, fourteen conditions and the global styles. It contains no recipe. A
+recipe belongs beside the component it styles.
 
 The build plugin generates the runtime under `generated/` from the foundation, once, in this
 package. Every other package reads that runtime through `.`.
@@ -395,8 +423,8 @@ through `shape`. Five layout sizes are semantic tokens the shell reads: `sizes.s
 `sizes.page.wide` for the measures a page reads at. A theme moves the panels through `metrics`.
 
 Three semantic tokens are not a theme's to move. `sizes.prose` is the measure body text is read at,
-counted in characters so it stays right at every type size. `spacing.marker` is the gutter a browser
-draws a list marker in. `spacing.safe.{top,right,bottom,left}` is the room a device keeps for a home
+counted in characters so it fits every type size. `spacing.marker` is the gutter a browser draws a
+list marker in. `spacing.safe.{top,right,bottom,left}` is the room a device keeps for a home
 indicator, a notch or a rounded corner, which only the browser knows. Anything fixed to an edge of
 the screen reads the safe tokens rather than writing `env()`, which a recipe may not do, and reads
 zero on every device that reserves nothing.

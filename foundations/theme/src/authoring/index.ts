@@ -147,6 +147,7 @@ export {
   type Role,
   ROLES,
   type SemanticPalette,
+  SERIES,
   type Status,
   STATUSES,
   type ThemeColors,

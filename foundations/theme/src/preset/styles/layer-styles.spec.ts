@@ -18,8 +18,9 @@ describe("layerStyles", () => {
     ]);
   });
 
-  it("declares two outline looks", () => {
+  it("declares three outline looks", () => {
     expect(Object.keys(tokenAt(layerStyles, "outline") ?? {}).toSorted()).toStrictEqual([
+      "muted",
       "solid",
       "subtle",
     ]);
@@ -105,11 +106,12 @@ describe("layerStyles", () => {
   it("sets the control stroke width on every bordered look", () => {
     expect(tokenAt(layerStyles, "fill.surface")).toMatchObject({
       background: "colorPalette.subtle",
-      borderColor: "colorPalette.border",
+      borderColor: "colorPalette.muted",
       borderWidth: "control",
     });
     expect(tokenAt(layerStyles, "flat.surface")).toMatchObject({ borderWidth: "control" });
     expect(tokenAt(layerStyles, "flat.outline")).toMatchObject({ borderWidth: "control" });
+    expect(tokenAt(layerStyles, "outline.muted")).toMatchObject({ borderWidth: "control" });
     expect(tokenAt(layerStyles, "outline.subtle")).toMatchObject({ borderWidth: "control" });
   });
 
@@ -146,6 +148,29 @@ describe("layerStyles", () => {
     expect(tokenAt(layerStyles, "field.outline")).toStrictEqual(fieldLooks.outline.value);
   });
 
+  it("sets the outline edge from the palette's muted role one step darker on hover", () => {
+    expect(tokenAt(layerStyles, "outline.muted")).toMatchObject({
+      _hover: { borderColor: "colorPalette.emphasized" },
+      borderColor: "colorPalette.muted",
+    });
+  });
+
+  it("sets the surface edge from the palette's muted role one step darker on hover", () => {
+    expect(tokenAt(layerStyles, "fill.surface")).toMatchObject({
+      _hover: { background: "colorPalette.muted", borderColor: "colorPalette.emphasized" },
+      borderColor: "colorPalette.muted",
+    });
+  });
+
+  it("sets the flat outline and surface edges from the palette's muted role", () => {
+    expect(tokenAt(layerStyles, "flat.outline")).toMatchObject({
+      borderColor: "colorPalette.muted",
+    });
+    expect(tokenAt(layerStyles, "flat.surface")).toMatchObject({
+      borderColor: "colorPalette.muted",
+    });
+  });
+
   it("sets the outline edge from the palette's solid or border", () => {
     expect(tokenAt(layerStyles, "outline.solid")).toMatchObject({
       borderColor: "colorPalette.solid",
@@ -157,6 +182,10 @@ describe("layerStyles", () => {
   });
 
   it("steps an outline look's fill from subtle on hover to muted on press", () => {
+    expect(tokenAt(layerStyles, "outline.muted")).toMatchObject({
+      _active: { background: "colorPalette.muted" },
+      _hover: { background: "colorPalette.subtle" },
+    });
     expect(tokenAt(layerStyles, "outline.solid")).toMatchObject({
       _active: { background: "colorPalette.muted" },
       _hover: { background: "colorPalette.subtle" },

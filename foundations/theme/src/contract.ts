@@ -1,6 +1,7 @@
 /**
- * Fixes the vocabulary every theme has to fill: the roles a palette carries, the modes a color is
- * drawn in, the hues, the semantic palettes and the three color families.
+ * Fixes the vocabulary every theme has to fill: the roles of a palette, the modes a color is drawn
+ * in, the hues, the semantic palettes, the three color families, the code inks and the series
+ * colors.
  *
  * @remarks
  *   The lists are values as well as types, so the testing kit reads the same names the compiler
@@ -11,7 +12,7 @@
 import { type SemanticTokens } from "#pandacss.ts";
 
 /**
- * Lists the ten roles a palette fills, each named for its use. A dotted name nests under its
+ * Lists the eleven roles a palette fills, each named for its use. A dotted name nests under its
  * group with `DEFAULT` for the group's own value.
  */
 export const ROLES = [
@@ -22,6 +23,7 @@ export const ROLES = [
   "border.hover",
   "solid",
   "solid.hover",
+  "chart",
   "fg",
   "contrast",
   "focusRing",
@@ -33,7 +35,7 @@ export const ROLES = [
 export const MODES = ["base", "_dark"] as const;
 
 /**
- * Lists the hue ramps the foundation draws, each of which fills the ten roles.
+ * Lists the hue ramps the foundation draws, each of which fills the eleven roles.
  */
 export const HUES = [
   "blue",
@@ -110,7 +112,13 @@ export const CODE = [
 ] as const;
 
 /**
- * Selects one of the ten roles.
+ * Lists the members of the series family: the colors a chart's series take in order, from the
+ * theme's own colors first.
+ */
+export const SERIES = ["1", "2", "3", "4", "5", "6", "7", "8"] as const;
+
+/**
+ * Selects one of the eleven roles.
  */
 export type Role = (typeof ROLES)[number];
 
@@ -145,7 +153,7 @@ export type Status = (typeof STATUSES)[number];
 export type Moded = Record<"value", Record<Mode, string>>;
 
 /**
- * Describes a color stated once, as a reference into a token that carries both modes.
+ * Describes a color stated once, as a reference into a token that states both modes.
  */
 export type Referenced = Record<"value", string>;
 
@@ -168,8 +176,8 @@ type MemberOf<R extends string, Group extends string> = R extends `${Group}.${in
   : never;
 
 /**
- * Nests the ten roles the way the compiler reads them: a dotted role under its group with the
- * group's own value at `DEFAULT`.
+ * Nests each dotted role under its group, with the group's own value at `DEFAULT`, as the compiler
+ * reads the eleven roles.
  *
  * @typeParam Leaf - The shape each role is filled with.
  */
@@ -198,8 +206,8 @@ export type SemanticPalette = PaletteRoles<Filled>;
 export type Family<Member extends string> = Record<Member | Status, Filled>;
 
 /**
- * Describes every color a root theme states: the four families and the eight intents, and the
- * hue palettes where the theme draws them.
+ * Describes every color a root theme states: the four families, the series colors, the eight
+ * intents, and the hue palettes where the theme draws them.
  */
 export type ThemeColors = {
   /**
@@ -221,6 +229,11 @@ export type ThemeColors = {
    * The inks a page is written in.
    */
   fg: Family<(typeof FOREGROUNDS)[number]>;
+
+  /**
+   * The colors a chart's series take in order.
+   */
+  series: Record<(typeof SERIES)[number], Filled>;
 } & Partial<Record<Hue, HuePalette>> &
   Record<Palette, SemanticPalette>;
 

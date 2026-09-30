@@ -4,8 +4,8 @@
  * @remarks
  *   A theme states the page and the ink of each mode, the brand's intents, and what else it
  *   draws from its own colors. The three families come from the pages and inks, the eight intents
- *   from the intent colors over the same pages, the code inks from the kinds it names, and the hue
- *   palettes where it asks for them.
+ *   from the intent colors over the same pages, the code inks from the kinds it names, the hue
+ *   palettes where it asks for them, and the series colors from its intents and hues.
  */
 
 import { type Code, type Hue, type Palette, type ThemeColors } from "#contract.ts";
@@ -14,6 +14,7 @@ import { inked } from "#draw/colors.ts";
 import { type Intents, intents } from "#draw/intents.ts";
 import { type DrawOptions, type Inked, type Ratios, type Written } from "#draw/ladder.ts";
 import { hues, type Solid } from "#draw/palette.ts";
+import { series } from "#draw/series.ts";
 
 /**
  * Describes the colors a theme states: the page and the ink of each mode, the brand's intents,
@@ -43,7 +44,7 @@ export interface Colors extends Intents {
   hues?: boolean | Readonly<Partial<Record<Hue, Solid>>> | undefined;
 
   /**
-   * Which stated solids stay as stated where they fail a ratio, and the gate reports them: every
+   * Which stated solids are kept as stated when they fail a ratio, for the gate to report: every
    * one where it is `true`, and the intents named where it is a list.
    */
   keep?: boolean | readonly Palette[] | undefined;
@@ -54,10 +55,16 @@ export interface Colors extends Intents {
   light: Written;
 
   /**
-   * The ratios the colors are drawn to, where the theme restates any: a stated ink that cannot
-   * reach the foundation's text ratio on its page is drawn to the ratio it can reach.
+   * The ratios the colors are drawn to, where the theme restates any: a stated ink below the
+   * foundation's text ratio on its page is drawn to the ratio it measures there.
    */
   ratios?: Partial<Ratios> | undefined;
+
+  /**
+   * The colors a chart's series take first, in order. The primary, the secondary, the accent and
+   * the stated hues unless stated.
+   */
+  series?: readonly Solid[] | undefined;
 
   /**
    * How far each of the three wells sinks below the page, in lightness, from the shallowest:
@@ -68,8 +75,8 @@ export interface Colors extends Intents {
 }
 
 /**
- * Draws every color a theme states into the four families, the eight intents, and the hue
- * palettes where the theme asks for them.
+ * Draws the colors a theme states into every family, intent and palette a recipe reads, and into
+ * the series colors.
  */
 export function drawColors(colors: Colors): ThemeColors {
   const modes: Inked = { dark: colors.dark, light: colors.light };
@@ -80,11 +87,13 @@ export function drawColors(colors: Colors): ThemeColors {
     wells: colors.wells,
   };
   const named = colors.hues === true ? {} : colors.hues;
+  const stated = named === undefined || named === false ? undefined : named;
 
   return {
     ...inked(modes, options),
     ...coded(modes, colors.code, options),
     ...intents(modes, colors, options),
-    ...(named === undefined || named === false ? {} : hues(modes, named, options)),
+    ...(stated === undefined ? {} : hues(modes, stated, options)),
+    series: series({ ...colors, hues: stated }, modes, options),
   };
 }

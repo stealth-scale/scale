@@ -51,10 +51,21 @@ const GAINED = "calc({borderWidths.ring} - {borderWidths.control})";
 const LOCKED: LayerStyle = { borderStyle: "dashed" };
 
 /**
- * Selects a read-only control that is not disabled. `:read-only` alone also matches a disabled
- * control.
+ * Selects a control that takes no input: a disabled one, a text control that is read-only, or a
+ * control marked read-only.
+ *
+ * @remarks
+ *   `:read-only` matches every element that takes no text, a `select` among them, so it is read on
+ *   `input` and `textarea` alone.
  */
-const READ_ONLY = "&:is(:read-only, [aria-readonly=true]):not(:disabled)";
+const BLOCKED =
+  "&:is(:disabled, :is(input, textarea):read-only, [data-readonly], [aria-readonly=true])";
+
+/**
+ * Selects a read-only control that is not disabled, read the same way.
+ */
+const READ_ONLY =
+  "&:is(:is(input, textarea):read-only, [data-readonly], [aria-readonly=true]):not(:disabled)";
 
 /**
  * Describes one look in its three states.
@@ -118,7 +129,7 @@ const LOOKS: Readonly<Record<FieldLook, Stated>> = {
 function own({ blocked, focused, rested }: Stated): Look {
   return {
     value: {
-      _readOnly: blocked,
+      [BLOCKED]: blocked,
       [READ_ONLY]: LOCKED,
       ...(focused === undefined
         ? {}

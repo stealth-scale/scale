@@ -24,10 +24,16 @@ export const LOOKS: readonly Look[] = ["solid", "subtle", "surface", "outline", 
 
 /**
  * Maps each look to the layer style that draws it.
+ *
+ * @remarks
+ *   The outline look draws its edge in the palette's muted role, 0.89 lightness in the neutral
+ *   palette by day. The words inside a control identify it, so WCAG 1.4.11 asks no contrast of
+ *   the edge. A checked checkbox and switch keep `outline.solid`, because their edge reports a
+ *   state.
  */
 const LAYER_STYLES: Readonly<Record<Look, string>> = {
   ghost: "fill.ghost",
-  outline: "outline.solid",
+  outline: "outline.muted",
   plain: "fill.plain",
   solid: "fill.solid",
   subtle: "fill.subtle",

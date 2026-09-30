@@ -110,7 +110,7 @@ describe("defineRecipe", () => {
 
   it("throws when a compound matches an axis on an object", () => {
     expect(() => compoundClassName("button", { size: { lg: true } })).toThrow(
-      "size is matched on a object, which a class name cannot carry",
+      "size is matched on a value of type object, which cannot be part of a class name",
     );
   });
 

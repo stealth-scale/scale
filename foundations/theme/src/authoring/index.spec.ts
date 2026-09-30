@@ -66,6 +66,7 @@ const RECIPE = [
   "ROLES",
   "row",
   "SEPARATOR",
+  "SERIES",
   "sizeVariants",
   "slotsOf",
   "spanCounts",

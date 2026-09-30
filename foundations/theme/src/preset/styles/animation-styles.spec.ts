@@ -7,6 +7,8 @@ const LOOPS = [
   "aurora",
   "float",
   "marquee",
+  "marquee-x",
+  "marquee-y",
   "meteor",
   "pulse",
   "pulse-glow",
@@ -21,10 +23,51 @@ const SCROLLED = ["parallax", "progress", "reveal"];
 describe("animationStyles", () => {
   it("names the pairs and the loops and the scrolled motions and the rise", () => {
     expect(Object.keys(animationStyles).toSorted()).toStrictEqual(
-      ["collapse", "fade", "scale-fade", "slide-fade", "rise", ...LOOPS, ...SCROLLED].toSorted(),
+      [
+        "collapse",
+        "fade",
+        "scale-fade",
+        "sheet",
+        "slide-fade",
+        "slide-up",
+        "rise",
+        ...LOOPS,
+        ...SCROLLED,
+      ].toSorted(),
     );
     expect(Object.keys(tokenAt(animationStyles, "fade") ?? {})).toStrictEqual(["in", "out"]);
   });
+
+  it("names a sheet's pair for each edge of the window", () => {
+    expect(Object.keys(tokenAt(animationStyles, "sheet") ?? {})).toStrictEqual([
+      "top",
+      "bottom",
+      "left",
+      "right",
+    ]);
+  });
+
+  it.each(["top", "bottom", "left", "right"])(
+    "slides a sheet the whole way in from the $0 edge at the entering pace",
+    (edge) => {
+      expect(tokenAt(animationStyles, `sheet.${edge}.in`)).toMatchObject({
+        animationDuration: "enter",
+        animationName: `slide-from-${edge}-full, fade-in`,
+        animationTimingFunction: "enter",
+      });
+    },
+  );
+
+  it.each(["top", "bottom", "left", "right"])(
+    "slides a sheet the whole way out to the $0 edge at the leaving pace",
+    (edge) => {
+      expect(tokenAt(animationStyles, `sheet.${edge}.out`)).toMatchObject({
+        animationDuration: "leave",
+        animationName: `slide-to-${edge}-full, fade-out`,
+        animationTimingFunction: "leave",
+      });
+    },
+  );
 
   it("drives the scrolled motions from the scroll position and not the clock", () => {
     expect(tokenAt(animationStyles, "parallax")).toMatchObject({
@@ -78,6 +121,9 @@ describe("animationStyles", () => {
       "scale-fade.out",
       "collapse.in",
       "slide-fade.in",
+      "slide-up.out",
+      "sheet.left.in",
+      "sheet.bottom.out",
       "rise",
       ...LOOPS,
       ...SCROLLED,
@@ -105,6 +151,22 @@ describe("animationStyles", () => {
     });
   });
 
+  it("slides in from below at the entering pace", () => {
+    expect(tokenAt(animationStyles, "slide-up.in")).toMatchObject({
+      animationDuration: "enter",
+      animationName: "slide-from-bottom, fade-in",
+      animationTimingFunction: "enter",
+    });
+  });
+
+  it("slides out to the top at the leaving pace", () => {
+    expect(tokenAt(animationStyles, "slide-up.out")).toMatchObject({
+      animationDuration: "leave",
+      animationName: "slide-to-top, fade-out",
+      animationTimingFunction: "leave",
+    });
+  });
+
   it("runs every loop until the element goes", () => {
     for (const name of LOOPS) {
       expect(tokenAt(animationStyles, name)).toMatchObject({ animationIterationCount: "infinite" });
@@ -123,6 +185,17 @@ describe("animationStyles", () => {
       animationTimingFunction: "linear",
     });
   });
+
+  it.each(["marquee-x", "marquee-y"])(
+    "runs a marquee's copy by $0 without easing at the slower ambient pace",
+    (name) => {
+      expect(tokenAt(animationStyles, name)).toMatchObject({
+        animationDuration: "ambientSlower",
+        animationName: name,
+        animationTimingFunction: "linear",
+      });
+    },
+  );
 
   it("sweeps the registered angle round at the slow ambient pace", () => {
     expect(tokenAt(animationStyles, "sweep")).toMatchObject({
