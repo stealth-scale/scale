@@ -174,40 +174,6 @@ export function cellIn(root: Element, key: string): HTMLElement | undefined {
 }
 
 /**
- * Lists the values of `overflow-x` under which an element scrolls sideways.
- */
-const SCROLLING = new Set(["auto", "scroll"]);
-
-/**
- * Scrolls a heat grid's scroll area sideways until a cell is inside it, and leaves the page where
- * it is.
- *
- * @remarks
- *   The scroll area is the first element in the frame that contains the cell, scrolls sideways and
- *   is wider inside than it is, so a grid that fits scrolls nothing. Chromium also reports the
- *   area's overflow on the elements around it, which do not scroll. The cell's own `scrollIntoView`
- *   also scrolls the page, and Firefox 155 ignores its `container: "nearest"`. A cell under the
- *   sticky row headings is revealed only up to the area's edge.
- * @param cell - A cell inside the scroll area.
- * @param frame - The element the grid's scroll area is in.
- */
-export function reveal(cell: HTMLElement, frame: Element): void {
-  const view = [...frame.querySelectorAll("*")].find(
-    (element) =>
-      element.contains(cell) &&
-      element.scrollWidth > element.clientWidth &&
-      SCROLLING.has(getComputedStyle(element).overflowX),
-  );
-
-  if (view === undefined) return;
-
-  const at = cell.getBoundingClientRect();
-  const box = view.getBoundingClientRect();
-
-  view.scrollLeft += Math.max(0, at.right - box.right) - Math.max(0, box.left - at.left);
-}
-
-/**
  * Returns the key of the cell an event's target is in, or undefined outside a cell.
  */
 function keyOf(target: EventTarget): string | undefined {

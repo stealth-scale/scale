@@ -13,12 +13,12 @@
 import { type ReactElement, type ReactNode, useRef } from "react";
 
 import { Table } from "@stealthscale/component-collections";
-import { omitUndefined, useSafeLayoutEffect } from "@stealthscale/hooks";
+import { omitUndefined, revealSideways, useSafeLayoutEffect } from "@stealthscale/hooks";
 
 import { Frame, type HeatShape, type HeatSize } from "#heat/grid.ts";
 import { Key } from "#heat/key.tsx";
 import { Readout } from "#heat/readout.tsx";
-import { cellIn, type Places, reveal, useWalk } from "#heat/walk.ts";
+import { cellIn, type Places, useWalk } from "#heat/walk.ts";
 import { type HeatmapCell, type Place, type Resolved, textOf } from "#heatmap/cells.ts";
 import { HeatmapTable, type HeatmapTableProps } from "#heatmap/table.tsx";
 
@@ -106,7 +106,7 @@ export function HeatmapGrid<Cell extends HeatmapCell>(props: HeatmapGridProps<Ce
     const root = frame.current as HTMLDivElement;
     const cell = initial === undefined ? undefined : cellIn(root, initial);
 
-    if (cell !== undefined) reveal(cell, root);
+    if (cell !== undefined) revealSideways(cell, root);
   }, [initial]);
 
   return (
