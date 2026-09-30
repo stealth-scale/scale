@@ -9,3 +9,4 @@
 - Add `useCrowded()`.
 - Add `usePresence()` over `@zag-js/presence`.
 - Add `useHighlight()` over `@zag-js/highlight-word`.
+- Add `revealSideways(element, frame)`.

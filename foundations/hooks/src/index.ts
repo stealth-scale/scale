@@ -1,8 +1,9 @@
 /**
  * Exports the React hooks and helpers the component packages share: media and pointer queries,
  * overflow and sticky-offset measurement, controlled state, live-region announcements, the
- * presence of an element that animates out, the runs of a text that match a search, and the
- * context and props utilities for components with parts. The package peers on React, runs
+ * presence of an element that animates out, the runs of a text that match a search, a sideways
+ * scroll that reveals an element without moving the page, and the context and props utilities for
+ * components with parts. The package peers on React, runs
  * `@zag-js/presence` for the presence hook and `@zag-js/highlight-word` for the highlight.
  *
  * @packageDocumentation
@@ -11,6 +12,7 @@
 export { createLabelling, type Labelling } from "#create-labelling.ts";
 export { createRequiredContext, type ProvidedProps } from "#create-required-context.ts";
 export { type OmitUndefined, omitUndefined } from "#omit-undefined.ts";
+export { revealSideways } from "#reveal-sideways.ts";
 export { splitEnumerable, type Splitter } from "#split-enumerable.ts";
 export { type AnnouncePoliteness, speakable, useAnnounce } from "#use-announce.ts";
 export { useCallbackRef } from "#use-callback-ref.ts";

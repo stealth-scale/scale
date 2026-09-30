@@ -204,6 +204,25 @@ browser paints. A recipe that changes the natural layout under `[data-crowded]` 
 `[data-measuring]`. The hook measures again whenever the element's size changes. The result is
 `false` until the first measurement.
 
+## revealSideways
+
+Scrolls the sideways scroller around an element until the element is inside it, and leaves the page
+where it is.
+
+Use it when focus or a selection moves to an element that a sideways scroll area can hide, such as a
+tab in a long strip or a cell of a wide grid. The element's own `scrollIntoView` scrolls the page
+too, and Firefox 155 ignores its `container: "nearest"` option.
+
+```ts
+revealSideways(tab, list);
+```
+
+- The scroller is the first element inside `frame` that contains the element and scrolls sideways:
+  its `overflow-x` is `auto` or `scroll`, and its content is wider than its box. A row that fits
+  scrolls nothing.
+- The scroller moves by the least distance that brings the element inside its box.
+- An element under a sticky part of the scroller is revealed up to the scroller's edge only.
+
 ## usePresence
 
 Keeps an element in the document while its exit animation runs, and returns whether to render it,

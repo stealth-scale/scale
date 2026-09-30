@@ -10,6 +10,7 @@ describe("index", () => {
       "createLabelling",
       "createRequiredContext",
       "omitUndefined",
+      "revealSideways",
       "speakable",
       "splitEnumerable",
       "useAnnounce",
