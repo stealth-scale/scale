@@ -3,10 +3,12 @@
  *
  * @remarks
  *   A bound component marks the element its recipe applies to with `data-recipe`. A part of a
- *   compound component carries the slot class the binding writes and the pruning keeps,
- *   `card__header`, and a part an anatomy stamps also carries `data-part`, the slot's name in
- *   hyphens. The readers here select on one of those two. Each one throws where the element it was
- *   asked for is absent, naming it, so a failing specification reports which element is missing.
+ *   compound component has the slot class the binding writes and the pruning keeps,
+ *   `card__header`, and a part an anatomy stamps also has `data-part`, the slot's name in hyphens.
+ *   The readers here select on one of those two, the slot class first, because `data-part` does
+ *   not name the component: a scroll area's root inside a sidebar also has `data-part="root"`.
+ *   Each one throws where the element it was asked for is absent, naming it, so a failing
+ *   specification reports which element is missing.
  */
 
 import { slotClass } from "@stealthscale/pandacss-naming";
@@ -41,7 +43,7 @@ function partOf(slot: string): string {
 function one(container: ParentNode, selector: string): HTMLElement {
   const found = container.querySelector<HTMLElement>(selector);
 
-  if (found === null) throw new Error(`Nothing in the rendered output carries ${selector}.`);
+  if (found === null) throw new Error(`Nothing in the rendered output matches ${selector}.`);
 
   return found;
 }
@@ -57,8 +59,8 @@ export function recipeElement(container: ParentNode, name: string): HTMLElement 
 }
 
 /**
- * Returns the element one slot of a compound component was applied to, selected by the part its
- * anatomy stamps or by the slot class its binding writes.
+ * Returns the element one slot of a compound component was applied to, selected by the slot class
+ * its binding writes, or by the part its anatomy stamps where no element has the class.
  *
  * @remarks
  *   The slot class begins with the recipe's class name, so the caller passes that name and the
@@ -66,7 +68,9 @@ export function recipeElement(container: ParentNode, name: string): HTMLElement 
  * @throws {@link Error} When no element in the output has that part or that slot class.
  */
 export function slotElement(container: ParentNode, name: string, slot: string): HTMLElement {
-  return one(container, `[${PART}="${partOf(slot)}"], .${slotClass(name, slot)}`);
+  const classed = container.querySelector<HTMLElement>(`.${slotClass(name, slot)}`);
+
+  return classed ?? one(container, `[${PART}="${partOf(slot)}"], .${slotClass(name, slot)}`);
 }
 
 /**

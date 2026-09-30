@@ -39,6 +39,14 @@ describe("rendered", () => {
     expect(slotElement(container, "card", "header").tagName).toBe("HEADER");
   });
 
+  it("returns the slot class over another component's part of the same name", () => {
+    const container = drawn(
+      '<div data-part="root" class="scroll-area__root"><nav class="nav-list__root"></nav></div>',
+    );
+
+    expect(slotElement(container, "nav-list", "root").tagName).toBe("NAV");
+  });
+
   it("throws naming the part and the slot class when no element has either", () => {
     expect(() => slotElement(drawn("<div></div>"), "dialog", "content")).toThrow(
       /data-part="content".*\.dialog__content/u,

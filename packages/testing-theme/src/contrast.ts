@@ -6,21 +6,22 @@
  *   The thresholds are WCAG 1.4.6 for text, 1.4.3 for a tertiary ink and a label, and 1.4.11 for
  *   a boundary or a focus indicator. The pairs are the ones the vocabulary draws: every ink on
  *   every surface, every palette's ink on the page and its fills, its label on its solid, its
- *   solid and its lines on the page and the panel, and its ring on every surface.
+ *   solid, lines and chart color on the page and the panel, its ring on every surface, and each
+ *   series color on the page and the panel.
  */
 
-import { contrast, type Mode, MODES, type Theme } from "@stealthscale/theme/authoring";
+import { contrast, type Mode, MODES, SERIES, type Theme } from "@stealthscale/theme/authoring";
 
 import { colorAt, palettesOf, type Resolving } from "#theme.ts";
 
 /**
- * Fixes the ratio each class of pair is held to, and the distance each class of step is held
- * apart.
+ * Fixes the ratio each class of pair has to clear, and the distance each class of step keeps from
+ * the next.
  */
 export interface Thresholds {
   /**
    * The ratio a control's boundary, a palette's line and a solid have to clear against the
-   * surface each sits on.
+   * surfaces each is placed on.
    */
   boundary: number;
 
@@ -46,7 +47,7 @@ export interface Thresholds {
   hue: number;
 
   /**
-   * The degrees a status solid may sit from the canonical hue of its status.
+   * The degrees a status solid's hue may differ from the canonical hue of its status.
    */
   identity: number;
 
@@ -54,6 +55,12 @@ export interface Thresholds {
    * The ratio the label on a solid has to clear.
    */
   label: number;
+
+  /**
+   * The distance in OKLab two consecutive series colors have to keep, so a chart's neighbouring
+   * series can be told apart.
+   */
+  series: number;
 
   /**
    * The distance in OKLab two status solids have to keep from each other, from the primary and
@@ -73,12 +80,14 @@ export interface Thresholds {
 }
 
 /**
- * Fixes the thresholds WCAG sets, 7:1 for text at AAA, 4.5:1 for a tertiary ink and a label at
- * AA, and 3:1 for a boundary or a focus ring, the ratio the structural hairline is drawn to, and
- * the distances a theme keeps: a fiftieth of the lightness axis between steps, a twentieth of the
- * OKLab space between status solids, thirty degrees of hue between a status and its canonical
- * hue, and forty-five degrees of hue along a ramp, which is how far an orange or a yellow drifts
- * between its light end and its dark end.
+ * Fixes the default thresholds.
+ *
+ * @remarks
+ *   WCAG sets 7:1 for text at AAA, 4.5:1 for a tertiary ink and a label at AA, and 3:1 for a
+ *   boundary or a focus ring. The structural hairline is drawn to 1.45:1. Steps keep 0.02 of OKLab
+ *   lightness between them, status solids and consecutive series colors keep 0.05 in OKLab, a
+ *   status keeps within 30 degrees of its canonical hue, and a ramp keeps within 45 degrees of
+ *   hue, the drift of an orange or a yellow between its light end and its dark end.
  */
 export const THRESHOLDS: Thresholds = {
   boundary: 3,
@@ -88,6 +97,7 @@ export const THRESHOLDS: Thresholds = {
   hue: 45,
   identity: 30,
   label: 4.5,
+  series: 0.05,
   status: 0.05,
   tertiary: 4.5,
   text: 7,
@@ -99,7 +109,8 @@ export const THRESHOLDS: Thresholds = {
 export const SURFACES = ["bg", "bg.subtle", "bg.muted", "bg.emphasized", "bg.panel", "bg.popover"];
 
 /**
- * Lists the surfaces a control sits on, which its boundary has to stand from.
+ * Lists the surfaces a control is placed on, which its boundary has to clear the boundary ratio
+ * against.
  */
 const CONTROL_SURFACES = ["bg", "bg.panel", "bg.popover", "bg.subtle"];
 
@@ -118,7 +129,8 @@ const INKS = ["fg", "fg.muted", "fg.info", "fg.success", "fg.warning", "fg.error
  *
  * @remarks
  *   A code block is drawn on the page, so these are measured there and on the panel a block may
- *   sit in. The comment is left out: it points at the muted ink, which is already measured.
+ *   be placed in. The list leaves out the comment, which points at the muted ink the text pairs
+ *   already measure.
  */
 const CODE_INKS = [
   "code.attr",
@@ -159,9 +171,10 @@ const PALETTE_LABEL: ReadonlyArray<readonly [ink: string, fill: string]> = [
 ];
 
 /**
- * Lists the palette roles that have to stand out against the page and the panel.
+ * Lists the palette roles that need the boundary ratio against the page and the panel: the solid,
+ * the lines, and the chart color a line, a bar or a sector is drawn in.
  */
-const PALETTE_BOUNDARY = ["solid", "border", "border.hover"];
+const PALETTE_BOUNDARY = ["solid", "chart", "border", "border.hover"];
 
 /**
  * Describes one pair to measure: what is in front, what is behind, and the ratio it is held to.
@@ -279,14 +292,19 @@ export function textPairs(theme: Theme, thresholds: Thresholds): readonly Pair[]
 }
 
 /**
- * Lists every boundary pair: the control's boundary on the surfaces a control sits on, the
- * hairline on the page and the panel at its own ratio, and each palette's solid and lines on the
- * page and the panel.
+ * Lists every boundary pair: the control's boundary on the surfaces a control is placed on, the
+ * hairline on the page and the panel at its own ratio, each series color on the page and the
+ * panel, and each palette's solid and lines on the page and the panel.
  */
 export function boundaryPairs(theme: Theme, thresholds: Thresholds): readonly Pair[] {
   return [
     ...onSurfaces(["border.emphasized"], CONTROL_SURFACES, thresholds.boundary),
     ...onSurfaces(["border"], RAISED_SURFACES, thresholds.hairline),
+    ...onSurfaces(
+      SERIES.map((step) => `series.${step}`),
+      RAISED_SURFACES,
+      thresholds.boundary,
+    ),
     ...perPalette(
       theme,
       PALETTE_BOUNDARY.flatMap((role) => RAISED_SURFACES.map((back) => [role, back] as const)),

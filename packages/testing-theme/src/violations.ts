@@ -15,6 +15,7 @@ import { installed } from "#fonts.ts";
 import { gated } from "#gate.ts";
 import * as ramp from "#ramp.ts";
 import { type Declared } from "#recipe.ts";
+import * as series from "#series.ts";
 import * as status from "#status.ts";
 
 /**
@@ -40,6 +41,7 @@ export type ThemeCheck =
   | "name.attribute"
   | "ramp.hue"
   | "ramp.monotonic"
+  | "series.distinct"
   | "status.distinct"
   | "status.identity";
 
@@ -74,10 +76,10 @@ export interface ThemeChecks {
   skip?: Readonly<Partial<Record<ThemeCheck, string>>> | undefined;
 
   /**
-   * The ratio each class of pair has to reach and the distance each class of step has to keep,
+   * The ratio each class of pair has to meet and the distance each class of step has to keep,
    * over the defaults from WCAG 1.4.3, 1.4.6 and 1.4.11 and the foundation's ladders. A theme whose
-   * declared ink cannot reach the text ratio on its declared page records the ratio it does reach
-   * here, with its reason.
+   * declared ink is below the text ratio on its declared page records the ratio it measures here,
+   * with its reason.
    */
   thresholds?: Partial<contrast.Thresholds> | undefined;
 }
@@ -89,7 +91,7 @@ export interface ThemeChecks {
 const ATTRIBUTE_VALUE = /^[a-z][a-z0-9-]*$/u;
 
 /**
- * Narrows the recipes to the list form, which carries keys alone.
+ * Narrows the recipes to the list form, which contains keys alone.
  */
 function isKeys(recipes: NonNullable<ThemeChecks["recipes"]>): recipes is readonly string[] {
   return Array.isArray(recipes);
@@ -162,6 +164,7 @@ const RUNNERS: ReadonlyArray<readonly [ThemeCheck, Runner]> = [
   ["distinct.fills", (theme, options) => distinct.fills(theme, options, thresholdsOf(options))],
   ["status.distinct", (theme, options) => status.distinct(theme, options, thresholdsOf(options))],
   ["status.identity", (theme, options) => status.identity(theme, options, thresholdsOf(options))],
+  ["series.distinct", (theme, options) => series.distinct(theme, options, thresholdsOf(options))],
   ["ramp.monotonic", (theme) => ramp.monotonic(theme)],
   ["ramp.hue", (theme, options) => ramp.hue(theme, thresholdsOf(options))],
   ["fonts.installed", (theme, options) => installed(theme, options.at)],
@@ -175,8 +178,8 @@ const RUNNERS: ReadonlyArray<readonly [ThemeCheck, Runner]> = [
  *   A specification declares thresholds to record what its theme aims for, and the engine builds to
  *   the same numbers, so a specification could otherwise lower a ratio until its theme passed.
  *   Neither may go below what WCAG requires of normal-size text or of the visual information that
- *   identifies a control. Clamping means a theme whose colors cannot reach the floor is reported
- *   rather than measured against a weaker bar. The distances, the hues and the hairline are quality
+ *   identifies a control. The clamp reports a theme whose colors fall below the floor, instead of
+ *   measuring it against a lower ratio. The distances, the hues and the hairline are quality
  *   targets, so a specification moves those freely.
  */
 function thresholdsOf(options: ThemeChecks): contrast.Thresholds {

@@ -24,7 +24,7 @@ describe("contrast", () => {
     expect(focus(theme, BASE, THRESHOLDS)).toStrictEqual([]);
   });
 
-  it("holds the tertiary ink and each palette's label to the AA ratio", () => {
+  it("checks the tertiary ink and each palette's label against the AA ratio", () => {
     const pairs = textPairs(foundationTheme(), THRESHOLDS);
 
     expect(pairs).toStrictEqual(
@@ -46,6 +46,8 @@ describe("contrast", () => {
         { back: "bg.panel", front: "border", minimum: 1.45 },
         { back: "bg.subtle", front: "border.emphasized", minimum: 3 },
         { back: "bg.panel", front: "primary.solid", minimum: 3 },
+        { back: "bg", front: "series.1", minimum: 3 },
+        { back: "bg.panel", front: "series.8", minimum: 3 },
       ]),
     );
     expect(pairs).not.toStrictEqual(
@@ -86,6 +88,15 @@ describe("contrast", () => {
     ]);
   });
 
+  it("reports a chart color below the boundary ratio on the page and the panel", () => {
+    const theme = paletteTheme({ chart: { value: "{colors.primary.200}" } });
+
+    expect(boundary(theme, BASE, THRESHOLDS)).toStrictEqual([
+      "audited primary.chart on bg measures 1.33 in base, below 3",
+      "audited primary.chart on bg.panel measures 1.45 in base, below 3",
+    ]);
+  });
+
   it("reports a ring below the focus ratio on a surface", () => {
     const theme = paletteTheme({ focusRing: { value: "{colors.primary.300}" } });
 
@@ -95,7 +106,7 @@ describe("contrast", () => {
     );
   });
 
-  it("holds a pair to the ratio it was handed", () => {
+  it("checks a pair against the ratio it is given", () => {
     const theme = paletteTheme({ contrast: { value: "{colors.primary.600}" } });
 
     expect(text(theme, BASE, { ...THRESHOLDS, label: 1 })).toStrictEqual([]);
