@@ -2,8 +2,7 @@
 
 `@stealthscale/hooks` publishes the React hooks a component uses to read the page it draws into.
 Some measure the document. Some keep a value across renders without causing another render. One
-writes a message to a screen reader. Every hook depends on React and on the document and on nothing
-else, so a package that draws no component installs only React to use them.
+writes a message to a screen reader, and one keeps an element in the document while it animates out.
 
 ## Install
 
@@ -11,7 +10,8 @@ else, so a package that draws no component installs only React to use them.
 pnpm add @stealthscale/hooks
 ```
 
-The package peers on `react` and nothing else.
+The package peers on `react`. It depends on `@zag-js/presence` and `@zag-js/react`, which
+`usePresence` runs, and on `@zag-js/highlight-word`, which `useHighlight` runs.
 
 ## useConst
 
@@ -183,6 +183,60 @@ return (
 The returned object keeps one identity while the result stands, so the component renders again only
 when the element crosses between fitting and not.
 
+## useCrowded
+
+Returns whether the children of an element need more room than the element has at their natural
+width, and the ref callback that attaches the element.
+
+Use it for a component that switches to a narrower layout while its children do not fit, such as a
+row of steps that moves its titles below the discs. Set `data-crowded` on the element from the
+result. The recipe styles the narrow layout under `[data-crowded]`.
+
+```tsx
+const [crowded, ref] = useCrowded();
+
+return <ol data-crowded={crowded ? "" : undefined} ref={ref} />;
+```
+
+A measurement lays the children out at their natural width: the hook takes `data-crowded` off the
+element and sets `data-measuring` for one synchronous read. Both attributes are restored before the
+browser paints. A recipe that changes the natural layout under `[data-crowded]` restores it under
+`[data-measuring]`. The hook measures again whenever the element's size changes. The result is
+`false` until the first measurement.
+
+## usePresence
+
+Keeps an element in the document while its exit animation runs, and returns whether to render it,
+the props it spreads and the ref callback that attaches it.
+
+Use it for content that opens and closes with an animation, such as a popover's panel. Without it,
+closed content is hidden the moment it closes and its exit animation never plays.
+
+```tsx
+const { props, setNode, unmounted } = usePresence({
+  lazyMount: true,
+  present: open,
+  unmountOnExit: true,
+});
+
+return unmounted ? null : <div ref={setNode} {...props} />;
+```
+
+| Option                 | What it does                                                          |
+| ---------------------- | --------------------------------------------------------------------- |
+| `present`              | Whether the element shows                                             |
+| `lazyMount`            | Renders nothing until the element first shows                         |
+| `unmountOnExit`        | Renders nothing once the element's exit animation ends                |
+| `skipAnimationOnMount` | Leaves `data-state` unset until `present` changes, so no entry motion |
+| `onExitComplete`       | Runs once the element's exit animation ends                           |
+
+`props` sets `data-state` to `open` or `closed`, which a recipe's entry and exit animations read,
+and `hidden` once the element has left. When `present` turns false, the hook reads the element's
+computed `animationName` one frame later. An element with no animation, a `0s` duration or
+`display: none` leaves at once. An element with an animation stays until its `animationend` or
+`animationcancel`. Destructure the result: React's lint reads `setNode` as a callback only when it
+is a binding of its own.
+
 ## useStickyOffsets
 
 Sets a custom property on each sticky band holding the height of the bands before it, and one on the
@@ -318,6 +372,38 @@ The third member of the tuple reads the same context and returns `undefined` whe
 stands above it. A root that nests inside another of its own kind reads that hook to find out
 whether it is the outermost.
 
+## createLabelling
+
+Creates the provider a root renders and the hook its label part calls, so the root knows whether a
+label is mounted.
+
+Use it for a component whose root points `aria-labelledby` at an optional label part. An ID
+reference to an element that does not exist is invalid, so the root sets the attribute only while
+the label is mounted.
+
+```tsx
+const [LabellingProvider, useLabelled] = createLabelling("TreeView");
+
+function Root({ children }: RootProps): ReactElement {
+  const [labelled, setLabelled] = useState(false);
+
+  return (
+    <LabellingProvider value={setLabelled}>
+      <div aria-labelledby={labelled ? labelId : undefined}>{children}</div>
+    </LabellingProvider>
+  );
+}
+
+function Label(props: LabelProps): ReactElement {
+  useLabelled();
+
+  return <span id={labelId} {...props} />;
+}
+```
+
+A mounted label calls the setter with `true`, and with `false` when it unmounts. A label rendered
+outside its root throws with the component's name.
+
 ## omitUndefined
 
 Returns a copy of an object without the entries whose value is `undefined`, typed without
@@ -335,6 +421,73 @@ const service = useMachine(popover.machine, { ...omitUndefined(options), id: opt
 
 `false`, `null`, `0` and the empty string are kept. The input object is not modified.
 
+## Filter scopes
+
+Filter the rows under a search by the words each row renders.
+
+Use them when a search field filters a list the caller composes from parts, such as a sidebar's
+navigation. A row registers the text its element renders after each render, so the caller repeats no
+words in a prop.
+
+- `useFilterScope()` creates a scope, and `FilterContext` provides it to the rows below.
+- `scope.setQuery(query)` sets the query. A row matches when its words contain the query, without
+  regard to case or surrounding spaces.
+- `useFilteredRow()` registers a row and returns `hidden` and the `ref` for its element.
+- `useFilterActive()` returns whether a scope around the caller has a query.
+- `useFilterEmpty()` returns whether the query leaves zero rows in the scope.
+- `scope.listed()` returns the number of rows registered in the scope, and `scope.matched()` the
+  number the query keeps, so a block tells a query that matched none of its rows from a block with
+  no rows.
+
+```tsx
+function Filtered({ children }: { children: ReactNode }): ReactElement {
+  const scope = useFilterScope();
+
+  return (
+    <FilterContext value={scope}>
+      <input aria-label="Filter" onChange={(event) => scope.setQuery(event.target.value)} />
+      <ul>{children}</ul>
+    </FilterContext>
+  );
+}
+
+function Row({ children }: { children: ReactNode }): ReactElement {
+  const { hidden, ref } = useFilteredRow<HTMLLIElement>();
+
+  return (
+    <li hidden={hidden} ref={ref}>
+      {children}
+    </li>
+  );
+}
+```
+
+A scope inside another registers its rows with the outer scope too, and keeps a row only when the
+row's words contain both queries. Rows and empty messages read their scope through
+`useSyncExternalStore`, so a query re-renders only the parts that read it.
+`createFilterScope(around)` creates a scope outside React.
+
+## useHighlight
+
+Splits a text into the runs that match a search query and the runs between them.
+
+Use it to show why a result matched where the caller renders the runs itself, such as the rows of a
+combobox. The typography package's `Highlight` renders the runs of a string in marks.
+
+```ts
+useHighlight({ query: "pay", text: "Fees for payments" });
+```
+
+That returns
+`[{ match: false, text: "Fees for " }, { match: true, text: "pay" }, { match: false, text: "ments" }]`.
+
+- Every occurrence of every term matches, by substring, the way a filter scope matches its rows.
+  Letter case is ignored unless `ignoreCase` is false.
+- Each term is trimmed and an empty term is dropped, so a query of spaces marks nothing.
+- Longer terms are tried first, so `["off", "offer"]` marks `offer` whole.
+- A character a regular expression reads, such as `(`, matches as written.
+- Accents count, as in a filter scope: `cafe` does not match `café`.
+
 ## Types
 
 | Type                        | Declaration               | What it describes                                                           |
@@ -346,7 +499,15 @@ const service = useMachine(popover.machine, { ...omitUndefined(options), id: opt
 | `UseStickyOffsetsOptions`   | `interface`               | Which bands stick, and which custom properties carry their offsets          |
 | `AnnouncePoliteness`        | `"assertive" \| "polite"` | How much a message is allowed to interrupt                                  |
 | `ProvidedProps`             | `interface`               | The value a provider carries and the tree that reads it                     |
+| `Labelling`                 | tuple                     | The provider a root renders and the hook its label calls                    |
 | `OmitUndefined`             | mapped type               | The input type with every property optional and `undefined` excluded        |
+| `FilterScope`               | `interface`               | A scope's query, its registered rows and the functions that read them       |
+| `FilteredRow`               | `interface`               | Whether a row is hidden, and the ref for its element                        |
+| `PresenceOptions`           | `interface`               | Whether an element shows, and whether it renders while it does not          |
+| `Presence`                  | `interface`               | Whether to render the element, its props and its ref callback               |
+| `PresenceProps`             | `interface`               | The element's `data-state` and `hidden`                                     |
+| `HighlightChunk`            | `interface`               | One run of a text, and whether it matches the query                         |
+| `UseHighlightOptions`       | `interface`               | The text, the query and whether letter case is ignored                      |
 
 ## Licence
 

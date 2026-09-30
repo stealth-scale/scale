@@ -44,6 +44,11 @@
     "prepublishOnly": "vp pack",
     "test": "vp test"
   },
+  "dependencies": {
+    "@zag-js/highlight-word": "catalog:",
+    "@zag-js/presence": "catalog:",
+    "@zag-js/react": "catalog:"
+  },
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
     "@rolldown/plugin-babel": "catalog:",
@@ -52,6 +57,7 @@
     "@stealthscale/vite-config-typescript": "workspace:^",
     "@testing-library/react": "catalog:",
     "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
     "babel-plugin-react-compiler": "catalog:",
     "happy-dom": "catalog:",
     "oxc-transform-react": "catalog:",
