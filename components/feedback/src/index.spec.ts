@@ -9,11 +9,15 @@ describe("index", () => {
       "EmptyState",
       "Loader",
       "LoaderOverlay",
+      "Meter",
+      "Progress",
+      "ProgressCircle",
       "Skeleton",
       "SkeletonPropsProvider",
       "SkeletonText",
       "SkeletonTextPropsProvider",
       "Spinner",
+      "Toast",
     ]);
   });
 
@@ -27,6 +31,41 @@ describe("index", () => {
       "LIVES",
       "Root",
       "Title",
+    ]);
+  });
+
+  it("exports Meter as a namespace of its parts", () => {
+    expect(Object.keys(barrel.Meter).toSorted()).toStrictEqual([
+      "Label",
+      "Marker",
+      "Range",
+      "Root",
+      "Segment",
+      "Track",
+      "ValueText",
+    ]);
+  });
+
+  it("exports Progress as a namespace of its parts", () => {
+    expect(Object.keys(barrel.Progress).toSorted()).toStrictEqual([
+      "Label",
+      "Marker",
+      "Range",
+      "Root",
+      "Segment",
+      "Track",
+      "ValueText",
+    ]);
+  });
+
+  it("exports ProgressCircle as a namespace of its parts", () => {
+    expect(Object.keys(barrel.ProgressCircle).toSorted()).toStrictEqual([
+      "Circle",
+      "Label",
+      "Range",
+      "Root",
+      "Track",
+      "ValueText",
     ]);
   });
 

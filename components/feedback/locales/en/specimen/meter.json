@@ -1,0 +1,81 @@
+{
+  "about": "Shows a measurement within a known range: storage used, seats taken, a password's strength. The track is the meter a screen reader reports, named by the label. A meter has a value and moves only when its caller measures again, which is what sets it apart from a progress bar. Every part but the root is the progress bar's.",
+  "capacity": {
+    "about": "A disk's used space split into its parts. `Meter.Segment` fills the track once per part, in the order the parts render, each as wide as its share of the disk's size, and the rest of the track is the free space. Each part takes the theme's series color at its place, the colors a chart gives its series, so neighbouring parts differ in every theme. A key of the data package's `ColorSwatch` names each color with its amount. The meter's value is the used space, the parts' sum.",
+    "apps": "Apps {{value, number}} GB",
+    "label": "Storage",
+    "other": "Other {{value, number}} GB",
+    "photos": "Photos {{value, number}} GB",
+    "system": "System {{value, number}} GB",
+    "title": "Parts of a capacity",
+    "value": "{{used, number}} of {{size, number}} GB"
+  },
+  "layout": {
+    "about": "Stacked puts the label and the value above the track. Inline puts them on the track's row, and the track takes the room the words leave.",
+    "title": "Layouts"
+  },
+  "limits": {
+    "about": "A plan's usage. Each meter's palette comes from the caller's own threshold, warning from 75% and error from 90%, because a meter has no judgement of its own: 90% is good news for a download and bad news for a disk. The words state the count, and `aria-valuetext` on the track states it too.",
+    "title": "Usage against limits"
+  },
+  "palette": {
+    "about": "Every palette in both looks. The outline look lays the range on a muted ground with an inset line, and the subtle look on the palette's muted role.",
+    "title": "Palettes and looks"
+  },
+  "shape": {
+    "about": "The ends of the track, which the range takes too: square, rounded or full, on the thickest track.",
+    "title": "Shapes"
+  },
+  "shares": {
+    "about": "A whole split into shares: the accounts on each plan. `max` is the total, so the segments fill the track. `aria-valuetext` on the track lists the shares through `Intl.ListFormat`, because a meter at 100% tells a screen reader nothing about the split.",
+    "growth": "Growth {{share}}",
+    "label": "Accounts by plan",
+    "scale": "Scale {{share}}",
+    "starter": "Starter {{share}}",
+    "title": "Shares of a whole",
+    "value_one": "{{count, number}} account",
+    "value_other": "{{count, number}} accounts"
+  },
+  "size": {
+    "about": "The size is the thickness of the track: 4, 6, 8, 12 and 16px. The label and the value keep the label style at every size.",
+    "title": "Sizes"
+  },
+  "storage": "Storage used",
+  "strength": {
+    "fair": "Fair",
+    "good": "Good",
+    "label": "Password strength",
+    "none": "Too short",
+    "password": "New password",
+    "strong": "Strong",
+    "weak": "Weak"
+  },
+  "target": {
+    "about": "Measures against their targets. `Meter.Marker` crosses the track at the target, and `max` is the larger of the target and the value, so a measure past its target fills the track and still reads as more than the target. The palette is the caller's judgement: deals past their target take success, and spend past 90% of its budget takes warning. The words state both numbers, and `aria-valuetext` on the track states them too, because the marker is hidden from a screen reader.",
+    "deals": "Deals closed this quarter",
+    "spend": "Cloud spend this month, €",
+    "spoken": "{{value, number}}, target {{target, number}}",
+    "title": "Against a target",
+    "trials": "Trials started this month",
+    "value": "{{value, number}} / {{target, number}}"
+  },
+  "title": "Meter",
+  "usage": {
+    "requests": {
+      "label": "API requests this month",
+      "value": "{{value, number}} of {{max, number}}"
+    },
+    "seats": {
+      "label": "Seats",
+      "value": "{{value, number}} of {{max, number}}"
+    },
+    "storage": {
+      "label": "Storage",
+      "value": "{{value, number}} of {{max, number}} GB"
+    }
+  },
+  "words": {
+    "about": "A password's strength from 0 to 4 as the reader types. The words are the value text and the track's `aria-valuetext`, so a screen reader hears Strong rather than 100%, and the palette follows the score.",
+    "title": "A value in words"
+  }
+}

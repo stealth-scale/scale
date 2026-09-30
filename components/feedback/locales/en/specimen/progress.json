@@ -1,0 +1,66 @@
+{
+  "about": "Reports how far a task has come. The track is the progress bar a screen reader reports, named by the label, and for a value the machine does not know a segment crosses the track.",
+  "animated": {
+    "about": "The stripes move at 40px a second while the work runs, so a value that updates slowly still reads as work in progress. They stop moving for a reader who asked for less motion.",
+    "title": "Moving stripes"
+  },
+  "bare": {
+    "about": "A bar without a label is named by `aria-label` on the track, as in a player's position under its controls. `aria-valuetext` states the position in minutes.",
+    "title": "Without words"
+  },
+  "effect": {
+    "about": "A halo around the range in the palette's solid. `pulse` animates it and stops for a reader who asked for less motion.",
+    "title": "Effects"
+  },
+  "imported": "Rows imported",
+  "layout": {
+    "about": "Stacked puts the label and the value above the track. Inline puts them on the track's row, the shape a bar takes in a table row or at the foot of a card, and the track takes the room the words leave.",
+    "title": "Layouts"
+  },
+  "outcomes": {
+    "about": "A test run split by outcome while it runs. `Progress.Segment` fills the track with the passed, failed and skipped tests, each in the palette its `color` states, and the rest of the track is the tests still to run. The value is the tests run so far, the segments' sum, and a key of the data package's `Status` names each palette with its count.",
+    "failed": "{{count, number}} failed",
+    "label": "Test run",
+    "passed": "{{count, number}} passed",
+    "skipped": "{{count, number}} skipped",
+    "title": "Outcomes while it runs",
+    "value": "{{run, number}} of {{tests, number}}"
+  },
+  "palette": {
+    "about": "Every palette in both looks. The outline look lays the range on a muted ground with an inset line, and the subtle look on the palette's muted role. A palette has no meaning of its own, so the label has to agree with it.",
+    "title": "Palettes and looks"
+  },
+  "plan": {
+    "about": "A migration against the share its plan expects by today. `Progress.Marker` crosses the track at the planned share, and the bar takes the warning palette while it is behind. The words and `aria-valuetext` state both shares, because the marker is hidden from a screen reader.",
+    "label": "Migrating customer records",
+    "spoken": "{{done}}% done, {{planned}}% planned by today",
+    "title": "Against a plan",
+    "value": "{{done}}%, plan {{planned}}%"
+  },
+  "playback": "Playback position",
+  "played": "2:41 of 4:05",
+  "preparing": "Preparing the export",
+  "reconciling": "Reconciling payouts",
+  "rows": "2,650 of 4,200",
+  "shape": {
+    "about": "The ends of the track, which the range takes too: square, rounded or full, on the thickest track.",
+    "title": "Shapes"
+  },
+  "size": {
+    "about": "The size is the thickness of the track: 4, 6, 8, 12 and 16px. The label and the value keep the label style at every size, so a thin bar under its words still reads as one thing.",
+    "title": "Sizes"
+  },
+  "striped": {
+    "about": "Stripes over the range in the palette's contrast ink at a quarter strength.",
+    "title": "Stripes"
+  },
+  "title": "Progress",
+  "unknown": {
+    "about": "A `null` value means the end is not known. A segment crosses the track once every 1.2 seconds and the value text is empty, so the bar never claims a share it does not know. For a reader who asked for less motion the segment spreads over the whole track and stops. The track reports no `aria-valuenow`.",
+    "title": "Value unknown"
+  },
+  "units": {
+    "about": "`min` and `max` set the range in the units the work is measured in. The words over the bar and `aria-valuetext` on the track state the count, because the bar itself reports a share.",
+    "title": "Counting in its own units"
+  }
+}

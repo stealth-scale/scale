@@ -1,0 +1,41 @@
+{
+  "about": "Reports how far a task has come as a ring, with the value in its middle. The ring is the progress bar a screen reader reports, and the label names it. For a value the machine does not know, a quarter arc turns.",
+  "checklist": "Workspace set-up",
+  "counted": {
+    "about": "`max` counts the steps. The ring's middle shows `3/5` as children of the value text, and `aria-valuetext` on the ring states the count in words.",
+    "title": "Counting steps"
+  },
+  "layout": {
+    "about": "Stacked puts the label under the ring. Inline puts it beside the ring, as in a list row.",
+    "title": "Layouts"
+  },
+  "palette": {
+    "about": "The scene crosses every palette with both looks. The outline look strokes the track in the muted ground, and the subtle look in the palette's muted role.",
+    "title": "Palettes and looks"
+  },
+  "quota": {
+    "label": "Storage used",
+    "used": "{{used}} of {{total}} GB"
+  },
+  "shape": {
+    "about": "`shape` rounds or squares the ends of the range. The scene shows both on the thickest ring.",
+    "title": "Shapes"
+  },
+  "size": {
+    "about": "The ring is 24, 32, 40, 48 and 64px wide and 4, 4, 4, 6 and 8px thick. From `md` up the value shows in the ring's middle, in the largest text style whose \"100%\" fits inside the ring. The smaller rings hide it. The ring's `aria-valuetext` states the value at every size.",
+    "title": "Sizes"
+  },
+  "steps_one": "{{count}} of {{total}} step done",
+  "steps_other": "{{count}} of {{total}} steps done",
+  "syncing": "Syncing mail",
+  "title": "Progress circle",
+  "unknown": {
+    "about": "A `null` value means the end is not known. A quarter arc turns once every 1.2 seconds, and the ring leaves out `aria-valuenow`. For a reader who asked for less motion, the ring stops and the range is a dashed line around the whole ring.",
+    "title": "Value unknown"
+  },
+  "units": {
+    "about": "`max` sets the range in gigabytes. The middle shows the share, and `aria-valuetext` states the amount used.",
+    "title": "Counting in its own units"
+  },
+  "upload": "Uploading the report"
+}

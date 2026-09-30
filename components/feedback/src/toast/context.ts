@@ -1,0 +1,17 @@
+/**
+ * Binds the toast's recipe to its parts.
+ *
+ * @remarks
+ *   The binding is apart from the recipe, because a compiler reads the recipe at build time and the
+ *   binding imports the runtime. It is apart from the machine, because the recipe styles a part and
+ *   the machine sets its behaviour.
+ */
+
+import { createSlotRecipeContext } from "@stealthscale/theme";
+
+import { recipe } from "#toast/recipe.ts";
+
+/**
+ * Binds the recipe once. The region provides the variants and every other part reads them.
+ */
+export const { withContext, withProvider } = createSlotRecipeContext(recipe);
