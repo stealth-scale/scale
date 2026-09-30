@@ -68,10 +68,18 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual(["elevated", "glass", "surface"]);
   });
 
-  it("sets the title on the heading role and the description on the body role", () => {
+  it("sets the title and the description on the body role of the panel's size", () => {
     expect(recipe.variants?.["size"]?.["md"]).toMatchObject({
       description: { textStyle: "body.md" },
-      title: { textStyle: "heading.md" },
+      title: { textStyle: "body.md" },
+    });
+  });
+
+  it("sets the title in the semibold weight at every size", () => {
+    expect(recipe.compoundVariants).toContainEqual({
+      className: "popover__title--titled",
+      css: { title: { fontWeight: "semibold" } },
+      size: ["xs", "sm", "md", "lg", "xl"],
     });
   });
 

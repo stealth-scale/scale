@@ -3,40 +3,75 @@
  *
  * @remarks
  *   `scenesOf` generates the looks, palettes, sizes, fitted tabs and distributions from the account
- *   example. The fitted scene uses the enclosed look, where each tab's width shows. The orientation
- *   scene is hand-written, because the orientation is the machine's option and not an axis. Every
- *   set renders in an `md` room, open on its first panel, and every scene shows the account
- *   example as its source. The words are keys under `tabs` in `locales/en/specimen/tabs.json`.
+ *   example, whose list scrolls sideways where the tabs are wider than their room. The fitted scene
+ *   uses the enclosed look, where each tab's width shows. The orientation scene is hand-written,
+ *   because the orientation is the machine's option and not an axis, and draws a vertical list of
+ *   preferences. Three more hand-written scenes close tabs: files in a `2xl` room, drafts that
+ *   overflow an `md` room, and a controlled list closed from outside. Each generated set renders in
+ *   an `md` room, open on its first panel. The words are keys under `tabs` in
+ *   `locales/en/specimen/tabs.json`.
  */
 
-import { Matrix, Room, type Scene, scenesOf, specimen } from "@stealthscale/specimen";
+import { Room, type Scene, scenesOf, specimen } from "@stealthscale/specimen";
 
 import * as examples from "#tabs/examples/index.ts";
 import type * as Tabs from "#tabs/index.ts";
 import { recipe } from "#tabs/recipe.ts";
 
 /**
- * Orientations of the orientation scene.
- */
-const ORIENTATIONS = ["horizontal", "vertical"] as const;
-
-/**
- * Hand-written scene for both orientations.
+ * Hand-written scene for a vertical list.
  */
 export const orientation: Scene = {
   about: "tabs.orientation.about",
   draw: () => (
-    <Matrix knob="orientation" of={ORIENTATIONS}>
-      {(way) => (
-        <Room size="md">
-          <examples.account.Account orientation={way} />
-        </Room>
-      )}
-    </Matrix>
+    <Room size="lg">
+      <examples.preferences.Preferences />
+    </Room>
   ),
-  example: examples.account,
-  props: { orientation: "horizontal" },
+  example: examples.preferences,
   title: "tabs.orientation.title",
+};
+
+/**
+ * Hand-written scene for closable tabs over a list of files.
+ */
+export const closing: Scene = {
+  about: "tabs.closing.about",
+  draw: () => (
+    <Room size="2xl">
+      <examples.files.Files />
+    </Room>
+  ),
+  example: examples.files,
+  title: "tabs.closing.title",
+};
+
+/**
+ * Hand-written scene for a list of tabs wider than its room.
+ */
+export const scrolling: Scene = {
+  about: "tabs.scrolling.about",
+  draw: () => (
+    <Room size="md">
+      <examples.drafts.Drafts />
+    </Room>
+  ),
+  example: examples.drafts,
+  title: "tabs.scrolling.title",
+};
+
+/**
+ * Hand-written scene for a close from outside the list.
+ */
+export const controlled: Scene = {
+  about: "tabs.controlled.about",
+  draw: () => (
+    <Room size="md">
+      <examples.reader.Reader />
+    </Room>
+  ),
+  example: examples.reader,
+  title: "tabs.controlled.title",
 };
 
 export default specimen({
@@ -61,6 +96,9 @@ export default specimen({
       order: ["variant", "palette", "size", "fitted", "justify"],
     }),
     orientation,
+    closing,
+    scrolling,
+    controlled,
   ],
   title: "tabs.title",
 });

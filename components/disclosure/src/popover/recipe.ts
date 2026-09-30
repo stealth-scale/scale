@@ -7,7 +7,10 @@
  *   trigger and the positioner are siblings and a slot recipe passes its variants from an element
  *   above both. The machine writes the positioner's position inline, so the recipe sets no
  *   position. The panel scales from the machine's `--transform-origin` and is at least as wide as
- *   the trigger, `--reference-width`. The panel reads the body role and the title the heading role.
+ *   the trigger, `--reference-width`. The title and the description read the body role at the
+ *   panel's size, the title in the semibold weight, because a panel beside a control does not
+ *   start a section of the page. The weight is a compound over every size, because the size's
+ *   text style states the role's weight in the variants layer, which applies over the base.
  *   The trigger takes a control's cursor, focus ring and disabled look, and no fill, edge or
  *   padding, so a caller passes a button through `as`. The recipe has no `palette` axis, because
  *   every look uses a neutral surface, and no `effect` axis, because a panel is not a control.
@@ -71,7 +74,7 @@ export const recipe = defineSlotRecipe({
     },
     positioner: { position: "relative" },
     root: { display: "contents" },
-    title: { fontWeight: "semibold", paddingInlineEnd: `var(${CLOSED})` },
+    title: { paddingInlineEnd: `var(${CLOSED})` },
     trigger: {
       ...interactive(),
       alignItems: "center",
@@ -80,6 +83,13 @@ export const recipe = defineSlotRecipe({
     },
   },
   className: "popover",
+  compoundVariants: [
+    {
+      css: { title: { fontWeight: "semibold" } },
+      name: "titled",
+      size: ["xs", "sm", "md", "lg", "xl"],
+    },
+  ],
   defaultVariants: { size: "md", variant: "surface" },
   jsx: [/^Popover(\.\w+)?$/u],
   slots: [
@@ -115,7 +125,7 @@ export const recipe = defineSlotRecipe({
         padding: dense(`{spacing.inset.${size}}`),
       })),
       description: textSizes("body"),
-      title: textSizes("heading"),
+      title: textSizes("body"),
     }),
 
     /**

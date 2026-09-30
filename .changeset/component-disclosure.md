@@ -21,6 +21,7 @@
 - Return focus to a closing menu's trigger only from a panel or the body.
 - Scroll a menu's rows in `ScrollArea`, with the viewport as the `menu` element.
 - Name a popover's panel from its mounted `Title` and `Description`.
+- Set `Popover.Title` in the body text of the panel's size, semibold.
 - Add `Accordion` over `@zag-js/accordion`.
 - Add `Steps` over `@zag-js/steps`.
 - Add `HoverCard` over `@zag-js/hover-card`.
@@ -28,5 +29,11 @@
 - Add `Menubar` on `Menu` and `RovingFocus`.
 - Add `Truncate`.
 - Add `Details` on the native `details` element.
+- Add closable tabs: `Tabs.Trigger closable`, `Tabs.CloseTrigger`, `Tabs.Root onClose` and
+  `Tabs.selectionAfterClose`.
+- Measure the tab indicator again when a tab enters or leaves the list.
+- Scroll the selected tab into view inside a sideways scroll area.
+- Mark the selected tab under forced colors in the line, plain and subtle looks.
+- Size an `svg` in a tab to one text size, and start a vertical tab's words at its inline start.
 - Peer on `component-a11y` and `component-primitives`.
 - Add a specimen per component.

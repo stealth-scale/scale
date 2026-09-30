@@ -1,6 +1,42 @@
 {
   "about": "Renders a list of tabs and the panel of the selected tab.",
   "activity": "Activity",
+  "closing": {
+    "about": "Closable tabs over a caller's list of files. Press a tab's close control, press a tab with the middle button, or press Delete on the focused tab. The selection and the focus move to the next tab, else the previous one. The unsaved file shows a status dot. Closing the last file shows the empty state.",
+    "title": "Closing tabs"
+  },
+  "controlled": {
+    "about": "A controlled tab list with two buttons outside the list. Close article closes the selected article and selects the next one through `Tabs.selectionAfterClose`, the rule the tabs follow. Reopen the articles puts the closed articles back in their places, before or after the selected one, and the indicator follows the selected tab.",
+    "title": "Closing from outside the list"
+  },
+  "drafts": {
+    "body": "Order {{number}} is a draft. Nothing is sent until you submit it.",
+    "close": "Close draft",
+    "label": "Draft orders",
+    "name": "Order {{number}}"
+  },
+  "files": {
+    "about": {
+      "build": "Builds the packages on every push to a pull request.",
+      "deploy": "Deploys the main branch to production after the checks pass.",
+      "nightly": "Runs the full suite against every browser at 02:00 UTC.",
+      "release": "Tags a release and publishes the packages to the registry."
+    },
+    "close": "Close file",
+    "empty": {
+      "about": "Every workflow file is closed.",
+      "reopen": "Reopen the files",
+      "title": "No open files"
+    },
+    "label": "Open files",
+    "names": {
+      "build": "build.yml",
+      "deploy": "deploy.yml",
+      "nightly": "nightly.yml",
+      "release": "release.yml"
+    },
+    "unsaved": "unsaved changes"
+  },
   "fitted": {
     "about": "Tabs at their own width, and tabs sharing the list's width equally, in the enclosed look, where each tab's width shows.",
     "title": "Fitted"
@@ -10,15 +46,53 @@
     "about": "Every distribution of the tabs in a list wider than they are.",
     "title": "Distribution"
   },
+  "label": "Account",
   "lately": "The payments and changes of the last thirty days.",
   "orientation": {
-    "about": "The list across the top, and down the start. The machine's `orientation` option sets it, and the indicator and the arrow keys follow.",
+    "about": "A list down the start of a settings page. The machine's `orientation` option sets it, and the indicator and the arrow keys follow: ArrowDown and ArrowUp move between the tabs.",
     "title": "Orientation"
   },
   "overview": "Overview",
   "palette": {
     "about": "Every palette in the line look. The palette colours the indicator and the selected tab's text.",
     "title": "Palettes"
+  },
+  "preferences": {
+    "bodies": {
+      "billing": "The card on file, the billing address and past invoices.",
+      "notifications": "Which events send an email, and which only show here.",
+      "profile": "Your name, your photo and the language of the interface.",
+      "security": "Your password, two-factor sign-in and active sessions."
+    },
+    "label": "Preferences",
+    "names": {
+      "billing": "Billing",
+      "notifications": "Notifications",
+      "profile": "Profile",
+      "security": "Security"
+    }
+  },
+  "reader": {
+    "bodies": {
+      "billing": "Change the card a subscription is billed to, and the day it is billed.",
+      "disputes": "Answer a disputed payment with the evidence the bank asks for.",
+      "invoices": "Download an invoice, or send it again to another address.",
+      "refunds": "Refund a payment in full or in part within 180 days."
+    },
+    "close": "Close article",
+    "closeTab": "Close article",
+    "label": "Help articles",
+    "names": {
+      "billing": "Billing",
+      "disputes": "Disputes",
+      "invoices": "Invoices",
+      "refunds": "Refunds"
+    },
+    "reopen": "Reopen the articles"
+  },
+  "scrolling": {
+    "about": "Fourteen draft orders in a list that scrolls sideways inside a scroll area, whose edges fade. The selected tab scrolls itself into view, and the page does not scroll.",
+    "title": "Many tabs"
   },
   "settings": "Settings",
   "size": {

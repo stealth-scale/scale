@@ -61,6 +61,14 @@ describe("Root", () => {
     expect(screen.getByRole("tab", { name: "Second" }).getAttribute("aria-selected")).toBe("true");
   });
 
+  it("deselects the selected tab on a press under deselectable", async () => {
+    await drawn(composed({ deselectable: true }));
+    fireEvent.click(screen.getByRole("tab", { name: "First" }));
+    await settled();
+
+    expect(screen.getByRole("tab", { name: "First" }).getAttribute("aria-selected")).toBe("false");
+  });
+
   it("ignores a press on a disabled tab", async () => {
     await drawn(composed());
     fireEvent.click(screen.getByRole("tab", { name: "Third" }));

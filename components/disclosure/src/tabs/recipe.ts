@@ -35,10 +35,54 @@ import {
 const FILLED = { height: "var(--height)", width: "var(--width)" };
 
 /**
+ * Places a line indicator under the selected tab, or at its inline start in a vertical list.
+ */
+const BAR = {
+  _horizontal: { bottom: "0", height: "{borderWidths.indicator}", width: "var(--width)" },
+  _vertical: {
+    height: "var(--height)",
+    insetInlineStart: "0",
+    width: "{borderWidths.indicator}",
+  },
+};
+
+/**
+ * Paints a bar in the system's selection colour under forced colors.
+ *
+ * @remarks
+ *   Forced colors replace every author background with `Canvas`, so a filled bar vanishes and the
+ *   selected tab keeps no mark. A system colour with `forcedColorAdjust: none` keeps the bar.
+ */
+const FORCED_BAR = { background: "Highlight", forcedColorAdjust: "none" };
+
+/**
+ * Styles the pointer's close control inside a closable tab.
+ *
+ * @remarks
+ *   The control is at least `sizes.6` square, the smallest pointer target WCAG 2.5.8 allows, and
+ *   its glyph is one text size. Negative inline margins take the box's room around the glyph back,
+ *   so the glyph sits the tab's gap from the words and the tab's inset from its end.
+ */
+const CLOSE_TRIGGER = {
+  _hover: { background: "colorPalette.muted", color: "fg" },
+  "& > svg": { blockSize: "1em", inlineSize: "1em" },
+  alignItems: "center",
+  borderRadius: "l1",
+  color: "fg.muted",
+  display: "inline-flex",
+  flexShrink: "0",
+  justifyContent: "center",
+  marginInline: "calc((1em - {sizes.6}) / 2)",
+  minBlockSize: "6",
+  minInlineSize: "6",
+};
+
+/**
  * Defines the tabs recipe: a line of tabs at size `md` by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
+    closeTrigger: CLOSE_TRIGGER,
     content: { _focusVisible: { focusVisibleRing: "outside" }, outline: "none" },
     indicator: { borderRadius: "l1", pointerEvents: "none", zIndex: "0" },
     list: {
@@ -56,6 +100,8 @@ export const recipe = defineSlotRecipe({
     trigger: {
       ...interactive(),
       _disabled: { cursor: "disabled" },
+      _vertical: { justifyContent: "flex-start" },
+      "& > svg": { blockSize: "1em", flexShrink: "0", inlineSize: "1em" },
       alignItems: "center",
       display: "inline-flex",
       justifyContent: "center",
@@ -67,7 +113,7 @@ export const recipe = defineSlotRecipe({
   className: "tabs",
   defaultVariants: { size: "md", variant: "line" },
   jsx: [/^Tabs(\.\w+)?$/u],
-  slots: ["root", "list", "trigger", "content", "indicator"],
+  slots: ["root", "list", "trigger", "closeTrigger", "content", "indicator"],
   staticCss: [{ palette: [...PALETTES] }],
   variants: {
     /**
@@ -110,15 +156,7 @@ export const recipe = defineSlotRecipe({
         },
       },
       line: {
-        indicator: {
-          _horizontal: { bottom: "0", height: "{borderWidths.indicator}", width: "var(--width)" },
-          _vertical: {
-            height: "var(--height)",
-            insetInlineStart: "0",
-            width: "{borderWidths.indicator}",
-          },
-          background: "colorPalette.solid",
-        },
+        indicator: { ...BAR, _highContrast: FORCED_BAR, background: "colorPalette.solid" },
         list: {
           _horizontal: { borderBlockEndColor: "border", borderBlockEndWidth: "hairline" },
           _vertical: { borderInlineEndColor: "border", borderInlineEndWidth: "hairline" },
@@ -130,11 +168,21 @@ export const recipe = defineSlotRecipe({
         },
       },
       plain: {
-        indicator: { display: "none" },
+        indicator: { ...BAR, _highContrast: { ...FORCED_BAR, display: "block" }, display: "none" },
         trigger: { _selected: { color: "fg" }, color: "fg.muted" },
       },
       subtle: {
-        indicator: { ...FILLED, background: "colorPalette.subtle", borderRadius: "l1" },
+        indicator: {
+          ...FILLED,
+          _highContrast: {
+            outlineColor: "Highlight",
+            outlineOffset: "calc({borderWidths.indicator} * -1)",
+            outlineStyle: "solid",
+            outlineWidth: "{borderWidths.indicator}",
+          },
+          background: "colorPalette.subtle",
+          borderRadius: "l1",
+        },
         trigger: { _selected: { color: "colorPalette.fg" }, color: "fg.muted" },
       },
     },

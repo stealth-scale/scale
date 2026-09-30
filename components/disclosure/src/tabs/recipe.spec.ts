@@ -23,8 +23,9 @@ describe("recipe", () => {
     expect(recipe.className).toBe("tabs");
   });
 
-  it("declares five slots", () => {
+  it("declares six slots", () => {
     expect([...recipe.slots].toSorted()).toStrictEqual([
+      "closeTrigger",
       "content",
       "indicator",
       "list",
@@ -108,6 +109,54 @@ describe("recipe", () => {
 
   it("stacks every tab over the indicator", () => {
     expect(recipe.base?.["trigger"]).toMatchObject({ position: "relative", zIndex: "1" });
+  });
+
+  it.each(["line", "plain"] as const)(
+    "paints the %s indicator in Highlight under forced colors",
+    (look) => {
+      expect(recipe.variants?.["variant"]?.[look]?.["indicator"]).toMatchObject({
+        _highContrast: { background: "Highlight", forcedColorAdjust: "none" },
+      });
+    },
+  );
+
+  it("shows the plain indicator under forced colors alone", () => {
+    expect(recipe.variants?.["variant"]?.["plain"]?.["indicator"]).toMatchObject({
+      _highContrast: { display: "block" },
+      display: "none",
+    });
+  });
+
+  it("outlines the subtle indicator in Highlight under forced colors", () => {
+    expect(recipe.variants?.["variant"]?.["subtle"]?.["indicator"]).toMatchObject({
+      _highContrast: { outlineColor: "Highlight", outlineStyle: "solid" },
+    });
+  });
+
+  it("starts a vertical tab's words at its inline start", () => {
+    expect(recipe.base?.["trigger"]).toMatchObject({ _vertical: { justifyContent: "flex-start" } });
+  });
+
+  it("sizes a glyph in a tab to one text size", () => {
+    expect(recipe.base?.["trigger"]).toMatchObject({
+      "& > svg": { blockSize: "1em", flexShrink: "0", inlineSize: "1em" },
+    });
+  });
+
+  it("makes the close trigger a pointer target of at least sizes.6", () => {
+    expect(recipe.base?.["closeTrigger"]).toMatchObject({ minBlockSize: "6", minInlineSize: "6" });
+  });
+
+  it("takes the close trigger's room around its glyph back with negative margins", () => {
+    expect(recipe.base?.["closeTrigger"]).toMatchObject({
+      marginInline: "calc((1em - {sizes.6}) / 2)",
+    });
+  });
+
+  it("sizes the close trigger's glyph to one text size", () => {
+    expect(recipe.base?.["closeTrigger"]).toMatchObject({
+      "& > svg": { blockSize: "1em", inlineSize: "1em" },
+    });
   });
 
   it("matches every Tabs tag", () => {

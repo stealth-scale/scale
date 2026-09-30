@@ -199,13 +199,13 @@ import { Accordion } from "@stealthscale/component-disclosure";
 
 ## Tabs
 
-`Tabs` renders a list of tabs and the panel of the selected tab.
+`Tabs` renders a list of tabs and the panel of the selected tab. A person can close a closable tab.
 
 ```tsx
 import { Tabs } from "@stealthscale/component-disclosure";
 
 <Tabs.Root defaultValue="overview">
-  <Tabs.List>
+  <Tabs.List aria-label="Account">
     <Tabs.Trigger value="overview">Overview</Tabs.Trigger>
     <Tabs.Trigger value="activity">Activity</Tabs.Trigger>
     <Tabs.Indicator />
@@ -223,29 +223,88 @@ import { Tabs } from "@stealthscale/component-disclosure";
 | `justify` | `start`, `center`, `end`, `between`, `around`, `evenly`           | none    |
 | `fitted`  | `true`                                                            | off     |
 
-| Part        | Element  | What it renders                           |
-| ----------- | -------- | ----------------------------------------- |
-| `Root`      | `div`    | The root, and the machine its parts share |
-| `List`      | `div`    | The list of tabs, with `role="tablist"`   |
-| `Trigger`   | `button` | One tab, with `role="tab"`                |
-| `Indicator` | `div`    | The indicator of the selected tab         |
-| `Content`   | `div`    | One panel, with `role="tabpanel"`         |
+| Part           | Element  | What it renders                                  |
+| -------------- | -------- | ------------------------------------------------ |
+| `Root`         | `div`    | The root, and the machine its parts share        |
+| `List`         | `div`    | The list of tabs, with `role="tablist"`          |
+| `Trigger`      | `button` | One tab, with `role="tab"`                       |
+| `CloseTrigger` | `span`   | The pointer's control that closes a closable tab |
+| `Indicator`    | `div`    | The indicator of the selected tab                |
+| `Content`      | `div`    | One panel, with `role="tabpanel"`                |
 
 - A tab and its panel take the same `value`. The machine sets every role, id and ARIA reference.
   Name the list with `aria-label` on `Tabs.List`.
 - The root takes the machine's settings: `value`, `defaultValue`, `onValueChange`, `orientation`,
-  `activationMode`, `loopFocus`, `deselectable` and `id`.
+  `activationMode`, `loopFocus`, `deselectable` and `id`, and `onClose`.
 - `orientation` is the machine's option, not an axis. When it is `vertical`, the list turns into a
-  column, the indicator moves to the inline start and the up and down arrows move between tabs.
+  column, the indicator moves to the inline start and the up and down arrows move between tabs. A
+  vertical tab starts its words at its inline start.
 - `activationMode="automatic"`, the default, selects a tab on focus. `manual` moves focus with the
   arrows and selects on a press, for panels that are slow to render.
 - Only the selected tab is in the tab order. A panel takes `tabIndex={0}`, so Tab from the list
   lands on the selected panel, and a panel that is not selected is `hidden`.
 - The machine measures the selected tab and positions the indicator. The indicator is `hidden` until
-  the first measurement.
+  the first measurement, and measures again whenever a tab enters or leaves the list.
 - `fitted` shares the list's width equally between the tabs. `justify` distributes the tabs in a
   list wider than they are.
-- The palette colours the line indicator, the subtle indicator and the selected tab's text.
+- The palette colours the line indicator, the subtle indicator and the selected tab's text. Under
+  forced colors the line and plain looks mark the selected tab with a `Highlight` bar, and the
+  subtle look outlines it in `Highlight`.
+- An `svg` placed directly in a tab is one text size.
+
+Close tabs from a list you keep, and scroll the list where it can be wider than its room:
+
+```tsx
+import { XIcon } from "lucide-react";
+
+import { Tabs } from "@stealthscale/component-disclosure";
+import { ScrollArea } from "@stealthscale/component-primitives";
+
+<Tabs.Root defaultValue="build.yml" onClose={({ value }) => close(value)}>
+  <ScrollArea.Root scrolls="horizontal">
+    <ScrollArea.Viewport focusable={false}>
+      <ScrollArea.Content>
+        <Tabs.List aria-label="Open files">
+          {files.map((file) => (
+            <Tabs.Trigger closable key={file} value={file}>
+              {file}
+              <Tabs.CloseTrigger>
+                <XIcon />
+              </Tabs.CloseTrigger>
+            </Tabs.Trigger>
+          ))}
+          <Tabs.Indicator />
+        </Tabs.List>
+      </ScrollArea.Content>
+    </ScrollArea.Viewport>
+    <ScrollArea.Scrollbar orientation="horizontal" />
+  </ScrollArea.Root>
+  {files.map((file) => (
+    <Tabs.Content key={file} value={file}>
+      {file}
+    </Tabs.Content>
+  ))}
+</Tabs.Root>;
+```
+
+- `closable` on a `Tabs.Trigger` lets a person close the tab: Delete while it has focus, a press
+  with the middle button, or a press on its `Tabs.CloseTrigger`. The tab states
+  `aria-keyshortcuts="Delete"`. A disabled tab does not close.
+- `onClose` on the root receives `{ value }`, typed `CloseDetails`. Remove the tab and its panel
+  there, because the root does not remove them.
+- When the selected tab closes, the next enabled tab is selected, else the previous one, else none.
+  `onValueChange` runs before `onClose`. A close of another tab keeps the selection.
+- When the closing tab has focus, focus moves to the next enabled tab, else the previous one. When
+  the last tab closes, focus falls to the document's body, so move it to what replaces the list.
+- `Tabs.CloseTrigger` renders your glyph in a `span` hidden from assistive technology, titled
+  "Close" unless you pass `label`. It is at least 24px square at the default scale. A press on it
+  neither focuses nor selects its tab.
+- `Tabs.selectionAfterClose(values, selected, closed)` returns the value to select after a close.
+  Use it to close a tab from outside the list, such as from a button or a menu.
+- Compose the list in the primitives package's horizontal `ScrollArea` when the tabs can be wider
+  than their room. Pass `focusable={false}` to the viewport, because the tabs take focus. The
+  selected tab scrolls into view inside the scroll area on every selection, and the page does not
+  scroll.
 
 ## Steps
 
@@ -400,7 +459,8 @@ import { Popover } from "@stealthscale/component-disclosure";
 - The close trigger's accessible name is "close" unless you pass `aria-label`.
 - The title is an `h2`. Pass another heading level through `as` to fit the page's outline.
 - The size sets the panel's padding, the title and the description, and the panel is at least as
-  wide as the trigger.
+  wide as the trigger. The title and the description read the body text at the size, the title in
+  the semibold weight.
 - A press on the trigger of another popover or menu closes this panel and opens the other. A popover
   opened from inside another popover's panel closes with it.
 - The package does not portal. Wrap `Popover.Positioner` in a portal when an ancestor clips the

@@ -1,10 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { fireEvent, screen, within } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
-import { drawn } from "@stealthscale/testing-react";
+import { drawn, settled } from "@stealthscale/testing-react";
 import { slotElement } from "@stealthscale/testing-theme";
 
 import { Indicator } from "#tabs/indicator.tsx";
-import { composed, tabbed } from "#tabs/tabs.fixtures.tsx";
+import { closable, composed, tabbed } from "#tabs/tabs.fixtures.tsx";
 
 describe("Indicator", () => {
   it("renders a div", async () => {
@@ -35,5 +36,23 @@ describe("Indicator", () => {
     const { container } = await drawn(tabbed(<Indicator />));
 
     expect(slotElement(container, "tabs", "indicator").getAttribute("aria-hidden")).toBe("true");
+  });
+
+  it("moves under the selected tab when a tab before it leaves the list", async () => {
+    vi.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockReturnValue(80);
+    vi.spyOn(HTMLElement.prototype, "offsetLeft", "get").mockImplementation(function place(
+      this: HTMLElement,
+    ) {
+      return 100 * [...(this.parentElement?.children ?? [])].indexOf(this);
+    });
+
+    const { container } = await drawn(closable());
+
+    fireEvent.click(within(screen.getByRole("tab", { name: "first" })).getByTitle("Close"));
+    await settled();
+
+    expect(slotElement(container, "tabs", "indicator").style.getPropertyValue("--left")).toBe(
+      "0px",
+    );
   });
 });

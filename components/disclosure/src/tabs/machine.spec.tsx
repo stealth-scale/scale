@@ -20,7 +20,7 @@ import {
  * @returns The state as text.
  */
 function Running(props: TabsOptions): ReactElement {
-  const api = useTabsMachine(props);
+  const { api } = useTabsMachine(props);
 
   return (
     <ApiProvider value={api}>
