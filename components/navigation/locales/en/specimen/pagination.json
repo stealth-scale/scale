@@ -1,0 +1,49 @@
+{
+  "about": "Renders a navigation landmark of page buttons between the buttons that move a page back and forward. Every page and trigger is the library's square button, and the current page is the button marked on.",
+  "edges": {
+    "about": "The first and last triggers jump to the ends. With `siblingCount` 0 the row shows the first, the current and the last page between them.",
+    "title": "Edges"
+  },
+  "first": "First page",
+  "last": "Last page",
+  "links": {
+    "about": "With `type=\"link\"`, every page and trigger is a link to the address `getPageUrl` returns, so a reader can open a page in a new tab and the address bar keeps the page. A press follows the link and leaves the page to the address: the example reads `page` from the hash, as an application reads it from its router.",
+    "title": "Links"
+  },
+  "looks": {
+    "about": "The root passes `variant` to every button. Ghost and outline fill the current page, and subtle fills it one step deeper than the other pages.",
+    "title": "Looks"
+  },
+  "narrow": {
+    "about": "The root measures whether its pages fit the row. When they do not, it sets `data-crowded`, the pages and marks are hidden, and the summary states the current page between the triggers. The `summary` prop of `Pagination.Items` sets the summary's words.",
+    "title": "Narrow"
+  },
+  "next": "Next page",
+  "page": "Page {{page}}",
+  "palette": {
+    "about": "The root passes `palette` to every button, so the current page takes the palette's fill.",
+    "title": "Palettes"
+  },
+  "previous": "Previous page",
+  "siblings": {
+    "about": "`siblingCount` sets how many pages show on each side of the current one. Every row starts on page 12 of 24, where marks replace the runs of pages left out.",
+    "title": "Siblings"
+  },
+  "size": {
+    "about": "Every size. The size sets the buttons, the gaps between them, the ellipsis and the page text.",
+    "title": "Sizes"
+  },
+  "summary": "Page {{page}} of {{totalPages}}",
+  "table": {
+    "about": "A controlled pagination under a list: the caller keeps `page` and `pageSize`, shows the rows of the current page, and changes the page size from a segment group. The page text gives the range of rows.",
+    "amount": "€{{amount}}",
+    "invoice": "Invoice INV-{{number}}",
+    "perPage": "Rows per page",
+    "title": "Controlled"
+  },
+  "text": {
+    "about": "The page text in each format: compact states the page, short gives the page over the count, and long gives the range of items. It is an `output`, so a screen reader reads the new text after a press.",
+    "title": "Page text"
+  },
+  "title": "Pagination"
+}

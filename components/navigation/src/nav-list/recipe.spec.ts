@@ -120,34 +120,42 @@ describe("recipe", () => {
     });
   });
 
-  it("sizes a middle row as the smallest control with the label one step below", () => {
+  it("sizes a middle row as the smallest control with the label two steps below", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["link"]).toStrictEqual({
       _currentPage: { fontWeight: "semibold" },
       "& > svg": { boxSize: "calc({sizes.icon.sm} * var(--density, 1))", flexShrink: "0" },
       blockSize: "max({sizes.6}, calc({sizes.control.xs} * var(--density, 1)))",
+      gap: "calc({spacing.gap.xs} * var(--density, 1))",
+      paddingInline: "calc({spacing.inset.xs} * var(--density, 1))",
+      textStyle: "label.xs",
+    });
+  });
+
+  it("sizes a small row as a middle tag", () => {
+    expect(recipe.variants?.["size"]?.["sm"]?.["link"]).toMatchObject({
+      blockSize: "max({sizes.6}, calc({sizes.tag.md} * var(--density, 1)))",
+    });
+  });
+
+  it("sizes a large trigger as a middle control with the sm label inset and gap", () => {
+    expect(recipe.variants?.["size"]?.["lg"]?.["trigger"]).toMatchObject({
+      blockSize: "max({sizes.6}, calc({sizes.control.md} * var(--density, 1)))",
       gap: "calc({spacing.gap.sm} * var(--density, 1))",
       paddingInline: "calc({spacing.inset.sm} * var(--density, 1))",
       textStyle: "label.sm",
     });
   });
 
-  it("sizes a small row as the largest tag", () => {
-    expect(recipe.variants?.["size"]?.["sm"]?.["link"]).toMatchObject({
-      blockSize: "max({sizes.6}, calc({sizes.tag.xl} * var(--density, 1)))",
-    });
+  it("sets fg.muted on the root for its rows to inherit", () => {
+    expect(recipe.base?.["root"]).toMatchObject({ color: "fg.muted" });
   });
 
-  it("sizes a large trigger as a middle control with the md label inset and gap", () => {
-    expect(recipe.variants?.["size"]?.["lg"]?.["trigger"]).toMatchObject({
-      blockSize: "max({sizes.6}, calc({sizes.control.md} * var(--density, 1)))",
-      gap: "calc({spacing.gap.md} * var(--density, 1))",
-      paddingInline: "calc({spacing.inset.md} * var(--density, 1))",
-      textStyle: "label.md",
-    });
+  it("sets the trigger ink to the inherited ink", () => {
+    expect(recipe.base?.["trigger"]).toMatchObject({ color: "inherit" });
   });
 
-  it("sets the trigger ink to colorPalette.fg", () => {
-    expect(recipe.base?.["trigger"]).toMatchObject({ color: "colorPalette.fg" });
+  it("sets fg on the current row in the base", () => {
+    expect(recipe.base?.["link"]).toMatchObject({ _currentPage: { color: "fg" } });
   });
 
   it("fills a hovered link with colorPalette.subtle", () => {
@@ -156,10 +164,10 @@ describe("recipe", () => {
     });
   });
 
-  it("indents a nested list by the inset one step below the size", () => {
+  it("indents a nested list by the row inset", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["content"]).toStrictEqual({
-      gap: "calc({spacing.gap.sm} * var(--density, 1))",
-      marginInlineStart: "calc({spacing.inset.sm} * var(--density, 1))",
+      gap: "calc({spacing.gap.xs} * var(--density, 1))",
+      marginInlineStart: "calc({spacing.inset.xs} * var(--density, 1))",
       paddingBlock: "0.5",
       paddingInlineStart: "calc({spacing.inset.sm} * var(--density, 1))",
     });
@@ -190,7 +198,7 @@ describe("recipe", () => {
       "&:has(> :is(.nav-list__action, .nav-list__badge)) > :is(.nav-list__link, .nav-list__trigger)":
         {
           paddingInlineEnd:
-            "calc(calc({spacing.inset.sm} * var(--density, 1)) + calc({spacing.gap.sm} * var(--density, 1)) + max({sizes.6}, calc({sizes.tag.sm} * var(--density, 1))))",
+            "calc(calc({spacing.inset.xs} * var(--density, 1)) + calc({spacing.gap.xs} * var(--density, 1)) + max({sizes.6}, calc({sizes.tag.sm} * var(--density, 1))))",
         },
     });
   });
@@ -210,7 +218,7 @@ describe("recipe", () => {
 
   it("sizes the count the control and the indicator to the same square", () => {
     const square = "max({sizes.6}, calc({sizes.tag.sm} * var(--density, 1)))";
-    const room = "calc({spacing.inset.sm} * var(--density, 1))";
+    const room = "calc({spacing.inset.xs} * var(--density, 1))";
 
     expect(recipe.variants?.["size"]?.["md"]?.["action"]).toMatchObject({
       blockSize: square,
@@ -289,7 +297,7 @@ describe("recipe", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["branch"]).toStrictEqual({
       "&:has(> .nav-list__trigger > svg:first-child) > .nav-list__content": {
         marginInlineStart:
-          "calc(calc({spacing.inset.sm} * var(--density, 1)) + calc({sizes.icon.sm} * var(--density, 1)) / 2 - {borderWidths.hairline} / 2)",
+          "calc(calc({spacing.inset.xs} * var(--density, 1)) + calc({sizes.icon.sm} * var(--density, 1)) / 2 - {borderWidths.hairline} / 2)",
       },
     });
   });
@@ -298,6 +306,12 @@ describe("recipe", () => {
     expect(recipe.variants?.["variant"]?.["dock"]?.["item"]).toMatchObject({
       flex: "1",
       minInlineSize: "0",
+    });
+  });
+
+  it("marks the current dock destination by fg without a fill", () => {
+    expect(recipe.variants?.["variant"]?.["dock"]?.["link"]).toMatchObject({
+      _currentPage: { background: "transparent", color: "fg" },
     });
   });
 
@@ -370,8 +384,8 @@ describe("recipe", () => {
     expect(recipe.base?.["content"]?.["&[hidden]"]).toStrictEqual({ display: "none" });
   });
 
-  it("sets fg.muted on a nested list for its rows to inherit", () => {
-    expect(recipe.base?.["content"]).toMatchObject({ color: "fg.muted" });
+  it("sets fg.subtle on a nested list for its rows to inherit", () => {
+    expect(recipe.base?.["content"]).toMatchObject({ color: "fg.subtle" });
   });
 
   it("matches JSX tag names in the NavList namespace", () => {

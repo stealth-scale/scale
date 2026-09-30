@@ -1,7 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { pressed } from "@stealthscale/testing-react";
+import { createFilterScope, FilterContext } from "@stealthscale/hooks";
+import { drawn, pressed } from "@stealthscale/testing-react";
 import { slotElement } from "@stealthscale/testing-theme";
 
 import { Branch } from "#nav-list/branch.tsx";
@@ -75,7 +76,7 @@ describe("Branch", () => {
     expect(heard).toHaveBeenLastCalledWith(expect.objectContaining({ open: true }));
   });
 
-  it("stays closed on a press when open is false", async () => {
+  it("keeps the branch closed on a press when open is false", async () => {
     render(
       <Root>
         <Branch open={false}>
@@ -117,5 +118,119 @@ describe("Branch", () => {
     );
 
     expect(screen.getByRole("button").getAttribute("aria-controls")).toBeTruthy();
+  });
+
+  it("opens while the query of its scope is active", async () => {
+    const scope = createFilterScope();
+
+    await drawn(
+      <FilterContext value={scope}>
+        {branched(
+          <>
+            <Trigger>Settings</Trigger>
+            <Content>Team</Content>
+          </>,
+        )}
+      </FilterContext>,
+    );
+    await act(async () => {
+      scope.setQuery("team");
+      await Promise.resolve();
+    });
+
+    expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("stays open when the query clears on a branch that started open", async () => {
+    const scope = createFilterScope();
+
+    await drawn(
+      <FilterContext value={scope}>
+        {branched(
+          <>
+            <Trigger>Settings</Trigger>
+            <Content>Team</Content>
+          </>,
+          { defaultOpen: true },
+        )}
+      </FilterContext>,
+    );
+    await act(async () => {
+      scope.setQuery("team");
+      await Promise.resolve();
+    });
+    await act(async () => {
+      scope.setQuery("");
+      await Promise.resolve();
+    });
+
+    expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("closes when the query clears on a branch that started closed", async () => {
+    const scope = createFilterScope();
+
+    await drawn(
+      <FilterContext value={scope}>
+        {branched(
+          <>
+            <Trigger>Settings</Trigger>
+            <Content>Team</Content>
+          </>,
+        )}
+      </FilterContext>,
+    );
+    await act(async () => {
+      scope.setQuery("team");
+      await Promise.resolve();
+    });
+    await act(async () => {
+      scope.setQuery("");
+      await Promise.resolve();
+    });
+
+    expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("stays open on a press while the query of its scope is active", async () => {
+    const scope = createFilterScope();
+
+    await drawn(
+      <FilterContext value={scope}>
+        {branched(
+          <>
+            <Trigger>Settings</Trigger>
+            <Content>Team</Content>
+          </>,
+        )}
+      </FilterContext>,
+    );
+    await act(async () => {
+      scope.setQuery("team");
+      await Promise.resolve();
+    });
+    await pressed(screen.getByRole("button"));
+
+    expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("hides the branch while the query of its scope is not in its words", async () => {
+    const scope = createFilterScope();
+
+    await drawn(
+      <FilterContext value={scope}>{branched(<Trigger>Settings</Trigger>)}</FilterContext>,
+    );
+    await act(async () => {
+      scope.setQuery("billing");
+      await Promise.resolve();
+    });
+
+    expect(screen.getByRole("listitem", { hidden: true }).hasAttribute("hidden")).toBe(true);
+  });
+
+  it("keeps the hidden attribute a caller sets", () => {
+    render(branched(<Trigger>Settings</Trigger>, { hidden: true }));
+
+    expect(screen.getByRole("listitem", { hidden: true }).hasAttribute("hidden")).toBe(true);
   });
 });

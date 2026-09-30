@@ -14,7 +14,7 @@
     "title": "Highlights and sizes"
   },
   "iconic": {
-    "about": "The list in full and collapsed to a rail. In the rail every row is a square that contains its icon. The counts, the controls and the nested rows are hidden, and the text stays in the accessibility tree.",
+    "about": "The list in full and collapsed to a rail. In the rail every row is a square that contains its icon. The counts, the controls and the nested rows are hidden, and the text remains in the accessibility tree. A link with `tooltip` shows its words beside the icon on hover and on focus.",
     "title": "Iconic"
   },
   "invoices": "Invoices",
@@ -29,7 +29,7 @@
   },
   "rename": "Rename {{name}}",
   "reveal": {
-    "about": "A control that is always visible, and one that appears on hover. The control on the current row stays visible. The others appear under the pointer, while their row has focus, and under a coarse pointer.",
+    "about": "A control that is always visible, and one that appears on hover. The control on the current row is always visible. The others appear under the pointer, while their row has focus, and under a coarse pointer.",
     "title": "Reveal"
   },
   "settings": "Settings",

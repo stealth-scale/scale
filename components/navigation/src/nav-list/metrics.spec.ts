@@ -1,10 +1,35 @@
 import { describe, expect, it } from "vitest";
 
-import { centred, glyph, reserved, rowed, trailing, tucked } from "#nav-list/metrics.ts";
+import {
+  centred,
+  glyph,
+  inset,
+  lighter,
+  reserved,
+  rowed,
+  trailing,
+  tucked,
+} from "#nav-list/metrics.ts";
 
 describe("glyph", () => {
   it("returns the icon box one step below the row size", () => {
     expect(glyph("md")).toBe("calc({sizes.icon.sm} * var(--density, 1))");
+  });
+});
+
+describe("lighter", () => {
+  it.each([
+    { give: "lg", want: "sm" },
+    { give: "md", want: "xs" },
+    { give: "sm", want: "xs" },
+  ] as const)("returns $want for a $give row", ({ give, want }) => {
+    expect(lighter(give)).toBe(want);
+  });
+});
+
+describe("inset", () => {
+  it("returns the inset two steps below the row size", () => {
+    expect(inset("md")).toBe("calc({spacing.inset.xs} * var(--density, 1))");
   });
 });
 
@@ -17,7 +42,15 @@ describe("rowed", () => {
 
   it("keeps the row at least 24px tall at any density", () => {
     expect(rowed("sm")).toMatchObject({
-      blockSize: "max({sizes.6}, calc({sizes.tag.xl} * var(--density, 1)))",
+      blockSize: "max({sizes.6}, calc({sizes.tag.md} * var(--density, 1)))",
+    });
+  });
+
+  it("sets the label the inset and the gap two steps below the row size", () => {
+    expect(rowed("md")).toMatchObject({
+      gap: "calc({spacing.gap.xs} * var(--density, 1))",
+      paddingInline: "calc({spacing.inset.xs} * var(--density, 1))",
+      textStyle: "label.xs",
     });
   });
 });
@@ -39,7 +72,7 @@ describe("trailing", () => {
 describe("tucked", () => {
   it("returns an end margin equal to the row inset", () => {
     expect(tucked("md")).toStrictEqual({
-      marginInlineEnd: "calc({spacing.inset.sm} * var(--density, 1))",
+      marginInlineEnd: "calc({spacing.inset.xs} * var(--density, 1))",
     });
   });
 });
@@ -47,7 +80,7 @@ describe("tucked", () => {
 describe("reserved", () => {
   it("sums the inset with the gap and the square", () => {
     expect(reserved("md")).toBe(
-      "calc(calc({spacing.inset.sm} * var(--density, 1)) + calc({spacing.gap.sm} * var(--density, 1)) + max({sizes.6}, calc({sizes.tag.sm} * var(--density, 1))))",
+      "calc(calc({spacing.inset.xs} * var(--density, 1)) + calc({spacing.gap.xs} * var(--density, 1)) + max({sizes.6}, calc({sizes.tag.sm} * var(--density, 1))))",
     );
   });
 });
@@ -55,7 +88,7 @@ describe("reserved", () => {
 describe("centred", () => {
   it("adds half the icon to the inset less half the hairline", () => {
     expect(centred("md")).toBe(
-      "calc(calc({spacing.inset.sm} * var(--density, 1)) + calc({sizes.icon.sm} * var(--density, 1)) / 2 - {borderWidths.hairline} / 2)",
+      "calc(calc({spacing.inset.xs} * var(--density, 1)) + calc({sizes.icon.sm} * var(--density, 1)) / 2 - {borderWidths.hairline} / 2)",
     );
   });
 });

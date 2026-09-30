@@ -5,8 +5,8 @@ import { pressed } from "@stealthscale/testing-react";
 
 import { Branch } from "#nav-list/branch.tsx";
 import { Content } from "#nav-list/content.tsx";
-import { Item } from "#nav-list/item.ts";
-import { Link } from "#nav-list/link.ts";
+import { Item } from "#nav-list/item.tsx";
+import { Link } from "#nav-list/link.tsx";
 import { composed } from "#nav-list/nav-list.fixtures.tsx";
 import { Root, type RootProps } from "#nav-list/root.tsx";
 import { Trigger } from "#nav-list/trigger.tsx";

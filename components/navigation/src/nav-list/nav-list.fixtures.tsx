@@ -9,8 +9,8 @@ import { Badge } from "#nav-list/badge.ts";
 import { Branch, type BranchProps } from "#nav-list/branch.tsx";
 import { Content } from "#nav-list/content.tsx";
 import { Indicator } from "#nav-list/indicator.tsx";
-import { Item } from "#nav-list/item.ts";
-import { Link } from "#nav-list/link.ts";
+import { Item } from "#nav-list/item.tsx";
+import { Link } from "#nav-list/link.tsx";
 import { Root, type RootProps } from "#nav-list/root.tsx";
 import { Trigger } from "#nav-list/trigger.tsx";
 

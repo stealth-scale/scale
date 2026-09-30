@@ -4,8 +4,8 @@ import { describe, expect, it } from "vitest";
 import { slotElement } from "@stealthscale/testing-theme";
 
 import { Content } from "#nav-list/content.tsx";
-import { Item } from "#nav-list/item.ts";
-import { Link } from "#nav-list/link.ts";
+import { Item } from "#nav-list/item.tsx";
+import { Link } from "#nav-list/link.tsx";
 import { branched } from "#nav-list/nav-list.fixtures.tsx";
 
 describe("Content", () => {

@@ -6,12 +6,16 @@
  *   `Toc.Title` or the landmark has no name. The machine marks each heading inside the
  *   `IntersectionObserver` band that `rootMargin` sets. Its default band excludes the bottom of
  *   the viewport, so a short last section is never marked. Pass `rootMargin="0px"` to mark every
- *   visible heading, and the last one once the page reaches its end.
+ *   visible heading, and the last one once the page reaches its end. With `placement="aside"` the
+ *   root renders its children in the primitives package's scroll area, whose viewport takes no tab
+ *   stop, because every link scrolls into view as it takes focus.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
 
-import { withProvider } from "#toc/context.ts";
+import { ScrollArea } from "@stealthscale/component-primitives";
+
+import { withContext, withProvider } from "#toc/context.ts";
 import {
   ApiProvider,
   splitTocProps,
@@ -24,6 +28,16 @@ import {
  * Nav element that provides the recipe's variants to the parts.
  */
 const Landmark = withProvider("nav", "root");
+
+/**
+ * Renders the scroll area's root with the recipe's class, which leaves the focus ring room.
+ */
+const Scroller = withContext(ScrollArea.Root, "scroller");
+
+/**
+ * Renders the scroll area's content with the recipe's class, a padded column of the children.
+ */
+const Column = withContext(ScrollArea.Content, "content");
 
 /**
  * Describes the props of Toc.Root: the machine options, the recipe's variants and the props of a
@@ -45,15 +59,27 @@ export interface RootProps
 }
 
 /**
- * Renders a `nav` that runs the machine and provides its api to the parts.
+ * Renders a `nav` that runs the machine and provides its api to the parts, around a scroll area
+ * in the aside placement.
  */
 export function Root(props: RootProps): ReactElement {
-  const [options, rest] = splitTocProps(props);
+  const [options, { children, ...rest }] = splitTocProps(props);
   const api = useTocMachine(options);
 
   return (
     <ApiProvider value={api}>
-      <Landmark {...rest} {...api.getRootProps()} />
+      <Landmark {...rest} {...api.getRootProps()}>
+        {rest.placement === "aside" ? (
+          <Scroller>
+            <ScrollArea.Viewport focusable={false}>
+              <Column>{children}</Column>
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar />
+          </Scroller>
+        ) : (
+          children
+        )}
+      </Landmark>
     </ApiProvider>
   );
 }

@@ -42,10 +42,29 @@ const STUCK = "--app-shell-sticky-top";
 const STEPS = ["sm", "md", "lg"] as const;
 
 /**
+ * Room a focus ring takes outside an element: its offset and its width.
+ */
+const RING_ROOM = "calc(var(--focus-ring-offset, 0px) + var(--focus-ring-width, 0px))";
+
+/**
+ * Returns the gap between the title and the list at a size, one gap step smaller than the size.
+ *
+ * @param size - The recipe's size.
+ */
+function spaced(size: (typeof STEPS)[number]): Record<"gap", string> {
+  return { gap: dense(`{spacing.gap.${below(size)}}`) };
+}
+
+/**
  * Table of contents slot recipe, inline at the md size by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
+    /**
+     * The column of the title and the list inside the aside placement's scroll area, padded by
+     * the room a focus ring takes at its edges.
+     */
+    content: { display: "flex", flexDirection: "column", padding: RING_ROOM },
     indicator: {
       _highContrast: { background: "CanvasText", forcedColorAdjust: "none" },
       _motionReduce: { transitionDuration: "0s" },
@@ -89,6 +108,18 @@ export const recipe = defineSlotRecipe({
       flexDirection: "column",
       minInlineSize: "min({sizes.44}, 100%)",
     },
+    /**
+     * The aside placement's scroll area, pulled out at its start edges by the room its content's
+     * padding takes, so the title and the links start where the root starts.
+     *
+     * @remarks
+     *   The end edges are inside the root, because a box past the root's end edges is overflow a
+     *   scrolling container around the root scrolls to.
+     */
+    scroller: {
+      marginBlockStart: `calc(${RING_ROOM} * -1)`,
+      marginInlineStart: `calc(${RING_ROOM} * -1)`,
+    },
     title: {
       color: "fg.muted",
       fontWeight: "semibold",
@@ -99,7 +130,7 @@ export const recipe = defineSlotRecipe({
   className: "toc",
   defaultVariants: { placement: "inline", size: "md" },
   jsx: [/^Toc(\.\w+)?$/u],
-  slots: ["root", "title", "list", "item", "link", "indicator"],
+  slots: ["root", "scroller", "content", "title", "list", "item", "link", "indicator"],
   variants: {
     /**
      * The semantic palette of the indicator and the focus ring. Without a value the root reads
@@ -112,15 +143,15 @@ export const recipe = defineSlotRecipe({
      *
      * @remarks
      *   `aside` sets `position: sticky` with an offset below the application shell's pinned bars,
-     *   and caps the root at the viewport height with `overflow-y: auto`. `inline` is the default
-     *   and leaves placement to the container, such as a drawer or a column on a narrow screen.
+     *   and caps the root at the viewport height. The root renders its title and list in the
+     *   primitives package's scroll area, which fills the root. `inline` is the default and leaves
+     *   placement to the container, such as a drawer or a column on a narrow screen.
      */
     placement: onSlot("root", {
       aside: {
         alignSelf: "start",
         insetBlockStart: `calc(var(${STUCK}, 0px) + ${dense("{spacing.gap.lg}")})`,
         maxBlockSize: `calc(100dvh - var(${STUCK}, 0px) - ${dense("{spacing.gap.lg}")} * 2)`,
-        overflowY: "auto",
         position: "sticky",
       },
       inline: { position: "static" },
@@ -130,6 +161,7 @@ export const recipe = defineSlotRecipe({
      * The text styles, the row padding and the gap between the title and the list.
      */
     size: onSlots({
+      content: sizeVariants(spaced, STEPS),
       link: sizeVariants(
         (size) => ({
           paddingBlock: dense(`{spacing.gap.${below(below(size))}}`),
@@ -139,7 +171,7 @@ export const recipe = defineSlotRecipe({
         }),
         STEPS,
       ),
-      root: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${below(size)}}`) }), STEPS),
+      root: sizeVariants(spaced, STEPS),
       title: sizeVariants(
         (size) => ({
           paddingInlineEnd: dense(`{spacing.inset.${below(size)}}`),

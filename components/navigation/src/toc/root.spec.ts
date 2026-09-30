@@ -57,4 +57,36 @@ describe("Root", () => {
 
     expect(slotElement(container, "toc", "root").tagName).toBe("ASIDE");
   });
+
+  it("returns no accessibility violation in the aside placement", async () => {
+    await expect(
+      accessibilityViolations(() => composed({ placement: "aside" })),
+    ).resolves.toStrictEqual([]);
+  });
+
+  it("renders the title and the list in a scroll area in the aside placement", async () => {
+    const { container } = await drawn(composed({ placement: "aside" }));
+    const column = slotElement(container, "toc", "content");
+
+    expect(column.contains(screen.getByText("On this page"))).toBe(true);
+    expect(column.contains(screen.getByRole("list"))).toBe(true);
+  });
+
+  it("keeps the scroll area's viewport out of the tab order in the aside placement", async () => {
+    const { container } = await drawn(composed({ placement: "aside" }));
+
+    expect(slotElement(container, "scroll-area", "viewport").getAttribute("tabindex")).toBe("-1");
+  });
+
+  it("names the landmark by Toc.Title in the aside placement", async () => {
+    await drawn(composed({ placement: "aside" }));
+
+    expect(screen.getByRole("navigation", { name: "On this page" })).toBeDefined();
+  });
+
+  it("renders the children without a scroll area in the inline placement", async () => {
+    const { container } = await drawn(composed({ placement: "inline" }));
+
+    expect(container.querySelector(".scroll-area__root")).toBeNull();
+  });
 });

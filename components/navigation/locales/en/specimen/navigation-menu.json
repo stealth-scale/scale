@@ -1,0 +1,104 @@
+{
+  "about": "Renders a site's navigation landmark: a bar of links and of buttons that open panels of links. Each button follows the WAI-ARIA disclosure pattern, so a screen reader announces a button that expands a group of links. A mouse opens a panel after `openDelay`, a press toggles it, the arrow keys move along the bar and into an open panel, and Escape or a press outside closes it.",
+  "aligned": {
+    "about": "`align` on the viewport positioner places the viewport against the open trigger: its start edge at the trigger's start, centred under the trigger, or its end edge at the trigger's end. The machine keeps the viewport 10px inside the window.",
+    "title": "Alignment"
+  },
+  "click": {
+    "about": "With `disableHoverTrigger` a panel opens only on a press, as a menu in an application's bar does. A second press closes it, and the arrow keys still move along the bar.",
+    "docs": "Documentation",
+    "help": "Help",
+    "label": "Application",
+    "members": "Members",
+    "settings": "Settings",
+    "shortcuts": "Keyboard shortcuts",
+    "support": "Contact support",
+    "switch": "Switch workspace",
+    "title": "Press to open",
+    "workspace": "Workspace"
+  },
+  "controlled": {
+    "about": "The caller keeps `value` and changes it in `onValueChange`, and the status line reads the open item. `onSelect` on a link runs before the menu closes, so the status line also names the last link pressed.",
+    "closed": "Every panel is closed.",
+    "open": "Open: {{item}}.",
+    "picked": "Last link pressed: {{link}}.",
+    "title": "Controlled"
+  },
+  "header": {
+    "about": "Panels open in one shared viewport, which moves to the open trigger and resizes to the panel, and the indicator runs along the bar under the open trigger. The viewport's start edge meets the open trigger's, because the bar starts at the page's start edge. Every panel is written inside its item and shown in the viewport. Pricing is a plain link and marks the page on screen with `current`.",
+    "careers": "Careers",
+    "changelog": {
+      "about": "What shipped each week.",
+      "title": "Changelog"
+    },
+    "company": "Company",
+    "contact": "Contact",
+    "guides": {
+      "about": "Setups for common integrations.",
+      "title": "Guides"
+    },
+    "invoicing": {
+      "about": "Invoices that reconcile when paid.",
+      "title": "Invoicing"
+    },
+    "label": "Site",
+    "ledger": {
+      "about": "Double-entry books for each account.",
+      "title": "Ledger"
+    },
+    "payments": {
+      "about": "Accept cards and bank debits.",
+      "title": "Payments"
+    },
+    "pricing": "Pricing",
+    "products": "Products",
+    "reference": {
+      "about": "Every endpoint and error code.",
+      "title": "API reference"
+    },
+    "reports": {
+      "about": "Revenue, fees and payouts by month.",
+      "title": "Reports"
+    },
+    "resources": "Resources",
+    "story": "About us",
+    "title": "Site header"
+  },
+  "inline": {
+    "about": "Without a viewport each panel opens under its own trigger and is as wide as its links. The indicator runs along the bar under the open trigger, and Changelog marks the page on screen with `current`.",
+    "api": "API",
+    "changelog": "Changelog",
+    "cli": "Command line",
+    "label": "Developers",
+    "logs": "Request logs",
+    "payments": "Payments",
+    "refunds": "Refunds",
+    "sandbox": "Sandbox",
+    "title": "Panels in place",
+    "tools": "Tools",
+    "webhooks": "Webhooks"
+  },
+  "palette": {
+    "about": "The palette colors the indicator and a link to the page on screen. Changelog is current in each row.",
+    "title": "Palettes"
+  },
+  "sidebar": {
+    "about": "With `orientation=\"vertical\"` the bar is a column, the arrow keys move up and down it, and ArrowRight enters an open panel, which opens beside its trigger. Dashboard is current.",
+    "billing": "Billing",
+    "dashboard": "Dashboard",
+    "invoices": "Invoices",
+    "keys": "API keys",
+    "label": "Workspace",
+    "security": "Security",
+    "settings": "Settings",
+    "subscriptions": "Subscriptions",
+    "tax": "Tax",
+    "team": "Team",
+    "title": "Vertical"
+  },
+  "size": {
+    "about": "Every size. The size sets the bar's triggers and links, the gap to a panel, and a panel's padding, links and icons.",
+    "title": "Sizes"
+  },
+  "title": "Navigation menu"
+}

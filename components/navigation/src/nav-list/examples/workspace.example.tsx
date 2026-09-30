@@ -20,14 +20,14 @@ export function Workspace(props: NavList.RootProps): ReactElement {
   return (
     <NavList.Root {...props}>
       <NavList.Item>
-        <NavList.Link aria-current="page" href="#overview">
+        <NavList.Link aria-current="page" href="#overview" tooltip={t("overview")}>
           <LayoutDashboardIcon aria-hidden />
           <span>{t("overview")}</span>
         </NavList.Link>
         <NavList.Badge>3</NavList.Badge>
       </NavList.Item>
       <NavList.Item>
-        <NavList.Link href="#invoices">
+        <NavList.Link href="#invoices" tooltip={t("invoices")}>
           <FileTextIcon aria-hidden />
           <span>{t("invoices")}</span>
         </NavList.Link>

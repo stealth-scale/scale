@@ -14,17 +14,18 @@ import { below, dense, type Scale, type SystemStyleObject } from "@stealthscale/
 export type Step = "lg" | "md" | "sm";
 
 /**
- * Maps each row size to the size token of its height: 28.8px, 32px and 40px at the foundation's
+ * Maps each row size to the size token of its height: 24px, 32px and 40px at the foundation's
  * metrics.
  *
  * @remarks
  *   The `md` and `lg` rows read the control scale, so a sidebar's rows are as tall as its
- *   controls. The `sm` row reads the tag scale's largest step.
+ *   controls. The `sm` row reads the tag scale's `md` step, the WCAG 2.5.8 target size, for a
+ *   dense list such as a catalogue's: with the 4px gap its rows are 28px apart.
  */
 const ROW: Readonly<Record<Step, string>> = {
   lg: "control.md",
   md: "control.xs",
-  sm: "tag.xl",
+  sm: "tag.md",
 };
 
 /**
@@ -39,11 +40,35 @@ export function glyph(size: Step): string {
 }
 
 /**
+ * Returns the scale step a row's label, inset and gap read: two steps below the row, and never
+ * below `xs`.
+ *
+ * @remarks
+ *   A middle row reads `xs`: a 12.6px label, an 8px inset and a 4px gap in a 32px row. A large row
+ *   reads `sm`, and a small row reads `xs` like a middle one.
+ * @param size - The row's size.
+ * @returns The step.
+ */
+export function lighter(size: Scale): Scale {
+  return below(below(size));
+}
+
+/**
+ * Returns the inline inset of a row: the space before its icon and after its end column.
+ *
+ * @param size - The row's size.
+ * @returns The inset, multiplied by the density.
+ */
+export function inset(size: Scale): string {
+  return dense(`{spacing.inset.${lighter(size)}}`);
+}
+
+/**
  * Returns the size styles of a link or a trigger.
  *
  * @remarks
- *   The label, the inset and the gap are one size smaller than the row, so a row is lighter than a
- *   button of the same height. The current row is semibold here and not in the base, because the
+ *   The label, the inset and the gap are two sizes smaller than the row, so a row is lighter than
+ *   a button of the same height. The current row is semibold here and not in the base, because the
  *   label text style sets its own weight and the compiler emits variants after the base. The
  *   `highlight` axis sets the current row's ink, and the compiler emits `size` after `highlight`,
  *   so this function sets no ink. The row is at least `sizes.6` (24px) tall at any density, the
@@ -57,9 +82,9 @@ export function rowed(size: Step): SystemStyleObject {
     _currentPage: { fontWeight: "semibold" },
     "& > svg": { boxSize: glyph(size), flexShrink: "0" },
     blockSize: `max({sizes.6}, ${dense(`{sizes.${ROW[size]}}`)})`,
-    gap: dense(`{spacing.gap.${below(size)}}`),
-    paddingInline: dense(`{spacing.inset.${below(size)}}`),
-    textStyle: `label.${below(size)}`,
+    gap: dense(`{spacing.gap.${lighter(size)}}`),
+    paddingInline: inset(size),
+    textStyle: `label.${lighter(size)}`,
   };
 }
 
@@ -104,7 +129,7 @@ export function trailing(size: Scale): SystemStyleObject {
  * @returns The end margin of the count or the control.
  */
 export function tucked(size: Scale): SystemStyleObject {
-  return { marginInlineEnd: dense(`{spacing.inset.${below(size)}}`) };
+  return { marginInlineEnd: inset(size) };
 }
 
 /**
@@ -118,9 +143,7 @@ export function tucked(size: Scale): SystemStyleObject {
  * @returns The row's end padding.
  */
 export function reserved(size: Scale): string {
-  const inset = dense(`{spacing.inset.${below(size)}}`);
-
-  return `calc(${inset} + ${dense(`{spacing.gap.${below(size)}}`)} + ${square(size)})`;
+  return `calc(${inset(size)} + ${dense(`{spacing.gap.${lighter(size)}}`)} + ${square(size)})`;
 }
 
 /**
@@ -129,11 +152,11 @@ export function reserved(size: Scale): string {
  *
  * @remarks
  *   The margin is the trigger's inset plus half the icon, less half the line. At the middle size
- *   the line is 20px from the list's start, on the centre of a 16px icon that starts at 12px. A
+ *   the line is 16px from the list's start, on the centre of a 16px icon that starts at 8px. A
  *   trigger without a leading icon puts the line at its inset, under the start of its text.
  * @param size - The row's size.
  * @returns The nested list's start margin.
  */
 export function centred(size: Step): string {
-  return `calc(${dense(`{spacing.inset.${below(size)}}`)} + ${glyph(size)} / 2 - {borderWidths.hairline} / 2)`;
+  return `calc(${inset(size)} + ${glyph(size)} / 2 - {borderWidths.hairline} / 2)`;
 }

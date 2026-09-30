@@ -9,7 +9,37 @@ describe("index", () => {
       "Link",
       "LinkPropsProvider",
       "NavList",
+      "NavigationMenu",
+      "Pagination",
       "Toc",
+    ]);
+  });
+
+  it("publishes the navigation menu as a namespace of its parts", () => {
+    expect(Object.keys(barrel.NavigationMenu).toSorted()).toStrictEqual([
+      "Content",
+      "Indicator",
+      "Item",
+      "Link",
+      "List",
+      "Root",
+      "Trigger",
+      "Viewport",
+      "ViewportPositioner",
+    ]);
+  });
+
+  it("publishes the pagination as a namespace of its parts", () => {
+    expect(Object.keys(barrel.Pagination).toSorted()).toStrictEqual([
+      "Ellipsis",
+      "FirstTrigger",
+      "Item",
+      "Items",
+      "LastTrigger",
+      "NextTrigger",
+      "PageText",
+      "PrevTrigger",
+      "Root",
     ]);
   });
 
@@ -33,6 +63,7 @@ describe("index", () => {
       "Indicator",
       "Item",
       "Link",
+      "PropsProvider",
       "Root",
       "Skeleton",
       "Trigger",

@@ -1,8 +1,9 @@
 # @stealthscale/component-navigation
 
 React components for moving between pages and between sections of a page: `Link`, `Breadcrumb`,
-`NavList` and `Toc`. Each component renders through a recipe, so a theme restyles it by extending
-the recipe. The preset under `./theme` registers the recipes with an application's compiler.
+`NavList`, `NavigationMenu`, `Pagination` and `Toc`. Each component renders through a recipe, so a
+theme restyles it by extending the recipe. The preset under `./theme` registers the recipes with an
+application's compiler.
 
 Every value a theme can change is a recipe axis, and a caller sets it as a prop. A caller changes
 the rendered element with `as`.
@@ -13,8 +14,10 @@ the rendered element with `as`.
 pnpm add @stealthscale/component-navigation
 ```
 
-The package peers on `react` and `@stealthscale/theme`. Add the preset under `./theme` to the
-presets the application's compiler installs.
+The package peers on `react`, `@stealthscale/theme`, `@stealthscale/hooks`,
+`@stealthscale/component-actions`, `@stealthscale/component-disclosure` and
+`@stealthscale/component-primitives`. Add the preset under `./theme` to the presets the
+application's compiler installs.
 
 ## Link
 
@@ -156,21 +159,24 @@ import { NavList } from "@stealthscale/component-navigation";
 | `reveal`    | `always`, `hover`                                                  | `always`  |
 | `effect`    | `glow`                                                             | none      |
 
-| Part        | Element  | What it renders                         |
-| ----------- | -------- | --------------------------------------- |
-| `Root`      | `ul`     | The list, which receives the variants   |
-| `Item`      | `li`     | One row                                 |
-| `Link`      | `a`      | A row's link                            |
-| `Action`    | `button` | A control at the end of a row           |
-| `Badge`     | `span`   | A count at the end of a row             |
-| `Branch`    | `li`     | A row that expands, and its state       |
-| `Trigger`   | `button` | The row that expands and collapses      |
-| `Indicator` | `span`   | The icon that rotates as a branch opens |
-| `Content`   | `ul`     | The nested list of a branch             |
-| `Skeleton`  | `li`     | A placeholder row while the list loads  |
+| Part            | Element  | What it renders                                    |
+| --------------- | -------- | -------------------------------------------------- |
+| `Root`          | `ul`     | The list, which receives the variants              |
+| `Item`          | `li`     | One row                                            |
+| `Link`          | `a`      | A row's link                                       |
+| `Action`        | `button` | A control at the end of a row                      |
+| `Badge`         | `span`   | A count at the end of a row                        |
+| `Branch`        | `li`     | A row that expands, and its state                  |
+| `Trigger`       | `button` | The row that expands and collapses                 |
+| `Indicator`     | `span`   | The icon that rotates as a branch opens            |
+| `Content`       | `ul`     | The nested list of a branch                        |
+| `Skeleton`      | `li`     | A placeholder row while the list loads             |
+| `PropsProvider` | none     | The default `iconic` and `size` of the lists below |
 
 Set `aria-current="page"` on the link to the current page. A screen reader announces the attribute
-and `highlight` styles it, so the two cannot disagree.
+and `highlight` styles it, so the two cannot disagree. A row is `fg.muted`, and the current row is
+`fg` and semibold. A row's label, inline inset and gap are two sizes below the row's size: 12.6px,
+8px and 4px at `md`.
 
 The list does not set a landmark, because a page renders more than one list. Render a `nav` with an
 `aria-label` around the list. Do not pass `as="nav"` to the root: the rows are `li` elements, and a
@@ -194,6 +200,17 @@ accessibility tree, so a screen reader still reads the name of every row. The ra
 squares, so render it in a container as wide as the rail. Pass `iconic` from the component that
 collapses. The list does not measure anything itself.
 
+`NavList.PropsProvider` sets `iconic` and `size` once for every list below it, and a list's own
+props apply over it. The screen package's sidebar renders one. On an iconic list, a link with
+`tooltip` shows those words in a tooltip beside its icon on hover and on focus. The tooltip is
+portalled to the document, because a scrolling column clips what overflows it.
+
+Inside a filter scope from `@stealthscale/hooks`, such as a sidebar's search, an `Item` or a
+`Branch` whose words do not contain the query is hidden, and a branch is open while the scope has a
+query. While the query is active, a press on a branch's trigger leaves the branch open. A cleared
+query returns each branch to the state it had before the query, so the branch of the current page is
+open again.
+
 `reveal="hover"` hides each control until its row is hovered. The control on the current row stays
 visible. The others also appear while any element in their row has focus and under a coarse pointer,
 so a keyboard and a touch screen both reach them.
@@ -206,12 +223,185 @@ The list sizes an `svg` that is a direct child of a link or a trigger. In a list
 icon size one smaller than the row's size. In a dock, it takes `icon.lg`. Pass the icon without a
 size.
 
-Nested rows use the same `Item` and `Link`. `Content` sets the muted ink, and the nested rows
-inherit it. A line runs down the start of a nested list. When the trigger leads with an icon, the
-line is aligned with the icon's centre. `guide` sets the line's style, and `none` removes it.
+Nested rows use the same `Item` and `Link`. `Content` sets `fg.subtle`, and the nested rows inherit
+it. A line runs down the start of a nested list. When the trigger leads with an icon, the line is
+aligned with the icon's centre. `guide` sets the line's style, and `none` removes it.
 
 Set `aria-busy` on the root while `NavList.Skeleton` rows render in place of the loading rows, and
 put the feedback package's `Skeleton` inside each one.
+
+## NavigationMenu
+
+Renders a site's navigation landmark: a bar of links and of buttons that open panels of links.
+Compose it as `NavigationMenu.Root` around a `NavigationMenu.List` of items. An item contains a
+trigger and its panel, or a link.
+
+```tsx
+import { NavigationMenu } from "@stealthscale/component-navigation";
+
+<NavigationMenu.Root aria-label="Site">
+  <NavigationMenu.List>
+    <NavigationMenu.Item value="products">
+      <NavigationMenu.Trigger>
+        Products
+        <ChevronDownIcon />
+      </NavigationMenu.Trigger>
+      <NavigationMenu.Content>
+        <NavigationMenu.Link href="/payments">
+          <CreditCardIcon />
+          <Strong weight="medium">Payments</Strong>
+          <Span tone="muted">Accept cards and bank debits in one checkout.</Span>
+        </NavigationMenu.Link>
+      </NavigationMenu.Content>
+    </NavigationMenu.Item>
+    <NavigationMenu.Item value="pricing">
+      <NavigationMenu.Link current href="/pricing">
+        Pricing
+      </NavigationMenu.Link>
+    </NavigationMenu.Item>
+    <NavigationMenu.Indicator />
+  </NavigationMenu.List>
+  <NavigationMenu.ViewportPositioner align="start">
+    <NavigationMenu.Viewport />
+  </NavigationMenu.ViewportPositioner>
+</NavigationMenu.Root>;
+```
+
+| Axis      | Values                                                             | Default   |
+| --------- | ------------------------------------------------------------------ | --------- |
+| `size`    | `sm`, `md`, `lg`                                                   | `md`      |
+| `palette` | `primary`, `secondary`, `accent`, `neutral`, and the four statuses | `primary` |
+
+| Part                 | Element  | What it renders                                         |
+| -------------------- | -------- | ------------------------------------------------------- |
+| `Root`               | `nav`    | The landmark, which starts the machine                  |
+| `List`               | `ul`     | The bar of items                                        |
+| `Item`               | `li`     | A trigger and its panel, or a link                      |
+| `Trigger`            | `button` | The button that opens its item's panel                  |
+| `Content`            | `div`    | The panel of an item, `hidden` while the item is closed |
+| `Link`               | `a`      | A link in the bar or in a panel                         |
+| `Indicator`          | `li`     | The `aria-hidden` bar under the open trigger            |
+| `ViewportPositioner` | `div`    | The box that places the viewport under the bar          |
+| `Viewport`           | `div`    | The surface every panel shows in                        |
+
+Each trigger follows the WAI-ARIA disclosure navigation pattern: a `button` with `aria-expanded` and
+`aria-controls`, and no `menu` role. A mouse over a trigger opens its panel after `openDelay`, 200ms
+by default, and a press toggles it. A mouse that leaves the trigger and the panel closes it after
+`closeDelay`, 300ms by default. The arrow keys move along the bar, Home and End move to its ends,
+and ArrowDown moves into an open panel, or ArrowRight in a vertical menu. The arrow keys move
+between a panel's links. Escape and a press outside close the panel and return focus to its trigger.
+
+`NavigationMenu.Root` takes the machine's options: `value` or `defaultValue`, `onValueChange`,
+`openDelay`, `closeDelay`, `orientation`, `dir`, `disableHoverTrigger`, `disableClickTrigger` and
+`disablePointerLeaveClose`. Name the landmark with `aria-label`. The machine's `translations` are
+not accepted. `disablePointerLeaveClose` keeps a panel open when the pointer leaves the panel or the
+viewport. The root sets the machine's value to an item open at mount after the first commit, because
+the machine measures a trigger and tracks Escape and presses outside only when its value changes.
+`onValueChange` receives each change the menu makes, and never the value the menu mounts with.
+
+Without a viewport, each panel opens one gap under its trigger. A panel is as wide as its content,
+at most `sizes.2xl` and 20px narrower than the window. With `ViewportPositioner` and `Viewport`,
+every panel shows inside the viewport, which moves to the open trigger and resizes to the panel. The
+panel that closes fades over the panel that opens. `align` on the positioner lines the viewport up
+with the open trigger: `start` joins their start edges, `center` their centres and `end` their end
+edges. The default is `center`. The machine keeps the viewport 10px inside the window. Render the
+viewport on the first render, because the machine looks for it once, as it starts.
+
+A closed panel is in the document with `hidden`, so a crawler reads its links. While the menu
+renders a viewport, the machine renders a visually hidden proxy after each open trigger, and an
+element whose `aria-owns` references the panel. The proxy is focusable and `aria-hidden`. Tab on the
+trigger focuses the proxy, which moves focus to the panel's first link, and Tab on the panel's last
+link moves focus past the proxy to the next item. axe reports `aria-hidden-focus` for the proxy
+while a panel is open.
+
+`NavigationMenu.Link` takes `current`, which sets `aria-current="page"`, and `closeOnClick`, true by
+default. `onSelect` runs on a press before the menu closes, and a call to `preventDefault` on its
+event keeps the menu open. A press with the meta key keeps the menu open, because the link opens in
+another tab. Pass a router's link through `as`.
+
+A panel link places a leading icon in a column of its own and every other child in the column beside
+it, so a title and a description start at one edge. Pass `Strong` and `Span tone="muted"` from the
+typography package for the two. The recipe sizes the icon from the icon scale at the menu's size. A
+trigger's trailing icon is one size smaller and turns over while the panel is open.
+
+`NavigationMenu.Indicator` is a bar along the open trigger's bottom edge. In a list with an
+indicator the items are not positioned, because the machine measures a trigger against its
+positioned ancestor and the indicator reads that place against the list. A panel in place then opens
+under the trigger's measured place, and a panel that closes while another opens hides at once.
+`palette` colors the indicator and a link to the current page. Under forced colors the indicator
+paints `CanvasText` and an open trigger fills with `Highlight`.
+
+The bar wraps onto a second row when its items do not fit. The recipe offers no `Arrow` part,
+because the indicator is a bar, and no item indicator, because the trigger turns its own trailing
+icon.
+
+## Pagination
+
+Renders a navigation landmark of page buttons between the buttons that move a page back and forward.
+Compose it as `Pagination.Root` around the triggers and `Pagination.Items`, or around the triggers
+and `Pagination.PageText` for a row without page buttons.
+
+```tsx
+import { Pagination } from "@stealthscale/component-navigation";
+
+<Pagination.Root count={240} onPageChange={({ page }) => setPage(page)} page={page} pageSize={10}>
+  <Pagination.PrevTrigger>
+    <ChevronLeftIcon />
+  </Pagination.PrevTrigger>
+  <Pagination.Items />
+  <Pagination.NextTrigger>
+    <ChevronRightIcon />
+  </Pagination.NextTrigger>
+</Pagination.Root>;
+```
+
+| Axis   | Values           | Default |
+| ------ | ---------------- | ------- |
+| `size` | `sm`, `md`, `lg` | `md`    |
+
+| Part           | Element         | What it renders                                           |
+| -------------- | --------------- | --------------------------------------------------------- |
+| `Root`         | `nav`           | The landmark, which starts the machine                    |
+| `Items`        | none            | A page per page shown, a mark per run left out, a summary |
+| `Item`         | `button` or `a` | One page                                                  |
+| `Ellipsis`     | `span`          | The `aria-hidden` mark for a run of pages left out        |
+| `PrevTrigger`  | `button` or `a` | The button that moves one page back                       |
+| `NextTrigger`  | `button` or `a` | The button that moves one page forward                    |
+| `FirstTrigger` | `button` or `a` | The button that moves to the first page                   |
+| `LastTrigger`  | `button` or `a` | The button that moves to the last page                    |
+| `PageText`     | `output`        | The current page in words                                 |
+
+Every page and trigger is the actions package's square `Button`. The root passes `size`, `variant`
+and `palette` to every button inside it. `variant` takes any look of the button and defaults to
+`ghost`, and `palette` takes any palette. The current page takes `aria-current="page"`, which every
+look of the button marks as on.
+
+`Pagination.Root` takes the machine's options: `count`, `page` or `defaultPage`, `pageSize` or
+`defaultPageSize`, `siblingCount` and `boundaryCount` (both 1 by default), `onPageChange`,
+`onPageSizeChange`, `type` and `getPageUrl`. Its `aria-label` defaults to `Pagination`. The
+machine's `translations` are not accepted, because every word is a prop with an English default. A
+page is named `Page N` unless `Items` takes a `label` function, and each trigger takes `label` in
+place of `Previous page`, `Next page`, `First page` or `Last page`. Pass each trigger's glyph as its
+child.
+
+A trigger at an end sets `aria-disabled` in place of `disabled`, so a press that moves to the last
+page leaves focus on the trigger. The machine ignores a press on a trigger at an end.
+
+While its children overflow its row at their natural width, the root sets `data-crowded`. The recipe
+then hides the pages and the marks and shows a summary of the current page between the triggers,
+such as `Page 12 of 24`. `summary` on `Items` sets its format. The summary is an `output`, so a
+screen reader reads the new page after a press while the summary shows. The root takes no `ref`,
+because it attaches its own.
+
+`PageText` shows the current page in the format `format` names: `compact` renders `Page 12 of 24`,
+`short` renders `12 / 24`, and `long` renders the range of items, `111–120 of 240`. A function
+receives `count`, `page`, `pageRange` and `totalPages` and returns the words in any language.
+`summary` takes the same values.
+
+With `type="link"`, every page and trigger is a link to the address `getPageUrl` returns, so a
+reader can open a page in a new tab. A press follows the link and leaves the page unchanged: pass
+`page` from the address, as an application reads it from its router. A trigger at an end has no
+address, so it takes the link role and a tab stop and keeps focus.
 
 ## Toc
 
@@ -269,8 +459,10 @@ bottom of the viewport, so a short last section is never marked. Pass `rootMargi
 of sections.
 
 `placement="aside"` makes the root sticky below the application shell's pinned bars and caps it at
-the viewport height. The root is at least 11rem wide and never wider than its container. `palette`
-sets the indicator and the focus ring. Under forced colors the indicator paints `CanvasText`.
+the viewport height. A longer list scrolls in the primitives package's scroll area inside the root,
+whose viewport takes no tab stop. The root is at least 11rem wide and never wider than its
+container. `palette` sets the indicator and the focus ring. Under forced colors the indicator paints
+`CanvasText`.
 
 ## Licence
 

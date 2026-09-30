@@ -1,5 +1,5 @@
 /**
- * Renders the list that holds the rows, and moves focus between rows with the arrow keys.
+ * Renders the list that contains the rows, and moves focus between rows with the arrow keys.
  *
  * @remarks
  *   The element is `ul`, so a screen reader announces the number of items. The list sets no
@@ -7,15 +7,20 @@
  *   set: a sidebar's `nav`, or a `nav` the caller renders around the list. Do not pass `as="nav"`.
  *   The rows are `li` elements, and a `nav` holding them directly is not read as a list. The list
  *   handles the arrow keys on its own axis: down and up for `list`, left and right for `dock`. A
- *   caller's own key handler runs first, and a key it prevents is not handled.
+ *   caller's own key handler runs first, and a key it prevents is not handled. `iconic` and `size`
+ *   default to the nearest `NavList.PropsProvider`, and the list tells its rows whether it is
+ *   iconic.
  */
 
-import { type ComponentProps, type ReactElement } from "react";
+import { type ComponentProps, type ReactElement, useMemo } from "react";
 
 import { mergeProps } from "@zag-js/react";
 
+import { omitUndefined } from "@stealthscale/hooks";
+
 import { withProvider } from "#nav-list/context.ts";
 import { useRowKeys } from "#nav-list/keys.ts";
+import { ListProvider, useDefaults } from "#nav-list/state.ts";
 
 /**
  * Renders the list `ul` and provides the variants to every part below it.
@@ -38,8 +43,19 @@ export type RootProps = ComponentProps<typeof Listed>;
  * @param props - The recipe's variants and the `ul` element's props.
  * @returns The list.
  */
-export function Root(props: RootProps): ReactElement {
-  const onKeyDown = useRowKeys(props.variant === DOCK);
+export function Root({ iconic, size, ...rest }: RootProps): ReactElement {
+  const defaults = useDefaults();
+  const drawn = iconic ?? defaults.iconic ?? false;
+  const onKeyDown = useRowKeys(rest.variant === DOCK);
+  const state = useMemo(() => ({ iconic: drawn }), [drawn]);
 
-  return <Listed {...mergeProps({ onKeyDown }, props)} />;
+  return (
+    <ListProvider value={state}>
+      <Listed
+        {...mergeProps({ onKeyDown }, rest)}
+        {...omitUndefined({ size: size ?? defaults.size })}
+        iconic={drawn}
+      />
+    </ListProvider>
+  );
 }

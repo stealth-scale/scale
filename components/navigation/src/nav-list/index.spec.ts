@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#nav-list/index.ts";
 
 describe("index", () => {
-  it("exports the ten parts and no other runtime name", () => {
+  it("exports the ten parts and the props provider alone", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Action",
       "Badge",
@@ -12,6 +12,7 @@ describe("index", () => {
       "Indicator",
       "Item",
       "Link",
+      "PropsProvider",
       "Root",
       "Skeleton",
       "Trigger",

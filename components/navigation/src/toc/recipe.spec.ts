@@ -7,6 +7,11 @@ import { PALETTES } from "@stealthscale/theme/authoring";
 import { recipe } from "#toc/recipe.ts";
 import page from "#toc/toc.specimen.tsx";
 
+/**
+ * Room a focus ring takes outside an element, as the recipe writes it.
+ */
+const RING = "calc(var(--focus-ring-offset, 0px) + var(--focus-ring-width, 0px))";
+
 describe("recipe", () => {
   it("covers every variant axis in the scenes of its specimen page", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
@@ -24,15 +29,43 @@ describe("recipe", () => {
     expect(recipe.className).toBe("toc");
   });
 
-  it("declares six slots", () => {
+  it("declares eight slots", () => {
     expect([...recipe.slots].toSorted()).toStrictEqual([
+      "content",
       "indicator",
       "item",
       "link",
       "list",
       "root",
+      "scroller",
       "title",
     ]);
+  });
+
+  it("sticks the aside placement under the pinned bars at most as tall as the viewport", () => {
+    expect(recipe.variants?.["placement"]?.["aside"]?.["root"]).toStrictEqual({
+      alignSelf: "start",
+      insetBlockStart:
+        "calc(var(--app-shell-sticky-top, 0px) + calc({spacing.gap.lg} * var(--density, 1)))",
+      maxBlockSize:
+        "calc(100dvh - var(--app-shell-sticky-top, 0px) - calc({spacing.gap.lg} * var(--density, 1)) * 2)",
+      position: "sticky",
+    });
+  });
+
+  it("pulls the aside placement's scroll area out at its start edges by its content's padding", () => {
+    expect(recipe.base?.["scroller"]).toStrictEqual({
+      marginBlockStart: `calc(${RING} * -1)`,
+      marginInlineStart: `calc(${RING} * -1)`,
+    });
+  });
+
+  it("pads the aside placement's column by the room a focus ring takes", () => {
+    expect(recipe.base?.["content"]).toStrictEqual({
+      display: "flex",
+      flexDirection: "column",
+      padding: RING,
+    });
   });
 
   it("declares the palette placement and size axes", () => {
@@ -73,6 +106,7 @@ describe("recipe", () => {
 
   it("gives the title and the links the same inline start padding at md", () => {
     expect(recipe.variants?.["size"]?.["md"]).toStrictEqual({
+      content: { gap: "calc({spacing.gap.sm} * var(--density, 1))" },
       link: {
         paddingBlock: "calc({spacing.gap.xs} * var(--density, 1))",
         paddingInlineEnd: "calc({spacing.inset.sm} * var(--density, 1))",

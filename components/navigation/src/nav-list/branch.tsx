@@ -11,6 +11,8 @@
 
 import { type ComponentProps, type ReactElement } from "react";
 
+import { useControllableState, useFilterActive, useFilteredRow } from "@stealthscale/hooks";
+
 import { withContext } from "#nav-list/context.ts";
 import {
   type BranchOptions,
@@ -32,14 +34,36 @@ export interface BranchProps
 
 /**
  * Renders the branch and provides the running machine to its trigger, indicator and content.
+ *
+ * @remarks
+ *   Inside a search's scope, the branch registers the words it renders, its nested rows' words
+ *   among them, and is hidden while the scope's query is not in them. While the scope has a query
+ *   the branch is open, so a nested row that matches is visible, and a press on its trigger
+ *   changes nothing. The branch keeps its own open state and passes the machine a boolean `open`
+ *   at all times, so a cleared query returns the branch to the state it had before the query.
  */
 export function Branch(props: BranchProps): ReactElement {
   const [options, rest] = splitBranchProps(props);
-  const api = useBranchMachine(options);
+  const searching = useFilterActive();
+  const { hidden, ref } = useFilteredRow<HTMLLIElement>();
+  const [open, setOpen] = useControllableState({
+    defaultValue: options.defaultOpen ?? false,
+    onChange: (next: boolean) => {
+      options.onOpenChange?.({ open: next });
+    },
+    value: options.open,
+  });
+  const api = useBranchMachine({
+    ...options,
+    onOpenChange: (details) => {
+      if (!searching) setOpen(details.open);
+    },
+    open: searching || open,
+  });
 
   return (
     <BranchProvider value={api}>
-      <Held {...rest} {...api.getRootProps()} />
+      <Held {...rest} {...api.getRootProps()} hidden={hidden || rest.hidden === true} ref={ref} />
     </BranchProvider>
   );
 }
