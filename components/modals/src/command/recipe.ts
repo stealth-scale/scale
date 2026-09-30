@@ -7,10 +7,12 @@
  *   own: the panel is the edge, and the caret and the highlighted row show where the keys go. The
  *   clear control is an unfilled mark at the bar's end. The rule under the bar is the only rule
  *   between the bar and the rows. The listbox's control is the bar's only `div` child: the bar
- *   removes its rule and lets it take the width the glyph and the clear control leave. The list has
- *   no inline padding, because the listbox insets its rows. The panel sets the palette, which the
- *   highlighted row reads. The recipe has no `effect` axis, because the palette is a panel and its
- *   highlight moves with the arrow keys.
+ *   removes its rule and lets it take the width the glyph and the clear control leave. The rows
+ *   scroll in the listbox's scroll area. The list pads the block ends of the listbox's rows one gap
+ *   step below the palette's size beyond the listbox's own padding, and adds no inline padding,
+ *   because the listbox insets its rows. The panel sets the palette, which the highlighted row
+ *   reads. The recipe has no `effect` axis, because the palette is a panel and its highlight moves
+ *   with the arrow keys.
  */
 
 import {
@@ -33,6 +35,16 @@ import {
  * Sizes the palette offers, typed as literals so the root's `size` fits the listbox's.
  */
 const SIZES = ["sm", "md", "lg"] as const satisfies readonly Scale[];
+
+/**
+ * Class name of the listbox recipe, whose rows the list pads.
+ */
+export const LISTBOX = "listbox";
+
+/**
+ * Padding the listbox's rows take on every side.
+ */
+const ROWS_PAD = "{spacing.gap.xs}";
 
 /**
  * Defines the command recipe over its eight slots: size `md` in the neutral palette by default.
@@ -71,7 +83,7 @@ export const recipe = defineSlotRecipe({
       minInlineSize: "0",
       outline: "none",
     },
-    list: { minBlockSize: "0", overflowY: "auto" },
+    list: { display: "flex", flexDirection: "column", minBlockSize: "0" },
     root: { ...surface("lg"), display: "flex", flexDirection: "column", overflow: "clip" },
     shortcut: {
       ...truncate(),
@@ -94,8 +106,8 @@ export const recipe = defineSlotRecipe({
     palette: onSlot("root", paletteVariants()),
 
     /**
-     * Size of the bar, its glyph and clear control, the list's padding, the empty message and the
-     * shortcuts.
+     * Size of the bar, its glyph and clear control, the padding of the listbox's rows, the empty
+     * message and the shortcuts.
      */
     size: onSlots({
       clear: sizeVariants((size) => ({ boxSize: dense(`{sizes.icon.${size}}`) }), SIZES),
@@ -114,7 +126,11 @@ export const recipe = defineSlotRecipe({
       indicator: sizeVariants((size) => ({ boxSize: dense(`{sizes.icon.${size}}`) }), SIZES),
       input: sizeVariants((size) => ({ textStyle: `body.${size}` }), SIZES),
       list: sizeVariants(
-        (size) => ({ paddingBlock: dense(`{spacing.gap.${below(size)}}`), paddingInline: "0" }),
+        (size) => ({
+          [`& .${LISTBOX}__rows`]: {
+            paddingBlock: `calc(${dense(`{spacing.gap.${below(size)}}`)} + ${ROWS_PAD})`,
+          },
+        }),
         SIZES,
       ),
       shortcut: sizeVariants(

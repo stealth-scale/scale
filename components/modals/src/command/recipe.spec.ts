@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import collections from "@stealthscale/component-collections/theme";
 import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations } from "@stealthscale/testing-theme";
 import { PALETTES } from "@stealthscale/theme/authoring";
@@ -66,8 +67,28 @@ describe("recipe", () => {
     expect(recipe.base?.["input"]).toMatchObject({ borderStyle: "none", outline: "none" });
   });
 
-  it("sets overflowY to auto on the list slot", () => {
-    expect(recipe.base?.["list"]).toMatchObject({ overflowY: "auto" });
+  it("lays the list out as a column that shrinks below its rows", () => {
+    expect(recipe.base?.["list"]).toStrictEqual({
+      display: "flex",
+      flexDirection: "column",
+      minBlockSize: "0",
+    });
+  });
+
+  it("adds a gap step below the size to the block padding of the listbox's rows", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["list"]).toStrictEqual({
+      "& .listbox__rows": {
+        paddingBlock: "calc(calc({spacing.gap.sm} * var(--density, 1)) + {spacing.gap.xs})",
+      },
+    });
+  });
+
+  it("adds the padding the listbox recipe gives its rows", () => {
+    expect(collections).toMatchObject({
+      theme: {
+        extend: { slotRecipes: { listbox: { base: { rows: { padding: "{spacing.gap.xs}" } } } } },
+      },
+    });
   });
 
   it("leaves overflowY unset on the root slot", () => {

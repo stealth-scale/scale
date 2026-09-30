@@ -27,9 +27,10 @@ const Banded = withContext("div", "control");
 const Marked = withContext("span", "indicator", { defaultProps: { "aria-hidden": true } });
 
 /**
- * Renders the listbox's input with the recipe's input class beside the listbox's own.
+ * Renders the listbox's input with the recipe's input class beside the listbox's own, highlighting
+ * the first row of every filtered list, so Enter runs the best match.
  */
-const Typed = withContext(Listbox.Input, "input");
+const Typed = withContext(Listbox.Input, "input", { defaultProps: { autoHighlight: true } });
 
 /**
  * Describes the props of the query bar: the glyph, and the listbox input's props without

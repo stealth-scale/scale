@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { drawn, settled } from "@stealthscale/testing-react";
 import { slotElement } from "@stealthscale/testing-theme";
 
 import { composed, palette, typed } from "#command/command.fixtures.tsx";
@@ -57,5 +58,16 @@ describe("Input", () => {
     await typed(screen.getByRole("textbox"), "inv");
 
     expect(screen.getByRole<HTMLInputElement>("textbox").value).toBe("inv");
+  });
+
+  it("highlights the first row the query keeps", async () => {
+    await drawn(composed());
+    screen.getByRole("textbox").focus();
+    await settled();
+    await typed(screen.getByRole("textbox"), "rep");
+
+    expect(screen.getByRole("textbox").getAttribute("aria-activedescendant")).toBe(
+      screen.getByRole("option", { name: "Reports" }).id,
+    );
   });
 });

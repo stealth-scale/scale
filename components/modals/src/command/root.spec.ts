@@ -1,7 +1,7 @@
-import { render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { accessibilityViolations, pressed } from "@stealthscale/testing-react";
+import { accessibilityViolations, pressed, settled } from "@stealthscale/testing-react";
 import { boundViolations, slotElement } from "@stealthscale/testing-theme";
 
 import { composed } from "#command/command.fixtures.tsx";
@@ -12,6 +12,20 @@ import { type RootProps } from "#command/root.tsx";
  * Describes the props a case sets: the root's props without the two the fixture sets.
  */
 type Settings = Omit<RootProps, "actions" | "aria-label">;
+
+/**
+ * Waits for the next animation frame, in which the machine reveals the highlighted row.
+ */
+async function frame(): Promise<void> {
+  await act(async () => {
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => {
+        resolve();
+      });
+    });
+    await Promise.resolve();
+  });
+}
 
 describe("Root", () => {
   it("passes axe with every part", async () => {
@@ -51,6 +65,28 @@ describe("Root", () => {
     await pressed(screen.getByRole("option", { name: "Invoices" }));
 
     expect(heard).toHaveBeenCalledWith("invoices");
+  });
+
+  it("scrolls the row an arrow key highlights into view in the listbox's viewport", async () => {
+    const reveal = vi.spyOn(HTMLElement.prototype, "scrollIntoView");
+
+    vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(100);
+    vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockReturnValue(400);
+    const { container } = render(composed());
+    slotElement(container, "listbox", "viewport").style.overflowY = "auto";
+    act(() => {
+      screen.getByRole("textbox", { name: "Type a command" }).focus();
+    });
+    fireEvent.keyDown(screen.getByRole("textbox", { name: "Type a command" }), {
+      key: "ArrowDown",
+    });
+    await settled();
+    await frame();
+
+    expect([reveal.mock.contexts.at(-1), reveal.mock.lastCall]).toStrictEqual([
+      screen.getByRole("option", { name: "Invoices" }),
+      [{ block: "nearest" }],
+    ]);
   });
 
   it("leaves aria-selected false on an option after it has been chosen", async () => {

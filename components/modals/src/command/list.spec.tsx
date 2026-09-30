@@ -5,12 +5,21 @@ import { slotElement } from "@stealthscale/testing-theme";
 
 import { composed, palette } from "#command/command.fixtures.tsx";
 import { List } from "#command/list.tsx";
+import { LISTBOX } from "#command/recipe.ts";
 
 describe("List", () => {
   it("renders a div", () => {
     const { container } = render(palette(<List />));
 
     expect(slotElement(container, "command", "list").tagName).toBe("DIV");
+  });
+
+  it("renders the listbox rows the recipe selects inside the list", () => {
+    const { container } = render(composed());
+
+    expect(
+      slotElement(container, "command", "list").contains(slotElement(container, LISTBOX, "rows")),
+    ).toBe(true);
   });
 
   it("labels the listbox with the palette's aria-label", () => {
@@ -31,7 +40,7 @@ describe("List", () => {
     expect(screen.getAllByRole("group")).toHaveLength(2);
   });
 
-  it("builds a group id from its index rather than from its heading", () => {
+  it("builds a group id from the group's index", () => {
     const { container } = render(composed());
 
     expect(container.querySelector("[role=group]")?.id).toMatch(/group-0/u);

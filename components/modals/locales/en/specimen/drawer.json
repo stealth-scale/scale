@@ -1,0 +1,73 @@
+{
+  "about": "Opens a panel attached to an edge of the window over a dimmed page, and keeps focus in it until the reader closes it. Escape, a press on the backdrop, the close button and an action button close it, and focus returns to the trigger.",
+  "cancel": "Cancel",
+  "close": "Close",
+  "contained": {
+    "about": "The panel against the edge, then `contained`, which insets it from the window and rounds its corners.",
+    "title": "Contained"
+  },
+  "filters": {
+    "apply": "Apply filters",
+    "description": "Show the invoices in the states you pick.",
+    "status": "Status",
+    "statuses": {
+      "draft": "Draft",
+      "overdue": "Overdue",
+      "paid": "Paid"
+    },
+    "title": "Filter invoices",
+    "trigger": "Filters"
+  },
+  "form": {
+    "about": "A form in the body with its submit button in the footer. Create task checks the title and keeps the drawer open with the error until the title is filled in.",
+    "title": "Form"
+  },
+  "panel": {
+    "about": "A search field and recent searches in a panel at the top of the window. A recent search is an action trigger, so choosing one closes the panel.",
+    "title": "Top panel"
+  },
+  "placement": {
+    "about": "The panel at the inline start, at the inline end, at the top and at the bottom of the window. Start and end swap edges in a right-to-left document.",
+    "title": "Placements"
+  },
+  "search": {
+    "clear": "Clear the search",
+    "label": "Search the workspace",
+    "placeholder": "Invoices, clients, payouts",
+    "recent": "Recent searches",
+    "terms": {
+      "clients": "Clients in Amsterdam",
+      "invoices": "Unpaid invoices",
+      "payouts": "Payouts this month"
+    },
+    "title": "Search",
+    "trigger": "Search"
+  },
+  "share": {
+    "description": "Q3 revenue, updated 25 September 2026.",
+    "targets": {
+      "email": "Send by email",
+      "link": "Copy link",
+      "pdf": "Download as PDF"
+    },
+    "title": "Share the report",
+    "trigger": "Share"
+  },
+  "sheet": {
+    "about": "Share options in a sheet at the bottom of the window. Each option is an action trigger, so choosing one closes the sheet.",
+    "title": "Bottom sheet"
+  },
+  "size": {
+    "about": "The panel at 20, 28, 32, 42 and 56rem, then `full`, which fills the window. At the top and at the bottom the size is the panel's greatest height.",
+    "title": "Sizes"
+  },
+  "task": {
+    "check": "Give the task a title.",
+    "create": "Create task",
+    "name": "Title",
+    "notes": "Notes",
+    "title": "New task",
+    "trigger": "New task"
+  },
+  "title": "Drawer"
+}

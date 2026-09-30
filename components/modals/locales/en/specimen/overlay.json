@@ -1,0 +1,39 @@
+{
+  "about": "Opens a dialog from code and returns a promise of the value it closes with. An application creates an overlay once per component, renders its viewport once, and awaits `open` in a handler.",
+  "answer": {
+    "about": "A confirmation before a destructive action. The handler awaits `open`, which resolves with `true` when Delete closes the dialog and with `undefined` when Cancel or Escape dismisses it. Focus returns to the button that opened it.",
+    "title": "Await an answer"
+  },
+  "cancel": "Cancel",
+  "confirm": {
+    "confirm": "Delete",
+    "deleted": "The Q3 report was deleted.",
+    "description": "Everyone with the link loses access to it. You cannot undo this.",
+    "kept": "The Q3 report was kept.",
+    "title": "Delete the Q3 report?",
+    "trigger": "Delete report"
+  },
+  "rename": {
+    "label": "Report name",
+    "name": "Quarterly revenue",
+    "save": "Save",
+    "title": "Rename the report",
+    "trigger": "Rename"
+  },
+  "title": "Overlay",
+  "update": {
+    "about": "A dialog that code updates and closes. A timer passes the upload's progress to `update` every 400ms and closes the overlay with `done` at 100%. Cancel or Escape resolves `open` with `undefined`, and the handler stops the timer.",
+    "title": "Update from code"
+  },
+  "upload": {
+    "done": "The Q3 report was uploaded.",
+    "label": "Uploading the Q3 report",
+    "stopped": "The upload was cancelled.",
+    "title": "Uploading",
+    "trigger": "Upload report"
+  },
+  "value": {
+    "about": "A form whose value the handler needs. Save submits the form, the component closes the overlay with the trimmed name, and `open` resolves with it. Cancel resolves `open` with `undefined` and keeps the name.",
+    "title": "Return a value"
+  }
+}

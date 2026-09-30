@@ -51,10 +51,17 @@
     "prepublishOnly": "vp pack",
     "test": "vp test"
   },
+  "dependencies": {
+    "@zag-js/dialog": "catalog:",
+    "@zag-js/react": "catalog:",
+    "@zag-js/tour": "catalog:",
+    "@zag-js/types": "catalog:"
+  },
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
     "@rolldown/plugin-babel": "catalog:",
     "@stealthscale/component-collections": "workspace:^",
+    "@stealthscale/component-primitives": "workspace:^",
     "@stealthscale/hooks": "workspace:^",
     "@stealthscale/theme": "workspace:^",
     "@stealthscale/vite-config": "workspace:^",
@@ -78,6 +85,7 @@
   },
   "peerDependencies": {
     "@stealthscale/component-collections": "workspace:^",
+    "@stealthscale/component-primitives": "workspace:^",
     "@stealthscale/hooks": "workspace:^",
     "@stealthscale/theme": "workspace:^",
     "react": "catalog:"
