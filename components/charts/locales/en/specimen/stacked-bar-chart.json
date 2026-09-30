@@ -1,0 +1,34 @@
+{
+  "about": "Each category's total as one bar, split into the declared series. The total and the bottom segment are measured from the axis.",
+  "narrow": {
+    "about": "The revenue in a room 20rem wide, the column of a phone. All six month ticks fit, and the value axis measures its widest tick, €60,000.",
+    "title": "Narrow room"
+  },
+  "replay": {
+    "about": "animate grows each segment from its base when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the bars at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "revenue": {
+    "about": "Revenue per plan per month in euros, with the largest plan at the bottom of each bar. A hairline in the panel's color parts the segments.",
+    "caption": "Revenue grew to €43,600 in September, €24,800 of it from Scale plans.",
+    "growth": "Growth",
+    "label": "Revenue per plan per month",
+    "scale": "Scale",
+    "starter": "Starter",
+    "title": "Totals by plan"
+  },
+  "series": "Plans",
+  "split": {
+    "about": "defaultIndex opens the tooltip at September when the chart first renders, with a row per plan. The pointer or the arrow keys move it from there.",
+    "caption": "September's €43,600 split into €24,800 from Scale, €15,800 from Growth and €3,000 from Starter.",
+    "title": "Tooltip"
+  },
+  "title": "Stacked bar chart",
+  "unbooked": {
+    "about": "A range without rows renders the empty state in the plot's place, and no legend.",
+    "caption": "Revenue per plan per month.",
+    "empty": "No revenue booked in this period.",
+    "title": "Empty"
+  }
+}

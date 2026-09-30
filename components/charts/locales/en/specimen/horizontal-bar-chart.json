@@ -1,0 +1,54 @@
+{
+  "about": "Bars on their side with the categories down the start edge, for long names or a ranking. The chart renders the rows in the order it is given.",
+  "bullet": {
+    "about": "Plan attainment per team as bullet graphs. zones fills each row with the axis' zones, tinted, behind a measure 42% of the row, and a series with target marks each team's plan with a tick. valueDomain fixes the scale at 0 to 120%, which every row shares. The tooltip writes the value, the plan and the zone, and the key under the plot names the tick and the zones.",
+    "atlas": "Atlas",
+    "behind": "Behind",
+    "borealis": "Borealis",
+    "caption": "Two of six teams passed their plan, and Borealis is behind at 64%.",
+    "close": "Close",
+    "cygnus": "Cygnus",
+    "done": "Attainment",
+    "draco": "Draco",
+    "eridanus": "Eridanus",
+    "fornax": "Fornax",
+    "label": "Plan attainment per team",
+    "on": "On plan",
+    "target": "Plan",
+    "title": "Bullet graph"
+  },
+  "countries": {
+    "about": "Sessions per country, sorted from the most, in the indigo palette. The category axis measures its widest name.",
+    "br": "Brazil",
+    "caption": "The United States brought in 41% of the 118K sessions.",
+    "de": "Germany",
+    "gb": "United Kingdom",
+    "in": "India",
+    "label": "Sessions per country",
+    "nl": "Netherlands",
+    "sessions": "Sessions",
+    "title": "Ranking",
+    "us": "United States"
+  },
+  "leader": {
+    "about": "defaultIndex opens the tooltip at the first row when the chart first renders. The pointer or the arrow keys move it from there.",
+    "caption": "The United States brought 48.2K sessions, more than the United Kingdom and Germany together.",
+    "title": "Tooltip"
+  },
+  "narrow": {
+    "about": "The ranking in a room 20rem wide, the column of a phone. The category axis names every bar and measures its widest name, United Kingdom.",
+    "title": "Narrow room"
+  },
+  "replay": {
+    "about": "animate grows each bar out from the axis when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the bars at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "title": "Horizontal bar chart",
+  "unvisited": {
+    "about": "A week without sessions renders the empty state in the plot's place.",
+    "caption": "Sessions per country this week.",
+    "empty": "No sessions from any country this week.",
+    "title": "Empty"
+  }
+}

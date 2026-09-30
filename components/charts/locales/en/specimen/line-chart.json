@@ -1,0 +1,106 @@
+{
+  "about": "A line per declared series over a category or time axis, inside the chart's figure with its tooltip, legend and caption. Lines suit a rate or a level that exists between its points.",
+  "anomalies": {
+    "about": "An annotation with a value rings the point at its category and value, here in the error and warning palettes. The ring has no fill, so the series' own point shows through it, and its words are written above it.",
+    "caption": "Orders fell to 312 on September 18, when the card processor was down.",
+    "duplicates": "Duplicate webhooks",
+    "label": "Orders per day",
+    "orders": "Orders",
+    "outage": "Processor outage",
+    "title": "Flagged points"
+  },
+  "budget": {
+    "about": "A ReferenceLine child marks a constant, here the daily budget, and Chart.colorOf gives it the error palette's chart color. The recipe sets the line's label in the chart's muted ink.",
+    "budget": "Budget",
+    "caption": "Spend passed the €1,200 daily budget on Tuesday and Wednesday.",
+    "label": "Cloud spend per day",
+    "spend": "Spend",
+    "title": "Reference line"
+  },
+  "comparison": {
+    "about": "alignPeriods lines last week up with this week by position, Monday against Monday, and a series with previousOf renders last week dashed in the neutral palette. The tooltip writes the change from last week after this week's value.",
+    "caption": "Revenue this week was €141,400, 6.1% more than last week's €133,300.",
+    "current": "This week",
+    "previous": "Last week",
+    "title": "Comparison",
+    "weeks": "Weeks"
+  },
+  "controlled": {
+    "about": "hiddenKeys and onHiddenKeysChange keep the hidden series in the caller's state, which starts with p50 hidden. The status line reads that state, and Show all empties it.",
+    "all": "Show all",
+    "shown_one": "{{count}} of 3 series shown",
+    "shown_other": "{{count}} of 3 series shown",
+    "title": "Controlled legend"
+  },
+  "guide": {
+    "about": "Chart.Crosshair, a child of the chart, runs a dashed guide across the plot at the active row's p95 value. recharts' cursor marks the row, and the guide moves with the tooltip under the pointer and the arrow keys.",
+    "title": "Crosshair"
+  },
+  "latency": {
+    "about": "Two percentiles and a dashed target over a day's hours, with straight lines between the points and the legend below.",
+    "caption": "p95 latency passed the 300ms target between 12:00 and 14:00.",
+    "label": "Latency per hour",
+    "p50": "p50 latency",
+    "p95": "p95 latency",
+    "target": "Target",
+    "title": "Several series"
+  },
+  "narrow": {
+    "about": "The revenue chart in a room 20rem wide, the column of a phone. All seven weekday ticks fit, and the value axis measures its widest tick, €28,000.",
+    "title": "Narrow room"
+  },
+  "peak": {
+    "about": "defaultIndex opens the tooltip at a row when the chart first renders, here the hour of the peak. The pointer or the arrow keys move it from there.",
+    "caption": "p95 latency peaked at 390ms at 13:00.",
+    "title": "Tooltip"
+  },
+  "quiet": {
+    "about": "A range without rows renders the empty state in the plot's place, at the plot's ratio.",
+    "caption": "Errors per day over the last 7 days.",
+    "empty": "No errors in the last 7 days.",
+    "errors": "Errors",
+    "label": "Errors per day",
+    "title": "Empty"
+  },
+  "releases": {
+    "about": "annotations marks the chart's categories. An annotation with at alone is a moment, a dashed rule across the plot, and one with until is a period, a wash from at to until. The words are written at the plot's top, and the tooltip lists the annotations at its row after the series.",
+    "caption": "p95 latency rose above 360ms after release 4.12 and fell to 214ms after release 4.13.",
+    "first": "Release 4.12",
+    "freeze": "Change freeze",
+    "label": "p95 latency per day",
+    "p95": "p95 latency",
+    "second": "Release 4.13",
+    "title": "Annotations"
+  },
+  "replay": {
+    "about": "animate reveals each line from the start of the axis to its end when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the lines at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "retention": {
+    "about": "retentionSeries lays weekly trial cohorts out as lines: a line per cohort in one color, each newer cohort mixed further towards the ink, and the average weighted by each cohort's size in the ink. The average turns dashed where fewer than three cohorts have a rate for the week, because there it is the average of the oldest few.",
+    "average": "All cohorts",
+    "caption": "Trials from week 6 on kept 59 to 65% after a week, against 47 to 53% before the new activation email.",
+    "cohort": "Week {{week}}",
+    "label": "Share of trials still active, by week since the trial started",
+    "period": "W{{week}}",
+    "sparse": "All cohorts, fewer than three",
+    "title": "Retention by cohort"
+  },
+  "revenue": {
+    "about": "One series of daily revenue in euros. A chart of one series renders no legend.",
+    "caption": "Revenue peaked at €26,300 on Friday and fell over the weekend.",
+    "label": "Revenue per day",
+    "revenue": "Revenue",
+    "title": "One series"
+  },
+  "series": "Series",
+  "title": "Line chart",
+  "uptime": {
+    "about": "valueDomain sets the value axis to run from 99% to 100%, where an axis from zero would flatten every day into one line.",
+    "availability": "Availability",
+    "caption": "Availability fell to 99.71% on September 24 and was 99.9% or more on every other day.",
+    "label": "Availability per day",
+    "title": "Value domain"
+  }
+}

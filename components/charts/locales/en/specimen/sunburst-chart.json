@@ -1,0 +1,110 @@
+{
+  "about": "A hierarchy of parts as rings around a middle, one ring per level, such as spend by team, then by service, then by resource. Each part's arc is its share of the whole and is inside its parent's arc. Each top-level part is a family of arcs in one color, each ring paler than the one inside it, and the legend lists each family with its total. The arrow keys walk the arcs, a family before its parts. A sunburst shows how a whole divides level by level, and a treemap is the better chart for comparing the sizes of many parts.",
+  "credit": {
+    "about": "The bill with a committed-use credit of −€3,000 posted to the data team. An arc cannot be negative, so the chart gives a part below zero no arc, and the data team's total counts only the parts with an arc. hierarchyLeaves returns every leaf with its value as given, and the caption lists the leaves below zero.",
+    "caption_one": "{{names}} is below zero and has no arc. An arc cannot be negative.",
+    "caption_other": "{{names}} are below zero and have no arcs. An arc cannot be negative.",
+    "title": "A part below zero"
+  },
+  "folders": "Folders",
+  "hidden": {
+    "about": "defaultHiddenKeys hides the platform team when the chart first renders. Only the platform team has a third level, so the outer ring leaves with it, and the two rings left share the room. Every share in the tooltip is of the teams shown. A press on the legend shows the team again.",
+    "caption": "With the platform team hidden, the product team is 56% of the rest.",
+    "title": "A hidden team"
+  },
+  "largest": {
+    "about": "defaultIndex opens the tooltip at the third arc of the walk, virtual machines, when the chart first renders. The walk runs depth first and largest first: the platform team, compute, then virtual machines. The tooltip writes the resource's spend and its share of the bill to two significant digits.",
+    "caption": "Virtual machines are the largest resource at 23% of the bill.",
+    "title": "Tooltip"
+  },
+  "names": {
+    "archive": "Archive",
+    "backups": "Backups",
+    "blobs": "Blob storage",
+    "brand": "Brand",
+    "builds": "Builds",
+    "compute": "Compute",
+    "credit": "Committed-use credit",
+    "cron": "Cron",
+    "daily": "Daily",
+    "data": "Data",
+    "design": "Design",
+    "dns": "DNS",
+    "edits": "Edits",
+    "flags": "Feature flags",
+    "footage": "Footage",
+    "gpus": "GPUs",
+    "kubernetes": "Kubernetes",
+    "mailer": "Mailer",
+    "metrics": "Metrics",
+    "mobile": "Mobile app",
+    "network": "Network",
+    "photos": "Photos",
+    "pipelines": "Pipelines",
+    "platform": "Platform",
+    "product": "Product",
+    "proxy": "Auth proxy",
+    "queue": "Queue",
+    "registry": "Registry",
+    "scanner": "Scanner",
+    "screens": "Screens",
+    "secrets": "Secrets",
+    "snapshots": "Snapshots",
+    "status": "Status page",
+    "storage": "Storage",
+    "tracing": "Tracing",
+    "video": "Video",
+    "vms": "Virtual machines",
+    "warehouse": "Warehouse",
+    "web": "Web app",
+    "webhooks": "Webhooks",
+    "weekly": "Weekly"
+  },
+  "narrow": {
+    "about": "The bill in a room 20rem wide, the column of a phone. The rings and the hole shrink with the plot, and the legend wraps under it.",
+    "title": "Narrow room"
+  },
+  "palette": {
+    "about": "Each team states its palette: the platform team purple, the product team orange, the data team teal. A team's arcs mix its palette's chart color over the panel, paler in each ring. values false leaves the totals out of the legend.",
+    "caption": "The platform team spends more than the product and data teams together.",
+    "title": "Palettes"
+  },
+  "quiet": {
+    "about": "A sunburst without nodes renders the empty state in the plot's place, at the plot's ratio, and no legend.",
+    "caption": "Cloud spend this month.",
+    "empty": "No spend in this period.",
+    "title": "Empty"
+  },
+  "replay": {
+    "about": "animate sweeps each ring's arcs in clockwise from 12 o'clock when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the arcs at once.",
+    "caption": "Cloud spend for September.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "share": "Of the bill",
+  "spend": {
+    "about": "September's cloud bill of €114,500 by team, then by service, then by resource. Each team is a family of arcs in one color, and each ring is paler than the ring inside it. A service without resources leaves a gap in the outer ring, so every part is inside its parent's arc. The hole writes the bill's total, and the caption states the platform team's share, which the example sums from hierarchyLeaves.",
+    "caption": "The platform team is {{share}}% of the bill.",
+    "center": "September",
+    "label": "Cloud spend for September by team, service and resource",
+    "title": "Spend by team, service and resource"
+  },
+  "storage": {
+    "about": "A file server's folders and subfolders. Each folder is its own family, so each takes the next series color, and a folder without subfolders leaves a gap in the outer ring. valueOptions writes the sizes in gigabytes.",
+    "caption": "Design and video files fill 62% of the file server.",
+    "label": "Storage on the file server by folder and subfolder",
+    "share": "Of the server",
+    "title": "Two levels",
+    "value": "Size"
+  },
+  "tail": {
+    "about": "The platform team's spend: Kubernetes and fourteen small services. Each small service is a sliver of the outer ring. The tooltip writes each one's name and spend, and the arrow keys walk to each.",
+    "caption": "Kubernetes is 86% of the platform team's spend. Fourteen small services share the rest.",
+    "label": "Platform team spend for September by service",
+    "share": "Of the team",
+    "title": "A long tail"
+  },
+  "teams": "Teams",
+  "title": "Sunburst chart",
+  "value": "Spend"
+}

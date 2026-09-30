@@ -1,0 +1,71 @@
+{
+  "about": "The steps that take a running total from one number to another, each a bar floating on the total before it. Rises take the success palette's chart color, falls the error's, and totals rise from zero in the neutral's.",
+  "bridge": {
+    "about": "A monthly recurring revenue bridge. August's balance is a total with a value, which sets the running total, and September's total shows where the steps left it. The chart writes each bar's signed change above the bar, and a dashed connector runs from each bar to the next at the running total.",
+    "august": "August",
+    "caption": "MRR grew from €120K in August to €135.9K in September. New and expanded accounts added €27.6K, and contraction and churn removed €11.7K.",
+    "churn": "Churn",
+    "contraction": "Contraction",
+    "expansion": "Expansion",
+    "label": "MRR bridge from August to September",
+    "mrr": "MRR",
+    "new": "New",
+    "september": "September",
+    "title": "Revenue bridge"
+  },
+  "cash": {
+    "about": "A month of cash flow that dips below zero. The value axis runs through zero, so a bar below it reads as a balance owed.",
+    "caption": "Cash fell €75K below zero after payroll and suppliers, and closed the month at €30K once customer receipts arrived.",
+    "cash": "Cash",
+    "closing": "Closing",
+    "label": "Cash flow in September",
+    "opening": "Opening",
+    "payroll": "Payroll",
+    "receipts": "Receipts",
+    "suppliers": "Suppliers",
+    "tax": "Tax",
+    "title": "Below zero"
+  },
+  "churn": {
+    "about": "defaultIndex opens the tooltip at a step when the chart first renders. The tooltip writes the step's signed change, and its swatch takes the bar's color.",
+    "caption": "Churn removed €7.6K of MRR, nearly twice the €4.1K lost to contraction.",
+    "title": "Tooltip"
+  },
+  "headcount": {
+    "about": "Fourteen steps would crowd their numbers and lines, so valueLabels={false} and connectors={false} leave the bars alone. The tooltip still writes each month's change.",
+    "caption": "Headcount grew from 48 to 65 people over the year. July added the most, 5 people.",
+    "end": "End",
+    "label": "Headcount changes per month",
+    "people": "People",
+    "start": "Start",
+    "title": "Many steps"
+  },
+  "narrow": {
+    "about": "The revenue bridge in a room 20rem wide, the column of a phone. The values would run into each other at this width, so the chart leaves them out, and the tooltip writes each one. The category axis names the steps it has room for.",
+    "title": "Narrow room"
+  },
+  "profit": {
+    "about": "An income statement from revenue to operating profit. Two totals without values show the running total after each group of steps: gross profit, then operating profit.",
+    "amount": "Amount",
+    "caption": "Of €480K revenue, €65K remained as operating profit after €190K cost of sales and €225K of expenses.",
+    "cost": "Cost of sales",
+    "expenses": "Expenses",
+    "gross": "Gross profit",
+    "label": "Income statement for the third quarter",
+    "operating": "Operating profit",
+    "revenue": "Revenue",
+    "title": "Subtotals"
+  },
+  "quiet": {
+    "about": "A chart without steps renders the empty state in the plot's place, at the plot's ratio.",
+    "caption": "Monthly recurring revenue from August to September.",
+    "empty": "No revenue changes recorded this month.",
+    "title": "Empty"
+  },
+  "replay": {
+    "about": "animate grows each bar from its base when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the bars at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "title": "Waterfall chart"
+}

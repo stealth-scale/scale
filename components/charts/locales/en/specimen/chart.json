@@ -1,0 +1,53 @@
+{
+  "about": "A figure around a recharts chart, with a tooltip, a legend that shows and hides series, a caption that states the finding, and an empty state. Each series takes its color from a hue or a palette of the theme.",
+  "latency": {
+    "about": "Hourly p95 latency against a 300ms target, which takes the error palette and a dashed line.",
+    "caption": "Latency passed the 300ms target between 12:00 and 14:00.",
+    "name": "p95 latency per hour",
+    "p95": "p95 latency",
+    "target": "Target",
+    "title": "Threshold"
+  },
+  "payouts": {
+    "about": "Paid and refunded payouts per day in euros. The ticks and the tooltip are written in the locale, and a press in the legend hides or shows a series.",
+    "caption": "Refunds rose to €1,250 on Thursday, a fifth of the day's payouts.",
+    "name": "Payouts per day",
+    "paid": "Paid",
+    "refunded": "Refunded",
+    "title": "Line"
+  },
+  "quiet": {
+    "about": "A chart without rows shows its empty state in the plot's place, at the plot's ratio.",
+    "caption": "Disputes per day over the last 7 days.",
+    "disputes": "Disputes",
+    "empty": "No disputes in the last 7 days.",
+    "name": "Disputes per day",
+    "title": "Empty"
+  },
+  "ratio": {
+    "about": "The plot's aspect ratio from the theme's scale, which gives recharts a height to measure.",
+    "title": "Ratios"
+  },
+  "series": "Series",
+  "signups": {
+    "about": "Sign-ups per plan per month as stacked bars, each plan in the hue its series states.",
+    "caption": "Sign-ups grew every month. The Growth plan took 38% of September's.",
+    "growth": "Growth",
+    "name": "Sign-ups per plan",
+    "scale": "Scale",
+    "starter": "Starter",
+    "title": "Stacked bars"
+  },
+  "storage": {
+    "about": "Storage per kind of file as a donut. Each sector is a series, so the legend shows and hides sectors.",
+    "archives": "Archives",
+    "caption": "Video takes 60% of the 195.5 GB in use.",
+    "documents": "Documents",
+    "images": "Images",
+    "legend": "Kinds of file",
+    "name": "Storage per kind of file",
+    "title": "Donut",
+    "video": "Video"
+  },
+  "title": "Chart"
+}

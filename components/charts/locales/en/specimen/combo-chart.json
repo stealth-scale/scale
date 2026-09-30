@@ -1,0 +1,41 @@
+{
+  "about": "Bars, lines and areas on one plot, each series in the mark it states. A series in another unit reads a second value axis at the plot's end edge, which renders while a series asks for it.",
+  "narrow": {
+    "about": "The revenue and margin chart in a room 20rem wide, the column of a phone. Both value axes measure their widest tick.",
+    "title": "Narrow room"
+  },
+  "orders": {
+    "about": "Daily orders as bars and their 7-day average as a line, both on one value axis because they share a unit. The average starts on the seventh day, the first with a full week behind it.",
+    "average": "7-day average",
+    "caption": "Orders dip every weekend. The 7-day average rose from 402 to 414 orders a day.",
+    "label": "Orders per day",
+    "orders": "Orders",
+    "title": "One value axis"
+  },
+  "peak": {
+    "about": "defaultIndex opens the tooltip at a month when the chart first renders. The tooltip writes the revenue in euros and the margin as a percentage, each with its own axis' options.",
+    "caption": "September's revenue of €254K was the year's highest, at a 62% gross margin.",
+    "title": "Tooltip"
+  },
+  "quiet": {
+    "about": "A range without rows renders the empty state in the plot's place, at the plot's ratio.",
+    "caption": "Revenue and gross margin per month.",
+    "empty": "No revenue booked yet this year.",
+    "title": "Empty"
+  },
+  "replay": {
+    "about": "animate grows each bar from its base and reveals the line from the start of the axis when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the marks at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "revenue": {
+    "about": "Monthly revenue in euros as bars on the start axis, and gross margin as a line on an end axis from 0 to 100%. axis=\"end\" puts a series on the end axis, and endOptions writes its ticks.",
+    "caption": "Revenue rose from €182K in January to €254K in September. Gross margin fell to 55% in June and recovered to 62%.",
+    "label": "Revenue and gross margin per month",
+    "margin": "Gross margin",
+    "revenue": "Revenue",
+    "title": "Two value axes"
+  },
+  "series": "Series",
+  "title": "Combo chart"
+}

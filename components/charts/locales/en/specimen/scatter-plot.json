@@ -1,0 +1,88 @@
+{
+  "about": "A point per thing at two measures, and a series per group of things. Both axes take a title, because neither explains itself, and the tooltip names each value by its axis' title under the point's series.",
+  "crowded": {
+    "about": "The risks in a room 20rem wide. A name that leaves the plot, or meets the name of a point earlier in the series, is hidden, so the first of two close points keeps its name. The tooltip still names every point.",
+    "title": "Crowded names"
+  },
+  "deals": {
+    "about": "Deal size against days to close for two segments. Each series takes its own points, because a scatter's series share no category. The keyboard layer's arrows walk the first series' points.",
+    "caption": "Mid-market deals close within 50 days, while enterprise deals take 88 to 178 days.",
+    "days": "Days to close",
+    "enterprise": "Enterprise",
+    "label": "Days to close by deal size",
+    "mid": "Mid-market",
+    "size": "Deal size",
+    "title": "Two series"
+  },
+  "narrow": {
+    "about": "The deals in a room 20rem wide, the column of a phone. Both axes keep their titles.",
+    "title": "Narrow room"
+  },
+  "orders": {
+    "about": "Thirty orders of one shop as small points: size sets every point's area in square pixels, 30 here against the 60 a scatter takes by default.",
+    "caption": "Order value rises by about €17 for each item in the order.",
+    "items": "Items",
+    "label": "Order value by items",
+    "orders": "Orders",
+    "title": "Point size",
+    "value": "Order value"
+  },
+  "quadrants": {
+    "about": "quadrants divides the plot at the middle of each axis and names each quadrant in its corner. labelKey writes each vendor's name beside its point, and xEnds and yEnds name each axis' ends in place of its ticks. The tooltip heads a point with its name and its quadrant.",
+    "caption": "Alder and Cedar lead on both vision and execution.",
+    "challengers": "Challengers",
+    "execution": "Execution",
+    "high": "High",
+    "label": "Vendors by vision and execution",
+    "leaders": "Leaders",
+    "low": "Low",
+    "niche": "Niche players",
+    "title": "Quadrants",
+    "vendors": "Vendors",
+    "vision": "Vision",
+    "visionaries": "Visionaries"
+  },
+  "quiet": {
+    "about": "A scatter without points renders the empty state in the plot's place, at the plot's ratio.",
+    "caption": "Days to close by deal size this quarter.",
+    "deals": "Deals",
+    "empty": "No deals closed this quarter.",
+    "title": "Empty"
+  },
+  "replay": {
+    "about": "animate grows each point from its centre when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the points at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "risks": {
+    "about": "spreadPoints moves the second of two risks with equal scores along a spiral until the two are 0.15 of the axes' spans apart, and never across a dividing line. The tooltip writes the moved scores, so spread points suit a chart that people read by quadrant.",
+    "accept": "Accept",
+    "act": "Act now",
+    "breach": "Data breach",
+    "caption": "A cloud outage and payment fraud are both likely and severe.",
+    "certain": "Certain",
+    "currency": "Currency swing",
+    "fraud": "Payment fraud",
+    "impact": "Impact",
+    "label": "Risks by likelihood and impact",
+    "likelihood": "Likelihood",
+    "minor": "Minor",
+    "outage": "Cloud outage",
+    "prepare": "Prepare",
+    "price": "Price war",
+    "rare": "Rare",
+    "reduce": "Reduce",
+    "risks": "Risks",
+    "severe": "Severe",
+    "supplier": "Supplier exit",
+    "title": "Spread points",
+    "turnover": "Staff turnover"
+  },
+  "segments": "Segments",
+  "slowest": {
+    "about": "defaultIndex opens the tooltip at a point of the first series when the chart first renders. The heading names the point's series, and each row names its value by the axis' title.",
+    "caption": "The slowest mid-market deal, €27K, took 49 days to close.",
+    "title": "Tooltip"
+  },
+  "title": "Scatter plot"
+}

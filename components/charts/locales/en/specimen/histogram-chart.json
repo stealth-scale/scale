@@ -1,0 +1,48 @@
+{
+  "about": "The shape of one distribution: its values counted into bins that touch along a numeric axis. The ticks are the bin edges, and the tooltip heads each bar with its range.",
+  "clipped": {
+    "about": "domain bins a range from its lower edge and leaves out the values outside it, so the bins narrow to the body of the distribution. Here the bins are 5ms wide.",
+    "caption": "In bins 5ms wide, the peak is at 30 to 40ms. The 5 requests over 150ms are left out.",
+    "title": "Clipped range"
+  },
+  "coarse": {
+    "about": "bins aims for a number of bins, and the width snaps to a round number. Six bins of 100ms put 131 of 140 requests in the first bin, and the shape of the body is gone.",
+    "caption": "In bins 100ms wide, 131 of 140 requests fall in the first bin.",
+    "title": "Fewer bins"
+  },
+  "latency": {
+    "about": "The response times of 140 requests in bins 20ms wide, Freedman–Diaconis' count snapped to a round width. The values are raw numbers, not rows, and valueOptions writes the edges in milliseconds.",
+    "caption": "107 of 140 requests finish under 60ms, and a slow tail runs to 460ms.",
+    "label": "Response times of the checkout API",
+    "title": "Response times"
+  },
+  "narrow": {
+    "about": "The response times in a room 20rem wide, the column of a phone. The labels keep their even step of 100ms.",
+    "title": "Narrow room"
+  },
+  "orders": {
+    "about": "Sixty order values in euros, the bars in the teal palette's chart color. countLabel names the counts in the tooltip.",
+    "caption": "Two in three orders come to less than €60, and six pass €100.",
+    "label": "Order values this week",
+    "orders": "Orders",
+    "title": "Order values"
+  },
+  "peak": {
+    "about": "defaultIndex opens the tooltip at a bin when the chart first renders. The heading is the bin's range and the row its count.",
+    "caption": "54 of 140 requests take 20 to 40ms, the tallest bin.",
+    "title": "Tooltip"
+  },
+  "quiet": {
+    "about": "A histogram without a finite value renders the empty state in the plot's place, at the plot's ratio.",
+    "caption": "Response times of the checkout API this hour.",
+    "empty": "No requests this hour.",
+    "title": "Empty"
+  },
+  "replay": {
+    "about": "animate grows each bar from the axis when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the bars at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "requests": "Requests",
+  "title": "Histogram"
+}

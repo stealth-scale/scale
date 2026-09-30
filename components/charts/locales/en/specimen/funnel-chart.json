@@ -1,0 +1,84 @@
+{
+  "about": "The stages one set passes through, each a trapezoid as wide as its count, above a table of each stage's count and its two rates. A funnel shows which step loses people, and a bar chart compares values that are not nested.",
+  "accounts": "Accounts",
+  "advert": {
+    "about": "valueOptions writes the counts in compact notation, on the stages and in the table. The counts span three orders of magnitude, so every stage after the first is a sliver and the table writes the rates the widths cannot show. A rate takes two significant digits, so the 3,900 sign-ups are 0.16% of the 2.4 million impressions, where a whole percent would write 0%.",
+    "caption": "3,900 sign-ups came from 2.4 million impressions of the advert.",
+    "label": "Advert funnel for the week",
+    "title": "Compact counts"
+  },
+  "checkout": {
+    "about": "A shop's checkout over a month, from visits to payments. Each stage's count is written on it, and the table under the plot writes each count's share of the stage before and of the first stage. biggestDrop returns the step that loses the most people, and the caption names it.",
+    "caption": "The biggest loss is before “{{stage}}”: {{lost, number}} people.",
+    "label": "Checkout funnel for September",
+    "title": "Checkout"
+  },
+  "hiring": {
+    "about": "A hiring pipeline in the teal palette. values false leaves the counts to the table.",
+    "caption": "12 of 1,280 applicants were hired, 0.94% of them.",
+    "label": "Hiring pipeline for the quarter",
+    "title": "Palette"
+  },
+  "narrow": {
+    "about": "The checkout in a room 20rem wide, the column of a phone. The table scrolls sideways where its columns do not fit, and its scroll area is then a region in the tab order, named by stepsLabel.",
+    "title": "Narrow room"
+  },
+  "overall": "Of first",
+  "people": "People",
+  "quiet": {
+    "about": "A funnel without stages renders the empty state in the plot's place, at the plot's ratio, and no table.",
+    "caption": "The shop's checkout this week.",
+    "empty": "No sessions in this period.",
+    "title": "Empty"
+  },
+  "rates": {
+    "about": "defaultIndex opens the tooltip at the last stage when the chart first renders. The tooltip writes the stage's count and both rates: 73% of the stage before and 12% of every visit.",
+    "caption": "73% of the people who start checkout pay, 12% of every visit.",
+    "title": "Tooltip"
+  },
+  "replay": {
+    "about": "animate grows each stage from its middle when the chart mounts, and Replay mounts the chart again. The counts are written once the stages are in place. Under reduced motion recharts renders the stages at once.",
+    "caption": "The shop's checkout over September.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "shape": {
+    "about": "steps false leaves the table out, for a page where something else writes the rates. The counts are still written on the stages.",
+    "caption": "Nearly half of the people who add a product to a basket pay.",
+    "title": "Without the table"
+  },
+  "stage": "Stage",
+  "stages": {
+    "applied": "Applied",
+    "basket": "Added to basket",
+    "checkout": "Started checkout",
+    "clicks": "Clicked",
+    "customers": "Became customers",
+    "hired": "Hired",
+    "impressions": "Saw the advert",
+    "interviewed": "Interviewed",
+    "offered": "Offered",
+    "paid": "Paid",
+    "screened": "Screened",
+    "signups": "Signed up",
+    "trials": "Started a trial",
+    "viewed": "Viewed a product",
+    "visited": "Visited the shop",
+    "visits": "Visited the site"
+  },
+  "step": "Of previous",
+  "steps": "Conversion by stage",
+  "title": "Funnel chart",
+  "trial": {
+    "about": "Two stages, a trial's conversion to a paying account: the first stage narrows to the second, and the second is a rectangle.",
+    "caption": "13% of trials became paying accounts.",
+    "label": "Trial conversion for September",
+    "title": "Two stages"
+  },
+  "widening": {
+    "about": "The checkout with its fourth stage counted from every month's orders, so more people start checkout than added a product to a basket. The chart renders the stages as they are, the table writes 150% for the stage that widens, and funnelWidenings returns it for the caption.",
+    "caption": "“{{stages}}” counts more people than the stage before it, so these stages are not nested.",
+    "label": "Checkout funnel from two queries",
+    "title": "A funnel that widens"
+  }
+}

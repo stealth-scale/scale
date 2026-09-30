@@ -1,0 +1,65 @@
+{
+  "about": "The distribution of each group as its median, its middle half, its whiskers and its outliers, side by side. A key under the plot names the parts, and the tooltip writes a group's five numbers.",
+  "far": {
+    "about": "whisker 3 counts a value as an outlier only past 3 interquartile ranges from the box, the convention for far-out values. Frankfurt's 158 and 176ms join its whisker.",
+    "caption": "At 3 interquartile ranges, 5 requests remain outliers, 3 of them in Virginia.",
+    "title": "Far out"
+  },
+  "narrow": {
+    "about": "The four regions in a room 20rem wide, the column of a phone. Each box takes its share of the width, at most 72px.",
+    "title": "Narrow room"
+  },
+  "quiet": {
+    "about": "A box plot whose groups have no finite value renders the empty state in the plot's place, at the plot's ratio.",
+    "caption": "Response times of the checkout API by region this hour.",
+    "empty": "No requests this hour.",
+    "title": "Empty"
+  },
+  "regions": {
+    "about": "The response times of about 40 requests in each of four regions. Each whisker extends to the furthest request within 1.5 interquartile ranges of its box, and a request past it renders as a point. valueOptions writes the values in milliseconds.",
+    "amsterdam": "Amsterdam",
+    "caption": "Singapore's median of 165ms is more than twice Frankfurt's 61ms, and every region has requests past its upper whisker.",
+    "frankfurt": "Frankfurt",
+    "label": "Response times of the checkout API by region",
+    "singapore": "Singapore",
+    "title": "Response times",
+    "virginia": "Virginia"
+  },
+  "replay": {
+    "about": "animate grows each box from the axis when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the boxes at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "requests": "Requests",
+  "shipping": {
+    "about": "Delivery times in days for three shipping methods, the boxes in the teal palette's chart color. valueDomain fixes the axis at 0 to 12 days, so the chart of every week compares on one scale. This week's slowest order took 7.5 days, and the rounded axis would end at 8.",
+    "caption": "Express orders arrive in 1.5 days at the median, twice as fast as Standard.",
+    "economy": "Economy",
+    "express": "Express",
+    "label": "Delivery times by shipping method",
+    "orders": "Orders",
+    "standard": "Standard",
+    "title": "Delivery times"
+  },
+  "slowest": {
+    "about": "defaultIndex opens the tooltip at a group when the chart first renders. The heading is the group's name, and the rows are its median, middle half, whiskers, outliers and count.",
+    "caption": "Half of Singapore's requests take 141 to 199ms, and the slowest takes 388ms.",
+    "title": "Tooltip"
+  },
+  "tile": {
+    "about": "outliers false leaves out the points and legend false leaves out the key, for a tile on a page that explains the parts once. The tooltip still counts the outliers.",
+    "caption": "Singapore is the slowest region, and Frankfurt the fastest.",
+    "title": "Without points or key"
+  },
+  "title": "Box plot",
+  "warehouse": {
+    "about": "Each group passes the summary a warehouse query returned for a month of page loads, in place of millions of values. The chart's quartiles are type 7, the rule of SQL's PERCENTILE_CONT, so the query and the chart agree. The query returns the slowest loads as the outliers.",
+    "caption": "Half of all mobile loads paint after 2.4s, twice the desktop median.",
+    "desktop": "Desktop",
+    "label": "Largest contentful paint by device",
+    "loads": "Page loads",
+    "mobile": "Mobile",
+    "tablet": "Tablet",
+    "title": "Summaries from a query"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "about": "Each measure as a ring read against the value of a full turn, the first ring outermost. A ring shows a measure against its own track, such as the use of a quota. A bar chart compares measures with each other.",
+  "activity": {
+    "about": "A day's activity against three goals, each ring in a hue palette's chart color through its bar's color.",
+    "caption": "Standing is at 90% of today's goal, and exercise at 45%.",
+    "exercise": "Exercise",
+    "label": "Activity against today's goals",
+    "move": "Move",
+    "stand": "Stand",
+    "title": "Colors"
+  },
+  "bare": {
+    "about": "track false leaves out each ring's remainder, so a ring reads as a length with nothing to be a share of.",
+    "caption": "API calls are at 34% of the plan's quota.",
+    "title": "No track"
+  },
+  "dial": {
+    "about": "startAngle 225 and endAngle -45 turn each ring three quarters of the way round, clockwise through 12 o'clock, with the gap at the bottom.",
+    "caption": "Storage is at 82% of the plan's quota.",
+    "title": "Three quarters of a turn"
+  },
+  "narrow": {
+    "about": "The plan's usage in a room 20rem wide, the column of a phone.",
+    "title": "Narrow room"
+  },
+  "over": {
+    "about": "max 1 fixes a full turn at the quota. Storage at 114% closes its track and the legend writes its value, while seats and API calls keep their share of the quota.",
+    "caption": "Storage is 14% over the plan's quota.",
+    "title": "Past max"
+  },
+  "quiet": {
+    "about": "A radial bar chart without bars renders the empty state in the plot's place, at the plot's ratio.",
+    "caption": "Plan usage this month.",
+    "empty": "No usage recorded yet.",
+    "title": "Empty"
+  },
+  "replay": {
+    "about": "animate grows each ring from its start angle when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the rings at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "scaled": {
+    "about": "Without max the largest value shown closes its track, so Storage at 82% reads as full and every other ring is measured against it.",
+    "caption": "Storage's 82% closes its track, while nothing on the plan is full.",
+    "title": "Without max"
+  },
+  "seats": {
+    "about": "defaultIndex opens the tooltip at a ring when the chart first renders. Its row writes the ring's name and value. The arrows walk the rings from the outermost.",
+    "caption": "Seats are at 61% of the plan's quota.",
+    "title": "Tooltip"
+  },
+  "title": "Radial bar chart",
+  "usage": {
+    "about": "A plan's use of three quotas. max 1 makes a full turn the whole quota, so each ring reads as a share of its own track, and the legend writes each value beside its name.",
+    "api": "API calls",
+    "caption": "Storage is at 82% of the plan's quota, and nothing else is past two thirds.",
+    "label": "Plan usage",
+    "seats": "Seats",
+    "storage": "Storage",
+    "title": "Plan usage"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "about": "A bar per declared series side by side in each category. A bar is read by its length, so the value axis starts at zero.",
+  "crossover": {
+    "about": "defaultIndex opens the tooltip at September when the chart first renders, with the band behind the month. The pointer or the arrow keys move it from there.",
+    "caption": "In September Growth brought 158 sign-ups, Starter 152 and Scale 31.",
+    "title": "Tooltip"
+  },
+  "narrow": {
+    "about": "The sign-ups in a room 20rem wide, the column of a phone. Each month keeps its three bars, narrower, and all six month ticks fit.",
+    "title": "Narrow room"
+  },
+  "prelaunch": {
+    "about": "A range without rows renders the empty state in the plot's place, and no legend.",
+    "caption": "Sign-ups per plan per month.",
+    "empty": "No sign-ups in this period.",
+    "title": "Empty"
+  },
+  "refunds": {
+    "about": "grid={false} leaves out the grid lines, for a chart of a few bars whose ticks and tooltip give the values.",
+    "caption": "Refund requests peaked at 23 on Thursday and fell to 4 by Sunday.",
+    "label": "Refund requests per day",
+    "requests": "Requests",
+    "title": "Without grid"
+  },
+  "replay": {
+    "about": "animate grows each bar up from the axis when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the bars at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "series": "Plans",
+  "signups": {
+    "about": "Sign-ups per plan per month, three bars in each month, with the band under the pointer.",
+    "caption": "Growth sign-ups passed Starter in September, 158 to 152.",
+    "growth": "Growth",
+    "label": "Sign-ups per plan per month",
+    "scale": "Scale",
+    "starter": "Starter",
+    "title": "Grouped bars"
+  },
+  "targets": {
+    "about": "A series with target reads each month's target from the row's target field and marks it with a tick across the month's bar, in the ink with an edge in the panel's color. The tooltip writes the target after the value, and the key under the plot names the tick.",
+    "caption": "Sign-ups passed the month's target in four of six months and fell short in May and August.",
+    "label": "Sign-ups per month against the month's target",
+    "signups": "Sign-ups",
+    "target": "Target",
+    "title": "Against targets"
+  },
+  "title": "Bar chart",
+  "weekly": {
+    "about": "ratio=\"wide\" gives the plot the theme's wide ratio, for twelve weeks in a strip across a dashboard.",
+    "caption": "Weekly sign-ups rose from 212 in the week of July 6 to 334 in the week of September 21.",
+    "label": "Sign-ups per week",
+    "signups": "Sign-ups",
+    "title": "Wide ratio"
+  }
+}

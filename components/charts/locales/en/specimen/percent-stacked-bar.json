@@ -1,0 +1,37 @@
+{
+  "about": "Each category as one bar of 100%, split into the declared series' shares. The bars compare composition, and the caption states the totals.",
+  "mix": {
+    "about": "Customers per plan in each region as shares. The value axis reads in percent, and the tooltip writes each plan's own count.",
+    "americas": "Americas",
+    "apac": "APAC",
+    "caption": "Scale plans are 13% of the Americas' 1,300 customers, 10% of APAC's 300 and 9% of EMEA's 800.",
+    "emea": "EMEA",
+    "growth": "Growth",
+    "label": "Customers per plan per region",
+    "scale": "Scale",
+    "starter": "Starter",
+    "title": "Plan mix"
+  },
+  "narrow": {
+    "about": "The plan mix in a room 20rem wide, the column of a phone. The three bars keep their shares, and the region names fit below them.",
+    "title": "Narrow room"
+  },
+  "region": {
+    "about": "defaultIndex opens the tooltip at the Americas when the chart first renders. The bar shows shares, and the tooltip writes each plan's own count.",
+    "caption": "The Americas had 610 Starter, 520 Growth and 170 Scale customers.",
+    "title": "Tooltip"
+  },
+  "replay": {
+    "about": "animate grows each segment from its base when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the bars at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "series": "Plans",
+  "title": "Percent stacked bar",
+  "unsold": {
+    "about": "A chart without rows renders the empty state in the plot's place, and no legend.",
+    "caption": "Customers per plan per region.",
+    "empty": "No customers in any region yet.",
+    "title": "Empty"
+  }
+}

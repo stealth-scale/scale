@@ -1,0 +1,69 @@
+{
+  "about": "Flows between peers around a circle, such as calls between services. Each node is an arc as long as what it sends, and each pair of nodes is one ribbon whose two ends are as wide as the two directions. A ribbon takes the color of the node that sends more. The readout in the middle of the ring writes what an arc's node sends and receives, and both directions of a ribbon. The arrow keys walk each arc, then the ribbons that start on it. A chord diagram shows the flows a sankey leaves out: flows both ways and flows around a loop.",
+  "audit": {
+    "about": "Three services write to an audit log that calls nobody. An arc is as long as what its node sends, so the audit log's arc has no length and its ribbons end in points. defaultIndex opens the readout at its arc, the last mark of the walk, which writes the calls it receives.",
+    "caption": "The {{name}} log receives {{received, number}} calls and sends none.",
+    "label": "Calls between services and the audit log",
+    "title": "A node that only receives"
+  },
+  "in": "Received",
+  "internal": {
+    "about": "jobs requeues its own work, a flow from a node to itself. The chart renders it as a ribbon from the jobs arc back to itself, and the readout writes it as jobs → jobs.",
+    "caption": "{{name}} calls itself {{calls, number}} times, more than it calls any other service.",
+    "label": "Calls between services, calls to itself included",
+    "title": "A flow to itself"
+  },
+  "layout": {
+    "about": "chordLayout returns the arcs and the ribbons the chart renders, in radians from 12 o'clock. The caption reads the first arc's share of all the arcs from it, which is its service's share of every call sent.",
+    "caption": "The {{name}} arc is {{share}} of the ring's arcs, its share of every call sent.",
+    "title": "The exported layout"
+  },
+  "migration": {
+    "about": "A decade of moves between four regions. Every pair moves both ways, and each ribbon takes the color of the region that sends more, so the ribbons into North are in the colors of South and East. inflowLabel and outflowLabel name the readout's rows.",
+    "caption": "{{name}} gained {{gained, number}} people over the decade.",
+    "in": "Arrived",
+    "label": "Moves between regions over the decade",
+    "out": "Left",
+    "title": "The color is the net direction"
+  },
+  "names": {
+    "api": "api",
+    "audit": "audit",
+    "auth": "auth",
+    "billing": "billing",
+    "east": "East",
+    "jobs": "jobs",
+    "north": "North",
+    "search": "search",
+    "south": "South",
+    "west": "West"
+  },
+  "narrow": {
+    "about": "The calls in a room 20rem wide, the column of a phone. The ring shrinks, and a name that would leave the plot or meet an earlier name is hidden, while the readout still names its arc.",
+    "title": "Narrow room"
+  },
+  "out": "Sent",
+  "pair": {
+    "about": "defaultIndex opens the readout at the second mark of the walk, the ribbon between api and auth, when the chart first renders. The ribbon lifts, the other marks fade, and the readout in the middle of the ring writes both directions of the pair.",
+    "caption": "api calls auth {{there, number}} times, and auth calls api {{back, number}} times.",
+    "title": "Readout"
+  },
+  "palette": {
+    "about": "Each service states its palette: api teal, auth purple, billing orange, search pink. jobs takes the next series color, and each ribbon takes the color of the service that sends more.",
+    "caption": "Six pairs of services call each other, all of them both ways.",
+    "title": "Palettes"
+  },
+  "quiet": {
+    "about": "A chord diagram without flows renders the empty state in the plot's place, at the plot's ratio.",
+    "caption": "Calls between services in the last hour.",
+    "empty": "No calls in this hour.",
+    "title": "Empty"
+  },
+  "services": {
+    "about": "An hour of calls between five services. Every pair that calls calls both ways, which a sankey leaves out as loops. Each arc is as long as the calls its service sends, and each ribbon is wider at the service that sends more. flowBalance returns each service's calls sent and received, and the caption names the service that sends the most.",
+    "caption": "{{name}} sends the most calls, {{sent, number}}, and receives {{received, number}}.",
+    "label": "Calls between services in the last hour",
+    "title": "Calls between services"
+  },
+  "title": "Chord diagram"
+}

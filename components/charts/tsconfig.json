@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": [
+    "@stealthscale/vite-config-typescript/web.json",
+    "@stealthscale/vite-config-react/web.json"
+  ]
+}

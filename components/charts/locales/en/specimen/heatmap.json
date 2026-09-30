@@ -1,0 +1,187 @@
+{
+  "about": "A value for every pair of a row and a column, such as each hour of each weekday, as a grid of cells colored from their values. A reader finds a dark block faster than the largest number in a table, and reads the exact value in the readout or printed in the cell. A missing value is a cell without a fill and with a dashed edge, apart from the faintest value, which keeps a tint. The grid is one tab stop: the arrow keys walk its cells, Home and End go to a row's ends, and a screen reader reads each cell with its row and column headings. calendarCells lays daily readings out as a calendar, and cohortCells lays retention out by cohort.",
+  "authorisations": {
+    "about": "A week of card authorisations per hour. The cells run from 12% of the first series color at the fewest to the whole color at the most, and the key under the grid writes both ends. The caption names the busiest hour, found in the readings.",
+    "caption": "{{day}} at {{hour}}:00 is the busiest hour, with {{count, number}} authorisations.",
+    "corner": "Weekday",
+    "label": "Card authorisations per hour, by weekday",
+    "title": "Authorisations per hour",
+    "value": "Authorisations"
+  },
+  "attendance": {
+    "about": "A teaching year's attendance per school day, 36 weeks at size sm in a room narrower than the grid. The grid scrolls sideways with the weekdays sticky at its start, and the dip through the winter term reads as a shape.",
+    "caption": "Attendance dips through the winter term, to 82% in weeks 15 and 16.",
+    "corner": "Day",
+    "label": "Share of pupils present per school day, by teaching week",
+    "title": "Dense",
+    "value": "Present",
+    "week": "W{{week}}"
+  },
+  "bookings": {
+    "about": "onSelect receives the calendar's own cell, with its date as the readings write it and its label, the date in the locale's words. The line under the grid writes the picked night. The squares are size lg, 24px, the pointer target WCAG 2.5.8 asks for.",
+    "caption": "The conference filled all 84 rooms from 12 to 14 May.",
+    "label": "Rooms booked per night, April to June 2026",
+    "none": "Press a night to pick it.",
+    "picked": "Picked: {{date}}, {{count, number}} of 84 rooms booked.",
+    "title": "Picking a day",
+    "value": "Rooms booked"
+  },
+  "builds": {
+    "about": "values prints each cell's value in black or white. The browser picks the one that contrasts more with the cell, at least 4.5:1 on every cell.",
+    "caption": "{{pipeline}} builds for {{minutes, number}} minutes on Friday, when everyone merges.",
+    "corner": "Pipeline",
+    "label": "Build minutes per pipeline, by weekday",
+    "title": "Values in the cells",
+    "value": "Build minutes"
+  },
+  "clinic": {
+    "about": "measure=\"count\" writes how many patients remained in each cell while the fill is the rate, so February's dark row reads as the seven patients it is.",
+    "caption": "February's row is the darkest, and it is 7 patients: 6 of them still came in May.",
+    "cohort": "{{label}} · {{size, number}}",
+    "corner": "Intake",
+    "label": "Patients still in the programme, by intake month and month since intake",
+    "period": "M{{period}}",
+    "title": "Counts in the cells",
+    "value": "Still in the programme"
+  },
+  "deploys": {
+    "about": "calendarCells lays a year of deploys out as a calendar: a square per day, a row per weekday from the locale's first day, and the weeks under their months. The window runs from October to September, so the first and last weeks have empty places. The fortnight in February is dashed: the collector was offline, which is not a quiet fortnight, while the weekends beside it are measured zeros.",
+    "caption": "The release week of 9 March was the busiest, with {{count, number}} deploys.",
+    "label": "Deploys per day, October 2025 to September 2026",
+    "missing": "Not recorded",
+    "title": "Calendar",
+    "value": "Deploys"
+  },
+  "days": {
+    "fri": "Fri",
+    "mon": "Mon",
+    "sat": "Sat",
+    "sun": "Sun",
+    "thu": "Thu",
+    "tue": "Tue",
+    "wed": "Wed"
+  },
+  "depots": {
+    "about": "Two weeks of parcels scanned per depot, one heatmap each. heatmapDomain over both weeks' readings gives both grids one domain, so last week's cells are paler than this week's and both keys end at 1,940. On their own domains the two grids would look alike.",
+    "corner": "Depot",
+    "label": "Parcels scanned per depot and hour, {{week}}",
+    "last": "Last week",
+    "this": "This week",
+    "title": "One domain for two grids",
+    "value": "Parcels",
+    "weeks": {
+      "last": "last week",
+      "this": "this week"
+    }
+  },
+  "incidents": {
+    "about": "onSelect receives the reading of the cell a press, Enter or Space selects, and the line under the grid writes it. The arrow keys move between the cells first.",
+    "caption": "checkout-api failed at noon: 512 responses were 5xx.",
+    "corner": "Service",
+    "label": "5xx responses per service, by hour",
+    "none": "Press a cell to pick an hour.",
+    "picked": "Picked: {{service}} at {{hour}}:00, {{count, number}} responses.",
+    "title": "Picking a cell",
+    "value": "5xx responses"
+  },
+  "names": {
+    "antwerpen": "Antwerpen",
+    "cardiology": "Cardiology",
+    "customer-success": "Customer success",
+    "data-platform": "Data platform",
+    "design": "Design",
+    "duisburg": "Duisburg",
+    "neurology": "Neurology",
+    "oncology": "Oncology",
+    "paediatrics": "Paediatrics",
+    "payments": "Payments",
+    "respiratory": "Respiratory",
+    "rotterdam": "Rotterdam",
+    "security": "Security"
+  },
+  "narrow": {
+    "about": "The authorisations in a room 20rem wide, the column of a phone. The grid scrolls sideways inside its own box, the weekdays remain at its start, and the page does not move.",
+    "title": "Narrow room"
+  },
+  "pages": {
+    "about": "weekStartsOn starts the weeks on a stated day, here Monday for a team that works Monday to Friday, so the weekend rows are at the bottom. Without it the weeks start on the locale's first day: Sunday in American English, Monday in German.",
+    "caption": "The incident on 17 February paged the team {{count, number}} times.",
+    "label": "On-call pages per day, 5 January to 5 April 2026",
+    "title": "Week start",
+    "value": "Pages"
+  },
+  "palette": {
+    "about": "color takes the scale's color: a hue, a semantic palette or a series color. Here the authorisations run from 12% to the whole of the purple hue's chart color.",
+    "title": "Palette"
+  },
+  "quarter": {
+    "label": "Deploys per day, January to March 2026"
+  },
+  "quarters": {
+    "q1": "Q1",
+    "q2": "Q2",
+    "q3": "Q3",
+    "q4": "Q4"
+  },
+  "quiet": {
+    "about": "A heatmap without a row or a column renders the empty state in the grid's place.",
+    "caption": "Claims assigned per adjuster, by week.",
+    "empty": "No claims were assigned in this period.",
+    "label": "Claims assigned per adjuster, by week",
+    "title": "Empty"
+  },
+  "readout": {
+    "about": "defaultIndex opens the readout at the busiest hour when the heatmap first renders, and lights that hour's weekday and column headings. The pointer and the arrow keys move it, and Escape hides it.",
+    "title": "Readout"
+  },
+  "shape": {
+    "about": "shape sets the cells' form: a block, which widens to a printed value, or a square with a 2px corner, which doesn't print its value. Beside squares the rows are as far apart as the columns. A square keeps its side while its column's heading fits it, so a calendar hides its week headings and names its months above them.",
+    "title": "Shapes"
+  },
+  "signups": {
+    "about": "cohortCells lays retention out by cohort: a row per signup month with its size, a column per month since signup, and each cell filled from the share that remained. A cohort's row ends in empty places after its last count, and March's second month, which the export lacked, is dashed. average adds a row of the rates weighted by each cohort's size.",
+    "average": "All cohorts",
+    "caption": "Cohorts from May on kept 59 to 63% in their first month, against 49 to 54% before the new onboarding.",
+    "cohort": "{{label}} · {{size, number}}",
+    "corner": "Signed up",
+    "label": "Share of customers still active, by signup month and month since signup",
+    "missing": "Not exported",
+    "period": "M{{period}}",
+    "title": "Cohorts",
+    "value": "Still active"
+  },
+  "size": {
+    "about": "size sets the cells: a block 24, 32 or 44px tall and at least as wide, a square 10, 14 or 24px wide, with the headings and values one text size smaller.",
+    "title": "Sizes"
+  },
+  "sizes": {
+    "corner": "Service",
+    "label": "5xx responses per service, by hour",
+    "value": "5xx responses"
+  },
+  "variance": {
+    "about": "scale=\"diverging\" colors a deviation from the midpoint, orange under it and blue over it, with one reach on both sides: security's 11 over plan sets the reach, so payments' 9 under is a step short of the whole orange. valueOptions writes the sign.",
+    "caption": "Payments ran 9 under plan in Q2, and security ended the year 11 over.",
+    "corner": "Team",
+    "label": "Headcount against plan per team, by quarter",
+    "title": "Diverging scale",
+    "value": "Against plan"
+  },
+  "wards": {
+    "about": "The oncology feed was down all week, and nobody counted paediatrics on Wednesday. Those six cells have no fill and a dashed edge, and read \"Not counted\", while the fewest beds counted, 8, keep a tint.",
+    "caption": "Six readings are missing: oncology's whole week and paediatrics on Wednesday.",
+    "corner": "Ward",
+    "days": {
+      "fri": "Fri 18",
+      "mon": "Mon 14",
+      "thu": "Thu 17",
+      "tue": "Tue 15",
+      "wed": "Wed 16"
+    },
+    "label": "Beds occupied per ward, by day",
+    "missing": "Not counted",
+    "title": "Missing readings",
+    "value": "Beds occupied"
+  },
+  "title": "Heatmap"
+}

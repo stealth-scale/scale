@@ -1,0 +1,42 @@
+{
+  "about": "Each period's open, high, low and close as a body inside a wick, colored by whether the period closed above or below its open. The periods are spaced evenly, and the value axis leaves out zero.",
+  "busiest": {
+    "about": "defaultIndex opens the tooltip at a day when the chart first renders. The rows are the open, the high, the low, the close and the change with its sign and percentage.",
+    "caption": "ACME's largest day was September 25: it opened at $172.08 and closed 4.6% higher at $180.02.",
+    "title": "Tooltip"
+  },
+  "daily": {
+    "about": "The 22 trading days of September for one share. The body runs from the open to the close and the wick from the low to the high. A day that closed above its open takes the success palette's chart color, one that closed below it the error's. The weekends take no room, because the category axis is ordinal. labelOptions writes the days and valueOptions the dollars.",
+    "caption": "ACME rose 12.7% over September, from $156.22 to $176.03.",
+    "label": "Daily prices of ACME",
+    "title": "Daily prices"
+  },
+  "narrow": {
+    "about": "The month in a room 20rem wide, the column of a phone. Each candle takes its share of the width, at most 28px.",
+    "title": "Narrow room"
+  },
+  "opening": {
+    "about": "children renders recharts elements in the chart, here a dashed line at the month's opening price in the neutral palette's chart color.",
+    "caption": "ACME closed every day from September 3 above its September open of $156.22.",
+    "open": "September open",
+    "title": "Reference line"
+  },
+  "pair": {
+    "about": "A currency pair written to four decimals through valueOptions. The value axis steps by 1, 2, 2.5 or 5 times a power of ten around the rates and leaves zero out, because a rate is read for its movement. A day that closed at its open takes the neutral palette's chart color, and the key then names it.",
+    "caption": "The euro gained 1.3% on the dollar over September and closed September 14 where it opened.",
+    "label": "Daily rates of the euro in dollars",
+    "title": "Currency pair"
+  },
+  "quiet": {
+    "about": "A candlestick chart without a row that has four finite prices renders the empty state in the plot's place, at the plot's ratio.",
+    "caption": "Daily prices of ACME this week.",
+    "empty": "The market is closed this week.",
+    "title": "Empty"
+  },
+  "replay": {
+    "about": "animate grows each candle from the axis when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the candles at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "title": "Candlestick chart"
+}
