@@ -1,0 +1,22 @@
+{
+  "about": "An `audio` element with the browser's controls, as wide as its container. The controls are on unless `controls={false}`, because sound that plays for more than 3 seconds needs a way to stop it (WCAG 1.4.2), and speech needs a transcript in the page beside the player (WCAG 1.2.1).",
+  "chime": {
+    "label": "Notification sound: Two notes",
+    "play": "Play sound",
+    "stop": "Stop sound"
+  },
+  "controlled": {
+    "about": "A notification sound a reader previews from a button. The element's controls are off, so the browser renders nothing for it, and the button calls `play()` and `pause()` through a ref. Its words follow the element's `play`, `pause` and `ended` events.",
+    "title": "Played from a button"
+  },
+  "memo": {
+    "title": "Voice memo from Ada, 13 seconds",
+    "transcript": "Transcript",
+    "words": "Hi, this is Ada from payments. The March payout to Northwind failed, because the bank rejected the account number. I have asked them to confirm it, and I will retry the payout on Monday."
+  },
+  "title": "Audio",
+  "transcribed": {
+    "about": "A voice memo on a support ticket, with the browser's controls and its transcript under a collapsible. The transcript states every word the memo says, so a reader who cannot hear it misses nothing. `preload=\"metadata\"` loads the memo's length and nothing else until the reader presses play.",
+    "title": "With a transcript"
+  }
+}

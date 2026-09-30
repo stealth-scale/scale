@@ -1,0 +1,74 @@
+{
+  "about": "Shows slides a page at a time in a scroller that snaps: triggers move a page, dots pick one, and a rotation control starts and stops a carousel that plays by itself. Rotation stops when keyboard focus enters, pauses under the pointer and does not start by itself under reduced motion.",
+  "add": "Add to basket",
+  "cards": {
+    "about": "Two cards a page, one card a move, with `slidesPerPage` and `slidesPerMove`. A card out of view is inert, so its button leaves the tab order. The triggers are `aria-disabled` at the ends and keep focus.",
+    "title": "Two cards a page"
+  },
+  "cardsLabel": "Prints",
+  "chooser": "Choose a place",
+  "controlled": {
+    "about": "`page` and `onPageChange` keep the carousel and the segment group above it on the same picture.",
+    "title": "Controlled page"
+  },
+  "controlledLabel": "Places",
+  "controls": {
+    "about": "The controls beside the slides, or over them on `bg.panel` pills.",
+    "title": "Controls"
+  },
+  "gallery": {
+    "about": "Pictures with the triggers and the dots over them, looping, and draggable with the mouse. Focus the scroller or a dot and use the arrow keys, Home and End.",
+    "title": "Gallery"
+  },
+  "galleryLabel": "Landscapes",
+  "goTo": "Go to slide {{page}}",
+  "next": "Next slide",
+  "palette": {
+    "about": "The palette of the dots.",
+    "title": "Palettes"
+  },
+  "pictures": {
+    "dawn": "Purple mountains at dawn",
+    "dunes": "Orange dunes under a pale sky",
+    "harbour": "A harbour skyline at night",
+    "lake": "A lake below green hills",
+    "peaks": "Snowy peaks under a blue sky"
+  },
+  "places": {
+    "dawn": "Mountains",
+    "dunes": "Desert",
+    "lake": "Lake"
+  },
+  "previous": "Previous slide",
+  "price": "€24",
+  "prints": {
+    "dawn": "Dawn print",
+    "dunes": "Dunes print",
+    "harbour": "Harbour print",
+    "lake": "Lake print",
+    "peaks": "Peaks print"
+  },
+  "progress": "{{page}} / {{totalPages}}",
+  "radius": {
+    "about": "The slides' corners, from the tightest to the roundest.",
+    "title": "Corners"
+  },
+  "ratio": {
+    "about": "The scroller's aspect ratio. A picture that is a slide's child covers the slide.",
+    "title": "Ratios"
+  },
+  "rotation": {
+    "about": "`autoplay` rotates every 5 seconds. The rotation control comes first, keyboard focus entering the carousel stops the rotation, the pointer pauses it, and reduced motion keeps it still until the reader starts it.",
+    "title": "Rotation"
+  },
+  "rotationLabel": "Featured landscapes",
+  "slide": "{{index}} of {{count}}",
+  "start": "Start slide rotation",
+  "stop": "Stop slide rotation",
+  "title": "Carousel",
+  "vertical": {
+    "about": "`orientation=\"vertical\"`: the slides run top to bottom in a scroller of the `landscape` ratio, and the up and down keys move a page.",
+    "title": "Vertical"
+  },
+  "verticalLabel": "Landscapes, top to bottom"
+}

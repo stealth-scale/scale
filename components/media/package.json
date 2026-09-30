@@ -1,0 +1,101 @@
+{
+  "name": "@stealthscale/component-media",
+  "version": "0.1.0",
+  "description": "Renders pictures of people and things, crops pictures, shows slides and plays clips: an avatar, an image cropper, a carousel and a video.",
+  "keywords": [
+    "avatar",
+    "carousel",
+    "components",
+    "image-cropper",
+    "media",
+    "react",
+    "video"
+  ],
+  "homepage": "https://github.com/stealth-scale/config/tree/main/components/media#readme",
+  "bugs": "https://github.com/stealth-scale/config/issues",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stealth-scale/config.git",
+    "directory": "components/media"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#*": "./src/*"
+  },
+  "exports": {
+    ".": {
+      "stealth-source": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./theme": {
+      "stealth-source": "./src/theme.ts",
+      "default": "./dist/theme.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.js",
+      "./theme": "./dist/theme.js",
+      "./package.json": "./package.json"
+    },
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "check": "vp check",
+    "prepublishOnly": "vp pack",
+    "test": "vp test"
+  },
+  "dependencies": {
+    "@zag-js/avatar": "catalog:",
+    "@zag-js/carousel": "catalog:",
+    "@zag-js/dom-query": "catalog:",
+    "@zag-js/image-cropper": "catalog:",
+    "@zag-js/react": "catalog:",
+    "@zag-js/types": "catalog:",
+    "@zag-js/utils": "catalog:"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/core": "catalog:",
+    "@rolldown/plugin-babel": "catalog:",
+    "@stealthscale/component-actions": "workspace:^",
+    "@stealthscale/component-layout": "workspace:^",
+    "@stealthscale/hooks": "workspace:^",
+    "@stealthscale/theme": "workspace:^",
+    "@stealthscale/vite-config": "workspace:^",
+    "@stealthscale/vite-config-i18n": "workspace:^",
+    "@stealthscale/vite-config-react": "workspace:^",
+    "@stealthscale/vite-config-specimen": "workspace:^",
+    "@stealthscale/vite-config-theme": "workspace:^",
+    "@stealthscale/vite-config-typescript": "workspace:^",
+    "@testing-library/react": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "babel-plugin-react-compiler": "catalog:",
+    "happy-dom": "catalog:",
+    "lucide-react": "catalog:",
+    "oxc-transform-react": "catalog:",
+    "publint": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "@stealthscale/component-actions": "workspace:^",
+    "@stealthscale/hooks": "workspace:^",
+    "@stealthscale/theme": "workspace:^",
+    "react": "catalog:"
+  },
+  "engines": {
+    "node": ">=26.0.0"
+  }
+}
