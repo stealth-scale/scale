@@ -5,7 +5,7 @@ import { slotElement, variantClass } from "@stealthscale/testing-theme";
 
 import * as Field from "#field/index.ts";
 import { composed, grouped } from "#fieldset/fieldset.fixtures.tsx";
-import { useFieldset } from "#fieldset/state.ts";
+import { useFieldset, useOptionalFieldset } from "#fieldset/state.ts";
 
 /**
  * Renders whether the group is disabled, as text.
@@ -16,11 +16,32 @@ function Reader(): string {
   return String(useFieldset().disabled);
 }
 
+/**
+ * Renders the ID of the group's legend, or `none` outside a group.
+ *
+ * @returns The ID as text.
+ */
+function Legend(): string {
+  return useOptionalFieldset()?.ids.label ?? "none";
+}
+
 describe("state", () => {
   it("reads nothing disabled outside a group", () => {
     render(<Reader />);
 
     expect(screen.getByText("false")).toBeDefined();
+  });
+
+  it("returns no optional state outside a group", () => {
+    render(<Legend />);
+
+    expect(screen.getByText("none")).toBeDefined();
+  });
+
+  it("returns the group's state as the optional state inside a group", () => {
+    render(grouped(<Legend />, { id: "delivery" }));
+
+    expect(screen.getByText("delivery-label")).toBeDefined();
   });
 
   it("provides the group's disabled state", () => {

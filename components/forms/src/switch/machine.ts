@@ -4,15 +4,18 @@
  * @remarks
  *   The root starts one machine and every part reads the api from context, so the track, the thumb
  *   and the text report one state. The machine derives the input's identifier from `id`, and the
- *   root's `label` points at that input.
+ *   root's `label` points at that input. The hook counts presses, so the root renders again after a
+ *   press the owner of a controlled switch refuses, and its input takes the state back.
  */
 
-import { useId } from "react";
+import { useId, useReducer } from "react";
 
 import { normalizeProps, useMachine } from "@zag-js/react";
 import * as toggle from "@zag-js/switch";
 
 import { createRequiredContext, omitUndefined, splitEnumerable } from "@stealthscale/hooks";
+
+import { counted, type Toggle, useInputState } from "#toggled.ts";
 
 /**
  * Describes the api `switch.connect` returns: a prop getter per part, and the machine's state and
@@ -44,19 +47,28 @@ export type SwitchOptions = Omit<Partial<toggle.Props>, "label">;
 export const [ApiProvider, useSwitch] = createRequiredContext<SwitchApi>("Switch");
 
 /**
- * Starts the switch machine and returns its connected api.
+ * Starts the switch machine and returns its connected api and the ref its input takes.
  *
  * @param options - The machine options split from the root's props. React generates `id` when the
  *   caller states none.
- * @returns The connected api.
+ * @returns The connected api, and the ref the root's input takes.
  */
-export function useSwitchMachine(options: SwitchOptions): SwitchApi {
+export function useSwitchMachine(options: SwitchOptions): Toggle<SwitchApi> {
   const generated = useId();
-
-  return toggle.connect(
-    useMachine(toggle.machine, { ...omitUndefined(options), id: options.id ?? generated }),
+  const [presses, press] = useReducer(counted, 0);
+  const api = toggle.connect(
+    useMachine(toggle.machine, {
+      ...omitUndefined(options),
+      id: options.id ?? generated,
+      onCheckedChange: (details) => {
+        options.onCheckedChange?.(details);
+        press();
+      },
+    }),
     normalizeProps,
   );
+
+  return { api, input: useInputState(api.checked, false, presses) };
 }
 
 /**

@@ -68,6 +68,22 @@ describe("Root", () => {
     expect(screen.getByRole<HTMLInputElement>("switch").checked).toBe(true);
   });
 
+  it("restores the input when the owner of a controlled switch refuses a press", async () => {
+    render(composed({ checked: false }));
+    await pressed(screen.getByRole("switch"));
+
+    expect(screen.getByRole<HTMLInputElement>("switch").checked).toBe(false);
+  });
+
+  it("calls the caller's onClick on a press of the row", async () => {
+    const heard = vi.fn<() => void>();
+    const { container } = render(composed({ onClick: heard }));
+
+    await pressed(slotElement(container, "switch", "control"));
+
+    expect(heard).toHaveBeenCalled();
+  });
+
   it("sets aria-checked to the checked state", async () => {
     render(composed());
     await pressed(screen.getByRole("switch"));

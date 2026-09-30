@@ -1,0 +1,62 @@
+{
+  "about": "Renders a row of glyphs a person rates with. The arrow keys move the rating, Home and End set its bounds, and a pointer over an item previews its value.",
+  "average": {
+    "label": "Guest rating",
+    "summary": "{{value}} out of 5 from {{count}} reviews"
+  },
+  "field": {
+    "about": "A required rating in a field: the field's label names the group, and sending the form without a rating shows the error text. The hidden input stays empty until a person rates.",
+    "title": "Required in a form"
+  },
+  "glyph": {
+    "about": "The glyph is the caller's. Three hearts in the accent palette, each named by `getItemLabel` in the page's words.",
+    "title": "Another glyph"
+  },
+  "half": {
+    "about": "`allowHalf` with `readOnly` shows an average: the rated item fills its first half and is named \"4.5 stars\".",
+    "title": "Halves, read only"
+  },
+  "hover": {
+    "about": "`onHoverChange` reports the value under the pointer, so the words follow the pointer and fall back to the rating when it leaves.",
+    "title": "Words that follow the pointer"
+  },
+  "palette": {
+    "about": "The palette the filled glyphs and the focus ring read. An invalid rating takes the error palette in place of any of them.",
+    "title": "Palettes"
+  },
+  "review": {
+    "error": "Choose a rating before you send the review.",
+    "label": "Rate your stay",
+    "send": "Send review"
+  },
+  "rtl": {
+    "about": "`dir=\"rtl\"` mirrors the row: the first item is on the right, and a half item fills its right half.",
+    "title": "Right to left"
+  },
+  "size": {
+    "about": "The glyphs are 16, 20 and 24px on the icon scale in items of at least 24px, from `sm` to `lg`.",
+    "title": "Sizes"
+  },
+  "states": {
+    "about": "A disabled rating is dimmed and leaves the tab order. A read-only one keeps a tab stop on the rated item and refuses every change. An invalid one takes the error palette.",
+    "title": "States"
+  },
+  "stay": "Your stay",
+  "support": {
+    "label": "How was the support call?",
+    "words": {
+      "0": "Not rated",
+      "1": "Poor",
+      "2": "Fair",
+      "3": "Good",
+      "4": "Very good",
+      "5": "Excellent"
+    }
+  },
+  "title": "Rating group",
+  "useful": {
+    "hearts_one": "{{count}} heart",
+    "hearts_other": "{{count}} hearts",
+    "label": "Was this article useful?"
+  }
+}

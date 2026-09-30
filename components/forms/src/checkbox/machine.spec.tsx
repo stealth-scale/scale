@@ -18,7 +18,7 @@ import {
  * @returns The state, rendered through a part's hook.
  */
 function Running(props: CheckboxOptions): ReactElement {
-  const api = useCheckboxMachine(props);
+  const { api } = useCheckboxMachine(props);
 
   return (
     <ApiProvider value={api}>

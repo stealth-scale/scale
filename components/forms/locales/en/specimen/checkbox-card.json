@@ -1,0 +1,75 @@
+{
+  "about": "Renders a card a person checks and unchecks, with a title, a description, a box and an optional addon row. A press anywhere on the card toggles it, and a horizontal fieldset lays several cards in rows of equal height.",
+  "add": "Add to your plan",
+  "agreement": {
+    "about": "A required card in a field. Press Continue with the card unchecked: the field turns invalid and shows its error text, and the card's edge turns red, until the card is checked.",
+    "title": "In a field"
+  },
+  "align": {
+    "about": "The words at the start of the card, or centred.",
+    "title": "Alignment"
+  },
+  "channels": {
+    "email": {
+      "about": "A summary every morning at eight.",
+      "title": "Email"
+    },
+    "push": {
+      "about": "An alert on this device as it happens.",
+      "title": "Push"
+    },
+    "sms": {
+      "about": "A text for failed payouts only.",
+      "title": "Text message"
+    }
+  },
+  "continue": "Continue",
+  "dpa": {
+    "about": "We process payout data on your behalf under its terms.",
+    "required": "Accept the agreement to continue.",
+    "title": "Data processing agreement"
+  },
+  "extras": {
+    "about": "Cards stacked in a phone's width, each with a price in its addon. Single sign-on is disabled, because it needs the Enterprise plan. The input of each card lists its description and its addon in `aria-describedby`.",
+    "title": "Addons"
+  },
+  "layout": {
+    "about": "The box at the end of the words, or above them.",
+    "title": "Layout"
+  },
+  "notify": "Notify me by",
+  "options": {
+    "audit": {
+      "about": "Every change to a payout, kept for a year.",
+      "price": "£8 a month",
+      "title": "Audit log"
+    },
+    "sso": {
+      "about": "Sign in through your identity provider.",
+      "price": "Enterprise plan",
+      "title": "Single sign-on"
+    },
+    "support": {
+      "about": "A reply within four working hours.",
+      "price": "£12 a month",
+      "title": "Priority support"
+    }
+  },
+  "palette": {
+    "about": "Every palette on the outline look. The palette sets the checked card's edge and the box's fill.",
+    "title": "Palettes"
+  },
+  "size": {
+    "about": "The padding, the gaps, the box and the words step together.",
+    "title": "Sizes"
+  },
+  "states": {
+    "about": "Invalid, read-only and disabled cards. A read-only card shows its state and ignores presses. A disabled card fills with the subtle surface.",
+    "title": "States"
+  },
+  "title": "Checkbox card",
+  "variant": {
+    "about": "Every look with Email checked. `solid` fills the checked card, `subtle` deepens a muted card, `surface` tints the checked card and `outline` sets its edge.",
+    "title": "Looks"
+  }
+}

@@ -9,14 +9,16 @@
  *   covers the mark. The coarse-pointer height is dropped, and `touchTarget` widens the target to a
  *   `control.md` square, 40px, without changing the box. The box is 16, 20 and 24px at `sm`, `md`
  *   and `lg`. The root is the `label`, so a press anywhere on the row toggles the box, and the row
- *   with its text meets the 24px target of WCAG 2.5.8. The checked and partly-on states take the
- *   look's fill. An `svg` in the indicator fills the box, so the mark scales with it. The indicator
- *   restates `display: none` under `[hidden]`, because its own display would override the attribute
- *   the machine sets. The palette axis offers the four palettes that are not statuses: primary,
- *   secondary, accent and neutral. The status axis offers the four statuses, sets the edge as well
- *   as the palette, and is declared after the palette so it overrides it. The two axes cannot share
- *   a value, because the class name leaves out the axis. The recipe has no `effect` axis, because a
- *   glow or a pulse on a 16px box competes with the focus ring.
+ *   with its text meets the 24px target of WCAG 2.5.8. The disabled look applies to the box and to
+ *   the label and not to the row around them, so a disabled checkbox renders at the theme's
+ *   disabled opacity once. The checked and partly-on states take the look's fill. An `svg` in the
+ *   indicator fills the box, so the mark scales with it. The indicator restates `display: none`
+ *   under `[hidden]`, because its own display would override the attribute the machine sets. The
+ *   palette axis offers the four palettes that are not statuses: primary, secondary, accent and
+ *   neutral. The status axis offers the four statuses, sets the edge as well as the palette, and is
+ *   declared after the palette so it overrides it. The two axes cannot share a value, because the
+ *   class name leaves out the axis. The recipe has no `effect` axis, because a glow or a pulse on a
+ *   16px box competes with the focus ring.
  */
 
 import {
@@ -79,7 +81,7 @@ export const recipe = defineSlotRecipe({
     },
     label: { _disabled: { layerStyle: "disabled" }, color: "fg", userSelect: "none" },
     root: {
-      _disabled: { layerStyle: "disabled" },
+      _disabled: { cursor: "disabled" },
       cursor: "button",
       display: "inline-flex",
       userSelect: "none",

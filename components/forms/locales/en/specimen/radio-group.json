@@ -1,0 +1,58 @@
+{
+  "about": "Renders a set of options a person chooses one of, each a circle and its words. A press anywhere on a row checks it, and the arrow keys move between the options.",
+  "align": {
+    "about": "The circle's position against words that wrap: on the first line, or halfway down the words.",
+    "title": "Alignment"
+  },
+  "billing": "Billing period",
+  "choose": "Choose a delivery speed to continue.",
+  "continue": "Continue",
+  "cutoff": "Orders placed after 14:00 leave the next working day.",
+  "fieldset": {
+    "about": "A group inside a fieldset takes its name from the legend and the fieldset's invalid state. Press Continue with no option chosen: the fieldset turns invalid and shows its error text until an option is chosen. Same day is disabled, because the cut-off has passed.",
+    "title": "In a fieldset"
+  },
+  "orientation": {
+    "about": "`orientation=\"horizontal\"` lays the options in a row that wraps, with the label on a line of its own. The arrow keys move along the row.",
+    "title": "Orientation"
+  },
+  "palette": {
+    "about": "Every palette in every look. The palette fills the checked circle.",
+    "title": "Palettes"
+  },
+  "periods": {
+    "biennial": "Every two years",
+    "monthly": "Monthly",
+    "yearly": "Yearly"
+  },
+  "schedule": "Payout schedule",
+  "schedules": {
+    "batched": "Batch every payout into one transfer at the end of the business day, in the account's time zone",
+    "instant": "Send each payout the moment it clears, with a fee of 1% on every transfer"
+  },
+  "speed": "Delivery speed",
+  "speeds": {
+    "next": "Next day",
+    "same": "Same day",
+    "standard": "Standard, three to five days"
+  },
+  "states": {
+    "about": "No option chosen, one chosen, invalid, read-only and disabled. A read-only group shows its value and ignores presses.",
+    "title": "States"
+  },
+  "status": {
+    "about": "Every status in every look. A status sets the edge and overrides the palette.",
+    "title": "Statuses"
+  },
+  "title": "Radio group",
+  "variant": {
+    "about": "Every look at every size, with one option checked so the fill shows. The dot scales with the circle.",
+    "title": "Looks and sizes"
+  },
+  "window": "Payout window",
+  "windows": {
+    "next": "Next day",
+    "same": "Same day",
+    "weekly": "Weekly"
+  }
+}

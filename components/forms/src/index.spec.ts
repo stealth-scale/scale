@@ -3,16 +3,38 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#index.ts";
 
 describe("index", () => {
-  it("exports every component of the package and nothing else", () => {
+  it("exports exactly the components of the package", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
+      "AngleSlider",
       "Checkbox",
+      "CheckboxCard",
+      "ColorPicker",
+      "Combobox",
+      "DateInput",
+      "DatePicker",
+      "Editable",
       "Field",
       "Fieldset",
+      "FileUpload",
       "Input",
       "InputGroup",
+      "InputMask",
       "InputPropsProvider",
+      "NativeSelect",
+      "NumberInput",
+      "PasswordInput",
+      "PhoneInput",
+      "PinInput",
+      "RadioCard",
+      "RadioGroup",
+      "RatingGroup",
       "SearchInput",
+      "SegmentGroup",
+      "Select",
+      "SignaturePad",
+      "Slider",
       "Switch",
+      "TagsInput",
       "Textarea",
     ]);
   });

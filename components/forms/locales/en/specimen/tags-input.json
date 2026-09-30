@@ -1,0 +1,64 @@
+{
+  "about": "Turns typed text into tags a person can remove one at a time. Enter or a comma adds a tag, Backspace at the start of the input highlights the last tag and removes it, and every change is announced.",
+  "accounts": "Accounts",
+  "ada": "ada@bridgeledger.com",
+  "add": "Add an account",
+  "bridge": "Bridge Ledger",
+  "clear": "Clear all",
+  "edit": "Edit {{value}}",
+  "editing": {
+    "about": "`editable` lets a person fix a tag in place: a double press on a keyword, or Enter on the highlighted one, opens it. `max` stops at five and keeps a sixth keyword in the input, and the helper text counts the controlled value.",
+    "title": "Editable, capped keywords"
+  },
+  "enter": "Press Enter or type a comma after each address.",
+  "halden": "Halden & Co",
+  "invoices": "invoices",
+  "keywords": "Keywords",
+  "label": "Add a label",
+  "labels": "Labels",
+  "needed": "Add at least one skill.",
+  "palettes": {
+    "about": "Each tag takes a palette from its value through `ItemPreview`'s `palette`, and a label without one is neutral. `sanitizeValue` lowercases what a person types, so `Bug` finds the palette of `bug`. The tags are the library's `Tag` in its subtle look.",
+    "title": "A palette per tag"
+  },
+  "paste": "Paste or type addresses",
+  "pasted": "Paste addresses separated by commas to add them all at once.",
+  "pasting": {
+    "about": "`addOnPaste` splits pasted text at the delimiter, a comma by default, and adds each part as a tag. The clear trigger removes every tag at once.",
+    "title": "Adding a pasted list"
+  },
+  "pricing": "pricing",
+  "recipients": "Recipients",
+  "remove": "Remove {{value}}",
+  "required": {
+    "about": "A required field in a form. Submitting with no skill marks the field invalid and shows its error text, which the first tag clears.",
+    "title": "Required, in a form"
+  },
+  "save": "Save profile",
+  "size": {
+    "about": "The control reads the control scale and each tag the tag scale at the same size. The input's text starts at the inset of an input of that size.",
+    "title": "Sizes"
+  },
+  "skill": "Add a skill",
+  "skills": "Skills",
+  "states": {
+    "about": "An empty tags input shows its placeholder. A highlighted tag takes the focus ring's color. An invalid one draws the error edge. A read-only one keeps its tab stop and hides the triggers, and a disabled one is dimmed and leaves the tab order.",
+    "title": "States"
+  },
+  "status": {
+    "about": "Every status in every look. A status sets the control's edge and focus ring from its palette.",
+    "title": "Statuses"
+  },
+  "team": "Team",
+  "title": "Tags input",
+  "unknown": "Enter a valid email address.",
+  "used": "{{used}} of {{most}} keywords. Double-click a keyword to edit it.",
+  "validated": {
+    "about": "`validate` refuses a tag that is not an email address. The refused text stays in the input to be corrected, and `onValueInvalid` shows the error text until the next keystroke. `blurBehavior=\"add\"` adds the typed address when focus leaves the input.",
+    "title": "Validated addresses"
+  },
+  "variant": {
+    "about": "The three looks of the control, the same as the input group's. The flushed look draws the block-end edge alone, and its tags start at the edge.",
+    "title": "Looks"
+  }
+}

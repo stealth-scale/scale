@@ -16,6 +16,9 @@ const PARTS = [
   "errorText",
 ];
 
+const CONTROLLING =
+  "& > :not(.field__label, .field__counter, .field__helperText, .field__errorText)";
+
 describe("recipe", () => {
   it("covers every axis in the scenes of its specimen", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
@@ -80,10 +83,9 @@ describe("recipe", () => {
     const horizontal = recipe.variants?.["orientation"]?.["horizontal"];
 
     expect(horizontal?.["root"]).toMatchObject({
+      [CONTROLLING]: { gridColumn: "2 / 3" },
       gridTemplateColumns: "auto minmax(0, 1fr) auto",
     });
-
-    expect(horizontal?.["control"]).toStrictEqual({ gridColumn: "2 / 3" });
     expect(horizontal?.["helperText"]).toStrictEqual({ gridColumn: "2 / 3" });
     expect(horizontal?.["errorText"]).toStrictEqual({ gridColumn: "2 / 3" });
     expect(horizontal?.["counter"]).toMatchObject({ gridColumn: "3 / 4" });
@@ -107,6 +109,15 @@ describe("recipe", () => {
     expect(vertical?.["label"]).toStrictEqual({ gridColumn: "1 / 2" });
     expect(vertical?.["counter"]).toStrictEqual({ gridColumn: "2 / 3" });
   });
+
+  it.each(["floating", "vertical"] as const)(
+    "places a select or a group inside a %s field across the full width",
+    (orientation) => {
+      expect(recipe.variants?.["orientation"]?.[orientation]?.["root"]).toMatchObject({
+        [CONTROLLING]: { gridColumn: "1 / -1" },
+      });
+    },
+  );
 
   it("gives the helper and error texts the full width under the control", () => {
     const orientation = recipe.variants?.["orientation"];

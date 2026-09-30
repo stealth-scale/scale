@@ -1,0 +1,41 @@
+{
+  "about": "A phone number field with a country picker. The number formats as a person types it, and the field reports it in E.164 once it is valid, the one form two records of one phone share.",
+  "callback": {
+    "about": "`name` submits the E.164 form from a hidden input, and the form refuses a number that is not valid. A field's `required` applies to the number and not to the picker.",
+    "error": "Enter a phone number we can call.",
+    "helper": "We call back within one working day.",
+    "label": "Your phone number",
+    "sent": "We will call {{value}}.",
+    "submit": "Request a call",
+    "title": "In a form"
+  },
+  "contact": {
+    "about": "Type a national number, or a number with its country code: `+44 20 7183 8750` moves the picker to the United Kingdom. Picking a country keeps the digits and writes them in that country's international form.",
+    "title": "A phone number"
+  },
+  "country": "Country",
+  "draft": "Type the number with or without its country code.",
+  "everywhere": {
+    "about": "Without `countries` the picker offers all 245 regions, named and sorted in the page's language. Type the first letters of a country's name to move to it.",
+    "helper": "Pick your country, or type the number with its country code.",
+    "title": "Every country"
+  },
+  "flags": {
+    "about": "`flagOf` returns a glyph for each country, here the emoji flag its region code spells. A flag is hidden from a screen reader, which hears the country's name.",
+    "helper": "Emoji flags are missing on Windows, where a region shows its two letters.",
+    "title": "Flags"
+  },
+  "label": "Phone number",
+  "national": {
+    "about": "Without a picker, `defaultCountry` is the country a number without a `+` is read in, and a mark takes the picker's place.",
+    "helper": "A number in the United States, or any number with its country code.",
+    "label": "Office phone",
+    "title": "Without a picker"
+  },
+  "size": {
+    "about": "Every size of the input group. The picker's button is as tall as the group's square trigger at each size.",
+    "title": "Sizes"
+  },
+  "stored": "Stored as {{value}}.",
+  "title": "Phone input"
+}

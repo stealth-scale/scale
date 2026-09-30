@@ -10,10 +10,14 @@
  *   checkbox input. Inside a field the switch takes the field's disabled, invalid, read-only and
  *   required states and size, and the input lists the field's texts in `aria-describedby`. Inside a
  *   fieldset without a field it takes the group's disabled state and size. A prop the caller states
- *   overrides each.
+ *   overrides each. The caller's handlers on the row run before the machine's. The input takes its
+ *   `checked` property from the machine hook after every press and every change of the state, so a
+ *   press the owner of a controlled switch refuses leaves the input as it was.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
+
+import { mergeProps } from "@zag-js/react";
 
 import { omitUndefined } from "@stealthscale/hooks";
 
@@ -56,20 +60,20 @@ export function Root(props: RootProps): ReactElement {
   const group = useFieldset();
   const [options, rest] = splitSwitchProps(props);
   const { children, size, ...attributes } = rest;
-  const api = useSwitchMachine({ ...inherited(field, group), ...options });
+  const { api, input } = useSwitchMachine({ ...inherited(field, group), ...options });
 
   return (
     <ApiProvider value={api}>
       <Framed
-        {...attributes}
+        {...mergeProps(api.getRootProps(), attributes)}
         {...omitUndefined({ size: sized(size, field, group) })}
-        {...api.getRootProps()}
       >
         {children}
         <input
           aria-describedby={field ? describedBy(field.ids) : undefined}
           {...api.getHiddenInputProps()}
           aria-checked={api.checked}
+          ref={input}
           role="switch"
         />
       </Framed>

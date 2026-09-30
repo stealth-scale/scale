@@ -18,7 +18,7 @@ import {
  * @returns The provider around the reader.
  */
 function Running(props: SwitchOptions): ReactElement {
-  const api = useSwitchMachine(props);
+  const { api } = useSwitchMachine(props);
 
   return (
     <ApiProvider value={api}>

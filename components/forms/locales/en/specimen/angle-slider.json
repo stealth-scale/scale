@@ -1,0 +1,55 @@
+{
+  "about": "Renders a dial a person turns a thumb around to pick an angle from 0° to 359°. The arrow keys step the angle, PageUp and PageDown step it tenfold, and Home and End set its bounds.",
+  "controlled": {
+    "about": "A controlled angle in steps of 5°, and the CSS gradient it writes.",
+    "title": "Controlled"
+  },
+  "field": {
+    "about": "A panel's tilt in a field: the field's label names the thumb, and a tilt outside the allowed band shows the error text on save.",
+    "title": "In a field"
+  },
+  "gradient": "Gradient angle",
+  "palette": {
+    "about": "The palette the range, the thumb's edge and the focus ring read. An invalid dial takes the error palette in place of any of them.",
+    "title": "Palettes"
+  },
+  "panel": {
+    "error": "Set a tilt from {{lowest}}° to {{highest}}°.",
+    "helper": "Panels on this roof tilt from {{lowest}}° to {{highest}}°.",
+    "label": "Panel tilt"
+  },
+  "points": {
+    "e": "East",
+    "n": "North",
+    "ne": "North-east",
+    "nw": "North-west",
+    "s": "South",
+    "se": "South-east",
+    "sw": "South-west",
+    "w": "West"
+  },
+  "rotation": "Rotation",
+  "rtl": {
+    "about": "`dir=\"rtl\"` mirrors the dial for a right-to-left page: the angle grows anticlockwise, and ArrowLeft steps it up.",
+    "title": "Right to left"
+  },
+  "save": "Save",
+  "size": {
+    "about": "The dial is 6, 8 and 10rem wide, its ring 4, 6 and 8px thick and its thumb a circle of the tag height from `sm` to `lg`. The value reads the heading role at the same size.",
+    "title": "Sizes"
+  },
+  "states": {
+    "about": "A disabled dial is dimmed and leaves the tab order. A read-only one keeps its tab stop, dashes its thumb's edge and refuses every key. An invalid one takes the error palette.",
+    "title": "States"
+  },
+  "steps": {
+    "about": "A `step` of 45° with a marker at every step, on a ring without a range. The value text and the thumb's `aria-valuetext` name the compass point in place of the angle.",
+    "title": "Steps and markers"
+  },
+  "title": "Angle slider",
+  "variant": {
+    "about": "The slider's two looks. The outline ring rests on a muted ground with a panel thumb edged in the palette's solid, and the subtle ring takes the palette's muted role under a solid thumb.",
+    "title": "Looks"
+  },
+  "wind": "Wind direction"
+}

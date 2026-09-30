@@ -157,6 +157,14 @@ describe("recipe", () => {
     ]);
   });
 
+  it("spaces the label from the track by the gap one step above the size", () => {
+    expect(scaleOf(recipe, "size", "root", ["sm", "md", "lg"])).toStrictEqual([
+      { gap: "calc({spacing.gap.md} * var(--density, 1))" },
+      { gap: "calc({spacing.gap.lg} * var(--density, 1))" },
+      { gap: "calc({spacing.gap.xl} * var(--density, 1))" },
+    ]);
+  });
+
   it("translates a checked thumb by the travel", () => {
     expect(recipe.base?.["thumb"]?.["_checked"]).toMatchObject({
       translate: "var(--switch-travel)",
@@ -185,6 +193,10 @@ describe("recipe", () => {
 
   it("drops the transition under reduced motion", () => {
     expect(recipe.base?.["thumb"]?.["_motionReduce"]).toStrictEqual({ transitionDuration: "0s" });
+  });
+
+  it("sets only the cursor on a disabled row", () => {
+    expect(recipe.base?.["root"]?.["_disabled"]).toStrictEqual({ cursor: "disabled" });
   });
 
   it("renders the focus ring outside the track", () => {

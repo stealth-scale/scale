@@ -6,14 +6,16 @@
  *   spread and motion scenes, each from an example, with the box checked so the fill shows. The
  *   alignment scene renders in a room of a sidebar's width, so the label wraps. The states scene is
  *   hand-written, because off, on, partly on and disabled are props of the root and not recipe
- *   axes. The select-all scene shows the partly-on state as a caller uses it, and the field scene
- *   shows a checkbox described by a field's texts. Every scene renders a component from
- *   `examples/` and shows that file as its source. The words are keys under `checkbox` in
- *   `locales/en/specimen/checkbox.json`.
+ *   axes. The group scenes show a parent box over a group's channels, a limit, a horizontal group
+ *   and a group checked on submit, and the group recipe's size scene draws the parent's group at
+ *   each size. The field scene shows a checkbox described by a field's texts. Every scene renders a
+ *   component from `examples/` and shows that file as its source. The words are keys under
+ *   `checkbox` in `locales/en/specimen/checkbox.json`.
  */
 
 import { Matrix, Room, type Scene, scenesOf, specimen, valuesOf } from "@stealthscale/specimen";
 
+import { recipe as group } from "#checkbox/checkbox-group.recipe.ts";
 import * as examples from "#checkbox/examples/index.ts";
 import type * as Checkbox from "#checkbox/index.ts";
 import { recipe } from "#checkbox/recipe.ts";
@@ -54,13 +56,51 @@ export const states: Scene = {
 };
 
 /**
- * Hand-written scene for a select-all box over three channels.
+ * Hand-written scene for a group's parent box over three channels.
  */
 export const everything: Scene = {
   about: "checkbox.everything.about",
-  draw: examples.notifications.Notifications,
+  draw: () => <examples.notifications.Notifications />,
   example: examples.notifications,
   title: "checkbox.everything.title",
+};
+
+/**
+ * Hand-written scene for a group that holds at most three values.
+ */
+export const limited: Scene = {
+  about: "checkbox.limited.about",
+  draw: () => (
+    <Room size="sm">
+      <examples.pinned.Pinned />
+    </Room>
+  ),
+  example: examples.pinned,
+  title: "checkbox.limited.title",
+};
+
+/**
+ * Hand-written scene for a horizontal group of weekdays.
+ */
+export const inline: Scene = {
+  about: "checkbox.inline.about",
+  draw: examples.days.Days,
+  example: examples.days,
+  title: "checkbox.inline.title",
+};
+
+/**
+ * Hand-written scene for a group a form checks on submit.
+ */
+export const required: Scene = {
+  about: "checkbox.required.about",
+  draw: () => (
+    <Room size="sm">
+      <examples.formats.Formats />
+    </Room>
+  ),
+  example: examples.formats,
+  title: "checkbox.required.title",
 };
 
 /**
@@ -108,6 +148,14 @@ export default specimen({
     }),
     states,
     everything,
+    ...scenesOf<Checkbox.GroupProps>(group, {
+      draw: (props) => <examples.notifications.Notifications {...props} />,
+      example: examples.notifications,
+      namespace: "checkbox.group",
+    }),
+    limited,
+    inline,
+    required,
     consent,
   ],
   title: "checkbox.title",

@@ -4,10 +4,12 @@
  * @remarks
  *   Seven slots: root, label, required indicator, control, helper text, counter and error text.
  *   The root is a dense grid and every part states its column, so the layout does not depend on
- *   the order a caller writes the parts in. In the vertical and floating orientations the counter
- *   takes the end of the label's row, and the helper and error texts take the full width under the
- *   control. In the horizontal orientation the label takes the first column, the control and the
- *   texts the second, and the counter an `auto` third column that is empty without a counter.
+ *   the order a caller writes the parts in. Any other child of the root takes the control's
+ *   column, so a select, a radio group or an input group lays out as the control does. In the
+ *   vertical and floating orientations the counter takes the end of the label's row, and the
+ *   control and the helper and error texts take the full width under it. In the horizontal
+ *   orientation the label takes the first column, the control and the texts the second, and the
+ *   counter an `auto` third column that is empty without a counter.
  *   The status axis sets the palette on the error text, the required indicator and the control,
  *   and not on the root, because the control's focus ring reads the palette. The error text and
  *   the required indicator default to the error palette. The recipe has no `palette` axis, because
@@ -49,6 +51,12 @@ const DROP = "--field-drop";
  * text starts where typed text does.
  */
 const INSET = "--field-inset";
+
+/**
+ * Selects a child of the root that is the control or takes its place: every child but the label,
+ * the counter and the texts under the control.
+ */
+const CONTROLLING = `& > :not(.${CLASS}__label, .${CLASS}__counter, .${CLASS}__helperText, .${CLASS}__errorText)`;
 
 /**
  * Returns the style of the texts under the control at one size: the body role one size smaller,
@@ -119,7 +127,6 @@ export const recipe = defineSlotRecipe({
      */
     orientation: {
       floating: {
-        control: { gridColumn: "1 / -1" },
         counter: { gridColumn: "2 / 3" },
         errorText: { gridColumn: "1 / -1" },
         helperText: { gridColumn: "1 / -1" },
@@ -142,24 +149,29 @@ export const recipe = defineSlotRecipe({
             paddingInline: "0",
             translate: "0 0",
           },
+          [CONTROLLING]: { gridColumn: "1 / -1" },
           gridTemplateColumns: "minmax(0, 1fr) auto",
         },
       },
       horizontal: {
-        control: { gridColumn: "2 / 3" },
         counter: { alignSelf: "center", gridColumn: "3 / 4" },
         errorText: { gridColumn: "2 / 3" },
         helperText: { gridColumn: "2 / 3" },
         label: { alignSelf: "center", gridColumn: "1 / 2" },
-        root: { gridTemplateColumns: "auto minmax(0, 1fr) auto" },
+        root: {
+          [CONTROLLING]: { gridColumn: "2 / 3" },
+          gridTemplateColumns: "auto minmax(0, 1fr) auto",
+        },
       },
       vertical: {
-        control: { gridColumn: "1 / -1" },
         counter: { gridColumn: "2 / 3" },
         errorText: { gridColumn: "1 / -1" },
         helperText: { gridColumn: "1 / -1" },
         label: { gridColumn: "1 / 2" },
-        root: { gridTemplateColumns: "minmax(0, 1fr) auto" },
+        root: {
+          [CONTROLLING]: { gridColumn: "1 / -1" },
+          gridTemplateColumns: "minmax(0, 1fr) auto",
+        },
       },
     },
 

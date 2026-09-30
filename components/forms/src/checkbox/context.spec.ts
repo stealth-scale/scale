@@ -5,9 +5,18 @@ import { describe, expect, it } from "vitest";
 
 import { slotClass, slotClasses, variantClass } from "@stealthscale/testing-theme";
 
-import { withContext, withProvider } from "#checkbox/context.ts";
+import { withContext, withGroupContext, withProvider } from "#checkbox/context.ts";
 
 describe("context", () => {
+  it("applies the group recipe's class to the element it binds for the group", () => {
+    const Listed = withGroupContext("div");
+    const { container } = render(createElement(Listed, { size: "sm" }));
+
+    expect([...(container.firstElementChild?.classList ?? [])]).toContain(
+      variantClass("checkbox-group", "size", "sm"),
+    );
+  });
+
   it("applies the slot class to an element it binds", () => {
     const Row = withProvider("label", "root");
     const Boxed = withContext("div", "control");

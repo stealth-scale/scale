@@ -1,0 +1,46 @@
+{
+  "about": "Renders a value as text that turns into a field in place. A press, Enter or Space opens the field, Enter saves the value, Escape restores it, and focus returns to the text or the edit button.",
+  "activation": {
+    "about": "`activationMode` sets what opens the field: a press or Enter (`click`, the default), a double press or Enter (`dblclick`), or focus (`focus`), which opens it as Tab reaches the text.",
+    "title": "Opening the field"
+  },
+  "ada": "Ada Lovelace",
+  "board": "Q3 board update",
+  "bridge": "Bridge Ledger",
+  "cancel": "Cancel",
+  "change": "Change the notes",
+  "display": "Display name",
+  "heading": {
+    "about": "A document title at size `lg` with no triggers. A press on the title opens the field, and the input's `aria-label` names it. An empty title shows the placeholder.",
+    "title": "Title without triggers"
+  },
+  "leave": "Leave the parcel with the concierge.\nThe code for the gate is 4071.",
+  "lines": {
+    "about": "`Editable.Textarea` takes several lines. Enter adds a line, and Control and Enter save the notes. The preview keeps the line breaks.",
+    "title": "Several lines"
+  },
+  "needed": "Enter a display name.",
+  "none": "No delivery notes",
+  "notes": "Delivery notes",
+  "nameless": "Add a display name",
+  "rename": "Rename the workspace",
+  "required": {
+    "about": "Inside a field the input takes the field's label and the preview names itself after it. Saving an empty name marks the field invalid and shows its error text through `onValueCommit`.",
+    "title": "Required, in a field"
+  },
+  "save": "Save",
+  "shown": "Shown on your profile and beside your comments.",
+  "size": {
+    "about": "The height of the text and the field reads the control scale, and the triggers read the tag scale at the same size.",
+    "title": "Sizes"
+  },
+  "states": {
+    "about": "An empty value shows the placeholder. An invalid value draws the error edge. A read-only value is plain text with no triggers to press, and a disabled one is dimmed and leaves the tab order.",
+    "title": "States"
+  },
+  "title": "Editable",
+  "titled": "Document title",
+  "unnamed": "Name the workspace",
+  "untitled": "Untitled document",
+  "workspace": "Workspace name"
+}

@@ -1,8 +1,31 @@
 {
-  "about": "Renders a search field with a leading search mark and a control that clears the value. Escape clears the field, Enter submits the value, and the clear control stays out of the tab order.",
+  "about": "Renders a search field with a leading search mark and a control that clears the value. Escape clears the field, Enter submits the value, and the clear control is out of the tab order.",
   "clear": "Clear the search",
+  "clearFilters": "Clear filters",
+  "clearing": {
+    "about": "An empty field renders no clear control. The control appears with the first character and is removed with the last. It is a mark at the end of the group, so the typed text does not move when it appears.",
+    "title": "With and without something to clear"
+  },
+  "controlled": {
+    "about": "`onValueChange` receives every change, a clear included. A caller that filters a list handles typing and clearing in one handler. Clearing moves focus back to the field.",
+    "title": "Controlled by its caller"
+  },
+  "customers": "Search customers",
+  "filter": "Filter invoices",
+  "filters": {
+    "about": "`clearLabel` names the clear control after what it removes. On a field that filters a list the name is “Clear filters”. A screen reader user hears what a press removes.",
+    "title": "Naming what it clears"
+  },
+  "idle": "Nothing searched",
+  "looks": {
+    "about": "The input group supplies three looks: outline, subtle and flushed. The search mark and the clear control use the muted ink on each look.",
+    "title": "Looks"
+  },
+  "open": "open invoices",
+  "overdue": "overdue",
   "query": "unpaid invoices",
   "search": "Search invoices",
+  "searching": "Searching for “{{query}}”",
   "size": {
     "about": "Every size, each with a value so the clear control renders. The box, the marks and the control read the control scale at the same size.",
     "title": "Sizes"

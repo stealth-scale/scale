@@ -56,6 +56,13 @@ describe("Root", () => {
     expect(screen.getByRole<HTMLInputElement>("checkbox").checked).toBe(true);
   });
 
+  it("restores the input when the owner of a controlled box refuses a press", async () => {
+    render(composed({ checked: false }));
+    await pressed(screen.getByRole("checkbox"));
+
+    expect(screen.getByRole<HTMLInputElement>("checkbox").checked).toBe(false);
+  });
+
   it("calls onCheckedChange with the new state", async () => {
     const heard = vi.fn<(details: { checked: "indeterminate" | boolean }) => void>();
 
@@ -63,6 +70,15 @@ describe("Root", () => {
     await pressed(screen.getByRole("checkbox"));
 
     expect(heard).toHaveBeenCalledWith({ checked: true });
+  });
+
+  it("calls the caller's onClick on a press of the row", async () => {
+    const heard = vi.fn<() => void>();
+    const { container } = render(composed({ onClick: heard }));
+
+    await pressed(slotElement(container, "checkbox", "control"));
+
+    expect(heard).toHaveBeenCalled();
   });
 
   it("returns no accessibility violation while partly on", async () => {

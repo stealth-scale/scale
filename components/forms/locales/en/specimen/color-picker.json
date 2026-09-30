@@ -1,0 +1,96 @@
+{
+  "about": "A field for a color. A person types a hex value, or opens a panel and drags across an area of saturation and brightness, along a hue and an alpha slider, or presses a preset swatch. The trigger is named by the label and the color, and a hidden input submits the color with a form.",
+  "accent": {
+    "label": "Accent",
+    "live": "Showing {{color}}",
+    "saved": "Saved {{color}}"
+  },
+  "brand": {
+    "label": "Brand color",
+    "pick": "Pick a color from the screen",
+    "presets": "Presets"
+  },
+  "channels": {
+    "alpha": "Alpha",
+    "blue": "Blue",
+    "brightness": "Brightness",
+    "format": "Format",
+    "green": "Green",
+    "hue": "Hue",
+    "label": "Highlight color",
+    "lightness": "Lightness",
+    "red": "Red",
+    "saturation": "Saturation"
+  },
+  "channelled": {
+    "about": "One slider and one number input per channel of the format in force. The segment group switches the controlled format, and each format's view shows its own channels, so a slider never reads a channel the color does not have.",
+    "title": "Channel by channel"
+  },
+  "colors": {
+    "amber": "Amber",
+    "blue": "Blue",
+    "green": "Green",
+    "orange": "Orange",
+    "pink": "Pink",
+    "red": "Red",
+    "slate": "Slate",
+    "teal": "Teal",
+    "violet": "Violet"
+  },
+  "formats": {
+    "hsba": "HSB",
+    "hsla": "HSL",
+    "rgba": "RGB"
+  },
+  "inline": {
+    "about": "With inline the panel renders in place, always open, without the shadow and the layer of a floating panel. The value swatch previews the color beside the hex input.",
+    "title": "Always on the page"
+  },
+  "labels": {
+    "label": "Label color"
+  },
+  "primary": {
+    "help": "White text reads at {{ratio}}:1 on this color.",
+    "label": "Primary button color",
+    "low": "White text needs 4.5:1. Pick a darker color.",
+    "sent": "Submitted primary={{color}}",
+    "submit": "Save"
+  },
+  "size": {
+    "about": "The sizes a field passes down. The hex input and the trigger are controls of the same size, so a color picker, a select and an input of one size line up in a form. The swatches grow with the size, and the area and the sliders keep theirs.",
+    "title": "Sizes"
+  },
+  "stated": {
+    "about": "A disabled picker dims and takes no focus. A read-only picker takes focus and opens nothing. An invalid picker takes the error edge on its input and its trigger.",
+    "title": "Disabled, read-only and invalid"
+  },
+  "states": {
+    "disabled": "Disabled",
+    "invalid": "Invalid",
+    "readOnly": "Read-only"
+  },
+  "status": {
+    "about": "The status sets the edge and the focus ring of the hex input and the trigger from its palette, the same as a text field's.",
+    "title": "Statuses"
+  },
+  "swatches": {
+    "about": "A picker of swatches alone, for a color from a fixed set. Each swatch is a toggle button named by its color, and the group takes the picker's label.",
+    "title": "Swatches alone"
+  },
+  "theme": {
+    "label": "Theme color"
+  },
+  "title": "Color picker",
+  "validated": {
+    "about": "Inside a field the picker takes the field's label, texts and invalid state, and a form receives the color in the format in force. Save a light color to see the contrast error.",
+    "title": "In a validated field"
+  },
+  "valued": {
+    "about": "A trigger with the swatch and the hex of the color, and no text input. The panel opens with its start on the trigger's start. onValueChange reports every step of a drag, and onValueChangeEnd reports where it stops.",
+    "title": "A trigger that shows its value"
+  },
+  "variant": {
+    "about": "The three field looks of the theme on the hex input and the trigger, the same as a text field's and a select's.",
+    "title": "Looks"
+  }
+}

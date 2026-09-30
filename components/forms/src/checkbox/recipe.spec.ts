@@ -119,6 +119,10 @@ describe("recipe", () => {
     expect(recipe.base?.["indicator"]?.["&[hidden]"]).toStrictEqual({ display: "none" });
   });
 
+  it("sets only the cursor on a disabled row", () => {
+    expect(recipe.base?.["root"]?.["_disabled"]).toStrictEqual({ cursor: "disabled" });
+  });
+
   it("renders the focus ring outside the box", () => {
     expect(recipe.base?.["control"]).toMatchObject({ focusVisibleRing: "outside" });
   });

@@ -10,8 +10,9 @@
  *   a `control.md` square without changing the track. The off thumb takes the edge color, which
  *   the theme's contrast gate measures at 3:1 or more against `bg.panel` and `bg.subtle`, the
  *   surfaces a track rests on. The track is `control` wide and `tag` tall, and the thumb fills its
- *   content box as a square, so the track's padding is the thumb's inset. The palette axis offers
- *   the four palettes that are not
+ *   content box as a square, so the track's padding is the thumb's inset. The disabled look applies
+ *   to the track and to the label and not to the row around them, so a disabled switch renders at
+ *   the theme's disabled opacity once. The palette axis offers the four palettes that are not
  *   statuses, because the class name leaves out the axis and a palette and a status of one name
  *   would write one class. The status axis is declared after it and overrides it. The recipe has
  *   no `effect` axis, because a glow or a pulse on a 20px track competes with the focus ring.
@@ -48,6 +49,12 @@ const HUES = ["primary", "secondary", "accent", "neutral"] as const;
 const TRAVEL = "--switch-travel";
 
 /**
+ * Maps each switch size to the gap token between the track and the label, one size larger than the
+ * switch.
+ */
+const GAPS: Readonly<Record<"lg" | "md" | "sm", string>> = { lg: "xl", md: "lg", sm: "md" };
+
+/**
  * Returns a thumb look that fills a checked thumb with a palette role, and with `CanvasText` under
  * forced colors.
  *
@@ -80,7 +87,7 @@ export const recipe = defineSlotRecipe({
     },
     label: { _disabled: { layerStyle: "disabled" }, color: "fg", userSelect: "none" },
     root: {
-      _disabled: { layerStyle: "disabled" },
+      _disabled: { cursor: "disabled" },
       cursor: "button",
       display: "inline-flex",
       userSelect: "none",
@@ -141,7 +148,8 @@ export const recipe = defineSlotRecipe({
     /**
      * Track size, text size and gap. The track reads the control scale for its width and the tag
      * scale for its height. It writes the difference to `--switch-travel`, the distance a checked
-     * thumb translates.
+     * thumb translates. The gap between the track and the label reads the gap token one size
+     * larger than the switch: 8, 12 and 16px at `sm`, `md` and `lg`.
      */
     size: onSlots({
       control: sizeVariants(
@@ -153,7 +161,10 @@ export const recipe = defineSlotRecipe({
         ["sm", "md", "lg"],
       ),
       label: sizeVariants((size) => ({ textStyle: `label.${size}` }), ["sm", "md", "lg"]),
-      root: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), ["sm", "md", "lg"]),
+      root: sizeVariants(
+        (size) => ({ gap: dense(`{spacing.gap.${GAPS[size]}}`) }),
+        ["sm", "md", "lg"],
+      ),
     }),
 
     /**

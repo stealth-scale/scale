@@ -1,15 +1,15 @@
-import { type ReactElement, useState } from "react";
+import { type ReactElement } from "react";
 
 import { CheckIcon, MinusIcon } from "lucide-react";
 
-import { Stack } from "@stealthscale/component-layout";
 import { useWords } from "@stealthscale/specimen";
 
 import * as Checkbox from "#checkbox/index.ts";
+import * as Fieldset from "#fieldset/index.ts";
 
-const CHANNELS = ["email", "sms", "push"] as const;
+const CHANNELS = ["email", "sms", "push"];
 
-type Channel = (typeof CHANNELS)[number];
+const CHOSEN = ["email"];
 
 const MARKS = (
   <Checkbox.Control>
@@ -22,38 +22,24 @@ const MARKS = (
   </Checkbox.Control>
 );
 
-export function Notifications(): ReactElement {
+export function Notifications(props: Checkbox.GroupProps): ReactElement {
   const { t } = useWords("checkbox");
-  const [chosen, setChosen] = useState<readonly Channel[]>(["email"]);
-  const all = chosen.length === CHANNELS.length || (chosen.length > 0 && "indeterminate");
 
   return (
-    <Stack gap="sm">
-      <Checkbox.Root
-        checked={all}
-        onCheckedChange={({ checked }) => {
-          setChosen(checked === true ? CHANNELS : []);
-        }}
-      >
-        {MARKS}
-        <Checkbox.Label>{t("all")}</Checkbox.Label>
-      </Checkbox.Root>
-      {CHANNELS.map((channel) => (
-        <Checkbox.Root
-          checked={chosen.includes(channel)}
-          key={channel}
-          onCheckedChange={({ checked }) => {
-            setChosen(
-              checked === true
-                ? CHANNELS.filter((each) => each === channel || chosen.includes(each))
-                : chosen.filter((each) => each !== channel),
-            );
-          }}
-        >
+    <Fieldset.Root>
+      <Fieldset.Legend>{t("reminders")}</Fieldset.Legend>
+      <Checkbox.Group allValues={CHANNELS} defaultValue={CHOSEN} name="channels" {...props}>
+        <Checkbox.Root parent>
           {MARKS}
-          <Checkbox.Label>{t(`channels.${channel}`)}</Checkbox.Label>
+          <Checkbox.Label>{t("all")}</Checkbox.Label>
         </Checkbox.Root>
-      ))}
-    </Stack>
+        {CHANNELS.map((channel) => (
+          <Checkbox.Root key={channel} value={channel}>
+            {MARKS}
+            <Checkbox.Label>{t(`channels.${channel}`)}</Checkbox.Label>
+          </Checkbox.Root>
+        ))}
+      </Checkbox.Group>
+    </Fieldset.Root>
   );
 }

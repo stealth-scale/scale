@@ -1,0 +1,51 @@
+{
+  "about": "Renders a row of boxes that take one character each, for a code a person reads from a message. Typing moves to the next box, Backspace moves back, and a pasted code fills every box. The form submits the code as one value.",
+  "app": "Enter the six figures your authenticator app shows.",
+  "attached": {
+    "about": "`attached` joins the boxes into one strip. Adjacent boxes share an edge, and a hovered or focused box is raised above its neighbours.",
+    "title": "Attached"
+  },
+  "authenticator": "Authentication code",
+  "character6": "Character {{place}} of 6",
+  "code": "Code",
+  "confirm": {
+    "about": "`onValueComplete` checks the code when the last box fills. A code other than 246810 marks the field invalid and shows its error text, and the next change clears it.",
+    "title": "Checked when complete"
+  },
+  "digit4": "Digit {{place}} of 4",
+  "digit6": "Digit {{place}} of 6",
+  "invite": "Invite code",
+  "masked": {
+    "about": "`PinInput.Label` names the group, and a press on it focuses the first box. `mask` hides each character as a password field does.",
+    "title": "Masked, with a label"
+  },
+  "passcode": "Passcode",
+  "sent": "Enter the six figures we sent to your phone.",
+  "size": {
+    "about": "Each box is a square on the control scale, 32 to 48px from `xs` to `xl`. The gap between boxes reads the gap scale one size smaller.",
+    "title": "Sizes"
+  },
+  "split": {
+    "about": "`type=\"alphanumeric\"` accepts letters and figures. A dash between the third and fourth boxes splits the code, and `sanitizeValue` drops the dash from a pasted `ABC-123`.",
+    "title": "Split by a dash"
+  },
+  "states": {
+    "about": "A disabled code dims every box and takes them out of the tab order. A read-only code keeps its value and its tab stop and refuses every change.",
+    "title": "States"
+  },
+  "status": {
+    "about": "Each status sets the edge and the focus ring of every box, crossed with the three looks.",
+    "title": "Statuses"
+  },
+  "title": "Pin input",
+  "variant": {
+    "about": "The theme's three field looks, the same as the input's.",
+    "title": "Looks"
+  },
+  "verification": "Verification code",
+  "verify": {
+    "about": "Inside a field the group takes its name from the field's label and its description from the helper text, and a press on the label focuses the first box. `otp` asks the browser to offer a code it received by message.",
+    "title": "One-time code in a field"
+  },
+  "wrong": "That code does not match. Check the app and try again."
+}

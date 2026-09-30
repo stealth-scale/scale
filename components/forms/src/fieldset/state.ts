@@ -42,7 +42,7 @@ export interface FieldsetState {
 const LOOSE: FieldsetState = { disabled: false, ids: idsOf("fieldset"), invalid: false };
 
 /**
- * Context that carries the group's state, with the loose state outside a group.
+ * Context that provides the group's state, with the loose state outside a group.
  */
 const FieldsetContext = createContext<FieldsetState>(LOOSE);
 
@@ -58,4 +58,16 @@ export const FieldsetProvider = FieldsetContext;
  */
 export function useFieldset(): FieldsetState {
   return useContext(FieldsetContext);
+}
+
+/**
+ * Returns the state of the group around a part, for a part that names itself after the group's
+ * legend.
+ *
+ * @returns The group's state, or nothing outside a group.
+ */
+export function useOptionalFieldset(): FieldsetState | undefined {
+  const state = useContext(FieldsetContext);
+
+  return state === LOOSE ? undefined : state;
 }

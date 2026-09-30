@@ -1,0 +1,69 @@
+{
+  "about": "Renders a track a person drags one thumb or two along to pick a value or a range. The arrow keys step the focused thumb, PageUp and PageDown step it tenfold, and Home and End set its bounds.",
+  "balance": "Balance",
+  "bands": {
+    "air": "16 kHz",
+    "bass": "60 Hz",
+    "high": "4 kHz",
+    "low": "250 Hz",
+    "mid": "1 kHz"
+  },
+  "centre": "Centre",
+  "controlled": {
+    "about": "A controlled value in a field: the field's label names the thumb, and the helper text, which describes it, counts the seats and derives the monthly total.",
+    "title": "Controlled, in a field"
+  },
+  "dragging": {
+    "about": "`Slider.DraggingIndicator` inside a thumb shows the thumb's value in a bubble above it while a person drags it, in the root's format.",
+    "title": "Value while dragging"
+  },
+  "equalizer": "Equalizer",
+  "left": "Left {{amount}}",
+  "marks": {
+    "about": "`Slider.Marker` lays a dot on the track at a value, with its words below the thumb. The marker group comes before the thumb, so the thumb covers the dot it rests on. A `step` of 250 snaps the thumb to the tiers.",
+    "title": "Marks"
+  },
+  "maximum": "Maximum",
+  "minimum": "Minimum",
+  "opacity": "Opacity",
+  "origin": {
+    "about": "`origin=\"center\"` fills the track from the middle to the thumb. `getAriaValueText` announces the side in words, and the value text shows the same words.",
+    "title": "From the centre"
+  },
+  "palette": {
+    "about": "The palette the range, the thumb's edge and the focus ring read. An invalid slider takes the error palette in place of any of them.",
+    "title": "Palettes"
+  },
+  "price": "Price",
+  "range": {
+    "about": "Two thumbs pick a range. Each thumb is named after the label and its own `label`, such as \"Price Minimum\", and `minStepsBetweenThumbs` keeps them five steps apart. The hidden inputs submit `price[]` twice.",
+    "title": "A range"
+  },
+  "right": "Right {{amount}}",
+  "rtl": {
+    "about": "`dir=\"rtl\"` mirrors the slider for a right-to-left page: the label starts at the right, the range fills from the right edge, and ArrowLeft steps the value up.",
+    "title": "Right to left"
+  },
+  "seats": "Seats",
+  "size": {
+    "about": "The thumb is a circle of the tag height, 21.6, 24 and 26.4px, and the track reads the gap scale, 4, 6 and 8px, from `sm` to `lg`.",
+    "title": "Sizes"
+  },
+  "states": {
+    "about": "A disabled slider is dimmed and leaves the tab order. A read-only one keeps its tab stop, dashes its thumb's edge and refuses every key. An invalid one takes the error palette.",
+    "title": "States"
+  },
+  "storage": "Storage",
+  "title": "Slider",
+  "total_one": "{{count}} seat, {{total}} a month",
+  "total_other": "{{count}} seats, {{total}} a month",
+  "variant": {
+    "about": "The progress bar's two track looks. The outline thumb is a panel circle with an edge in the palette's solid, and the subtle thumb is a solid circle with a panel ring.",
+    "title": "Looks"
+  },
+  "vertical": {
+    "about": "`orientation=\"vertical\"` lays the track on the block axis. Five bands from the centre share a fieldset's legend, and each is named by its own label.",
+    "title": "Vertical"
+  },
+  "volume": "Volume"
+}

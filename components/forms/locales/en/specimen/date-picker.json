@@ -1,0 +1,108 @@
+{
+  "about": "A field for a date a person types or picks from a calendar. The trigger opens a panel of views: the days of a month, the months of a year and the years of a decade. The arrow keys move through a view's grid, Enter and Space pick, and hidden inputs submit the dates in ISO 8601 with a form.",
+  "appointment": {
+    "label": "Appointment"
+  },
+  "availability": {
+    "label": "Availability",
+    "nights_one": "{{count}} night",
+    "nights_other": "{{count}} nights",
+    "pick": "Pick an arrival and a departure. Struck-out days are booked."
+  },
+  "billing": {
+    "label": "Billing month",
+    "none": "No month picked"
+  },
+  "birthday": {
+    "label": "Date of birth",
+    "month": "Month",
+    "year": "Year"
+  },
+  "choose": "Choose date",
+  "clear": "Clear date",
+  "daysOff": {
+    "label": "Days off",
+    "none": "No days picked"
+  },
+  "german": {
+    "label": "Delivery date",
+    "next": "Nächster Monat",
+    "previous": "Vorheriger Monat",
+    "week": "Kalenderwoche"
+  },
+  "holiday": {
+    "label": "Holiday"
+  },
+  "localized": {
+    "about": "With locale de-DE the weekdays read Mo to So, and startOfWeek 1 starts the weeks on Monday. showWeekNumbers adds each week's number before it, which a screen reader reads as the row's header.",
+    "title": "Locale and week numbers"
+  },
+  "monthly": {
+    "about": "With minView and defaultView month the calendar picks a month, and the year view above it moves through the years. format writes the month's name, which ValueText shows.",
+    "title": "A month"
+  },
+  "months": {
+    "about": "numOfMonths 2 shows two months, a second DayTable at offset 1. isDateUnavailable strikes out booked days, and a range cannot start or end on one. On a narrow page the months stack.",
+    "title": "Two months, inline"
+  },
+  "multiple": {
+    "about": "With selectionMode multiple each press adds or removes a day, and maxSelectedDates stops at five. closeOnSelect false keeps the panel open, and ValueText lists the days.",
+    "title": "Several days"
+  },
+  "palette": {
+    "about": "The palette of the selected days and a range's middle, one of the four hues that are not statuses.",
+    "title": "Palettes"
+  },
+  "ranged": {
+    "about": "With selectionMode range two inputs edit the start and the end, and a form receives period[0] and period[1]. Each preset sets a range relative to today.",
+    "title": "A range with presets"
+  },
+  "report": {
+    "end": "End",
+    "label": "Report period",
+    "presets": {
+      "last30Days": "Last 30 days",
+      "last7Days": "Last 7 days",
+      "lastMonth": "Last month",
+      "thisMonth": "This month"
+    },
+    "start": "Start"
+  },
+  "selects": {
+    "about": "MonthSelect and YearSelect jump to a month and a year, for a date far from today. min and max bound the years the select lists.",
+    "title": "Month and year selects"
+  },
+  "size": {
+    "about": "The sizes a field passes down. The input and its triggers are controls of the same size as a text field, and the panel's cells grow with the size: 32, 36 and 40px.",
+    "title": "Sizes"
+  },
+  "start": {
+    "help": "Weekdays from today.",
+    "label": "Start date",
+    "missing": "Choose a start date.",
+    "sent": "Submitted start={{date}}",
+    "submit": "Save"
+  },
+  "stated": {
+    "about": "A disabled picker dims and takes no focus. A read-only picker shows its date, opens no panel and hides its clear trigger. An invalid picker takes the error edge on its input.",
+    "title": "Disabled, read-only and invalid"
+  },
+  "states": {
+    "disabled": "Disabled",
+    "invalid": "Invalid",
+    "readOnly": "Read-only"
+  },
+  "status": {
+    "about": "The status sets the edge and the focus ring of the input from its palette, the same as a text field's.",
+    "title": "Statuses"
+  },
+  "title": "Date picker",
+  "validated": {
+    "about": "Inside a field the picker takes the field's label, texts and required and invalid states. min stops the days before today, isDateUnavailable the weekends, and a form receives the date in ISO 8601.",
+    "title": "In a validated field"
+  },
+  "variant": {
+    "about": "The three field looks of the theme on the input, the same as a text field's and a combobox's.",
+    "title": "Looks"
+  }
+}

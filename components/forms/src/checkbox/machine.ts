@@ -4,15 +4,18 @@
  * @remarks
  *   The root starts one machine and every part reads the api from context, so the box, the marks
  *   and the text report one state. The machine derives the input's identifier from `id`, and the
- *   root's `label` points at that input.
+ *   root's `label` points at that input. The hook counts presses, so the root renders again after a
+ *   press the owner of a controlled box refuses, and its input takes the state back.
  */
 
-import { useId } from "react";
+import { useId, useReducer } from "react";
 
 import * as checkbox from "@zag-js/checkbox";
 import { normalizeProps, useMachine } from "@zag-js/react";
 
 import { createRequiredContext, omitUndefined, splitEnumerable } from "@stealthscale/hooks";
+
+import { counted, type Toggle, useInputState } from "#toggled.ts";
 
 /**
  * Describes the api `checkbox.connect` returns: a prop getter per part, and the machine's state
@@ -44,19 +47,28 @@ export type CheckedState = checkbox.CheckedState;
 export const [ApiProvider, useCheckbox] = createRequiredContext<CheckboxApi>("Checkbox");
 
 /**
- * Starts the checkbox machine and returns its connected api.
+ * Starts the checkbox machine and returns its connected api and the ref its input takes.
  *
  * @param options - The machine options split from the root's props. React generates `id` when the
  *   caller states none.
- * @returns The connected api.
+ * @returns The connected api, and the ref the root's input takes.
  */
-export function useCheckboxMachine(options: CheckboxOptions): CheckboxApi {
+export function useCheckboxMachine(options: CheckboxOptions): Toggle<CheckboxApi> {
   const generated = useId();
-
-  return checkbox.connect(
-    useMachine(checkbox.machine, { ...omitUndefined(options), id: options.id ?? generated }),
+  const [presses, press] = useReducer(counted, 0);
+  const api = checkbox.connect(
+    useMachine(checkbox.machine, {
+      ...omitUndefined(options),
+      id: options.id ?? generated,
+      onCheckedChange: (details) => {
+        options.onCheckedChange?.(details);
+        press();
+      },
+    }),
     normalizeProps,
   );
+
+  return { api, input: useInputState(api.checked, api.indeterminate, presses) };
 }
 
 /**

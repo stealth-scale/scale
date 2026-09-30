@@ -4,7 +4,10 @@
  */
 
 export * as consent from "#checkbox/examples/consent.example.tsx";
+export * as days from "#checkbox/examples/days.example.tsx";
+export * as formats from "#checkbox/examples/formats.example.tsx";
 export * as notifications from "#checkbox/examples/notifications.example.tsx";
+export * as pinned from "#checkbox/examples/pinned.example.tsx";
 export * as setting from "#checkbox/examples/setting.example.tsx";
 export * as summary from "#checkbox/examples/summary.example.tsx";
 export * as terms from "#checkbox/examples/terms.example.tsx";

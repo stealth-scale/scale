@@ -1,0 +1,57 @@
+{
+  "about": "A box a person signs in with a mouse, a pen or a finger, with a guide line to sign on and a button that clears the strokes. The pad keeps the strokes as SVG path data, and a form receives them as an SVG image cropped to the signature.",
+  "accept": "Accept and sign",
+  "clear": "Clear signature",
+  "consent": {
+    "about": "The field requires a signature, so submitting a blank pad shows the error text. The pad submits its signature under `name` as an SVG data URL, and `onDrawEnd` reports each stroke.",
+    "title": "Required in a form"
+  },
+  "download": {
+    "about": "`onDrawEnd` passes `getDataUrl`, which renders the strokes as a PNG. The download trigger saves it once something is drawn. The image inks the strokes in black unless `drawing.fill` states a color.",
+    "title": "Download"
+  },
+  "fullName": "Full name",
+  "initials": "Initials",
+  "lease": "Sign as on your passport. Your signature is added to the lease.",
+  "palette": {
+    "about": "The palette the strokes fill in. The default, `neutral`, reads as ink on the pad in both color modes.",
+    "title": "Palettes"
+  },
+  "pen": {
+    "about": "`drawing` passes the stroke options to the machine: `size` sets the width, and `simulatePressure` thins a fast stroke and thickens a slow one.",
+    "title": "Pen"
+  },
+  "save": "Save as PNG",
+  "signature": "Signature",
+  "size": {
+    "about": "Every size of the pad. The control is at least 160, 208 or 256px tall, and the clear trigger is the input group's square at the same size.",
+    "title": "Sizes"
+  },
+  "states": {
+    "about": "An invalid pad, a read-only pad and a disabled one. A read-only pad keeps its strokes and hides the clear trigger, and a disabled pad leaves the tab order.",
+    "title": "States"
+  },
+  "tenant": "Tenant's signature",
+  "title": "Signature pad",
+  "typed": {
+    "about": "Drawing needs a pointer, so the page offers a typed name as the other way to sign. A segment group switches between the pad and a text field.",
+    "title": "Draw or type"
+  },
+  "typedHelp": "Type your name as it appears on your passport.",
+  "undo": {
+    "about": "The caller keeps the strokes in state through `paths` and `onDraw`, so a button outside the pad removes the last stroke.",
+    "title": "Undo"
+  },
+  "undoStroke": "Undo stroke",
+  "unsigned": "Sign the lease to continue.",
+  "variant": {
+    "about": "The field's outline and subtle looks. The pad starts with a saved signature and the clear trigger in its corner.",
+    "title": "Looks"
+  },
+  "way": "Way to sign",
+  "ways": {
+    "draw": "Draw",
+    "type": "Type"
+  },
+  "witness": "Witness signature"
+}
