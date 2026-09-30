@@ -1,11 +1,13 @@
 {
   "name": "@stealthscale/component-collections",
   "version": "0.0.1",
-  "description": "Draws many of a thing: the lists, tables and grids that render a set of records.",
+  "description": "Renders a set of records: lists, tables, grids, trees, and lists and boards a person reorders by dragging.",
   "keywords": [
     "collections",
     "components",
+    "drag-and-drop",
     "react",
+    "sortable",
     "table"
   ],
   "homepage": "https://github.com/stealth-scale/config/tree/main/components/collections#readme",
@@ -52,18 +54,25 @@
     "test": "vp test"
   },
   "dependencies": {
+    "@dnd-kit/abstract": "catalog:",
+    "@dnd-kit/dom": "catalog:",
+    "@dnd-kit/helpers": "catalog:",
+    "@dnd-kit/react": "catalog:",
+    "@stealthscale/component-actions": "workspace:^",
     "@zag-js/collection": "catalog:",
+    "@zag-js/focus-visible": "catalog:",
     "@zag-js/i18n-utils": "catalog:",
     "@zag-js/listbox": "catalog:",
     "@zag-js/react": "catalog:",
+    "@zag-js/tree-view": "catalog:",
     "@zag-js/types": "catalog:"
   },
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
     "@rolldown/plugin-babel": "catalog:",
-    "@stealthscale/component-actions": "workspace:^",
     "@stealthscale/component-disclosure": "workspace:^",
     "@stealthscale/component-layout": "workspace:^",
+    "@stealthscale/component-primitives": "workspace:^",
     "@stealthscale/hooks": "workspace:^",
     "@stealthscale/theme": "workspace:^",
     "@stealthscale/vite-config": "workspace:^",
@@ -86,9 +95,11 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
+    "@stealthscale/component-primitives": "workspace:^",
     "@stealthscale/hooks": "workspace:^",
     "@stealthscale/theme": "workspace:^",
-    "react": "catalog:"
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "engines": {
     "node": ">=26.0.0"

@@ -3,8 +3,9 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#collection/index.ts";
 
 describe("index", () => {
-  it("names the three hooks that hold and narrow a list's rows", () => {
+  it("names the tree collection and the three hooks that hold and narrow a list's rows", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
+      "TreeCollection",
       "useFilter",
       "useGridCollection",
       "useListCollection",

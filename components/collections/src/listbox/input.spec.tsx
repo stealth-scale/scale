@@ -1,17 +1,57 @@
+import { type ReactElement } from "react";
+
 import { fireEvent, render, screen } from "@testing-library/react";
+import { ListCollection } from "@zag-js/collection";
 import { describe, expect, it } from "vitest";
 
-import { drawn, pressed } from "@stealthscale/testing-react";
+import { drawn, pressed, settled } from "@stealthscale/testing-react";
 import { slotElement } from "@stealthscale/testing-theme";
 
 import { Input } from "#listbox/input.tsx";
 import { offered } from "#listbox/listbox.fixtures.tsx";
+import { Root } from "#listbox/root.tsx";
+import { COLLECTION, type Row, ROWS } from "#listbox/rows.fixtures.ts";
+
+/**
+ * Collection of the one row a query for "rep" keeps.
+ */
+const REPORTS = new ListCollection<Row>({
+  items: ROWS.filter((row) => row.value === "reports"),
+  itemToString: (row): string => row.label,
+  itemToValue: (row): string => row.value,
+});
 
 /**
  * Changes the field's value.
  */
 function typed(value: string): void {
   fireEvent.change(screen.getByRole("textbox"), { target: { value } });
+}
+
+/**
+ * Renders the field over a collection, highlighting the first row or not.
+ */
+function filtered(collection: ListCollection<Row>, autoHighlight: boolean): ReactElement {
+  return (
+    <Root collection={collection}>
+      <Input aria-label="Filter places" autoHighlight={autoHighlight} />
+    </Root>
+  );
+}
+
+/**
+ * Focuses the field over the three rows, then narrows the collection to one row.
+ */
+async function narrowed(autoHighlight: boolean): Promise<HTMLElement> {
+  const { rerender } = await drawn(filtered(COLLECTION, autoHighlight));
+  const field = screen.getByRole("textbox");
+
+  field.focus();
+  await settled();
+  rerender(filtered(REPORTS, autoHighlight));
+  await settled();
+
+  return field;
 }
 
 describe("Input", () => {
@@ -106,5 +146,17 @@ describe("Input", () => {
     render(offered(<Input aria-label="Filter places" value="quartz" />));
 
     expect(screen.getByRole<HTMLInputElement>("textbox").value).toBe("quartz");
+  });
+
+  it("highlights the first row of a narrowed collection with autoHighlight", async () => {
+    const field = await narrowed(true);
+
+    expect(field.getAttribute("aria-activedescendant")).toContain("reports");
+  });
+
+  it("highlights no row of a narrowed collection without autoHighlight", async () => {
+    const field = await narrowed(false);
+
+    expect(field.getAttribute("aria-activedescendant")).toBeNull();
   });
 });

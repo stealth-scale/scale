@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { accessibilityViolations, pressed } from "@stealthscale/testing-react";
+import { accessibilityViolations, drawn, pressed, settled } from "@stealthscale/testing-react";
 import { slotClass, slotClasses, variantClass } from "@stealthscale/testing-theme";
 
 import { type MatrixCell } from "#status-matrix/states.ts";
@@ -190,18 +190,20 @@ describe("StatusMatrix", () => {
     expect(container.querySelectorAll('th[data-column="eu"]')).toHaveLength(1);
   });
 
-  it("sets data-lit on the row and the column under the pointer", () => {
-    const { container } = render(graded());
+  it("sets data-lit on the row and the column under the pointer", async () => {
+    const { container } = await drawn(graded());
 
     fireEvent.pointerMove(crossing(container, "us"));
+    await settled();
 
     expect(container.querySelectorAll("[data-lit]")).toHaveLength(8);
   });
 
-  it("sets data-lit on the rollup column under the pointer", () => {
-    const { container } = render(graded());
+  it("sets data-lit on the rollup column under the pointer", async () => {
+    const { container } = await drawn(graded());
 
     fireEvent.pointerMove(crossing(container, "rollup"));
+    await settled();
 
     expect(container.querySelectorAll('[data-column="rollup"][data-lit]')).toHaveLength(4);
   });

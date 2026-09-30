@@ -1,0 +1,72 @@
+{
+  "about": "Shows what happened in the order it happened: an ordered list of entries, each an indicator on a rail and the words beside it. Words can go on either side of the rail, and entries line up down the list.",
+  "accepted": "Accepted",
+  "acceptedOn": "Wednesday",
+  "ada": "Ada Okafor",
+  "approved": "approved",
+  "approvedOn": "14 March",
+  "approvedWhat": "the final text",
+  "arrived": "Arrived",
+  "arrivedAt": "Friday, 11:20",
+  "booked": "Consignment booked",
+  "bookedOn": "2 Mar",
+  "cleared": "Cleared customs",
+  "clearedOn": "14 Mar",
+  "delivered": "Delivered to the yard",
+  "deliveredOn": "21 Mar",
+  "expected": "Expected on 21 March",
+  "feed": {
+    "about": "A title is a row that wraps, so a face, a name and the words around them fit on one line and fold onto the next where there is no room. The indicator's icon names the kind of change.",
+    "title": "An activity feed"
+  },
+  "jenna": "Jenna Smith",
+  "left": "Left the warehouse",
+  "leftOn": "2 March",
+  "lucas": "Lucas Moras",
+  "ongoing": {
+    "about": "An ongoing timeline draws the rail past the last indicator, for a run that has not finished: an order still moving, a pipeline with a stage to come.",
+    "title": "A run still going"
+  },
+  "packed": "Packed",
+  "packedAt": "Tuesday, 16:05",
+  "palette": {
+    "about": "The palette colors the indicators. One palette over the whole run says at a glance how it went, so the words have to agree with it.",
+    "title": "Palettes"
+  },
+  "placed": "Order placed",
+  "placedAt": "Monday, 09:12",
+  "rail": {
+    "about": "Dates written before the rail line up at the widest date's width, because each entry is a row of the list's grid. `start` sizes the dates to their words, `center` gives both sides an equal share, and `end` puts the rail at the end.",
+    "title": "Where the rail runs"
+  },
+  "raised": "Offer raised",
+  "raisedOn": "Tuesday",
+  "removed": "removed",
+  "removedOn": "12 March",
+  "removedWhat": "the second draft",
+  "renamed": "renamed",
+  "renamedOn": "1 March",
+  "renamedWhat": "three labels",
+  "settled": "Settled",
+  "settledOn": "Friday",
+  "shipped": "Shipped",
+  "shippedAt": "Wednesday, 08:40",
+  "sides": {
+    "about": "With the rail in the centre, an entry written before the connector takes the side before the rail and aligns to it. The order a screen reader hears is the order the entries are written, so the side is only drawn.",
+    "title": "Alternating sides"
+  },
+  "size": {
+    "about": "The indicator is 16, 20, 24 and 32px, and the words and the gaps step with it. A one-line title is as tall as the indicator and centred on it.",
+    "title": "Sizes"
+  },
+  "title": "Timeline",
+  "tracked": {
+    "about": "A shipment on the success palette, still on its way, so the rail runs past its last entry.",
+    "title": "A shipment on its way"
+  },
+  "transit": "In transit",
+  "variant": {
+    "about": "The solid look fills the indicator in the palette's solid, subtle tints it, outline rings it, and plain leaves the panel's ground. Every look is opaque, so the rail never runs through an indicator.",
+    "title": "Looks"
+  }
+}

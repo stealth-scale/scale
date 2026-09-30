@@ -5,6 +5,7 @@ import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/te
 
 import page from "#listbox/listbox.specimen.tsx";
 import { recipe } from "#listbox/recipe.ts";
+import { SELECTED } from "#listbox/selected.ts";
 
 describe("recipe", () => {
   it("covers every axis in the scenes of its specimen", () => {
@@ -38,6 +39,8 @@ describe("recipe", () => {
           "itemCheckbox",
           "empty",
           "selectAll",
+          "viewport",
+          "rows",
         ],
       }),
     ).toStrictEqual([]);
@@ -47,8 +50,8 @@ describe("recipe", () => {
     expect(recipe.className).toBe("listbox");
   });
 
-  it("declares eighteen slots", () => {
-    expect(recipe.slots).toHaveLength(18);
+  it("declares twenty slots", () => {
+    expect(recipe.slots).toHaveLength(20);
   });
 
   it("declares nine axes", () => {
@@ -118,7 +121,9 @@ describe("recipe", () => {
   });
 
   it("hides the content while it has no rows", () => {
-    expect(recipe.base?.["content"]).toMatchObject({ "&:empty": { display: "none" } });
+    expect(recipe.base?.["content"]).toMatchObject({
+      "&:has(.listbox__rows:empty)": { display: "none" },
+    });
   });
 
   it("aligns the empty text to the start", () => {
@@ -150,8 +155,22 @@ describe("recipe", () => {
     });
   });
 
-  it("scrolls the content", () => {
-    expect(recipe.base?.["content"]).toMatchObject({ overflowY: "auto" });
+  it("reads the selected axis from SELECTED", () => {
+    expect(recipe.variants?.["selected"]).toStrictEqual(SELECTED);
+  });
+
+  it("moves the scroll area's focus ring inside the content's edge", () => {
+    expect(recipe.base?.["content"]).toMatchObject({
+      "--scroll-area-ring-offset": "calc({borderWidths.ring} * -1)",
+    });
+  });
+
+  it("leaves the scrolling to the scroll area inside the content", () => {
+    expect(recipe.base?.["content"]).not.toHaveProperty("overflowY");
+  });
+
+  it("keeps a revealed row the list's padding from the viewport's edge", () => {
+    expect(recipe.base?.["viewport"]).toStrictEqual({ scrollPadding: "{spacing.gap.xs}" });
   });
 
   it("sets no scrolling on the root", () => {
@@ -189,18 +208,22 @@ describe("recipe", () => {
     expect(recipe.base?.["frame"]).toMatchObject({ overflow: "hidden" });
   });
 
-  it("scrolls a horizontal surface list sideways", () => {
-    expect(recipe.compoundVariants).toContainEqual(
-      expect.objectContaining({
-        css: { content: { overflowX: "auto" } },
-        orientation: "horizontal",
-        variant: "surface",
-      }),
-    );
+  it("runs the rows of a horizontal list in a row", () => {
+    expect(recipe.variants?.["orientation"]?.["horizontal"]?.["rows"]).toStrictEqual({
+      flexDirection: "row",
+    });
   });
 
-  it("pads the content in every look", () => {
-    expect(recipe.base?.["content"]).toHaveProperty("padding");
+  it("pads the rows in every look", () => {
+    expect(recipe.base?.["rows"]).toMatchObject({ padding: "{spacing.gap.xs}" });
+  });
+
+  it("tiles the rows of a list with columns", () => {
+    expect(recipe.variants?.["columns"]?.["2"]).toMatchObject({ rows: { display: "grid" } });
+  });
+
+  it("sets the row height on the content", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["content"]).toHaveProperty("--listbox-row");
   });
 
   it("sets no padding on a plain frame", () => {

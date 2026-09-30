@@ -34,6 +34,11 @@ import {
 const SIZES = ["sm", "md", "lg"] as const;
 
 /**
+ * Custom property the scroll area's root reads for the style of its focus ring.
+ */
+const RING_STYLE = "--scroll-area-ring-style";
+
+/**
  * Attribute of a cell of figures, which the base aligns to the end in tabular figures.
  */
 export const NUMERIC = "data-numeric";
@@ -148,10 +153,21 @@ export const recipe = defineSlotRecipe({
       fontWeight: "medium",
       textAlign: "start",
     },
+    /**
+     * The box around the scroll area, which draws the focus ring while the viewport has keyboard
+     * focus and hides the scroll area's own ring, because the box clips it.
+     */
     scroller: {
-      _focusVisible: { focusVisibleRing: "outside" },
+      "&:has(.table__viewport:focus-visible)": {
+        outlineColor: "colorPalette.focusRing",
+        outlineOffset: "ring",
+        outlineStyle: "solid",
+        outlineWidth: "ring",
+      },
+      display: "flex",
+      flexDirection: "column",
       inlineSize: "full",
-      overflowX: "auto",
+      [RING_STYLE]: "none",
     },
     sorter: {
       ...interactive(),
@@ -193,6 +209,7 @@ export const recipe = defineSlotRecipe({
   jsx: [/^Table(\.\w+)?$/u],
   slots: [
     "scroller",
+    "viewport",
     "root",
     "columnGroup",
     "column",
@@ -308,7 +325,7 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * Whether the header rows stick to the top of the scroller.
+     * Whether the header rows stick to the top of the scroll area's viewport.
      *
      * @remarks
      *   The header cells take the panel fill, because the rows stick and the `thead` does not. The
@@ -321,12 +338,12 @@ export const recipe = defineSlotRecipe({
         header: {
           "& > tr": { insetBlockStart: "0", position: "sticky", zIndex: "2" },
         },
-        scroller: { overflowY: "auto" },
       },
     },
 
     /**
-     * Whether the row headers and the first column header stick to the start of the scroller.
+     * Whether the row headers and the first column header stick to the start of the scroll area's
+     * viewport.
      */
     stickyColumn: {
       true: {
@@ -380,7 +397,7 @@ export const recipe = defineSlotRecipe({
      */
     variant: {
       surface: {
-        scroller: { ...surface(), boxShadow: "none", overflow: "hidden", overflowX: "auto" },
+        scroller: { ...surface(), boxShadow: "none", overflow: "hidden" },
       },
 
       plain: { scroller: { background: "transparent" } },

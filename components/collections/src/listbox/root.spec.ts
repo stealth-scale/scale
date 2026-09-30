@@ -1,10 +1,10 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
-import { accessibilityViolations } from "@stealthscale/testing-react";
+import { accessibilityViolations, drawn, settled } from "@stealthscale/testing-react";
 import { boundViolations, slotElement } from "@stealthscale/testing-theme";
 
-import { composed } from "#listbox/listbox.fixtures.tsx";
+import { composed, overflowing } from "#listbox/listbox.fixtures.tsx";
 import { recipe } from "#listbox/recipe.ts";
 import { type RootProps } from "#listbox/root.tsx";
 
@@ -53,5 +53,21 @@ describe("Root", () => {
     expect(screen.getByRole("option", { name: "Reports" }).getAttribute("aria-selected")).toBe(
       "true",
     );
+  });
+
+  it("scrolls the row an arrow key highlights into view in the scroll area's viewport", async () => {
+    const reveal = vi.spyOn(HTMLElement.prototype, "scrollIntoView");
+
+    overflowing();
+    const { container } = await drawn(composed());
+    slotElement(container, "listbox", "viewport").style.overflowY = "auto";
+    fireEvent.keyDown(screen.getByRole("listbox"), { key: "ArrowDown" });
+    await settled();
+    const highlighted = screen.getByRole("listbox").getAttribute("aria-activedescendant");
+
+    expect([reveal.mock.contexts.at(-1), reveal.mock.lastCall]).toStrictEqual([
+      document.querySelector(`[id="${String(highlighted)}"]`),
+      [{ block: "nearest" }],
+    ]);
   });
 });

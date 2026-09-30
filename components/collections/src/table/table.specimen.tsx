@@ -95,7 +95,7 @@ function Staged({ children, columns = 0, hover = false, rows = 0 }: StagedProps)
   const [box, setBox] = useState<HTMLDivElement | null>(null);
 
   useEffect((): (() => void) | undefined => {
-    const scroller = box?.querySelector<HTMLElement>(".table__scroller");
+    const scroller = box?.querySelector<HTMLElement>(".table__viewport");
     const row = hover ? box?.querySelector<HTMLElement>("tbody > tr:nth-child(2)") : undefined;
 
     if (scroller === undefined || scroller === null) return undefined;

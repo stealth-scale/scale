@@ -5,8 +5,10 @@
  *   The field keeps focus while the highlight moves, and the machine points its
  *   `aria-activedescendant` at the highlighted row, so a person types and moves through the rows
  *   without leaving the field. Filtering is the caller's: the field reports the text and the caller
- *   passes a filtered collection. The clear control renders while the field has text and the caller
- *   gives it an icon. A press clears the field and moves focus back to it.
+ *   passes a filtered collection. With `autoHighlight`, the machine highlights the first row of
+ *   each filtered collection, so Enter chooses the best match. The clear control renders while the
+ *   field has text and the caller gives it an icon. A press clears the field and moves focus back
+ *   to it.
  */
 
 import { type ComponentProps, type ReactElement, type ReactNode, useCallback, useRef } from "react";
@@ -38,6 +40,11 @@ const Clear = withContext("button", "clearTrigger", { defaultProps: { type: "but
  * Describes the props of the field: its value, the clear control and the props of an `input`.
  */
 export interface InputProps extends Omit<ComponentProps<typeof Typed>, "defaultValue" | "value"> {
+  /**
+   * Whether the first row of the filtered list is highlighted while the field has text.
+   */
+  readonly autoHighlight?: boolean | undefined;
+
   /**
    * Icon of the clear control. The control renders only when an icon is given.
    */
@@ -71,6 +78,7 @@ export interface InputProps extends Omit<ComponentProps<typeof Typed>, "defaultV
  * @returns The control `div` that contains the field and the clear control.
  */
 export function Input({
+  autoHighlight = false,
   clearIndicator,
   clearLabel,
   defaultValue = "",
@@ -95,7 +103,7 @@ export function Input({
   return (
     <Band>
       <Typed
-        {...mergeProps(api.getInputProps(), rest)}
+        {...mergeProps(api.getInputProps({ autoHighlight }), rest)}
         onChange={(event) => {
           setHeld(event.target.value);
           onChange?.(event);

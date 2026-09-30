@@ -2,20 +2,25 @@
  * Renders the scroll container around a table, and receives the recipe's variants.
  *
  * @remarks
- *   WCAG 2.1.1 requires a keyboard to reach a region a pointer can scroll. While the table
- *   overflows, the scroller takes `tabIndex={0}` and `role="region"`, the pattern the WAI-ARIA
- *   practices give for a scrollable region. While it fits it takes neither, so a page of tables
- *   has no empty tab stops and no extra landmarks. The scroller measures its overflow again on
- *   resize, on a change of rows and after the fonts load. Name it with `aria-labelledby` pointing
- *   at the caption, or with `aria-label`. The scroller receives the variants, because the edge and
- *   the corners belong to the element that clips them.
+ *   The table scrolls in both axes in the primitives package's scroll area inside the scroller,
+ *   under the theme's thin bars. WCAG 2.1.1 requires a keyboard to reach a region a pointer can
+ *   scroll: while the table overflows, the area's viewport is a `region` in the tab order and the
+ *   arrow keys scroll it. While the table fits the viewport takes neither, so a page of tables has
+ *   no empty tab stops and no extra landmarks. Name the region with `aria-labelledby` pointing at
+ *   the caption, or with `aria-label`: both go to the viewport. A table whose cells take focus,
+ *   such as a grid with a roving tab stop, passes `focusable={false}`: focus on a cell scrolls the
+ *   cell into view, and the viewport keeps no tab stop of its own. The scroller receives the
+ *   variants, because the edge and the corners belong to the element that clips them, and it
+ *   renders the focus ring while the viewport has focus. A sticky header and a sticky column stick
+ *   to the viewport.
  */
 
-import { type ComponentProps, type ReactElement, type Ref, useCallback, useRef } from "react";
+import { type ComponentProps, type ReactElement } from "react";
 
-import { useIsOverflowing } from "@stealthscale/hooks";
+import { ScrollArea } from "@stealthscale/component-primitives";
+import { omitUndefined } from "@stealthscale/hooks";
 
-import { withProvider } from "#table/context.ts";
+import { withContext, withProvider } from "#table/context.ts";
 
 /**
  * Renders the `div` with the recipe's variants.
@@ -23,35 +28,49 @@ import { withProvider } from "#table/context.ts";
 const Box = withProvider("div", "scroller");
 
 /**
- * Describes the props of the scroller: the recipe's variants and the props of a `div`.
+ * Renders the scroll area's viewport with the recipe's viewport class.
  */
-export type ScrollerProps = ComponentProps<typeof Box>;
+const Viewport = withContext(ScrollArea.Viewport, "viewport");
 
 /**
- * Assigns a node to a callback ref or an object ref.
+ * Describes the props of the scroller: whether the viewport takes a tab stop, the recipe's
+ * variants and the props of a `div`.
  */
-function filled(ref: Ref<HTMLDivElement> | undefined, node: HTMLDivElement | null): void {
-  if (typeof ref === "function") ref(node);
-  else if (ref !== null && ref !== undefined) ref.current = node;
+export interface ScrollerProps extends ComponentProps<typeof Box> {
+  /**
+   * Whether the viewport is a region with a tab stop while the table overflows. `false` keeps it
+   * out of the tab order, for a table whose cells take focus. `true` unless stated.
+   */
+  readonly focusable?: boolean | undefined;
 }
 
 /**
- * Renders the scroller, focusable with the region role while the table overflows it.
+ * Renders the scroller around a scroll area whose viewport takes the region's name.
  *
- * @param props - The recipe's variants and the props of a `div`.
+ * @param props - Whether the viewport takes a tab stop, the recipe's variants and the props of a
+ *   `div`, whose `aria-label` and `aria-labelledby` name the viewport.
  * @returns The `div` element.
  */
-export function Scroller({ ref, ...rest }: ScrollerProps): ReactElement {
-  const held = useRef<HTMLDivElement | null>(null);
-  const { overflows } = useIsOverflowing(held);
-
-  const taken = useCallback(
-    (node: HTMLDivElement | null): void => {
-      held.current = node;
-      filled(ref, node);
-    },
-    [ref],
+export function Scroller({
+  "aria-label": label,
+  "aria-labelledby": labelledBy,
+  children,
+  focusable = true,
+  ...rest
+}: ScrollerProps): ReactElement {
+  return (
+    <Box {...rest}>
+      <ScrollArea.Root scrolls="both">
+        <Viewport
+          focusable={focusable}
+          {...omitUndefined({ "aria-label": label, "aria-labelledby": labelledBy })}
+        >
+          <ScrollArea.Content>{children}</ScrollArea.Content>
+        </Viewport>
+        <ScrollArea.Scrollbar />
+        <ScrollArea.Scrollbar orientation="horizontal" />
+        <ScrollArea.Corner />
+      </ScrollArea.Root>
+    </Box>
   );
-
-  return <Box {...rest} ref={taken} {...(overflows ? { role: "region", tabIndex: 0 } : {})} />;
 }

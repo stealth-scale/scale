@@ -122,10 +122,10 @@ describe("Simple", () => {
     expect(slotElement(container, "listbox", "valueText")).toBeTruthy();
   });
 
-  it("sets the content's height to tall rows", async () => {
+  it("sets the height of the listbox's element to tall rows", async () => {
     const { container } = await drawn(whole({ tall: 2 }));
 
-    expect(slotElement(container, "listbox", "content").style.blockSize).toBe(
+    expect(slotElement(container, "listbox", "viewport").style.blockSize).toBe(
       "calc(var(--listbox-row) * 2)",
     );
   });

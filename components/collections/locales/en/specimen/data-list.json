@@ -1,0 +1,64 @@
+{
+  "about": "Pairs of a label and a value, down the list or across it. A summary panel, a settled form and the details beside a record are made of them.",
+  "account": {
+    "label": "Account",
+    "value": "Bridge Ledger"
+  },
+  "amount": {
+    "label": "Amount",
+    "value": "£4,120.00"
+  },
+  "components": {
+    "about": "A value is often a component: a status, a code span, or a figure with a note after it. An identifier wraps at any character, so it never widens the list.",
+    "title": "Values that are components"
+  },
+  "divided": {
+    "about": "A hairline between the pairs, as far from each pair as the gap between them. Use it where values run onto several lines, so each value stays with its label.",
+    "title": "Divided"
+  },
+  "net": {
+    "explain": "What net amount means",
+    "label": "Net amount",
+    "note": "What is paid out after fees and any held balance.",
+    "value": "£4,120.00"
+  },
+  "notes": {
+    "about": "A label that needs explaining takes a note beside it. The note opens on a press, so a reader on a touch screen or with a keyboard reaches it, and Escape closes it.",
+    "title": "A note beside a label"
+  },
+  "orientation": {
+    "about": "Down the list, the label is above its value. Across it, the labels form one column as wide as the widest label, at most 40% of the list, and every value starts at the same position.",
+    "title": "Orientations"
+  },
+  "raised": {
+    "label": "Raised",
+    "value": "4 September"
+  },
+  "run": {
+    "artifact": "Artifact",
+    "branch": "Branch",
+    "duration": "Duration",
+    "faster": "down 22s from the last run",
+    "passed": "Passed",
+    "status": "Status",
+    "took": "4m 12s",
+    "urn": "urn:run:2026:eu-west-1:ledger:4128:artifacts:bundle"
+  },
+  "settled": "Settled",
+  "size": {
+    "about": "The text and the gaps step together: 12.6, 14.2 and 16px text, 8, 12 and 16px between the pairs, and 12, 16 and 24px between the columns across the list.",
+    "title": "Sizes"
+  },
+  "state": "State",
+  "title": "Data list",
+  "variant": {
+    "about": "`subtle` mutes the label, so the value reads first, as in a summary. `bold` sets the label in the label weight and mutes the value, as in a form of settled answers.",
+    "title": "Variants"
+  },
+  "window": {
+    "explain": "What settlement window means",
+    "label": "Settlement window",
+    "note": "Working days, counted from the day the payout was raised.",
+    "value": "2 days"
+  }
+}

@@ -4,13 +4,10 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { drawn, settled } from "@stealthscale/testing-react";
+import { slotElement } from "@stealthscale/testing-theme";
 
-import { Content } from "#listbox/content.tsx";
-import { ItemText } from "#listbox/item-text.tsx";
-import { Item } from "#listbox/item.tsx";
-import { Root, type RootProps } from "#listbox/root.tsx";
+import { Content, Item, ItemText, Root, type RootProps, Window } from "#listbox/parts.ts";
 import { COLLECTION, ROWS } from "#listbox/rows.fixtures.ts";
-import { Window } from "#listbox/window.tsx";
 
 /**
  * Row height of the windowed list, in pixels.
@@ -42,13 +39,13 @@ function windowed(props: Omit<RootProps, "collection"> = {}): ReactElement {
 }
 
 describe("Root", () => {
-  it("scrolls through the window's function on an arrow key", async () => {
-    await drawn(windowed());
+  it("scrolls the content's viewport through the window's function on an arrow key", async () => {
+    const { container } = await drawn(windowed());
+    const went = vi
+      .spyOn(slotElement(container, "listbox", "viewport"), "scrollTo")
+      .mockImplementation(() => {});
 
-    const list = screen.getByRole("listbox");
-    const went = vi.spyOn(list, "scrollTo").mockImplementation(() => {});
-
-    fireEvent.keyDown(list, { key: "ArrowDown" });
+    fireEvent.keyDown(screen.getByRole("listbox"), { key: "ArrowDown" });
     await settled();
 
     expect(went).toHaveBeenCalled();

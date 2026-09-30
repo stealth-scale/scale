@@ -52,13 +52,48 @@ export type ListboxOptions = {
 export const [ApiProvider, useListbox] = createRequiredContext<ListboxApi>("Listbox");
 
 /**
+ * Runs Zag's listbox machine with a highlight on the first selected row when the list takes focus.
+ *
+ * @remarks
+ *   The WAI-ARIA listbox pattern moves focus to the first selected option when the list takes
+ *   focus. Zag highlights the first row on focus only while nothing is selected. This machine also
+ *   highlights the first selected row, in the collection's order, when the list takes focus with a
+ *   selection and no highlight, so the arrow keys move from that row in either orientation.
+ */
+const MACHINE: typeof listbox.machine = {
+  ...listbox.machine,
+  implementations: {
+    ...listbox.machine.implementations,
+    actions: {
+      ...listbox.machine.implementations?.actions,
+
+      /**
+       * Marks the list focused, and highlights its first selected row when the list's own element
+       * takes focus with no row highlighted.
+       */
+      setFocused({ context, event, prop }) {
+        context.set("focused", true);
+        if (event.type !== "CONTENT.FOCUS" || context.get("highlightedValue") !== null) return;
+
+        const selected = new Set(context.get("value"));
+        const first = prop("collection")
+          .getValues()
+          .find((value) => selected.has(value));
+
+        if (first !== undefined) context.set("highlightedValue", first);
+      },
+    },
+  },
+};
+
+/**
  * Starts the listbox machine and returns its connected api.
  *
  * @param options - The machine options split from the root's props, with `id` resolved.
  * @returns The connected api.
  */
 export function useListboxMachine(options: listbox.Props): ListboxApi {
-  return listbox.connect(useMachine(listbox.machine, omitUndefined(options)), normalizeProps);
+  return listbox.connect(useMachine(MACHINE, omitUndefined(options)), normalizeProps);
 }
 
 /**

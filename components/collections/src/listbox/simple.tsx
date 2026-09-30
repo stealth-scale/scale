@@ -5,7 +5,7 @@
  * @remarks
  *   A list with another structure composes the parts. Filtering stays the caller's: the field
  *   reports the text and the caller passes a filtered collection. An `aria-label` goes on the
- *   content, the element with `role="listbox"`, and only when the list has no visible label.
+ *   element with `role="listbox"`, and only when the list has no visible label.
  */
 
 import { type ReactElement, type ReactNode } from "react";

@@ -6,12 +6,14 @@
  *   A list of ten thousand rows renders about twenty. The outer element is as tall as every row,
  *   so the scrollbar matches the whole list. Every row is taken to have one height: the window
  *   measures the first rendered row, or takes `rowHeight`. The two elements set inline styles,
- *   because their geometry changes on every scroll event. The content above the window is the
- *   scroll container, and the caller gives it a height.
+ *   because their geometry changes on every scroll event. The viewport of the content's scroll area
+ *   is the scroll container, and the caller gives the content a height. Outside a listbox's
+ *   content the window's parent element scrolls.
  */
 
-import { type ReactElement, type ReactNode, useCallback, useEffect, useState } from "react";
+import { type ReactElement, type ReactNode, use, useCallback, useEffect, useState } from "react";
 
+import { ScrollerContext } from "#listbox/scroller.ts";
 import { useWindowed } from "#listbox/windowed.ts";
 
 /**
@@ -108,7 +110,7 @@ export function Window({ children, count, overscan = 4, rowHeight }: WindowProps
   const [drawn, setDrawn] = useState(0);
   const [top, setTop] = useState(0);
   const [tall, setTall] = useState(0);
-  const scrolling = room?.parentElement ?? null;
+  const scrolling = use(ScrollerContext) ?? room?.parentElement ?? null;
   const height = rowHeight ?? drawn;
 
   /**

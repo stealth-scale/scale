@@ -9,8 +9,11 @@
  *   body role one size smaller than the list, the rule a menu's rows follow. A group spaces its
  *   rows with the list's own gap, and the room above a group's label is the label's padding. A row
  *   centres its parts vertically, so the checkbox, the icon and the end mark are at the middle of a
- *   row with a description. The content scrolls and the frame does not, so the field and the
- *   select-all row stay in place while the rows move.
+ *   row with a description. The content is the primitives package's scroll area, and the frame does
+ *   not scroll, so the field and the select-all row remain in place while the rows move. The
+ *   `viewport` and `rows` slots are the scroll area's viewport, the element with the listbox role,
+ *   and its content: the rows take the list's padding, gap, columns and direction. The area's focus
+ *   ring is inside its edge, because the frame clips it.
  */
 
 import {
@@ -31,8 +34,19 @@ import {
 } from "@stealthscale/theme/authoring";
 
 import { aligned, banded, PAD, rowHeight, tiled } from "#listbox/metrics.ts";
+import { SELECTED } from "#listbox/selected.ts";
 
 export { ROW_HEIGHT } from "#listbox/metrics.ts";
+
+/**
+ * Class name of the recipe, which the selectors across parts are built from.
+ */
+const CLASS = "listbox";
+
+/**
+ * Custom property the scroll area's root reads for the offset of its focus ring.
+ */
+const RING_OFFSET = "--scroll-area-ring-offset";
 
 /**
  * Defines the listbox recipe: a plain list at size `md` that tints the highlighted row and fills a
@@ -60,12 +74,11 @@ export const recipe = defineSlotRecipe({
       justifyContent: "center",
     },
     content: {
-      "&:empty": { display: "none" },
+      [`&:has(.${CLASS}__rows:empty)`]: { display: "none" },
       display: "flex",
       flexDirection: "column",
       minBlockSize: "0",
-      overflowY: "auto",
-      padding: PAD,
+      [RING_OFFSET]: "calc({borderWidths.ring} * -1)",
     },
     control: {
       _focusWithin: { borderBlockEndColor: "colorPalette.solid" },
@@ -153,6 +166,7 @@ export const recipe = defineSlotRecipe({
     },
     label: { color: "fg", fontWeight: "semibold" },
     root: { display: "flex", flexDirection: "column", minBlockSize: "0", minInlineSize: "0" },
+    rows: { display: "flex", flexDirection: "column", padding: PAD },
     selectAll: {
       ...row(),
       _hover: { background: "bg.muted" },
@@ -162,16 +176,9 @@ export const recipe = defineSlotRecipe({
       cursor: "menuitem",
     },
     valueText: { ...truncate(), color: "fg.muted" },
+    viewport: { scrollPadding: PAD },
   },
-  className: "listbox",
-  compoundVariants: [
-    {
-      css: { content: { overflowX: "auto" } },
-      name: "scrolled",
-      orientation: "horizontal",
-      variant: "surface",
-    },
-  ],
+  className: CLASS,
   defaultVariants: {
     highlight: "tint",
     orientation: "vertical",
@@ -189,6 +196,8 @@ export const recipe = defineSlotRecipe({
     "clearTrigger",
     "frame",
     "content",
+    "viewport",
+    "rows",
     "empty",
     "selectAll",
     "item",
@@ -210,7 +219,7 @@ export const recipe = defineSlotRecipe({
      *   The grid collection takes the same count, because the machine moves the highlight between
      *   neighbours by the collection's count and the recipe places them by this one.
      */
-    columns: onSlot("content", tiled()),
+    columns: onSlot("rows", tiled()),
 
     /**
      * Glow around a selected row, in the palette's solid at half opacity.
@@ -231,11 +240,11 @@ export const recipe = defineSlotRecipe({
      */
     orientation: {
       horizontal: {
-        content: { flexDirection: "row", overflowX: "auto" },
         item: { inlineSize: "auto" },
         itemText: { flex: "0 0 auto" },
+        rows: { flexDirection: "row" },
       },
-      vertical: { content: { flexDirection: "column" } },
+      vertical: { rows: { flexDirection: "column" } },
     },
 
     /**
@@ -258,18 +267,11 @@ export const recipe = defineSlotRecipe({
      *   The selected state and the highlight are separate axes, and a row can show both. The fills
      *   are the flat looks, which do not change under a pointer, and each look restates its hover,
      *   because a variant applies over the base hover. `plain` sets the text in medium weight and
-     *   relies on the mark. `none` sets nothing, for a list whose rows each have a checkbox.
+     *   relies on the mark. `none` sets nothing, for a list whose rows each have a checkbox. Under
+     *   forced colors a selected row fills with `Highlight` in every look but `none`, whose
+     *   checkboxes show the state.
      */
-    selected: onSlot("item", {
-      none: { _selected: { fontWeight: "inherit" } },
-      plain: { _selected: { fontWeight: "medium" } },
-      solid: {
-        _selected: { _hover: { background: "colorPalette.solid.hover" }, layerStyle: "flat.solid" },
-      },
-      subtle: {
-        _selected: { _hover: { background: "colorPalette.muted" }, layerStyle: "flat.subtle" },
-      },
-    }),
+    selected: SELECTED,
 
     /**
      * Row height, insets, text sizes and mark sizes. A row's text and a mark read one size smaller
@@ -285,10 +287,7 @@ export const recipe = defineSlotRecipe({
         (size) => ({ boxSize: dense(`{sizes.icon.${below(size)}}`) }),
         ["sm", "md", "lg"],
       ),
-      content: sizeVariants(
-        (size) => ({ ...rowHeight(size), gap: dense(`{spacing.gap.${below(below(size))}}`) }),
-        ["sm", "md", "lg"],
-      ),
+      content: sizeVariants((size) => rowHeight(size), ["sm", "md", "lg"]),
       control: sizeVariants(
         (size) => ({
           ...banded(dense(`{spacing.inset.${size}}`), dense(`{spacing.inset.${size}}`)),
@@ -345,6 +344,10 @@ export const recipe = defineSlotRecipe({
         ["sm", "md", "lg"],
       ),
       root: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), ["sm", "md", "lg"]),
+      rows: sizeVariants(
+        (size) => ({ gap: dense(`{spacing.gap.${below(below(size))}}`) }),
+        ["sm", "md", "lg"],
+      ),
       selectAll: sizeVariants(
         (size) => ({
           ...banded(dense(`{spacing.inset.${size}}`), dense(`{spacing.inset.${size}}`)),

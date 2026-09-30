@@ -8,6 +8,7 @@ import page from "#table/table.specimen.tsx";
 
 const PARTS = [
   "scroller",
+  "viewport",
   "root",
   "columnGroup",
   "column",
@@ -50,8 +51,29 @@ describe("recipe", () => {
     });
   });
 
-  it("declares thirteen slots in markup order", () => {
+  it("declares fourteen slots in markup order", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
+  });
+
+  it("rings the scroller while the viewport has keyboard focus", () => {
+    expect(recipe.base?.["scroller"]).toMatchObject({
+      "&:has(.table__viewport:focus-visible)": {
+        outlineColor: "colorPalette.focusRing",
+        outlineOffset: "ring",
+        outlineStyle: "solid",
+        outlineWidth: "ring",
+      },
+    });
+  });
+
+  it("hides the scroll area's own focus ring", () => {
+    expect(recipe.base?.["scroller"]).toMatchObject({ "--scroll-area-ring-style": "none" });
+  });
+
+  it("clips the surface scroller to its corners", () => {
+    expect(recipe.variants?.["variant"]?.["surface"]?.["scroller"]).toMatchObject({
+      overflow: "hidden",
+    });
   });
 
   it("declares twelve axes", () => {

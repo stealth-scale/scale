@@ -1,8 +1,11 @@
 import { type ReactElement } from "react";
 
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { drawn, settled } from "@stealthscale/testing-react";
+
+import { composed } from "#listbox/listbox.fixtures.tsx";
 import {
   ApiProvider,
   type ListboxOptions,
@@ -11,6 +14,26 @@ import {
   useListboxMachine,
 } from "#listbox/machine.ts";
 import { COLLECTION } from "#listbox/rows.fixtures.ts";
+
+/**
+ * Moves focus to the element with the role and returns the ID the listbox's
+ * `aria-activedescendant` points at.
+ */
+async function focusedOn(role: "listbox" | "textbox"): Promise<null | string> {
+  act(() => {
+    screen.getByRole(role).focus();
+  });
+  await settled();
+
+  return screen.getByRole("listbox").getAttribute("aria-activedescendant");
+}
+
+/**
+ * Returns the ID of the row named by the text.
+ */
+function rowId(name: string): string {
+  return screen.getByRole("option", { name }).id;
+}
 
 /**
  * Runs the machine with the options the case sets and renders its value through a part's hook.
@@ -68,5 +91,35 @@ describe("useListboxMachine", () => {
     render(<Running collection={COLLECTION} />);
 
     expect(screen.getByTestId("value").textContent).toBe("");
+  });
+
+  it("highlights the first row when the list takes focus with nothing selected", async () => {
+    await drawn(composed());
+
+    await expect(focusedOn("listbox")).resolves.toBe(rowId("Invoices"));
+  });
+
+  it("highlights the selected row when the list takes focus", async () => {
+    await drawn(composed({ defaultValue: ["reports"] }));
+
+    await expect(focusedOn("listbox")).resolves.toBe(rowId("Reports"));
+  });
+
+  it("highlights the first selected row in the collection's order", async () => {
+    await drawn(composed({ defaultValue: ["settings", "reports"], selectionMode: "multiple" }));
+
+    await expect(focusedOn("listbox")).resolves.toBe(rowId("Reports"));
+  });
+
+  it("keeps the highlighted row when the list takes focus", async () => {
+    await drawn(composed({ defaultHighlightedValue: "settings", defaultValue: ["reports"] }));
+
+    await expect(focusedOn("listbox")).resolves.toBe(rowId("Settings"));
+  });
+
+  it("highlights no row when the filter field takes focus", async () => {
+    await drawn(composed({ defaultValue: ["reports"] }, true));
+
+    await expect(focusedOn("textbox")).resolves.toBeNull();
   });
 });

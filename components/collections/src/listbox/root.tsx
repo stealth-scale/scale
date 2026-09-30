@@ -4,12 +4,12 @@
  * @remarks
  *   The element is a `div` with no role. The content is the `listbox`. The collection is the
  *   caller's: a list that filters as a person types passes a new collection, and the machine never
- *   filters. `orientation` reaches the machine and the recipe from one prop, so the arrow keys
+ *   filters. `orientation` goes to the machine and to the recipe from one prop, so the arrow keys
  *   follow the layout. A boxed list defaults `selected` to `none`, because the checkbox already
- *   shows the selection. The root passes `scrollToIndexFn` to the machine only while a window
- *   provides one. Without it the machine scrolls the highlighted row into view itself. The root
- *   stores the window's function inside an updater, because a state setter calls a function it is
- *   given to compute the next state.
+ *   shows the selection. The root passes `scrollToIndexFn` to the machine only while the caller or
+ *   a window provides one. Without it the machine scrolls the highlighted row into view itself. The
+ *   root stores the window's function inside an updater, because a state setter calls a function
+ *   it is given to compute the next state.
  */
 
 import {

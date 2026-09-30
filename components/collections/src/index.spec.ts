@@ -5,10 +5,15 @@ import * as barrel from "#index.ts";
 describe("index", () => {
   it("names every component the package publishes and what narrows their rows", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
+      "DataList",
       "Listbox",
+      "Sortable",
       "StatusMatrix",
       "Table",
+      "Timeline",
       "Transfer",
+      "TreeCollection",
+      "TreeView",
       "useFilter",
       "useGridCollection",
       "useListCollection",
