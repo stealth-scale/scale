@@ -5,6 +5,7 @@ import * as examples from "#code-block/examples/index.ts";
 describe("examples", () => {
   it("exports one namespace per example file", () => {
     expect(Object.keys(examples).toSorted()).toStrictEqual([
+      "deploy",
       "log",
       "manifest",
       "manifests",
@@ -14,6 +15,7 @@ describe("examples", () => {
       "rewrite",
       "send",
       "sideBySide",
+      "testRun",
       "unchanged",
     ]);
   });

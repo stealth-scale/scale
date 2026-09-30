@@ -1,6 +1,6 @@
 /**
- * Declares the code block slot recipe: a bordered panel with a header bar over a horizontally
- * scrolling passage of monospaced code, one ink per token kind.
+ * Declares the code block slot recipe: a bordered panel with a header bar over a passage of
+ * monospaced code that scrolls sideways unless it wraps, one ink per token kind or terminal colour.
  *
  * @remarks
  *   Every value is a semantic token, so the recipe resolves against the colour mode the root sets
@@ -57,6 +57,32 @@ const INKS: SystemStyleObject = {
 };
 
 /**
+ * Maps each SGR colour and effect of terminal output to an ink or a weight, keyed on the attributes
+ * the code part writes for the `ansi` language.
+ *
+ * @remarks
+ *   A colour takes the code family's ink of its hue where the family has one: red the removed
+ *   line's red, green the added line's green, yellow the function ink, cyan the attribute ink and
+ *   magenta the keyword ink. Blue takes the info ink, black and dim the subtle ink, and white the
+ *   default ink. The code inks keep their hue on the panel in both colour modes, where the status
+ *   inks lose most of their chroma. Dim applies only to a run without a colour, so a dim red run
+ *   renders red.
+ */
+const TERMINAL: SystemStyleObject = {
+  "& [data-ansi=black]": { color: "fg.subtle" },
+  "& [data-ansi=blue]": { color: "fg.info" },
+  "& [data-ansi=cyan]": { color: "code.attr" },
+  "& [data-ansi=green]": { color: "code.inserted" },
+  "& [data-ansi=magenta]": { color: "code.keyword" },
+  "& [data-ansi=red]": { color: "code.deleted" },
+  "& [data-ansi=white]": { color: "fg" },
+  "& [data-ansi=yellow]": { color: "code.function" },
+  "& [data-bold]": { fontWeight: "semibold" },
+  "& [data-dim]:not([data-ansi])": { color: "fg.subtle" },
+  "& [data-underline]": { textDecorationLine: "underline" },
+};
+
+/**
  * Styles a code block at the md size.
  */
 export const recipe = defineSlotRecipe({
@@ -68,6 +94,7 @@ export const recipe = defineSlotRecipe({
      */
     code: {
       ...INKS,
+      ...TERMINAL,
       display: "block",
       fontFamily: "mono",
       inlineSize: "max-content",
@@ -174,5 +201,12 @@ export const recipe = defineSlotRecipe({
       stat: sizeVariants((size) => ({ textStyle: `label.${below(size)}` }), STEPS),
       title: sizeVariants((size) => ({ textStyle: `label.${below(size)}` }), STEPS),
     }),
+    /**
+     * Wraps a long line of the code at the content's edge in place of scrolling it sideways, and
+     * breaks a word where a path or an address leaves no other break.
+     */
+    wrap: {
+      true: { code: { inlineSize: "full", overflowWrap: "anywhere", whiteSpace: "pre-wrap" } },
+    },
   },
 });

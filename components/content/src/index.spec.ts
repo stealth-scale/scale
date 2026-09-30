@@ -28,7 +28,7 @@ describe("index", () => {
     expect(Object.keys(barrel.JsonTreeView).toSorted()).toStrictEqual(["Root", "Tree"]);
   });
 
-  it("exports the nine parts under the CodeBlock namespace", () => {
+  it("exports the parts plus the terminal output functions under the CodeBlock namespace", () => {
     expect(Object.keys(barrel.CodeBlock).toSorted()).toStrictEqual([
       "Code",
       "Content",
@@ -39,6 +39,8 @@ describe("index", () => {
       "Header",
       "Root",
       "Title",
+      "parseAnsi",
+      "stripAnsi",
     ]);
   });
 

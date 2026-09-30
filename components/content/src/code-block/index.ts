@@ -3,6 +3,7 @@
  * code or a diff, under `CodeBlock.Root`.
  */
 
+export { type AnsiColor, type AnsiSpan, parseAnsi, stripAnsi } from "#code-block/ansi.ts";
 export { type DiffCounts, type DiffKind } from "#code-block/changes.ts";
 export { Code, type CodeProps } from "#code-block/code.tsx";
 export { Content, type ContentProps } from "#code-block/content.ts";

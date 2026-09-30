@@ -45,10 +45,13 @@ export interface RootProps extends ComponentProps<typeof Panelled> {
   readonly code: string;
 
   /**
-   * Language name as the highlighter knows it, such as `tsx`, `json` or `shell`.
+   * Language name as the highlighter knows it, such as `tsx`, `json` or `shell`, or `ansi` for
+   * terminal output.
    *
    * @remarks
    *   The code renders as plain text when the language is absent or unknown to the highlighter.
+   *   With `ansi`, the code renders in the colours its SGR escapes set, and every escape is
+   *   dropped from the rendered and the copied text.
    */
   readonly language?: string | undefined;
 

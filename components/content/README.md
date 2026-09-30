@@ -1,9 +1,9 @@
 # @stealthscale/component-content
 
-Renders a body of content: a passage of code or the diff between two versions of it, a Markdown
-document, a JSON value as a tree, and a strip of items that moves in a loop. Each component binds a
-recipe, so a theme restyles it by extending the recipe. The preset under `./theme` registers the
-recipes with an application's compiler.
+Renders a body of content: a passage of code, terminal output or the diff between two versions of a
+passage, a Markdown document, a JSON value as a tree, and a strip of items that moves in a loop.
+Each component binds a recipe, so a theme restyles it by extending the recipe. The preset under
+`./theme` registers the recipes with an application's compiler.
 
 ## Install
 
@@ -26,8 +26,8 @@ The package peers on `react`, `@stealthscale/theme`, `@stealthscale/hooks` and
 
 ## CodeBlock
 
-A panel with a header over a horizontally scrolling passage of code. The recipe colours each token
-kind from the theme's `code` family: `code.keyword`, `code.string` and the rest.
+A panel with a header over a passage of code that scrolls sideways unless it wraps. The recipe
+colours each token kind from the theme's `code` family: `code.keyword`, `code.string` and the rest.
 
 ```tsx
 import { CodeBlock } from "@stealthscale/component-content";
@@ -56,16 +56,17 @@ import { CheckIcon, CopyIcon } from "lucide-react";
 | `Control`  | `div`    | The group of controls at the end of the header                             |
 | `Copy`     | `button` | A ghost icon button that copies the root's code                            |
 | `Content`  | `pre`    | The code's text, as the content of a scroll area that scrolls sideways     |
-| `Code`     | `code`   | The highlighted code, one `span` with `data-token` per classified token    |
+| `Code`     | `code`   | The highlighted code, one `span` per classified token or styled run        |
 | `Diff`     | `div`    | The diff from `before` to the code, in a scroll area that scrolls sideways |
 | `DiffStat` | `span`   | The lines the diff adds and removes, such as "+3 −1"                       |
 
 | Axis   | Values     | Default |
 | ------ | ---------- | ------- |
 | `size` | `sm`, `md` | `md`    |
+| `wrap` | `true`     | off     |
 
-`language` takes the highlighter's language names, such as `tsx`, `ts`, `json`, `shell` and `yaml`.
-An absent or unknown language renders plain text.
+`language` takes the highlighter's language names, such as `tsx`, `ts`, `json`, `shell` and `yaml`,
+or `ansi` for terminal output. An absent or unknown language renders plain text.
 
 `mode` sets the panel's colour mode: `dark` by default on any page, `light` on any page, or
 `inherit` to follow the page.
@@ -79,7 +80,48 @@ the arrow keys scroll it. While the code fits, it has no role and no tab stop. T
 by `CodeBlock.Title` while one renders, and otherwise by `label` on `CodeBlock.Content`, which
 defaults to "Code". `CodeBlock.Content` takes no `as`.
 
+`wrap` breaks a line of `CodeBlock.Code` at the panel's edge in place of scrolling it sideways, and
+breaks inside a word where a path or an address has no other break. A diff scrolls.
+
 The panel shows a focus ring while the scrolling region has focus.
+
+### Terminal output
+
+`language="ansi"` renders a process's output in the colours, weight and underline its SGR escapes
+set.
+
+```tsx
+<CodeBlock.Root code={output} language="ansi" wrap>
+  <CodeBlock.Header>
+    <CodeBlock.Title>test-run.log</CodeBlock.Title>
+  </CodeBlock.Header>
+  <CodeBlock.Content>
+    <CodeBlock.Code />
+  </CodeBlock.Content>
+</CodeBlock.Root>
+```
+
+- The output reads SGR codes 0 to 2, 4, 22, 24, 30 to 39 and 90 to 97. A style applies until a
+  sequence changes it, across line breaks.
+- Every other control sequence, operating system command and escape is dropped. An extended colour
+  renders in the default ink, and the output ignores a background colour.
+- A bright colour renders as its plain twin. Bold renders semibold, and dim renders in `fg.subtle`
+  on a run without a colour.
+- The output renders as text, never as markup.
+- `CodeBlock.Copy` copies the output without its escapes.
+- `CodeBlock.parseAnsi(text)` returns the runs, each with `text`, `color`, `bold`, `dim` and
+  `underline`. `CodeBlock.stripAnsi(text)` returns the text without escapes.
+
+| Colour  | Ink             |
+| ------- | --------------- |
+| black   | `fg.subtle`     |
+| red     | `code.deleted`  |
+| green   | `code.inserted` |
+| yellow  | `code.function` |
+| blue    | `fg.info`       |
+| magenta | `code.keyword`  |
+| cyan    | `code.attr`     |
+| white   | `fg`            |
 
 ### Diff
 

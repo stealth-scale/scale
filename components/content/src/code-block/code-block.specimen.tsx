@@ -3,12 +3,13 @@
  *
  * @remarks
  *   Every scene renders a component from `examples/` and shows that file as its source: a file with
- *   a copy control, three languages, a plain-text log, the three colour modes, and six diffs: a
- *   pull request with folds, a side-by-side view, changed words, a rewrite, a whole text and a
- *   diff without changes. `scenesOf` generates the size scene from the file example. Each block
- *   renders in a room of a documentation column's width, 672px, each mode in a 448px room, and the
- *   side-by-side diff in a 896px room. The words are keys under `code-block` in
- *   `locales/en/specimen/code-block.json`.
+ *   a copy control, three languages, a plain-text log, two terminal outputs, the three colour
+ *   modes, and six diffs: a pull request with folds, a side-by-side view, changed words, a
+ *   rewrite, a whole text and a diff without changes. `scenesOf` generates the size scene from the
+ *   file example and the wrap scene from the test run. The test run's lines overflow the wrap
+ *   scene's 448px room. Each other block renders in a room of a documentation column's width,
+ *   672px, each mode in a 448px room, and the side-by-side diff in a 896px room. The words are keys
+ *   under `code-block` in `locales/en/specimen/code-block.json`.
  */
 
 import { type ReactElement } from "react";
@@ -76,6 +77,34 @@ export const plain: Scene = {
   ),
   example: examples.log,
   title: "code-block.plain.title",
+};
+
+/**
+ * Hand-written scene for a failing test run's terminal output with a copy control.
+ */
+export const terminal: Scene = {
+  about: "code-block.terminal.about",
+  draw: () => (
+    <Room size="2xl">
+      <examples.testRun.TestRun />
+    </Room>
+  ),
+  example: examples.testRun,
+  title: "code-block.terminal.title",
+};
+
+/**
+ * Hand-written scene for a directory listing in six terminal colours.
+ */
+export const colours: Scene = {
+  about: "code-block.colours.about",
+  draw: () => (
+    <Room size="2xl">
+      <examples.deploy.Deploy />
+    </Room>
+  ),
+  example: examples.deploy,
+  title: "code-block.colours.title",
 };
 
 /**
@@ -180,7 +209,18 @@ export default specimen({
   scenes: [
     file,
     ...scenesOf<Partial<CodeBlock.RootProps>>(recipe, {
-      axes: { size: { direction: "column" } },
+      axes: {
+        size: { direction: "column" },
+        wrap: {
+          direction: "column",
+          draw: (props) => (
+            <Room size="md">
+              <examples.testRun.TestRun {...props} />
+            </Room>
+          ),
+          example: examples.testRun,
+        },
+      },
       draw: (props) => (
         <Room size="2xl">
           <examples.send.Send {...props} />
@@ -191,6 +231,8 @@ export default specimen({
     }),
     languages,
     plain,
+    terminal,
+    colours,
     modes,
     review,
     split,

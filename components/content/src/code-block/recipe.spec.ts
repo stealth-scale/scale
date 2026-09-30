@@ -67,12 +67,47 @@ describe("recipe", () => {
     expect(recipe.base?.["line"]).toMatchObject({ display: "flex", whiteSpace: "pre" });
   });
 
-  it("declares size as its only variant", () => {
-    expect(axesOf(recipe)).toStrictEqual(["size"]);
+  it("declares size and wrap as its variants", () => {
+    expect(axesOf(recipe)).toStrictEqual(["size", "wrap"]);
   });
 
   it("defaults size to md", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md" });
+  });
+
+  it("wraps the code at the content's edge when wrap is true", () => {
+    expect(recipe.variants?.["wrap"]?.["true"]).toStrictEqual({
+      code: { inlineSize: "full", overflowWrap: "anywhere", whiteSpace: "pre-wrap" },
+    });
+  });
+
+  it.each([
+    { color: "black", ink: "fg.subtle" },
+    { color: "blue", ink: "fg.info" },
+    { color: "cyan", ink: "code.attr" },
+    { color: "green", ink: "code.inserted" },
+    { color: "magenta", ink: "code.keyword" },
+    { color: "red", ink: "code.deleted" },
+    { color: "white", ink: "fg" },
+    { color: "yellow", ink: "code.function" },
+  ])("inks the terminal color $color with $ink", ({ color, ink }) => {
+    expect(recipe.base?.["code"]).toMatchObject({ [`& [data-ansi=${color}]`]: { color: ink } });
+  });
+
+  it("sets a bold run of terminal output in the semibold weight", () => {
+    expect(recipe.base?.["code"]).toMatchObject({ "& [data-bold]": { fontWeight: "semibold" } });
+  });
+
+  it("inks a dim run of terminal output subtle only when it has no color", () => {
+    expect(recipe.base?.["code"]).toMatchObject({
+      "& [data-dim]:not([data-ansi])": { color: "fg.subtle" },
+    });
+  });
+
+  it("underlines an underlined run of terminal output", () => {
+    expect(recipe.base?.["code"]).toMatchObject({
+      "& [data-underline]": { textDecorationLine: "underline" },
+    });
   });
 
   it("declares md and sm as the values of size", () => {

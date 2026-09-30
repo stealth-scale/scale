@@ -1,5 +1,9 @@
 {
   "about": "A passage of code in a panel, one ink per token kind, with a header for the file name and the controls. Given `before`, the block renders the diff from that version to the code.",
+  "colours": {
+    "about": "Each of the eight terminal colours takes an ink of the theme, so the output reads in both colour modes. A bright colour renders as its plain twin, and the output ignores a background colour.",
+    "title": "Terminal colours"
+  },
   "copied": "Copied the code",
   "copy": "Copy the code",
   "diff": {
@@ -48,6 +52,12 @@
     "about": "`mode=\"split\"` puts the earlier version beside the later one, one row per pair. A side without a line takes the subtle fill, and each side scrolls with the other.",
     "title": "Side by side"
   },
+  "terminal": {
+    "about": "`language=\"ansi\"` renders a process's output in the colour, weight and underline its escapes set. Every other escape is dropped, and `CodeBlock.Copy` copies the text without escapes.",
+    "copied": "Copied the output",
+    "copy": "Copy the output",
+    "title": "Terminal output"
+  },
   "title": "Code block",
   "unchanged": {
     "about": "Where both versions are the same, the diff renders `emptyLabel` and the counts read +0 −0.",
@@ -56,5 +66,9 @@
   "words": {
     "about": "Each edited value is marked inside its line, so a reviewer reads which field changed without comparing the two lines.",
     "title": "Changed words"
+  },
+  "wrap": {
+    "about": "`wrap` breaks a long line at the panel's edge in place of scrolling it sideways, inside a word where a path or an address has no other break.",
+    "title": "Wrapping"
   }
 }

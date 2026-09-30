@@ -4,6 +4,7 @@
 
 import { type ReactElement, type ReactNode } from "react";
 
+import { type AnsiSpan } from "#code-block/ansi.ts";
 import { Code } from "#code-block/code.tsx";
 import { Content } from "#code-block/content.ts";
 import { Control } from "#code-block/control.ts";
@@ -43,6 +44,26 @@ export const AFTER = BEFORE.replace("attempts = 3", "attempts = 5").replace(
   "sleep(100)",
   "sleep(100 * 2 ** attempt)",
 );
+
+/**
+ * Returns the SGR sequence that sets the given codes, in order.
+ */
+export function sgr(...codes: readonly number[]): string {
+  return `\u001B[${codes.join(";")}m`;
+}
+
+/**
+ * Terminal output every ANSI case renders: a green mark, a dim duration and, on a second line, a
+ * bold red word.
+ */
+export const OUTPUT = `${sgr(32)}✓${sgr(0)} payout ${sgr(2)}41ms${sgr(0)}\n${sgr(1, 31)}failed${sgr(0)}`;
+
+/**
+ * Returns the run a parse is expected to return: plain, with the fields of style set over it.
+ */
+export function run(text: string, style: Partial<Omit<AnsiSpan, "text">> = {}): AnsiSpan {
+  return { bold: false, color: undefined, dim: false, underline: false, ...style, text };
+}
 
 /**
  * Renders the part under test inside a root with the fixture source in TypeScript.

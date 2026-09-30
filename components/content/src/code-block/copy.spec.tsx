@@ -5,18 +5,18 @@ import { describe, expect, it } from "vitest";
 
 import { accessibilityViolations, drawn, pressed } from "@stealthscale/testing-react";
 
-import { coded, SOURCE } from "#code-block/code-block.fixtures.tsx";
+import { coded, OUTPUT, SOURCE } from "#code-block/code-block.fixtures.tsx";
 import { Copy } from "#code-block/copy.tsx";
 
 /**
- * Renders the control inside a root with the given code and a name for each state.
+ * Renders the control inside a root with the given code and language and a name for each state.
  */
-function copying(code: string = SOURCE): ReactElement {
+function copying(code: string = SOURCE, language = "tsx"): ReactElement {
   return coded(
     <Copy copied={<span>done</span>} copiedLabel="Copied" label="Copy">
       <span>copy</span>
     </Copy>,
-    { code },
+    { code, language },
   );
 }
 
@@ -53,6 +53,13 @@ describe("Copy", () => {
     await pressed(screen.getByRole("button"));
 
     await expect(navigator.clipboard.readText()).resolves.toBe(other);
+  });
+
+  it("writes terminal output without its escapes when the language is ansi", async () => {
+    await drawn(copying(OUTPUT, "ansi"));
+    await pressed(screen.getByRole("button"));
+
+    await expect(navigator.clipboard.readText()).resolves.toBe("✓ payout 41ms\nfailed");
   });
 
   it("names the trigger from copiedLabel after a press", async () => {
