@@ -1,19 +1,23 @@
 /**
- * Styles a row of actions that folds on its width, for the page, the toolbar and the section.
+ * Styles an action that folds to its icon while its row is narrow, for the page, the toolbar and
+ * the section.
  *
  * @remarks
- *   Folding is three rules and no JavaScript. A primary action keeps its text at every width. A
- *   secondary action shows its icon, and its text remains for a screen reader. A tertiary action
- *   leaves the row, and the row's folded control opens it instead. The rules select
- *   `data-narrow`, which the row sets from its own width, so a row beside an open sidebar folds on
- *   its own width and the caller writes no breakpoint. No action registers itself and nothing
- *   writes state from an effect.
+ *   A secondary action shows its icon alone, and its words remain for a screen reader. A tertiary
+ *   action renders nothing on a narrow row and runs from the row's menu, which the action registers
+ *   with. The row measures its own width, so a row beside an open sidebar folds on its own width
+ *   and the caller does not write a breakpoint.
  */
 
 /**
- * Selects a part inside a row that has measured itself as narrow.
+ * Attribute an action sets on itself while its own row is narrow.
+ *
+ * @remarks
+ *   The action reads the state from its row's context, so a narrow ancestor folds no action of a
+ *   wider row inside it. A bar fixed to the window is wider than the page around it in the
+ *   document.
  */
-const NARROW = "[data-narrow] &";
+export const NARROW = "data-narrow";
 
 /**
  * Attribute an action sets to its priority.
@@ -28,29 +32,20 @@ export const PRIORITY = "data-priority";
  * Styles an action by its priority while its row is narrow.
  *
  * @remarks
- *   Every action keeps its text on one line at every width, because a wrapped control would make
- *   the row taller. A secondary action hides its element children with `srOnly`, so it keeps its
- *   accessible name, and renders as a square around its icon. Its text must be in an element,
- *   because a selector cannot reach a bare text node. A tertiary action leaves the document, so
- *   the keyboard does not reach a control nobody sees. A primary action is unchanged.
+ *   Every action keeps its words on one line at every width, because a wrapped control would make
+ *   the row taller. A secondary action hides its element children other than its icon with
+ *   `srOnly`, so it keeps its accessible name, and renders as a square around its icon. Its words
+ *   must be in an element, because a CSS selector cannot select a bare text node. A primary action
+ *   is unchanged.
  */
 export const FOLDING = {
   [`&[${PRIORITY}=secondary]`]: {
-    [NARROW]: {
+    [`&[${NARROW}]`]: {
       "& > :not(svg)": { srOnly: true },
       aspectRatio: "square",
       justifyContent: "center",
       paddingInline: "0",
     },
   },
-  [`&[${PRIORITY}=tertiary]`]: { [NARROW]: { display: "none" } },
   whiteSpace: "nowrap",
 };
-
-/**
- * Styles the control a row shows for the actions it folds away.
- *
- * @remarks
- *   The control renders only while the row is narrow, because a wide row folds nothing.
- */
-export const FOLDED = { display: "none", [NARROW]: { display: "inline-flex" } };

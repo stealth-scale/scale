@@ -10,7 +10,7 @@
  *   siblings placed by area name, and a part left out takes no room. The title's column shrinks,
  *   so its text wraps while the actions keep the end of its row. The root sets the gutter and the
  *   measure as custom properties that every band reads. The page measures its own width and sets
- *   `folded` below the `md` breakpoint. From the `lg` breakpoint of the window, a page with an
+ *   `folded` below the `sm` breakpoint. From the `lg` breakpoint of the window, a page with an
  *   aside becomes a grid with the aside beside the body, because a rail beside the text needs the
  *   window's width. Below it the aside stacks under the body, or leaves the page with
  *   `folds="hide"`. A sticky aside keeps to the top of its row, under the shell's sticky bars. The
@@ -28,7 +28,8 @@ import {
   truncate,
 } from "@stealthscale/theme/authoring";
 
-import { FOLDED, FOLDING } from "#folding/folding.ts";
+import { FOLDING } from "#folding/folding.ts";
+import { CLASS, FLAT_PALETTE, tabbed, TABS, TABS_IN_NAV, TITLES } from "#page/metrics.ts";
 
 /**
  * Custom property the root sets to the room at the page's inline edges.
@@ -66,17 +67,38 @@ const BAND = {
 const SHELL_TOP = "--app-shell-sticky-top";
 
 /**
- * Styles a sticky band: at the top, under the shell's sticky bars, on the page's fill.
+ * Custom property the root sets on each sticky band to the height of the sticky bands before it.
+ */
+export const STICKY_OFFSET = "--page-sticky-offset";
+
+/**
+ * Custom property the root sets on itself to the height of every band that sticks to the top.
+ */
+export const STICKY_TOP = "--page-sticky-top";
+
+/**
+ * Custom property a sticky aside takes, set to the height of the area that scrolls the page.
+ */
+export const SCROLLPORT = "--page-scrollport";
+
+/**
+ * Room a focus ring takes outside an element: its offset and its width.
+ */
+const RING_ROOM = "calc(var(--focus-ring-offset, 0px) + var(--focus-ring-width, 0px))";
+
+/**
+ * Styles a sticky band: at the top, under the shell's sticky bars and the page's sticky bands
+ * before it, on the page's fill.
  *
  * @remarks
  *   A sticky band takes the page's fill, because the page scrolls under it. Its inset reads the
- *   shell's sticky height, because a sticky element with an `auto` inset does not stick. Its
- *   z-index is the `sticky` token the shell's bars use, so a band and a bar at one edge share one
- *   order.
+ *   shell's sticky height and the height of the sticky bands before it, because a sticky element
+ *   with an `auto` inset does not stick and two bands at one inset cover each other. Its z-index is
+ *   the `sticky` token the shell's bars use, so a band and a bar at one edge share one order.
  */
 const STUCK = {
   background: "bg",
-  insetBlockStart: `var(${SHELL_TOP}, 0px)`,
+  insetBlockStart: `calc(var(${SHELL_TOP}, 0px) + var(${STICKY_OFFSET}, 0px))`,
   position: "sticky",
   zIndex: "sticky",
 };
@@ -87,15 +109,6 @@ const STUCK = {
 const ROW = { alignItems: "center", display: "flex", flexWrap: "wrap", minInlineSize: "0" };
 
 /**
- * Class name of the recipe, which a selector across bands reads.
- *
- * @remarks
- *   The binding writes one class per band, such as `page__nav`, and no attribute that names the
- *   band. A selector for another band builds that class from this constant.
- */
-const CLASS = "page";
-
-/**
  * Selects a band followed by the navigation, which then has the hairline.
  */
 const BEFORE_NAV = `&:has(+ .${CLASS}__nav)`;
@@ -104,6 +117,22 @@ const BEFORE_NAV = `&:has(+ .${CLASS}__nav)`;
  * Selects a root with an aside, which lays its bands out as a grid from the `lg` breakpoint.
  */
 const WITH_ASIDE = `&:has(> .${CLASS}__aside)`;
+
+/**
+ * Class name of the toolbar's recipe, whose root the navigation band keeps on the row of its tabs.
+ */
+export const TOOLBAR = "toolbar";
+
+/**
+ * Selects a toolbar in the navigation band.
+ */
+const TOOLBAR_IN_NAV = `& > .${TOOLBAR}__root`;
+
+/**
+ * Selects a strip of tabs in the navigation band, by the orientation the tabs' own line look
+ * selects too.
+ */
+const STRIP_IN_NAV = `& .${CLASS}__tabs[data-orientation]`;
 
 /**
  * Styles the grid of a page with an aside: every band across, and the body beside the aside.
@@ -128,17 +157,9 @@ const BESIDE = {
 const STEPS = ["sm", "md", "lg"] as const;
 
 /**
- * Heading role of the title at each size, one size larger than a section title's at that size.
- *
- * @remarks
- *   The page title is the one heading above every section title on the page, so it reads a larger
- *   role than theirs.
+ * Selects a navigation band with a strip of tabs, which is flush with the band's hairline.
  */
-const TITLES = {
-  lg: { textStyle: "heading.xl" },
-  md: { textStyle: "heading.lg" },
-  sm: { textStyle: "heading.md" },
-};
+const WITH_TABS = `&:has(> .${TABS}__root)`;
 
 /**
  * Defines the page recipe: a full-width page at size `md` by default.
@@ -146,12 +167,31 @@ const TITLES = {
 export const recipe = defineSlotRecipe({
   base: {
     action: { ...FOLDING, flexShrink: "0" },
-    actions: { ...ROW, flexWrap: "nowrap", gridArea: "actions", justifySelf: "end" },
+    actions: {
+      ...ROW,
+      flexWrap: "nowrap",
+      gridArea: "actions",
+      justifySelf: "end",
+      paddingInlineStart: dense("{spacing.inset.xl}"),
+    },
+    /**
+     * The aside, beside the body from the `lg` breakpoint and under it below.
+     *
+     * @remarks
+     *   Beside the body a sticky aside is a column at most as tall as the area that scrolls the
+     *   page, less the sticky bars and bands above it and a gap at each end. Its scroll area fills
+     *   the column, so the end of a long aside remains reachable while it sticks.
+     */
     aside: {
       "&[data-folds=hide]": { lgDown: { display: "none" } },
       "&[data-sticky]": {
         alignSelf: "start",
-        insetBlockStart: `calc(var(${SHELL_TOP}, 0px) + {spacing.gap.xl})`,
+        insetBlockStart: `calc(var(${SHELL_TOP}, 0px) + var(${STICKY_TOP}, 0px) + {spacing.gap.xl})`,
+        lg: {
+          display: "flex",
+          flexDirection: "column",
+          maxBlockSize: `calc(var(${SCROLLPORT}, 100dvh) - var(${SHELL_TOP}, 0px) - var(${STICKY_TOP}, 0px) - {spacing.gap.xl} * 2)`,
+        },
         position: "sticky",
       },
       gridArea: "aside",
@@ -159,6 +199,15 @@ export const recipe = defineSlotRecipe({
       minInlineSize: "0",
       paddingInline: `var(${GUTTER})`,
     },
+    /**
+     * The padding of a sticky aside's scroll area, the room a focus ring takes at its edges.
+     */
+    asideContent: { padding: RING_ROOM },
+    /**
+     * A sticky aside's scroll area, pulled out on every side by the room its content's padding
+     * takes, so the content keeps its place.
+     */
+    asideScroller: { margin: `calc(${RING_ROOM} * -1)` },
     banner: { ...BAND, flexShrink: "0", gridArea: "banner" },
     body: {
       ...BAND,
@@ -170,16 +219,20 @@ export const recipe = defineSlotRecipe({
     },
     context: { ...ROW, gridArea: "context", minInlineSize: "0" },
     description: {
-      color: "fg.muted",
+      color: "fg.subtle",
       gridArea: "description",
       maxInlineSize: "prose",
       minInlineSize: "0",
     },
-    folded: { ...FOLDED, alignItems: "center", flexShrink: "0", justifyContent: "center" },
+    /**
+     * Lays the footer out as a row that sticks to the bottom edge when told to.
+     *
+     * @remarks
+     *   A sticky footer resets the top inset the shared sticky rule sets.
+     */
     footer: {
       ...BAND,
       ...ROW,
-      // The footer sticks to the bottom edge, so it resets the top inset of the shared rule.
       "&[data-sticky]": { ...STUCK, insetBlockEnd: "0", insetBlockStart: "auto" },
       gridArea: "footer",
     },
@@ -187,23 +240,26 @@ export const recipe = defineSlotRecipe({
      * Lays the header out in three rows: the context, the title's row and the description.
      *
      * @remarks
-     *   The rows are a gap one size smaller apart, so the trail, the title and the description read
-     *   as three parts. The columns have no gap, because the parts beside the title belong to its
-     *   line. Every part names its area, because the grid places a part without one in the first
-     *   free cell.
+     *   The rows have no gap. The context row keeps a small margin above the title's row, and the
+     *   line heights part the title from the description. The columns have no gap, because the
+     *   parts beside the title belong to its line. Every part names its area, because the grid
+     *   places a part without one in the first free cell.
      */
     header: {
       ...BAND,
       "&[data-sticky]": STUCK,
       alignItems: "center",
-      [BEFORE_NAV]: { borderBlockEndWidth: "0" },
       display: "grid",
       gridArea: "header",
       gridTemplateAreas:
         '"context context context context" "leading title meta actions" "description description description description"',
       gridTemplateColumns: "auto auto minmax(0, 1fr) auto",
     },
-    leading: { display: "flex", gridArea: "leading" },
+    leading: {
+      display: "flex",
+      gridArea: "leading",
+      marginInlineEnd: dense("{spacing.gap.lg}"),
+    },
     meta: { ...ROW, gridArea: "meta" },
     nav: {
       ...BAND,
@@ -211,25 +267,39 @@ export const recipe = defineSlotRecipe({
       alignItems: "center",
       display: "flex",
       flexWrap: "wrap",
+      gap: dense("{spacing.gap.lg}"),
       gridArea: "nav",
       justifyContent: "space-between",
+      [TABS_IN_NAV]: { flex: "0 1 auto", inlineSize: "auto", minInlineSize: "0" },
+      [TOOLBAR_IN_NAV]: { flex: "0 1 auto", inlineSize: "auto" },
     },
     palette: { inlineSize: "var(--reference-width)", overflow: "clip" },
-    picker: { ...truncate(), flex: "1", justifyContent: "space-between", minInlineSize: "0" },
+    picker: {
+      "& > span": truncate(),
+      flex: "1",
+      justifyContent: "space-between",
+      minInlineSize: "0",
+    },
     root: {
       display: "flex",
       flexDirection: "column",
+      flexGrow: "1",
       inlineSize: "100%",
       minBlockSize: "100%",
       minInlineSize: "0",
       [WITH_ASIDE]: { lg: BESIDE },
     },
-    // Nested under `&`, so it overrides the hairline the strip's own variant sets. The variants are
-    // in a later layer than the base, and a bare base rule lost to them.
-    tabs: { "&": { borderBlockEndWidth: "0" } },
     title: { gridArea: "title", minInlineSize: "0", overflowWrap: "anywhere" },
     toolbar: { ...BAND, ...ROW, "&[data-sticky]": STUCK, gridArea: "toolbar" },
-    trail: { color: "fg.muted", gridArea: "context", justifySelf: "start", minInlineSize: "0" },
+    trail: {
+      "& > svg": { _rtl: { transform: "scaleX(-1)" } },
+      alignItems: "center",
+      color: "fg.muted",
+      display: "inline-flex",
+      gridArea: "context",
+      justifySelf: "start",
+      minInlineSize: "0",
+    },
   },
   className: CLASS,
   compoundVariants: [
@@ -238,16 +308,18 @@ export const recipe = defineSlotRecipe({
      *
      * @remarks
      *   The meta drops the start margin it has beside the title, so it starts where the title and
-     *   the description start.
+     *   the description start, and keeps a small margin above and below. The actions keep the `sm`
+     *   inset from the title.
      */
     {
       css: {
+        actions: { paddingInlineStart: dense("{spacing.inset.sm}") },
         header: {
           gridTemplateAreas:
             '"context context context" "leading title actions" "meta meta meta" "description description description"',
           gridTemplateColumns: "auto minmax(0, 1fr) auto",
         },
-        meta: { marginInlineStart: "0" },
+        meta: { marginBlock: dense("{spacing.gap.sm}"), marginInlineStart: "0" },
       },
       folded: true,
       name: "stacked",
@@ -266,7 +338,6 @@ export const recipe = defineSlotRecipe({
     "description",
     "actions",
     "action",
-    "folded",
     "nav",
     "tabs",
     "picker",
@@ -274,6 +345,8 @@ export const recipe = defineSlotRecipe({
     "toolbar",
     "body",
     "aside",
+    "asideScroller",
+    "asideContent",
     "footer",
     "trail",
   ],
@@ -295,12 +368,26 @@ export const recipe = defineSlotRecipe({
 
     /**
      * Whether a hairline separates the bands.
+     *
+     * @remarks
+     *   A header followed by the navigation leaves the hairline to the navigation, and a strip of
+     *   tabs in the navigation drops its own line, so the strip has one line under it and none
+     *   above. The strip's rule outweighs the tabs' own line look, whose selector names the
+     *   orientation, because both are in the variants layer.
      */
     divided: {
       true: {
         footer: { ...divider("horizontal"), borderBlockStartWidth: "hairline" },
-        header: { ...divider("horizontal"), borderBlockEndWidth: "hairline" },
-        nav: { ...divider("horizontal"), borderBlockEndWidth: "hairline" },
+        header: {
+          ...divider("horizontal"),
+          [BEFORE_NAV]: { borderBlockEndWidth: "0" },
+          borderBlockEndWidth: "hairline",
+        },
+        nav: {
+          ...divider("horizontal"),
+          borderBlockEndWidth: "hairline",
+          [STRIP_IN_NAV]: { borderBlockEndWidth: "0" },
+        },
         toolbar: { ...divider("horizontal"), borderBlockEndWidth: "hairline" },
       },
     },
@@ -309,7 +396,7 @@ export const recipe = defineSlotRecipe({
      * Room at the page's inline edges, which every band reads.
      *
      * @remarks
-     *   The default is the `xl` inset. A folded page sets the `sm` inset.
+     *   The default is the `xl` inset. A folded page sets the `md` inset.
      */
     gutter: onSlots({ root: sizeVariants((size) => ({ [GUTTER]: `{spacing.inset.${size}}` })) }),
 
@@ -327,14 +414,14 @@ export const recipe = defineSlotRecipe({
     },
 
     /**
-     * Whether the page is narrower than the `md` breakpoint, which the page sets from its own
+     * Whether the page is narrower than the `sm` breakpoint, which the page sets from its own
      * width.
      *
      * @remarks
-     *   A folded page has the `sm` gutter. The axis is not named `narrow`, because `measure` has a
+     *   A folded page has the `md` gutter. The axis is not named `narrow`, because `measure` has a
      *   `narrow` value and two values of one name compile to one class.
      */
-    folded: { true: { root: { [GUTTER]: "{spacing.inset.sm}" } } },
+    folded: { true: { root: { [GUTTER]: "{spacing.inset.md}" } } },
 
     /**
      * Size of the title, the description, the actions and the bands' padding.
@@ -344,21 +431,23 @@ export const recipe = defineSlotRecipe({
      *   the page reads this size too.
      */
     size: onSlots({
-      actions: sizeVariants(
-        (size) => ({
-          gap: dense(`{spacing.gap.${size}}`),
-          paddingInlineStart: dense(`{spacing.inset.${size}}`),
-        }),
-        STEPS,
-      ),
+      actions: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), STEPS),
       aside: sizeVariants((size) => ({ paddingBlock: dense(`{spacing.inset.${size}}`) }), STEPS),
       banner: sizeVariants((size) => ({ paddingBlock: dense(`{spacing.inset.${size}}`) }), STEPS),
       body: sizeVariants((size) => ({ paddingBlock: dense(`{spacing.inset.${size}}`) }), STEPS),
       context: sizeVariants(
-        (size) => ({ gap: dense(`{spacing.gap.${size}}`), textStyle: `body.${below(size)}` }),
+        (size) => ({
+          gap: dense(`{spacing.gap.${size}}`),
+          marginBlockEnd: size === "lg" ? "{spacing.1}" : "{spacing.0.5}",
+          textStyle: `body.${below(size)}`,
+        }),
         STEPS,
       ),
-      description: sizeVariants((size) => ({ textStyle: `body.${size}` }), STEPS),
+      description: {
+        lg: { textStyle: "body.md" },
+        md: { textStyle: "body.md" },
+        sm: { textStyle: "body.sm" },
+      },
       footer: sizeVariants(
         (size) => ({
           gap: dense(`{spacing.gap.${size}}`),
@@ -368,13 +457,11 @@ export const recipe = defineSlotRecipe({
       ),
       header: sizeVariants(
         (size) => ({
-          paddingBlockEnd: dense(`{spacing.gap.${size}}`),
-          paddingBlockStart: dense(`{spacing.inset.${size}}`),
-          rowGap: dense(`{spacing.gap.${below(size)}}`),
+          [BEFORE_NAV]: { paddingBlockEnd: dense(`{spacing.gap.${size}}`) },
+          paddingBlock: dense(`{spacing.inset.${size}}`),
         }),
         STEPS,
       ),
-      leading: sizeVariants((size) => ({ marginInlineEnd: dense(`{spacing.gap.${size}}`) }), STEPS),
       meta: sizeVariants(
         (size) => ({
           gap: dense(`{spacing.gap.${size}}`),
@@ -382,12 +469,27 @@ export const recipe = defineSlotRecipe({
         }),
         STEPS,
       ),
-      nav: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), STEPS),
+      nav: sizeVariants(
+        (size) => ({
+          ...tabbed(size),
+          paddingBlock: dense(`{spacing.gap.${size}}`),
+          [WITH_TABS]: { paddingBlock: "0" },
+        }),
+        STEPS,
+      ),
+      palette: sizeVariants(() => FLAT_PALETTE, STEPS),
       title: TITLES,
       toolbar: sizeVariants(
         (size) => ({
           gap: dense(`{spacing.gap.${size}}`),
           paddingBlock: dense(`{spacing.gap.${size}}`),
+        }),
+        STEPS,
+      ),
+      trail: sizeVariants(
+        (size) => ({
+          gap: dense(`{spacing.gap.${below(size)}}`),
+          textStyle: `body.${below(size)}`,
         }),
         STEPS,
       ),

@@ -4,8 +4,8 @@
 
 import { type ReactElement, type ReactNode } from "react";
 
-import { Actions } from "#page/actions.ts";
-import { Body } from "#page/body.ts";
+import { Actions } from "#page/actions.tsx";
+import { Body } from "#page/body.tsx";
 import { Description } from "#page/description.ts";
 import { Footer } from "#page/footer.tsx";
 import { Header } from "#page/header.tsx";

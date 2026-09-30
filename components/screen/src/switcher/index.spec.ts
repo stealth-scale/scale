@@ -5,6 +5,7 @@ import * as barrel from "#switcher/index.ts";
 describe("index", () => {
   it("exports every part", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
+      "Action",
       "Detail",
       "Indicator",
       "Label",

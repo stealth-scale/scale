@@ -12,6 +12,7 @@ import page from "#sidebar/sidebar.specimen.tsx";
 const PARTS = [
   "root",
   "header",
+  "scroller",
   "content",
   "footer",
   "nav",
@@ -22,6 +23,16 @@ const PARTS = [
   "empty",
   "separator",
 ];
+
+/**
+ * Selects a band's children that do not fold to an icon by themselves.
+ */
+const LINES = "& > :not(.sidebar__search, .sidebar__nav, .nav-list__root, .switcher__root)";
+
+/**
+ * Selects a band's lines that have no icon form.
+ */
+const WORDS = "& > :not(svg, .sidebar__search, .sidebar__nav, .nav-list__root, .switcher__root)";
 
 describe("recipe", () => {
   it("covers every variant axis in the scenes of its specimen page", () => {
@@ -40,7 +51,7 @@ describe("recipe", () => {
     expect(recipe.className).toBe("sidebar");
   });
 
-  it("declares eleven slots", () => {
+  it("declares twelve slots", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
   });
 
@@ -62,9 +73,34 @@ describe("recipe", () => {
     });
   });
 
-  it("scrolls the content instead of the root", () => {
-    expect(recipe.base?.["content"]).toMatchObject({ overflowY: "auto" });
-    expect(recipe.base?.["root"]).not.toHaveProperty("overflowY");
+  it("fills the column between the bands with the scroller", () => {
+    expect(recipe.base?.["scroller"]).toStrictEqual({ flex: "1", minBlockSize: "0" });
+  });
+
+  it("leaves the scrolling to the scroll area", () => {
+    expect([recipe.base?.["content"], recipe.base?.["root"]]).not.toContainEqual(
+      expect.objectContaining({ overflowY: "auto" }),
+    );
+  });
+
+  it("stacks the header and the footer in a column", () => {
+    expect(recipe.base?.["header"]).toMatchObject({ display: "flex", flexDirection: "column" });
+    expect(recipe.base?.["footer"]).toMatchObject({ display: "flex", flexDirection: "column" });
+  });
+
+  it("pads a band by the content's padding", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["header"]).toMatchObject({
+      padding: "calc({spacing.gap.md} * var(--density, 1))",
+    });
+    expect(recipe.variants?.["size"]?.["md"]?.["content"]).toMatchObject({
+      padding: "calc({spacing.gap.md} * var(--density, 1))",
+    });
+  });
+
+  it("insets a band's lines of words by a row's inset", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["footer"]?.[LINES]).toStrictEqual({
+      marginInline: "calc({spacing.inset.xs} * var(--density, 1))",
+    });
   });
 
   it("places the block control in the label's row", () => {
@@ -74,6 +110,12 @@ describe("recipe", () => {
     });
     expect(recipe.base?.["navAction"]).toMatchObject({ gridColumn: "2 / 3" });
     expect(recipe.base?.["navLabel"]).toMatchObject({ gridColumn: "1 / 2" });
+  });
+
+  it("spaces a block's children as far apart as two rows", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["nav"]).toStrictEqual({
+      gap: "calc({spacing.gap.xs} * var(--density, 1))",
+    });
   });
 
   it("fills the block control on hover", () => {
@@ -93,7 +135,7 @@ describe("recipe", () => {
   it("sizes the block control as the navigation list's end column", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["navAction"]).toMatchObject({
       blockSize: "max({sizes.6}, calc({sizes.tag.sm} * var(--density, 1)))",
-      marginInlineEnd: "calc({spacing.inset.sm} * var(--density, 1))",
+      marginInlineEnd: "calc({spacing.inset.xs} * var(--density, 1))",
       minInlineSize: "max({sizes.6}, calc({sizes.tag.sm} * var(--density, 1)))",
     });
   });
@@ -106,19 +148,40 @@ describe("recipe", () => {
 
   it("insets the labels by a row's inset", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["navLabel"]).toMatchObject({
-      paddingInline: "calc({spacing.inset.sm} * var(--density, 1))",
+      paddingInline: "calc({spacing.inset.xs} * var(--density, 1))",
     });
   });
 
-  it("insets the header by the content's padding and a row's inset", () => {
-    expect(recipe.variants?.["size"]?.["md"]?.["header"]).toMatchObject({
-      paddingInline:
-        "calc(calc({spacing.gap.md} * var(--density, 1)) + calc({spacing.inset.sm} * var(--density, 1)))",
+  it("sizes a block's label as a row of the navigation list", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["navLabel"]).toMatchObject({
+      blockSize: "max({sizes.6}, calc({sizes.control.xs} * var(--density, 1)))",
     });
+  });
+
+  it("sizes a small block's label as a 24px row", () => {
+    expect(recipe.variants?.["size"]?.["sm"]?.["navLabel"]).toMatchObject({
+      blockSize: "max({sizes.6}, calc({sizes.tag.md} * var(--density, 1)))",
+    });
+  });
+
+  it.each([
+    { size: "sm", step: "lg" },
+    { size: "md", step: "xl" },
+    { size: "lg", step: "2xl" },
+  ] as const)("spaces the $size content's blocks by the $step gap", ({ size, step }) => {
+    expect(recipe.variants?.["size"]?.[size]?.["content"]).toMatchObject({
+      gap: `calc({spacing.gap.${step}} * var(--density, 1))`,
+    });
+  });
+
+  it("sets no margin on a separator between the content's blocks", () => {
+    expect(
+      recipe.variants?.["size"]?.["md"]?.["content"]?.["& > .sidebar__separator"],
+    ).toStrictEqual({ marginBlock: "0" });
   });
 
   it("hides the header and footer words visually on a rail", () => {
-    const railed = { "& > :not(svg)": { srOnly: true }, justifyContent: "center" };
+    const railed = { alignItems: "center", [WORDS]: { srOnly: true } };
 
     expect(recipe.base?.["header"]?.["[data-iconic] &"]).toStrictEqual(railed);
     expect(recipe.base?.["footer"]?.["[data-iconic] &"]).toStrictEqual(railed);
@@ -132,8 +195,28 @@ describe("recipe", () => {
     expect(recipe.base?.["search"]).toMatchObject({ inlineSize: "full", minInlineSize: "0" });
   });
 
-  it("removes the search from a rail", () => {
-    expect(recipe.base?.["search"]?.["[data-iconic] &"]).toStrictEqual({ display: "none" });
+  it("centres the search's button on a rail", () => {
+    expect(recipe.base?.["search"]?.["[data-iconic] &"]).toStrictEqual({
+      display: "flex",
+      justifyContent: "center",
+    });
+  });
+
+  it("sets a block's label small and uppercase", () => {
+    expect(recipe.base?.["navLabel"]).toMatchObject({
+      textStyle: "label.xs",
+      textTransform: "uppercase",
+    });
+  });
+
+  it("sets a block's label in fg.subtle at the medium weight", () => {
+    expect(recipe.base?.["navLabel"]).toMatchObject({ color: "fg.subtle", fontWeight: "medium" });
+  });
+
+  it("sets the header's words one size above the rows' words", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["header"]).toMatchObject({
+      textStyle: "label.sm",
+    });
   });
 
   it("removes the block control from a rail", () => {

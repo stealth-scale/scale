@@ -1,0 +1,46 @@
+{
+  "about": "The action bar is fixed to the bottom of the window and offers the actions for what a person has selected. It opens while anything is selected and leaves focus on the selection. A screen reader announces it once as it opens. Escape inside the bar and its close button clear the selection, and focus returns to the checkbox that opened it.",
+  "clear": "Clear selection",
+  "photos": {
+    "about": "The bar at the end of the window offers four actions. In a narrow window the toolbar moves the two actions without an icon into its More menu and shows only the icon of Download. Share is the primary action and keeps its words.",
+    "album": "Add to album",
+    "announcement": "Photo actions available",
+    "count": "{{count}} selected",
+    "done_one": "{{action}}: {{count}} photo.",
+    "done_other": "{{action}}: {{count}} photos.",
+    "download": "Download",
+    "label": "Actions for the selected photos",
+    "more": "More actions",
+    "names": {
+      "bridge": "Bridge at night",
+      "garden": "Roof garden",
+      "harbour": "Harbour at dawn",
+      "market": "Flower market",
+      "square": "Town square",
+      "tower": "Clock tower"
+    },
+    "share": "Share",
+    "title": "Folding",
+    "trash": "Move to trash"
+  },
+  "placement": {
+    "about": "Placement puts the bar at the start, in the middle or at the end of the bottom edge of the window. Start and end follow the writing direction. Select an invoice in a cell to open its bar.",
+    "title": "Placement"
+  },
+  "selection": {
+    "count": "{{count}} selected",
+    "download": {
+      "done_one": "Downloaded {{count}} invoice.",
+      "done_other": "Downloaded {{count}} invoices.",
+      "label": "Download"
+    },
+    "invoice": "Invoice {{number}}",
+    "label": "Actions for the selected invoices",
+    "mark": {
+      "done_one": "Marked {{count}} invoice as paid.",
+      "done_other": "Marked {{count}} invoices as paid.",
+      "label": "Mark as paid"
+    }
+  },
+  "title": "Action bar"
+}

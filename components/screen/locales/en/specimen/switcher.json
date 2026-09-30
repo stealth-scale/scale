@@ -1,37 +1,61 @@
 {
-  "about": "Shows the current workspace, project or environment in a control that opens a menu of the others. The control is a menu trigger, so the roles, the keys and the positioning are the menu's.",
-  "acme": "Acme",
+  "about": "Shows the current workspace, project or environment in a control that opens a menu of the others. Pass `items` and the switcher renders the control and the menu, with `Switcher.Action` rows after a separator. It takes its shape from where it renders: a row in a sidebar, its mark alone once the sidebar closes to icons, one of a toolbar's controls with its name hidden when the toolbar is narrow, and one line on its own. The control is a menu trigger, so the roles, the keys and the positioning are the menu's.",
+  "acme": "Acme Corp",
+  "alone": {
+    "about": "Anywhere else the switcher is one line: the mark, the name and the indicator. Each workspace has a page of its own, so each row is a link, and the current workspace is the page the reader is on. Open the menu from the keyboard and move through the rows with the arrow keys.",
+    "title": "On its own"
+  },
+  "application": "Application",
+  "composed": {
+    "about": "An environment switcher composed from the parts in a toolbar: `Switcher.Trigger` rendered through `Toolbar.Item`, so it is one of the row's arrow-key stops, and the menu's own rows. Its menu is as wide as its widest row.",
+    "title": "Composed from parts"
+  },
   "deploy": "Deploy",
   "deployments": "Deployments",
   "enterprise": "Enterprise",
   "environment": "Environment",
-  "fathom": "Fathom",
-  "globex": "Globex",
+  "filter": "Filter…",
+  "findPage": "Find a page",
+  "ledger": "Ledger",
+  "navigation": "Navigation",
   "new": "New workspace",
+  "newRun": "New run",
+  "northwind": "Northwind",
   "oldBooks": "Old Books",
+  "overview": "Overview",
+  "palette": {
+    "about": "The eight palettes on the subtle look. The palette colours the look and the mark.",
+    "title": "Palettes"
+  },
+  "pipelines": "Pipelines",
   "placement": {
-    "about": "At the head of a sidebar the control fills the column. In a toolbar it is as wide as its words and hides the detail. Both render in the subtle look, so the control's width shows.",
+    "about": "The three placements, which `Switcher.Root` reads from the sidebar or the toolbar around it. In a sidebar the control fills the column and shows the detail under the name. In a toolbar and on its own it is one line as wide as its words.",
     "title": "Placements"
   },
+  "platform": "Platform",
   "preview": "Preview",
-  "pro": "Pro plan",
   "production": "Production",
+  "runs": "Runs",
   "settings": "Workspace settings",
   "sidebar": {
-    "about": "The control at a sidebar's width. Press it to open the menu, which is as wide as the control. Each workspace has a row with its initial, its name and its plan, and the suspended workspace is disabled. A separator divides the workspaces from two actions.",
+    "about": "At the head of a sidebar the switcher is a row as wide as the sidebar: the workspace's mark, its name over its plan, and the indicator. It takes the sidebar's size. Press the menu button to close the sidebar to icons: the row becomes the mark alone, square and in line with the rows under it, with the name in a tooltip and in its accessible name. The menu opens as wide as the row, with the current workspace checked and an action after a separator.",
     "title": "In a sidebar"
+  },
+  "size": {
+    "about": "The three sizes in a sidebar. In an app shell the switcher takes the sidebar's size.",
+    "title": "Sizes"
   },
   "staging": "Staging",
   "suspended": "Suspended",
   "title": "Switcher",
   "toolbar": {
-    "about": "An environment switcher in a toolbar, rendered through `Toolbar.Item`, so it is one of the row's arrow-key stops. Its menu is as wide as its widest row.",
+    "about": "In a toolbar the switcher is one of the row's controls at the toolbar's size, so the arrow keys reach it. The name is one line with no detail under it. At a phone's width the toolbar is narrow, the name is hidden visually, and the mark and the indicator remain.",
     "title": "In a toolbar"
   },
   "trial": "Trial, 12 days left",
   "variant": {
-    "about": "The three looks at the three sizes. At rest, `plain` has no fill and `subtle` has a muted fill. `outline` adds an edge. Hover, press and an open menu fill each look darker.",
-    "title": "Looks and sizes"
+    "about": "The button's six looks. `ghost`, the default, has no fill at rest and fills under the pointer. `outline` has the button's light edge.",
+    "title": "Looks"
   },
   "workspace": "Workspace"
 }

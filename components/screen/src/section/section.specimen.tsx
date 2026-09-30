@@ -2,89 +2,121 @@
  * Catalogue page for the section.
  *
  * @remarks
- *   `scenesOf` generates the looks from the payment example in a `2xl` room, and the annotated
- *   scene on a card in a `4xl` room, because two columns need the width. The sizes scene renders
- *   the sizes example, because the buttons take the section's size through their own provider. The
- *   folding scene renders the billing example in an `xs` and an `xl` room, so the narrow section
- *   folds its actions and the wide one keeps them. The staged sections render as a `div`, because
- *   each would otherwise be a landmark with the same name. The rooms and `as` never appear in the
- *   examples. The words are keys under `section` in `locales/en/specimen/section.json`.
+ *   The settings scene renders the settings example in a screen box, because a page renders its
+ *   gutter at its own edges. The annotated and the folding scenes render their cards twice: in a
+ *   room wider than the width the section folds at, and in a room a phone's width, because a
+ *   section folds on its own width. The sizes scene renders one page per size in a screen box. The
+ *   boxes and the rooms never appear in the examples. The words are keys under `section` in
+ *   `locales/en/specimen/section.json`.
  */
 
-import { Matrix, Room, type Scene, scenesOf, specimen } from "@stealthscale/specimen";
+import { Stack } from "@stealthscale/component-layout";
+import { Room, type Scene, Screen, specimen } from "@stealthscale/specimen";
 
+import type * as Page from "#page/index.ts";
 import * as examples from "#section/examples/index.ts";
 import type * as Section from "#section/index.ts";
-import { recipe } from "#section/recipe.ts";
 
 /**
- * Rooms of the folding scene: one narrower than the `sm` breakpoint and one wider.
+ * Hand-written scene for a settings page of plain sections and a card.
  */
-const ROOMS = ["xs", "xl"] as const;
+export const settings: Scene = {
+  about: "section.settings.about",
+  draw: () => (
+    <Screen>
+      <examples.settings.Settings />
+    </Screen>
+  ),
+  example: examples.settings,
+  title: "section.settings.title",
+};
 
 /**
- * Hand-written scene for the three sizes.
+ * Hand-written scene for two sections raised as cards.
+ */
+export const cards: Scene = {
+  about: "section.variant.about",
+  axes: ["variant"],
+  draw: () => (
+    <Stack gap="lg">
+      <examples.cards.Cards />
+    </Stack>
+  ),
+  example: examples.cards,
+  title: "section.variant.title",
+};
+
+/**
+ * Hand-written scene for the header in a column beside the cards, wide and at a phone's width.
+ */
+export const annotated: Scene = {
+  about: "section.annotated.about",
+  axes: ["annotated"],
+  draw: () => (
+    <Stack gap="xl">
+      <Room size="4xl">
+        <Stack gap="lg">
+          <examples.cards.Cards annotated />
+        </Stack>
+      </Room>
+      <Room size="sm">
+        <Stack gap="lg">
+          <examples.cards.Cards annotated />
+        </Stack>
+      </Room>
+    </Stack>
+  ),
+  example: examples.cards,
+  props: { annotated: true } satisfies Section.RootProps,
+  title: "section.annotated.title",
+};
+
+/**
+ * Hand-written scene for one card wide and folded at a phone's width.
+ */
+export const folding: Scene = {
+  about: "section.folding.about",
+  draw: () => (
+    <Stack gap="xl">
+      <examples.members.Members />
+      <Room size="sm">
+        <examples.members.Members />
+      </Room>
+    </Stack>
+  ),
+  example: examples.members,
+  title: "section.folding.title",
+};
+
+/**
+ * Sizes the sizes scene renders, from the largest.
+ */
+const SIZES = ["lg", "md", "sm"] as const;
+
+/**
+ * Hand-written scene for the three sizes, each on a page of that size.
  */
 export const sizes: Scene = {
   about: "section.size.about",
   axes: ["size"],
   draw: () => (
-    <Room size="2xl">
-      <examples.sizes.Sizes />
-    </Room>
+    <Stack gap="xl">
+      {SIZES.map((size) => (
+        <Screen key={size}>
+          <examples.sizes.Sizes size={size} />
+        </Screen>
+      ))}
+    </Stack>
   ),
   example: examples.sizes,
+  props: { size: "lg" } satisfies Page.RootProps,
   title: "section.size.title",
-};
-
-/**
- * Hand-written scene for the actions a narrow section folds.
- */
-export const folding: Scene = {
-  about: "section.folding.about",
-  draw: () => (
-    <Matrix direction="column" knob="room" of={ROOMS}>
-      {(room) => (
-        <Room size={room}>
-          <examples.billing.Billing as="div" />
-        </Room>
-      )}
-    </Matrix>
-  ),
-  example: examples.billing,
-  title: "section.folding.title",
 };
 
 export default specimen({
   about: "section.about",
   id: "components/screen/section",
   imports: 'import { Section } from "@stealthscale/component-screen";',
-  scenes: [
-    ...scenesOf<Section.RootProps>(recipe, {
-      axes: {
-        annotated: {
-          direction: "column",
-          draw: (props) => (
-            <Room size="4xl">
-              <examples.payment.Payment {...props} as="div" />
-            </Room>
-          ),
-          with: { variant: "surface" },
-        },
-        variant: { direction: "column" },
-      },
-      draw: (props) => (
-        <Room size="2xl">
-          <examples.payment.Payment {...props} as="div" />
-        </Room>
-      ),
-      example: examples.payment,
-      namespace: "section",
-      order: ["variant", "annotated"],
-      skip: { size: "The sizes scene renders every size with its buttons at the same size." },
-    }),
-    sizes,
-    folding,
-  ],
+  scenes: [settings, cards, annotated, folding, sizes],
   title: "section.title",
 });

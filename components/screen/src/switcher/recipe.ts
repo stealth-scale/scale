@@ -4,13 +4,14 @@
  *
  * @remarks
  *   The recipe has six slots. The root slot is the trigger, and the mark, the label, the name, the
- *   detail and the indicator are inside it. `Switcher.Root` is the disclosure package's menu and
- *   renders no element, so the menu's recipe styles the panel and its rows. The mark is a tinted
- *   square for an initial, an icon or an avatar. The name and the detail truncate to keep the
- *   control at one height. A pair of chevrons marks a control that switches and not a direction,
- *   so the indicator does not rotate while the menu is open. The control's ink is `fg.muted` in
- *   the neutral palette. The recipe has no `palette` and no `effect` axis: the control is neutral,
- *   and `Switcher.Root` passes the menu's own `palette` to `Menu.Root`.
+ *   detail and the indicator are inside it. `Switcher.Root` is the disclosure package's menu, so
+ *   the menu's recipe styles the panel and its rows. The trigger takes the button's looks and
+ *   palettes from the same layer styles, so an outlined switcher has the button's light edge. The
+ *   mark is a square in the palette's muted fill for an initial, an icon or an avatar. The name and
+ *   the detail truncate to keep the control at one height. A pair of chevrons marks a control that
+ *   switches and not a direction, so the indicator does not rotate while the menu is open. In a
+ *   sidebar closed to icons the control is its mark alone, square, and in a narrow toolbar a
+ *   switcher with a mark hides its name. The words remain in the accessible name in both.
  */
 
 import {
@@ -18,37 +19,67 @@ import {
   defineSlotRecipe,
   dense,
   interactive,
+  lookVariants,
   onSlot,
   onSlots,
+  paletteVariants,
   sizeVariants,
   truncate,
 } from "@stealthscale/theme/authoring";
 
 /**
- * Styles the fills of a look that rests on its container's ground: under a pointer, under a press
- * and while the menu is open.
+ * Selects a part of a switcher drawn as its mark alone, in a sidebar closed to icons.
  */
-const ON_GROUND = {
-  _active: { background: "bg.emphasized" },
-  _hover: { background: "bg.muted" },
-  _open: { background: "bg.muted" },
-};
+const ICONIC = ".switcher__root[data-iconic] &";
 
 /**
- * Styles the same three fills for a look that rests on a fill.
+ * Selects a part of a switcher with a mark in a toolbar too narrow for the name. A switcher
+ * without a mark keeps its name, because the name is the only content that identifies it.
+ */
+const NARROW = ".switcher__root[data-narrow]:has(.switcher__mark) &";
+
+/**
+ * Custom property the size axis sets to the height of a button at the switcher's size.
+ */
+const HEIGHT = "--switcher-height";
+
+/**
+ * Styles a control that is one line as wide as its words: in a toolbar and on its own.
  *
  * @remarks
- *   `subtle` rests on `bg.muted`, so its hover, press and open fills are `bg.emphasized`, one step
- *   darker than its resting fill.
+ *   `inlineSize: fit` keeps the control as wide as its words, because a flex container fills its
+ *   line otherwise. The detail is hidden, because the control is one line tall. The control is at
+ *   least as tall as a button of its size, so it lines up with the buttons in a toolbar: 36px at
+ *   `sm` and 40px at `md`.
  */
-const ON_FILL = {
-  _active: { background: "bg.emphasized" },
-  _hover: { background: "bg.emphasized" },
-  _open: { background: "bg.emphasized" },
+const INLINE = {
+  detail: { display: "none" },
+  root: { inlineSize: "fit", minBlockSize: `var(${HEIGHT})` },
 };
 
 /**
- * Styles a plain switcher at the middle size in a sidebar.
+ * Styles the control in a sidebar: a row as wide as the column, and the mark alone on a rail.
+ *
+ * @remarks
+ *   On a rail the control has no padding and no edge, so it is the mark's square, as tall as the
+ *   rows under it: 32px at `md`.
+ */
+const ROW = {
+  root: {
+    "&[data-iconic]": {
+      alignSelf: "center",
+      aspectRatio: "square",
+      borderWidth: "0",
+      inlineSize: "auto",
+      justifyContent: "center",
+      padding: "0",
+    },
+    inlineSize: "full",
+  },
+};
+
+/**
+ * Styles a ghost switcher at the middle size, alone.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -59,6 +90,7 @@ export const recipe = defineSlotRecipe({
       color: "fg.subtle",
       display: "inline-flex",
       flexShrink: "0",
+      [ICONIC]: { display: "none" },
       justifyContent: "center",
       marginInlineStart: "auto",
       transitionDuration: "press",
@@ -69,14 +101,16 @@ export const recipe = defineSlotRecipe({
       display: "flex",
       flex: "1",
       flexDirection: "column",
+      [ICONIC]: { srOnly: true },
       minInlineSize: "0",
+      [NARROW]: { srOnly: true },
       textAlign: "start",
     },
     mark: {
       alignItems: "center",
-      background: "bg.muted",
+      background: "colorPalette.muted",
       borderRadius: "l1",
-      color: "fg.muted",
+      color: "colorPalette.fg",
       display: "inline-flex",
       flexShrink: "0",
       fontWeight: "semibold",
@@ -88,7 +122,9 @@ export const recipe = defineSlotRecipe({
     root: {
       ...interactive(),
       alignItems: "center",
-      color: "fg.muted",
+      appearance: "none",
+      borderColor: "transparent",
+      borderWidth: "control",
       colorPalette: "neutral",
       display: "flex",
       minInlineSize: "0",
@@ -99,27 +135,37 @@ export const recipe = defineSlotRecipe({
     {
       css: { mark: { boxSize: dense("{sizes.icon.lg}"), fontSize: "xs" } },
       name: "marked",
-      placement: "toolbar",
+      placement: ["alone", "toolbar"],
+    },
+
+    /**
+     * Sets the detail and the indicator in the trigger's own ink on the solid look, where the
+     * page's subtle ink is not read against the fill.
+     */
+    {
+      css: { detail: { color: "inherit" }, indicator: { color: "inherit" } },
+      name: "inked",
+      variant: "solid",
     },
   ],
-  defaultVariants: { placement: "sidebar", size: "md", variant: "plain" },
+  defaultVariants: { placement: "alone", size: "md", variant: "ghost" },
   jsx: [/^Switcher(\.\w+)?$/u],
   slots: ["root", "mark", "label", "name", "detail", "indicator"],
   variants: {
     /**
-     * Where the control is placed, which sets its width.
+     * The palette of the look and the mark.
+     */
+    palette: onSlot("root", paletteVariants()),
+
+    /**
+     * Where the control is placed, which sets its width and its lines.
      *
      * @remarks
-     *   At the head of a sidebar the control fills the column. In a toolbar it is as wide as its
-     *   words (`inlineSize: fit`, because a flex container fills its line otherwise) and hides the
-     *   detail, because a toolbar row is one line tall. The `marked` compound sizes the mark to
-     *   `icon.lg` in a toolbar, because the size axis sizes it for a sidebar and a compound
-     *   applies over an axis.
+     *   `Switcher.Root` reads the placement from the sidebar or the toolbar around it unless a
+     *   caller states one. The `marked` compound sizes the mark to `icon.lg` on one line, because
+     *   the size axis sizes it for a sidebar and a compound applies over an axis.
      */
-    placement: {
-      sidebar: { root: { inlineSize: "full" } },
-      toolbar: { detail: { display: "none" }, root: { inlineSize: "fit" } },
-    },
+    placement: { alone: INLINE, sidebar: ROW, toolbar: INLINE },
 
     size: onSlots({
       indicator: sizeVariants(
@@ -138,6 +184,7 @@ export const recipe = defineSlotRecipe({
         (size) => ({
           borderRadius: "l2",
           gap: dense(`{spacing.gap.${size}}`),
+          [HEIGHT]: dense(`{sizes.control.${size}}`),
           paddingBlock: dense(`{spacing.gap.${below(size)}}`),
           paddingInline: dense(`{spacing.gap.${size}}`),
           textStyle: `body.${below(size)}`,
@@ -147,20 +194,12 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * The control's look against its container.
+     * The button's six looks, each one of the theme's layer styles.
      *
      * @remarks
-     *   `plain`, the default, has no fill at rest, so a switcher at the head of a sidebar shows the
-     *   sidebar's own look. Each look states its hover, press and open fills, because the compiler
-     *   layers the variants over the base, so a look's resting fill applies over any state the base
-     *   writes.
+     *   `ghost`, the default, has no fill at rest, so a switcher at the head of a sidebar shows the
+     *   sidebar's own ground and fills under a pointer.
      */
-    variant: onSlot("root", {
-      subtle: { ...ON_FILL, background: "bg.muted" },
-
-      outline: { ...ON_GROUND, borderColor: "border.emphasized", borderWidth: "control" },
-
-      plain: { ...ON_GROUND, background: "transparent" },
-    }),
+    variant: onSlot("root", lookVariants()),
   },
 });

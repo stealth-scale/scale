@@ -23,7 +23,7 @@ export type PageWidth = "narrow" | "wide";
  */
 export interface PageState {
   /**
-   * Whether the page is narrower than the `md` breakpoint.
+   * Whether the page is narrower than the `sm` breakpoint.
    */
   narrow: boolean;
 
@@ -37,6 +37,29 @@ export interface PageState {
  * Creates the context through which the root provides the page state.
  */
 export const [PageProvider, usePage, useOptionalPage] = createRequiredContext<PageState>("Page");
+
+/**
+ * Button size of the page's actions per page size: the first on a wide page, the second on a
+ * narrow one.
+ */
+const BUTTONS: Readonly<Record<PageSize, readonly [wide: PageSize, narrow: PageSize]>> = {
+  lg: ["lg", "md"],
+  md: ["md", "sm"],
+  sm: ["sm", "sm"],
+};
+
+/**
+ * Returns the button size of the page's actions.
+ *
+ * @remarks
+ *   A narrow page renders its actions one size smaller, down to `sm`, so the title keeps its room
+ *   on a phone.
+ * @param state - The page's size and whether it is narrow.
+ * @returns The size the actions and the menu's trigger render at.
+ */
+export function buttonSizeOf(state: PageState): PageSize {
+  return BUTTONS[state.size][state.narrow ? 1 : 0];
+}
 
 /**
  * Describes the props of a part rendered at one width.
@@ -62,4 +85,14 @@ export interface WhenProps {
  */
 export function shown(when: PageWidth | undefined, narrow: boolean): boolean {
   return when === undefined || (when === "narrow") === narrow;
+}
+
+/**
+ * Returns whether a part rendered at one width renders on the nearest page.
+ *
+ * @param when - The width at which the part renders, or nothing for every width.
+ * @returns Whether the part renders.
+ */
+export function useShown(when: PageWidth | undefined): boolean {
+  return shown(when, usePage().narrow);
 }

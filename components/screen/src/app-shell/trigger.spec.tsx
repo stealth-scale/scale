@@ -92,4 +92,12 @@ describe("Trigger", () => {
 
     expect(screen.queryByRole("button", { name: "Navigation" })).toBeNull();
   });
+
+  it("renders the library's button as a neutral ghost", () => {
+    const { container } = render(shell(<Trigger>Navigation</Trigger>));
+
+    expect([...slotElement(container, "app-shell", "trigger").classList]).toStrictEqual(
+      expect.arrayContaining(["button", "button--ghost", "button--neutral"]),
+    );
+  });
 });

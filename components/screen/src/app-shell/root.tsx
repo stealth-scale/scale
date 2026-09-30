@@ -16,8 +16,8 @@ import { type ComponentProps, type ReactElement, useEffect, useMemo, useRef } fr
 import { useConst, useStickyOffsets } from "@stealthscale/hooks";
 
 import { withProvider } from "#app-shell/context.ts";
+import { SETTLED, STICKY_OFFSET, STICKY_TOP } from "#app-shell/metrics.ts";
 import { panelStore } from "#app-shell/panels.ts";
-import { SETTLED, STICKY_OFFSET, STICKY_TOP } from "#app-shell/recipe.ts";
 import { ShellProvider } from "#app-shell/state.ts";
 
 /**

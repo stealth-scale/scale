@@ -39,7 +39,7 @@ export interface Keyed {
 /**
  * Returns whether a key press is the shortcut with Control or Command held.
  */
-function chorded(event: KeyboardEvent, shortcut: string | undefined): boolean {
+export function chorded(event: KeyboardEvent, shortcut: string | undefined): boolean {
   return shortcut !== undefined && (event.ctrlKey || event.metaKey) && event.key === shortcut;
 }
 

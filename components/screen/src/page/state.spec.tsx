@@ -3,7 +3,7 @@ import { type ReactElement } from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { PageProvider, shown, useOptionalPage, usePage } from "#page/state.ts";
+import { buttonSizeOf, PageProvider, shown, useOptionalPage, usePage } from "#page/state.ts";
 
 /**
  * Renders the size that `usePage` returns.
@@ -27,8 +27,8 @@ function Optional(): ReactElement {
   return <span data-testid="size">{page?.size ?? "none"}</span>;
 }
 
-describe("usePage", () => {
-  it("returns the state the provider sets", () => {
+describe("state", () => {
+  it("returns the state the provider sets from usePage", () => {
     render(
       <PageProvider value={{ narrow: false, size: "lg" }}>
         <Reader />
@@ -38,32 +38,45 @@ describe("usePage", () => {
     expect(screen.getByTestId("size").textContent).toBe("lg");
   });
 
-  it("throws outside a page", () => {
+  it("throws from usePage outside a page", () => {
     expect(() => render(<Reader />)).toThrow(/Page/u);
   });
-});
 
-describe("useOptionalPage", () => {
   it("returns undefined from useOptionalPage outside a page", () => {
     render(<Optional />);
 
     expect(screen.getByTestId("size").textContent).toBe("none");
   });
-});
 
-describe("shown", () => {
-  it("shows a part at every width without when", () => {
-    expect(shown(undefined, true)).toBe(true);
-    expect(shown(undefined, false)).toBe(true);
+  it.each([
+    [true, undefined],
+    [false, undefined],
+    [true, "narrow"],
+    [false, "wide"],
+  ] as const)("shows a part on a page narrow %s when it renders at %s", (narrow, when) => {
+    expect(shown(when, narrow)).toBe(true);
   });
 
-  it("shows a narrow part on a folded page alone", () => {
-    expect(shown("narrow", true)).toBe(true);
-    expect(shown("narrow", false)).toBe(false);
+  it.each([
+    [false, "narrow"],
+    [true, "wide"],
+  ] as const)("hides a part on a page narrow %s when it renders at %s", (narrow, when) => {
+    expect(shown(when, narrow)).toBe(false);
   });
 
-  it("hides a wide part on a folded page", () => {
-    expect(shown("wide", true)).toBe(false);
-    expect(shown("wide", false)).toBe(true);
+  it.each([
+    ["lg", "lg"],
+    ["md", "md"],
+    ["sm", "sm"],
+  ] as const)("returns the %s button on a wide page of size %s", (size, button) => {
+    expect(buttonSizeOf({ narrow: false, size })).toBe(button);
+  });
+
+  it.each([
+    ["lg", "md"],
+    ["md", "sm"],
+    ["sm", "sm"],
+  ] as const)("returns one button size smaller on a narrow page of size %s", (size, button) => {
+    expect(buttonSizeOf({ narrow: true, size })).toBe(button);
   });
 });

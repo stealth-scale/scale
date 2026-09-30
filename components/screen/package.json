@@ -51,14 +51,23 @@
     "prepublishOnly": "vp pack",
     "test": "vp test"
   },
+  "dependencies": {
+    "@zag-js/dom-query": "catalog:",
+    "@zag-js/floating-panel": "catalog:",
+    "@zag-js/react": "catalog:",
+    "@zag-js/splitter": "catalog:",
+    "@zag-js/types": "catalog:"
+  },
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
     "@rolldown/plugin-babel": "catalog:",
     "@stealthscale/component-a11y": "workspace:^",
     "@stealthscale/component-actions": "workspace:^",
+    "@stealthscale/component-data": "workspace:^",
     "@stealthscale/component-disclosure": "workspace:^",
     "@stealthscale/component-forms": "workspace:^",
     "@stealthscale/component-layout": "workspace:^",
+    "@stealthscale/component-modals": "workspace:^",
     "@stealthscale/component-navigation": "workspace:^",
     "@stealthscale/component-primitives": "workspace:^",
     "@stealthscale/component-typography": "workspace:^",
@@ -87,9 +96,13 @@
   "peerDependencies": {
     "@stealthscale/component-a11y": "workspace:^",
     "@stealthscale/component-actions": "workspace:^",
+    "@stealthscale/component-data": "workspace:^",
     "@stealthscale/component-disclosure": "workspace:^",
+    "@stealthscale/component-forms": "workspace:^",
     "@stealthscale/component-layout": "workspace:^",
+    "@stealthscale/component-modals": "workspace:^",
     "@stealthscale/component-navigation": "workspace:^",
+    "@stealthscale/component-primitives": "workspace:^",
     "@stealthscale/component-typography": "workspace:^",
     "@stealthscale/hooks": "workspace:^",
     "@stealthscale/provider-viewport": "workspace:^",

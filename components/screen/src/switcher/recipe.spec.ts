@@ -12,36 +12,6 @@ import page from "#switcher/switcher.specimen.tsx";
 const PARTS = ["root", "mark", "label", "name", "detail", "indicator"];
 
 describe("recipe", () => {
-  it("fills the plain look in its interactive states", () => {
-    expect(recipe.variants?.["variant"]?.["plain"]?.["root"]).toStrictEqual({
-      _active: { background: "bg.emphasized" },
-      _hover: { background: "bg.muted" },
-      _open: { background: "bg.muted" },
-      background: "transparent",
-    });
-  });
-
-  it("fills the subtle look one step darker in its interactive states", () => {
-    expect(recipe.variants?.["variant"]?.["subtle"]?.["root"]).toStrictEqual({
-      _active: { background: "bg.emphasized" },
-      _hover: { background: "bg.emphasized" },
-      _open: { background: "bg.emphasized" },
-      background: "bg.muted",
-    });
-  });
-
-  it("writes the hover and open fills inside every look", () => {
-    const looks = recipe.variants?.["variant"];
-
-    expect([
-      looks?.["outline"]?.["root"],
-      looks?.["plain"]?.["root"],
-      looks?.["subtle"]?.["root"],
-    ]).toSatisfy((roots: ReadonlyArray<Record<string, unknown> | undefined>) =>
-      roots.every((root) => root !== undefined && "_open" in root && "_hover" in root),
-    );
-  });
-
   it("covers every variant axis in the scenes of its specimen page", () => {
     expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
   });
@@ -62,30 +32,119 @@ describe("recipe", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
   });
 
-  it("declares three axes", () => {
-    expect(axesOf(recipe)).toStrictEqual(["placement", "size", "variant"]);
+  it("declares four axes", () => {
+    expect(axesOf(recipe)).toStrictEqual(["palette", "placement", "size", "variant"]);
   });
 
-  it("defaults to a plain switcher at md in a sidebar", () => {
-    expect(defaultsOf(recipe)).toStrictEqual({
-      placement: "sidebar",
-      size: "md",
-      variant: "plain",
+  it("defaults to a ghost switcher at md on its own", () => {
+    expect(defaultsOf(recipe)).toStrictEqual({ placement: "alone", size: "md", variant: "ghost" });
+  });
+
+  it("declares the button's six looks", () => {
+    expect(valuesOf(recipe, "variant")).toStrictEqual([
+      "ghost",
+      "outline",
+      "plain",
+      "solid",
+      "subtle",
+      "surface",
+    ]);
+  });
+
+  it("draws the outline look with the button's light edge", () => {
+    expect(recipe.variants?.["variant"]?.["outline"]).toStrictEqual({
+      root: { layerStyle: "outline.muted" },
     });
   });
 
-  it("sizes the mark to icon.lg in a toolbar", () => {
-    expect(recipe.compoundVariants).toStrictEqual([
-      {
-        className: "switcher__mark--marked",
-        css: { mark: { boxSize: "calc({sizes.icon.lg} * var(--density, 1))", fontSize: "xs" } },
-        placement: "toolbar",
-      },
-    ]);
+  it("keeps a transparent edge on every look", () => {
+    expect(recipe.base?.["root"]).toMatchObject({
+      borderColor: "transparent",
+      borderWidth: "control",
+    });
+  });
+
+  it("sets colorPalette on the root for each palette", () => {
+    expect(recipe.variants?.["palette"]?.["accent"]).toStrictEqual({
+      root: { colorPalette: "accent" },
+    });
+  });
+
+  it("declares three placements", () => {
+    expect(valuesOf(recipe, "placement")).toStrictEqual(["alone", "sidebar", "toolbar"]);
+  });
+
+  it("fills the column in a sidebar", () => {
+    expect(recipe.variants?.["placement"]?.["sidebar"]?.["root"]).toMatchObject({
+      inlineSize: "full",
+    });
+  });
+
+  it("renders the mark alone without padding or edge on a rail", () => {
+    expect(recipe.variants?.["placement"]?.["sidebar"]?.["root"]?.["&[data-iconic]"]).toMatchObject(
+      { aspectRatio: "square", borderWidth: "0", justifyContent: "center", padding: "0" },
+    );
+  });
+
+  it("fits its words on one line in a toolbar", () => {
+    expect(recipe.variants?.["placement"]?.["toolbar"]).toStrictEqual({
+      detail: { display: "none" },
+      root: { inlineSize: "fit", minBlockSize: "var(--switcher-height)" },
+    });
+  });
+
+  it("sets the switcher height to the control height at each size", () => {
+    expect(recipe.variants?.["size"]?.["sm"]?.["root"]).toMatchObject({
+      "--switcher-height": "calc({sizes.control.sm} * var(--density, 1))",
+    });
+  });
+
+  it("sets no minimum height in a sidebar", () => {
+    expect(recipe.variants?.["placement"]?.["sidebar"]?.["root"]).not.toHaveProperty(
+      "minBlockSize",
+    );
+  });
+
+  it("fits its words on one line on its own", () => {
+    expect(recipe.variants?.["placement"]?.["alone"]).toStrictEqual(
+      recipe.variants?.["placement"]?.["toolbar"],
+    );
+  });
+
+  it("hides the label visually on a rail", () => {
+    expect(recipe.base?.["label"]?.[".switcher__root[data-iconic] &"]).toStrictEqual({
+      srOnly: true,
+    });
+  });
+
+  it("hides the label visually in a narrow toolbar when the control has a mark", () => {
+    expect(
+      recipe.base?.["label"]?.[".switcher__root[data-narrow]:has(.switcher__mark) &"],
+    ).toStrictEqual({ srOnly: true });
+  });
+
+  it("removes the indicator on a rail", () => {
+    expect(recipe.base?.["indicator"]?.[".switcher__root[data-iconic] &"]).toStrictEqual({
+      display: "none",
+    });
+  });
+
+  it("sizes the mark to icon.lg on one line", () => {
+    expect(
+      recipe.compoundVariants?.find((each) => each.className === "switcher__mark--marked"),
+    ).toMatchObject({
+      css: { mark: { boxSize: "calc({sizes.icon.lg} * var(--density, 1))", fontSize: "xs" } },
+      placement: ["alone", "toolbar"],
+    });
+  });
+
+  it("sets the trigger's own ink on two parts of the solid look", () => {
+    expect(recipe.compoundVariants?.filter((each) => each.variant === "solid")).toHaveLength(2);
   });
 
   it("sets the control's text style one size smaller than its size", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["root"]).toStrictEqual({
+      "--switcher-height": "calc({sizes.control.md} * var(--density, 1))",
       borderRadius: "l2",
       gap: "calc({spacing.gap.md} * var(--density, 1))",
       paddingBlock: "calc({spacing.gap.sm} * var(--density, 1))",
@@ -94,23 +153,6 @@ describe("recipe", () => {
     });
     expect(recipe.variants?.["size"]?.["md"]?.["name"]).toStrictEqual({ textStyle: "body.sm" });
     expect(recipe.base?.["name"]).toMatchObject({ fontWeight: "medium" });
-  });
-
-  it("fills the column in a sidebar", () => {
-    expect(recipe.variants?.["placement"]?.["sidebar"]?.["root"]).toStrictEqual({
-      inlineSize: "full",
-    });
-  });
-
-  it("fits its words in a toolbar", () => {
-    expect(recipe.variants?.["placement"]?.["toolbar"]).toStrictEqual({
-      detail: { display: "none" },
-      root: { inlineSize: "fit" },
-    });
-  });
-
-  it("declares three looks", () => {
-    expect(valuesOf(recipe, "variant")).toStrictEqual(["outline", "plain", "subtle"]);
   });
 
   it("truncates the name", () => {
@@ -142,18 +184,12 @@ describe("recipe", () => {
     });
   });
 
-  it("renders the mark as a tinted square with its content centred", () => {
-    expect(recipe.base?.["mark"]).toStrictEqual({
-      alignItems: "center",
-      background: "bg.muted",
+  it("renders the mark as a square in the palette's muted fill", () => {
+    expect(recipe.base?.["mark"]).toMatchObject({
+      background: "colorPalette.muted",
       borderRadius: "l1",
-      color: "fg.muted",
-      display: "inline-flex",
-      flexShrink: "0",
-      fontWeight: "semibold",
+      color: "colorPalette.fg",
       justifyContent: "center",
-      lineHeight: "tight",
-      overflow: "clip",
     });
   });
 
@@ -164,8 +200,8 @@ describe("recipe", () => {
     });
   });
 
-  it("sets the control's ink to fg.muted in the neutral palette", () => {
-    expect(recipe.base?.["root"]).toMatchObject({ color: "fg.muted", colorPalette: "neutral" });
+  it("sets the neutral palette in the base", () => {
+    expect(recipe.base?.["root"]).toMatchObject({ colorPalette: "neutral" });
   });
 
   it("matches every Switcher tag", () => {

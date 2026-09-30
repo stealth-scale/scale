@@ -3,13 +3,14 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#toolbar/index.ts";
 
 describe("index", () => {
-  it("exports the nine parts alone", () => {
+  it("exports the ten parts alone", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Action",
       "Center",
       "End",
-      "Folded",
+      "Group",
       "Item",
+      "Link",
       "Root",
       "Search",
       "Separator",

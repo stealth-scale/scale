@@ -1,22 +1,30 @@
 {
-  "about": "Lays out the navigation of an application as a column: a fixed header, scrolling content with blocks of destinations, and a fixed footer. Each block is a navigation landmark named by its label.",
+  "about": "Lays out the navigation of an application as a column: a header and a footer that keep their height, and content that scrolls between them. Each block of destinations is a navigation landmark named by its label, and a search filters the rows of its scope. Inside an app shell panel that closes to icons, the sidebar becomes a rail of icons.",
+  "account": "Account",
   "acme": "Acme",
   "active": "Active",
-  "addProject": "Add project",
+  "approvals": "Approvals",
   "archived": "Archived",
   "billing": "Billing",
   "button": "Button",
   "card": "Card",
-  "clear": "Clear filter",
+  "catalog": "Catalog",
+  "checkout": "Checkout",
+  "clearFilter": "Clear the filter",
   "components": "Components",
   "customers": "Customers",
   "documentation": "Documentation",
   "expenses": "Expenses",
+  "filter": "Filter…",
   "filterPages": "Filter pages",
+  "filterPlaceholder": "Filter…",
+  "filterProjects": "Filter projects",
+  "filterProjectsHint": "Filter projects…",
   "filtering": {
-    "about": "A search field that filters the pages. The query matches no page, so the block shows the empty message.",
+    "about": "A search inside a block filters that block's rows. The query matches no page, so the block shows its empty message, which a screen reader hears as a polite status.",
     "title": "Filter"
   },
+  "findPage": "Find a page",
   "general": "General",
   "guides": "Guides",
   "handbook": "Acme handbook",
@@ -25,32 +33,54 @@
     "title": "Headings"
   },
   "invoices": "Invoices",
-  "launch": "Spring launch",
-  "migration": "Data migration",
+  "ledger": "Ledger",
+  "navigation": "Navigation",
+  "newProject": "New project",
   "noMatch": "No pages match",
+  "onboarding": "Onboarding",
   "overview": "Overview",
   "pages": "Pages",
-  "projects": "Projects",
-  "query": "Zebra",
-  "rail": {
-    "about": "The sidebar collapsed to a rail of icons. The labels and the words in the header and the footer are hidden visually and remain available to screen readers. The search and the block controls are removed.",
-    "title": "Rail"
+  "person": "Mara Lindqvist",
+  "phone": {
+    "about": "The same console at a phone's width. The panel leaves the body, and the menu button opens the sidebar over the page: focus moves into it, the rest of the shell is inert, and its rows grow to a touch size. Choosing a row closes the sheet. Along the bottom, a navigation list in the `dock` variant lists the four destinations, each an icon over its label, and the left and right arrow keys move between them. The bar renders only while the shell is narrow.",
+    "title": "On a phone: a sheet and a bar along the bottom"
   },
+  "pipelines": "Pipelines",
+  "places": "Places",
+  "platform": "Platform",
+  "platformEmpty": "Nothing matches",
+  "production": "Production",
+  "projects": "Projects",
+  "projectsEmpty": "No project by that name",
+  "query": "Zebra",
   "reports": "Reports",
   "revenue": "Revenue",
-  "search": "Search",
+  "rail": {
+    "about": "The sidebar collapsed to a rail of icons. The labels and the words in the header are hidden visually and remain available to screen readers. Each link shows its words in a tooltip on hover and on focus. The block controls are removed, and a search outside an app shell panel is removed.",
+    "title": "Rail"
+  },
+  "runs": "Runs",
+  "runsAbout": "Every pipeline run in the last seven days.",
+  "shell": {
+    "about": "The console in an app shell panel that closes to icons. Press the menu button to close the panel: every row shows its icon, with its label in a tooltip and in its accessible name, the search becomes a button that opens the panel again and moves focus to the field, and the words in the header are hidden visually. Below the `sm` breakpoint the panel leaves the body, and the menu button opens it over the page.",
+    "title": "In a shell, closing to icons"
+  },
   "settings": "Settings",
-  "signedIn": "Signed in as Ada",
   "size": {
-    "about": "The three sizes. The size sets the padding, the gaps and the text of the header, the labels and the footer. The navigation list and the search field take the same size through their own props.",
+    "about": "The three sizes. The size sets the padding, the gaps, the words in the header, the search field and the rows of every navigation list inside the sidebar.",
     "title": "Sizes"
   },
   "start": "Getting started",
   "theming": "Theming",
   "title": "Sidebar",
   "variant": {
-    "about": "The four looks. `outline` has a hairline at the inline end, `plain` is transparent, `subtle` has a muted ground, and `surface` has the panel ground, a hairline on every side and a shadow. The app shell sets the width, so each sidebar renders in a room the width of a sidebar.",
+    "about": "The four looks. `outline` has a hairline at the inline end, `plain` is transparent, `subtle` has a muted ground, and `surface` has the panel ground, a hairline on every side and a shadow. Each sidebar renders in a room the width of a sidebar.",
     "title": "Looks"
+  },
+  "warehouse": "Warehouse",
+  "whole": {
+    "about": "The search in the header filters every row, and the search in the Projects block filters that block. Rows that do not contain the query are hidden. A block left without rows shows its message, which a screen reader hears as a polite status, and a block without a message is hidden. Each block is a navigation landmark named by its label, so a screen reader lists Platform, Projects and Account. ⌘K moves focus to the header's search, and the down arrow moves from the field to the first row.",
+    "title": "In full"
   },
   "workspace": "Workspace"
 }

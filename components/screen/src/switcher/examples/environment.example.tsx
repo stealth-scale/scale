@@ -2,7 +2,6 @@ import { type ReactElement, useState } from "react";
 
 import { CheckIcon, ChevronsUpDownIcon, RocketIcon } from "lucide-react";
 
-import { Button } from "@stealthscale/component-actions";
 import { Menu } from "@stealthscale/component-disclosure";
 import { Portal } from "@stealthscale/component-primitives";
 import { useWords } from "@stealthscale/specimen";
@@ -53,9 +52,8 @@ export function Environment(props: Switcher.RootProps): ReactElement {
         </Switcher.Root>
       </Toolbar.Start>
       <Toolbar.End>
-        <Toolbar.Action as={Button} size="sm">
-          <RocketIcon size="1em" />
-          <span>{t("deploy")}</span>
+        <Toolbar.Action icon={<RocketIcon size="1em" />} primary>
+          {t("deploy")}
         </Toolbar.Action>
       </Toolbar.End>
     </Toolbar.Root>

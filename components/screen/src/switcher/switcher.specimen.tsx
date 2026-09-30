@@ -2,46 +2,80 @@
  * Catalogue page for the switcher.
  *
  * @remarks
- *   The sidebar scene renders the workspaces example at a sidebar's width. `scenesOf` generates the
- *   placements on the subtle look, so the control's width shows, and the looks across the sizes,
- *   from the same example. The toolbar scene renders the environment example in a toolbar. Every
- *   switcher renders closed and portals its menu to the document body, so an opened menu renders
- *   over the page. The rooms never appear in the examples. The words are keys under `switcher` in
- *   `locales/en/specimen/switcher.json`.
+ *   The first three scenes render the switcher where an application renders it: at the head of a
+ *   sidebar in an app shell whose navigation closes to icons, in a toolbar at a card's width and at
+ *   a phone's width, and on its own with a page per workspace. The composed scene renders an
+ *   environment switcher from the parts in a toolbar. `scenesOf` generates the looks, the palettes,
+ *   the sizes and the placements from the workspaces example. Every switcher renders closed and
+ *   portals its menu to the document body. The rooms and the boxes never appear in the examples.
+ *   The words are keys under `switcher` in `locales/en/specimen/switcher.json`.
  */
 
-import { Room, type Scene, scenesOf, specimen } from "@stealthscale/specimen";
+import { Stack } from "@stealthscale/component-layout";
+import { Room, Sample, type Scene, scenesOf, Screen, specimen } from "@stealthscale/specimen";
 
 import * as examples from "#switcher/examples/index.ts";
 import type * as Switcher from "#switcher/index.ts";
 import { recipe } from "#switcher/recipe.ts";
 
 /**
- * Hand-written scene for the switcher at a sidebar's width.
+ * Hand-written scene for the switcher at the head of a sidebar in an app shell.
  */
 export const sidebar: Scene = {
   about: "switcher.sidebar.about",
   draw: () => (
-    <Room size="xs">
-      <examples.workspaces.Workspaces />
-    </Room>
+    <Screen size="md">
+      <examples.console.Console />
+    </Screen>
   ),
-  example: examples.workspaces,
+  example: examples.console,
+  frame: "bleed",
   title: "switcher.sidebar.title",
 };
 
 /**
- * Hand-written scene for a switcher in a toolbar.
+ * Hand-written scene for the switcher in a toolbar, wide and at a phone's width.
  */
 export const toolbar: Scene = {
   about: "switcher.toolbar.about",
+  draw: () => (
+    <Stack gap="md">
+      <Sample place="stretch" variant="outline">
+        <examples.bar.Bar />
+      </Sample>
+      <Room size="sm">
+        <Sample place="stretch" variant="outline">
+          <examples.bar.Bar />
+        </Sample>
+      </Room>
+    </Stack>
+  ),
+  example: examples.bar,
+  title: "switcher.toolbar.title",
+};
+
+/**
+ * Hand-written scene for the switcher on its own, a link per workspace.
+ */
+export const alone: Scene = {
+  about: "switcher.alone.about",
+  draw: examples.linked.Linked,
+  example: examples.linked,
+  title: "switcher.alone.title",
+};
+
+/**
+ * Hand-written scene for a switcher composed from its parts.
+ */
+export const composed: Scene = {
+  about: "switcher.composed.about",
   draw: () => (
     <Room size="md">
       <examples.environment.Environment />
     </Room>
   ),
   example: examples.environment,
-  title: "switcher.toolbar.title",
+  title: "switcher.composed.title",
 };
 
 export default specimen({
@@ -50,24 +84,34 @@ export default specimen({
   imports: 'import { Switcher } from "@stealthscale/component-screen";',
   scenes: [
     sidebar,
+    toolbar,
+    alone,
     ...scenesOf<Switcher.RootProps>(recipe, {
       axes: {
+        palette: { with: { variant: "subtle" } },
         placement: {
           draw: (props) => (
             <Room size="xs">
               <examples.workspaces.Workspaces {...props} />
             </Room>
           ),
-          with: { variant: "subtle" },
+          with: { variant: "outline" },
         },
-        variant: { across: "size" },
+        size: {
+          draw: (props) => (
+            <Room size="xs">
+              <examples.workspaces.Workspaces {...props} />
+            </Room>
+          ),
+          with: { placement: "sidebar", variant: "outline" },
+        },
       },
       draw: (props) => <examples.workspaces.Workspaces {...props} />,
       example: examples.workspaces,
       namespace: "switcher",
-      order: ["placement", "variant"],
+      order: ["variant", "palette", "size", "placement"],
     }),
-    toolbar,
+    composed,
   ],
   title: "switcher.title",
 });

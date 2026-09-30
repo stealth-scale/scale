@@ -2,17 +2,22 @@ import { type ReactElement } from "react";
 
 import {
   Building2Icon,
-  CircleUserIcon,
-  DatabaseIcon,
   FileTextIcon,
   LayoutDashboardIcon,
-  RocketIcon,
+  UserIcon,
+  UsersIcon,
 } from "lucide-react";
 
 import { NavList } from "@stealthscale/component-navigation";
 import { useWords } from "@stealthscale/specimen";
 
 import * as Sidebar from "#sidebar/index.ts";
+
+const PAGES = [
+  ["overview", LayoutDashboardIcon, "page"],
+  ["invoices", FileTextIcon, undefined],
+  ["customers", UsersIcon, undefined],
+] as const;
 
 export function Rail(): ReactElement {
   const { t } = useWords("sidebar");
@@ -26,44 +31,29 @@ export function Rail(): ReactElement {
       <Sidebar.Content>
         <Sidebar.Nav>
           <Sidebar.NavLabel as="h3">{t("workspace")}</Sidebar.NavLabel>
-          <NavList.Root iconic>
-            <NavList.Item>
-              <NavList.Link aria-current="page" href="#overview">
-                <LayoutDashboardIcon />
-                <span>{t("overview")}</span>
-              </NavList.Link>
-            </NavList.Item>
-            <NavList.Item>
-              <NavList.Link href="#invoices">
-                <FileTextIcon />
-                <span>{t("invoices")}</span>
-              </NavList.Link>
-              <NavList.Badge>3</NavList.Badge>
-            </NavList.Item>
-          </NavList.Root>
-        </Sidebar.Nav>
-        <Sidebar.Separator />
-        <Sidebar.Nav>
-          <Sidebar.NavLabel as="h3">{t("projects")}</Sidebar.NavLabel>
-          <NavList.Root iconic>
-            <NavList.Item>
-              <NavList.Link href="#launch">
-                <RocketIcon />
-                <span>{t("launch")}</span>
-              </NavList.Link>
-            </NavList.Item>
-            <NavList.Item>
-              <NavList.Link href="#migration">
-                <DatabaseIcon />
-                <span>{t("migration")}</span>
-              </NavList.Link>
-            </NavList.Item>
+          <NavList.Root>
+            {PAGES.map(([page, Glyph, current]) => (
+              <NavList.Item key={page}>
+                <NavList.Link aria-current={current} href={`#${page}`} tooltip={t(page)}>
+                  <Glyph />
+                  <span>{t(page)}</span>
+                </NavList.Link>
+              </NavList.Item>
+            ))}
           </NavList.Root>
         </Sidebar.Nav>
       </Sidebar.Content>
       <Sidebar.Footer>
-        <CircleUserIcon />
-        <span>{t("signedIn")}</span>
+        <Sidebar.Nav aria-label={t("account")}>
+          <NavList.Root>
+            <NavList.Item>
+              <NavList.Link href="#account" tooltip={t("person")}>
+                <UserIcon />
+                <span>{t("person")}</span>
+              </NavList.Link>
+            </NavList.Item>
+          </NavList.Root>
+        </Sidebar.Nav>
       </Sidebar.Footer>
     </Sidebar.Root>
   );

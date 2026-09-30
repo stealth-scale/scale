@@ -3,6 +3,7 @@
  * one module.
  */
 
+export * as editor from "#toolbar/examples/editor.example.tsx";
 export * as invoices from "#toolbar/examples/invoices.example.tsx";
-export * as searching from "#toolbar/examples/searching.example.tsx";
-export * as sizes from "#toolbar/examples/sizes.example.tsx";
+export * as loose from "#toolbar/examples/loose.example.tsx";
+export * as publishing from "#toolbar/examples/publishing.example.tsx";

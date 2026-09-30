@@ -11,7 +11,7 @@ describe("Main", () => {
   it("renders a main element inside the body", () => {
     const { container } = render(bodied(<Main>Billing</Main>));
 
-    expect(slotElement(container, "app-shell", "main").tagName).toBe("MAIN");
+    expect(slotElement(container, "app-shell", "mainViewport").tagName).toBe("MAIN");
   });
 
   it("exposes the main landmark", () => {
@@ -20,7 +20,25 @@ describe("Main", () => {
     expect(screen.getByRole("main")).toBeTruthy();
   });
 
-  it("stays interactive while no panel is over the page", () => {
+  it("keeps the main role on the element that scrolls", () => {
+    const { container } = render(bodied(<Main>Billing</Main>));
+
+    expect(slotElement(container, "app-shell", "mainViewport").getAttribute("role")).toBe("main");
+  });
+
+  it("passes its props to the main element", () => {
+    render(bodied(<Main id="content">Billing</Main>));
+
+    expect(screen.getByRole("main").id).toBe("content");
+  });
+
+  it("renders the page in the column inside the main element", () => {
+    const { container } = render(bodied(<Main>Billing</Main>));
+
+    expect(slotElement(container, "app-shell", "column").parentElement?.tagName).toBe("MAIN");
+  });
+
+  it("leaves the region interactive while no panel is over the page", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "app-shell", "main").inert).toBe(false);

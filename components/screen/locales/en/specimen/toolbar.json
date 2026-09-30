@@ -1,33 +1,57 @@
 {
-  "about": "Renders a row of controls over a table or a list, with one tab stop for the row. The arrow keys move between the controls, and a narrow row folds the controls that matter least.",
+  "about": "Renders a row of controls over a document, a table or a list, with one tab stop for the row. The arrow keys move between the controls. A narrow row folds its actions, its links and its search on its own.",
   "april": "April",
-  "closeSearch": "Close the search",
+  "bold": "Bold",
+  "catalogue": "Catalogue",
+  "clearFind": "Clear the search",
+  "clearSearch": "Clear the search",
   "columns": "Columns",
+  "dark": "Dark",
+  "draft": "Untitled draft",
+  "drafts": "Drafts",
+  "duplicate": "Duplicate",
+  "editing": "Editing",
   "export": "Export",
   "filter": "Filter",
+  "find": "Find in draft",
+  "findPlaceholder": "Find…",
+  "folding": {
+    "about": "The same toolbar at the card's width and at a phone's width. The row measures itself. Narrow, the search folds to a button with its magnifier, and the button opens the field over the whole row. The action with an icon shows the icon alone, the links and the plain actions move into the menu at the end, the primary action keeps its words, and the title in the centre is cut short.",
+    "title": "Wide and folded for a phone"
+  },
   "invoices": "Invoices",
+  "italic": "Italic",
+  "light": "Light",
+  "longTitle": "A title long enough to be cut short on a phone, which it is",
+  "loose": {
+    "about": "A control outside `Toolbar.Item`, `Toolbar.Action` and `Toolbar.Link` is a tab stop of its own, outside the arrow keys. The light and dark buttons are one such pair.",
+    "title": "Controls outside the arrow keys"
+  },
+  "menu": "Menu",
   "more": "More invoice actions",
-  "openSearch": "Open the search",
+  "morePublishing": "More publishing actions",
+  "pages": "Pages",
+  "publish": "Publish",
+  "published": "Published",
+  "publishing": "Publishing",
   "radius": {
     "about": "Every corner of an outlined row.",
     "title": "Corners"
   },
-  "room": {
-    "about": "One row in three rooms. The row folds on its own width: in the narrow room, the secondary action shows its icon alone, and the tertiary action moves behind the folded control.",
-    "title": "Rooms"
-  },
   "search": "Search invoices",
-  "searching": {
-    "about": "The search covers a narrow row while it is open. Opening it moves focus to the field, and closing it moves focus back to the control that opened it.",
-    "title": "Search"
-  },
+  "share": "Share",
   "size": {
-    "about": "The three sizes. The size sets the gaps and the separator, and the buttons and the search field take the same size through their providers.",
+    "about": "The three sizes. The size sets the gaps, the separator and every button in the row.",
     "title": "Sizes"
   },
   "title": "Toolbar",
+  "underline": "Underline",
   "variant": {
     "about": "The three looks: plain, outline and surface. An outlined or surface row pads its controls by its own gap.",
     "title": "Looks"
+  },
+  "whole": {
+    "about": "The start band, the centre band and the end band. The row is one tab stop. The arrow keys move between its controls and continue at the other end, and Home and End move to its first and last control. The formatting controls are a group pressed together, and each one is a toggle with `aria-pressed`.",
+    "title": "Three bands"
   }
 }

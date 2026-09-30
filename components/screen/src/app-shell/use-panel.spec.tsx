@@ -135,4 +135,10 @@ describe("usePanel", () => {
 
     expect(screen.getByRole("button").dataset["overlaid"]).toBe("");
   });
+
+  it("keeps a panel that never folds beside the page at a phone width", () => {
+    render(narrowed(shell(<Reader foldsBelow="never" />)));
+
+    expect(screen.getByRole("button").dataset["overlaid"]).toBeUndefined();
+  });
 });

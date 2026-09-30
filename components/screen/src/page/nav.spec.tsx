@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { slotElement } from "@stealthscale/testing-theme";
 
+import { narrowed } from "#app-shell/app-shell.fixtures.tsx";
 import { Nav } from "#page/nav.tsx";
 import { paged } from "#page/page.fixtures.tsx";
 
@@ -29,5 +30,19 @@ describe("Nav", () => {
     );
 
     expect(slotElement(container, "page", "nav").dataset["sticky"]).toBe("");
+  });
+
+  it("renders nothing on a narrow page when when is wide", () => {
+    render(
+      narrowed(
+        paged(
+          <Nav aria-label="Invoice" when="wide">
+            Lines
+          </Nav>,
+        ),
+      ),
+    );
+
+    expect(screen.queryByRole("navigation")).toBeNull();
   });
 });

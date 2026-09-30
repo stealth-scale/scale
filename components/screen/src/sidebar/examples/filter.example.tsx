@@ -1,4 +1,4 @@
-import { type ComponentType, type ReactElement, useState } from "react";
+import { type ComponentType, type ReactElement } from "react";
 
 import {
   ChartColumnIcon,
@@ -9,7 +9,6 @@ import {
   XIcon,
 } from "lucide-react";
 
-import { SearchInput } from "@stealthscale/component-forms";
 import { NavList } from "@stealthscale/component-navigation";
 import { useWords } from "@stealthscale/specimen";
 
@@ -24,40 +23,30 @@ const PAGES: ReadonlyArray<readonly [string, ComponentType]> = [
 
 export function Filter(): ReactElement {
   const { t } = useWords("sidebar");
-  const [query, setQuery] = useState("");
-  const wanted = query.trim().toLocaleLowerCase();
-  const shown = PAGES.filter(([page]) => t(page).toLocaleLowerCase().includes(wanted));
 
   return (
     <Sidebar.Root variant="subtle">
       <Sidebar.Content>
-        <Sidebar.Search>
-          <SearchInput
-            aria-label={t("filterPages")}
-            clearIndicator={<XIcon />}
-            clearLabel={t("clear")}
-            onValueChange={setQuery}
-            searchIndicator={<SearchIcon />}
-            size="sm"
-            value={query}
-          />
-        </Sidebar.Search>
         <Sidebar.Nav>
           <Sidebar.NavLabel as="h3">{t("pages")}</Sidebar.NavLabel>
-          {shown.length === 0 ? (
-            <Sidebar.Empty>{t("noMatch")}</Sidebar.Empty>
-          ) : (
-            <NavList.Root>
-              {shown.map(([page, Glyph]) => (
-                <NavList.Item key={page}>
-                  <NavList.Link href={`#${page}`}>
-                    <Glyph />
-                    <span>{t(page)}</span>
-                  </NavList.Link>
-                </NavList.Item>
-              ))}
-            </NavList.Root>
-          )}
+          <Sidebar.Search
+            aria-label={t("filterPages")}
+            clearIndicator={<XIcon />}
+            clearLabel={t("clearFilter")}
+            placeholder={t("filterPlaceholder")}
+            searchIndicator={<SearchIcon />}
+          />
+          <NavList.Root>
+            {PAGES.map(([page, Glyph]) => (
+              <NavList.Item key={page}>
+                <NavList.Link href={`#${page}`}>
+                  <Glyph />
+                  <span>{t(page)}</span>
+                </NavList.Link>
+              </NavList.Item>
+            ))}
+          </NavList.Root>
+          <Sidebar.Empty>{t("noMatch")}</Sidebar.Empty>
         </Sidebar.Nav>
       </Sidebar.Content>
     </Sidebar.Root>

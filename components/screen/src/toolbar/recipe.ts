@@ -4,17 +4,19 @@
  * @remarks
  *   A band left out takes no room. The centre takes the room the other bands leave and truncates a
  *   long title, because a toolbar on two lines moves everything under it. The root sets the gap as
- *   `--toolbar-gap`, which every band reads. The gap is two gap sizes smaller than the toolbar's
- *   size, so a row of controls reads as one bar. The layout package's `Group` joins controls, and
- *   the separator is the layout divider stretched to the row's height. The search and its content
- *   have no minimum width, and the search takes the room the bands leave, down to zero, because the
- *   bands keep the width of their controls. An opened search covers the row. The recipe has no
- *   `palette` axis, because the controls in the row set their own palettes, and no `effect` axis,
- *   because the row is not a control.
+ *   `--toolbar-gap`, which every band reads: the gap token of the toolbar's size, 8px at `md`. The
+ *   layout package's `Group` joins controls, and the separator is the layout divider stretched to
+ *   the row's height. The search is 15rem wide and does not grow, because the centre takes the free
+ *   room. As a child of the row it shrinks down to zero before a band's controls do. A field's
+ *   percentage width gives a band no content width, so the search states an inline size. An opened
+ *   search covers the whole row, the padding and the edge of an outline or surface row included,
+ *   and the root hides its other children while it is open, so the row needs no fill of its own on
+ *   any surface. The recipe has no `palette`
+ *   axis, because the controls in the row set their own palettes, and no `effect` axis, because the
+ *   row is not a control.
  */
 
 import {
-  below,
   cornerVariants,
   defineSlotRecipe,
   dense,
@@ -25,7 +27,7 @@ import {
   truncate,
 } from "@stealthscale/theme/authoring";
 
-import { FOLDED, FOLDING } from "#folding/index.ts";
+import { FOLDING } from "#folding/folding.ts";
 
 /**
  * Custom property the root sets to the gap between controls, which every band reads.
@@ -33,9 +35,30 @@ import { FOLDED, FOLDING } from "#folding/index.ts";
 export const GAP = "--toolbar-gap";
 
 /**
+ * Custom property the root sets to its own padding in the outline and surface looks.
+ */
+export const INSET = "--toolbar-inset";
+
+/**
+ * Custom property the outline and surface looks set to the root's edge width, which an opened
+ * search covers.
+ */
+export const EDGE = "--toolbar-edge";
+
+/**
  * Styles every band: a row of controls, centred on the cross axis.
  */
 const BAND = { alignItems: "center", display: "flex", gap: `var(${GAP})`, minInlineSize: "0" };
+
+/**
+ * Class name of the recipe, which a selector across parts reads.
+ */
+const CLASS = "toolbar";
+
+/**
+ * Selects a root while its search is open.
+ */
+const SEARCHING = `&:has(.${CLASS}__search[data-opened])`;
 
 /**
  * Defines the toolbar recipe: a plain row at size `md` with `l2` corners by default.
@@ -51,29 +74,35 @@ export const recipe = defineSlotRecipe({
       justifyContent: "center",
     },
     end: { ...BAND, flexShrink: "0", marginInlineStart: "auto" },
-    folded: { ...FOLDED, alignItems: "center", flexShrink: "0", justifyContent: "center" },
-    root: { ...BAND, inlineSize: "100%", position: "relative" },
+    group: { flexShrink: "0" },
+    root: {
+      ...BAND,
+      inlineSize: "100%",
+      position: "relative",
+      [SEARCHING]: { [`& > :not(.${CLASS}__search)`]: { visibility: "hidden" } },
+    },
     search: {
       "&[data-opened]": {
-        "& > *": { inlineSize: "100%" },
-        alignItems: "center",
-        background: "bg",
+        "& > :first-child": { flex: "1" },
+        alignItems: "stretch",
         display: "flex",
-        inset: "0",
+        inlineSize: "auto",
+        inset: `calc(var(${EDGE}, 0px) * -1)`,
         position: "absolute",
         zIndex: "1",
       },
       "& > *": { minInlineSize: "0" },
-      flex: "1 1 0",
+      flex: "0 1 auto",
+      inlineSize: "60",
       minInlineSize: "0",
     },
     separator: { alignSelf: "stretch", blockSize: "auto" },
     start: { ...BAND, flexShrink: "0" },
   },
-  className: "toolbar",
+  className: CLASS,
   defaultVariants: { radius: "l2", size: "md", variant: "plain" },
   jsx: [/^Toolbar(\.\w+)?$/u],
-  slots: ["root", "start", "center", "end", "action", "folded", "separator", "search"],
+  slots: ["root", "start", "center", "end", "action", "group", "separator", "search"],
   variants: {
     /**
      * Corner radius of an outlined or surface row.
@@ -84,7 +113,7 @@ export const recipe = defineSlotRecipe({
      * Size of the gap and of the separator's block margin.
      */
     size: onSlots({
-      root: sizeVariants((size) => ({ [GAP]: `{spacing.gap.${below(below(size))}}` })),
+      root: sizeVariants((size) => ({ [GAP]: `{spacing.gap.${size}}` })),
       separator: sizeVariants((size) => ({ marginBlock: dense(`{spacing.gap.${size}}`) })),
     }),
 
@@ -96,9 +125,24 @@ export const recipe = defineSlotRecipe({
      *   edge. `plain` has no edge and no padding.
      */
     variant: {
-      surface: { root: { ...surface(), padding: `var(${GAP})` } },
+      surface: {
+        root: {
+          ...surface(),
+          [EDGE]: "{borderWidths.hairline}",
+          [INSET]: `var(${GAP})`,
+          padding: `var(${INSET})`,
+        },
+      },
 
-      outline: { root: { borderColor: "border", borderWidth: "hairline", padding: `var(${GAP})` } },
+      outline: {
+        root: {
+          borderColor: "border",
+          borderWidth: "hairline",
+          [EDGE]: "{borderWidths.hairline}",
+          [INSET]: `var(${GAP})`,
+          padding: `var(${INSET})`,
+        },
+      },
 
       plain: { root: { background: "transparent" } },
     },

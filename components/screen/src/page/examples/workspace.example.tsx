@@ -31,7 +31,9 @@ export function Workspace(props: Page.RootProps): ReactElement {
         </Button>
       </Page.Toolbar>
       <Page.Body>
-        <Text>{t("workspaceBody")}</Text>
+        <Text size="sm" tone="muted">
+          {t("workspaceBody")}
+        </Text>
       </Page.Body>
       <Page.Aside aria-label={t("contents")} folds="hide" sticky>
         <Stack gap="xs">

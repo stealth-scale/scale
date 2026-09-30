@@ -3,8 +3,23 @@ import { describe, expect, it } from "vitest";
 import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
+import { FLAT_PALETTE, tabbed, TABS } from "#page/metrics.ts";
 import page from "#page/page.specimen.tsx";
-import { GUTTER, MEASURE, recipe } from "#page/recipe.ts";
+import {
+  GUTTER,
+  MEASURE,
+  recipe,
+  SCROLLPORT,
+  STICKY_OFFSET,
+  STICKY_TOP,
+  TOOLBAR,
+} from "#page/recipe.ts";
+import { recipe as toolbar } from "#toolbar/recipe.ts";
+
+/**
+ * Room a focus ring takes outside an element, as the recipe writes it.
+ */
+const RING = "calc(var(--focus-ring-offset, 0px) + var(--focus-ring-width, 0px))";
 
 /**
  * Slots of the page recipe, which the recipe check reads.
@@ -20,7 +35,6 @@ const PARTS = [
   "description",
   "actions",
   "action",
-  "folded",
   "nav",
   "tabs",
   "picker",
@@ -28,6 +42,8 @@ const PARTS = [
   "toolbar",
   "body",
   "aside",
+  "asideScroller",
+  "asideContent",
   "footer",
   "trail",
 ];
@@ -49,8 +65,24 @@ describe("recipe", () => {
     expect(recipe.className).toBe("page");
   });
 
-  it("declares twenty slots", () => {
+  it("declares twenty-one slots", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
+  });
+
+  it("caps a sticky aside beside the body at the room under the sticky bands", () => {
+    expect(recipe.base?.["aside"]?.["&[data-sticky]"]?.["lg"]).toStrictEqual({
+      display: "flex",
+      flexDirection: "column",
+      maxBlockSize: `calc(var(${SCROLLPORT}, 100dvh) - var(--app-shell-sticky-top, 0px) - var(${STICKY_TOP}, 0px) - {spacing.gap.xl} * 2)`,
+    });
+  });
+
+  it("pulls a sticky aside's scroll area out by its content's padding", () => {
+    expect(recipe.base?.["asideScroller"]).toStrictEqual({ margin: `calc(${RING} * -1)` });
+  });
+
+  it("pads a sticky aside's content by the room a focus ring takes", () => {
+    expect(recipe.base?.["asideContent"]).toStrictEqual({ padding: RING });
   });
 
   it("declares six axes", () => {
@@ -64,21 +96,14 @@ describe("recipe", () => {
     ]);
   });
 
-  it("folds an action by its priority", () => {
-    expect(recipe.base?.["action"]?.["&[data-priority=tertiary]"]).toStrictEqual({
-      "[data-narrow] &": { display: "none" },
+  it("folds a secondary action to its icon on a narrow page", () => {
+    expect(recipe.base?.["action"]?.["&[data-priority=secondary]"]).toMatchObject({
+      "&[data-narrow]": { aspectRatio: "square" },
     });
   });
 
   it("reads the priority from each action", () => {
     expect(axesOf(recipe)).not.toContain("priority");
-  });
-
-  it("shows the folded control on a folded page alone", () => {
-    expect(recipe.base?.["folded"]).toMatchObject({ display: "none" });
-    expect(recipe.base?.["folded"]?.["[data-narrow] &"]).toMatchObject({
-      display: "inline-flex",
-    });
   });
 
   it("names the measured axis folded apart from measure narrow", () => {
@@ -96,31 +121,117 @@ describe("recipe", () => {
     });
   });
 
-  it("keeps the header closer to its body than to the bar above it", () => {
+  it("pads the header by the inset and by a gap before the navigation", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["header"]).toStrictEqual({
-      paddingBlockEnd: "calc({spacing.gap.md} * var(--density, 1))",
-      paddingBlockStart: "calc({spacing.inset.md} * var(--density, 1))",
-      rowGap: "calc({spacing.gap.sm} * var(--density, 1))",
+      "&:has(+ .page__nav)": { paddingBlockEnd: "calc({spacing.gap.md} * var(--density, 1))" },
+      paddingBlock: "calc({spacing.inset.md} * var(--density, 1))",
     });
   });
 
-  it("separates the header's rows by a gap one size smaller", () => {
-    expect(recipe.variants?.["size"]?.["md"]?.["header"]?.["rowGap"]).toBe(
-      "calc({spacing.gap.sm} * var(--density, 1))",
-    );
+  it("sets no gap between the header's rows", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["header"]).not.toHaveProperty("rowGap");
+    expect(recipe.base?.["header"]).not.toHaveProperty("rowGap");
   });
 
-  it("sets the context one size smaller", () => {
+  it("sets the context one size smaller with a small margin above the title's row", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["context"]).toStrictEqual({
       gap: "calc({spacing.gap.md} * var(--density, 1))",
+      marginBlockEnd: "{spacing.0.5}",
+      textStyle: "body.sm",
+    });
+    expect(recipe.variants?.["size"]?.["lg"]?.["context"]).toMatchObject({
+      marginBlockEnd: "{spacing.1}",
+    });
+  });
+
+  it("sets the description in fg.subtle at the body role of its size", () => {
+    expect(recipe.base?.["description"]).toMatchObject({ color: "fg.subtle" });
+    expect(recipe.variants?.["size"]?.["lg"]?.["description"]).toStrictEqual({
+      textStyle: "body.md",
+    });
+    expect(recipe.variants?.["size"]?.["sm"]?.["description"]).toStrictEqual({
       textStyle: "body.sm",
     });
   });
 
+  it("parts the actions from the title by the xl inset", () => {
+    expect(recipe.base?.["actions"]).toMatchObject({
+      paddingInlineStart: "calc({spacing.inset.xl} * var(--density, 1))",
+    });
+  });
+
+  it("parts the leading mark from the title by the lg gap", () => {
+    expect(recipe.base?.["leading"]).toMatchObject({
+      marginInlineEnd: "calc({spacing.gap.lg} * var(--density, 1))",
+    });
+  });
+
   it("sets the title one size larger than a section title", () => {
-    expect(recipe.variants?.["size"]?.["sm"]?.["title"]).toStrictEqual({ textStyle: "heading.md" });
-    expect(recipe.variants?.["size"]?.["md"]?.["title"]).toStrictEqual({ textStyle: "heading.lg" });
-    expect(recipe.variants?.["size"]?.["lg"]?.["title"]).toStrictEqual({ textStyle: "heading.xl" });
+    expect(recipe.variants?.["size"]?.["sm"]?.["title"]).toMatchObject({ textStyle: "heading.md" });
+    expect(recipe.variants?.["size"]?.["md"]?.["title"]).toMatchObject({ textStyle: "heading.lg" });
+    expect(recipe.variants?.["size"]?.["lg"]?.["title"]).toMatchObject({ textStyle: "heading.xl" });
+  });
+
+  it("sets the title of a narrow page one size smaller", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["title"]).toMatchObject({
+      ".page__root[data-narrow] > .page__header > &": { textStyle: "heading.md" },
+    });
+  });
+
+  it("sets the trail one size smaller", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["trail"]).toStrictEqual({
+      gap: "calc({spacing.gap.sm} * var(--density, 1))",
+      textStyle: "body.sm",
+    });
+  });
+
+  it("pads the navigation band on the block axis", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["nav"]).toMatchObject({
+      paddingBlock: "calc({spacing.gap.md} * var(--density, 1))",
+    });
+  });
+
+  it("sets a navigation band with a strip of tabs flush on its hairline", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["nav"]).toMatchObject({
+      "&:has(> .tabs__root)": { paddingBlock: "0" },
+    });
+  });
+
+  it("sizes the navigation band's tabs from the page's size", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["nav"]).toMatchObject(tabbed("md"));
+    expect(recipe.variants?.["size"]?.["sm"]?.["nav"]).toMatchObject(tabbed("sm"));
+  });
+
+  it("parts the navigation band's controls by the lg gap", () => {
+    expect(recipe.base?.["nav"]).toMatchObject({
+      gap: "calc({spacing.gap.lg} * var(--density, 1))",
+    });
+  });
+
+  it("renders the palette panel as one box at every size", () => {
+    expect(recipe.variants?.["size"]?.["sm"]?.["palette"]).toStrictEqual(FLAT_PALETTE);
+    expect(recipe.variants?.["size"]?.["lg"]?.["palette"]).toStrictEqual(FLAT_PALETTE);
+  });
+
+  it("shrinks the tabs' root in the navigation band to its tabs", () => {
+    expect(TABS).toBe("tabs");
+    expect(recipe.base?.["nav"]?.["& > .tabs__root"]).toStrictEqual({
+      flex: "0 1 auto",
+      inlineSize: "auto",
+      minInlineSize: "0",
+    });
+  });
+
+  it("keeps a toolbar on the row of the navigation band's tabs", () => {
+    expect(TOOLBAR).toBe(toolbar.className);
+    expect(recipe.base?.["nav"]?.["& > .toolbar__root"]).toStrictEqual({
+      flex: "0 1 auto",
+      inlineSize: "auto",
+    });
+  });
+
+  it("truncates the words of the picker", () => {
+    expect(recipe.base?.["picker"]?.["& > span"]).toMatchObject({ whiteSpace: "nowrap" });
   });
 
   it("pads the body and the banner on the block axis alone", () => {
@@ -173,10 +284,29 @@ describe("recipe", () => {
     });
   });
 
-  it("removes the header's hairline above the navigation", () => {
-    expect(recipe.base?.["header"]?.["&:has(+ .page__nav)"]).toStrictEqual({
-      borderBlockEndWidth: "0",
+  it("sticks a band under the sticky bands before it", () => {
+    expect(recipe.base?.["nav"]?.["&[data-sticky]"]).toMatchObject({
+      insetBlockStart: `calc(var(--app-shell-sticky-top, 0px) + var(${STICKY_OFFSET}, 0px))`,
     });
+  });
+
+  it("names the properties the root sets for its sticky bands", () => {
+    expect([STICKY_OFFSET, STICKY_TOP]).toStrictEqual([
+      "--page-sticky-offset",
+      "--page-sticky-top",
+    ]);
+  });
+
+  it("removes the header's hairline above the navigation in the divided look", () => {
+    expect(
+      recipe.variants?.["divided"]?.["true"]?.["header"]?.["&:has(+ .page__nav)"],
+    ).toStrictEqual({ borderBlockEndWidth: "0" });
+  });
+
+  it("removes the line of a strip of tabs in a divided navigation band", () => {
+    expect(
+      recipe.variants?.["divided"]?.["true"]?.["nav"]?.["& .page__tabs[data-orientation]"],
+    ).toStrictEqual({ borderBlockEndWidth: "0" });
   });
 
   it("selects another band by its class", () => {
@@ -208,10 +338,10 @@ describe("recipe", () => {
     });
   });
 
-  it("keeps a sticky aside at the top of its row under the shell's sticky bars", () => {
-    expect(recipe.base?.["aside"]?.["&[data-sticky]"]).toStrictEqual({
+  it("keeps a sticky aside at the top of its row under the sticky bars and bands", () => {
+    expect(recipe.base?.["aside"]?.["&[data-sticky]"]).toMatchObject({
       alignSelf: "start",
-      insetBlockStart: "calc(var(--app-shell-sticky-top, 0px) + {spacing.gap.xl})",
+      insetBlockStart: `calc(var(--app-shell-sticky-top, 0px) + var(${STICKY_TOP}, 0px) + {spacing.gap.xl})`,
       position: "sticky",
     });
   });
@@ -237,17 +367,30 @@ describe("recipe", () => {
     expect(stacked?.css?.["header"]?.["gridTemplateAreas"]).toContain('"meta meta meta"');
   });
 
-  it("removes the meta's start margin on a folded page", () => {
+  it("moves the meta's start margin above and below it on a folded page", () => {
     const stacked = recipe.compoundVariants?.find((each) =>
       (each.className ?? "").endsWith("meta--stacked"),
     );
 
-    expect(stacked?.css?.["meta"]).toStrictEqual({ marginInlineStart: "0" });
+    expect(stacked?.css?.["meta"]).toStrictEqual({
+      marginBlock: "calc({spacing.gap.sm} * var(--density, 1))",
+      marginInlineStart: "0",
+    });
   });
 
-  it("sets the sm gutter on a folded page", () => {
+  it("parts the actions of a folded page from the title by the sm inset", () => {
+    const stacked = recipe.compoundVariants?.find((each) =>
+      (each.className ?? "").endsWith("actions--stacked"),
+    );
+
+    expect(stacked?.css?.["actions"]).toStrictEqual({
+      paddingInlineStart: "calc({spacing.inset.sm} * var(--density, 1))",
+    });
+  });
+
+  it("sets the md gutter on a folded page", () => {
     expect(recipe.variants?.["folded"]?.["true"]?.["root"]).toStrictEqual({
-      [GUTTER]: "{spacing.inset.sm}",
+      [GUTTER]: "{spacing.inset.md}",
     });
   });
 

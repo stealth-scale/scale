@@ -43,6 +43,12 @@ export type Fold = "over" | "under";
 export const FOLDS: readonly Fold[] = ["over", "under"];
 
 /**
+ * Selects the widths of the shell a bar renders at: below the width the navigation folds at, or
+ * from it.
+ */
+export type ShellWidth = "narrow" | "wide";
+
+/**
  * Describes the state every part of a shell reads.
  */
 export interface ShellState {
@@ -68,9 +74,11 @@ export interface ShellState {
 export const [ShellProvider, useShell] = createRequiredContext<ShellState>("AppShell.Root");
 
 /**
- * Provides a panel's state to its content and reads it, throwing outside a panel.
+ * Provides a panel's state to its content and reads it, throwing outside a panel or returning
+ * `undefined` there.
  */
-export const [PanelProvider, useNearestPanel] = createRequiredContext<Panel>("an AppShell panel");
+export const [PanelProvider, useNearestPanel, useEnclosingPanel] =
+  createRequiredContext<Panel>("an AppShell panel");
 
 /**
  * Reads one panel of the shell by name.

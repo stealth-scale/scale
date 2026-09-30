@@ -1,34 +1,47 @@
 {
-  "about": "Lays a page out as a column of bands: a banner, a header, a navigation, a toolbar, a body with an optional aside, and a footer. The page measures its own width and folds its header on a narrow page.",
+  "about": "Lays a page out as a column of bands: a banner, a header, a navigation, a toolbar, a body with an optional aside, and a footer. The page measures its own width and folds below 40rem: the breadcrumbs become a link back, an action with an icon shows the icon alone, the other actions move into a menu, the tabs become a picker, and the title reads one size smaller.",
   "align": {
     "about": "Both alignments of a page at the narrow measure: the content at the gutter, and the content centred in the page.",
     "title": "Alignment"
   },
-  "april": "April invoice",
-  "archive": "Archive",
   "bands": {
     "about": "The banner above the header, a sticky toolbar, the body with a sticky aside beside it from the `lg` breakpoint, and the footer. Below the breakpoint, this aside leaves the page.",
     "title": "Bands"
   },
   "billing": "Billing",
   "billingBody": "The plan, the invoices and the payment methods.",
-  "context": {
-    "about": "The context row above the title. A wide page shows the breadcrumb trail, and a narrow page shows a single link back.",
-    "title": "Context"
-  },
   "contents": "Workspace contents",
-  "contoso": "Contoso",
+  "approvals": {
+    "about": "The service did not respond within 10 seconds.",
+    "heading": "The approvals could not load",
+    "retry": "Try again",
+    "title": "Approvals"
+  },
+  "deployment": {
+    "body": "The build log, the environment variables and the domains of this deployment.",
+    "branch": "main",
+    "deploy": "Deploy",
+    "deployed": "Deployed 4 minutes ago by Mara",
+    "parent": "Deployments",
+    "public": "Public",
+    "ready": "Ready",
+    "rollBack": "Roll back",
+    "template": "Template",
+    "title": "ledger-web"
+  },
   "divided": {
     "about": "The bands with and without the hairline between them.",
     "title": "Rules"
   },
-  "download": "Download PDF",
-  "everything": "Everything raised for this workspace in April.",
-  "fabrikam": "Fabrikam",
+  "failure": {
+    "about": "When the content fails to load, the body renders the feedback package's empty state with a control to try again. A route's error component renders this page.",
+    "title": "Failed to load"
+  },
   "filter": "Filter",
+  "filterViews": "Filter views",
   "folding": {
-    "about": "The same page in a narrow and a wide room. On the narrow page, the meta moves under the title, the secondary action shows its icon alone, the tertiary action moves behind the folded control, and the gutter narrows.",
-    "title": "Folding"
+    "about": "The same page at two widths. The page folds when its own width is under 40rem. The breadcrumbs then fold to a link back to the nearest page, the action with an icon shows the icon alone, the plain action moves into the menu, and the tabs fold to a picker that filters them. The count beside the title renders on the wide page alone, because the picker shows each tab's count.",
+    "title": "Wide and folded"
   },
   "general": "General",
   "generalBody": "The workspace's name, region and time zone.",
@@ -36,45 +49,111 @@
     "about": "Every gutter. Every band reads it.",
     "title": "Gutters"
   },
-  "invoices": "Invoices",
-  "launch": "Spring launch",
-  "launchAbout": "The campaign that opens the new billing plans.",
-  "launchBody": "Twelve of twenty tasks are done.",
+  "header": {
+    "about": "The link back in the context row, the title, the badges beside it, the actions at the end of the title's row, and a row of facts under them. Each part takes its own area of the header's grid, so a part left out takes no room. A screen reader skips the marks between the facts.",
+    "title": "A header and its parts"
+  },
+  "ledger": "Ledger",
   "limits": "Limits",
-  "lines": "Seats, storage and support for twenty members.",
+  "loading": {
+    "about": "Skeletons fill the title and the description of a page whose content is loading, and skeleton lines fill its body, which is marked `aria-busy`. The heading's `aria-label` names the state for a screen reader. A route's pending component renders this page.",
+    "title": "Loading"
+  },
   "measure": {
-    "about": "The three measures of the content: full, wide and narrow.",
+    "about": "The narrow, the wide and the full measure. The content stops at the measure and every band runs edge to edge, so each hairline spans the page. A box narrower than 48rem renders the narrow and the full measure alike.",
     "title": "Measures"
+  },
+  "measured": {
+    "about": "What changed in each release of the workspace.",
+    "body": "Version 4.2 adds audit logs and shortens every deploy by a third.",
+    "title": "Release notes",
+    "updated": "Updated 3 minutes ago."
   },
   "members": "Members",
   "membersBody": "The people in the workspace and their roles.",
-  "more": "More invoice actions",
   "navigation": {
-    "about": "The navigation band. A wide page shows a row of links, and a narrow page shows a picker that names the current section and opens the others.",
-    "title": "Navigation"
+    "about": "A navigation band composed from `Page.When`: a row of links on a wide page, and a menu behind `Page.Picker` on a narrow one. Compose the band this way when its destinations are links to other pages.",
+    "title": "Links in the navigation"
   },
-  "northwind": "Northwind",
-  "outstanding": "Outstanding",
-  "overdue": "Overdue",
-  "owed": "What each of them still owes.",
-  "paid": "Paid",
-  "projects": "Projects",
-  "raised": "Raised 12 April",
+  "noView": "No view matches",
+  "pending": {
+    "about": "Loading the description of the page",
+    "label": "Loading the page",
+    "title": "Loading the title"
+  },
+  "notifications": {
+    "about": "Choose the events that send you a message on each channel.",
+    "cancel": "Cancel",
+    "channels": "Channels",
+    "digest": "Digest",
+    "email": "Email",
+    "events": {
+      "billed": "An invoice is issued",
+      "deployed": "A deploy succeeds",
+      "expired": "A token expires",
+      "failed": "A deploy fails",
+      "invited": "Someone invites you",
+      "joined": "A member joins",
+      "limited": "A usage limit is near",
+      "renewed": "A domain renews"
+    },
+    "push": "Push",
+    "reset": "Reset",
+    "save": "Save",
+    "title": "Notifications"
+  },
   "seats": "Seats",
   "sections": "Settings sections",
-  "send": "Send invoice",
-  "sent": "Sent",
   "settings": "Settings",
   "size": {
-    "about": "The three sizes. The title reads one heading size larger than a section title at the same size.",
+    "about": "Each size sets the title, the description, the breadcrumbs, the actions, the tabs and the padding of every band. The title reads one heading size larger than a section title of the same size.",
     "title": "Sizes"
   },
-  "tailspin": "Tailspin",
+  "sticking": {
+    "about": "The header and the navigation stick to the top of the box, the navigation under the header, and the footer sticks to the bottom. Scroll the box, then choose Push or Digest: the page is at least as tall as its box, so the footer renders at the bottom of a short tab too.",
+    "title": "Bands that stick"
+  },
+  "tabbed": {
+    "about": "The navigation band renders the tabs at its start and a toolbar at its end. The first tab's words start where the title starts, and the selected tab's indicator is on the band's hairline. The body is the panel of the selected tab. On a narrow page the picker takes the room the toolbar leaves, and the leading mark renders on the wide page alone.",
+    "title": "Tabs with a toolbar"
+  },
   "title": "Page",
-  "trail": "Trail",
+  "tokens": {
+    "add": "Add token",
+    "automations": "Automations",
+    "bodies": {
+      "automations": "The automation that publishes the tokens on every merge.",
+      "tokens": "The four tokens of the brand palette."
+    },
+    "layout": "Layout",
+    "list": "As a list",
+    "lists": "Token lists",
+    "tiles": "As tiles",
+    "title": "Design tokens",
+    "tokens": "Tokens"
+  },
   "trial": "The trial ends in 12 days.",
   "updated": "Updated 3 minutes ago.",
   "usage": "Usage",
+  "users": {
+    "about": "Everyone with a login, and everyone invited to one.",
+    "add": "New record",
+    "all": "All",
+    "bodies": {
+      "all": "All 412 users with a login.",
+      "invited": "The 9 invitations waiting for an answer.",
+      "suspended": "No user is suspended."
+    },
+    "invited": "Invited",
+    "lists": "User lists",
+    "more": "More user actions",
+    "parent": "Collections",
+    "preview": "API preview",
+    "settings": "Settings",
+    "suspended": "Suspended",
+    "title": "Users"
+  },
+  "views": "Views",
   "workspace": "Northwind workspace",
   "workspaceAbout": "The usage, the seats and the limits of the workspace.",
   "workspaceBody": "Twelve of twenty seats are in use, and storage is at 40 percent."

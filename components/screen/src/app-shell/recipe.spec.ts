@@ -4,7 +4,8 @@ import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
 import page from "#app-shell/app-shell.specimen.tsx";
-import { PANEL_RAIL, PANEL_SIZE, recipe, STICKY_OFFSET, STICKY_TOP } from "#app-shell/recipe.ts";
+import { COLUMN, PANEL_RAIL, PANEL_SIZE, RAIL, SCROLLER, SECTION } from "#app-shell/metrics.ts";
+import { recipe } from "#app-shell/recipe.ts";
 
 /**
  * Slots of the app shell recipe, in declaration order.
@@ -13,12 +14,19 @@ const PARTS = [
   "root",
   "header",
   "body",
+  "bodyViewport",
+  "row",
   "navbar",
   "main",
+  "mainViewport",
   "aside",
   "footer",
   "content",
+  "column",
+  "section",
+  "scroller",
   "trigger",
+  "rail",
   "backdrop",
 ];
 
@@ -39,8 +47,44 @@ describe("recipe", () => {
     expect(recipe.className).toBe("app-shell");
   });
 
-  it("declares ten slots", () => {
+  it("declares seventeen slots", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
+  });
+
+  it("fills no region in the plain look", () => {
+    expect(recipe.variants?.["variant"]?.["plain"]).toStrictEqual({
+      root: { background: "transparent" },
+    });
+  });
+
+  it("fills a sheet with the panel ground", () => {
+    expect(recipe.base?.["navbar"]?.["&[data-overlaid]"]).toMatchObject({
+      background: "bg.panel",
+    });
+  });
+
+  it("raises a sheet with the lg shadow", () => {
+    expect(recipe.base?.["aside"]?.["&[data-overlaid]"]).toMatchObject({ boxShadow: "lg" });
+  });
+
+  it("styles a section as a padded band", () => {
+    expect(recipe.base?.["section"]).toStrictEqual(SECTION);
+  });
+
+  it("styles the root of a section that scrolls", () => {
+    expect(recipe.base?.["scroller"]).toStrictEqual(SCROLLER);
+  });
+
+  it("styles the content of the main region and of a panel as a column", () => {
+    expect(recipe.base?.["column"]).toStrictEqual(COLUMN);
+  });
+
+  it("lays the panels and the main region out in the body's row", () => {
+    expect(recipe.base?.["row"]).toMatchObject({ display: "flex" });
+  });
+
+  it("styles the rail as the strip on a panel's edge", () => {
+    expect(recipe.base?.["rail"]).toStrictEqual(RAIL);
   });
 
   it("declares three axes", () => {
@@ -77,13 +121,73 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual(["floating", "inset", "plain"]);
   });
 
-  it("exports the custom property names of the panels and the pinned bars", () => {
-    expect([PANEL_RAIL, PANEL_SIZE, STICKY_OFFSET, STICKY_TOP]).toStrictEqual([
-      "--app-shell-panel-rail",
-      "--app-shell-panel-size",
-      "--app-shell-sticky-offset",
-      "--app-shell-sticky-top",
-    ]);
+  it("sizes a shell that scrolls its page to the window height", () => {
+    expect(recipe.variants?.["scroll"]?.["page"]?.["root"]).toStrictEqual({
+      blockSize: "var(--app-shell-window-height, 100dvh)",
+    });
+  });
+
+  it("sizes a panel over the page to the window height", () => {
+    expect(recipe.base?.["navbar"]?.["&[data-overlaid]"]).toMatchObject({
+      blockSize: "var(--app-shell-window-height, 100dvh)",
+    });
+  });
+
+  it("sizes a stuck panel to the window height under the pinned bars", () => {
+    expect(
+      recipe.variants?.["scroll"]?.["window"]?.["navbar"]?.[
+        "&:not([data-overlaid], [data-stacked])"
+      ],
+    ).toMatchObject({
+      blockSize: "calc(var(--app-shell-window-height, 100dvh) - var(--app-shell-sticky-top, 0px))",
+      position: "sticky",
+    });
+  });
+
+  it("sticks no panel that is over the page or under it", () => {
+    expect(recipe.variants?.["scroll"]?.["window"]?.["aside"]).not.toHaveProperty("position");
+  });
+
+  it("scrolls the body's viewport while a panel is under the page", () => {
+    expect(recipe.variants?.["scroll"]?.["page"]?.["bodyViewport"]).toStrictEqual({
+      "&:has(> .app-shell__row > [data-stacked])": { overflow: "auto" },
+      overflow: "visible",
+    });
+  });
+
+  it("sets the row to the body's height while the main region scrolls", () => {
+    expect(recipe.variants?.["scroll"]?.["page"]?.["row"]).toStrictEqual({
+      "&:has(> [data-stacked])": { blockSize: "auto" },
+      blockSize: "100%",
+    });
+  });
+
+  it("stops the main region scrolling while a panel is under the page", () => {
+    expect(recipe.variants?.["scroll"]?.["page"]?.["mainViewport"]).toStrictEqual({
+      ".app-shell__row:has(> [data-stacked]) > .app-shell__main > &": { overflow: "visible" },
+    });
+  });
+
+  it("scrolls neither viewport while the window scrolls", () => {
+    expect([
+      recipe.variants?.["scroll"]?.["window"]?.["bodyViewport"],
+      recipe.variants?.["scroll"]?.["window"]?.["mainViewport"],
+    ]).toStrictEqual([{ overflow: "visible" }, { overflow: "visible" }]);
+  });
+
+  it("pads each bar by the middle gap", () => {
+    expect(recipe.base?.["header"]).toMatchObject({
+      padding: "calc({spacing.gap.md} * var(--density, 1))",
+    });
+    expect(recipe.base?.["footer"]).toMatchObject({
+      padding: "calc({spacing.gap.md} * var(--density, 1))",
+    });
+  });
+
+  it("pads a pinned footer by the middle gap and the safe area", () => {
+    expect(recipe.base?.["footer"]?.["&[data-sticky]"]).toMatchObject({
+      paddingBlockEnd: "calc(calc({spacing.gap.md} * var(--density, 1)) + {spacing.safe.bottom})",
+    });
   });
 
   it("stacks a panel over the page above the backdrop", () => {
@@ -111,6 +215,15 @@ describe("recipe", () => {
       transitionDelay: "0s",
       transitionDuration: "{durations.move}, 0s",
       transitionProperty: "translate, visibility",
+    });
+  });
+
+  it("keeps a closed sheet at its open width", () => {
+    const sheet = "min(var(--app-shell-panel-size), calc(100% - {sizes.rail}))";
+
+    expect(recipe.base?.["navbar"]?.["&[data-overlaid]"]).toMatchObject({ inlineSize: sheet });
+    expect(recipe.base?.["navbar"]?.["&[data-overlaid]"]?.["&[data-state=closed]"]).toMatchObject({
+      inlineSize: sheet,
     });
   });
 
@@ -158,7 +271,7 @@ describe("recipe", () => {
   });
 
   it("gives the main region its own row beside a panel under the page", () => {
-    expect(recipe.base?.["body"]?.["&:has(> [data-stacked]) > .app-shell__main"]).toStrictEqual({
+    expect(recipe.base?.["row"]?.["&:has(> [data-stacked]) > .app-shell__main"]).toStrictEqual({
       flexBasis: "100%",
     });
   });

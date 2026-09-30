@@ -6,34 +6,40 @@ import { describe, expect, it } from "vitest";
 import { useFocused } from "#focus/focus.ts";
 
 /**
- * Describes what the sheet under test is drawn with.
+ * Describes the props of the sheet under test.
  */
 interface SheetProps {
   /**
-   * Where the reader stood when they asked for the sheet, where a case writes it down itself.
+   * Control that had focus when the sheet opened, when a case records it.
    */
   readonly from?: RefObject<HTMLElement | null> | undefined;
 
   /**
-   * Whether the sheet is over the page and open now.
+   * Selector of the element that receives focus, or null to move none.
+   */
+  readonly into?: null | string | undefined;
+
+  /**
+   * Whether the sheet is open.
    */
   readonly shown: boolean;
 }
 
 /**
- * Draws a sheet the reader is taken into, and a control outside it that opened the sheet.
+ * Renders a sheet that takes focus, the control that opens it and a control beside them.
  *
- * @param props - Whether the sheet is shown, and where the reader came from.
- * @returns The control and the sheet.
+ * @param props - Whether the sheet is open, where focus goes, and the control that had focus.
+ * @returns The two controls and the sheet.
  */
-function Sheet({ from, shown }: SheetProps): ReactElement {
+function Sheet({ from, into, shown }: SheetProps): ReactElement {
   const inner = useRef<HTMLDivElement>(null);
 
-  useFocused(inner, shown, undefined, from);
+  useFocused(inner, shown, into, from);
 
   return (
     <>
       <button type="button">Navigation</button>
+      <button type="button">Account</button>
       <div data-testid="sheet" ref={inner} tabIndex={-1}>
         <a href="/invoices">Invoices</a>
       </div>
@@ -42,19 +48,28 @@ function Sheet({ from, shown }: SheetProps): ReactElement {
 }
 
 describe("useFocused", () => {
-  it("leaves the reader where they were while nothing stands over the page", () => {
+  it("leaves focus on the document while the sheet is hidden", () => {
     render(<Sheet shown={false} />);
 
     expect(document.activeElement).toBe(document.body);
   });
 
-  it("takes the reader into the sheet once it stands over the page", () => {
+  it("focuses the sheet when it opens", () => {
     render(<Sheet shown />);
 
     expect(document.activeElement).toBe(screen.getByTestId("sheet"));
   });
 
-  it("puts the reader back on the control that opened the sheet", () => {
+  it("keeps focus on an element inside the sheet when it opens", () => {
+    const { rerender } = render(<Sheet shown={false} />);
+
+    screen.getByRole("link", { name: "Invoices" }).focus();
+    rerender(<Sheet shown />);
+
+    expect(document.activeElement).toBe(screen.getByRole("link", { name: "Invoices" }));
+  });
+
+  it("focuses the control that opened the sheet when it closes", () => {
     const { rerender } = render(<Sheet shown={false} />);
 
     screen.getByRole("button", { name: "Navigation" }).focus();
@@ -64,7 +79,7 @@ describe("useFocused", () => {
     expect(document.activeElement).toBe(screen.getByRole("button", { name: "Navigation" }));
   });
 
-  it("gives focus back to nothing where the reader was standing on no element", () => {
+  it("restores no focus when no element had focus as the sheet opened", () => {
     const { rerender } = render(<Sheet shown={false} />);
 
     Object.defineProperty(document, "activeElement", { configurable: true, value: null });
@@ -75,7 +90,7 @@ describe("useFocused", () => {
     expect(document.activeElement).toBe(screen.getByTestId("sheet"));
   });
 
-  it("returns the reader to the control a caller wrote down rather than to the document", () => {
+  it("focuses the control passed as from when the sheet closes", () => {
     const remembered = { current: null } as { current: HTMLElement | null };
     const { rerender } = render(<Sheet shown={false} />);
 
@@ -86,7 +101,7 @@ describe("useFocused", () => {
     expect(document.activeElement).toBe(screen.getByRole("button", { name: "Navigation" }));
   });
 
-  it("leaves the reader in the sheet where the control it came from has gone", () => {
+  it("restores no focus when the control that opened the sheet has left the document", () => {
     const { rerender, unmount } = render(<Sheet shown={false} />);
 
     screen.getByRole("button", { name: "Navigation" }).focus();
@@ -94,5 +109,42 @@ describe("useFocused", () => {
     unmount();
 
     expect(document.activeElement).toBe(document.body);
+  });
+
+  it("focuses the element into names when the sheet opens", () => {
+    render(<Sheet into="a" shown />);
+
+    expect(document.activeElement).toBe(screen.getByRole("link", { name: "Invoices" }));
+  });
+
+  it("leaves focus on the opening control when into is null", () => {
+    const { rerender } = render(<Sheet into={null} shown={false} />);
+
+    screen.getByRole("button", { name: "Navigation" }).focus();
+    rerender(<Sheet into={null} shown />);
+
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Navigation" }));
+  });
+
+  it("returns focus from inside the sheet when into is null", () => {
+    const { rerender } = render(<Sheet into={null} shown={false} />);
+
+    screen.getByRole("button", { name: "Navigation" }).focus();
+    rerender(<Sheet into={null} shown />);
+    screen.getByRole("link", { name: "Invoices" }).focus();
+    rerender(<Sheet into={null} shown={false} />);
+
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Navigation" }));
+  });
+
+  it("leaves focus on the control the reader moved to before the sheet closed", () => {
+    const { rerender } = render(<Sheet shown={false} />);
+
+    screen.getByRole("button", { name: "Navigation" }).focus();
+    rerender(<Sheet shown />);
+    screen.getByRole("button", { name: "Account" }).focus();
+    rerender(<Sheet shown={false} />);
+
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Account" }));
   });
 });

@@ -4,6 +4,11 @@ import * as examples from "#section/examples/index.ts";
 
 describe("examples", () => {
   it("exports one namespace per example file", () => {
-    expect(Object.keys(examples).toSorted()).toStrictEqual(["billing", "payment", "sizes"]);
+    expect(Object.keys(examples).toSorted()).toStrictEqual([
+      "cards",
+      "members",
+      "settings",
+      "sizes",
+    ]);
   });
 });

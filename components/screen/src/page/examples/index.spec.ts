@@ -5,9 +5,14 @@ import * as examples from "#page/examples/index.ts";
 describe("examples", () => {
   it("exports one namespace per example file", () => {
     expect(Object.keys(examples).toSorted()).toStrictEqual([
-      "invoice",
-      "project",
+      "deployment",
+      "failed",
+      "loading",
+      "measured",
+      "notifications",
       "settings",
+      "tokens",
+      "users",
       "workspace",
     ]);
   });

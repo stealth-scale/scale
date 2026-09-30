@@ -6,8 +6,7 @@
  *   and not a child of one: a button inside an item would add a second tab stop. The item renders
  *   a `button` with `type="button"`, an `a` when `href` is set, or the component passed as `as`
  *   with the tab stop on its element, such as the library's button, a router's link or a menu's
- *   trigger. `Action` and `Folded` are bound around this component and keep the element it
- *   chooses.
+ *   trigger. `Action` renders the library's button through it.
  */
 
 import { type ComponentProps, type ElementType, type ReactElement } from "react";

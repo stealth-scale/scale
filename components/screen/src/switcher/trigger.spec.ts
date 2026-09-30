@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { accessibilityViolations, drawn } from "@stealthscale/testing-react";
 import { boundViolations, slotElement } from "@stealthscale/testing-theme";
 
+import { inNarrowToolbar, inSidebar, inToolbar } from "#switcher/placed.fixtures.tsx";
 import { recipe } from "#switcher/recipe.ts";
 import { type RootProps } from "#switcher/root.tsx";
 import { composed, triggered } from "#switcher/switcher.fixtures.tsx";
@@ -43,5 +44,29 @@ describe("Trigger", () => {
     await drawn(composed());
 
     expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("writes data-iconic on a rail", () => {
+    render(inSidebar({ iconic: true }));
+
+    expect(screen.getByRole("button").dataset["iconic"]).toBe("");
+  });
+
+  it("omits data-iconic in a sidebar in full", () => {
+    render(inSidebar());
+
+    expect(screen.getByRole("button").dataset["iconic"]).toBeUndefined();
+  });
+
+  it("writes data-narrow in a narrow toolbar", () => {
+    render(inNarrowToolbar());
+
+    expect(screen.getByRole("button", { name: /^Workspace/u }).dataset["narrow"]).toBe("");
+  });
+
+  it("omits data-narrow in a wide toolbar", () => {
+    render(inToolbar());
+
+    expect(screen.getByRole("button", { name: /^Workspace/u }).dataset["narrow"]).toBeUndefined();
   });
 });

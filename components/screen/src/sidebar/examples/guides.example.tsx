@@ -1,6 +1,6 @@
 import { type ReactElement, useId } from "react";
 
-import { BookOpenIcon, BoxIcon, CompassIcon, PaletteIcon, SquareIcon } from "lucide-react";
+import { BoxIcon, CompassIcon, PaletteIcon, SquareIcon } from "lucide-react";
 
 import { NavList } from "@stealthscale/component-navigation";
 import { useWords } from "@stealthscale/specimen";
@@ -14,7 +14,6 @@ export function Guides(): ReactElement {
   return (
     <Sidebar.Root variant="subtle">
       <Sidebar.Header>
-        <BookOpenIcon />
         <span>{t("handbook")}</span>
       </Sidebar.Header>
       <Sidebar.Content>

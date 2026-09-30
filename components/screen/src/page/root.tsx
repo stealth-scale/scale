@@ -3,18 +3,22 @@
  *
  * @remarks
  *   The element is `div` and no landmark. The shell renders the one `main` a screen has. The root
- *   measures its own width rather than the window's, and below the `md` breakpoint sets `folded`,
- *   so a page beside an open sidebar folds on its own room. It also sets `data-narrow`, because a
- *   row of actions in the page folds on that attribute and a variant class styles only this
- *   recipe's parts.
+ *   measures its own width rather than the window's, and below the `sm` breakpoint, 40rem, sets
+ *   `folded`, so a page beside an open sidebar folds on its own room. It also sets `data-narrow`,
+ *   because a row of actions in the page folds on that attribute and a variant class styles only
+ *   this recipe's parts. The root measures its sticky bands, so each one sticks under the bands
+ *   before it, and provides the panel `Page.TabList` sets and `Page.Body` renders as.
  */
 
-import { type ComponentProps, type ReactElement, useMemo, useRef } from "react";
+import { type ComponentProps, type ReactElement, useMemo, useRef, useState } from "react";
 
+import { useStickyOffsets } from "@stealthscale/hooks";
 import { useNarrow, widthOf } from "@stealthscale/provider-viewport";
 
 import { withProvider } from "#page/context.ts";
+import { STICKY_OFFSET, STICKY_TOP } from "#page/recipe.ts";
 import { PageProvider, type PageSize } from "#page/state.ts";
+import { type Panel, PanelContext } from "#page/tabs-state.ts";
 
 /**
  * Breakpoint whose start width the root compares its own width against.
@@ -23,7 +27,21 @@ import { PageProvider, type PageSize } from "#page/state.ts";
  *   The root compares widths and asks no media query, because a page beside an open sidebar is
  *   narrow while the window is wide.
  */
-const FOLDS_BELOW = "md";
+const FOLDS_BELOW = "sm";
+
+/**
+ * Selects the bands that stick to the top, in the order they stack, and names the properties the
+ * root sets.
+ *
+ * @remarks
+ *   The footer sticks to the bottom and the aside within its own row, so neither adds to the
+ *   height of what sticks at the top.
+ */
+const STICKING = {
+  bands: ":scope > :is(.page__header, .page__nav, .page__toolbar)[data-sticky]",
+  offset: STICKY_OFFSET,
+  total: STICKY_TOP,
+};
 
 /**
  * Renders the `div` with the recipe's root class, which provides the variants to the bands.
@@ -51,15 +69,21 @@ export function Root({ size = "md", ...rest }: RootProps): ReactElement {
   const measured = useRef<HTMLDivElement>(null);
   const folded = useNarrow(measured, widthOf(FOLDS_BELOW), FOLDS_BELOW);
   const state = useMemo(() => ({ narrow: folded, size }), [folded, size]);
+  const [panel, setPanel] = useState<Panel | undefined>();
+  const panelled = useMemo(() => ({ panel, setPanel }), [panel]);
+
+  useStickyOffsets(measured, true, STICKING);
 
   return (
     <PageProvider value={state}>
-      <Columned
-        {...rest}
-        {...(folded ? { "data-narrow": "", folded: true } : {})}
-        ref={measured}
-        size={size}
-      />
+      <PanelContext value={panelled}>
+        <Columned
+          {...rest}
+          {...(folded ? { "data-narrow": "", folded: true } : {})}
+          ref={measured}
+          size={size}
+        />
+      </PanelContext>
     </PageProvider>
   );
 }

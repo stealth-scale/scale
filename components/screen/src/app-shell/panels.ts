@@ -12,10 +12,17 @@
 
 import { useSyncExternalStore } from "react";
 
+import { type Collapse } from "#app-shell/state.ts";
+
 /**
  * Describes the state one panel publishes.
  */
 export interface Panel {
+  /**
+   * Result of closing the panel in the body: `hide` hides it, and `icons` leaves a rail.
+   */
+  readonly collapse: Collapse;
+
   /**
    * Identifier of the panel's element, which a trigger's `aria-controls` points at.
    */
@@ -76,6 +83,7 @@ function same(one: Panel | undefined, other: Panel | undefined): boolean {
   if (one === undefined || other === undefined) return one === other;
 
   return (
+    one.collapse === other.collapse &&
     one.id === other.id &&
     one.open === other.open &&
     one.overlaid === other.overlaid &&

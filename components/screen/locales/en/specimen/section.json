@@ -1,40 +1,91 @@
 {
-  "about": "Groups one part of a page under its own heading, with the controls that act on that part. The section is a landmark named by its title.",
-  "add": "Add a card",
+  "about": "Groups one part of a page under its own heading, with the controls that act on that part. The section is a landmark named by its title. A section measures its own width and folds its actions below 40rem, or below 48rem when annotated.",
   "annotated": {
-    "about": "The header above the body, and the header in a column beside it, as a settings page lays out. A section narrower than the `sm` breakpoint puts the header back above the body.",
-    "title": "Annotated"
+    "about": "The header renders in a column beside the card, as a settings page lays out a form beside its explanation. The body and the footer form the card, and the actions sit under the description. Below 48rem the header renders above the card, as the copy at a phone's width shows.",
+    "title": "Annotated, the header beside the body"
   },
-  "billing": "Billing",
-  "cancel": "Cancel subscription",
-  "cards": "Cards this account can be charged on.",
-  "change": "Change",
-  "changePlan": "Change plan",
-  "contact": "Contact sales",
-  "download": "Download invoices",
+  "billing": {
+    "about": "Where the invoices go, and what the next one is for.",
+    "download": "Download",
+    "facts": {
+      "next": { "label": "Next invoice", "value": "€1,240.00 on 1 October" },
+      "plan": { "label": "Plan", "value": "Team, billed yearly" },
+      "seats": { "label": "Seats", "value": "3 of 10" }
+    },
+    "pay": "Pay now",
+    "title": "Billing"
+  },
+  "channels": {
+    "deploys": { "about": "Every deploy, as it finishes.", "name": "Deploys" },
+    "digest": { "about": "Once a day, everything that happened.", "name": "Digest" },
+    "failures": { "about": "A run that fails, the moment it does.", "name": "Failures" }
+  },
+  "danger": {
+    "about": "Everything in it goes with it, and nothing comes back. Members lose their access at once.",
+    "delete": "Delete workspace",
+    "owner": "Only an owner can do this.",
+    "title": "Delete this workspace"
+  },
   "edit": "Edit",
-  "ending": "{{card}} ending {{digits}}",
-  "expires": "Expires {{expiry}}",
-  "folding": {
-    "about": "The same section in a narrow and a wide room. In the narrow one, the secondary action shows its icon alone, the tertiary action moves behind the folded control, and the primary action keeps its text.",
-    "title": "Folding"
+  "facts": {
+    "name": { "label": "Name", "value": "Ledger" },
+    "plan": { "label": "Plan", "value": "Team, billed yearly" },
+    "region": { "label": "Region", "value": "eu-west-1" }
   },
-  "mastercard": "Mastercard",
-  "more": "More billing actions",
-  "next": "The next invoice is due on 1 October.",
-  "payment": "Payment methods",
-  "plan": "The Team plan, billed monthly.",
-  "profile": "Profile",
-  "profileAbout": "The name and the email address on the account.",
+  "folding": {
+    "about": "The same card at two widths. The section folds when its own width is under 40rem. An action with an icon then shows the icon alone, the primary action keeps its solid fill, and the plain action moves into the menu at the end of the row. The list in the body runs to the card's edges.",
+    "title": "Wide and folded"
+  },
+  "keys": {
+    "about": "What a script uses to sign in as this workspace.",
+    "add": "New key",
+    "none": "No keys yet.",
+    "title": "API keys"
+  },
+  "members": {
+    "about": "Everyone with a login, and what each of them may do. An owner can change any of it.",
+    "export": "Export",
+    "invite": "Invite",
+    "manage": "Manage seats",
+    "more": "More member actions",
+    "roles": "Edit roles",
+    "seats": "Three of ten seats taken.",
+    "title": "Members"
+  },
+  "notifications": {
+    "about": "Which of them reach you, and how.",
+    "title": "Notifications"
+  },
+  "profile": {
+    "about": "What the workspace is called and where it runs.",
+    "title": "Profile"
+  },
+  "rename": {
+    "about": "Shown in the sidebar, and on every invitation sent from here.",
+    "limit": "Up to 32 characters.",
+    "save": "Save",
+    "title": "Workspace name"
+  },
+  "roles": {
+    "admin": "Admin",
+    "member": "Member",
+    "owner": "Owner"
+  },
+  "settings": {
+    "about": "The page body stacks plain sections. Each section has a title, a line under it and its content, with its actions at the end of the title's row, and a hairline separates two plain sections. The last is a card, which raises the one thing on the page that should not be pressed by accident.",
+    "title": "A settings page"
+  },
   "size": {
-    "about": "The three sizes. The size sets the title and the description one size smaller, the gaps between the bands and the card's inner room. The buttons take the same size through their provider.",
+    "about": "Each size sets the title and the description one size smaller than itself, the actions one button size smaller, and the gaps between the bands. A section takes the size of the page it is on unless it states its own.",
     "title": "Sizes"
   },
   "title": "Section",
-  "usage": "Twelve of twenty seats are in use.",
   "variant": {
-    "about": "Both looks: plain on the page, and raised as a card. A plain section that follows another has a hairline above it.",
-    "title": "Looks"
+    "about": "A section raised as a card pads its bands and separates its footer with a hairline. A body told to bleed drops its padding, so a list runs to the card's edges with its own rules between the rows.",
+    "title": "As cards"
   },
-  "visa": "Visa"
+  "workspace": {
+    "about": "What it is called, who is in it, and what reaches you.",
+    "title": "Workspace"
+  }
 }

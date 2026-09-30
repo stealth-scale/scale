@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 
 import { pressed } from "@stealthscale/testing-react";
 import { slotElement } from "@stealthscale/testing-theme";
 
 import { composed, narrowed, shell } from "#app-shell/app-shell.fixtures.tsx";
-import { Body } from "#app-shell/body.tsx";
+import { Body, type BodyProps } from "#app-shell/body.tsx";
 
 describe("Body", () => {
   it("renders a div inside the root", () => {
@@ -45,15 +45,38 @@ describe("Body", () => {
     expect(slotElement(container, "app-shell", "navbar").dataset["state"]).toBe("closed");
   });
 
-  it("renders the panels and the main region in source order", () => {
+  it("renders the panels and the main region in source order in the row", () => {
     const { container } = render(composed());
-    const body = slotElement(container, "app-shell", "body");
+    const row = slotElement(container, "app-shell", "row");
 
-    expect([...body.children].map((child) => child.tagName)).toStrictEqual([
-      "DIV",
-      "MAIN",
-      "ASIDE",
-      "DIV",
+    expect(
+      [...row.children].map((child) =>
+        [...child.classList].find((name) => name.startsWith("app-shell__")),
+      ),
+    ).toStrictEqual([
+      "app-shell__navbar",
+      "app-shell__main",
+      "app-shell__aside",
+      "app-shell__backdrop",
     ]);
+  });
+
+  it("renders the row inside the body's viewport", () => {
+    const { container } = render(composed());
+
+    expect(slotElement(container, "app-shell", "row").parentElement?.className).toContain(
+      "app-shell__body-viewport",
+    );
+  });
+
+  it("keeps the body's viewport out of the tab order", () => {
+    const { container } = render(composed());
+
+    expect(slotElement(container, "app-shell", "bodyViewport").tabIndex).toBe(-1);
+  });
+
+  it("omits as from its props", () => {
+    expectTypeOf<BodyProps>().not.toHaveProperty("as");
+    expect(Body).toBeDefined();
   });
 });

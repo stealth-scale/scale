@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { ViewportProvider } from "@stealthscale/provider-viewport";
 import { accessibilityViolations } from "@stealthscale/testing-react";
 import {
   boundViolations,
@@ -11,7 +12,7 @@ import {
 } from "@stealthscale/testing-theme";
 
 import { Root as PageRoot } from "#page/root.tsx";
-import { Body } from "#section/body.ts";
+import { Body } from "#section/body.tsx";
 import { recipe } from "#section/recipe.ts";
 import { type RootProps } from "#section/root.tsx";
 import { blocked, composed } from "#section/section.fixtures.tsx";
@@ -42,10 +43,47 @@ describe("Root", () => {
   });
 
   it("has no name without a title", () => {
-    const { container } = render(blocked(<Body>The plan</Body>));
+    render(blocked(<Body>The plan</Body>));
 
     expect(screen.queryByRole("region", { name: /./u })).toBeNull();
-    expect(slotElement(container, "section", "root").getAttribute("aria-labelledby")).toBeTruthy();
+  });
+
+  it("sets no aria-labelledby without a title", () => {
+    const { container } = render(blocked(<Body>The plan</Body>));
+
+    expect(slotElement(container, "section", "root").hasAttribute("aria-labelledby")).toBe(false);
+  });
+
+  it("points aria-labelledby at its title while the title is mounted", () => {
+    const { container } = render(composed());
+
+    expect(slotElement(container, "section", "root").getAttribute("aria-labelledby")).toBe(
+      slotElement(container, "section", "title").id,
+    );
+  });
+
+  it("removes aria-labelledby when its title unmounts", () => {
+    const { container, rerender } = render(composed());
+
+    rerender(blocked(<Body>The plan</Body>));
+
+    expect(slotElement(container, "section", "root").hasAttribute("aria-labelledby")).toBe(false);
+  });
+
+  it("folds an annotated section below the md breakpoint", () => {
+    const { container } = render(
+      <ViewportProvider defaultWidth={700}>{composed({ annotated: true })}</ViewportProvider>,
+    );
+
+    expect(slotElement(container, "section", "root").dataset["narrow"]).toBe("");
+  });
+
+  it("keeps a plain section wide above the sm breakpoint", () => {
+    const { container } = render(
+      <ViewportProvider defaultWidth={700}>{composed()}</ViewportProvider>,
+    );
+
+    expect(slotElement(container, "section", "root").dataset["narrow"]).toBeUndefined();
   });
 
   it("takes its size from its page", () => {

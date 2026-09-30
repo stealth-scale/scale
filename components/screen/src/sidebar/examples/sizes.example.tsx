@@ -2,8 +2,6 @@ import { type ReactElement } from "react";
 
 import {
   ArchiveIcon,
-  Building2Icon,
-  CircleUserIcon,
   CreditCardIcon,
   ReceiptIcon,
   SearchIcon,
@@ -12,7 +10,6 @@ import {
   UserCheckIcon,
 } from "lucide-react";
 
-import { SearchInput } from "@stealthscale/component-forms";
 import { Stack } from "@stealthscale/component-layout";
 import { NavList } from "@stealthscale/component-navigation";
 import { useWords } from "@stealthscale/specimen";
@@ -21,7 +18,6 @@ import * as Sidebar from "#sidebar/index.ts";
 
 const SIZES = [
   {
-    field: "xs",
     label: "reports",
     pages: [
       ["revenue", TrendingUpIcon],
@@ -30,7 +26,6 @@ const SIZES = [
     size: "sm",
   },
   {
-    field: "sm",
     label: "customers",
     pages: [
       ["active", UserCheckIcon],
@@ -39,7 +34,6 @@ const SIZES = [
     size: "md",
   },
   {
-    field: "md",
     label: "settings",
     pages: [
       ["general", SettingsIcon],
@@ -54,19 +48,20 @@ export function Sizes(): ReactElement {
 
   return (
     <Stack gap="lg">
-      {SIZES.map(({ field, label, pages, size }) => (
+      {SIZES.map(({ label, pages, size }) => (
         <Sidebar.Root key={size} size={size} variant="outline">
           <Sidebar.Header>
-            <Building2Icon />
             <span>{t("acme")}</span>
+            <Sidebar.Search
+              aria-label={t("findPage")}
+              placeholder={t("filter")}
+              searchIndicator={<SearchIcon />}
+            />
           </Sidebar.Header>
           <Sidebar.Content>
-            <Sidebar.Search>
-              <SearchInput aria-label={t("search")} searchIndicator={<SearchIcon />} size={field} />
-            </Sidebar.Search>
             <Sidebar.Nav>
               <Sidebar.NavLabel as="h3">{t(label)}</Sidebar.NavLabel>
-              <NavList.Root size={size}>
+              <NavList.Root>
                 {pages.map(([page, Glyph], at) => (
                   <NavList.Item key={page}>
                     <NavList.Link aria-current={at === 0 ? "page" : undefined} href={`#${page}`}>
@@ -78,10 +73,6 @@ export function Sizes(): ReactElement {
               </NavList.Root>
             </Sidebar.Nav>
           </Sidebar.Content>
-          <Sidebar.Footer>
-            <CircleUserIcon />
-            <span>{t("signedIn")}</span>
-          </Sidebar.Footer>
         </Sidebar.Root>
       ))}
     </Stack>

@@ -26,15 +26,17 @@ export function Settings(props: Page.NavProps): ReactElement {
       </Page.Header>
       <Page.Nav aria-label={t("sections")} {...props}>
         <Page.When when="wide">
-          <Stack direction="row" gap="lg">
+          <Stack direction="row" gap="xl">
             {SECTIONS.map((section) => (
               <Link
                 aria-current={section === current ? "page" : undefined}
                 href={`#${section}`}
+                inherit={section !== current}
                 key={section}
                 onClick={() => {
                   setCurrent(section);
                 }}
+                variant="plain"
               >
                 {t(section)}
               </Link>
@@ -66,7 +68,9 @@ export function Settings(props: Page.NavProps): ReactElement {
         </Page.When>
       </Page.Nav>
       <Page.Body>
-        <Text>{t(`${current}Body`)}</Text>
+        <Text size="sm" tone="muted">
+          {t(`${current}Body`)}
+        </Text>
       </Page.Body>
     </Page.Root>
   );

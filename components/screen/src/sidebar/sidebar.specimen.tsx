@@ -2,19 +2,28 @@
  * Catalogue page for the sidebar.
  *
  * @remarks
+ *   The first three scenes render an operations console: in full in a box as wide as a sidebar, in
+ *   an app shell whose navigation closes to icons, and in the same shell at a phone's width. The
+ *   kit's `Screen` gives each shell a window of a fixed height and contains the phone's sheet.
  *   `scenesOf` generates the looks from the workspace example in an `xs` room, the width of a
- *   sidebar. The sizes scene renders the sizes example, because the navigation list and the search
- *   field take the size through their own props. The rail scene renders without a room, because a
- *   rail is as wide as its icons. The filter scene types a query that matches no page into the
- *   example's own field, so the empty message renders. The rooms and the typing never appear in
- *   the examples. The looks scene renders four copies of one example, so the page repeats the
- *   names of its nav landmarks. The words are keys under `sidebar` in
- *   `locales/en/specimen/sidebar.json`.
+ *   sidebar. The sizes scene renders the sizes example, because the search field takes the size
+ *   through the sidebar. The rail scene renders without a room, because a rail is as wide as its
+ *   icons. The filter scene types a query that matches no page into the example's own field, so
+ *   the empty message renders. The rooms, the boxes and the typing never appear in the examples.
+ *   The words are keys under `sidebar` in `locales/en/specimen/sidebar.json`.
  */
 
 import { type ReactElement, type ReactNode, useEffect, useState } from "react";
 
-import { Room, type Scene, scenesOf, specimen, useWords } from "@stealthscale/specimen";
+import {
+  Room,
+  Sample,
+  type Scene,
+  scenesOf,
+  Screen,
+  specimen,
+  useWords,
+} from "@stealthscale/specimen";
 
 import * as examples from "#sidebar/examples/index.ts";
 import type * as Sidebar from "#sidebar/index.ts";
@@ -56,6 +65,53 @@ function Typed({ children }: TypedProps): ReactElement {
 
   return <div ref={setBox}>{children}</div>;
 }
+
+/**
+ * Hand-written scene for the console sidebar in full.
+ */
+export const whole: Scene = {
+  about: "sidebar.whole.about",
+  draw: () => (
+    <Room size="xs">
+      <Sample place="stretch" variant="outline">
+        <examples.console.Console />
+      </Sample>
+    </Room>
+  ),
+  example: examples.console,
+  title: "sidebar.whole.title",
+};
+
+/**
+ * Hand-written scene for the sidebar in an app shell panel that closes to icons.
+ */
+export const shell: Scene = {
+  about: "sidebar.shell.about",
+  draw: () => (
+    <Screen size="lg">
+      <examples.shell.Shell />
+    </Screen>
+  ),
+  example: examples.shell,
+  frame: "bleed",
+  title: "sidebar.shell.title",
+};
+
+/**
+ * Hand-written scene for the sidebar as a sheet with a bar of destinations at a phone's width.
+ */
+export const phone: Scene = {
+  about: "sidebar.phone.about",
+  draw: () => (
+    <Room size="sm">
+      <Screen size="lg">
+        <examples.phone.Phone />
+      </Screen>
+    </Room>
+  ),
+  example: examples.phone,
+  title: "sidebar.phone.title",
+};
 
 /**
  * Hand-written scene for the three sizes.
@@ -115,8 +171,11 @@ export const filtering: Scene = {
 export default specimen({
   about: "sidebar.about",
   id: "components/screen/sidebar",
-  imports: 'import { Sidebar } from "@stealthscale/component-screen";',
+  imports: 'import { AppShell, Sidebar } from "@stealthscale/component-screen";',
   scenes: [
+    whole,
+    shell,
+    phone,
     ...scenesOf<Sidebar.RootProps>(recipe, {
       draw: (props) => (
         <Room size="xs">

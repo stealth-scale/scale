@@ -4,11 +4,11 @@
 
 import { type ReactElement, type ReactNode } from "react";
 
+import { Action } from "#toolbar/action.tsx";
 import { Center } from "#toolbar/center.ts";
 import { End } from "#toolbar/end.ts";
 import { Item } from "#toolbar/item.tsx";
 import { Root, type RootProps } from "#toolbar/root.tsx";
-import { Search } from "#toolbar/search.tsx";
 import { Start } from "#toolbar/start.ts";
 
 /**
@@ -32,22 +32,19 @@ export function ranged(children: ReactNode, props: Settings = {}): ReactElement 
 }
 
 /**
- * Renders a toolbar with a control and a search, open or closed.
+ * Renders a toolbar with a primary, a secondary and a tertiary action.
  *
- * @remarks
- *   The control remains in the document in both states, so a case can read where focus moves when
- *   the search opens and closes.
- * @param opened - Whether the search covers the row.
  * @param props - The root's props.
  * @returns The toolbar.
  */
-export function searched(opened: boolean, props: Settings = {}): ReactElement {
+export function folding(props: Settings = {}): ReactElement {
   return (
     <Root aria-label="Invoice" {...props}>
-      <Item>Open the search</Item>
-      <Search opened={opened}>
-        <input aria-label="Search invoices" type="search" />
-      </Search>
+      <Start>
+        <Action primary>Filter</Action>
+        <Action icon={<svg aria-hidden="true" />}>Export</Action>
+        <Action>Columns</Action>
+      </Start>
     </Root>
   );
 }

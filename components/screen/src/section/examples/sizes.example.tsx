@@ -1,44 +1,47 @@
 import { type ReactElement } from "react";
 
-import { PencilIcon } from "lucide-react";
+import { DownloadIcon } from "lucide-react";
 
-import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
 import { Stack } from "@stealthscale/component-layout";
 import { Text } from "@stealthscale/component-typography";
 import { useWords } from "@stealthscale/specimen";
 
+import * as Page from "#page/index.ts";
 import * as Section from "#section/index.ts";
 
-const SECTIONS = [
-  ["sm", "profile", "profileAbout"],
-  ["md", "payment", "cards"],
-  ["lg", "billing", "plan"],
-] as const;
+const FACTS = ["plan", "seats", "next"] as const;
 
-export function Sizes(): ReactElement {
+export function Sizes(props: Page.RootProps): ReactElement {
   const { t } = useWords("section");
 
   return (
-    <Stack gap="lg">
-      {SECTIONS.map(([size, title, about]) => (
-        <Section.Root key={size} size={size} variant="surface">
+    <Page.Root {...props}>
+      <Page.Body>
+        <Section.Root>
           <Section.Header>
-            <Section.Title as="h3">{t(title)}</Section.Title>
-            <Section.Description>{t(about)}</Section.Description>
+            <Section.Title as="h3">{t("billing.title")}</Section.Title>
+            <Section.Description>{t("billing.about")}</Section.Description>
             <Section.Actions>
-              <ButtonPropsProvider value={{ size, variant: "subtle" }}>
-                <Section.Action as={Button} priority="secondary">
-                  <PencilIcon size="1em" />
-                  <span>{t("edit")}</span>
-                </Section.Action>
-              </ButtonPropsProvider>
+              <Section.Action icon={<DownloadIcon size="1em" />}>
+                {t("billing.download")}
+              </Section.Action>
+              <Section.Action primary>{t("billing.pay")}</Section.Action>
             </Section.Actions>
           </Section.Header>
           <Section.Body>
-            <Text>{t("usage")}</Text>
+            <Stack direction="row" gap="2xl" wrap>
+              {FACTS.map((fact) => (
+                <Stack gap="xs" key={fact}>
+                  <Text size="sm" tone="muted">
+                    {t(`billing.facts.${fact}.label`)}
+                  </Text>
+                  <Text size="sm">{t(`billing.facts.${fact}.value`)}</Text>
+                </Stack>
+              ))}
+            </Stack>
           </Section.Body>
         </Section.Root>
-      ))}
-    </Stack>
+      </Page.Body>
+    </Page.Root>
   );
 }

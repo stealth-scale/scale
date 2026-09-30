@@ -3,13 +3,12 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#section/index.ts";
 
 describe("index", () => {
-  it("exports the nine parts alone", () => {
+  it("exports the eight parts alone", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Action",
       "Actions",
       "Body",
       "Description",
-      "Folded",
       "Footer",
       "Header",
       "Root",

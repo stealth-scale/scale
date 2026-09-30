@@ -3,6 +3,7 @@
  * one module.
  */
 
-export * as billing from "#section/examples/billing.example.tsx";
-export * as payment from "#section/examples/payment.example.tsx";
+export * as cards from "#section/examples/cards.example.tsx";
+export * as members from "#section/examples/members.example.tsx";
+export * as settings from "#section/examples/settings.example.tsx";
 export * as sizes from "#section/examples/sizes.example.tsx";

@@ -27,7 +27,12 @@ import { useFocused } from "#focus/index.ts";
  *   The navigation folds below `md`. The end side folds below `lg`, because a page between the
  *   navigation and a detail panel on a tablet is too narrow for either.
  */
-const FOLDS_BELOW: Readonly<Record<Side, Breakpoint>> = { end: "lg", start: "md" };
+export const FOLDS_BELOW: Readonly<Record<Side, Breakpoint>> = { end: "lg", start: "md" };
+
+/**
+ * Value of `foldsBelow` for a panel that never folds.
+ */
+const NEVER = "never";
 
 /**
  * Describes the options of a panel.
@@ -51,10 +56,10 @@ export interface PanelOptions {
   readonly folds?: Fold | undefined;
 
   /**
-   * Breakpoint below which the panel folds. Defaults to `md` on the start side and `lg` on the end
-   * side.
+   * Breakpoint below which the panel folds, or `never` for a panel in the body at every width.
+   * Defaults to `md` on the start side and `lg` on the end side.
    */
-  readonly foldsBelow?: Breakpoint | undefined;
+  readonly foldsBelow?: "never" | Breakpoint | undefined;
 
   /**
    * Name a trigger uses to find the panel. Defaults to `navbar` on the start side and `aside` on
@@ -178,16 +183,17 @@ export function usePanel(
   const { collapse = "hide", folds = "over" } = options;
   const name = options.name ?? (side === "start" ? "navbar" : "aside");
   const shell = useShell();
-  const below = options.foldsBelow ?? FOLDS_BELOW[side];
-  const narrow = useNarrow(shell.root, widthOf(below), below);
+  const stated = options.foldsBelow ?? FOLDS_BELOW[side];
+  const below = stated === NEVER ? FOLDS_BELOW[side] : stated;
+  const narrow = useNarrow(shell.root, widthOf(below), below) && stated !== NEVER;
   const overlaid = narrow && folds === "over";
   const stacked = narrow && folds === "under";
   const [shown, setShown] = useShown(overlaid, stacked, options);
   const [asked, setOpen] = useAsked(setShown);
   const id = useId();
   const panel = useMemo<Panel>(
-    () => ({ id, open: shown, overlaid, setOpen, stacked }),
-    [id, overlaid, setOpen, shown, stacked],
+    () => ({ collapse, id, open: shown, overlaid, setOpen, stacked }),
+    [collapse, id, overlaid, setOpen, shown, stacked],
   );
   const sheets = useOverlaid();
   const sheet = sheets.some((each) => each.id === id);

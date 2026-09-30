@@ -9,7 +9,14 @@ import { type Panel, panelStore } from "#app-shell/panels.ts";
  * @returns The panel state.
  */
 function panelOf(open: boolean): Panel {
-  return { id: "navbar", open, overlaid: false, setOpen: () => {}, stacked: false };
+  return {
+    collapse: "hide",
+    id: "navbar",
+    open,
+    overlaid: false,
+    setOpen: () => {},
+    stacked: false,
+  };
 }
 
 describe("panelStore", () => {
@@ -83,6 +90,20 @@ describe("panelStore", () => {
     store.publish("navbar", panelOf(true));
 
     expect(told).toBe(0);
+  });
+
+  it("notifies a subscriber when a panel's collapse changes", () => {
+    const store = panelStore();
+    const same = panelOf(false);
+    let told = 0;
+
+    store.publish("navbar", same);
+    store.subscribe(() => {
+      told += 1;
+    });
+    store.publish("navbar", { ...same, collapse: "icons" });
+
+    expect(told).toBe(1);
   });
 
   it("stores each panel under its own name", () => {
