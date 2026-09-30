@@ -52,7 +52,8 @@ export type PageFormat = "compact" | "long" | "short" | ((details: PageDetails) 
  *
  * @remarks
  *   `compact` gives "Page 12 of 24", `short` "12 / 24" and `long` the range of items, "111–120 of
- *   240". A function receives the four details alone, whatever else the object passed in contains,
+ *   240". A count of zero has no pages, which the formats word as "Page 0 of 0", "0 / 0" and "0–0
+ *   of 0". A function receives the four details alone, whatever else the object passed in contains,
  *   and returns the words in any language.
  * @param details - Where the reader is among the pages, such as the machine's api.
  * @param format - The format, or the function that words the details.
@@ -64,10 +65,12 @@ export function worded(
 ): string {
   if (typeof format === "function") return format({ count, page, pageRange, totalPages });
 
+  const shown = Math.min(page, totalPages);
+  const first = count === 0 ? 0 : pageRange.start + 1;
   const words = {
-    compact: `Page ${page} of ${totalPages}`,
-    long: `${pageRange.start + 1}–${pageRange.end} of ${count}`,
-    short: `${page} / ${totalPages}`,
+    compact: `Page ${shown} of ${totalPages}`,
+    long: `${first}–${pageRange.end} of ${count}`,
+    short: `${shown} / ${totalPages}`,
   };
 
   return words[format];

@@ -21,6 +21,16 @@ describe("worded", () => {
     expect(worded(DETAILS, format)).toBe(want);
   });
 
+  it.each([
+    { format: "compact", want: "Page 0 of 0" },
+    { format: "short", want: "0 / 0" },
+    { format: "long", want: "0–0 of 0" },
+  ] as const)("returns $want for $format when the count is zero", ({ format, want }) => {
+    const empty = { count: 0, page: 1, pageRange: { end: 0, start: 0 }, totalPages: 0 };
+
+    expect(worded(empty, format)).toBe(want);
+  });
+
   it("returns the words a function format gives", () => {
     expect(worded(DETAILS, ({ page, totalPages }) => `Seite ${page} von ${totalPages}`)).toBe(
       "Seite 12 von 24",

@@ -13,6 +13,7 @@
 - Scroll the `Toc` aside placement in `ScrollArea`.
 - Add `inherit` and `palette` to `Link`, and underline links at rest.
 - Add `Pagination` over `@zag-js/pagination`.
+- Word an empty count as `Page 0 of 0`, `0 / 0` and `0–0 of 0` in `Pagination.PageText`.
 - Add `NavigationMenu` over `@zag-js/navigation-menu`.
 - Peer on `component-actions`, `component-disclosure` and `component-primitives`.
 - Add a specimen per component.

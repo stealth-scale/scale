@@ -394,9 +394,9 @@ screen reader reads the new page after a press while the summary shows. The root
 because it attaches its own.
 
 `PageText` shows the current page in the format `format` names: `compact` renders `Page 12 of 24`,
-`short` renders `12 / 24`, and `long` renders the range of items, `111–120 of 240`. A function
-receives `count`, `page`, `pageRange` and `totalPages` and returns the words in any language.
-`summary` takes the same values.
+`short` renders `12 / 24`, and `long` renders the range of items, `111–120 of 240`. A count of zero
+renders `Page 0 of 0`, `0 / 0` and `0–0 of 0`. A function receives `count`, `page`, `pageRange` and
+`totalPages` and returns the words in any language. `summary` takes the same values.
 
 With `type="link"`, every page and trigger is a link to the address `getPageUrl` returns, so a
 reader can open a page in a new tab. A press follows the link and leaves the page unchanged: pass
