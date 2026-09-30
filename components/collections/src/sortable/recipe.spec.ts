@@ -47,14 +47,50 @@ describe("recipe", () => {
     ]);
   });
 
-  it("declares no axes", () => {
-    expect(axesOf(recipe)).toStrictEqual([]);
+  it("declares the variant axis", () => {
+    expect(axesOf(recipe)).toStrictEqual(["variant"]);
   });
 
-  it("hides the content of dnd-kit's placeholder", () => {
-    expect(base("item")).toMatchObject({
-      "&[data-dnd-placeholder]": { "& > *": { visibility: "hidden" } },
+  it("defaults to the card look", () => {
+    expect(recipe.defaultVariants).toStrictEqual({ variant: "card" });
+  });
+
+  it.each(["card", "plain"] as const)(
+    "hides the content of dnd-kit's placeholder in the %s look",
+    (look) => {
+      expect(recipe.variants?.["variant"]?.[look]?.["item"]).toMatchObject({
+        "&[data-dnd-placeholder]": { "& > *": { visibility: "hidden" } },
+      });
+    },
+  );
+
+  it("renders a card row on the panel's fill with a hairline edge", () => {
+    expect(recipe.variants?.["variant"]?.["card"]?.["item"]).toMatchObject({
+      background: "bg.panel",
+      borderColor: "border",
+      borderWidth: "hairline",
     });
+  });
+
+  it("renders a plain row with a transparent edge", () => {
+    expect(recipe.variants?.["variant"]?.["plain"]?.["item"]).toMatchObject({
+      borderColor: "transparent",
+      borderWidth: "hairline",
+    });
+  });
+
+  it("renders a plain row as tall as its handle", () => {
+    expect(recipe.variants?.["variant"]?.["plain"]?.["item"]).toMatchObject({ paddingBlock: "0" });
+  });
+
+  it("lifts a plain row a person drags on the panel's fill", () => {
+    expect(recipe.variants?.["variant"]?.["plain"]?.["item"]).toMatchObject({
+      "&[data-dnd-dragging]": { background: "bg.panel", boxShadow: "lg" },
+    });
+  });
+
+  it("lets plain rows touch each other", () => {
+    expect(recipe.variants?.["variant"]?.["plain"]?.["items"]).toStrictEqual({ gap: "0" });
   });
 
   it("dims the rows of a list that refuses the dragged item", () => {

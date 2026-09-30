@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
-import { NUMERIC, recipe } from "#table/recipe.ts";
+import { CELL_INSET, NUMERIC, recipe, ROW_FILL, RULE_INK, RULE_WIDTH } from "#table/recipe.ts";
 import page from "#table/table.specimen.tsx";
 
 const PARTS = [
@@ -47,8 +47,53 @@ describe("recipe", () => {
 
   it("fills a selected row with Highlight in forced colours", () => {
     expect(recipe.base?.["row"]).toMatchObject({
-      _selected: { _highContrast: { background: "Highlight", color: "HighlightText" } },
+      _selected: { _highContrast: { color: "HighlightText", [ROW_FILL]: "Highlight" } },
     });
+  });
+
+  it("paints a row with the fill its row fill property states", () => {
+    expect(recipe.base?.["row"]).toMatchObject({
+      background: "var(--table-row-fill)",
+      [ROW_FILL]: "transparent",
+    });
+  });
+
+  it("fills a selected row with the palette's subtle fill", () => {
+    expect(recipe.base?.["row"]).toMatchObject({
+      _selected: { [ROW_FILL]: "colors.colorPalette.subtle" },
+    });
+  });
+
+  it("writes a selected row's cells in HighlightText in forced colours", () => {
+    expect(recipe.base?.["row"]).toMatchObject({
+      _selected: { _highContrast: { "& > *": { color: "HighlightText" } } },
+    });
+  });
+
+  it("rules a selected row's cells in HighlightText in forced colours", () => {
+    expect(recipe.base?.["row"]).toMatchObject({
+      _selected: { _highContrast: { [RULE_INK]: "HighlightText" } },
+    });
+  });
+
+  it("rules a cell in the ink its row states and in border outside a row", () => {
+    expect(recipe.variants?.["rules"]?.["rows"]?.["cell"]).toMatchObject({
+      borderColor: "var(--table-rule, {colors.border})",
+    });
+  });
+
+  it("exports the row fill and the rule ink properties", () => {
+    expect([ROW_FILL, RULE_INK]).toStrictEqual(["--table-row-fill", "--table-rule"]);
+  });
+
+  it("rules a cell's block end as wide as its row states", () => {
+    expect(recipe.variants?.["rules"]?.["rows"]?.["cell"]).toMatchObject({
+      borderBlockEndWidth: "var(--table-rule-width, {borderWidths.hairline})",
+    });
+  });
+
+  it("states a hairline rule width on every row", () => {
+    expect(recipe.base?.["row"]).toMatchObject({ [RULE_WIDTH]: "borderWidths.hairline" });
   });
 
   it("declares fourteen slots in markup order", () => {
@@ -156,7 +201,7 @@ describe("recipe", () => {
 
   it("rules only the end edges of a cell when rules is all", () => {
     const ruled = recipe.variants?.["rules"]?.["all"];
-    const ends = { borderBlockEndWidth: "hairline" };
+    const ends = { borderBlockEndWidth: "var(--table-rule-width, {borderWidths.hairline})" };
 
     expect(ruled?.["cell"]).toMatchObject(ends);
     expect(ruled?.["cell"]).not.toHaveProperty("borderBlockStartWidth");
@@ -201,6 +246,13 @@ describe("recipe", () => {
     });
   });
 
+  it.each(["sm", "md", "lg"] as const)("pads a cell inline by --table-cell-inset at %s", (size) => {
+    expect(recipe.variants?.["size"]?.[size]?.["cell"]).toMatchObject({
+      [CELL_INSET]: `calc({spacing.inset.${size}} * var(--density, 1))`,
+      paddingInline: "var(--table-cell-inset)",
+    });
+  });
+
   it("reads fg on a column header with an aria-sort value", () => {
     expect(recipe.base?.["columnHeader"]).toMatchObject({
       "&[aria-sort]:not([aria-sort=none])": { color: "fg" },
@@ -211,9 +263,26 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "align")).toStrictEqual(["center", "end", "start"]);
   });
 
-  it("fills odd body rows with bg.muted when striped is true", () => {
+  it("fills odd body rows that are not selected with bg.muted when striped is true", () => {
     expect(recipe.variants?.["striped"]?.["true"]).toStrictEqual({
-      body: { "& > tr": { _odd: { background: "bg.muted" } } },
+      body: {
+        "& > tr:not([aria-selected=true], [data-selected])": {
+          _odd: { [ROW_FILL]: "colors.bg.muted" },
+        },
+      },
+    });
+  });
+
+  it("keeps a selected row's forced fill under the pointer when interactive is true", () => {
+    expect(recipe.variants?.["interactive"]?.["true"]?.["body"]).toMatchObject({
+      "& > tr": { _hover: { _selected: { _highContrast: { [ROW_FILL]: "Highlight" } } } },
+    });
+  });
+
+  it("paints a sticky row header's panel under its row's fill", () => {
+    expect(recipe.variants?.["stickyColumn"]?.["true"]?.["rowHeader"]).toMatchObject({
+      backgroundColor: "bg.panel",
+      backgroundImage: "linear-gradient(var(--table-row-fill), var(--table-row-fill))",
     });
   });
 
@@ -238,7 +307,7 @@ describe("recipe", () => {
 
   it("fills an interactive row on focus within", () => {
     expect(recipe.variants?.["interactive"]?.["true"]?.["body"]).toMatchObject({
-      "& > tr": { _focusWithin: { background: "colorPalette.subtle" } },
+      "& > tr": { _focusWithin: { [ROW_FILL]: "colors.colorPalette.subtle" } },
     });
   });
 

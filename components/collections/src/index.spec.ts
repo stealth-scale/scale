@@ -9,6 +9,7 @@ describe("index", () => {
       "Listbox",
       "Sortable",
       "StatusMatrix",
+      "SwipeActions",
       "Table",
       "Timeline",
       "Transfer",

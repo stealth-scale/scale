@@ -2,8 +2,8 @@
  * Catalogue page for the sortable kit.
  *
  * @remarks
- *   Every scene is hand-written, because the recipe has no variant axes: one list with a fixed
- *   last stage, rows with content, a board with a limit and a rule, and moves without a drag
+ *   Every scene is hand-written: one list with a fixed last stage, the plain rows the `variant`
+ *   axis offers, rows with content, a board with a limit and a rule, and moves without a drag
  *   through a row menu. Every scene renders a component from `examples/` and shows that file as its
  *   source. The words are keys under `sortable` in `locales/en/specimen/sortable.json`.
  */
@@ -13,6 +13,7 @@ import { Room, type Scene, specimen } from "@stealthscale/specimen";
 import * as board from "#sortable/examples/board.example.tsx";
 import * as issues from "#sortable/examples/issues.example.tsx";
 import * as moves from "#sortable/examples/moves.example.tsx";
+import * as plain from "#sortable/examples/plain.example.tsx";
 import * as stages from "#sortable/examples/stages.example.tsx";
 
 /**
@@ -27,6 +28,22 @@ export const list: Scene = {
   ),
   example: stages,
   title: "sortable.stages.title",
+};
+
+/**
+ * Hand-written scene for the plain look, rows without a fill or an edge, beside the card rows of
+ * the scene before it.
+ */
+export const plainRows: Scene = {
+  about: "sortable.plain.about",
+  axes: ["variant"],
+  draw: () => (
+    <Room size="sm">
+      <plain.Plain />
+    </Room>
+  ),
+  example: plain,
+  title: "sortable.plain.title",
 };
 
 /**
@@ -75,6 +92,6 @@ export default specimen({
   about: "sortable.about",
   id: "components/collections/sortable",
   imports: 'import { Sortable } from "@stealthscale/component-collections";',
-  scenes: [list, content, lists, moving],
+  scenes: [list, plainRows, content, lists, moving],
   title: "sortable.title",
 });

@@ -99,6 +99,13 @@ describe("Scroller", () => {
     expect(held.current?.className).toContain("table__scroller");
   });
 
+  it("passes the viewport to viewportRef", () => {
+    const held = createRef<HTMLDivElement>();
+    const { container } = render(composed({ viewportRef: held }));
+
+    expect(held.current).toBe(slotElement(container, "table", "viewport"));
+  });
+
   it("renders the element as names", () => {
     const { container } = render(composed({ as: "section" }));
 

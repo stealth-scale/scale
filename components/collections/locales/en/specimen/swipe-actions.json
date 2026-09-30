@@ -1,0 +1,32 @@
+{
+  "about": "A row whose actions wait behind it at its end. A finger or a pen swipes the row aside, a trackpad's two-finger swipe does the same, and Tab moves to the actions with no gesture: focus opens them and Escape closes them.",
+  "archive": "Archive",
+  "archiveOf": "Archive the message from {{sender}}",
+  "archived": "Archived the message from {{sender}}.",
+  "delete": "Delete",
+  "deleteOf": "Delete the message from {{sender}}",
+  "deleted": "Deleted the message from {{sender}}.",
+  "inbox": {
+    "about": "Four messages at a phone's width. Swipe a row towards the start with a finger or a trackpad, or Tab to its actions. A swipe past half the actions' width leaves them open, and a press outside closes them. An action closes the row, then runs.",
+    "title": "Inbox"
+  },
+  "label": "Messages",
+  "restore": "Restore the messages",
+  "rtl": {
+    "about": "The same inbox laid out right to left: the actions wait at the left end, and a swipe towards the right reveals them.",
+    "title": "Right to left"
+  },
+  "senders": {
+    "ada": "Ada Lovelace",
+    "bram": "Bram Visser",
+    "chen": "Chen Wei",
+    "dana": "Dana Okafor"
+  },
+  "subjects": {
+    "ada": "The review notes for the compiler release",
+    "bram": "Invoice 1042 is ready to send",
+    "chen": "Moving the stand-up to Thursday",
+    "dana": "Access to the staging cluster"
+  },
+  "title": "Swipe actions"
+}

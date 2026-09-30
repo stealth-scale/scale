@@ -12,10 +12,11 @@
  *   cell into view, and the viewport keeps no tab stop of its own. The scroller receives the
  *   variants, because the edge and the corners belong to the element that clips them, and it
  *   renders the focus ring while the viewport has focus. A sticky header and a sticky column stick
- *   to the viewport.
+ *   to the viewport. `viewportRef` receives the viewport, the element that scrolls, for a caller
+ *   that renders only the rows in view.
  */
 
-import { type ComponentProps, type ReactElement } from "react";
+import { type ComponentProps, type ReactElement, type Ref } from "react";
 
 import { ScrollArea } from "@stealthscale/component-primitives";
 import { omitUndefined } from "@stealthscale/hooks";
@@ -42,13 +43,18 @@ export interface ScrollerProps extends ComponentProps<typeof Box> {
    * out of the tab order, for a table whose cells take focus. `true` unless stated.
    */
   readonly focusable?: boolean | undefined;
+
+  /**
+   * Ref of the scroll area's viewport, the element that scrolls.
+   */
+  readonly viewportRef?: Ref<HTMLDivElement> | undefined;
 }
 
 /**
  * Renders the scroller around a scroll area whose viewport takes the region's name.
  *
- * @param props - Whether the viewport takes a tab stop, the recipe's variants and the props of a
- *   `div`, whose `aria-label` and `aria-labelledby` name the viewport.
+ * @param props - Whether the viewport takes a tab stop, the viewport's ref, the recipe's variants
+ *   and the props of a `div`, whose `aria-label` and `aria-labelledby` name the viewport.
  * @returns The `div` element.
  */
 export function Scroller({
@@ -56,6 +62,7 @@ export function Scroller({
   "aria-labelledby": labelledBy,
   children,
   focusable = true,
+  viewportRef,
   ...rest
 }: ScrollerProps): ReactElement {
   return (
@@ -63,6 +70,7 @@ export function Scroller({
       <ScrollArea.Root scrolls="both">
         <Viewport
           focusable={focusable}
+          ref={viewportRef}
           {...omitUndefined({ "aria-label": label, "aria-labelledby": labelledBy })}
         >
           <ScrollArea.Content>{children}</ScrollArea.Content>

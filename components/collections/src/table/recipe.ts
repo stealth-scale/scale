@@ -10,7 +10,12 @@
  *   below the table with a cell's inset. A cell of figures states `data-numeric`, because a slot
  *   recipe resolves its variants once at the root. Borders are separated, and every cell rules its
  *   end on each axis and never its start, so a sticky header cell keeps its own rule. The recipe
- *   has no `effect` axis, because a glow around a row overlaps the rules of the rows beside it.
+ *   has no `effect` axis, because a glow around a row overlaps the rules of the rows beside it. A
+ *   row's stripe, hover and selected fills set `--table-row-fill`, which the row paints and a
+ *   sticky row header paints over the panel. The stripe skips a selected row. The body's rules
+ *   read their ink from `--table-rule` and their width from `--table-rule-width`, which a
+ *   composing part sets on a row that ends a group of rows. Under forced colours a selected row
+ *   fills with `Highlight`, and its cells' text and rules take `HighlightText`.
  */
 
 import {
@@ -44,9 +49,44 @@ const RING_STYLE = "--scroll-area-ring-style";
 export const NUMERIC = "data-numeric";
 
 /**
- * Styles the rule at a cell's block end.
+ * Custom property of a row's fill: transparent, the stripe, the hover fill or the selected fill.
+ *
+ * @remarks
+ *   The row paints it, and a sticky cell paints it over the panel, so a sticky cell takes the fill
+ *   of its row and hides the cells that scroll under it.
  */
-const RULE = { borderBlockEndWidth: "hairline", borderColor: "border" };
+export const ROW_FILL = "--table-row-fill";
+
+/**
+ * Custom property of the ink a row's cells rule their ends in: `border`, and `HighlightText` in a
+ * selected row under forced colours.
+ */
+export const RULE_INK = "--table-rule";
+
+/**
+ * Custom property of the width of the rule at a row's cells' block end: `hairline`, and a heavier
+ * width a composing part sets on a row that ends a group of rows.
+ */
+export const RULE_WIDTH = "--table-rule-width";
+
+/**
+ * Custom property of a cell's inline inset at the table's size, which a part laid over a cell reads
+ * to start its text where the cell's text starts.
+ */
+export const CELL_INSET = "--table-cell-inset";
+
+/**
+ * Ink of a cell's rules: its row's rule ink, else `border` in a row outside the table's parts.
+ */
+const INK = `var(${RULE_INK}, {colors.border})`;
+
+/**
+ * Styles the rule at a cell's block end, as wide as its row states.
+ */
+const RULE = {
+  borderBlockEndWidth: `var(${RULE_WIDTH}, {borderWidths.hairline})`,
+  borderColor: INK,
+};
 
 /**
  * Styles the rule at the inline end of every cell but the last in its row.
@@ -56,8 +96,25 @@ const RULE = { borderBlockEndWidth: "hairline", borderColor: "border" };
  *   first column.
  */
 const BESIDE = {
-  "&:not(:last-child)": { borderColor: "border", borderInlineEndWidth: "hairline" },
+  "&:not(:last-child)": { borderColor: INK, borderInlineEndWidth: "hairline" },
 };
+
+/**
+ * Paints a sticky cell: the panel under its row's fill.
+ */
+const STUCK = {
+  backgroundColor: "bg.panel",
+  backgroundImage: `linear-gradient(var(${ROW_FILL}), var(${ROW_FILL}))`,
+};
+
+/**
+ * Restates a selected row's forced fill under a state that fills the row.
+ *
+ * @remarks
+ *   The states are variants, and the compiler layers every variant over the base, where the
+ *   selected fill is stated, so a hovered selected row would take the hover's fill.
+ */
+const HIGHLIGHTED = { _selected: { _highContrast: { [ROW_FILL]: "Highlight" } } };
 
 /**
  * Styles the rule under the header's last row, at the indicator width.
@@ -86,15 +143,16 @@ const LAST = {
 
 /**
  * Returns a cell's padding: the gap scale on the block axis and the inset scale on the inline
- * axis.
+ * axis, which the cell states in `--table-cell-inset`.
  *
  * @param size - The table's size.
- * @returns The block and inline padding.
+ * @returns The inline inset and the block and inline padding.
  */
 function inset(size: string): SystemStyleObject {
   return {
+    [CELL_INSET]: dense(`{spacing.inset.${size}}`),
     paddingBlock: dense(`{spacing.gap.${size}}`),
-    paddingInline: dense(`{spacing.inset.${size}}`),
+    paddingInline: `var(${CELL_INSET})`,
   };
 }
 
@@ -140,12 +198,18 @@ export const recipe = defineSlotRecipe({
     row: {
       _selected: {
         _highContrast: {
-          background: "Highlight",
+          "& > *": { color: "HighlightText" },
           color: "HighlightText",
           forcedColorAdjust: "none",
+          [ROW_FILL]: "Highlight",
+          [RULE_INK]: "HighlightText",
         },
-        background: "colorPalette.subtle",
+        [ROW_FILL]: "colors.colorPalette.subtle",
       },
+      background: `var(${ROW_FILL})`,
+      [ROW_FILL]: "transparent",
+      [RULE_INK]: "colors.border",
+      [RULE_WIDTH]: "borderWidths.hairline",
     },
     rowHeader: {
       "&[colspan]": { color: "fg.subtle" },
@@ -186,7 +250,11 @@ export const recipe = defineSlotRecipe({
   className: "table",
   compoundVariants: [
     {
-      css: { body: { "& > tr": { _hover: { background: "colorPalette.muted" } } } },
+      css: {
+        body: {
+          "& > tr": { _hover: { ...HIGHLIGHTED, [ROW_FILL]: "colors.colorPalette.muted" } },
+        },
+      },
       interactive: true,
       name: "tracked",
       striped: true,
@@ -245,8 +313,8 @@ export const recipe = defineSlotRecipe({
       true: {
         body: {
           "& > tr": {
-            _focusWithin: { background: "colorPalette.subtle" },
-            _hover: { background: "colorPalette.subtle" },
+            _focusWithin: { ...HIGHLIGHTED, [ROW_FILL]: "colors.colorPalette.subtle" },
+            _hover: { ...HIGHLIGHTED, [ROW_FILL]: "colors.colorPalette.subtle" },
           },
         },
       },
@@ -355,12 +423,7 @@ export const recipe = defineSlotRecipe({
             zIndex: "1",
           },
         },
-        rowHeader: {
-          background: "bg.panel",
-          insetInlineStart: "0",
-          position: "sticky",
-          zIndex: "1",
-        },
+        rowHeader: { ...STUCK, insetInlineStart: "0", position: "sticky", zIndex: "1" },
       },
     },
 
@@ -382,9 +445,18 @@ export const recipe = defineSlotRecipe({
 
     /**
      * Whether every odd body row renders on `bg.muted`.
+     *
+     * @remarks
+     *   The stripe skips a selected row, so a selected row keeps its selected fill.
      */
     striped: {
-      true: { body: { "& > tr": { _odd: { background: "bg.muted" } } } },
+      true: {
+        body: {
+          "& > tr:not([aria-selected=true], [data-selected])": {
+            _odd: { [ROW_FILL]: "colors.bg.muted" },
+          },
+        },
+      },
     },
 
     /**

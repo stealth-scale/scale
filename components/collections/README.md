@@ -12,6 +12,7 @@ React components that render a set of records, styled by the theme's recipes.
 | `Timeline`                       | Entries in the order they happened, along a rail       |
 | `TreeView`, `TreeCollection`     | Nested rows that open and close, walked by the keys    |
 | `Sortable`                       | Rows a person drags into another order                 |
+| `SwipeActions`                   | A row whose actions a swipe reveals at its end         |
 | `useListCollection`, `useFilter` | The rows of a list, filtered by typed text             |
 
 Every value a theme can change is an axis of a component's recipe. Set it as a prop, and write no
@@ -27,9 +28,10 @@ pnpm add @stealthscale/component-collections
 The package peers on `react`, `react-dom`, `@stealthscale/hooks`, `@stealthscale/theme` and
 `@stealthscale/component-primitives`. It depends on dnd-kit 0.5.0 (`@dnd-kit/abstract`,
 `@dnd-kit/dom`, `@dnd-kit/helpers` and `@dnd-kit/react`), pinned exactly, for `Sortable`, and on
-`@stealthscale/component-actions` for its handle. List the preset under `./theme` among the presets
-your compiler installs. Add the primitives package's preset, which styles the scroll areas of the
-table, the listbox and the board, and the actions package's preset, which styles the handle.
+`@stealthscale/component-actions` for the sortable handle and the swipe actions. List the preset
+under `./theme` among the presets your compiler installs. Add the primitives package's preset, which
+styles the scroll areas of the table, the listbox and the board, and the actions package's preset,
+which styles the handle and the swipe actions.
 
 ## Table
 
@@ -110,6 +112,8 @@ import { Table } from "@stealthscale/component-collections";
 - `focusable={false}` on `Table.Scroller` keeps the viewport out of the tab order, for a table whose
   cells take focus, such as a grid with one roving tab stop. Focus on a cell scrolls the cell into
   view.
+- `viewportRef` on `Table.Scroller` receives the viewport, the element that scrolls, for a caller
+  that renders only the rows in view.
 - A column of figures states `data-numeric` on its cells and its header, and `Table.Simple` sets it
   from `numeric`. The cells align to their end in tabular figures.
 - Sorting, filtering and pagination are the caller's. `Table.Sorter` reports the press, the column
@@ -549,7 +553,9 @@ import { Sortable } from "@stealthscale/component-collections";
 </Sortable.Root>;
 ```
 
-The recipe has no axes.
+| Axis      | Values          | Default |
+| --------- | --------------- | ------- |
+| `variant` | `card`, `plain` | `card`  |
 
 | Part          | Element  | What it renders                                                   |
 | ------------- | -------- | ----------------------------------------------------------------- |
@@ -562,6 +568,9 @@ The recipe has no axes.
 | `ItemContent` | `div`    | A row's words and marks, which take the rest of the row           |
 | `Empty`       | `div`    | A list's message while it has no row, outside the `ul`            |
 
+- `card` renders each row as a panel card with a hairline edge. `plain` renders rows without a fill
+  or a visible edge, as tall as their handle and touching each other, for a list inside a panel such
+  as a popover. In either look the row a person drags lifts on the panel's fill.
 - The root is controlled. `items` is an array for one list, or a record of a board's lists keyed by
   their ids. `onItemsChange` reports the items to render after a drop, a move into another list
   during a drag, a cancel and a move without a drag. `onItemMove` reports each finished move once,
@@ -592,6 +601,68 @@ The recipe has no axes.
 - A board's lists are 15 to 20rem wide and share the board's width. The board scrolls sideways in
   the primitives package's scroll area once the lists are wider.
 - The package does not include icons. Pass the handle's glyph.
+
+## SwipeActions
+
+`SwipeActions` renders a row whose actions wait behind it at its inline end. A finger or a pen
+swipes the row aside, a trackpad's horizontal swipe does the same, and Tab moves to the actions with
+no gesture.
+
+```tsx
+import { ArchiveIcon, Trash2Icon } from "lucide-react";
+
+import { SwipeActions } from "@stealthscale/component-collections";
+
+<SwipeActions.Root>
+  <SwipeActions.Content>Invoice 1042 is ready to send</SwipeActions.Content>
+  <SwipeActions.Actions>
+    <SwipeActions.Action aria-label="Archive invoice 1042" onClick={archive} palette="neutral">
+      <ArchiveIcon size="1em" />
+      Archive
+    </SwipeActions.Action>
+    <SwipeActions.Action aria-label="Delete invoice 1042" onClick={remove} palette="error">
+      <Trash2Icon size="1em" />
+      Delete
+    </SwipeActions.Action>
+  </SwipeActions.Actions>
+</SwipeActions.Root>;
+```
+
+The recipe has no axis.
+
+| Part      | Element  | What it renders                                   |
+| --------- | -------- | ------------------------------------------------- |
+| `Root`    | `div`    | The row, which clips its content and its actions  |
+| `Content` | `div`    | The row's content, which a swipe moves aside      |
+| `Actions` | `div`    | The actions at the row's inline end               |
+| `Action`  | `button` | One action, the actions `Button` as tall as a row |
+
+- The actions follow the content in the document, so Tab stops on the row's own links first. Focus
+  entering the actions opens the row, and focus leaving them closes it. Escape closes the row and
+  moves focus to it, which the root's `tabIndex={-1}` allows.
+- A touch or pen drag moves the row under the finger. A release at or past half the actions' width
+  leaves them open, and one short of half closes them. A horizontal trackpad swipe moves the row the
+  same way and settles 150ms after its last delta. `settleSwipe(revealed, width)` is the rule.
+- A mouse drag does not move the row, so a mouse selects the row's text. A mouse user opens the
+  actions with Tab.
+- A press outside an open row closes it, so opening another row closes the first.
+- An action closes its row and moves focus to it, then runs `onClick`. When the action removes the
+  row, move focus to the next row or to what replaces the list, because focus on a removed row falls
+  to the document's body.
+- Name each action after its row, such as `aria-label="Archive invoice 1042"`, because every row
+  repeats the same visible words. Start the name with the visible words.
+- The root sets `data-open` while the actions rest open, `data-dragging` while a drag moves the row,
+  and `--swipe-reveal` to the revealed width. The actions are clipped to that width, so they show
+  nothing at rest, whatever the row's background.
+- The content is a padded flex row with `touch-action: pan-y`, so a vertical swipe scrolls the page.
+  The row moves over the theme's `move` duration. It moves with no transition during a drag and
+  under reduced motion.
+- An action is square, at least 64px wide at the default scale and as tall as the row, with its
+  glyph above its words. Its focus ring is inside it in the palette's contrast ink. Use the solid
+  look, the button's default.
+- In a row laid out right to left the actions wait at the left end, and a swipe towards the right
+  reveals them.
+- The package does not include icons. Pass the actions' glyphs.
 
 ## useListCollection and useFilter
 

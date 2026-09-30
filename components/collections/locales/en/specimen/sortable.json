@@ -46,6 +46,11 @@
     "title": "Moving without dragging",
     "up": "Move up"
   },
+  "plain": {
+    "about": "`variant=\"plain\"` renders the rows without a fill or a visible edge, touching each other, for a list inside a panel such as a column manager's popover. The row a person drags lifts on the panel's fill, and its place is the same dashed slot.",
+    "label": "Review stages",
+    "title": "Plain rows"
+  },
   "stages": {
     "about": "One list is an array. Drag a stage by its handle, or focus the handle and press Space, the arrow keys and Space again. Archive is always last: its row is disabled and keeps the handle's room empty.",
     "archive": "Archive",
