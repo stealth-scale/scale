@@ -35,11 +35,13 @@ export const ROW_HEIGHT = "--listbox-row";
  */
 export function tiled(): Record<Count, SystemStyleObject> {
   const columned = columnCounts();
+  const entries = COUNTS.map((count): [Count, SystemStyleObject] => [
+    count,
+    { ...columned[count], display: "grid" },
+  ]);
 
   // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the entries are built from the counts, one per count
-  return Object.fromEntries(
-    COUNTS.map((count) => [count, { ...columned[count], display: "grid" }]),
-  ) as Record<Count, SystemStyleObject>;
+  return Object.fromEntries(entries) as Record<Count, SystemStyleObject>;
 }
 
 /**

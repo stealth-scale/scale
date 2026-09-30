@@ -3,7 +3,7 @@
  *
  * @remarks
  *   An attached group squares the corners between neighbours and overlaps their borders by the
- *   control stroke width, so the border between two children renders once. A focused child sits
+ *   control stroke width, so the border between two children renders once. A focused child stacks
  *   above its neighbours, so the next child does not cover its focus ring. The squaring is in two
  *   compounds, one per orientation. The compiler emits compounds after every variant, so the `gap`
  *   axis cannot reopen the gap. The recipe has no `palette` or `effect` axis, because a group
@@ -29,16 +29,18 @@ const OVERLAP = "calc({borderWidths.control} * -1)";
  *
  * @remarks
  *   The base group is `inline-flex` and as wide as its children, so it has no free space to
- *   distribute. The axis has no default, so a group without `justify` stays inline.
+ *   distribute. The axis has no default, so a group without `justify` remains inline.
  */
 function distributed(): Record<Justify, SystemStyleObject> {
-  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the entries are the axis's own, one per distribution
-  return Object.fromEntries(
-    Object.entries(justifyVariants()).map(([name, placed]) => [
+  const entries = Object.entries(justifyVariants()).map(
+    ([name, placed]): [string, SystemStyleObject] => [
       name,
       { ...placed, display: "flex", inlineSize: "full" },
-    ]),
-  ) as Record<Justify, SystemStyleObject>;
+    ],
+  );
+
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the entries are the axis's own, one per distribution
+  return Object.fromEntries(entries) as Record<Justify, SystemStyleObject>;
 }
 
 /**

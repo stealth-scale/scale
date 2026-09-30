@@ -69,7 +69,7 @@ function marked(classes: readonly string[], recipe = "button"): ParentNode {
 }
 
 /**
- * Renders a card root holding a title with the classes given.
+ * Renders a card root containing a title with the classes given.
  */
 function titled(classes: readonly string[]): ParentNode {
   const container = document.createElement("div");
@@ -87,14 +87,82 @@ function titled(classes: readonly string[]): ParentNode {
 
 const correct: Draw<Props> = (props) => marked(buttonClasses(props));
 
+const deaf: Draw<Props> = (props) => marked(buttonClasses({ ...props, variant: undefined }));
+
+const loud: Draw<Props> = (props) => marked([...buttonClasses(props), "button--xl"]);
+
+const plain: Draw<Props> = (props) =>
+  marked(buttonClasses(props).filter((each) => each !== compoundClass("button", "hero")));
+
+const ghost: Draw<Props> = (props) => marked(buttonClasses({ variant: "ghost", ...props }));
+
+const unmarked: Draw<Props> = (props) => marked(buttonClasses(props), "other");
+
+const styledTitle: Draw<Props> = (props) => {
+  const classes = [slotClass("card", "title")];
+
+  if (props["size"] === "lg") classes.push(slotVariantClass("card", "title", "size", "lg"));
+  if (props["tone"] === "muted") classes.push(slotVariantClass("card", "title", "tone", "muted"));
+
+  return titled(classes);
+};
+
+const sizedTitle: Draw<Props> = (props) =>
+  titled([
+    slotClass("card", "title"),
+    slotVariantClass("card", "title", "size", String(props["size"] ?? "md")),
+  ]);
+
+const cardRoot: Draw<Props> = (props) => {
+  const size = String(props["size"] ?? "md");
+  const classes = [slotClass("card", "root"), slotVariantClass("card", "root", "size", size)];
+
+  if (size === "lg") classes.push(compoundClass(slotClass("card", "root"), "hero"));
+
+  return marked(classes, "card");
+};
+
+const drawnRaw: Draw<Props> = (props) =>
+  marked(props["size"] === "lg" ? ["raw", "raw--lg"] : ["raw"], "raw");
+
+const drawnWide: Draw<Props> = (props) => {
+  const size = props["size"];
+  const classes = ["wide"];
+
+  if (typeof size === "string") classes.push(variantClass("wide", "size", size));
+  if (size === "lg" || size === "md") classes.push("wide--broad");
+
+  return marked(classes, "wide");
+};
+
+const drawnBare: Draw<Props> = () => marked(["bare"], "bare");
+
+const drawnOdd: Draw<Props> = () => marked(["odd"], "odd");
+
+const settling: DrawAsync<Props> = async (props) => {
+  await Promise.resolve();
+
+  return correct(props);
+};
+
+const settledDeaf: DrawAsync<Props> = async (props) => {
+  await Promise.resolve();
+
+  return deaf(props);
+};
+
+const settledSizedTitle: DrawAsync<Props> = async (props) => {
+  await Promise.resolve();
+
+  return sizedTitle(props);
+};
+
 describe("boundViolations", () => {
   it("returns an empty array when the element has every class the recipe writes", () => {
     expect(boundViolations(button, correct)).toStrictEqual([]);
   });
 
   it("reports a class the element lacks when its value is picked", () => {
-    const deaf: Draw<Props> = (props) => marked(buttonClasses({ ...props, variant: undefined }));
-
     expect(boundViolations(button, deaf)).toStrictEqual([
       "button lacks button--ghost when variant is ghost",
       "button has button--solid when variant is ghost, which the recipe does not write",
@@ -102,8 +170,6 @@ describe("boundViolations", () => {
   });
 
   it("reports a class the element has that the recipe does not write", () => {
-    const loud: Draw<Props> = (props) => marked([...buttonClasses(props), "button--xl"]);
-
     expect(boundViolations(button, loud)).toHaveLength(6);
     expect(boundViolations(button, loud)[0]).toBe(
       "button has button--xl when nothing is picked, which the recipe does not write",
@@ -111,16 +177,12 @@ describe("boundViolations", () => {
   });
 
   it("expects the compound class when the selection matches", () => {
-    const plain: Draw<Props> = (props) =>
-      marked(buttonClasses(props).filter((each) => each !== compoundClass("button", "hero")));
-
     expect(boundViolations(button, plain)).toStrictEqual([
       "button lacks button--hero when size is lg",
     ]);
   });
 
   it("expects the class of a value the binding fixes where nothing is picked", () => {
-    const ghost: Draw<Props> = (props) => marked(buttonClasses({ variant: "ghost", ...props }));
     const emitted = { ...button, staticCss: [{ variant: ["ghost"] }] };
 
     expect(boundViolations(emitted, ghost, { defaults: { variant: "ghost" } })).toStrictEqual([]);
@@ -130,7 +192,6 @@ describe("boundViolations", () => {
   });
 
   it("reports a fixed value that no staticCss entry emits", () => {
-    const ghost: Draw<Props> = (props) => marked(buttonClasses({ variant: "ghost", ...props }));
     const whole = { ...button, staticCss: ["*"] };
     const axis = { ...button, staticCss: [{ variant: "*" }] };
     const other = { ...button, staticCss: [{ size: ["lg"] }, "odd"] };
@@ -144,8 +205,6 @@ describe("boundViolations", () => {
   });
 
   it("reads the element the subject returns", () => {
-    const unmarked: Draw<Props> = (props) => marked(buttonClasses(props), "other");
-
     expect(
       boundViolations(button, unmarked, {
         subject: (container) => container.querySelector(".button") ?? document.body,
@@ -154,27 +213,11 @@ describe("boundViolations", () => {
   });
 
   it("expects a value's class on a part only when the value styles the slot", () => {
-    const title: Draw<Props> = (props) => {
-      const classes = [slotClass("card", "title")];
-
-      if (props["size"] === "lg") classes.push(slotVariantClass("card", "title", "size", "lg"));
-      if (props["tone"] === "muted")
-        classes.push(slotVariantClass("card", "title", "tone", "muted"));
-
-      return titled(classes);
-    };
-
-    expect(boundViolations(card, title, { slot: "title" })).toStrictEqual([]);
+    expect(boundViolations(card, styledTitle, { slot: "title" })).toStrictEqual([]);
   });
 
   it("reports a value's class on a part when the value does not style the slot", () => {
-    const title: Draw<Props> = (props) =>
-      titled([
-        slotClass("card", "title"),
-        slotVariantClass("card", "title", "size", String(props["size"] ?? "md")),
-      ]);
-
-    expect(boundViolations(card, title, { slot: "title" })).toStrictEqual([
+    expect(boundViolations(card, sizedTitle, { slot: "title" })).toStrictEqual([
       "card__title has card__title--md when nothing is picked, which the recipe does not write",
       "card__title has card__title--md when size is md, which the recipe does not write",
       "card__title lacks card__title--muted when tone is muted",
@@ -182,17 +225,8 @@ describe("boundViolations", () => {
     ]);
   });
 
-  it("expects a compound's class on the part its styles reach", () => {
-    const root: Draw<Props> = (props) => {
-      const size = String(props["size"] ?? "md");
-      const classes = [slotClass("card", "root"), slotVariantClass("card", "root", "size", size)];
-
-      if (size === "lg") classes.push(compoundClass(slotClass("card", "root"), "hero"));
-
-      return marked(classes, "card");
-    };
-
-    expect(boundViolations(card, root, { slot: "root" })).toStrictEqual([]);
+  it("expects a compound's class on the part its styles apply to", () => {
+    expect(boundViolations(card, cardRoot, { slot: "root" })).toStrictEqual([]);
   });
 
   it("expects no class for a compound that is not an object or has no class name", () => {
@@ -202,10 +236,8 @@ describe("boundViolations", () => {
       compoundVariants: [null, { css: { fontWeight: "bold" }, size: "lg" }],
       variants: { size: { lg: { height: "control.lg" } } },
     };
-    const drawn: Draw<Props> = (props) =>
-      marked(props["size"] === "lg" ? ["raw", "raw--lg"] : ["raw"], "raw");
 
-    expect(boundViolations(raw, drawn)).toStrictEqual([]);
+    expect(boundViolations(raw, drawnRaw)).toStrictEqual([]);
   });
 
   it("passes a boolean axis's false value as false", () => {
@@ -240,69 +272,39 @@ describe("boundViolations", () => {
         },
       },
     };
-    const drawn: Draw<Props> = (props) => {
-      const size = props["size"];
-      const classes = ["wide"];
 
-      if (typeof size === "string") classes.push(variantClass("wide", "size", size));
-      if (size === "lg" || size === "md") classes.push("wide--broad");
-
-      return marked(classes, "wide");
-    };
-
-    expect(boundViolations(wide, drawn)).toStrictEqual([]);
+    expect(boundViolations(wide, drawnWide)).toStrictEqual([]);
   });
 
   it("renders once when the recipe offers no axis", () => {
     const bare = { base: INK, className: "bare" };
-    const drawn: Draw<Props> = () => marked(["bare"], "bare");
 
-    expect(boundViolations(bare, drawn)).toStrictEqual([]);
+    expect(boundViolations(bare, drawnBare)).toStrictEqual([]);
   });
 
   it("skips an axis whose values are not an object", () => {
     const odd = { base: INK, className: "odd", variants: { size: "odd" } };
-    const drawn: Draw<Props> = () => marked(["odd"], "odd");
 
-    expect(boundViolations(odd, drawn)).toStrictEqual([]);
+    expect(boundViolations(odd, drawnOdd)).toStrictEqual([]);
   });
 });
 
 describe("boundMachineViolations", () => {
-  const settling: DrawAsync<Props> = async (props) => {
-    await Promise.resolve();
-
-    return marked(buttonClasses(props));
-  };
-
   it("returns an empty array when the element has every class the recipe writes", async () => {
     await expect(boundMachineViolations(button, settling)).resolves.toStrictEqual([]);
   });
 
   it("reports a class the element lacks when its value is picked", async () => {
-    const deaf: DrawAsync<Props> = async (props) => {
-      await Promise.resolve();
-
-      return marked(buttonClasses({ ...props, variant: undefined }));
-    };
-
-    await expect(boundMachineViolations(button, deaf)).resolves.toStrictEqual([
+    await expect(boundMachineViolations(button, settledDeaf)).resolves.toStrictEqual([
       "button lacks button--ghost when variant is ghost",
       "button has button--solid when variant is ghost, which the recipe does not write",
     ]);
   });
 
   it("reads a slot of a slot recipe the same way the synchronous check does", async () => {
-    const title: DrawAsync<Props> = async (props) => {
-      await Promise.resolve();
-
-      return titled([
-        slotClass("card", "title"),
-        slotVariantClass("card", "title", "size", String(props["size"] ?? "md")),
-      ]);
-    };
-
-    await expect(boundMachineViolations(card, title, { slot: "title" })).resolves.toStrictEqual([
+    await expect(
+      boundMachineViolations(card, settledSizedTitle, { slot: "title" }),
+    ).resolves.toStrictEqual([
       "card__title has card__title--md when nothing is picked, which the recipe does not write",
       "card__title has card__title--md when size is md, which the recipe does not write",
       "card__title lacks card__title--muted when tone is muted",
@@ -318,7 +320,7 @@ describe("boundMachineViolations", () => {
     );
   });
 
-  it("draws once for every render the synchronous check makes", async () => {
+  it("calls draw once for every render the synchronous check makes", async () => {
     let drawings = 0;
     const counted: DrawAsync<Props> = async (props) => {
       drawings += 1;

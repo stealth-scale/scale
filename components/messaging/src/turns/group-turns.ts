@@ -175,24 +175,28 @@ function instantOf(sentAt: TurnMessage["sentAt"]): number | undefined {
 }
 
 /**
+ * Types the fields of a wall-clock time the format writes, each as a number.
+ */
+type Fields = Readonly<Record<"day" | "hour" | "minute" | "month" | "second" | "year", number>>;
+
+/**
  * Returns the wall-clock time an instant reads in a zone, as milliseconds of a UTC clock.
  */
 function wallOf(time: number, timeZone: string): number {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+    hour: "numeric",
+    hourCycle: "h23",
+    minute: "numeric",
+    month: "numeric",
+    second: "numeric",
+    timeZone,
+    year: "numeric",
+  })
+    .formatToParts(time)
+    .map((part) => [part.type, Number(part.value)] as const);
   // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the format writes every field it is asked for
-  const fields = Object.fromEntries(
-    new Intl.DateTimeFormat("en-US", {
-      day: "numeric",
-      hour: "numeric",
-      hourCycle: "h23",
-      minute: "numeric",
-      month: "numeric",
-      second: "numeric",
-      timeZone,
-      year: "numeric",
-    })
-      .formatToParts(time)
-      .map((part) => [part.type, Number(part.value)]),
-  ) as Readonly<Record<"day" | "hour" | "minute" | "month" | "second" | "year", number>>;
+  const fields = Object.fromEntries(parts) as Fields;
 
   return Date.UTC(
     fields.year,
@@ -210,7 +214,7 @@ function wallOf(time: number, timeZone: string): number {
  *
  * @remarks
  *   The first estimate applies the zone's offset at midnight read as UTC, and the second the offset
- *   at the first estimate. Where a change skips midnight, as in Havana in March, the second lands
+ *   at the first estimate. Where a change skips midnight, as in Havana in March, the second falls
  *   on the evening before, and the first is the day's start.
  */
 function zonedMidnightOf(time: number, timeZone: string): number {

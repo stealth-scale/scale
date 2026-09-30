@@ -1,6 +1,6 @@
 /**
  * Covers `rooted` and `contextOf`: where the workspace root is found, which directory ends up
- * configured, and which variables reach the environment.
+ * configured, and which variables the environment receives.
  *
  * @remarks
  *   Each case writes a repository into a temporary directory, because the code under test reads
@@ -58,6 +58,21 @@ function laid(
  */
 function workspace(env?: string, own?: string): { readonly at: string; readonly root: string } {
   return laid({ workspaces: ["packages/*"] }, env, own);
+}
+
+/**
+ * Writes a repository whose root manifest is empty and whose workspace is declared in
+ * `pnpm-workspace.yaml` alone.
+ *
+ * @param yaml - The contents of the `pnpm-workspace.yaml` written at the root.
+ * @returns The package directory as `at` and the repository root as `root`, both absolute.
+ */
+function pnpm(yaml: string): { readonly at: string; readonly root: string } {
+  const held = laid({});
+
+  writeFileSync(join(held.root, "pnpm-workspace.yaml"), yaml);
+
+  return held;
 }
 
 describe("context", () => {
@@ -173,14 +188,14 @@ describe("context", () => {
     expect(contextOf(SERVING, held.at, held.at).env["STEALTH_SPECIFIED"]).toBe("shell");
   });
 
-  it("carries the command Vite was invoked with", () => {
+  it("returns the command Vite was invoked with", () => {
     const held = workspace();
     const context = contextOf({ command: "build", mode: "production" }, held.at, held.at);
 
     expect(context.command).toBe("build");
   });
 
-  it("carries the mode Vite was invoked with", () => {
+  it("returns the mode Vite was invoked with", () => {
     const held = workspace();
     const context = contextOf({ command: "build", mode: "production" }, held.at, held.at);
 
@@ -212,21 +227,6 @@ describe("context", () => {
 
     expect(contextOf(SERVING, held.at, held.at).manifest.workspaces).toBeUndefined();
   });
-
-  /**
-   * Writes a repository whose root manifest is empty and whose workspace is declared in
-   * `pnpm-workspace.yaml` alone.
-   *
-   * @param yaml - The contents of the `pnpm-workspace.yaml` written at the root.
-   * @returns The package directory as `at` and the repository root as `root`, both absolute.
-   */
-  function pnpm(yaml: string): { readonly at: string; readonly root: string } {
-    const held = laid({});
-
-    writeFileSync(join(held.root, "pnpm-workspace.yaml"), yaml);
-
-    return held;
-  }
 
   it("finds the root by a pnpm workspace file when the manifest declares none", () => {
     const held = pnpm("packages:\n  - packages/*\n");

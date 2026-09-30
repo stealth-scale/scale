@@ -22,6 +22,22 @@ function stringly(): string {
   return "x";
 }
 
+function strayLayers(): unknown[] {
+  return [LAYER, "x"];
+}
+
+function doubledLayers(): unknown[] {
+  return [LAYER, LAYER];
+}
+
+function stringDefiner(): () => string {
+  return stringly;
+}
+
+function failingDefiner(): () => never {
+  return failing;
+}
+
 const TIER = {
   defineConfig: (): (() => Promise<object>) => composing,
   layers: (): unknown[] => [LAYER, [{ kind: "preset", name: "lint.node" }]],
@@ -59,17 +75,13 @@ describe("composes", () => {
   });
 
   it("reports a tier that composes something other than a layer", async () => {
-    const layers = (): unknown[] => [LAYER, "x"];
-
-    await expect(checked({ ...TIER, layers })).resolves.toStrictEqual([
+    await expect(checked({ ...TIER, layers: strayLayers })).resolves.toStrictEqual([
       "preset/app composes something that is not a layer",
     ]);
   });
 
   it("reports a tier that composes one layer twice", async () => {
-    const layers = (): unknown[] => [LAYER, LAYER];
-
-    await expect(checked({ ...TIER, layers })).resolves.toStrictEqual([
+    await expect(checked({ ...TIER, layers: doubledLayers })).resolves.toStrictEqual([
       "preset/app composes twice a layer named test.files",
     ]);
   });
@@ -81,17 +93,13 @@ describe("composes", () => {
   });
 
   it("reports a config function that resolves to something other than a config", async () => {
-    const defineConfig = (): (() => string) => stringly;
-
-    await expect(checked({ ...TIER, defineConfig })).resolves.toStrictEqual([
+    await expect(checked({ ...TIER, defineConfig: stringDefiner })).resolves.toStrictEqual([
       "preset/app composes to something other than a config",
     ]);
   });
 
   it("reports the message when composing throws", async () => {
-    const defineConfig = (): (() => never) => failing;
-
-    await expect(checked({ ...TIER, defineConfig })).resolves.toStrictEqual([
+    await expect(checked({ ...TIER, defineConfig: failingDefiner })).resolves.toStrictEqual([
       "preset/app fails to compose under a build: no manifest",
     ]);
   });

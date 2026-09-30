@@ -81,6 +81,14 @@ function textOf(container: Element, selector: string): null | string | undefined
   return container.querySelector(selector)?.textContent;
 }
 
+/**
+ * Returns the angle of a point around the dial's centre, in degrees counter-clockwise from 3
+ * o'clock.
+ */
+function angleAt(x = 0, y = 0): number {
+  return (Math.atan2(CENTER.y - y, x - CENTER.x) * 180) / Math.PI;
+}
+
 describe("GaugeChart", () => {
   it("returns no accessibility violation", async () => {
     laidOut();
@@ -336,8 +344,6 @@ describe("GaugeChart", () => {
   it("parts the zones by a degree", () => {
     const { container } = drawn({ zones: ZONES });
     const [first, second] = ringsOf(container)[0] ?? [];
-    const angleAt = (x = 0, y = 0): number =>
-      (Math.atan2(CENTER.y - y, x - CENTER.x) * 180) / Math.PI;
     const [, , , , , , , endX, endY] = numbersOf(first);
     const [startX, startY] = numbersOf(second);
 

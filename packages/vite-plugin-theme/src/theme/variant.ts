@@ -1,6 +1,7 @@
 /**
  * Completes a theme's variant with the foundation's values for every token another theme states
- * and this one leaves unstated, so a subtree switched to the theme is drawn from that theme alone.
+ * and this one leaves unstated, so a subtree switched to the theme takes its values from that theme
+ * alone.
  *
  * @remarks
  *   The compiler emits a theme's variant under its attribute as the custom properties the variant
@@ -8,7 +9,7 @@
  *   theme around it. A token no theme states has the foundation's value everywhere already, and a
  *   token every theme states needs nothing, so the fill is the foundation's value for the tokens
  *   the themes disagree on, which keeps the stylesheet within a few lines of its size without it.
- *   A token is the deepest object that carries a `value`, and a theme's token replaces the
+ *   A token is the deepest object that contains a `value`, and a theme's token replaces the
  *   foundation's whole, modes included.
  */
 
@@ -24,7 +25,7 @@ function isGroup(value: unknown): value is Readonly<Record<string, unknown>> {
 }
 
 /**
- * Merges one tree over another, group by group, with the first tree's token winning wherever both
+ * Merges one tree over another, group by group, with the first tree's token applied wherever both
  * state one.
  */
 function merged(own: unknown, base: unknown): unknown {
@@ -53,11 +54,13 @@ function pruned(base: unknown, shape: unknown): unknown {
  * Builds a variant out of two trees, leaving out a category neither states.
  */
 function variantOf(tokens: unknown, semanticTokens: unknown): ThemeVariant {
-  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- both trees are typed by the compiler, and a merge of two keeps their shape
-  return {
+  const variant = {
     ...(tokens === undefined ? {} : { tokens }),
     ...(semanticTokens === undefined ? {} : { semanticTokens }),
-  } as ThemeVariant;
+  };
+
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- both trees are typed by the compiler, and a merge of two keeps their shape
+  return variant as ThemeVariant;
 }
 
 /**
