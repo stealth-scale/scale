@@ -14,3 +14,5 @@
   `recipe.colors`.
 - Breaking: remove `recipe.subtle`.
 - Reword three messages.
+- Peer on `vitest` 5.0.
+- Depend on `@pandacss/preset-base` 2.0.

@@ -6,3 +6,4 @@
 - Skip `plugins` contributions while resolving metadata, and keep `pack.plugins`.
 - Export `resolvingMetadata`, `appended` and `located`.
 - Resolve a plugin package from the module that names it through `located`.
+- Peer on `vite` 8.3 and `vitest` 5.0.

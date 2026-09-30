@@ -11,3 +11,5 @@
 - Start the compiler at `buildStart` without blocking the dev server's first request.
 - Apply a change once, and send nothing when the compiled rules are unchanged.
 - Apply changes under a bundling dev server from `watchChange`.
+- Peer on `vite` 8.3 and `vitest` 5.0.
+- Depend on `@pandacss/compiler`, `@pandacss/preset-base` and `@pandacss/types` 2.0.
