@@ -1,16 +1,20 @@
-import { describe, expect, it } from "vitest";
+import { Checker } from "typescript/unstable/sync";
+import { describe, expect, it, vi } from "vitest";
 
 import { withScratchWorkspaceAsync } from "@stealthscale/testing";
 
 import { compiler } from "#anatomy/compiler.ts";
-import { kit } from "#anatomy/kit.fixtures.ts";
+import { compilingIn, kit } from "#anatomy/kit.fixtures.ts";
 import { settled } from "#anatomy/reading.ts";
 import { declaringPackage, opening, sure } from "#anatomy/walk.ts";
 import { type Anatomy } from "#contract.ts";
 
 function read(): Promise<Anatomy> {
   return withScratchWorkspaceAsync(kit(), async (scratch) => {
-    const held = await compiler(scratch.root);
+    const held = await compiler(
+      scratch.root,
+      compilingIn(kit(), (relative) => scratch.path(relative)),
+    );
 
     try {
       return held.anatomyOf(scratch.path("src/badge/badge.specimen.tsx"), settled({}));
@@ -49,7 +53,7 @@ describe("walk", () => {
     expect(opening("The words\nit shows.")).toBe("The words it shows.");
   });
 
-  it("returns the answer the compiler gave", () => {
+  it("returns the value the compiler returned", () => {
     expect(sure("held", "a type")).toBe("held");
   });
 
@@ -61,6 +65,17 @@ describe("walk", () => {
 
   it("records the named type a handler is called with", async () => {
     expect(refersOf(await read(), "onOpen")).toStrictEqual(["kit.Details"]);
+  });
+
+  it("asks for no call signature of a literal or an intrinsic type", async () => {
+    const asked = vi.spyOn(Checker.prototype, "getSignaturesOfType");
+
+    await read();
+
+    const types = asked.mock.calls.map(([type]) => type);
+
+    expect(types.length).toBeGreaterThan(0);
+    expect(types.some((type) => type.isLiteralType() || type.isIntrinsicType())).toBe(false);
   });
 
   it("records the named type behind an array", async () => {
@@ -89,6 +104,12 @@ describe("walk", () => {
     ]);
   });
 
+  it("lists no private member of a class a prop refers to", async () => {
+    expect((await read()).shapes["kit.Stamp"]).toStrictEqual([
+      { accepts: "string", name: "at", says: "The time it was made at." },
+    ]);
+  });
+
   it("lists the options of a union written under a name", async () => {
     const options = (await read()).shapes["kit.Tone"]?.map((one) => one.name);
 
@@ -99,7 +120,7 @@ describe("walk", () => {
     expect((await read()).shapes["kit.Tone"]?.every((one) => one.accepts === "")).toBe(true);
   });
 
-  it("names a type holding more members than the cap rather than listing it", async () => {
+  it("names a type with more members than the cap rather than listing it", async () => {
     const held = await read();
 
     expect(held.shapes).not.toHaveProperty("kit.Sprawling");

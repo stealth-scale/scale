@@ -1,5 +1,6 @@
 /**
- * Re-exports the compiler types the reader is written against.
+ * Re-exports the types the reader is written against: the compiler's, the store's and the
+ * anatomy's.
  *
  * @remarks
  *   Collected in one file because a top-level `export type` is erased at compile time, while an
@@ -8,7 +9,9 @@
  *   its types from here.
  */
 
+export type { Store } from "#anatomy/cache.ts";
 export type { Compiler } from "#anatomy/compiler.ts";
+export type { Anatomy } from "#contract.ts";
 export type {
   Checker,
   Program,

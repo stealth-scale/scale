@@ -1,15 +1,56 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { withScratchWorkspaceAsync } from "@stealthscale/testing";
 
 import { compiler } from "#anatomy/compiler.ts";
-import { kit } from "#anatomy/kit.fixtures.ts";
-import { settled } from "#anatomy/reading.ts";
+import { compilingIn, kit } from "#anatomy/kit.fixtures.ts";
+import { isRecipe, settled } from "#anatomy/reading.ts";
 import { type Anatomy, type Prop } from "#contract.ts";
 
-function read(specimen = "src/badge/badge.specimen.tsx"): Promise<Anatomy> {
-  return withScratchWorkspaceAsync(kit(), async (scratch) => {
-    const held = await compiler(scratch.root);
+vi.mock(import("#anatomy/reading.ts"), async (importOriginal) => {
+  const original = await importOriginal();
+
+  return { ...original, isRecipe: vi.fn(original.isRecipe) };
+});
+
+const CLASHING = {
+  ...kit(),
+  "src/field/field.ts": [
+    "export interface RootProps {",
+    "  /** Whether its value is refused. */",
+    "  invalid?: boolean;",
+    "}",
+    "",
+    "export function Root(): void {}",
+    "",
+  ].join("\n"),
+  "src/picker/picker.specimen.tsx": [
+    'import { type RootProps as FieldRootProps } from "#field/field.ts";',
+    'import { type RootProps } from "#picker/picker.ts";',
+    "",
+    'export default specimen({ id: "picker", scenes: [] });',
+    "",
+  ].join("\n"),
+  "src/picker/picker.ts": [
+    "export interface RootProps {",
+    "  /** The value it picks. */",
+    "  value?: string;",
+    "}",
+    "",
+    "export function Root(): void {}",
+    "",
+  ].join("\n"),
+};
+
+function read(
+  specimen = "src/badge/badge.specimen.tsx",
+  files: Readonly<Record<string, string>> = kit(),
+): Promise<Anatomy> {
+  return withScratchWorkspaceAsync(files, async (scratch) => {
+    const held = await compiler(
+      scratch.root,
+      compilingIn(files, (relative) => scratch.path(relative)),
+    );
 
     try {
       return held.anatomyOf(scratch.path(specimen), settled({}));
@@ -38,6 +79,12 @@ describe("props", () => {
     const held = await read();
 
     expect(Object.keys(held.parts)).toStrictEqual(["BadgeProps", "OtherProps"]);
+  });
+
+  it("keeps the part beside the specimen when a borrowed module exports the same name", async () => {
+    const held = await read("src/picker/picker.specimen.tsx", CLASHING);
+
+    expect(held.parts["RootProps"]?.map((one) => one.name)).toStrictEqual(["value"]);
   });
 
   it("leaves out a props type no part is named after", async () => {
@@ -111,6 +158,15 @@ describe("props", () => {
 
   it("counts nothing for a part that resolves to its own props alone", async () => {
     expect((await read()).dropped["OtherProps"]).toStrictEqual({ conditions: 0, foreign: 0 });
+  });
+
+  it("classifies the file of every declaration once", async () => {
+    await read();
+
+    const files = vi.mocked(isRecipe).mock.calls.map(([file]) => file);
+
+    expect(files.length).toBeGreaterThan(1);
+    expect(files).toStrictEqual([...new Set(files)]);
   });
 
   it("reads the default a declaration states", async () => {

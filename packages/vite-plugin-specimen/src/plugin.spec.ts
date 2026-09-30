@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
+import { API } from "typescript/unstable/sync";
 import { type Plugin, type UserConfig } from "vite";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   changed,
@@ -71,10 +72,74 @@ function naming(plugin: Plugin, stated: unknown): Naming {
   return output as Naming;
 }
 
-function reading(scratch: ScratchWorkspace): Promise<Plugin> {
+function reading(scratch: ScratchWorkspace, command: "build" | "serve" = "serve"): Promise<Plugin> {
   const plugin = specimens({ patterns: PATTERNS, props: {} });
 
-  return configured(plugin, { command: "serve", root: scratch.root }).then(() => plugin);
+  return configured(plugin, {
+    cacheDir: scratch.path("node_modules/.vite"),
+    command,
+    root: scratch.root,
+  }).then(() => plugin);
+}
+
+/**
+ * Loads the badge's props under the given command with the timers faked, lets the clock run for
+ * `elapsed` milliseconds, and returns how often a compiler stopped before the bundle closed.
+ *
+ * @param command - Whether the plugin serves or builds.
+ * @param elapsed - How long the clock runs after the badge's props, and again after the overlay's
+ *   where `again` is true.
+ * @param again - Whether the overlay's props are read between the two runs of the clock.
+ */
+async function stopsAfter(
+  command: "build" | "serve",
+  elapsed: number,
+  again = false,
+): Promise<number> {
+  const stopping = vi.spyOn(API.prototype, "close");
+
+  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+
+  try {
+    return await withScratchWorkspaceAsync(kit(), async (scratch) => {
+      const plugin = await reading(scratch, command);
+
+      await loaded(plugin, RESOLVED);
+      await loaded(plugin, `${PROPS}badge`);
+      await vi.advanceTimersByTimeAsync(elapsed);
+
+      if (again) {
+        await loaded(plugin, `${PROPS}overlay`);
+        await vi.advanceTimersByTimeAsync(elapsed);
+      }
+
+      const stopped = stopping.mock.calls.length;
+
+      await Reflect.apply(hookOf(plugin, "closeBundle"), undefined, []);
+
+      return stopped;
+    });
+  } finally {
+    vi.useRealTimers();
+  }
+}
+
+/**
+ * Serves the badge's props once and closes the bundle, then returns a second plugin over the same
+ * cache directory, with the index loaded.
+ */
+async function kept(scratch: ScratchWorkspace): Promise<Plugin> {
+  const first = await reading(scratch);
+
+  await loaded(first, RESOLVED);
+  await loaded(first, `${PROPS}badge`);
+  await Reflect.apply(hookOf(first, "closeBundle"), undefined, []);
+
+  const second = await reading(scratch);
+
+  await loaded(second, RESOLVED);
+
+  return second;
 }
 
 function probed(badge: string): string {
@@ -604,6 +669,40 @@ describe("specimens", () => {
     });
 
     expect(held).toHaveLength(1);
+  });
+
+  it("serves a kept page without starting the compiler", async () => {
+    const opening = vi.spyOn(API.prototype, "updateSnapshot");
+
+    await withScratchWorkspaceAsync(kit(), async (scratch) => {
+      await loaded(await kept(scratch), `${PROPS}badge`);
+    });
+
+    expect(opening).toHaveBeenCalledTimes(1);
+  });
+
+  it("reloads a kept page when a typed file changes", async () => {
+    const held = await withScratchWorkspaceAsync(kit(), async (scratch) => {
+      const plugin = await kept(scratch);
+
+      await loaded(plugin, `${PROPS}badge`);
+
+      return updating(plugin, scratch.path("src/badge/badge.ts"), "", [`${PROPS}badge`]);
+    });
+
+    expect(held).toHaveLength(1);
+  });
+
+  it("stops the compiler a minute after a dev server's last read", async () => {
+    await expect(stopsAfter("serve", 60_000)).resolves.toBe(1);
+  });
+
+  it("keeps the compiler while a dev server reads again within a minute", async () => {
+    await expect(stopsAfter("serve", 50_000, true)).resolves.toBe(0);
+  });
+
+  it("keeps the compiler in a build until the bundle closes", async () => {
+    await expect(stopsAfter("build", 60_000)).resolves.toBe(0);
   });
 
   it("stops the compiler when the bundle closes", async () => {

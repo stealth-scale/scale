@@ -5,10 +5,13 @@
  *   `tone` is a variant, `gap` a variant a style prop shadows, `label` an option the component
  *   declares, `open` an option the machine it depends on declares, `onEscapeKeyDown` an option a
  *   package the machine depends on declares, `margin` a style prop of a peer, `stack` a property
- *   the compiler's own library declares, and the conditions properties with no declaration at all.
+ *   the compiler's own library declares, `stamp` a class with a private member, and the conditions
+ *   properties with no declaration at all.
  *   The packages sit under `node_modules` for real, so the compiler resolves them the way it
  *   resolves anything.
  */
+
+import { type Compiling } from "#anatomy/compiler.ts";
 
 /**
  * Twenty-five members, which is more than a table has room for.
@@ -125,6 +128,14 @@ const BADGE = [
   "  next: Deep2;",
   "}",
   "",
+  "/** When it was made. */",
+  "export class Stamp {",
+  "  #secret = 1;",
+  "",
+  "  /** The time it was made at. */",
+  '  at = "";',
+  "}",
+  "",
   'export interface Own extends Pick<Error, "stack"> {',
   "  /**",
   "   * The words it shows.",
@@ -147,6 +158,9 @@ const BADGE = [
   "",
   "  /** Called when it opens. */",
   "  onOpen?: (details: Details) => void;",
+  "",
+  "  /** When it was made. */",
+  "  stamp?: Stamp;",
   "",
   "  /** The tree it draws. */",
   "  tree?: Branching;",
@@ -211,6 +225,26 @@ const CONFIG = JSON.stringify({
   },
   include: ["src"],
 });
+
+/**
+ * Returns what a compiler over a written copy of the files reads: every specimen among them, and
+ * a cache directory inside the copy.
+ *
+ * @param files - The files, keyed by the path they are written to.
+ * @param path - Resolves a path in the copy to an absolute one.
+ */
+export function compilingIn(
+  files: Readonly<Record<string, string>>,
+  path: (relative: string) => string,
+): Compiling {
+  return {
+    cache: path("node_modules/.vite"),
+    specimens: () =>
+      Object.keys(files)
+        .filter((file) => file.endsWith(".specimen.tsx"))
+        .map((file) => path(file)),
+  };
+}
 
 /**
  * Returns the kit's files, keyed by the path they are written to.

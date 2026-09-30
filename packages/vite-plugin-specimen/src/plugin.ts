@@ -16,7 +16,7 @@ import {
 } from "vite";
 
 import { type Settled, settled } from "#anatomy/reading.ts";
-import { type Compiler } from "#anatomy/types.ts";
+import { type Anatomy, type Compiler, type Store } from "#anatomy/types.ts";
 import { type Changed, type Indexing, pageOf, pathOf, reindexes, retyped } from "#changed.ts";
 import { accepting, anatomised, type Listed, listings, type Resolved, written } from "#emit.ts";
 import { exampleModule } from "#example.ts";
@@ -131,12 +131,28 @@ interface Written {
  */
 interface State {
   /**
+   * Vite's cache directory, under which the compiler writes the configurations of its programs.
+   */
+  cache: string;
+
+  /**
+   * Timer that stops the compiler once a dev server has read no props for {@link IDLE}
+   * milliseconds, or undefined when none is pending.
+   */
+  idle: ReturnType<typeof setTimeout> | undefined;
+
+  /**
+   * Store of page anatomies, opened on the first props request.
+   */
+  keeping: Store | undefined;
+
+  /**
    * Listing and page ID per file from the last index generation.
    */
   last: ReadonlyMap<string, Listed>;
 
   /**
-   * Compiler, created on the first props request.
+   * Compiler, created on the first props request the store cannot serve.
    */
   opening: Promise<Compiler> | undefined;
 
@@ -164,6 +180,16 @@ interface Change {
    * Change kind: `create`, `delete` or `update`.
    */
   readonly event: Changed["type"];
+}
+
+/**
+ * Fields the plugin reads from the resolved config.
+ */
+interface Configured extends Resolved {
+  /**
+   * The directory Vite writes its caches under.
+   */
+  readonly cacheDir: string;
 }
 
 /**
@@ -205,9 +231,10 @@ async function bundled(
  * Generates the index module, or the props module of one page.
  *
  * @remarks
- *   The compiler module is imported on the first props request and cached on the state, so a
- *   repository without props reading never loads the TypeScript API. Both modules register the
- *   stamp as a watch file.
+ *   The store serves a page whose key is unchanged, and the compiler reads the rest. Both modules
+ *   load on the first props request, so a repository without props reading never loads the
+ *   TypeScript API, and one whose pages are all kept never starts it. Both generated modules
+ *   register the stamp as a watch file.
  * @returns Module code, or undefined when the ID belongs to another plugin.
  * @throws {@link Error} When the patterns match no file, when a build cannot read a file, or when
  *   no listed page has the requested ID.
@@ -230,25 +257,90 @@ async function generated(
 
   if (!id.startsWith(RESOLVED_PROPS) || state.reading === undefined) return undefined;
 
-  const path = pathOf(state, id.slice(RESOLVED_PROPS.length));
-  const { compiler } = await import("#anatomy/compiler.ts");
+  const page = id.slice(RESOLVED_PROPS.length);
+  const path = pathOf(state, page);
+  const reading = state.reading;
+  const { store } = await import("#anatomy/cache.ts");
 
   stamps(state.resolved.root, loading);
-  state.opening ??= compiler(state.resolved.root);
+  state.keeping ??= store(state.cache, reading);
 
-  return anatomised((await state.opening).anatomyOf(path, state.reading));
+  return anatomised(await state.keeping.anatomyOf(page, path, () => read(state, path, reading)));
 }
 
 /**
- * Restarts the compiler when the changed file is a typed file under a watched directory.
+ * How long a dev server keeps the compiler after its last read, in milliseconds.
  *
- * @returns True if the compiler restarted. False if no compiler is running or the file is not a
- *   typed file under a watched directory.
+ * @remarks
+ *   The compiler keeps every program in memory, 1.4 GB for the catalogue, and a dev server spends
+ *   most of its life on pages the store serves. Opening the programs again costs about 300 ms.
+ */
+const IDLE = 60_000;
+
+/**
+ * `command` value Vite reports for a dev server.
+ */
+const SERVING = "serve";
+
+/**
+ * Reads a page's anatomy through the compiler, and starts the compiler on the first read.
+ *
+ * @remarks
+ *   In a dev server each read restarts the idle timer. A build keeps the compiler until the bundle
+ *   closes.
+ */
+async function read(state: State, path: string, reading: Settled): Promise<Anatomy> {
+  const { compiler } = await import("#anatomy/compiler.ts");
+
+  state.opening ??= compiler(state.resolved.root, {
+    cache: state.cache,
+    specimens: () => listedPaths(state),
+  });
+
+  const anatomy = (await state.opening).anatomyOf(path, reading);
+
+  if (state.resolved.command === SERVING) {
+    clearTimeout(state.idle);
+    state.idle = setTimeout(() => {
+      void closed(state);
+    }, IDLE).unref();
+  }
+
+  return anatomy;
+}
+
+/**
+ * Stops the compiler, if one is running, and cancels the idle timer.
+ */
+async function closed(state: State): Promise<void> {
+  clearTimeout(state.idle);
+  state.idle = undefined;
+
+  const held = await state.opening;
+
+  held?.close();
+  state.opening = undefined;
+}
+
+/**
+ * Returns every page the last index listed, as absolute paths.
+ */
+function listedPaths(state: State): readonly string[] {
+  return [...state.last].flatMap(([path, entry]) => (entry.id === undefined ? [] : [path]));
+}
+
+/**
+ * Drops the store's hashes and restarts the compiler when the changed file is a typed file under a
+ * watched directory.
+ *
+ * @returns True when a props module was served and the file is a typed file under a watched
+ *   directory. False otherwise.
  */
 async function restarted(state: State, file: string): Promise<boolean> {
-  if (state.opening === undefined || !retyped(state.watched, file)) return false;
+  if (state.keeping === undefined || !retyped(state.watched, file)) return false;
 
-  (await state.opening).restart();
+  state.keeping.forget();
+  (await state.opening)?.restart();
 
   return true;
 }
@@ -371,6 +463,9 @@ function appendedTo(state: State, code: string, id: string): undefined | Written
  */
 export function specimens(options: Options): Plugin {
   const state: State = {
+    cache: `${process.cwd()}/node_modules/.vite`,
+    idle: undefined,
+    keeping: undefined,
     last: new Map(),
     opening: undefined,
     reading: options.props === undefined ? undefined : settled(options.props),
@@ -383,10 +478,7 @@ export function specimens(options: Options): Plugin {
      * Closes the compiler, if one is running.
      */
     async closeBundle(): Promise<void> {
-      const held = await state.opening;
-
-      held?.close();
-      state.opening = undefined;
+      await closed(state);
     },
 
     /**
@@ -400,13 +492,14 @@ export function specimens(options: Options): Plugin {
     },
 
     /**
-     * Stores the resolved root and command, and resolves the pattern roots.
+     * Stores the resolved root, command and cache directory, and resolves the pattern roots.
      *
      * @remarks
      *   The root comes from the resolved config, not from `process.cwd()`. Under a task runner the
      *   working directory is the workspace root.
      */
-    configResolved(config: Resolved): void {
+    configResolved(config: Configured): void {
+      state.cache = config.cacheDir;
       state.resolved = config;
       state.watched = roots(config.root, options.patterns);
     },

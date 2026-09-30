@@ -87,7 +87,8 @@ const { dropped, parts, shapes } = await import("virtual:specimen-props/data/bad
 ```
 
 Left out, no page carries props and no compiler starts, so an installation without TypeScript still
-indexes. Stated, the first page opened starts a compiler, and the pages after it reuse that one.
+indexes. Stated, the plugin serves a page from its store while the page's inputs are unchanged, and
+the first page it cannot serve starts a compiler, which the pages after it reuse.
 
 A part is a `*Props` type that a module in the specimen's own package exports beside the value it is
 named after: `RootProps` beside the part `Root`, or `CreateOverlayProps` beside the factory
@@ -120,12 +121,38 @@ under the reason each was cut, so a table can show its own arithmetic rather tha
 members. A union written under a name is recorded as its options, which is what turns `size: Scale`
 into its eight steps. A type from TypeScript's own libraries is skipped.
 
+Where two modules a page imports export a part of one name, the part of the module beside the
+specimen is kept. A page documents its own `RootProps`, not the one of a field it renders inside.
+
 `Reading` takes `depth`, how far to follow the types a prop refers to, and `members`, how many a
 type may hold before it is named rather than listed. Both have defaults.
 
-A change to any typed file under a searched directory restarts the compiler and reloads every props
-module that was already loaded. Re-resolving one page costs tens of milliseconds, which is cheaper
-than serving text that no longer matches the types.
+### The compiler and the store
+
+The compiler opens one program for each set of compiler options the pages' packages parse to, and
+lists the pages as the program's files. Packages that extend the same configuration share one
+program, so the compiler checks each type they share once. The programs' configurations are written
+under Vite's `cacheDir`, in `specimen`.
+
+The store keeps each page's props in `specimen/props` under the same directory, keyed by everything
+they are read from:
+
+- the files of the page's package, and of every workspace package it depends on, depends on
+  optionally or peers on, and of every workspace package those depend on in turn
+- the files of the workspace packages it develops against, which include the configuration its
+  tsconfig extends
+- the lockfile, which pins every installed package and the compiler itself
+- the reader's own code and the `Reading`
+
+A build or a dev server whose pages are all kept never starts the compiler. An edit to a component
+changes the keys of the pages of its package and of the packages built on it.
+
+A dev server stops the compiler a minute after the last page it read, and the next page the store
+cannot serve starts it again. A build keeps the compiler until the bundle closes.
+
+A change to any typed file under a searched directory drops the store's hashes, restarts the
+compiler and reloads every props module that was already loaded. A reloaded page whose key did not
+change is served from the store again.
 
 ## Unreadable files
 
@@ -171,12 +198,13 @@ The directories the patterns start in are added to the watcher, including those 
 root, because a dev server watches its own root and nothing above it.
 
 A server that bundles runs no hot update hook and reports a change to `watchChange` instead. A
-change to a typed file restarts the compiler there. The index lists a stamp file as a file it
-watches, and the plugin rewrites the stamp when a specimen appears, disappears, or changes the
-metadata it declares, classified the way a hot update is with the file read from disk. The bundler
-then generates the index again on its next rebuild, and a scene-only edit leaves the stamp and the
-index alone. The stamp is under the system's temporary directory, in a directory named for the
-project root, so the task runner counts it as neither an input nor an output.
+change to a typed file drops the store's hashes and restarts the compiler there. The index lists a
+stamp file as a file it watches, and the plugin rewrites the stamp when a specimen appears,
+disappears, or changes the metadata it declares, classified the way a hot update is with the file
+read from disk. The bundler then generates the index again on its next rebuild, and a scene-only
+edit leaves the stamp and the index alone. The stamp is under the system's temporary directory, in a
+directory named for the project root, so the task runner counts it as neither an input nor an
+output.
 
 ## Licence
 
