@@ -50,6 +50,10 @@
       "about": "What a reader presses, and what answers when they do.",
       "title": "Actions"
     },
+    "charts": {
+      "about": "Plots a reader compares values on, with the legend, the tooltip and the caption around them.",
+      "title": "Charts"
+    },
     "collections": {
       "about": "Rows and options a reader reads down, picks from, or moves between.",
       "title": "Collections"
@@ -68,9 +72,21 @@
       "about": "What a reader fills in, chooses and submits, each with the label and the message it needs.",
       "title": "Forms"
     },
+    "graphs": {
+      "about": "Nodes and the connections between them, laid out by rank or by force, which a reader follows or edits.",
+      "title": "Graphs"
+    },
     "layout": {
       "about": "The boxes that place everything else, and the space between them.",
       "title": "Layout"
+    },
+    "media": {
+      "about": "The pictures, clips, sounds and embedded documents a page shows.",
+      "title": "Media"
+    },
+    "messaging": {
+      "about": "The turns of a conversation, the transcript around them, and the box a reader writes the next message in.",
+      "title": "Messaging"
     },
     "modals": {
       "about": "The surfaces that take the screen until a reader is done with them.",

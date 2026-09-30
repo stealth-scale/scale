@@ -1,6 +1,7 @@
 /**
- * Draws the parts of a matrix: the container, the grid, its top edge, a row, the caption at a
- * row's side, a cell of the grid, and the caption a cell carries while the grid is folded.
+ * Draws the parts of a matrix: the container, the scroll area, the grid, its top edge, a row, the
+ * caption at a row's side, a cell of the grid, and the caption a cell carries while the grid is
+ * folded.
  *
  * @remarks
  *   What a cell holds is a sample, which carries its own caption and its own box, so the matrix
@@ -12,6 +13,7 @@
 
 import { type ComponentProps } from "react";
 
+import { ScrollArea } from "@stealthscale/component-primitives";
 import { Text } from "@stealthscale/component-typography";
 
 import { CAPTION } from "#caption.tsx";
@@ -26,6 +28,11 @@ export const Root = withProvider("div", "root");
  * Describes what the root takes: everything a styled div element takes, and the count across.
  */
 export type RootProps = ComponentProps<typeof Root>;
+
+/**
+ * Draws the primitives package's scroll area the grid scrolls across in, once unfolded.
+ */
+export const Scroller = withContext(ScrollArea.Root, "scroller");
 
 /**
  * Draws the grid, folded into rows below the middle container size.

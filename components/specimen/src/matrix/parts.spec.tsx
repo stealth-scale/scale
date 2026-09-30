@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import { violations } from "@stealthscale/testing-react";
 import { boundViolations, slotElement } from "@stealthscale/testing-theme";
 
-import { Cell, Column, Grid, Head, Label, Root, Row, Side } from "#matrix/parts.ts";
+import { Cell, Column, Grid, Head, Label, Root, Row, Scroller, Side } from "#matrix/parts.ts";
 import { recipe } from "#matrix/recipe.ts";
 
 /**
@@ -17,6 +17,7 @@ function rooted(children: ReactNode): ReactElement {
 }
 
 const PARTS = [
+  ["scroller", "DIV", Scroller],
   ["grid", "DIV", Grid],
   ["head", "DIV", Head],
   ["row", "DIV", Row],

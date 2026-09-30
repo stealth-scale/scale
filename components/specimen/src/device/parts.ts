@@ -1,10 +1,18 @@
 /**
  * Draws the parts of a device, each bound to its slot of the recipe.
+ *
+ * @remarks
+ *   The stage composes the primitives package's scroll area, which the module passes on with the
+ *   parts, so the device draws the stage's viewport and bar from one import.
  */
 
 import { type ComponentProps } from "react";
 
+import { ScrollArea } from "@stealthscale/component-primitives";
+
 import { withContext, withProvider } from "#device/context.ts";
+
+export { ScrollArea } from "@stealthscale/component-primitives";
 
 /**
  * Draws the root, which stacks the bar over the stage.
@@ -32,9 +40,15 @@ export const Picker = withContext("div", "picker");
 export const Size = withContext("div", "size");
 
 /**
- * Draws the stage, which holds the frame and scrolls across where the device is wider.
+ * Draws the stage, the primitives package's scroll area, which holds the frame and scrolls across
+ * where the device is wider.
  */
-export const Stage = withContext("div", "stage");
+export const Stage = withContext(ScrollArea.Root, "stage");
+
+/**
+ * Draws the stage's content, which keeps the room round the frame its outline is drawn in.
+ */
+export const Content = withContext(ScrollArea.Content, "content");
 
 /**
  * Draws the frame, which is the window.

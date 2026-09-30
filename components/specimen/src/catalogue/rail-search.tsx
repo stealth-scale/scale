@@ -1,171 +1,49 @@
 /**
- * Draws the field that narrows the rail to the pages whose words a reader types.
+ * Renders the sidebar search that filters the catalogue's rail, in the catalogue's words.
  */
 
-import { type KeyboardEvent, type ReactElement, useEffect, useRef } from "react";
+import { type ReactElement } from "react";
 
-import { XIcon } from "lucide-react";
+import { SearchIcon, XIcon } from "lucide-react";
 
-import { SearchInput } from "@stealthscale/component-forms";
-import { AppShell, Sidebar } from "@stealthscale/component-screen";
-import { type Hotkey, useHotkey } from "@stealthscale/provider-hotkeys";
+import { Sidebar } from "@stealthscale/component-screen";
 
 import { useWords } from "#words.ts";
 
 /**
- * The name the shell panel holding the rail is drawn under, unless a caller names another.
+ * Key that moves focus to the field with the platform's modifier held: ⌘K and Ctrl+K.
  */
-const NAVBAR = "navbar";
+const SHORTCUT = "k";
 
 /**
- * The keys that put the reader in the field, as the platform's modifier and K, unless a caller
- * names others.
+ * Describes the props of `RailSearch`: the props of the sidebar's search.
  */
-const SHORTCUT: Hotkey = "Mod+K";
+export type RailSearchProps = Sidebar.SearchProps;
 
 /**
- * The modifier the hotkeys provider reads as the platform's own: Control on most platforms and
- * Command on a Mac.
- */
-const MOD = "Mod";
-
-/**
- * Selects the sidebar the field is drawn in, which is where the rail it narrows is drawn too.
- */
-const SIDEBAR = "[data-recipe=sidebar]";
-
-/**
- * Selects a row of the rail within the sidebar: a destination, or the row a group opens from.
- */
-const FIRST_ROW = "nav :is(a, button)";
-
-/**
- * Returns the first row of the rail the field narrows, or null where the query left none.
+ * Renders the sidebar's search with the catalogue's name, placeholder, marks and shortcut.
  *
  * @remarks
- *   Read from the sidebar around the field rather than handed down, because the rail and the field
- *   are siblings an application composes and neither holds the other. The sidebar is the nearest
- *   thing holding both, and the field is always drawn inside one.
+ *   Render it inside `Sidebar.Header`, above a `Rail` in `Sidebar.Content`. The search filters
+ *   every block of the sidebar: a query keeps the pages whose titles contain it and opens their
+ *   branches. ⌘K and Ctrl+K move focus to the field from anywhere in the document, and open a
+ *   closed app shell panel first. The down arrow moves focus from the field to the first row the
+ *   query keeps. A prop the caller passes replaces the catalogue's value.
+ * @param props - The props of the sidebar's search.
+ * @returns The search, or nothing on a rail that cannot open.
  */
-function firstRowOf(field: HTMLElement): HTMLElement | null {
-  return field.ownerDocument.querySelector<HTMLElement>(`${SIDEBAR} ${FIRST_ROW}`);
-}
-
-/**
- * Writes a shortcut the way `aria-keyshortcuts` takes it: the platform's modifier spelt out as
- * both keys it stands for, so a screen reader announces the one its platform has.
- *
- * @param shortcut - The shortcut, as the hotkeys provider reads it.
- * @returns The shortcut once per modifier it stands for, separated by spaces.
- */
-function announced(shortcut: string): string {
-  if (!shortcut.includes(MOD)) return shortcut;
-
-  return ["Control", "Meta"].map((key) => shortcut.replaceAll(MOD, key)).join(" ");
-}
-
-/**
- * Describes what the search takes.
- */
-export interface RailSearchProps {
-  /**
-   * Hears the words each time they change.
-   */
-  readonly onValueChange: (query: string) => void;
-
-  /**
-   * The name of the shell panel the rail is drawn in, which the shortcut opens where the shell has
-   * folded it over the page. `navbar` when absent.
-   */
-  readonly panel?: string | undefined;
-
-  /**
-   * The keys that put the reader in the field from anywhere on the page, as the hotkeys provider
-   * reads them. `Mod+K` when absent.
-   */
-  readonly shortcut?: Hotkey | undefined;
-
-  /**
-   * The words the rail is narrowed by.
-   */
-  readonly value: string;
-}
-
-/**
- * Draws the field that narrows the rail, in the room the sidebar keeps for a search.
- *
- * @remarks
- *   Draw it inside `Sidebar.Root` from the screen package, above the rail, and hand the rail the
- *   same words. The field is the forms package's search input, so it empties itself from the
- *   control at its end. The platform's modifier and K put the reader in the field from anywhere on
- *   the page. Where the shell has folded the rail's panel over the page and closed it, the
- *   shortcut opens the panel first and moves focus once the field is on screen. That move waits a
- *   microtask, because the shell takes the reader into the panel in an effect of its own that runs
- *   after this one, and a move made before it would be undone by it.
- *   The down arrow takes the reader from the field into the rail, and the rail's own arrows carry
- *   them from there. A reader who has just narrowed the list to three pages is looking at those
- *   three pages, and Tab would stop on the control that empties the field before reaching any of
- *   them.
- */
-export function RailSearch({
-  onValueChange,
-  panel: named = NAVBAR,
-  shortcut = SHORTCUT,
-  value,
-}: RailSearchProps): ReactElement {
+export function RailSearch(props: RailSearchProps): null | ReactElement {
   const { t } = useWords();
-  const box = useRef<HTMLDivElement>(null);
-  const pending = useRef(false);
-  const panel = AppShell.useAppShellPanel(named);
-  const open = panel?.open ?? true;
-
-  useEffect(() => {
-    if (!pending.current || !open) return;
-
-    pending.current = false;
-    queueMicrotask(() => {
-      box.current?.querySelector("input")?.focus();
-    });
-  }, [open]);
-
-  useHotkey(shortcut, () => {
-    if (open) {
-      box.current?.querySelector("input")?.focus();
-
-      return;
-    }
-
-    pending.current = true;
-    panel?.setOpen(true);
-  });
-
-  /**
-   * Takes the reader from the field into the rail on the down arrow.
-   */
-  const entered = (event: KeyboardEvent<HTMLInputElement>): void => {
-    if (event.key !== "ArrowDown") return;
-
-    const row = firstRowOf(event.currentTarget);
-
-    if (row === null) return;
-
-    row.focus();
-    event.preventDefault();
-  };
 
   return (
-    <Sidebar.Search ref={box}>
-      <SearchInput
-        aria-keyshortcuts={announced(shortcut)}
-        aria-label={t("rail.filter")}
-        clearIndicator={<XIcon aria-hidden size="1em" />}
-        clearLabel={t("rail.clear")}
-        onKeyDown={entered}
-        onValueChange={onValueChange}
-        placeholder={t("rail.filter")}
-        size="sm"
-        value={value}
-      />
-    </Sidebar.Search>
+    <Sidebar.Search
+      aria-label={t("rail.filter")}
+      clearIndicator={<XIcon />}
+      clearLabel={t("rail.clear")}
+      placeholder={t("rail.filter")}
+      searchIndicator={<SearchIcon />}
+      shortcut={SHORTCUT}
+      {...props}
+    />
   );
 }

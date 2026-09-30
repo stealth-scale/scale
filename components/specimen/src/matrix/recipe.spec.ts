@@ -52,14 +52,18 @@ describe("recipe", () => {
     expect(recipe.base?.["grid"]).toMatchObject({ "@/md": { alignItems: "center" } });
   });
 
-  it("leaves room for what a cell paints outside its box and takes the room back", () => {
-    expect(recipe.base?.["grid"]).toMatchObject({
-      "@/md": {
-        marginBlock: "calc({sizes.12} * -1)",
-        overflowX: "auto",
-        paddingBlock: "{sizes.12}",
-      },
+  it("leaves room for what a cell paints outside its box once unfolded", () => {
+    expect(recipe.base?.["grid"]).toMatchObject({ "@/md": { paddingBlock: "{sizes.12}" } });
+  });
+
+  it("takes the room back on the scroll area once unfolded", () => {
+    expect(recipe.base?.["scroller"]).toStrictEqual({
+      "@/md": { marginBlock: "calc({sizes.12} * -1)" },
     });
+  });
+
+  it("leaves the scrolling to the scroll area", () => {
+    expect(recipe.base?.["grid"]?.["@/md"]).not.toHaveProperty("overflowX");
   });
 
   it("folds the grid into rows below the middle container size", () => {

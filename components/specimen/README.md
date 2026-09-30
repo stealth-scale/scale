@@ -10,12 +10,12 @@ pnpm add -D @stealthscale/specimen
 ```
 
 The package peers on `@stealthscale/component-a11y`, `@stealthscale/component-actions`,
-`@stealthscale/component-content`, `@stealthscale/component-data`,
-`@stealthscale/component-disclosure`, `@stealthscale/component-forms`,
+`@stealthscale/component-collections`, `@stealthscale/component-content`,
+`@stealthscale/component-data`, `@stealthscale/component-disclosure`,
 `@stealthscale/component-layout`, `@stealthscale/component-navigation`,
 `@stealthscale/component-screen`, `@stealthscale/component-surfaces`,
-`@stealthscale/component-typography`, `@stealthscale/provider-hotkeys`,
-`@stealthscale/provider-i18n`, `@stealthscale/provider-router`, `@stealthscale/provider-viewport`,
+`@stealthscale/component-typography`, `@stealthscale/provider-i18n`,
+`@stealthscale/provider-router`, `@stealthscale/provider-viewport`, `@stealthscale/theme`,
 `@stealthscale/vite-plugin-specimen` and `react`, and depends on `lucide-react` for the marks the
 catalogue's own controls carry and on `axe-core` for the audit a scene's card runs, loaded on the
 first audit and not before. A package writing specimens does not declare it, the way a package
@@ -63,61 +63,62 @@ identifier's slashes into dots: `specimen.actions.button`. The index is named `i
 
 `audit` and `heights` reach every page through a context the declarations provide, so an application
 states them once, and each is merged over the catalogue's own: a rule or a height the application
-names replaces the catalogue's, and the rest are kept. The catalogue's own audit runs every rule axe
-runs by default, less the four about a page as a whole (`region`, `landmark-one-main`,
-`page-has-heading-one` and `bypass`), plus `target-size` and `aria-roledescription`. An application
-that wants one more rule off states `audit: { rules: { "color-contrast": { enabled: false } } }`,
-which is what axe's own `run` takes, and the four page-level rules stay off.
+names replaces the catalogue's, and the rest are kept.
+
+The catalogue's own audit runs every rule axe enables by default with these changes:
+
+- It turns off the eleven rules that judge a whole document. A scene renders a fragment of an
+  application inside the catalogue's page, so its main region is nested in the catalogue's `main`.
+  - `region`, `landmark-one-main`, `page-has-heading-one` and `bypass`.
+  - `landmark-banner-is-top-level`, `landmark-contentinfo-is-top-level` and
+    `landmark-main-is-top-level`.
+  - `landmark-no-duplicate-banner`, `landmark-no-duplicate-contentinfo`,
+    `landmark-no-duplicate-main` and `landmark-unique`.
+- It turns on `target-size` and `aria-roledescription`.
+- It sets `iframes: false`, so axe audits an `iframe` element and not the document inside it. No
+  frame on a page loads axe, and axe's message to a sandboxed frame logs an origin error in the
+  console.
+
+An application that turns one more rule off states
+`audit: { rules: { "color-contrast": { enabled: false } } }`, the options axe's `run` takes. The
+eleven document rules remain off.
 
 The pages are passed in rather than imported, so this package draws a catalogue without the build
 plugin in its own graph and a specification renders one without a build at all.
 
 ## The rail
 
-`Rail` reads declarations, not the index. Anything compiled into the catalogue that carries an entry
-is listed, so a page an application wrote itself appears beside a page the plugin found. Hand it the
-array `declarations` returned.
+`Rail` lists declarations, not the index. It lists every route compiled into the catalogue that has
+an entry, so a page an application wrote itself appears beside a page the plugin found. Pass it the
+array `declarations` returned. `RailSearch` is the screen package's `Sidebar.Search` with the
+catalogue's name, placeholder, marks and shortcut. Render both inside `Sidebar.Root`:
 
 ```tsx
 import { Sidebar } from "@stealthscale/component-screen";
-import { Rail } from "@stealthscale/specimen";
+import { Rail, RailSearch } from "@stealthscale/specimen";
 
-<Sidebar.Root>
+<Sidebar.Root size="sm">
+  <Sidebar.Header>
+    <RailSearch />
+  </Sidebar.Header>
   <Sidebar.Content>
     <Rail declarations={compiled} />
   </Sidebar.Content>
 </Sidebar.Root>;
 ```
 
-The rail is one block of a sidebar, `Sidebar.Nav` under its own heading, so draw it inside
-`Sidebar.Root` from the screen package. It holds one branch per group. The branch holding the page
-being read is open, and a reader opens and closes the others by hand. A navigation into another
-group redraws the list, which opens that group's branch and closes the rest.
-
-`RailSearch` draws the field that narrows the rail. It is the forms package's search input in the
-room the sidebar keeps for one, and the platform's modifier and K put the reader in it from anywhere
-on the page. The words are the application's state, handed to the field and to the rail alike:
-
-```tsx
-const [query, setQuery] = useState("");
-
-<Sidebar.Root>
-  <Sidebar.Header>
-    <RailSearch onValueChange={setQuery} value={query} />
-  </Sidebar.Header>
-  <Sidebar.Content>
-    <Rail declarations={compiled} query={query} />
-  </Sidebar.Content>
-</Sidebar.Root>;
-```
-
-A query keeps the pages whose words contain it, whatever the case, and opens every branch it leaves
-standing. A query no page matches leaves the sidebar's empty line in place of the list. The search
-reads the shell panel the rail is drawn in, `navbar` unless `panel` names another, so draw it inside
-`AppShell.Root`: where the shell has folded the panel over the page and closed it, the shortcut
-opens the panel first. The shortcut is `Mod+K` unless `shortcut` names another, written the way the
-hotkeys provider reads one, and the field announces it as both keys the platform's modifier stands
-for.
+- The rail renders one `Sidebar.Nav` block per section, labelled with the section's title, around a
+  `NavList` with one branch per group. A block of pages without a section is named `Catalogue` for
+  screen readers.
+- The sidebar's size sets the size of the rows: 24px at `sm`, 32px at `md` and 40px at `lg`.
+- The branch that contains the current page is open, and a reader opens and closes the others. A
+  navigation into another group opens that group's branch and closes the others.
+- The search filters every block. A query keeps the pages whose titles contain it in any case and
+  opens the branches that contain them. A block without a match is hidden, and the rail renders
+  `No pages match` while no page matches.
+- ⌘K and Ctrl+K move focus to the field from anywhere in the document, and open a closed app shell
+  panel first. The down arrow moves focus from the field to the first row the query keeps.
+- A prop passed to `RailSearch` replaces the catalogue's value, such as `aria-label` or `shortcut`.
 
 A page the application writes carries an entry under `navigation`, and nests under the catalogue's
 route unless it names a parent of its own:
@@ -183,7 +184,9 @@ smallest measure, `PHONE`, and the theme's breakpoints, each with a height: 320 
 768 × 1024, 1024 × 768, 1280 × 800 and 1536 × 864. The frame is the device's size and nothing else,
 the way a phone is. A sample shorter than the window is drawn at its top and one taller scrolls
 inside it. The frame is see-through and edged with a dashed hairline, so the sample is drawn on the
-card the way it is on the page and the window's bounds can be seen against it.
+card the way it is on the page and the window's bounds can be seen against it. A device wider than
+the card scrolls across in the primitives package's scroll area, whose viewport is a region named by
+the scene's title.
 
 Inside the window the scene is drawn in a `Pane` that meets the window the way the scene meets its
 card: an inset scene keeps the card's room from the edges, the way a page on a phone keeps its
@@ -428,7 +431,8 @@ alphabetically.
 One axis is a row of captioned cells that wraps where it runs out of room, so a row of sizes folds
 onto the next line on a narrow page, or a column of them. Two axes are one captioned row per value
 of the first axis, holding one captioned cell per value of the second. A third axis nests one matrix
-in another.
+in another. The primitives package's scroll area scrolls a grid of two axes that is wider than the
+card, and its viewport is a region with a tab stop while the grid overflows.
 
 ## Tile and Room
 
@@ -454,7 +458,9 @@ not over the catalogue.
 mounts. Every `_focusVisible` condition matches that attribute, so the descendant renders its focus
 styles in a still image without taking focus. Use it for a focus style on a control that is visible
 at rest, such as the ring on a toolbar's tab stop. Do not use it for a control that is hidden until
-focus, because the staged control then reads as always visible.
+focus, because the staged control then reads as always visible. `target` takes a selector for a
+scene whose first focusable descendant is not the control it shows, such as a splitter's trigger
+after a panel's scroll area.
 
 ```tsx
 <Contained>
@@ -463,13 +469,40 @@ focus, because the staged control then reads as always visible.
 <Focused>
   <Toolbar />
 </Focused>;
+<Focused target="[role=separator]">
+  <Splitter />
+</Focused>;
+```
+
+## Screen
+
+`Screen` is the window an application's shell or a page renders in, inside a scene. Use it in a
+specimen's `draw` and never in an example.
+
+- The box has a hairline edge and `l2` corners and clips its content to the corners. Its fill is
+  `bg.panel`.
+- `size` sets the height to a named size: `xs` 20rem, `sm` 24rem, `md` 28rem, `lg` 32rem, `xl`
+  36rem. It sets `--app-shell-window-height` to the height inside the two hairlines, so a shell and
+  its sheet end at the box's lower edge. Without `size` the box is as tall as its content.
+- `contain: layout` makes the box the containing block of a `position: fixed` descendant, so a
+  narrow shell's sheet opens inside the box.
+- `scrolls` renders the content in the primitives package's scroll area, which fills the box, for a
+  shell that scrolls the window. Its viewport takes no tab stop, because a shell's controls scroll
+  into view as they take focus.
+
+```tsx
+draw: () => (
+  <Screen size="lg">
+    <console.Console />
+  </Screen>
+),
 ```
 
 ## The recipes it states
 
 Every part the catalogue draws is a component of the library: the caption is `Text`, the page is
 `Page`, the rail is `Sidebar.Nav` over `NavList`. The device, the pane, the matrix, the tile, the
-room and the contained box state a recipe each, published as a preset from
+room, the screen and the contained box state a recipe each, published as a preset from
 `@stealthscale/specimen/theme`, and every value in them is a semantic token, so a theme that moves
 the library moves the catalogue with it. The preset also makes the root of a framed document
 see-through, over the background the theme paints every root in.

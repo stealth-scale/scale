@@ -144,6 +144,16 @@ describe("Matrix", () => {
     expect(slotClasses(crossed(), "matrix", "label")).toContain("matrix__label");
   });
 
+  it("scrolls a crossed grid across in a scroll area", () => {
+    const content = crossed().querySelector(".matrix__grid")?.parentElement;
+
+    expect(content?.classList.contains("scroll-area__content--horizontal")).toBe(true);
+  });
+
+  it("renders the scroll area as the matrix's scroller", () => {
+    expect(crossed().querySelector(".matrix__scroller")?.classList).toContain("scroll-area__root");
+  });
+
   it("breaks no accessibility rule", async () => {
     await expect(
       accessibilityViolations(Matrix, {

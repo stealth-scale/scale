@@ -1,15 +1,11 @@
 /**
- * Runs an accessibility audit over one scene and shapes what it found into what a reader needs.
+ * Runs an accessibility audit over one scene and returns its findings, worst first.
  *
  * @remarks
- *   The audit is the same engine the specifications run, so a scene that passes here passes the
- *   gate. It is run against the element the scene was drawn into rather than the page, because a
- *   page reports the catalogue's own shell as well and a reader cannot tell which of the two they
- *   are looking at.
- *   Axe is loaded the first time a reader asks for an audit and not before. It is the largest
- *   thing the catalogue would ship, and a reader who never opens an audit should never pay for it.
- *   The rules the catalogue itself breaks are left on. A violation the shell causes is a violation,
- *   and turning the rule off to keep a scene green is how a component ships with one.
+ *   The audit runs axe, the engine the specifications run, so a scene that passes here passes the
+ *   gate. It reads the element the scene renders into, so no finding comes from the catalogue's
+ *   shell. The catalogue loads axe on the first audit a reader requests, because axe is the largest
+ *   module in the catalogue's bundle.
  */
 
 import {
@@ -20,17 +16,16 @@ import {
 } from "#catalogue/types.ts";
 
 /**
- * Selects how badly a rule was broken, as axe rates it.
+ * Lists the four ratings axe gives a broken rule.
  *
  * @remarks
- *   Axe's own type carries `null` for a rule it did not rate. A rating is either one of the four
- *   or missing, and `undefined` is how every other optional value in this package is missing, so
- *   the two are not both carried.
+ *   Axe types an unrated rule's impact as `null`. This package writes a missing value as
+ *   `undefined`, so the type leaves `null` out.
  */
 export type Impact = Exclude<ImpactValue, null>;
 
 /**
- * Ranks the impacts, worst first, which is the order a reader reads the findings in.
+ * Sort position of each impact, worst first.
  */
 const RANK: Readonly<Record<Impact, number>> = {
   critical: 0,
@@ -40,36 +35,55 @@ const RANK: Readonly<Record<Impact, number>> = {
 };
 
 /**
- * Ranks a finding axe left unrated, which sits under everything it rated.
+ * Sort position of a finding axe left unrated, after every rated finding.
  */
 const UNRATED = 4;
 
 /**
- * Fixes what the audit reads: every rule, and only the ones a scene can be held to.
+ * Lists the axe rules that check where a landmark is placed and whether a landmark repeats.
  *
  * @remarks
- *   No tags are named, so every rule axe runs by default runs here: the WCAG levels, the best
- *   practices and the experimental ones alike.
- *   Four are turned off. A scene is a fragment of a document rather than a document, so the rules
- *   about the page as a whole cannot pass inside one. `region` asks every element to sit in a
- *   landmark, `landmark-one-main` asks for a main, `page-has-heading-one` asks for a first-level
- *   heading, and `bypass` asks for a skip link. All four are the catalogue's own to answer and none
- *   of them is the component's.
- *   Two are turned on that axe leaves off. `target-size` is WCAG 2.2 and newer than the set axe
- *   enables, and it is the one rule a library of controls most needs: it measures what a finger can
- *   actually hit. `aria-roledescription` costs nothing and catches a description written onto an
- *   element with no role to describe.
- *   The rest of what axe leaves off stays off. Two are AAA and would report every scene,
- *   `landmark-complementary-is-top-level` is another page-level rule, and the two about duplicate
- *   identifiers were deprecated when the criterion behind them was withdrawn.
- *   Each name is a rule axe knows. It rejects a run that names one it does not, so a rule renamed
- *   between versions takes every audit down rather than quietly staying on.
+ *   A scene renders a fragment of an application inside the catalogue's page. Its main region is
+ *   nested in the catalogue's `main`, and a page shown wide and at a phone's width repeats each of
+ *   its landmarks. These rules judge a whole document, so the scene audit turns them off and the
+ *   catalogue review applies them to the chrome only.
+ */
+export const LANDMARK_RULES: readonly string[] = [
+  "landmark-banner-is-top-level",
+  "landmark-contentinfo-is-top-level",
+  "landmark-main-is-top-level",
+  "landmark-no-duplicate-banner",
+  "landmark-no-duplicate-contentinfo",
+  "landmark-no-duplicate-main",
+  "landmark-unique",
+];
+
+/**
+ * Lists the axe rules a scene audit turns on and off.
+ *
+ * @remarks
+ *   The options do not list tags, so axe runs its WCAG, best-practice and experimental rules. They
+ *   turn off the eleven rules that judge a whole document: `region`, `landmark-one-main`,
+ *   `page-has-heading-one`, `bypass` and the seven in {@link LANDMARK_RULES}. They turn on
+ *   `target-size` (WCAG 2.5.8) and `aria-roledescription`, which axe leaves off. Every other rule
+ *   axe leaves off remains off. Axe rejects options that reference an unknown rule, so a rule
+ *   renamed in an axe release fails every audit. `iframes` is off: no frame on a page carries axe,
+ *   so axe audits none of their documents, and its message to a sandboxed frame, whose origin is
+ *   `null`, logs an error in the console.
  */
 export const RULES: RunOptions = {
+  iframes: false,
   rules: {
     "aria-roledescription": { enabled: true },
     bypass: { enabled: false },
+    "landmark-banner-is-top-level": { enabled: false },
+    "landmark-contentinfo-is-top-level": { enabled: false },
+    "landmark-main-is-top-level": { enabled: false },
+    "landmark-no-duplicate-banner": { enabled: false },
+    "landmark-no-duplicate-contentinfo": { enabled: false },
+    "landmark-no-duplicate-main": { enabled: false },
     "landmark-one-main": { enabled: false },
+    "landmark-unique": { enabled: false },
     "page-has-heading-one": { enabled: false },
     region: { enabled: false },
     "target-size": { enabled: true },
@@ -77,16 +91,16 @@ export const RULES: RunOptions = {
 };
 
 /**
- * Describes one element a rule was broken on.
+ * Describes one element a rule failed on.
  */
 export interface Broken {
   /**
-   * The line axe writes about what is wrong with this element.
+   * Axe's summary of the failure on this element.
    */
   readonly says: string;
 
   /**
-   * The selector that finds it, which a reader pastes into the console to look at it.
+   * Selector that locates the element, for a reader to paste into the console.
    */
   readonly selector: string;
 }
@@ -96,48 +110,48 @@ export interface Broken {
  */
 export interface Finding {
   /**
-   * How badly, as axe rates it, or nothing where it rated the rule at all.
+   * Rating axe gave the rule, or undefined when axe left it unrated.
    */
   readonly impact: Impact | undefined;
 
   /**
-   * The elements the rule was broken on.
+   * Elements the rule failed on.
    */
   readonly on: readonly Broken[];
 
   /**
-   * The rule's own identifier, such as `color-contrast`.
+   * Rule id, such as `color-contrast`.
    */
   readonly rule: string;
 
   /**
-   * The line axe writes about what the rule asks for.
+   * Axe's description of what the rule requires.
    */
   readonly says: string;
 
   /**
-   * Where the rule is written out in full.
+   * Address of the rule's documentation.
    */
   readonly url: string;
 }
 
 /**
- * Describes what one audit came to.
+ * Describes the result of one audit.
  */
 export interface Audit {
   /**
-   * The rules that were broken, worst first.
+   * Broken rules, worst first.
    */
   readonly findings: readonly Finding[];
 
   /**
-   * How many rules the scene was held to and passed.
+   * Number of rules the scene passed.
    */
   readonly passed: number;
 }
 
 /**
- * Shapes one of axe's results into a finding.
+ * Converts one axe result into a finding.
  */
 function found(result: Result): Finding {
   return {
@@ -153,19 +167,19 @@ function found(result: Result): Finding {
 }
 
 /**
- * Ranks a finding by how bad axe says it is.
+ * Returns the sort position of a finding's impact.
  */
 function ranked(finding: Finding): number {
   return finding.impact === undefined ? UNRATED : RANK[finding.impact];
 }
 
 /**
- * Runs the rules over an element and answers with what it found.
+ * Runs the rules over an element and resolves to axe's results.
  */
 export type Engine = (element: Element, options: RunOptions) => Promise<AxeResults>;
 
 /**
- * Loads axe and returns its runner, bound to itself.
+ * Loads axe and returns its `run` method bound to axe.
  */
 async function engined(): Promise<Engine> {
   const { default: axe } = await import("axe-core");
@@ -174,31 +188,29 @@ async function engined(): Promise<Engine> {
 }
 
 /**
- * Describes what an audit is run with beyond the element.
+ * Describes the options of an audit beyond the element.
  */
 export interface Auditing {
   /**
-   * The engine to run. Axe, loaded on the first run, where absent.
+   * Engine to run, or axe, loaded on the first run, when absent.
    */
   readonly engine?: Engine | undefined;
 
   /**
-   * The run options handed to the engine. The catalogue's own, {@link RULES}, where absent.
+   * Run options passed to the engine, or {@link RULES} when absent.
    */
   readonly rules?: RunOptions | undefined;
 }
 
 /**
- * Audits one element and returns what the audit came to.
+ * Audits one element and returns the broken rules and the number of rules it passed.
  *
  * @remarks
- *   The engine is an option so that a caller can hand over one of their own. Left out, axe is
- *   loaded here and used, which is what every caller in the catalogue does. The rules are an
- *   option for the same reason: an application states its own through `Placing.audit`, and the
- *   catalogue's own run where it states none.
- * @param element - The element the scene was drawn into.
- * @param auditing - The engine and the rules, either of which may be left out.
- * @returns The rules broken, worst first, and how many rules passed.
+ *   An application states its own rules through `Placing.audit`. Every audit in the catalogue runs
+ *   axe with {@link RULES}.
+ * @param element - Element the scene renders into.
+ * @param auditing - Engine and rules, each optional.
+ * @returns The broken rules, worst first, and the number of rules that passed.
  */
 export async function audited(element: Element, auditing: Auditing = {}): Promise<Audit> {
   const run = await (auditing.engine ?? (await engined()))(element, auditing.rules ?? RULES);

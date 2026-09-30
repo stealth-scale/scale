@@ -1,17 +1,16 @@
 /**
- * Declares what a page of a catalogue is, and draws a component once per value of an axis or once
+ * Declares what a page of a catalogue is, and renders a component once per value of an axis or once
  * per cell a specimen lays out itself.
  *
  * @remarks
  *   A specimen file's default export is `specimen()`, which the index plugin parses out of the
- *   source without evaluating the module. A drawing of a component is a `Sample`: a caption, the
- *   component, and a box the specimen chooses the look of. A `Matrix` draws one sample per value of
- *   an axis, and a `Board` draws the samples a specimen writes and arranges on the library's grid.
- *   Both state the look of their samples once, so the two read alike on one page. A scene states
- *   how it meets the card it is drawn on through its `frame`.
- *   The catalogue draws what the plugin indexed. An application hands `Catalogue` the pages out of
- *   `virtual:specimen-index` and supplies the providers, so this package needs no build of its own
- *   to render and a specification renders it without one.
+ *   source without evaluating the module. A `Sample` renders a caption, the component and a box of
+ *   the look the specimen chooses. A `Matrix` renders one sample per value of an axis, and a
+ *   `Board` arranges the samples a specimen writes on the library's grid. Both set the look of
+ *   their samples once, so the two read alike on one page. A scene sets how it meets its card
+ *   through its `frame`. The catalogue renders what the plugin indexed. An application passes
+ *   `Catalogue` the pages from `virtual:specimen-index` and supplies the providers, so this package
+ *   needs no build of its own to render and a specification renders it without one.
  * @packageDocumentation
  */
 
@@ -28,5 +27,6 @@ export { type Frame, FRAMES, scene, type Scene, specimen, type Specimen } from "
 export * from "#room/index.ts";
 export * from "#sample/index.ts";
 export * from "#scenes/index.ts";
+export * from "#screen/index.ts";
 export * from "#tile/index.ts";
 export { NAMESPACE, type Namespace, type Prefix, useWords } from "#words.ts";

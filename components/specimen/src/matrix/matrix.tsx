@@ -14,7 +14,9 @@
  *   Each cell is a sample, so how it is drawn and where the drawing sits in it are the sample's
  *   axes and a matrix states them once for every cell it draws. A board states the same two, so a
  *   page that crosses an axis and a page laid out by hand read alike. A cell of the crossed grid
- *   states no value of its own, because the edges of the grid caption it already.
+ *   states no value of its own, because the edges of the grid caption it already. The grid scrolls
+ *   across in the primitives package's scroll area, whose viewport is a region with a tab stop
+ *   while the grid is wider than the card.
  *   One axis draws the board and nothing round it. The container the grid measures itself against
  *   is only there for the fold, which a single axis has no grid to fold, so a matrix of one axis
  *   that kept it put a div in the document that no rule reads.
@@ -22,12 +24,25 @@
 
 import { type ReactElement, type ReactNode } from "react";
 
+import { ScrollArea } from "@stealthscale/component-primitives";
+
 import { Board, type BoardProps } from "#board/board.tsx";
 import { captioned } from "#caption.tsx";
 import { bare } from "#framed/bare.ts";
 import { ABSENT, type Axis, captionOf, nameOf } from "#matrix/axis.ts";
 import { useFramedCell } from "#matrix/framed.ts";
-import { Cell, Column, Grid, Head, Label, Root, type RootProps, Row, Side } from "#matrix/parts.ts";
+import {
+  Cell,
+  Column,
+  Grid,
+  Head,
+  Label,
+  Root,
+  type RootProps,
+  Row,
+  Scroller,
+  Side,
+} from "#matrix/parts.ts";
 import { type Display, DisplayProvider } from "#sample/display.ts";
 import { Sample } from "#sample/sample.tsx";
 
@@ -156,10 +171,17 @@ export function Matrix<Value, Other = undefined>(props: MatrixProps<Value, Other
     return (
       <Root across={counted(across.of)}>
         <DisplayProvider value={display}>
-          <Grid>
-            {headed(across)}
-            {axis.of.map((value) => rowed(axis, across, value, children))}
-          </Grid>
+          <Scroller scrolls="horizontal">
+            <ScrollArea.Viewport>
+              <ScrollArea.Content>
+                <Grid>
+                  {headed(across)}
+                  {axis.of.map((value) => rowed(axis, across, value, children))}
+                </Grid>
+              </ScrollArea.Content>
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar orientation="horizontal" />
+          </Scroller>
         </DisplayProvider>
       </Root>
     );

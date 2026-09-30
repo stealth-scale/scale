@@ -1,10 +1,10 @@
 /**
- * Publishes the kit's recipes as a preset, for the compiler of a catalogue that draws with it.
+ * Publishes the kit's recipes as a preset, for the compiler of a catalogue that renders with it.
  *
  * @remarks
- *   The preset also makes the root of a framed document see-through, over the background the
- *   theme paints every root in, so a sample shown in a device sits on the card that holds the
- *   frame the way it sits on the page.
+ *   The preset also makes the root of a framed document transparent over the background the theme
+ *   paints every root in, so a sample in a device renders on the card around the frame as it
+ *   renders on the page.
  */
 
 import { definePreset } from "@stealthscale/theme/authoring";
@@ -16,6 +16,7 @@ import { recipe as pane } from "#framed/pane.recipe.ts";
 import { recipe as matrix } from "#matrix/recipe.ts";
 import { recipe as room } from "#room/recipe.ts";
 import { recipe as sample } from "#sample/recipe.ts";
+import { recipe as screen } from "#screen/recipe.ts";
 import { recipe as tile } from "#tile/recipe.ts";
 
 export default definePreset({
@@ -23,7 +24,7 @@ export default definePreset({
   name: "@stealthscale/specimen",
   theme: {
     extend: {
-      recipes: { contained, pane, room, tile },
+      recipes: { contained, pane, room, screen, tile },
       slotRecipes: { device, matrix, sample },
     },
   },

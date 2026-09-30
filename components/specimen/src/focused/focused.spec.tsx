@@ -43,6 +43,28 @@ describe("Focused", () => {
     expect(getByRole("button").dataset["focusVisible"]).toBeUndefined();
   });
 
+  it("sets data-focus-visible on the first descendant target selects", () => {
+    const { getByRole } = render(
+      <Focused target="button">
+        <a href="#content">Skip to content</a>
+        <button type="button">Save</button>
+      </Focused>,
+    );
+
+    expect(getByRole("button").dataset["focusVisible"]).toBe("");
+  });
+
+  it("leaves data-focus-visible unset on a focusable descendant target does not select", () => {
+    const { getByRole } = render(
+      <Focused target="button">
+        <a href="#content">Skip to content</a>
+        <button type="button">Save</button>
+      </Focused>,
+    );
+
+    expect(getByRole("link").dataset["focusVisible"]).toBeUndefined();
+  });
+
   it("skips a disabled button", () => {
     const { getByRole } = render(
       <Focused>

@@ -75,6 +75,22 @@ describe("Device", () => {
     expect(framed(container).title).toBe("Sizes");
   });
 
+  it("renders the frame in a scroll area that scrolls across", async () => {
+    const { container } = await drawn(<Device device={PHONE} scene={SCENE} />);
+    const content = slotElement(container, "device", "content");
+
+    expect(content.contains(framed(container))).toBe(true);
+    expect(content.classList.contains("scroll-area__content--horizontal")).toBe(true);
+  });
+
+  it("names the stage's viewport by the scene title", async () => {
+    const { container } = await drawn(<Device device={PHONE} scene={SCENE} />);
+
+    expect(container.querySelector(".scroll-area__viewport")?.getAttribute("aria-label")).toBe(
+      "Sizes",
+    );
+  });
+
   it("sets the root width and height to the device size", () => {
     const { container } = render(<Device device={PHONE} scene={SCENE} />);
 

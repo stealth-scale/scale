@@ -19,6 +19,12 @@ describe("valuesOf", () => {
     expect(valuesOf(recipe, "size")).toStrictEqual(["sm", "md", "lg"]);
   });
 
+  it("orders 2xs before xs on the size axis", () => {
+    const tiny = { className: "avatar", variants: { size: { "2xs": {}, md: {}, xs: {} } } };
+
+    expect(valuesOf(tiny, "size")).toStrictEqual(["2xs", "xs", "md"]);
+  });
+
   it("keeps a size the scale does not name after the steps in the recipe's order", () => {
     const measured = {
       className: "container",
