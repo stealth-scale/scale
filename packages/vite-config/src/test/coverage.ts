@@ -4,7 +4,7 @@
 
 import { type Preset, preset } from "@stealthscale/vite-config-core";
 
-import { copiesBelow, FOREIGN } from "#ignore/foreign.ts";
+import { FOREIGN, IN_COPIES } from "#ignore/foreign.ts";
 import { GENERATED } from "#ignore/generated.ts";
 
 /**
@@ -18,7 +18,7 @@ const COUNTED = ["**/src/**"];
  * @remarks
  *   Each entry is either the measurement itself or a file with nothing to
  *   assert about: the entry point that starts a program, a worker body, a type
- *   declaration, or something a tool wrote.
+ *   declaration, something a tool wrote, or a second copy of the repository.
  */
 const UNCOUNTED = [
   "**/*.spec.{ts,tsx}",
@@ -30,6 +30,7 @@ const UNCOUNTED = [
   "**/*.worker.{ts,tsx}",
   ...GENERATED,
   ...FOREIGN,
+  ...IN_COPIES,
 ];
 
 /**
@@ -58,30 +59,31 @@ const ENOUGH = {
 const REPORTS = "**/coverage/**";
 
 /**
- * Returns the preset that measures coverage on every run and holds the package to all of it.
+ * Returns the preset that measures coverage on every run and fails a package that covers less.
  *
  * @remarks
  *   The counter is the engine's own rather than an instrumented build, so what
  *   a test executes is what would ship. The terminal gets a summary and the
  *   detail goes to a report, because four numbers are what a person reads. The
  *   agent worktrees and the scratch below the workspace root are left out by
- *   absolute globs, so a run inside one of them still counts its own files.
+ *   globs relative to the root, so a run inside one of them still counts its
+ *   own files.
  */
 export function coverage(): Preset {
   return preset({
-    config: (context) => ({
+    config: {
       server: { watch: { ignored: [REPORTS] } },
       test: {
         coverage: {
           enabled: true,
-          exclude: [...UNCOUNTED, ...copiesBelow(context.root)],
+          exclude: UNCOUNTED,
           include: COUNTED,
           provider: "v8",
           reporter: ["text-summary", "html", "lcov"],
           thresholds: ENOUGH,
         },
       },
-    }),
+    },
     name: "test.coverage",
   });
 }

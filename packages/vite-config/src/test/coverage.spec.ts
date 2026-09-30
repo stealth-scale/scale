@@ -11,27 +11,27 @@ import { coverage } from "#test/coverage.ts";
 import { answered } from "#vite.fixtures.ts";
 
 /**
- * Digs out the coverage block the layer states for the fixture's root.
+ * Digs out the coverage block the layer states.
  */
-function settings(root = "/repository"): Record<string, unknown> {
-  const held = (answered(coverage(), { root }) as UserConfig).test?.coverage;
+function settings(): Record<string, unknown> {
+  const held = (answered(coverage()) as UserConfig).test?.coverage;
 
   return held as Record<string, unknown>;
 }
 
 describe("coverage", () => {
-  it("leaves the agent worktrees below the workspace root out by an absolute glob", () => {
+  it("leaves the copies of the repository out by globs relative to the root", () => {
     const held = settings()["exclude"] as string[];
 
-    expect(held).toContain("/repository/.claude/**");
-    expect(held).not.toContain("**/.claude/**");
+    expect(held).toContain(".claude/**");
+    expect(held).toContain(".scratch/**");
   });
 
-  it("anchors the worktree glob at the root it is configured for", () => {
-    const held = settings("/repository/.claude/worktrees/one")["exclude"] as string[];
+  it("anchors the globs over the copies at the root", () => {
+    const held = settings()["exclude"] as string[];
 
-    expect(held).toContain("/repository/.claude/worktrees/one/.claude/**");
-    expect(held).not.toContain("/repository/.claude/**");
+    expect(held).not.toContain("**/.claude/**");
+    expect(held).not.toContain("**/.scratch/**");
   });
 
   it("counts with the engine's own coverage rather than an instrumented build", () => {

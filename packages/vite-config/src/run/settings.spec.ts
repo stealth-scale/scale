@@ -1,6 +1,5 @@
 /**
- * Proves the task types accept each form, and reject an uncached task naming
- * inputs.
+ * Proves the task types accept each form, and refuse inputs named outside a task's cache.
  */
 
 import { describe, expect, it } from "vitest";
@@ -14,20 +13,20 @@ describe("settings", () => {
     expect(held).toBe("vp check");
   });
 
-  it("takes a task declaring its inputs and outputs", () => {
-    const held: Doing = { command: "typedoc", input: ["src/**"], output: ["docs/**"] };
+  it("takes a task declaring its files under its cache", () => {
+    const held: Doing = { cache: { input: ["src/**"], output: ["docs/**"] }, command: "typedoc" };
 
-    expect(held).toHaveProperty("output");
+    expect(held).toHaveProperty("cache.output");
   });
 
-  it("throws for a task naming inputs while declaring it is not cached", () => {
-    // @ts-expect-error -- a task that is not cached has nothing to fingerprint.
-    const held: Doing = { cache: false, command: "vp check", input: ["src/**"] };
+  it("refuses inputs named outside the cache", () => {
+    // @ts-expect-error -- a task names the files its fingerprint reads under its cache.
+    const held: Doing = { command: "vp check", input: ["src/**"] };
 
-    expect(held).toHaveProperty("cache");
+    expect(held).toHaveProperty("input");
   });
 
-  it("holds the cache the tasks and the lifecycle a workspace declares at its root", () => {
+  it("takes the run settings a workspace declares at its root", () => {
     const held: Running = { cache: { scripts: true, tasks: true }, enablePrePostScripts: true };
 
     expect(held.cache).toBeDefined();

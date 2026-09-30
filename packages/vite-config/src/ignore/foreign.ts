@@ -1,5 +1,5 @@
 /**
- * Globs excluding the directories that hold nothing this repository wrote.
+ * Globs excluding the directories that contain nothing this repository wrote.
  */
 
 /**
@@ -14,36 +14,26 @@
 export const FOREIGN = ["**/node_modules/**", "**/.git/**", "**/dist/**", "**/coverage/**"];
 
 /**
- * Directories under a workspace root holding a second copy of this repository: the worktrees an
+ * Directories under a workspace root containing a second copy of this repository: the worktrees an
  * agent session checks out, and the scratch a review or a gate snapshots into.
  *
  * @remarks
  *   A run from the main checkout's root that descended into either would count every file twice
  *   and run every specification again. Measured on 21 September 2026: a snapshot left under
  *   `.scratch` put 1308 of the 2638 files of the root coverage report outside the tree anybody
- *   wrote, and the report read 50.93% against a threshold of 100%. Each directory holds roots of
- *   its own, so a glob matching the segment anywhere in a path would exclude every file of a run
- *   inside one, and the coverage provider matches a glob anywhere in an absolute path. The globs
- *   below are therefore anchored at the root.
+ *   wrote, and the report read 50.93% against a threshold of 100%.
  */
 export const COPIES = [".claude", ".scratch"];
 
 /**
- * Globs matching every test file under the copies, relative to the root, which is how the
- * runner globs its test files.
- */
-export const COPY_TESTS = COPIES.map((directory) => `${directory}/**`);
-
-/**
- * Builds the absolute globs matching every file under the copies below `root`, which is the form
- * the coverage provider matches a file against.
+ * Globs matching every file under the copies, relative to the root.
  *
  * @remarks
- *   Measured on vitest 4.1.11: `isIncluded` matches the absolute file name with `contains: true`,
- *   so a relative glob excludes every file of a root that sits inside another checkout's copies,
- *   and the run reports 0 of 0 lines covered at 100%.
- * @param root - The absolute path of the checkout the copies sit under.
+ *   The runner collects test files and the coverage provider matches a covered file by the path
+ *   relative to the root, so one list leaves the copies out of both. Measured on vitest 5.0.1: an
+ *   absolute glob over a copy left out a file no test loaded and counted a file a test loaded,
+ *   and the relative glob left out both. Each copy contains roots of its own, and a glob matching
+ *   the segment anywhere in a path would exclude every file of a run inside one. The globs are
+ *   therefore anchored at the root.
  */
-export function copiesBelow(root: string): readonly string[] {
-  return COPIES.map((directory) => `${root}/${directory}/**`);
-}
+export const IN_COPIES = COPIES.map((directory) => `${directory}/**`);

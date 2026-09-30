@@ -12,11 +12,11 @@ export type Running = NonNullable<UserConfig["run"]>;
 
 /**
  * One task, written as its command alone or as a record naming that command
- * with its files.
+ * with its cache.
  *
  * @remarks
- *   A record that names inputs while declaring itself uncached fails to
- *   typecheck, because there is then nothing for a fingerprint to be taken of.
- *   Naming neither leaves the task running every time it is invoked.
+ *   The files and variables a fingerprint reads are declared under `cache`, so a
+ *   task declared uncached has nowhere to name them. A task that names none is
+ *   cached on the files the runner sees it read and write.
  */
 export type Doing = NonNullable<Running["tasks"]>[string];

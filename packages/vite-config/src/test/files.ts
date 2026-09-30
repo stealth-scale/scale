@@ -4,7 +4,7 @@
 
 import { type Preset, preset } from "@stealthscale/vite-config-core";
 
-import { COPY_TESTS, FOREIGN } from "#ignore/foreign.ts";
+import { FOREIGN, IN_COPIES } from "#ignore/foreign.ts";
 
 /**
  * The one spelling of a test file this repository uses.
@@ -23,7 +23,7 @@ const TESTS = ["**/*.spec.{ts,tsx}"];
  */
 export function files(): Preset {
   return preset({
-    config: { test: { exclude: [...FOREIGN, ...COPY_TESTS], include: TESTS } },
+    config: { test: { exclude: [...FOREIGN, ...IN_COPIES], include: TESTS } },
     name: "test.files",
   });
 }
