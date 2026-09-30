@@ -78,6 +78,7 @@ else.
 | `asChild`  | `boolean`                               | `undefined` | Renders the component with `asChild` and an anchor child, and expects the element back as `A` |
 | `children` | `boolean`                               | `undefined` | Passes a string as `children` and expects it in the element's `textContent`                   |
 | `element`  | `string`                                | `undefined` | The tag the component is expected to render, spelled upper-case                               |
+| `frame`    | `boolean`                               | `undefined` | Makes `accessibilityViolations` read the render one animation frame after the machine commits |
 | `props`    | `Readonly<Record<string, unknown>>`     | `{}`        | The props the component needs before it can render at all                                     |
 | `subject`  | `(container: ParentNode) => Rendered`   | `only`      | Finds the element to check, where the component's own root is not the first one rendered      |
 | `wrapper`  | `(children: ReactNode) => ReactElement` | `undefined` | Wraps the component in the provider it cannot render outside                                  |
@@ -122,7 +123,13 @@ A phrase states what the component did. The order of the list is the order the c
 
 `accessibilityViolations(Component, options)` renders the component under the same `props` and
 `wrapper` the conformance check takes, runs axe over what it rendered, and returns each rule it
-breaks as `id: help`. A rule axe cannot decide, which it reports as incomplete, is left out.
+breaks as `id: help`. A rule axe cannot decide, which it reports as incomplete, is left out. So is
+an element with the `hidden` attribute, with everything inside it: a browser does not render it, and
+the DOM the specifications run in lays it out as visible. With `frame`, axe reads the render one
+animation frame later, for a machine that sets its context again in that frame. The dialog machine
+does this once it opens. Axe audits an `iframe` element and not the document inside it, because the
+DOM the specifications run in gives a frame no window axe can message. Audit a framed document in a
+browser.
 
 ```tsx
 import { accessibilityViolations } from "@stealthscale/testing-react";

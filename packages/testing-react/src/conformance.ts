@@ -41,6 +41,13 @@ export interface ConformanceOptions {
   element?: string | undefined;
 
   /**
+   * Whether the accessibility audit reads the render one animation frame after the machine
+   * commits, which a machine that sets its context again in that frame needs. The conformance
+   * checks ignore it.
+   */
+  frame?: boolean | undefined;
+
+  /**
    * The props the component needs before it can render at all.
    */
   props?: Readonly<Record<string, unknown>> | undefined;

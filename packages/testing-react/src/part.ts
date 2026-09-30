@@ -1,9 +1,9 @@
 /**
- * Locates the elements a component drew, by the part name each one is marked with.
+ * Finds the elements a component rendered by the part name each one has.
  *
  * @remarks
- *   A marking is the handle a specification holds a component by. The readers here find an element
- *   and hand it back untouched, and every question about what that element says belongs elsewhere.
+ *   A specification finds a component's elements by their `data-part`. The readers return an
+ *   element unchanged, and other modules read what the element contains.
  */
 
 /**
@@ -12,12 +12,12 @@
 const PART = "data-part";
 
 /**
- * An element a component drew, in either HTML or SVG.
+ * Describes an element a component rendered, HTML or SVG.
  *
  * @remarks
- *   The style member belongs to the type so a reader can ask an element for a custom property. A
- *   count worked out at run time cannot be a class name, so it reaches the stylesheet through the
- *   style attribute and the recipe reads it back from there.
+ *   The type includes `style`, so a reader can read a custom property off an element. A count
+ *   computed at run time cannot be a class name, so a component writes it into the style attribute
+ *   as a custom property, and the recipe reads it there.
  */
 export type Rendered = Element & ElementCSSInlineStyle & HTMLOrSVGElement;
 
@@ -32,14 +32,14 @@ function selector(name: string): string {
  * Returns the first element a component marked with a part name.
  *
  * @remarks
- *   A component drawing the same part once per item offers several matches, and the first in
- *   document order is the one that comes back. A caller wanting all of them reads {@link parts}.
- * @throws {@link Error} When nothing under the container carries that part name.
+ *   A component that renders the same part once per item has several matches, and the first in
+ *   document order is the one returned. A caller that wants all of them reads {@link parts}.
+ * @throws {@link Error} When nothing under the container has that part name.
  */
 export function part(container: ParentNode, name: string): Rendered {
   const found = container.querySelector<HTMLElement | SVGElement>(selector(name));
 
-  if (found === null) throw new Error(`Nothing in the rendered output carries ${selector(name)}.`);
+  if (found === null) throw new Error(`Nothing in the rendered output matches ${selector(name)}.`);
 
   return found;
 }
@@ -48,9 +48,9 @@ export function part(container: ParentNode, name: string): Rendered {
  * Lists every element a component marked with a part name, in document order.
  *
  * @remarks
- *   A name no element carries gives back an empty array rather than throwing, so a specification
- *   can assert that a component drew none of a part. The result is a plain array and not a live
- *   NodeList, and a later render leaves it as it was.
+ *   A name no element has returns an empty array instead of throwing, so a specification can
+ *   assert that a component rendered none of a part. The result is a plain array, not a live
+ *   NodeList, so a later render does not change it.
  */
 export function parts(container: ParentNode, name: string): readonly Rendered[] {
   return [...container.querySelectorAll<HTMLElement | SVGElement>(selector(name))];
@@ -60,8 +60,8 @@ export function parts(container: ParentNode, name: string): readonly Rendered[] 
  * Returns the one element a render put at the top of its container.
  *
  * @remarks
- *   A component under check draws a single root, and reading that root this way asks nothing of
- *   the component's markings. A render producing several top-level elements gives back the first.
+ *   A component under check renders a single root, and this reader finds it without any
+ *   `data-part`. A render that produces several top-level elements returns the first.
  * @throws {@link Error} When the render produced no element at all.
  * @throws {@link Error} When the first element is neither HTML nor SVG, such as a MathML one.
  */
