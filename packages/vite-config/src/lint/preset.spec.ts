@@ -87,6 +87,12 @@ describe("preset", () => {
     }
   });
 
+  it("excuses a preset from the dependency cap in every tier", () => {
+    for (const held of [base(), node(), web()]) {
+      expect(namesOf(held)).toContain("lint.registered(**/src/theme.ts)");
+    }
+  });
+
   it("excuses no rendered specification when the package runs in the console", () => {
     for (const held of [base(), node()]) {
       expect(held.some((one) => one.name.includes("*.spec.tsx"))).toBe(false);

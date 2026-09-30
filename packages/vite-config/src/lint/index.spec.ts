@@ -12,7 +12,14 @@ describe("vite-config", () => {
   });
 
   it("publishes the verbs a repository adds one at a time", () => {
-    for (const verb of ["barrelled", "defaultExported", "forbid", "relax", "undocumented"]) {
+    for (const verb of [
+      "barrelled",
+      "defaultExported",
+      "forbid",
+      "registered",
+      "relax",
+      "undocumented",
+    ]) {
       expect(Object.keys(lint), `${verb} is not published`).toContain(verb);
     }
   });

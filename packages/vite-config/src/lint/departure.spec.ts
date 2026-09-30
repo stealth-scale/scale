@@ -12,6 +12,7 @@ import {
   composed,
   defaultExported,
   forbid,
+  registered,
   relax,
   undocumented,
 } from "#lint/departure.ts";
@@ -247,11 +248,22 @@ describe("departure", () => {
     expect(held.rules).toStrictEqual({ "import/max-dependencies": "off" });
   });
 
+  it("turns import/max-dependencies off for a preset", () => {
+    const held = registered(["**/src/theme.ts"]).item as {
+      files: string[];
+      rules: Record<string, unknown>;
+    };
+
+    expect(held.files).toStrictEqual(["**/src/theme.ts"]);
+    expect(held.rules).toStrictEqual({ "import/max-dependencies": "off" });
+  });
+
   it("names each factory for the call that produced it", () => {
     expect(defaultExported(["**/*.config.ts"]).name).toBe("lint.defaultExported(**/*.config.ts)");
     expect(undocumented(["**/*.spec.ts"]).name).toBe("lint.undocumented(**/*.spec.ts)");
     expect(barrelled(["**/index.ts"]).name).toBe("lint.barrelled(**/index.ts)");
     expect(composed(["**/*.fixtures.tsx"]).name).toBe("lint.composed(**/*.fixtures.tsx)");
+    expect(registered(["**/src/theme.ts"]).name).toBe("lint.registered(**/src/theme.ts)");
   });
 
   it("keeps both contributions when a repository states defaultExported twice", async () => {

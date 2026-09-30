@@ -22,7 +22,7 @@ import { SPEC } from "#lint/rules/spec.ts";
 type LintBlock = NonNullable<UserConfig["lint"]>;
 
 /**
- * One entry of the override list a lint block carries.
+ * One entry of a lint block's override list.
  */
 export type LintOverride = NonNullable<LintBlock["overrides"]>[number];
 
@@ -35,9 +35,9 @@ const AT = "lint.overrides";
  * A refusal to import one set of packages from one set of files.
  *
  * @remarks
- *   The reason travels twice. It is recorded on the layer, where it explains
- *   why the override exists, and it is printed by the linter, where an author
- *   who tripped the rule reads it without opening the config.
+ *   The reason is written in two places. The layer records it, where it
+ *   explains why the override exists. The linter prints it, where an author
+ *   whose import breaks the rule reads it without opening the config.
  */
 export interface Forbidden {
   /**
@@ -46,7 +46,7 @@ export interface Forbidden {
   because: string;
 
   /**
-   * Packages matched by `packages` that stay allowed.
+   * Packages matched by `packages` that the files may still import.
    */
   except?: readonly string[] | undefined;
 
@@ -92,7 +92,7 @@ export interface Ruled {
  * @remarks
  *   A name in `except` becomes a negated pattern in the same group, so it only
  *   has an effect where one of the patterns in `packages` already matched it.
- *   Listing a package no pattern reaches changes nothing.
+ *   A name that no pattern matches has no effect.
  */
 export function forbid(stated: Forbidden): Contribution {
   const group = [...stated.packages, ...(stated.except ?? []).map((name) => `!${name}`)];
@@ -155,8 +155,8 @@ export function enforce(stated: Ruled): Contribution {
  *
  * @remarks
  *   A config file and a story file each have one export and nowhere else to put
- *   it. Only `no-default-export` comes off, so every other rule still reaches
- *   them.
+ *   it. Only `no-default-export` is turned off, and every other rule still
+ *   applies to them.
  */
 export function defaultExported(files: readonly string[]): Contribution {
   return named(
@@ -170,8 +170,8 @@ export function defaultExported(files: readonly string[]): Contribution {
 }
 
 /**
- * Excuses a specification from doc comments and cast safety, and holds it to a specification's
- * size limits rather than a source file's.
+ * Excuses a specification from doc comments and cast safety, and applies a specification's size
+ * limits to it in place of a source file's.
  *
  * @remarks
  *   A case title already states what the case checks, and a doc comment above
@@ -199,9 +199,9 @@ export function undocumented(files: readonly string[]): Contribution {
  * Applies the house grammar to the case titles of a specification.
  *
  * @remarks
- *   These titles carry the documentation {@link undocumented} took off the same
- *   files. Apply both to the same globs, or a specification ends up with
- *   neither a doc comment nor a checked title.
+ *   These titles contain the documentation that {@link undocumented} removes
+ *   from the same files. Apply both to the same globs, or a specification ends
+ *   up with neither a doc comment nor a checked title.
  */
 export function specified(files: readonly string[]): Contribution {
   return named(
@@ -221,8 +221,8 @@ export function specified(files: readonly string[]): Contribution {
  * @remarks
  *   A barrel names every module its directory publishes and nothing else, so
  *   its dependency count is the size of the directory rather than a sign that
- *   one module does too much. Only `import/max-dependencies` comes off, so
- *   every other rule still reaches it.
+ *   one module does too much. Only `import/max-dependencies` is turned off,
+ *   and every other rule still applies to it.
  */
 export function barrelled(files: readonly string[]): Contribution {
   return named(
@@ -237,6 +237,27 @@ export function barrelled(files: readonly string[]): Contribution {
 }
 
 /**
+ * Excuses a preset from the cap on dependencies.
+ *
+ * @remarks
+ *   A preset registers every recipe its package publishes, so its dependency
+ *   count is the number of recipes rather than a sign that one module does too
+ *   much. Only `import/max-dependencies` is turned off, and every other rule
+ *   still applies to it.
+ */
+export function registered(files: readonly string[]): Contribution {
+  return named(
+    `lint.registered(${files.join(", ")})`,
+    relax({
+      because:
+        "a preset registers every recipe its package publishes, so its dependency count is the number of recipes",
+      files,
+      rules: { "import/max-dependencies": "off" },
+    }),
+  );
+}
+
+/**
  * Excuses a fixture from the cap on dependencies.
  *
  * @remarks
@@ -244,8 +265,8 @@ export function barrelled(files: readonly string[]): Contribution {
  *   every part that component is composed of. Its dependency count is the size
  *   of the component rather than a sign that one module does too much, and a
  *   fixture held to the cap pushes the composition back into the specifications
- *   that were meant to share it. Only `import/max-dependencies` comes off, so
- *   every other rule still reaches it.
+ *   that were meant to share it. Only `import/max-dependencies` is turned off,
+ *   and every other rule still applies to it.
  */
 export function composed(files: readonly string[]): Contribution {
   return named(

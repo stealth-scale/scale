@@ -35,6 +35,7 @@ const ARGUMENTS: Arguments = {
   "lint.defaultExported": [["**/*.stories.tsx"]],
   "lint.enforce": [{ because: BECAUSE, files: ["src/**"], rules: {} }],
   "lint.forbid": [{ because: BECAUSE, files: ["src/**"], packages: ["node:*"] }],
+  "lint.registered": [["**/src/theme.ts"]],
   "lint.relax": [{ because: BECAUSE, files: ["src/**"], rules: {} }],
   "lint.specified": [["**/*.spec.ts"]],
   "lint.undocumented": [["**/*.spec.ts"]],
