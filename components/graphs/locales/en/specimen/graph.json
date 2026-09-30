@@ -1,0 +1,155 @@
+{
+  "about": "A canvas of nodes and the edges between them over React Flow: named nodes with named ports, edges a person can remove, zoom controls and an overview map, and layouts by rank.",
+  "controls": "Canvas",
+  "editor": {
+    "about": "An editable canvas keeps its nodes and edges in React Flow's own state hooks. Drag from an output port to an input port to connect two steps, drag a step to move it, and press an edge's remove control or select it and press Delete to remove it.",
+    "count_one": "{{count}} connection",
+    "count_other": "{{count}} connections",
+    "email": "Send email",
+    "enrich": "Enrich customer",
+    "label": "Alert routing",
+    "remove": "Remove the connection from {{source}} to {{target}}",
+    "route": "Route by severity",
+    "slack": "Post to Slack",
+    "title": "Editable canvas",
+    "webhook": "Webhook"
+  },
+  "fit": "Fit the graph in view",
+  "judge": {
+    "about": "A node with two outputs names each port beside its handle, and an edge leaves the port its sourceHandle names. The judge is invalid, so its card is edged in the error ink and states the fault.",
+    "caption": "Answers that pass the rubric are published, and the rest go back for revision.",
+    "draft": "Draft answer",
+    "fail": "Fail",
+    "judge": "Judge",
+    "label": "Answer review",
+    "model": "Language model",
+    "pass": "Pass",
+    "problem": "No passing score is set.",
+    "publish": "Publish",
+    "revise": "Revise",
+    "rubric": "Rubric of five checks",
+    "title": "Ports and problems"
+  },
+  "pipeline": {
+    "about": "layoutGraph places the steps of a nightly pipeline in ranks 64px apart, from the sources at the top to the outputs at the bottom. The canvas is read-only: it pans, zooms and gives each step a tab stop, and nothing on it can be moved or removed.",
+    "caption": "The churn model failed after the join of orders and customers.",
+    "churn": { "kind": "Model", "label": "Churn model" },
+    "clean": { "kind": "Transform", "label": "Clean orders" },
+    "customers": { "kind": "Source table", "label": "Customers" },
+    "join": { "kind": "Transform", "label": "Join customers" },
+    "label": "Nightly pipeline",
+    "orders": { "kind": "Source table", "label": "Orders" },
+    "revenue": { "kind": "Dashboard", "label": "Revenue report" },
+    "title": "Read-only pipeline"
+  },
+  "ratio": {
+    "about": "ratio sets the canvas's aspect ratio. React Flow renders nothing in a box without a height, so the ratio gives the canvas its height before React Flow measures it.",
+    "title": "Ratio"
+  },
+  "review": {
+    "draft": "Draft",
+    "label": "Review flow",
+    "publish": "Publish",
+    "review": "Review"
+  },
+  "services": {
+    "about": "The overview map below the canvas shows the whole graph and the part in view. Drag it to pan the canvas, and scroll over it to zoom.",
+    "auth": "auth",
+    "caption": "Checkout calls five services, and every order touches inventory.",
+    "cart": "cart",
+    "catalog": "catalog",
+    "checkout": "checkout",
+    "fraud": "fraud",
+    "gateway": "gateway",
+    "inventory": "inventory",
+    "label": "Service calls",
+    "ledger": "ledger",
+    "media": "media",
+    "overview": "Overview of the service calls",
+    "payments": "payments",
+    "pricing": "pricing",
+    "search": "search",
+    "shipping": "shipping",
+    "title": "Overview map"
+  },
+  "status": {
+    "failed": "Failed",
+    "running": "Running",
+    "succeeded": "Succeeded"
+  },
+  "title": "Graph",
+  "versions": {
+    "about": "diffGraphs compares two versions of a flow, and each canvas takes the comparison as changes. An added or changed step takes a tag with a mark and a word, the removed step is tagged in the version it is in, an unchanged step recedes, and an added edge is the success ink while a removed one is dashed.",
+    "added": "Added",
+    "after": {
+      "caption": "Version 4 scores three drafts before it publishes, and no longer notifies the owner.",
+      "label": "Version 4 of the answer flow"
+    },
+    "before": {
+      "caption": "Version 3 publishes the first draft and emails the owner.",
+      "label": "Version 3 of the answer flow"
+    },
+    "changed": "Changed",
+    "details": {
+      "email": "By email",
+      "helpCentre": "To the help centre",
+      "large": "Large model",
+      "screening": "Blocks unsafe requests",
+      "small": "Small model",
+      "three": "Best of three drafts"
+    },
+    "list": {
+      "about": "The comparison is data, so a list of the changes composes from the collections DataList and the data package's Badge: the mark and the word in the label column, the name in the value column, and the changed fields after a changed step's name.",
+      "fields": "{{label}} ({{fields}})",
+      "links": "Connections",
+      "steps": "Steps",
+      "subtitle": "model",
+      "summary_one": "{{count}} change",
+      "summary_other": "{{count}} changes",
+      "title": "Change list"
+    },
+    "removed": "Removed",
+    "steps": {
+      "draft": "Draft the answer",
+      "notify": "Notify the owner",
+      "publish": "Publish the answer",
+      "score": "Score the drafts",
+      "screen": "Screen the request"
+    },
+    "title": "Two versions",
+    "unchanged": "Unchanged"
+  },
+  "workflow": {
+    "about": "Drag a step from the palette onto the canvas, or press it to add the step in the middle of the view. onGraphChange reports each finished edit once, as the graph after it and a step that names what changed, so the example keeps every version and Undo goes back one.",
+    "add": {
+      "fraud": "Add a fraud check",
+      "notice": "Add a warehouse notice",
+      "stock": "Add a stock reservation"
+    },
+    "edits": {
+      "add": "Added {{name}}.",
+      "connect": "Connected two steps.",
+      "move_one": "Moved a step.",
+      "move_other": "Moved {{count}} steps.",
+      "remove_one": "Removed a step.",
+      "remove_other": "Removed {{count}} steps.",
+      "unlink_one": "Removed a connection.",
+      "unlink_other": "Removed {{count}} connections."
+    },
+    "kinds": {
+      "fraud": "Fraud check",
+      "notice": "Warehouse notice",
+      "stock": "Stock reservation"
+    },
+    "label": "Order workflow",
+    "none": "No edits yet.",
+    "placed": "Order placed",
+    "receipt": "Send the receipt",
+    "remove": "Remove the connection from {{source}} to {{target}}",
+    "title": "Palette and history",
+    "undo": "Undo",
+    "undone": "Undid: {{edit}}"
+  },
+  "zoomIn": "Zoom in",
+  "zoomOut": "Zoom out"
+}

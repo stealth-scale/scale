@@ -1,0 +1,99 @@
+{
+  "about": "A network laid out by force from a seed: nodes are discs as large as their weight, and a focus lights what a node connects to within a number of hops.",
+  "controlled": {
+    "about": "The caller keeps the focus in its own state through focus and onFocusChange, so a list, a search result or the address can focus a department. A press on a disc or the Clear focus control reports the new focus back.",
+    "label": "Referrals between departments",
+    "none": "No department",
+    "pick": "Focus a department",
+    "summary_one": "{{name}} exchanges referrals with {{count}} department.",
+    "summary_other": "{{name}} exchanges referrals with {{count}} departments.",
+    "title": "Controlled focus"
+  },
+  "controls": "Network controls",
+  "departments": {
+    "cardiology": "Cardiology",
+    "emergency": "Emergency",
+    "neurology": "Neurology",
+    "oncology": "Oncology",
+    "paediatrics": "Paediatrics",
+    "pharmacy": "Pharmacy",
+    "radiology": "Radiology"
+  },
+  "empty": {
+    "about": "A network without a node renders its message in the canvas's place, at the canvas's ratio, without the controls, the readout or the overview.",
+    "label": "Claims handled jointly",
+    "message": "No claim was handled by more than one adjuster this month.",
+    "title": "Empty"
+  },
+  "fit": "Fit the network in view",
+  "mentoring": {
+    "about": "depth={2} lights the people two hops away as well. Elena mentors three people, and at two hops six of the other seven are lit: past one hop a dense network lights nearly everything.",
+    "label": "Mentoring network",
+    "prompt": "Select a person to see who they are connected to.",
+    "summary_one": "{{count}} person is within two hops of {{name}}.",
+    "summary_other": "{{count}} people are within two hops of {{name}}.",
+    "title": "Two hops"
+  },
+  "modules": {
+    "about": "No module states a weight, so each disc is as large as the number of modules taken beside it: Statistics I is taken with all five others and is the largest.",
+    "label": "Modules taken together",
+    "names": {
+      "calculus": "Calculus II",
+      "econometrics": "Econometrics",
+      "ethics": "Research Ethics",
+      "linear": "Linear Algebra",
+      "stats": "Statistics I",
+      "structures": "Data Structures"
+    },
+    "prompt": "Select a module to see what is taken beside it.",
+    "summary_one": "{{name}} is taken with {{count}} other module.",
+    "summary_other": "{{name}} is taken with {{count}} other modules.",
+    "title": "Sized by links"
+  },
+  "pinned": {
+    "about": "draggable={false} pins every site where the layout put it, for a diagram that goes into a report. Panning, zooming and the focus still work, and the description offers no arrow key.",
+    "label": "Inbound supply network",
+    "prompt": "Select a site to see what it depends on.",
+    "sites": {
+      "bochum": "Paint, Bochum",
+      "eindhoven": "Assembly, Eindhoven",
+      "genk": "Press shop, Genk",
+      "kortrijk": "Seats, Kortrijk",
+      "timisoara": "Wiring, Timișoara",
+      "venlo": "Parts hub, Venlo"
+    },
+    "summary_one": "{{name}}: {{count}} direct link",
+    "summary_other": "{{name}}: {{count}} direct links",
+    "title": "Pinned"
+  },
+  "rail": {
+    "about": "Forty stations and eighty services, laid out from seed 6. The shape reads at a glance and the names read once you zoom in, where the overview map shows which part of the network is in view.",
+    "label": "Intercity rail network",
+    "overview": "Overview of the rail network",
+    "prompt": "Select a station to see where it has direct services.",
+    "summary_one": "{{name}}: {{count}} direct service",
+    "summary_other": "{{name}}: {{count}} direct services",
+    "title": "Forty stations"
+  },
+  "title": "Network graph",
+  "topology": {
+    "about": "The graph opens focused on checkout-api: the services it calls are lit, the rest recede, and the readout counts them. A disc is as large as its weight and a line as wide as its tie. Drag a disc, or move the focused one with the arrow keys, to rearrange the picture.",
+    "caption": "Checkout writes to Kafka and Postgres, which the ledger reads, and nothing calls the fax gateway.",
+    "label": "Service topology",
+    "overview": "Overview of the service topology",
+    "prompt": "Select a service to light up what it talks to.",
+    "summary_one": "{{name}} talks to {{count}} service.",
+    "summary_other": "{{name}} talks to {{count}} services.",
+    "title": "Service topology"
+  },
+  "words": {
+    "clear": "Clear focus",
+    "connected": "Connected",
+    "description": "Press Enter or Space to focus the node, the arrow keys to move it, and Escape to clear the focus.",
+    "edge": "{{source}} and {{target}}",
+    "fixed": "Press Enter or Space to focus the node, and Escape to clear the focus.",
+    "focus": "Focus"
+  },
+  "zoomIn": "Zoom in",
+  "zoomOut": "Zoom out"
+}

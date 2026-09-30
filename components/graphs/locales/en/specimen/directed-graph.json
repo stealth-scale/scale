@@ -1,0 +1,88 @@
+{
+  "about": "A directed graph laid out by rank: focus a node to trace what feeds it and what it feeds, and open or close a branch with the count of what it hides.",
+  "controlled": {
+    "about": "The caller keeps the focus in its own state through focus and onFocusChange, so a search result, a table row or the address can focus a node. A press on a node or the Clear focus control reports the new focus back.",
+    "label": "Order lineage",
+    "none": "Nothing focused",
+    "pick": "Focus a dataset",
+    "title": "Controlled focus"
+  },
+  "controls": "Lineage controls",
+  "empty": {
+    "about": "A graph without a node renders its message in the canvas's place, at the canvas's ratio, without the controls, the readout or the overview.",
+    "label": "Revenue lineage",
+    "message": "No datasets match the filter.",
+    "title": "Empty"
+  },
+  "fit": "Fit the graph in view",
+  "isolate": {
+    "about": "trace=\"isolate\" renders the focused node and the nodes it traced alone, laid out again, and depth={1} follows one hop each way. A warehouse graph runs to thousands of tables, and one hop is enough for most questions.",
+    "label": "Revenue lineage, one hop",
+    "title": "Isolated trace"
+  },
+  "kinds": {
+    "dashboard": "Dashboard",
+    "features": "Feature set",
+    "job": "Scheduled job",
+    "model": "dbt model",
+    "source": "Source"
+  },
+  "lineage": {
+    "about": "The graph opens focused on dim_customer. Each card that feeds it or depends on it states its relation, and the rest recede. Select another node to trace it, and press Escape or Clear focus to drop the trace. The layout moves only when the nodes shown change.",
+    "caption": "Customer dimensions feed the executive overview and the churn features, and the failed events model feeds both.",
+    "exec_overview": "Executive overview",
+    "finance_export": "Finance export",
+    "label": "Revenue lineage",
+    "overview": "Overview of the revenue lineage",
+    "title": "Lineage"
+  },
+  "org": {
+    "about": "treeEdges turns a flat list whose people state their manager into the chart's edges. collapsible gives each manager a control with the number of people it hides or shows, and trace=\"off\" keeps a focus as a selection.",
+    "clear": "Clear selection",
+    "collapse_one": "Hide {{count}} report",
+    "collapse_other": "Hide {{count}} reports",
+    "description": "Press Enter or Space to select the person, and Escape to clear the selection.",
+    "empty": "Nobody to show.",
+    "expand_one": "Show {{count}} report",
+    "expand_other": "Show {{count}} reports",
+    "label": "Organisation chart",
+    "leave": "On leave",
+    "open": "Open role",
+    "prompt": "Select a person to see how many people report to them.",
+    "reports": "Reports",
+    "reportsTo": "Reports to",
+    "summary_one": "{{name}} leads {{count}} person.",
+    "summary_other": "{{name}} leads {{count}} people.",
+    "title": "Org chart"
+  },
+  "people": {
+    "ceo": { "name": "Ada Okonkwo", "title": "Chief executive" },
+    "cfo": { "name": "Priya Raman", "title": "Chief financial officer" },
+    "cpo": { "name": "Mateo Silva", "title": "Chief product officer" },
+    "cto": { "name": "Sven Halvorsen", "title": "Chief technology officer" },
+    "des1": { "name": "Hanna Virtanen", "title": "Head of design" },
+    "eng1": { "name": "Ines Duarte", "title": "Head of platform" },
+    "eng2": { "name": "Tomas Nowak", "title": "Head of product engineering" },
+    "eng3": { "name": "Yuki Tanaka", "title": "Staff engineer" },
+    "eng4": { "name": "Nadia Aslam", "title": "Senior engineer" },
+    "fin1": { "name": "Grace Mbeki", "title": "Financial controller" },
+    "pm1": { "name": "Vacant", "title": "Product manager" }
+  },
+  "status": {
+    "failed": "Failed",
+    "stale": "Stale"
+  },
+  "title": "Directed graph",
+  "words": {
+    "clear": "Clear focus",
+    "description": "Press Enter or Space to trace the dataset, and Escape to clear the trace.",
+    "downstream": "Downstream",
+    "edge": "{{source}} to {{target}}",
+    "focus": "Focus",
+    "prompt": "Select a dataset to trace what feeds it and what depends on it.",
+    "summary": "{{name}}: {{upstream}} upstream, {{downstream}} downstream",
+    "upstream": "Upstream"
+  },
+  "zoomIn": "Zoom in",
+  "zoomOut": "Zoom out"
+}
