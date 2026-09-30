@@ -10,18 +10,13 @@ export function Feed(): ReactElement {
   const { t } = useWords("divider");
 
   return (
-    <Stack gap="md">
+    <Stack gap="lg">
       <Stack gap="xs">
-        <Text size="sm" tone="muted">
-          {t("today")}
-        </Text>
+        <Divider label={t("today")} labelPlacement="start" />
         <Text>{t("paid")}</Text>
       </Stack>
-      <Divider />
       <Stack gap="xs">
-        <Text size="sm" tone="muted">
-          {t("yesterday")}
-        </Text>
+        <Divider label={t("yesterday")} labelPlacement="start" />
         <Text>{t("refunded")}</Text>
       </Stack>
     </Stack>

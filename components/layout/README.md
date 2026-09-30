@@ -176,6 +176,12 @@ softened edge.
 `aria-orientation` from `orientation`, whether the prop or `DividerPropsProvider` sets it. A
 vertical divider stretches to the height of its row.
 
+A divider with a `label` is a `div` with the label between two hairlines. The `div` has no role,
+because a separator's children are presentational and a screen reader would skip the label. The
+lines are `::before` and `::after`, so a screen reader reads the label and no line. `labelPlacement`
+puts the label at the start, the centre or the end. `start` and `end` follow the writing direction
+and drop the line on their side. A vertical divider renders no label.
+
 ```tsx
 import { Divider, Stack } from "@stealthscale/component-layout";
 
@@ -185,11 +191,14 @@ import { Divider, Stack } from "@stealthscale/component-layout";
   <Divider orientation="vertical" />
   <button type="button">Bold</button>
 </Stack>;
+<Divider label="or" />;
+<Divider label="Today" labelPlacement="start" />;
 ```
 
-| Axis          | Values                   | Default      |
-| ------------- | ------------------------ | ------------ |
-| `orientation` | `horizontal`, `vertical` | `horizontal` |
+| Axis             | Values                   | Default      |
+| ---------------- | ------------------------ | ------------ |
+| `orientation`    | `horizontal`, `vertical` | `horizontal` |
+| `labelPlacement` | `start`, `center`, `end` | `center`     |
 
 ## Spacer
 
@@ -217,7 +226,7 @@ import { Spacer, Stack } from "@stealthscale/component-layout";
 | `Grid.ItemProps` | `Grid.Item`: `span` and a `div` element's props                |
 | `ContainerProps` | `Container`: the recipe's variants and a `div` element's props |
 | `FrameProps`     | `Frame`: the recipe's variants and a `div` element's props     |
-| `DividerProps`   | `Divider`: the recipe's variants and an `hr` element's props   |
+| `DividerProps`   | `Divider`: the recipe's variants, `label` and `hr` props       |
 | `SpacerProps`    | `Spacer`: a `div` element's props                              |
 
 Every component except the grid parts has a props provider that sets its variants on every instance

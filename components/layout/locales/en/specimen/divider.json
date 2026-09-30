@@ -1,17 +1,40 @@
 {
-  "about": "Renders a hairline separator across a column or down a row. The element is an `hr` with the separator role.",
+  "about": "Renders a hairline separator across a column or down a row, or a label between two lines. A line is an `hr` with the separator role. A labelled line is a `div`, so a screen reader reads its label as text.",
   "bold": "Bold",
+  "continue": "Continue with email",
+  "email": "Email",
+  "feed": {
+    "about": "The days of an activity feed in a 320px room, each labelled at the start of its line with `labelPlacement=\"start\"`.",
+    "title": "Labelled days"
+  },
   "horizontal": {
-    "about": "Two days of an activity feed in a 320px room, separated by a horizontal divider.",
+    "about": "An order summary in a 320px room. A horizontal divider separates its lines from the total.",
     "title": "Horizontal"
   },
   "italic": "Italic",
+  "labelPlacement": {
+    "about": "`labelPlacement` puts the label at the start, the centre or the end of its line. `start` and `end` follow the writing direction and drop the line on their side.",
+    "title": "Label placement"
+  },
+  "or": "or",
   "paid": "Invoice INV-2041 was paid",
+  "passkey": "Sign in with a passkey",
   "redo": "Redo",
   "refunded": "Charge CH-3188 was refunded",
+  "signIn": {
+    "about": "A sign-in form in a 320px room, where a centred label names the choice between a passkey and an email address.",
+    "title": "Sign in"
+  },
+  "subtotal": "Subtotal",
+  "subtotalAmount": "€240.00",
   "title": "Divider",
   "today": "Today",
+  "total": "Total",
+  "totalAmount": "€290.40",
   "undo": "Undo",
+  "unread": "Unread",
+  "vat": "VAT (21%)",
+  "vatAmount": "€50.40",
   "vertical": {
     "about": "Two groups of toolbar buttons separated by a vertical divider, which stretches to the height of the row and sets `aria-orientation=\"vertical\"`.",
     "title": "Vertical"
