@@ -9,7 +9,7 @@
 import { lint } from "@stealthscale/vite-config";
 import { type Layer, named } from "@stealthscale/vite-config-core";
 
-import { undescribed, unmeasured } from "#examples.ts";
+import { uncapped, undescribed, unmeasured } from "#examples.ts";
 import { SPECIMENS } from "#specimens.ts";
 import { uncounted } from "#uncounted.ts";
 
@@ -20,7 +20,7 @@ import { uncounted } from "#uncounted.ts";
  *   The coverage exclusions duplicate the per-package ones, because the root run counts the files
  *   of every package. Specimen files are exempt from `no-default-export`, the doc comment rules,
  *   `react/only-export-components` and `react/no-multi-comp`. Example files are exempt from the doc
- *   comment rules. Each layer records its reason in `because`.
+ *   comment rules and the dependency cap. Each layer records its reason in `because`.
  * @param files - Specimen globs. Defaults to every `*.specimen.tsx` file in the workspace.
  */
 export function workspace(files: readonly string[] = SPECIMENS): readonly Layer[] {
@@ -55,5 +55,6 @@ export function workspace(files: readonly string[] = SPECIMENS): readonly Layer[
 
     ...unmeasured(),
     undescribed(),
+    uncapped(),
   ];
 }

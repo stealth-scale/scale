@@ -9,8 +9,8 @@ function fieldOf(layer: Layer | undefined, field: "at" | "item"): unknown {
 }
 
 describe("workspace", () => {
-  it("returns seven layers for the workspace root", () => {
-    expect(workspace()).toHaveLength(7);
+  it("returns eight layers for the workspace root", () => {
+    expect(workspace()).toHaveLength(8);
   });
 
   it("prefixes every layer name with specimen.", () => {
@@ -26,6 +26,7 @@ describe("workspace", () => {
       "specimen.composed",
       "specimen.example.uncounted(**/*.example.tsx)",
       "specimen.example.undocumented",
+      "specimen.example.composed",
     ]);
   });
 
