@@ -52,12 +52,25 @@
     "test": "vp test"
   },
   "dependencies": {
+    "@stealthscale/component-a11y": "workspace:^",
     "@stealthscale/component-actions": "workspace:^",
-    "@tanstack/highlight": "catalog:"
+    "@stealthscale/component-collections": "workspace:^",
+    "@stealthscale/component-feedback": "workspace:^",
+    "@stealthscale/component-layout": "workspace:^",
+    "@stealthscale/component-navigation": "workspace:^",
+    "@stealthscale/component-typography": "workspace:^",
+    "@tanstack/highlight": "catalog:",
+    "@tanstack/markdown": "catalog:",
+    "@zag-js/json-tree-utils": "catalog:",
+    "@zag-js/marquee": "catalog:",
+    "@zag-js/react": "catalog:",
+    "@zag-js/types": "catalog:",
+    "diff": "catalog:"
   },
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
     "@rolldown/plugin-babel": "catalog:",
+    "@stealthscale/component-primitives": "workspace:^",
     "@stealthscale/hooks": "workspace:^",
     "@stealthscale/theme": "workspace:^",
     "@stealthscale/vite-config": "workspace:^",
@@ -80,6 +93,7 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
+    "@stealthscale/component-primitives": "workspace:^",
     "@stealthscale/hooks": "workspace:^",
     "@stealthscale/theme": "workspace:^",
     "react": "catalog:"

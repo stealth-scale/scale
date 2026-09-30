@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { violations } from "@stealthscale/testing-react";
 import { boundViolations, slotElement } from "@stealthscale/testing-theme";
 
-import { coded } from "#code-block/code-block.fixtures.tsx";
+import { coded, composed } from "#code-block/code-block.fixtures.tsx";
 import { recipe } from "#code-block/recipe.ts";
 import { Title } from "#code-block/title.ts";
 
@@ -43,5 +43,13 @@ describe("Title", () => {
     const { container } = render(coded(<Title as="span">button.tsx</Title>));
 
     expect(slotElement(container, "code-block", "title").tagName).toBe("SPAN");
+  });
+
+  it("names the code's region while it renders", () => {
+    const { container } = render(composed());
+
+    expect(slotElement(container, "code-block", "viewport").getAttribute("aria-labelledby")).toBe(
+      slotElement(container, "code-block", "title").id,
+    );
   });
 });

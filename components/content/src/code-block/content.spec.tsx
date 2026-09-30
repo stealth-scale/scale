@@ -1,18 +1,17 @@
-import { render } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, expectTypeOf, it } from "vitest";
 
 import { violations } from "@stealthscale/testing-react";
 import { boundViolations, slotElement } from "@stealthscale/testing-theme";
 
-import { coded } from "#code-block/code-block.fixtures.tsx";
-import { Content } from "#code-block/content.ts";
+import { coded, composed } from "#code-block/code-block.fixtures.tsx";
+import { Content, type ContentProps } from "#code-block/content.ts";
 import { recipe } from "#code-block/recipe.ts";
 
 describe("Content", () => {
-  it("satisfies the component contract with pre as its default element", () => {
+  it("satisfies the component contract with pre as its element", () => {
     expect(
       violations(Content, {
-        as: true,
         children: true,
         element: "PRE",
         subject: (container) => slotElement(container, "code-block", "content"),
@@ -29,21 +28,64 @@ describe("Content", () => {
     ).toStrictEqual([]);
   });
 
-  it("renders the content slot as div when as is div", () => {
-    const { container } = render(coded(<Content as="div" />));
-
-    expect(slotElement(container, "code-block", "content").tagName).toBe("DIV");
+  it("omits as from its props", () => {
+    expectTypeOf<ContentProps>().not.toHaveProperty("as");
+    expect(Content).toBeDefined();
   });
 
-  it("sets tabIndex to 0 when none is passed", () => {
+  it("renders the pre as the scroll area's content", () => {
     const { container } = render(coded(<Content />));
 
-    expect(slotElement(container, "code-block", "content").tabIndex).toBe(0);
+    expect(slotElement(container, "code-block", "content").className).toContain(
+      "scroll-area__content",
+    );
   });
 
-  it("keeps the tabIndex the caller passes", () => {
-    const { container } = render(coded(<Content tabIndex={-1} />));
+  it("renders the pre inside the scroll area's viewport", () => {
+    const { container } = render(coded(<Content />));
 
-    expect(slotElement(container, "code-block", "content").tabIndex).toBe(-1);
+    expect(slotElement(container, "code-block", "content").parentElement).toBe(
+      slotElement(container, "code-block", "viewport"),
+    );
+  });
+
+  it("lets a long line grow past the viewport", () => {
+    const { container } = render(coded(<Content />));
+
+    expect(slotElement(container, "code-block", "content").className).toContain(
+      "scroll-area__content--horizontal",
+    );
+  });
+
+  it("scrolls the code sideways", () => {
+    const { container } = render(coded(<Content />));
+
+    expect(slotElement(container, "scroll-area", "scrollbar").dataset["orientation"]).toBe(
+      "horizontal",
+    );
+  });
+
+  it("names the region by the title while one renders", () => {
+    const { container } = render(composed());
+
+    expect(slotElement(container, "code-block", "viewport").getAttribute("aria-labelledby")).toBe(
+      screen.getByText("button.tsx").id,
+    );
+  });
+
+  it("names the region by label without a title", () => {
+    const { container } = render(coded(<Content label="Manifest" />));
+
+    expect(slotElement(container, "code-block", "viewport").getAttribute("aria-label")).toBe(
+      "Manifest",
+    );
+  });
+
+  it("names the region Code by default", () => {
+    const { container } = render(coded(<Content />));
+
+    expect(slotElement(container, "code-block", "viewport").getAttribute("aria-label")).toBe(
+      "Code",
+    );
   });
 });

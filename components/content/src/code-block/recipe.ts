@@ -8,7 +8,8 @@
  *   the theme's `code` family. Finer highlighter kinds map to that set: a literal takes the number
  *   ink, a property the attribute ink, a selector the type ink, and meta the comment ink. The
  *   recipe has no `palette` axis, because the inks come from the `code` family, and no `effect`
- *   axis, because a code block is running content and not a surface that asks for attention.
+ *   axis, because a code block is running content and not a surface that asks for attention. The
+ *   slots of a diff take their styles from `diff-styles.ts` and the code's inks.
  */
 
 import {
@@ -20,10 +21,17 @@ import {
   type SystemStyleObject,
 } from "@stealthscale/theme/authoring";
 
+import { DIFF } from "#code-block/diff-styles.ts";
+
 /**
  * Lists the sizes the block offers, which match the theme's code text styles.
  */
 const STEPS = ["sm", "md"] as const;
+
+/**
+ * Custom property the scroll area's root reads for the style of its focus ring.
+ */
+const RING_STYLE = "--scroll-area-ring-style";
 
 /**
  * Maps each token kind to its ink, keyed on the attribute the code part writes.
@@ -53,6 +61,7 @@ const INKS: SystemStyleObject = {
  */
 export const recipe = defineSlotRecipe({
   base: {
+    ...DIFF,
     /**
      * The code is as wide as its longest line and never narrower than the scrolling region, so its
      * box contains every line and the region scrolls it.
@@ -66,11 +75,12 @@ export const recipe = defineSlotRecipe({
       whiteSpace: "pre",
     },
     /**
-     * The scrolling region renders no outline of its own. The root renders the ring while the
-     * region has focus.
+     * The `pre` inside the scroll area. Its padding is the code's inset, which scrolls with the
+     * code.
      */
-    content: { _focusVisible: { outlineStyle: "none" }, margin: "0", overflowX: "auto" },
+    content: { margin: "0" },
     control: { alignItems: "center", display: "flex", flexShrink: "0" },
+    diff: { ...DIFF.diff, ...INKS },
     header: {
       alignItems: "center",
       display: "flex",
@@ -80,11 +90,11 @@ export const recipe = defineSlotRecipe({
      * The root renders the focus ring outside the panel while the scrolling region has focus.
      *
      * @remarks
-     *   The root clips its content, and Firefox clips an outline on a scroll container to its top
-     *   edge, so an outline on the region itself shows as one line.
+     *   The root clips its content, so a ring on the scroll area inside it would be cut off. The
+     *   root sets the scroll area's ring style to `none` and renders the ring itself.
      */
     root: {
-      "&:has(.code-block__content:focus-visible)": {
+      "&:has(.code-block__viewport:focus-visible)": {
         outlineColor: "colorPalette.focusRing",
         outlineOffset: "ring",
         outlineStyle: "solid",
@@ -97,6 +107,7 @@ export const recipe = defineSlotRecipe({
       color: "fg",
       colorPalette: "neutral",
       overflow: "hidden",
+      [RING_STYLE]: "none",
     },
     title: {
       color: "fg.muted",
@@ -109,7 +120,25 @@ export const recipe = defineSlotRecipe({
   className: "code-block",
   defaultVariants: { size: "md" },
   jsx: [/^CodeBlock(\.\w+)?$/u],
-  slots: ["root", "header", "title", "control", "content", "code"],
+  slots: [
+    "root",
+    "header",
+    "title",
+    "control",
+    "viewport",
+    "content",
+    "code",
+    "diff",
+    "line",
+    "number",
+    "mark",
+    "text",
+    "change",
+    "fold",
+    "filler",
+    "empty",
+    "stat",
+  ],
   variants: {
     /**
      * Code text style, content inset and header spacing, with the title one size smaller than the
@@ -118,6 +147,21 @@ export const recipe = defineSlotRecipe({
     size: onSlots({
       code: sizeVariants((size) => ({ textStyle: `code.${size}` }), STEPS),
       content: sizeVariants((size) => ({ padding: dense(`{spacing.inset.${size}}`) }), STEPS),
+      diff: sizeVariants((size) => ({ textStyle: `code.${size}` }), STEPS),
+      empty: sizeVariants(
+        (size) => ({
+          paddingBlock: dense(`{spacing.gap.${below(size)}}`),
+          textStyle: `label.${below(size)}`,
+        }),
+        STEPS,
+      ),
+      fold: sizeVariants(
+        (size) => ({
+          paddingBlock: dense(`{spacing.gap.${below(size)}}`),
+          textStyle: `label.${below(size)}`,
+        }),
+        STEPS,
+      ),
       header: sizeVariants(
         (size) => ({
           gap: dense(`{spacing.gap.${size}}`),
@@ -127,6 +171,7 @@ export const recipe = defineSlotRecipe({
         }),
         STEPS,
       ),
+      stat: sizeVariants((size) => ({ textStyle: `label.${below(size)}` }), STEPS),
       title: sizeVariants((size) => ({ textStyle: `label.${below(size)}` }), STEPS),
     }),
   },

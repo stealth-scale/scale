@@ -23,15 +23,48 @@ describe("recipe", () => {
     expect(recipe.className).toBe("code-block");
   });
 
-  it("declares six slots", () => {
+  it("declares seventeen slots", () => {
     expect([...recipe.slots].toSorted()).toStrictEqual([
+      "change",
       "code",
       "content",
       "control",
+      "diff",
+      "empty",
+      "filler",
+      "fold",
       "header",
+      "line",
+      "mark",
+      "number",
       "root",
+      "stat",
+      "text",
       "title",
+      "viewport",
     ]);
+  });
+
+  it("sets the diff in the code text style at md", () => {
+    expect(recipe.variants?.["size"]?.["md"]).toMatchObject({ diff: { textStyle: "code.md" } });
+  });
+
+  it.each(["empty", "fold", "stat"] as const)(
+    "sets the %s slot one size smaller than the code at md",
+    (slot) => {
+      expect(recipe.variants?.["size"]?.["md"]?.[slot]).toMatchObject({ textStyle: "label.sm" });
+    },
+  );
+
+  it("colours a token kind on the diff slot from the code family", () => {
+    expect(recipe.base?.["diff"]).toMatchObject({
+      "& [data-token=keyword]": { color: "code.keyword" },
+      "& [data-token=string]": { color: "code.string" },
+    });
+  });
+
+  it("merges the styles of every diff slot into its base", () => {
+    expect(recipe.base?.["line"]).toMatchObject({ display: "flex", whiteSpace: "pre" });
   });
 
   it("declares size as its only variant", () => {
@@ -85,13 +118,13 @@ describe("recipe", () => {
     });
   });
 
-  it("sets overflowX to auto on the content slot", () => {
-    expect(recipe.base?.["content"]).toMatchObject({ overflowX: "auto" });
+  it("leaves the scrolling to the scroll area around the content slot", () => {
+    expect(recipe.base?.["content"]).toStrictEqual({ margin: "0" });
   });
 
-  it("draws the focus ring on the root while the content slot is focused", () => {
+  it("renders the focus ring on the root while the viewport is focused", () => {
     expect(recipe.base?.["root"]).toMatchObject({
-      "&:has(.code-block__content:focus-visible)": {
+      "&:has(.code-block__viewport:focus-visible)": {
         outlineColor: "colorPalette.focusRing",
         outlineOffset: "ring",
         outlineStyle: "solid",
@@ -100,8 +133,8 @@ describe("recipe", () => {
     });
   });
 
-  it("removes the outline of the focused content slot", () => {
-    expect(recipe.base?.["content"]).toMatchObject({ _focusVisible: { outlineStyle: "none" } });
+  it("hides the scroll area's own focus ring", () => {
+    expect(recipe.base?.["root"]).toMatchObject({ "--scroll-area-ring-style": "none" });
   });
 
   it("matches CodeBlock and its dotted parts with its jsx pattern", () => {

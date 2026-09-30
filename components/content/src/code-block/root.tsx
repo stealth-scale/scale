@@ -5,15 +5,19 @@
  *   The element is a `div` with no role. The `pre` inside it is announced as preformatted text, and
  *   each control names itself. The panel sets the theme's colour mode attribute to `dark` by
  *   default, so a block renders the same on a light page and a dark one. `mode="light"` sets it to
- *   light, and `mode="inherit"` omits the attribute so the panel follows the page.
+ *   light, and `mode="inherit"` omits the attribute so the panel follows the page. The root gives
+ *   the title an ID and records whether a title renders, so the scrolling region of the code is
+ *   named by the title while one renders. With `before`, the root compares the earlier version to
+ *   the code once, and `CodeBlock.Diff` and `CodeBlock.DiffStat` render the result.
  */
 
-import { type ComponentProps, type ReactElement, useMemo } from "react";
+import { type ComponentProps, type ReactElement, useId, useMemo, useState } from "react";
 
 import { COLOR_MODE_ATTRIBUTE } from "@stealthscale/theme";
 
+import { changesOf } from "#code-block/changes.ts";
 import { withProvider } from "#code-block/context.ts";
-import { CodeProvider } from "#code-block/state.ts";
+import { CodeProvider, LabellingProvider } from "#code-block/state.ts";
 
 /**
  * Renders the root slot and resolves the variants for the parts below it.
@@ -31,7 +35,12 @@ export type CodeBlockMode = "dark" | "inherit" | "light";
  */
 export interface RootProps extends ComponentProps<typeof Panelled> {
   /**
-   * Source text, rendered exactly as given.
+   * Earlier version of the code, which `CodeBlock.Diff` compares the code against.
+   */
+  readonly before?: string | undefined;
+
+  /**
+   * Source text, rendered exactly as given, and the later version of a diff.
    */
   readonly code: string;
 
@@ -52,12 +61,23 @@ export interface RootProps extends ComponentProps<typeof Panelled> {
 /**
  * Renders the panel and provides the code and the language to its parts.
  */
-export function Root({ code, language, mode = "dark", ...rest }: RootProps): ReactElement {
-  const state = useMemo(() => ({ code, language }), [code, language]);
+export function Root({ before, code, language, mode = "dark", ...rest }: RootProps): ReactElement {
+  const titleId = useId();
+  const [titled, setTitled] = useState(false);
+  const changes = useMemo(
+    () => (before === undefined ? undefined : changesOf(before, code)),
+    [before, code],
+  );
+  const state = useMemo(
+    () => ({ before, changes, code, language, titled, titleId }),
+    [before, changes, code, language, titled, titleId],
+  );
 
   return (
-    <CodeProvider value={state}>
-      <Panelled {...rest} {...(mode === "inherit" ? {} : { [COLOR_MODE_ATTRIBUTE]: mode })} />
-    </CodeProvider>
+    <LabellingProvider value={setTitled}>
+      <CodeProvider value={state}>
+        <Panelled {...rest} {...(mode === "inherit" ? {} : { [COLOR_MODE_ATTRIBUTE]: mode })} />
+      </CodeProvider>
+    </LabellingProvider>
   );
 }

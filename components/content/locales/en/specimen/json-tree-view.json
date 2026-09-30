@@ -1,0 +1,46 @@
+{
+  "about": "A JSON value as a tree of keys and values. Each kind of value has its own code ink, a collapsed branch previews its first entries, and an open branch ends with its closing brace on a row of its own.",
+  "depth": {
+    "about": "`defaultExpandedDepth` opens every branch down to a level on the first render. The value's own row is level 1, so 1 lists the keys and 3 opens each region and its zones.",
+    "label": "Deployment",
+    "title": "Opening depth"
+  },
+  "links": {
+    "about": "`getHref` returns an address for a leaf, and the row renders as a link to it. Each ID opens its record's page. A link row is part of the tree's roving focus, so one press of Tab leaves the tree.",
+    "label": "Charge",
+    "title": "Links"
+  },
+  "log": {
+    "about": "A log line as a structured logger writes it, with the error it caught. A `stack` string renders one frame per line.",
+    "label": "Log line",
+    "title": "A log line"
+  },
+  "previews": {
+    "about": "`maxPreviewItems` sets how many entries a collapsed branch lists, and `groupArraysAfterLength` splits a long array into branches of that length. The 120 events open as three groups of up to 50, each listing two entries.",
+    "label": "Event feed",
+    "title": "Previews"
+  },
+  "quoted": {
+    "about": "`quotesOnKeys` writes each key in quotes, as the JSON file writes it.",
+    "label": "Package manifest",
+    "title": "Quoted keys"
+  },
+  "response": {
+    "label": "Payout response"
+  },
+  "secrets": {
+    "about": "`renderValue` replaces a leaf's value, which keeps its type's ink. The configuration masks each key and secret down to its prefix and its last four characters.",
+    "label": "Service configuration",
+    "title": "Masked values"
+  },
+  "size": {
+    "about": "Both steps of the code text style. The rows measure 24 and 32px, the tree view's `sm` and `md` rows.",
+    "title": "Sizes"
+  },
+  "title": "JSON tree view",
+  "types": {
+    "about": "One value of every type the tree renders: a string, a number, a bigint, a boolean, `null`, `undefined`, a date, a regular expression, a function, a map, a set, an error, a class instance, a typed array, a symbol and a URL. The error's message is in the error ink. `showNonenumerable` is off, so the function's source is not listed.",
+    "label": "Values of every type",
+    "title": "Types"
+  }
+}

@@ -3,12 +3,14 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#code-block/index.ts";
 
 describe("index", () => {
-  it("limits its runtime exports to the seven parts", () => {
+  it("limits its runtime exports to the nine parts", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Code",
       "Content",
       "Control",
       "Copy",
+      "Diff",
+      "DiffStat",
       "Header",
       "Root",
       "Title",

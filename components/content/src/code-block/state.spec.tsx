@@ -21,7 +21,16 @@ function Reader(): ReactElement {
 describe("useCode", () => {
   it("returns the code and the language the provider was given", () => {
     render(
-      <CodeProvider value={{ code: "const a = 1;", language: "ts" }}>
+      <CodeProvider
+        value={{
+          before: undefined,
+          changes: undefined,
+          code: "const a = 1;",
+          language: "ts",
+          titled: false,
+          titleId: "t",
+        }}
+      >
         <Reader />
       </CodeProvider>,
     );

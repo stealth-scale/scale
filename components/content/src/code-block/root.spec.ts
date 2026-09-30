@@ -1,12 +1,13 @@
-import { render } from "@testing-library/react";
+import { render, renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { accessibilityViolations, violations } from "@stealthscale/testing-react";
 import { boundViolations, slotElement } from "@stealthscale/testing-theme";
 
-import { composed, SOURCE } from "#code-block/code-block.fixtures.tsx";
+import { coded, composed, diffed, SOURCE } from "#code-block/code-block.fixtures.tsx";
 import { recipe } from "#code-block/recipe.ts";
 import { Root } from "#code-block/root.tsx";
+import { useCode } from "#code-block/state.ts";
 
 describe("Root", () => {
   it("satisfies the component contract with div as its default element", () => {
@@ -53,5 +54,30 @@ describe("Root", () => {
     const { container } = render(composed({ as: "section" }));
 
     expect(slotElement(container, "code-block", "root").tagName).toBe("SECTION");
+  });
+
+  it("provides the lines of the diff from before to the code", () => {
+    const { result } = renderHook(() => useCode(), { wrapper: ({ children }) => diffed(children) });
+
+    expect(
+      result.current.changes?.map((line) => line.kind).filter((kind) => kind !== "context"),
+    ).toStrictEqual(["removed", "added", "removed", "added"]);
+  });
+
+  it("provides no changes without before", () => {
+    const { result } = renderHook(() => useCode(), { wrapper: ({ children }) => coded(children) });
+
+    expect(result.current.changes).toBeUndefined();
+  });
+
+  it("returns the same changes on a render with the same before and code", () => {
+    const { rerender, result } = renderHook(() => useCode(), {
+      wrapper: ({ children }) => diffed(children),
+    });
+    const first = result.current.changes;
+
+    rerender();
+
+    expect(result.current.changes).toBe(first);
   });
 });
