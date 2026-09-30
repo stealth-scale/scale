@@ -165,15 +165,20 @@ function droppedOf(program: Program, members: readonly Named[], home: Home): Dro
 }
 
 /**
- * Returns true when a `*Props` type belongs to a part the module also exports as a value.
+ * Returns true when a `*Props` type belongs to a part or a factory the module also exports as a
+ * value.
  *
  * @remarks
- *   `RootProps` beside `Root` is a part. `RootBaseProps`, which the root's own props type is built
- *   from, is not.
+ *   `RootProps` beside `Root` is a part, and `CreateOverlayProps` beside `createOverlay` is the
+ *   props the factory passes to the component it is given. `RootBaseProps`, which the root's own
+ *   props type is built from, is not.
  */
 function partOf(module: Named, exported: Named, walk: Walk): boolean {
   const { alias, value } = walk.enumerated;
-  const named = walk.checker.getMemberInModuleExports(module, exported.name.slice(0, -5));
+  const stem = exported.name.slice(0, -5);
+  const named =
+    walk.checker.getMemberInModuleExports(module, stem) ??
+    walk.checker.getMemberInModuleExports(module, stem.charAt(0).toLowerCase() + stem.slice(1));
 
   if (named === undefined) return false;
 
@@ -227,8 +232,9 @@ export interface Driving {
  *
  * @remarks
  *   A part is a `*Props` type exported by a module the specimen imports from its own package,
- *   beside the part it is named after. The specimen already names what it draws, so nothing here
- *   guesses from a title, and a module from another package is that package's to document.
+ *   beside the part or the factory it is named after. The specimen already names what it draws, so
+ *   nothing here guesses from a title, and a module from another package is that package's to
+ *   document.
  */
 export function anatomyOf(project: Project, specimen: string, driving: Driving): Anatomy {
   const { checker, program } = project;

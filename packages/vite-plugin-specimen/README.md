@@ -89,8 +89,9 @@ const { dropped, parts, shapes } = await import("virtual:specimen-props/data/bad
 Left out, no page carries props and no compiler starts, so an installation without TypeScript still
 indexes. Stated, the first page opened starts a compiler, and the pages after it reuse that one.
 
-A part is a `*Props` type a module exports beside the part it is named after, from the specimen's
-own package. The reader resolves that type to its properties and classifies each one by every
+A part is a `*Props` type that a module in the specimen's own package exports beside the value it is
+named after: `RootProps` beside the part `Root`, or `CreateOverlayProps` beside the factory
+`createOverlay`. The reader resolves that type to its properties and classifies each one by every
 declaration behind it:
 
 | Where a property is declared                                        | What it is                               |

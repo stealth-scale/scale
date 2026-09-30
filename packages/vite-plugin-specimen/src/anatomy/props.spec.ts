@@ -52,6 +52,12 @@ describe("props", () => {
     expect(held.parts).not.toHaveProperty("StyleProps");
   });
 
+  it("reads the props a factory passes as a part named after the factory", async () => {
+    const held = await read("src/overlay/overlay.specimen.tsx");
+
+    expect(Object.keys(held.parts)).toStrictEqual(["CreateOverlayProps"]);
+  });
+
   it("reads a part through a module that re-exports it", async () => {
     const held = await read("src/parts.specimen.tsx");
 

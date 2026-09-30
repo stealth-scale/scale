@@ -185,6 +185,19 @@ const OTHER = [
 ].join("\n");
 
 /**
+ * A factory and the props it passes to the component it is given, named after the factory.
+ */
+const FACTORY = [
+  "export interface CreateOverlayProps {",
+  "  /** Closes it. */",
+  "  close: () => void;",
+  "}",
+  "",
+  "export function createOverlay(): void {}",
+  "",
+].join("\n");
+
+/**
  * The compiler options the kit is read under.
  */
 const CONFIG = JSON.stringify({
@@ -233,6 +246,13 @@ export function kit(): Readonly<Record<string, string>> {
     "src/badge/badge.ts": BADGE,
     "src/badge/recipe.ts": RECIPE,
     "src/other/other.ts": OTHER,
+    "src/overlay/overlay.specimen.tsx": [
+      'import { type CreateOverlayProps } from "#overlay/overlay.ts";',
+      "",
+      'export default specimen({ id: "overlay", scenes: [] });',
+      "",
+    ].join("\n"),
+    "src/overlay/overlay.ts": FACTORY,
     "src/parts.specimen.tsx": [
       'import { absent } from "@kit/absent";',
       "",
