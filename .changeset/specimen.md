@@ -18,5 +18,5 @@
 - Order `2xs` before `xs` in `valuesOf`.
 - Scroll a two-axis `Matrix` and a device stage in `ScrollArea`.
 - Set `iframes: false` in `RULES`.
-- Title the charts, media and graphs groups.
+- Title the charts, media, graphs and tables groups.
 - Peer on `@stealthscale/component-primitives`.

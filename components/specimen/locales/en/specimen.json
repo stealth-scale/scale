@@ -112,6 +112,10 @@
       "about": "The raised and bordered boxes that group what sits on them.",
       "title": "Surfaces"
     },
+    "tables": {
+      "about": "Tables of records a reader sorts, filters, pages, pins and resizes.",
+      "title": "Tables"
+    },
     "typography": {
       "about": "The words themselves: the scale they are set at, and every mark that changes how one is read.",
       "title": "Typography"
