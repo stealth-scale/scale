@@ -29,8 +29,8 @@ describe("TriggerItem", () => {
   });
 
   it("sets aria-controls to the submenu's id", async () => {
-    const { container } = await drawn(nested({ defaultOpen: true }));
-    const panels = [...container.querySelectorAll("[data-part=content]")];
+    const { container } = await drawn(nested({ defaultOpen: true }, { lazyMount: false }));
+    const panels = [...container.querySelectorAll("[data-scope=menu][data-part=content]")];
 
     expect(screen.getByRole("menuitem", { name: "Share" }).getAttribute("aria-controls")).toBe(
       panels[1]?.id,

@@ -12,7 +12,12 @@ import { useId } from "react";
 import { normalizeProps, useMachine } from "@zag-js/react";
 import * as tooltip from "@zag-js/tooltip";
 
-import { createRequiredContext, omitUndefined, splitEnumerable } from "@stealthscale/hooks";
+import {
+  createRequiredContext,
+  omitUndefined,
+  type Presence,
+  splitEnumerable,
+} from "@stealthscale/hooks";
 
 /**
  * Describes the api `tooltip.connect` returns: a prop getter per part plus the machine's state and
@@ -36,6 +41,12 @@ export type TooltipOptions = Partial<tooltip.Props>;
  *   `useTooltip` throws when no `Tooltip.Root` is mounted above the calling part.
  */
 export const [ApiProvider, useTooltip] = createRequiredContext<TooltipApi>("Tooltip");
+
+/**
+ * Creates the context through which the root provides the content's presence to the positioner
+ * and the content.
+ */
+export const [PresenceProvider, useTipPresence] = createRequiredContext<Presence>("Tooltip");
 
 /**
  * Splits the root's props into machine settings and element props.

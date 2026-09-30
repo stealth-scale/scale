@@ -79,6 +79,15 @@ describe("recipe", () => {
     });
   });
 
+  it("outlines the subtle box in CanvasText under forced colors", () => {
+    expect(recipe.variants?.["variant"]?.["subtle"]?.["root"]?.["_highContrast"]).toStrictEqual({
+      outlineColor: "CanvasText",
+      outlineOffset: "calc({borderWidths.hairline} * -1)",
+      outlineStyle: "solid",
+      outlineWidth: "hairline",
+    });
+  });
+
   it("declares three motions", () => {
     expect(valuesOf(recipe, "motion")).toStrictEqual(["fade", "none", "slide"]);
   });

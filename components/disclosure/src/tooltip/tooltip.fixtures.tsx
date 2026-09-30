@@ -1,5 +1,5 @@
 /**
- * Fixtures for the tooltip specs: a root around one part and a whole tooltip.
+ * Fixtures for the tooltip specs: a closed root around a part and a whole tooltip.
  */
 
 import { type ReactElement, type ReactNode } from "react";

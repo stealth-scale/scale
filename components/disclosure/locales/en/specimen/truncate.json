@@ -1,0 +1,31 @@
+{
+  "about": "Truncate clips text to a number of lines with an ellipsis, and shows the whole text in a tooltip only while something is cut off. The text is measured, so the tooltip goes away when the box grows. A clamp clips the paint and not the document, so a screen reader reads the whole text once.",
+  "description": {
+    "text": "Barge NL-2291 left Rotterdam Maasvlakte II at 04:15 for Duisburg Ruhrort. At Emmerich am Rhein a customs count found two seals broken and one container declared for a consignee that closed in March, so the load goes back down the Rhine to the terminal that loaded it."
+  },
+  "fits": {
+    "about": "The same component around text that fits: no tooltip, no tab stop and no mark, because a tooltip that repeats text already on the page adds nothing.",
+    "name": "Duisburg Ruhrort",
+    "title": "Text that fits"
+  },
+  "lines": {
+    "about": "One description at 1, 2 and 3 lines in one narrow room. Every one of them clips, so every one shows the whole text in a tooltip under the pointer.",
+    "title": "Lines"
+  },
+  "notes": {
+    "about": "A clipped note takes a tab stop because focusable is set, and keyboard focus opens its tooltip. The delivered note fits, so Tab skips it.",
+    "items": {
+      "delivered": "Delivered to the dock",
+      "held": "Held at Emmerich am Rhein for a customs count that found two seals broken on the upper tier",
+      "rerouted": "Rerouted through Nijmegen after the lock at Weurt closed for repairs until Thursday morning"
+    },
+    "title": "Reachable by keyboard"
+  },
+  "shipment": {
+    "about": "Clipped text on a row beside a badge that does not shrink. The text takes the room the badge leaves and clips there, in place of pushing the badge off the row.",
+    "note": "Barge NL-2291 held at Emmerich am Rhein for a customs count after two seals were found broken on the upper tier",
+    "status": "Held",
+    "title": "Beside something fixed"
+  },
+  "title": "Truncate"
+}

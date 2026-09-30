@@ -121,6 +121,10 @@ export const recipe = defineSlotRecipe({
     /**
      * Surface of the panel: the popover surface inside a hairline edge, the panel surface with a
      * large shadow, or the glass layer style.
+     *
+     * @remarks
+     *   The elevated panel has a transparent hairline edge, which forced colors paint in
+     *   `CanvasText`, so the panel keeps its outline where the shadow is not drawn.
      */
     variant: {
       elevated: {
@@ -128,7 +132,10 @@ export const recipe = defineSlotRecipe({
         content: {
           "--popover-surface": "colors.bg.panel",
           background: "var(--popover-surface)",
+          borderColor: "transparent",
           borderRadius: "l3",
+          borderStyle: "solid",
+          borderWidth: "hairline",
           boxShadow: "xl",
         },
       },

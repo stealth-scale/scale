@@ -202,16 +202,17 @@ export function kept(props: RootProps = {}): ReactElement {
  * Renders a menu with a submenu between two rows.
  *
  * @param props - The outer root's props.
+ * @param submenu - The submenu root's props.
  * @returns The outer menu, with the submenu inside its content.
  */
-export function nested(props: RootProps = {}): ReactElement {
+export function nested(props: RootProps = {}, submenu: RootProps = {}): ReactElement {
   return (
     <Root {...props}>
       <Trigger>File</Trigger>
       <Positioner>
         <Content>
           <Item value="new">New</Item>
-          <Root>
+          <Root {...submenu}>
             <TriggerItem>Share</TriggerItem>
             <Positioner>
               <Content>

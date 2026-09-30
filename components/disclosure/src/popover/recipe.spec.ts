@@ -84,6 +84,14 @@ describe("recipe", () => {
     });
   });
 
+  it("gives the elevated panel a transparent hairline edge", () => {
+    expect(recipe.variants?.["variant"]?.["elevated"]?.["content"]).toMatchObject({
+      borderColor: "transparent",
+      borderStyle: "solid",
+      borderWidth: "hairline",
+    });
+  });
+
   it("scales the panel from --transform-origin", () => {
     expect(recipe.base?.["content"]).toMatchObject({
       transformOrigin: "var(--transform-origin)",

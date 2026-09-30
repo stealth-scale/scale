@@ -4,8 +4,9 @@
  * @remarks
  *   The root starts one machine and every part reads its api from context, so the trigger, the
  *   positioner and the content report the same state. The machine derives the ids of the content,
- *   the title and the description from `id`, and points the content's `aria-labelledby` and
- *   `aria-describedby` at the last two.
+ *   the title and the description from `id`. It looks for the title and the description once, a
+ *   frame after it starts, while a panel that mounts on opening has neither, so the title and the
+ *   description report themselves to the root and the content names the panel from those reports.
  */
 
 import { useId } from "react";
@@ -13,7 +14,13 @@ import { useId } from "react";
 import * as popover from "@zag-js/popover";
 import { normalizeProps, useMachine } from "@zag-js/react";
 
-import { createRequiredContext, omitUndefined, splitEnumerable } from "@stealthscale/hooks";
+import {
+  createLabelling,
+  createRequiredContext,
+  omitUndefined,
+  type Presence,
+  splitEnumerable,
+} from "@stealthscale/hooks";
 
 import { dismissNested } from "#nesting.ts";
 
@@ -43,6 +50,42 @@ export type PopoverOptions = Omit<Partial<popover.Props>, "translations">;
  *   `usePopover` throws when no `Popover.Root` is mounted above the calling part.
  */
 export const [ApiProvider, usePopover] = createRequiredContext<PopoverApi>("Popover");
+
+/**
+ * Creates the context through which the root provides the panel's presence to the positioner and
+ * the content.
+ */
+export const [PresenceProvider, usePanelPresence] = createRequiredContext<Presence>("Popover");
+
+/**
+ * Creates the context through which a mounted title reports itself to the root.
+ */
+export const [TitleLabelling, useTitled] = createLabelling("Popover");
+
+/**
+ * Creates the context through which a mounted description reports itself to the root.
+ */
+export const [DescriptionLabelling, useDescribed] = createLabelling("Popover");
+
+/**
+ * Describes which of the parts that name the panel are mounted.
+ */
+export interface Naming {
+  /**
+   * Whether a description is mounted.
+   */
+  readonly described: boolean;
+
+  /**
+   * Whether a title is mounted.
+   */
+  readonly titled: boolean;
+}
+
+/**
+ * Creates the context through which the root tells the content which naming parts are mounted.
+ */
+export const [NamingProvider, useNaming] = createRequiredContext<Naming>("Popover");
 
 /**
  * Splits the root's props into machine settings and element props, without `translations`.

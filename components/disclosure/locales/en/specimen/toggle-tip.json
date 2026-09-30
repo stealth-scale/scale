@@ -1,0 +1,47 @@
+{
+  "about": "Opens a short note beside its trigger on a press, and closes it on a second press, Escape or a press outside. It looks like a tooltip and opens like a popover, so it works on a touch screen and can contain a link. The trigger keeps focus, and a screen reader hears the note as it opens.",
+  "definition": {
+    "label": "Chargeback",
+    "tip": "A payment the cardholder's bank takes back after a dispute.",
+    "trigger": "About chargebacks"
+  },
+  "fees": {
+    "about": "Three fees in a data list, each with a note beside its name. Each note is a toggle tip of its own, and the buttons take their size and look from one `ButtonPropsProvider`.",
+    "conversion": {
+      "label": "Currency conversion",
+      "tip": "Charged on a payout in another currency.",
+      "trigger": "About currency conversion",
+      "value": "1%"
+    },
+    "payout": {
+      "label": "Payout fee",
+      "tip": "Charged once for each payout to your bank.",
+      "trigger": "About the payout fee",
+      "value": "€0.50"
+    },
+    "processing": {
+      "label": "Processing fee",
+      "tip": "Charged by the card network on every payment.",
+      "trigger": "About the processing fee",
+      "value": "2.9% + €0.25"
+    },
+    "title": "Fees"
+  },
+  "placement": {
+    "about": "The note on each side of its trigger, set by the machine's `positioning.placement`. The machine flips a note that would cross the edge of the window to the opposite side.",
+    "title": "Placement"
+  },
+  "terms": {
+    "about": "A note with a link. Tab from the trigger moves into the note, so the link is reachable from the keyboard, and Tab out of the note closes it.",
+    "label": "Returned payouts",
+    "link": "Read the terms",
+    "tip": "A returned payout is raised again after three working days.",
+    "title": "Note with a link",
+    "trigger": "About returned payouts"
+  },
+  "title": "Toggle tip",
+  "variant": {
+    "about": "Every look at every size. Press a trigger to open its note. The size sets the note's padding and text.",
+    "title": "Looks and sizes"
+  }
+}

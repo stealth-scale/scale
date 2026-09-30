@@ -61,11 +61,21 @@ export const recipe = defineSlotRecipe({
 
     /**
      * Surface of the content: the inverted surface, or the popover surface inside a hairline edge.
+     *
+     * @remarks
+     *   The inverted content has a transparent hairline edge, which forced colors paint in
+     *   `CanvasText`, so the content keeps its outline where its fill turns into the page's.
      */
     variant: {
       inverted: {
         arrowTip: { borderColor: "var(--tooltip-surface)" },
-        content: { "--tooltip-surface": "colors.bg.inverted", color: "fg.inverted" },
+        content: {
+          "--tooltip-surface": "colors.bg.inverted",
+          borderColor: "transparent",
+          borderStyle: "solid",
+          borderWidth: "hairline",
+          color: "fg.inverted",
+        },
       },
       surface: {
         arrowTip: { borderColor: "border" },

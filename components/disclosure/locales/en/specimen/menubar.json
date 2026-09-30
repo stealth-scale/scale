@@ -1,0 +1,108 @@
+{
+  "about": "Renders a row of menus along the top of an application: one tab stop, the arrow keys moving along the bar, and at most one menu open. A mouse moving onto another name while a menu is open opens that menu instead, and the arrows at a panel's side open the menu beside it.",
+  "archive": "Archive",
+  "back": "All documents",
+  "closed": "Every menu is closed.",
+  "controlled": {
+    "about": "The caller keeps `value` and changes it in `onValueChange`, and the status line reads the open menu.",
+    "title": "Controlled"
+  },
+  "copy": "Copy",
+  "create": "New folder",
+  "cut": "Cut",
+  "debug": "Start debugging",
+  "delete": "Delete message",
+  "docs": "Documentation",
+  "duplicate": "Duplicate",
+  "edit": "Edit",
+  "editor": {
+    "about": "An editor's menus with commands and their keys, a separator and a submenu. Press a name, or move to the bar with Tab and open a menu with ArrowDown, Enter or Space. ArrowRight and ArrowLeft in a panel open the menu beside it.",
+    "title": "Editor"
+  },
+  "expand": "Expand selection",
+  "explorer": "Explorer",
+  "file": "File",
+  "fold": "Menu",
+  "folded": {
+    "about": "The bar measures its row. While its names do not fit, the bar folds into one Menu trigger, and each menu of the bar becomes a submenu of it, so every menu is reachable.",
+    "title": "Folded"
+  },
+  "folder": "Folder",
+  "go": "Go",
+  "goFile": "Go to file…",
+  "goLine": "Go to line…",
+  "help": "Help",
+  "icons": {
+    "about": "Rows lead with an icon, and `inset` on the Message menu starts the words of a row without one after the icon's gutter. A critical row reads the error palette and names what it destroys.",
+    "title": "Icons and a critical row"
+  },
+  "label": "Editor",
+  "layout": "Layout",
+  "link": "Copy link",
+  "mail": "Send by mail",
+  "mailbox": "Mail",
+  "message": "Message",
+  "minimap": "Minimap",
+  "move": "Move to folder",
+  "new": "New file",
+  "newTerminal": "New terminal",
+  "open": "Open…",
+  "opened": "Open: {{menu}}.",
+  "options": {
+    "about": "Checkbox rows keep the menu open while they turn, and a radio row closes it once chosen. The name of the Panel menu reads the chosen panel.",
+    "title": "Options"
+  },
+  "palette": {
+    "about": "The eight palettes. Move the pointer onto a name or open a menu: the names and the rows of the menus fill in the palette the root sets.",
+    "title": "Palettes"
+  },
+  "panel": "Panel: {{panel}}",
+  "paste": "Paste",
+  "plain": "Run without debugging",
+  "publish": "Publish",
+  "redo": "Redo",
+  "rename": "Rename folder",
+  "rtl": {
+    "about": "With `dir=\"rtl\"`, the bar runs from the right, the arrows swap, and a submenu opens to the left: the arrow pointing at the next name moves to it.",
+    "edit": "تحرير",
+    "file": "ملف",
+    "label": "المحرر",
+    "link": "نسخ الرابط",
+    "mail": "إرسال بالبريد",
+    "new": "مستند جديد",
+    "open": "فتح…",
+    "redo": "إعادة",
+    "share": "مشاركة",
+    "title": "Right to left",
+    "undo": "تراجع",
+    "view": "عرض",
+    "zoomIn": "تكبير",
+    "zoomOut": "تصغير"
+  },
+  "run": "Run",
+  "save": "Save",
+  "search": "Search",
+  "selectAll": "Select all",
+  "selection": "Selection",
+  "share": "Share",
+  "shortcuts": "Keyboard shortcuts",
+  "show": "Show",
+  "size": {
+    "about": "Every size. The size sets the names' padding and text, and the menus' rows.",
+    "title": "Sizes"
+  },
+  "split": "Split terminal",
+  "status": "Status bar",
+  "stop": {
+    "about": "Tab reaches the bar once and leaves it once, however many menus the bar contains. The arrows move between the names.",
+    "title": "One tab stop"
+  },
+  "terminal": "Terminal",
+  "timeline": "Timeline",
+  "title": "Menubar",
+  "undo": "Undo",
+  "unread": "Mark as unread",
+  "view": "View",
+  "zoomIn": "Zoom in",
+  "zoomOut": "Zoom out"
+}

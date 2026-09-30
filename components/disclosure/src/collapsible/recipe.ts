@@ -95,11 +95,21 @@ export const recipe = defineSlotRecipe({
      *   `surface` uses the theme's `surface()` fragment, with its shadow. Every look reads the
      *   palette, so the palette tints the fill and the edge. The subtle trigger takes the root's
      *   radius, so its hover fill follows the root's corners, and its end corners are square while
-     *   the content is open under it.
+     *   the content is open under it. Under forced colors the subtle box, which the browser's fill
+     *   replaces, takes a `CanvasText` hairline outline.
      */
     variant: {
       subtle: {
-        root: { background: "colorPalette.subtle", borderRadius: "l2" },
+        root: {
+          _highContrast: {
+            outlineColor: "CanvasText",
+            outlineOffset: "calc({borderWidths.hairline} * -1)",
+            outlineStyle: "solid",
+            outlineWidth: "hairline",
+          },
+          background: "colorPalette.subtle",
+          borderRadius: "l2",
+        },
         trigger: {
           _hover: { background: "colorPalette.muted" },
           _open: { borderEndEndRadius: "0", borderEndStartRadius: "0" },
@@ -110,18 +120,18 @@ export const recipe = defineSlotRecipe({
       surface: {
         root: surface(),
         trigger: {
-          _open: { borderBlockEndColor: "colorPalette.border", borderBlockEndWidth: "hairline" },
+          _open: { borderBlockEndColor: "colorPalette.muted", borderBlockEndWidth: "hairline" },
         },
       },
 
       outline: {
         root: {
-          borderColor: "colorPalette.border",
+          borderColor: "colorPalette.muted",
           borderRadius: "l2",
           borderWidth: "hairline",
         },
         trigger: {
-          _open: { borderBlockEndColor: "colorPalette.border", borderBlockEndWidth: "hairline" },
+          _open: { borderBlockEndColor: "colorPalette.muted", borderBlockEndWidth: "hairline" },
         },
       },
 

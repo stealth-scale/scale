@@ -23,7 +23,7 @@ describe("recipe", () => {
     expect(recipe.className).toBe("menu");
   });
 
-  it("declares nineteen slots", () => {
+  it("declares twenty-one slots", () => {
     expect([...recipe.slots].toSorted()).toStrictEqual([
       "arrow",
       "arrowTip",
@@ -41,9 +41,11 @@ describe("recipe", () => {
       "itemText",
       "positioner",
       "root",
+      "rows",
       "separator",
       "trigger",
       "triggerItem",
+      "viewport",
     ]);
   });
 
@@ -96,14 +98,31 @@ describe("recipe", () => {
   });
 
   it("caps the panel at --available-height", () => {
-    expect(recipe.base?.["content"]).toMatchObject({
-      maxBlockSize: "var(--available-height)",
-      overflowY: "auto",
+    expect(recipe.base?.["content"]).toMatchObject({ maxBlockSize: "var(--available-height)" });
+  });
+
+  it("leaves the scrolling to the scroll area inside the panel", () => {
+    expect(recipe.base?.["content"]).not.toHaveProperty("overflowY");
+  });
+
+  it("contains the viewport's overscroll", () => {
+    expect(recipe.base?.["viewport"]).toStrictEqual({ overscrollBehavior: "contain" });
+  });
+
+  it("stacks the rows in a column", () => {
+    expect(recipe.base?.["rows"]).toStrictEqual({ display: "flex", flexDirection: "column" });
+  });
+
+  it("pads the rows a gap step below the size", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["rows"]).toStrictEqual({
+      padding: "calc({spacing.gap.sm} * var(--density, 1))",
     });
   });
 
-  it("contains the panel's overscroll", () => {
-    expect(recipe.base?.["content"]).toMatchObject({ overscrollBehavior: "contain" });
+  it("keeps a revealed row the rows' padding from the viewport's edge", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["viewport"]).toStrictEqual({
+      scrollPadding: "calc({spacing.gap.sm} * var(--density, 1))",
+    });
   });
 
   it("animates the panel with slide-fade", () => {
@@ -126,6 +145,10 @@ describe("recipe", () => {
   it("sizes the panel from sizes.44 to its widest row", () => {
     expect(recipe.base?.["content"]).toMatchObject({ minInlineSize: "44" });
     expect(recipe.base?.["content"]).not.toHaveProperty("inlineSize");
+  });
+
+  it("hides the focus ring of the rows' scroll area", () => {
+    expect(recipe.base?.["content"]).toMatchObject({ "--scroll-area-ring-style": "none" });
   });
 
   it("sets no outline on the panel", () => {
@@ -204,7 +227,7 @@ describe("recipe", () => {
     });
   });
 
-  it("extends the separator through the panel's padding", () => {
+  it("extends the separator through the rows' padding", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["separator"]).toStrictEqual({
       marginBlock: "calc({spacing.gap.sm} * var(--density, 1))",
       marginInline: "calc(-1 * calc({spacing.gap.sm} * var(--density, 1)))",
@@ -282,6 +305,14 @@ describe("recipe", () => {
 
   it("sets no offset on the positioner", () => {
     expect(recipe.base?.["positioner"]).toStrictEqual({ position: "relative" });
+  });
+
+  it("gives the elevated panel a transparent hairline edge", () => {
+    expect(recipe.variants?.["variant"]?.["elevated"]?.["content"]).toMatchObject({
+      borderColor: "transparent",
+      borderStyle: "solid",
+      borderWidth: "hairline",
+    });
   });
 
   it("puts the indicator at its trigger's end", () => {

@@ -122,7 +122,7 @@ describe("usePopoverMachine", () => {
   it("calls a caller's onRequestDismiss when Zag closes the popover with another", async () => {
     const onRequestDismiss = vi.fn<(event: Event) => void>();
     const first = await drawn(composed());
-    const second = await drawn(composed({ onRequestDismiss }));
+    const second = await drawn(composed({ lazyMount: false, onRequestDismiss }));
 
     await clicked(triggerIn(first.container));
     await clicked(triggerIn(second.container));

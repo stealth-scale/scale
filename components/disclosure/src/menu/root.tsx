@@ -6,10 +6,14 @@
  *   the recipe's variants to the trigger and the positioner and leaves the layout around the
  *   trigger unchanged. A root inside another menu's content is a submenu: it registers its machine
  *   with the parent's, takes the parent's variants unless it sets its own, and takes the parent's
- *   `dir`, because the machine chooses a submenu's side from the submenu's own direction.
+ *   `dir`, because the machine chooses a submenu's side from the submenu's own direction. The root
+ *   runs the panel's presence: the panel is not in the document until it first opens, and it leaves
+ *   once its exit animation ends.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
+
+import { type PresenceOptions, usePresence } from "@stealthscale/hooks";
 
 import { withProvider } from "#menu/context.ts";
 import {
@@ -28,24 +32,34 @@ import { splitMenuVariants } from "#menu/variants.ts";
 const Framed = withProvider("div", "root");
 
 /**
- * Describes the props of the root: the machine's options, the recipe's variants and the props of a
- * `div`.
+ * Describes the props of the root: the machine's options, the panel's presence, the recipe's
+ * variants and the props of a `div`.
  *
  * @remarks
  *   The element's `id` and `dir` are left out, because the machine takes both. The element's
  *   `onSelect` is left out too, because a `div` reports a text selection under that name and the
- *   machine reports the chosen row.
+ *   machine reports the chosen row. `lazyMount` and `unmountOnExit` are true by default.
  */
 export interface RootProps
-  extends MenuOptions, Omit<ComponentProps<typeof Framed>, "dir" | "id" | "onSelect"> {}
+  extends
+    MenuOptions,
+    Omit<PresenceOptions, "present">,
+    Omit<ComponentProps<typeof Framed>, "dir" | "id" | "onSelect"> {}
 
 /**
  * Renders the root, provides its menu level to the parts and registers a submenu with its parent.
  *
- * @param props - The machine's options, the recipe's variants and the props of a `div`.
+ * @param props - The machine's options, the panel's presence, the recipe's variants and the props
+ *   of a `div`.
  * @returns The `div` element inside the api provider.
  */
-export function Root(props: RootProps): ReactElement {
+export function Root({
+  lazyMount = true,
+  onExitComplete,
+  skipAnimationOnMount,
+  unmountOnExit = true,
+  ...props
+}: RootProps): ReactElement {
   const parent = useEnclosingMenu();
   const [options, rest] = splitMenuProps(props);
   const [picked, others] = splitMenuVariants(rest);
@@ -53,11 +67,18 @@ export function Root(props: RootProps): ReactElement {
   const [api, service] = useMenuMachine(dir === undefined ? options : { ...options, dir });
   const variants = { ...parent?.variants, ...picked };
   const depth = parent === undefined ? 0 : parent.depth + 1;
+  const presence = usePresence({
+    lazyMount,
+    onExitComplete,
+    present: api.open,
+    skipAnimationOnMount,
+    unmountOnExit,
+  });
 
   useNestedMenu(service, parent?.service);
 
   return (
-    <ApiProvider value={{ api, depth, dir, parent, service, variants }}>
+    <ApiProvider value={{ api, depth, dir, parent, presence, service, variants }}>
       <Framed {...variants} {...others} />
     </ApiProvider>
   );

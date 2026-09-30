@@ -4,12 +4,12 @@ import { describe, expect, it, vi } from "vitest";
 import { drawn, settled } from "@stealthscale/testing-react";
 import { slotElement } from "@stealthscale/testing-theme";
 
-import { composed, handled, opened } from "#popover/popover.fixtures.tsx";
+import { composed, handled, rooted } from "#popover/popover.fixtures.tsx";
 import { Trigger } from "#popover/trigger.tsx";
 
 describe("Trigger", () => {
   it("renders a button", async () => {
-    const { container } = await drawn(opened(<Trigger>Filters</Trigger>));
+    const { container } = await drawn(rooted(<Trigger>Filters</Trigger>));
 
     expect(slotElement(container, "popover", "trigger").tagName).toBe("BUTTON");
   });

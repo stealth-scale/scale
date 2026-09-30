@@ -2,8 +2,8 @@
  * Renders the popover's description.
  *
  * @remarks
- *   The machine points the panel's `aria-describedby` at the description, so a screen reader reads
- *   it after the title.
+ *   While the description is mounted, the panel's `aria-describedby` points at it, so a screen
+ *   reader reads it after the title.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -11,7 +11,7 @@ import { type ComponentProps, type ReactElement } from "react";
 import { mergeProps } from "@zag-js/react";
 
 import { withContext } from "#popover/context.ts";
-import { usePopover } from "#popover/machine.ts";
+import { useDescribed, usePopover } from "#popover/machine.ts";
 
 /**
  * Renders the `p` with the popover's description class.
@@ -24,13 +24,16 @@ const Drawn = withContext("p", "description");
 export type DescriptionProps = ComponentProps<typeof Drawn>;
 
 /**
- * Renders the description with the machine's description props merged over the caller's.
+ * Renders the description with the machine's description props merged over the caller's, and
+ * reports it to the root.
  *
  * @param props - The props of a `p`.
  * @returns The `p` element.
  */
 export function Description(props: DescriptionProps): ReactElement {
   const api = usePopover();
+
+  useDescribed();
 
   return <Drawn {...mergeProps(api.getDescriptionProps(), props)} />;
 }

@@ -72,6 +72,14 @@ describe("recipe", () => {
     });
   });
 
+  it("gives the inverted content a transparent hairline edge", () => {
+    expect(recipe.variants?.["variant"]?.["inverted"]?.["content"]).toMatchObject({
+      borderColor: "transparent",
+      borderStyle: "solid",
+      borderWidth: "hairline",
+    });
+  });
+
   it("scales the content from --transform-origin", () => {
     expect(recipe.base?.["content"]).toMatchObject({
       transformOrigin: "var(--transform-origin)",

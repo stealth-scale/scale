@@ -14,7 +14,12 @@ import { useEffect, useId } from "react";
 import * as menu from "@zag-js/menu";
 import { normalizeProps, useMachine } from "@zag-js/react";
 
-import { createRequiredContext, omitUndefined, splitEnumerable } from "@stealthscale/hooks";
+import {
+  createRequiredContext,
+  omitUndefined,
+  type Presence,
+  splitEnumerable,
+} from "@stealthscale/hooks";
 
 import { type MenuVariants } from "#menu/variants.ts";
 import { dismissNested } from "#nesting.ts";
@@ -47,10 +52,9 @@ export interface MenuLevel {
    * The number of menus above this one: 0 for the outermost menu, 1 for its submenu.
    *
    * @remarks
-   *   The content raises its stacking level by this depth. Every panel of a nest uses the same
-   *   z-index token. When a caller portals the panels to the document, no panel is an ancestor of
-   *   another. Without the offset, mount order decides which panel is on top, and a submenu can
-   *   render under the items of its parent.
+   *   The content raises its stacking level by this depth, so a submenu renders above the rows of
+   *   its parent. Every panel of a nest uses the same z-index token, and panels a caller portals to
+   *   the document are siblings, among which the later one in the document renders on top.
    */
   readonly depth: number;
 
@@ -58,10 +62,9 @@ export interface MenuLevel {
    * The writing direction of this menu, or `undefined` when no menu in the nest sets one.
    *
    * @remarks
-   *   A submenu inherits it from its parent. Zag chooses the side a submenu opens on from the
-   *   submenu machine's own `dir`, and a caller sets the direction once, on the outermost menu.
-   *   Without inheritance, a submenu inside a right-to-left menu uses left-to-right and opens over
-   *   its parent.
+   *   A submenu inherits it from its parent, so a caller sets the direction once, on the outermost
+   *   menu. Zag places a submenu at the inline end of its parent's panel, and reads that end from
+   *   the submenu machine's own `dir`.
    */
   readonly dir: "ltr" | "rtl" | undefined;
 
@@ -69,6 +72,11 @@ export interface MenuLevel {
    * The parent menu, or `undefined` for the outermost menu.
    */
   readonly parent: MenuLevel | undefined;
+
+  /**
+   * The panel's presence, which the positioner and the content read.
+   */
+  readonly presence: Presence;
 
   /**
    * The running machine, registered as the child of the parent's machine.
@@ -125,6 +133,55 @@ export interface MenuItemState {
 export const [ItemProvider, useMenuItem] = createRequiredContext<MenuItemState>("Menu.Item");
 
 /**
+ * Actions of Zag's menu machine.
+ */
+const ACTIONS = menu.machine.implementations?.actions;
+
+/**
+ * Zag's action that returns focus to the trigger once the menu closes.
+ */
+// eslint-disable-next-line typescript/no-unsafe-type-assertion -- the machine declares focusTrigger among its actions
+const returnFocus = ACTIONS?.["focusTrigger"] as NonNullable<NonNullable<typeof ACTIONS>[string]>;
+
+/**
+ * Returns true when focus is on an element outside every menu panel, other than the body.
+ *
+ * @param scope - The machine's scope, which reads the document's active element.
+ */
+function isFocusElsewhere(scope: menu.Service["scope"]): boolean {
+  const active = scope.getActiveElement();
+
+  return active?.closest("[role=menu]") === null && active !== scope.getDoc().body;
+}
+
+/**
+ * Runs Zag's menu machine with a focus return that keeps focus a person moved out of the panel.
+ *
+ * @remarks
+ *   Zag's `focusTrigger` returns focus to the trigger when a menu closes, skipping it only after a
+ *   press on a focusable element outside an uncontrolled menu. A controlled menu closes through
+ *   `CONTROLLED.CLOSE`, which drops that skip, and a Tab out of a panel closes a menu with focus
+ *   already on the next element. This action returns focus only while focus is in a menu panel or
+ *   on the body.
+ */
+const MACHINE: typeof menu.machine = {
+  ...menu.machine,
+  implementations: {
+    ...menu.machine.implementations,
+    actions: {
+      ...ACTIONS,
+
+      /**
+       * Returns focus to the trigger unless focus is on an element outside every menu panel.
+       */
+      focusTrigger(params) {
+        if (!isFocusElsewhere(params.scope)) returnFocus(params);
+      },
+    },
+  },
+};
+
+/**
  * Splits the root's props into machine settings and element props.
  *
  * @remarks
@@ -141,7 +198,7 @@ export const splitMenuProps = splitEnumerable(menu.splitProps);
  */
 export function useMenuMachine(options: MenuOptions): readonly [MenuApi, menu.Service] {
   const generated = useId();
-  const service = useMachine(menu.machine, {
+  const service = useMachine(MACHINE, {
     ...omitUndefined(options),
     id: options.id ?? generated,
 
@@ -166,7 +223,7 @@ export function useMenuMachine(options: MenuOptions): readonly [MenuApi, menu.Se
  *   pointer moves into it, and the submenu returns focus to the parent when the arrow key closes
  *   it. The effect depends on the two services, which keep their identity for the lifetime of their
  *   roots, so the pair registers once. A connected api is a new object on every render, so the
- *   effect connects the services itself rather than taking apis as arguments.
+ *   effect takes the services and connects them itself.
  * @param service - The machine of the menu being registered.
  * @param parent - The parent menu's machine, or `undefined` for the outermost menu.
  */

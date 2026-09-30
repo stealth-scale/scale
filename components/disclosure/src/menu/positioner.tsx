@@ -4,7 +4,8 @@
  * @remarks
  *   The machine writes the position inline, with `--available-height` and `--available-width`,
  *   and the panel caps its height at the first. A caller who needs the menu outside a clipping
- *   ancestor wraps this part in a portal.
+ *   ancestor wraps this part in a portal. The positioner renders nothing while the panel is out of
+ *   the document.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -28,10 +29,13 @@ export type PositionerProps = ComponentProps<typeof Placed>;
  * Renders the positioner with the machine's positioner props merged over the caller's.
  *
  * @param props - The props of a `div`.
- * @returns The `div` element.
+ * @returns The `div` element, or nothing while the panel is out of the document.
  */
-export function Positioner(props: PositionerProps): ReactElement {
-  const { api } = useMenu();
+export function Positioner(props: PositionerProps): null | ReactElement {
+  const { api, presence } = useMenu();
+  const { unmounted } = presence;
+
+  if (unmounted) return null;
 
   return <Placed {...mergeProps(api.getPositionerProps(), props)} />;
 }

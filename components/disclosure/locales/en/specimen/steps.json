@@ -1,0 +1,86 @@
+{
+  "about": "Renders a flow in steps: an ordered list of the steps, the content of the current step and the buttons that move between them. Each title states in hidden words which steps are completed and which is current.",
+  "back": "Back",
+  "gated": {
+    "about": "With `linear`, a reader goes back to a completed step but cannot jump ahead, and `isStepValid` keeps the flow on a step until it is filled in. `onStepInvalid` reports the refusal, and the example shows its error under the box.",
+    "agree": "The amounts match the invoice",
+    "check": "Check the amounts before you go on.",
+    "title": "Gated"
+  },
+  "labelPlacement": {
+    "about": "Beside puts each title after its disc. Below centres each title under its disc and gives every step an equal share of the row, which fits more steps on a narrow screen.",
+    "title": "Title placement"
+  },
+  "marks": {
+    "about": "`Steps.Status` swaps the disc's number for a mark by state: here an icon for each step and a check once the step is done.",
+    "title": "Marks"
+  },
+  "next": "Next",
+  "palette": {
+    "about": "Every palette in the solid look, which rings the current disc and fills the completed ones from the palette.",
+    "title": "Palettes"
+  },
+  "parcel": {
+    "about": "Steps without triggers or content show where something is. The caller sets `step` from its data, and the titles are below the discs.",
+    "delivered": {
+      "date": "Expected Friday",
+      "title": "Delivered"
+    },
+    "ordered": {
+      "date": "Monday 09:12",
+      "title": "Ordered"
+    },
+    "packed": {
+      "date": "Tuesday 16:40",
+      "title": "Packed"
+    },
+    "shipped": {
+      "date": "Wednesday 07:05",
+      "title": "Shipped"
+    },
+    "title": "Progress"
+  },
+  "payout": {
+    "account": {
+      "body": "The payout leaves from the operating account ending in 4410.",
+      "title": "Account"
+    },
+    "amount": {
+      "body": "€12,400.00 against invoices INV-2038 to INV-2041.",
+      "title": "Amount"
+    },
+    "confirm": {
+      "body": "Sign the payout, and it is queued for the next bank run.",
+      "title": "Confirm"
+    },
+    "queued": "Payout queued for the 14:00 bank run."
+  },
+  "setup": {
+    "about": "A vertical flow puts the steps in a column beside the content, with a line under each title.",
+    "billing": {
+      "body": "Add a card or a bank account for the monthly invoice.",
+      "description": "Card or bank account",
+      "title": "Billing"
+    },
+    "profile": {
+      "body": "Add the workspace's name and the logo on its invoices.",
+      "description": "Name and logo",
+      "title": "Profile"
+    },
+    "team": {
+      "body": "Invite the people who approve payouts, and give each a role.",
+      "description": "Invite and assign roles",
+      "title": "Team"
+    },
+    "title": "Vertical"
+  },
+  "size": {
+    "about": "Every size. The size sets the discs at 36, 40 and 44px, the titles, the descriptions and the room around them.",
+    "title": "Sizes"
+  },
+  "title": "Steps",
+  "variant": {
+    "about": "Every look, on the second step, so one step is completed, one is current and one is still to come. Solid outlines the later disc, rings the current one and fills the completed one. Subtle fills all three from the palette, the current one strongest.",
+    "title": "Looks"
+  }
+}

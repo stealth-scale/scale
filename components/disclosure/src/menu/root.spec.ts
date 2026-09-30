@@ -10,14 +10,16 @@ import { type RootProps } from "#menu/root.tsx";
 
 describe("Root", () => {
   it("passes the parent's direction to a submenu", async () => {
-    const { container } = await drawn(nested({ defaultOpen: true, dir: "rtl" }));
+    const { container } = await drawn(
+      nested({ defaultOpen: true, dir: "rtl" }, { lazyMount: false }),
+    );
     const panels = [...container.querySelectorAll<HTMLElement>(".menu__content")];
 
     expect(panels.map((panel) => panel.getAttribute("dir"))).toStrictEqual(["rtl", "rtl"]);
   });
 
   it("sets no direction when no menu in the nest sets one", async () => {
-    const { container } = await drawn(nested({ defaultOpen: true }));
+    const { container } = await drawn(nested({ defaultOpen: true }, { lazyMount: false }));
     const panels = [...container.querySelectorAll<HTMLElement>(".menu__content")];
 
     expect(panels.map((panel) => panel.getAttribute("dir"))).toStrictEqual([null, null]);
@@ -112,16 +114,20 @@ describe("Root", () => {
   });
 
   it("passes the parent's variants to a submenu", async () => {
-    const { container } = await drawn(nested({ defaultOpen: true, size: "sm" }));
-    const panels = [...container.querySelectorAll("[data-part=content]")];
+    const { container } = await drawn(
+      nested({ defaultOpen: true, size: "sm" }, { lazyMount: false }),
+    );
+    const panels = [...container.querySelectorAll(".menu__content")];
 
     expect(panels).toHaveLength(2);
     expect(panels.every((panel) => panel.className.includes("menu__content--sm"))).toBe(true);
   });
 
   it("applies no default size to a submenu of a small menu", async () => {
-    const { container } = await drawn(nested({ defaultOpen: true, size: "sm" }));
-    const panels = [...container.querySelectorAll("[data-part=content]")];
+    const { container } = await drawn(
+      nested({ defaultOpen: true, size: "sm" }, { lazyMount: false }),
+    );
+    const panels = [...container.querySelectorAll(".menu__content")];
 
     expect(panels.every((panel) => !panel.className.includes("menu__content--md"))).toBe(true);
   });

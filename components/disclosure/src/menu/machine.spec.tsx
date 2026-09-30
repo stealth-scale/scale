@@ -1,9 +1,10 @@
-import { type ReactElement } from "react";
+import { type ReactElement, useState } from "react";
 
 import { act, fireEvent, screen } from "@testing-library/react";
 import * as menu from "@zag-js/menu";
 import { describe, expect, it, vi } from "vitest";
 
+import { usePresence } from "@stealthscale/hooks";
 import { drawn } from "@stealthscale/testing-react";
 
 import {
@@ -53,12 +54,13 @@ async function clicked(element: Element): Promise<void> {
  */
 function Running(props: MenuOptions): ReactElement {
   const [api, service] = useMenuMachine(props);
+  const presence = usePresence({ present: api.open });
 
   useNestedMenu(service, OUTERMOST);
 
   return (
     <ApiProvider
-      value={{ api, depth: 0, dir: undefined, parent: undefined, service, variants: {} }}
+      value={{ api, depth: 0, dir: undefined, parent: undefined, presence, service, variants: {} }}
     >
       <div {...api.getPositionerProps()}>
         <div {...api.getContentProps()}>
@@ -79,6 +81,27 @@ function Reader(): ReactElement {
 
   return (
     <span data-testid="state">{`${api.open ? "open" : "shut"} ${api.highlightedValue ?? "none"}`}</span>
+  );
+}
+
+/**
+ * Renders an open menu whose caller keeps `open`, and a button outside it.
+ *
+ * @returns The menu and the button.
+ */
+function Controlled(): ReactElement {
+  const [open, setOpen] = useState(true);
+
+  return (
+    <>
+      {composed({
+        onOpenChange: (details) => {
+          setOpen(details.open);
+        },
+        open,
+      })}
+      <button type="button">Outside</button>
+    </>
   );
 }
 
@@ -160,7 +183,7 @@ describe("useMenuMachine", () => {
     await drawn(
       <>
         {composed()}
-        {kept({ onRequestDismiss })}
+        {kept({ lazyMount: false, onRequestDismiss })}
       </>,
     );
 
@@ -168,6 +191,46 @@ describe("useMenuMachine", () => {
     await clicked(screen.getByRole("button", { name: "Format" }));
 
     expect(onRequestDismiss).toHaveBeenCalledOnce();
+  });
+
+  it("keeps focus on a button outside when a controlled menu closes on its press", async () => {
+    await drawn(<Controlled />);
+    await framed();
+
+    const outside = screen.getByRole("button", { name: "Outside" });
+
+    await act(async () => {
+      fireEvent.pointerDown(outside);
+      outside.focus();
+      await Promise.resolve();
+    });
+    await framed();
+
+    expect(document.activeElement).toBe(outside);
+  });
+
+  it("returns focus to the trigger when a controlled menu closes with focus in its panel", async () => {
+    await drawn(<Controlled />);
+    await framed();
+    act(() => {
+      screen.getByRole("menu").focus();
+    });
+    fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
+    await framed();
+
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Actions" }));
+  });
+
+  it("returns focus to the trigger when a controlled menu closes with focus on the body", async () => {
+    await drawn(<Controlled />);
+    await framed();
+    act(() => {
+      screen.getByRole("menu").blur();
+    });
+    fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
+    await framed();
+
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Actions" }));
   });
 
   it("closes the open menu when another menu's trigger is pressed", async () => {

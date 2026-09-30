@@ -6,10 +6,14 @@
  *   trigger and the positioner are siblings and a slot recipe passes its variants from an element
  *   above both. A submenu's root is a child of the parent menu's panel. The machine writes the
  *   positioner's position inline and `--available-height`, which caps the panel, so a menu near the
- *   window's edge scrolls. The panel is at least `sizes.44` wide and grows to its widest row. The
- *   panel takes the `dropdown` z-index plus its depth in the nest, because the machine writes
- *   `z-index: var(--z-index)` inline on the positioner from the panel's value. The panel has no
- *   focus ring, because the machine focuses it on opening and the highlight marks the row. A row
+ *   window's edge scrolls its rows in the primitives package's scroll area inside the panel. The
+ *   `viewport` and `rows` slots are that scroll area's viewport, the element with the menu role,
+ *   and its content: the rows take the panel's padding, and the viewport's scroll padding keeps a
+ *   revealed row that padding from the edge. The panel is at least `sizes.44` wide and grows to its
+ *   widest row. The panel takes the `dropdown` z-index plus its depth in the nest, because the
+ *   machine writes `z-index: var(--z-index)` inline on the positioner from the panel's value.
+ *   Neither the panel nor its scroll area draws a focus ring, because the machine focuses the menu
+ *   on opening and the highlight marks the row. A row
  *   reads the body role one size smaller, truncates, and sizes a leading icon to the icon size one
  *   size smaller. `inset` pads a row without a leading icon or mark by the gutter a leading icon
  *   takes, so its text starts where an icon row's text starts. The indicator mirrors in a
@@ -77,6 +81,11 @@ export const NESTED = "data-nested";
 const GUTTER = "--menu-gutter";
 
 /**
+ * Custom property the scroll area's root reads for the style of its focus ring.
+ */
+const RING_STYLE = "--scroll-area-ring-style";
+
+/**
  * Selects a row whose first element is neither an icon nor a mark.
  *
  * @remarks
@@ -109,10 +118,10 @@ function gutter(size: Scale): string {
  *
  * @remarks
  *   The machine places a submenu against the row that opened it, and the row stops one padding
- *   short of the panel's edge, so the submenu overlapped its parent by that padding. The machine
- *   reports the side as left or right, and the margin is logical, so each side sets both inline
- *   margins and swaps them under `_rtl`.
- * @param room - The panel's padding at the size.
+ *   short of the panel's edge, so the margin moves the submenu off its parent by that padding. The
+ *   machine reports the side as left or right, and the margin is logical, so each side sets both
+ *   inline margins and swaps them under `_rtl`.
+ * @param room - The rows' padding at the size.
  */
 function cleared(room: string): SystemStyleObject {
   return {
@@ -159,8 +168,7 @@ export const recipe = defineSlotRecipe({
       maxBlockSize: "var(--available-height)",
       minInlineSize: "44",
       outline: "0",
-      overflowY: "auto",
-      overscrollBehavior: "contain",
+      [RING_STYLE]: "none",
       zIndex: `calc({zIndex.dropdown} + var(${MENU_DEPTH}, 0))`,
     },
     contextTrigger: { cursor: "menuitem" },
@@ -215,9 +223,11 @@ export const recipe = defineSlotRecipe({
     itemText: { ...truncate(), flex: "1" },
     positioner: { position: "relative" },
     root: { display: "contents" },
+    rows: { display: "flex", flexDirection: "column" },
     separator: { ...divider(), borderColor: "border.muted", inlineSize: "auto" },
     trigger: { ...interactive() },
     triggerItem: { ...row(), borderRadius: "l1" },
+    viewport: { overscrollBehavior: "contain" },
   },
   className: CLASS,
   defaultVariants: { highlight: "tint", palette: "neutral", size: "md", variant: "surface" },
@@ -230,6 +240,8 @@ export const recipe = defineSlotRecipe({
     "indicator",
     "positioner",
     "content",
+    "viewport",
+    "rows",
     "itemGroup",
     "itemGroupLabel",
     "item",
@@ -274,16 +286,9 @@ export const recipe = defineSlotRecipe({
      */
     size: onSlots({
       /**
-       * The panel's padding, and the margin that moves a submenu off its parent's panel.
+       * The margin that moves a submenu off its parent's panel.
        */
-      content: sizeVariants(
-        (size) => ({
-          ...cleared(dense(`{spacing.gap.${below(size)}}`)),
-          padding: dense(`{spacing.gap.${below(size)}}`),
-          scrollPadding: dense(`{spacing.gap.${below(size)}}`),
-        }),
-        SIZES,
-      ),
+      content: sizeVariants((size) => cleared(dense(`{spacing.gap.${below(size)}}`)), SIZES),
       /**
        * The indicator at the icon size one size smaller, the same square as a checked row's mark.
        */
@@ -315,6 +320,10 @@ export const recipe = defineSlotRecipe({
         (size) => ({ boxSize: dense(`{sizes.tag.${size}}`), fontSize: below(below(size)) }),
         SIZES,
       ),
+      /**
+       * The rows' padding inside the scroll area, which the separators' negative margins cross.
+       */
+      rows: sizeVariants((size) => ({ padding: dense(`{spacing.gap.${below(size)}}`) }), SIZES),
       separator: sizeVariants(
         (size) => ({
           marginBlock: dense(`{spacing.gap.${below(size)}}`),
@@ -323,11 +332,22 @@ export const recipe = defineSlotRecipe({
         SIZES,
       ),
       triggerItem: sizeVariants((size) => rowOf(size), SIZES),
+      /**
+       * The scroll padding that keeps a revealed row the rows' padding from the edge.
+       */
+      viewport: sizeVariants(
+        (size) => ({ scrollPadding: dense(`{spacing.gap.${below(size)}}`) }),
+        SIZES,
+      ),
     }),
 
     /**
      * Surface of the panel: the popover surface inside a hairline edge, the panel surface with a
      * large shadow, or the glass layer style.
+     *
+     * @remarks
+     *   The elevated panel has a transparent hairline edge, which forced colors paint in
+     *   `CanvasText`, so the panel keeps its outline where the shadow is not drawn.
      */
     variant: {
       elevated: {
@@ -335,7 +355,10 @@ export const recipe = defineSlotRecipe({
         content: {
           "--menu-surface": "colors.bg.panel",
           background: SURFACE,
+          borderColor: "transparent",
           borderRadius: "l2",
+          borderStyle: "solid",
+          borderWidth: "hairline",
           boxShadow: "lg",
         },
       },
