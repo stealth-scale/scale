@@ -64,13 +64,13 @@ const TYPES = "src/i18n.gen.d.ts";
 const SCRATCH = "stealth-i18n";
 
 /**
- * File under the scratch that the plugin rewrites whenever the set of languages and namespaces
- * changes.
+ * File under the scratch that the plugin rewrites whenever a catalogue file appears or disappears
+ * outside the module-per-file server.
  *
  * @remarks
  *   The catalogues module lists the stamp as a file to watch, so the bundler rebuilds the module
- *   when the stamp changes. A watcher reports nothing for a file appearing in a watched directory,
- *   so the plugin turns that into a change to the stamp.
+ *   when the stamp changes. A bundler watches the files a module read, and a new file is not one of
+ *   them, so the plugin turns its appearance into a change to the stamp.
  */
 const STAMP = "topology";
 
@@ -141,13 +141,43 @@ interface Resolved {
 }
 
 /**
+ * The payload that reloads every page a dev server serves.
+ */
+interface Reload {
+  /**
+   * The pages to reload, which is every page.
+   */
+  readonly path: "*";
+
+  /**
+   * The kind of payload the page's client acts on.
+   */
+  readonly type: "full-reload";
+}
+
+/**
+ * The payload sent when the set of languages and namespaces changes under a server that bundles.
+ */
+const RELOAD: Reload = { path: "*", type: "full-reload" };
+
+/**
  * The environment's channel to the page.
  */
 interface Channel {
   /**
-   * Sends a custom event to the page.
+   * Sends a custom event to the page, or a payload of the dev server's own.
    */
-  readonly send: (event: string, payload: Changed) => void;
+  readonly send: ((event: string, payload: Changed) => void) & ((payload: Reload) => void);
+}
+
+/**
+ * Describes the kind of change a bundler reports for a file.
+ */
+interface Watched {
+  /**
+   * Whether the file was created, deleted or updated.
+   */
+  readonly event: "create" | "delete" | "update";
 }
 
 /**
@@ -204,6 +234,11 @@ interface Bundling {
        */
       readonly isBundled: boolean;
     };
+
+    /**
+     * The channel to the page, absent under a build.
+     */
+    readonly hot?: Channel | undefined;
   };
 }
 
@@ -218,7 +253,7 @@ interface Loading {
 }
 
 /**
- * The mutable state the plugin carries across hook calls.
+ * The mutable state the plugin keeps across hook calls.
  */
 interface State {
   /**
@@ -237,12 +272,17 @@ interface State {
   resolved: Resolved;
 
   /**
+   * The last payload sent to the page under a server that bundles, as JSON.
+   */
+  sent: string;
+
+  /**
    * Every language and namespace pair the last search found, one per line, sorted.
    */
   shape: string;
 
   /**
-   * Absolute path of the file rewritten when the shape changes, under the scratch for the root.
+   * Absolute path of the stamp, under the scratch for the root.
    */
   stamp: string;
 }
@@ -311,7 +351,7 @@ function retyped(state: State, options: Options): boolean {
  * @remarks
  *   `process.hrtime.bigint` has nanosecond resolution, so two writes within the same millisecond
  *   still produce different content.
- * @param state - The state carrying the stamp's path.
+ * @param state - The state that contains the stamp's path.
  */
 function stamped(state: State): void {
   mkdirSync(dirname(state.stamp), { recursive: true });
@@ -336,7 +376,7 @@ function wrong(state: State, options: Options): readonly string[] {
  * Reads the language and namespace a catalogue file belongs to out of its path.
  *
  * @param path - A normalised path under a `locales` directory.
- * @returns The pair, or undefined when no language directory sits under `locales`.
+ * @returns The pair, or undefined when the path has no language directory under `locales`.
  */
 function pairOf(path: string): Pair | undefined {
   const rest = path.slice(path.lastIndexOf(`/${LOCALES}/`) + LOCALES.length + 2);
@@ -348,12 +388,27 @@ function pairOf(path: string): Pair | undefined {
 }
 
 /**
- * Returns true for a path carrying a catalogue extension under a `locales` directory.
+ * Returns true for a path with a catalogue extension under a `locales` directory.
  *
  * @param path - A normalised path.
  */
 function catalogued(path: string): boolean {
   return EXTENSION.test(path) && path.includes(`/${LOCALES}/`);
+}
+
+/**
+ * Returns the `locales` directory a catalogue is under, which contains every language of its
+ * package.
+ *
+ * @remarks
+ *   A catalogue in a namespace directory, such as `locales/en/specimen/badge.json`, is two levels
+ *   below its language. The directory is cut from the path at the catalogue's own language, so a
+ *   watcher given it reports a language directory that appears beside that one.
+ */
+function localesOf(catalogue: Catalogue): string {
+  const at = catalogue.file.lastIndexOf(`/${LOCALES}/${catalogue.language}/`);
+
+  return catalogue.file.slice(0, at + LOCALES.length + 1);
 }
 
 /**
@@ -369,8 +424,19 @@ function stale(graph: Graph, id: string): void {
 }
 
 /**
- * Pushes a changed pair to a running page, invalidates the modules holding the old strings, and
- * warns about any fault the change introduced.
+ * Returns the payload a changed pair is sent to the page with: every file of the pair, merged.
+ */
+function changedOf(state: State, pair: Pair): Changed {
+  return {
+    language: pair.language,
+    namespace: pair.namespace,
+    words: mergedWords(filesOf(state.index, pair.language, pair.namespace)),
+  };
+}
+
+/**
+ * Pushes a changed pair to a running page, invalidates the modules that contain the old strings,
+ * and warns about any fault the change introduced.
  *
  * @remarks
  *   The catalogues module is invalidated as well as the pair's own, because the fallback language
@@ -383,13 +449,114 @@ function stale(graph: Graph, id: string): void {
 function resent(state: State, options: Options, pair: Pair, watching: Watching): void {
   stale(watching.environment.moduleGraph, `\0${pairId(pair.language, pair.namespace)}`);
   stale(watching.environment.moduleGraph, RESOLVED);
-  watching.environment.hot.send(EVENT, {
-    language: pair.language,
-    namespace: pair.namespace,
-    words: mergedWords(filesOf(state.index, pair.language, pair.namespace)),
-  });
+  watching.environment.hot.send(EVENT, changedOf(state, pair));
 
   for (const line of wrong(state, options)) globalThis.console.warn(line);
+}
+
+/**
+ * Pushes the pair a changed file belongs to under a server that bundles, and warns about any fault
+ * the change introduced.
+ *
+ * @remarks
+ *   That server applies a rebuilt catalogues module in place, through the first module above it
+ *   that accepts a hot update, and the i18next instance the page built keeps its strings. The pair
+ *   therefore goes to the page as the event the hot update hook sends. The server's watcher and
+ *   the bundler's both report an edit, so a payload equal to the last one sent is dropped.
+ * @param state - The catalogues found, and the last payload sent.
+ * @param options - Which language defines the keys, for the validation that follows.
+ * @param path - The normalised path of the file that changed.
+ * @param channel - The channel to the page.
+ */
+function pushed(state: State, options: Options, path: string, channel: Channel): void {
+  const pair = pairOf(path);
+
+  if (pair === undefined) return;
+
+  const changed = changedOf(state, pair);
+  const sent = JSON.stringify(changed);
+
+  if (sent === state.sent) return;
+
+  state.sent = sent;
+  channel.send(EVENT, changed);
+
+  for (const line of wrong(state, options)) globalThis.console.warn(line);
+}
+
+/**
+ * Runs the search and the types again after a change a bundler reported, and rewrites the stamp
+ * where the catalogues module has to be built again.
+ *
+ * @remarks
+ *   A module lists the files it read, so an edit to one of them rebuilds the module without the
+ *   stamp. A file that appears or disappears is in no module's list, so the stamp is rewritten for
+ *   it, as it is for a change to the set of languages and namespaces.
+ * @param state - The catalogues found, searched again here.
+ * @param options - Where to search.
+ * @param change - The kind of change, where the bundler reports one.
+ * @returns True when the set of languages and namespaces changed.
+ */
+function rebuilt(state: State, options: Options, change: undefined | Watched): boolean {
+  const reshaped = refound(state, options);
+
+  retyped(state, options);
+
+  if (reshaped || change?.event === "create" || change?.event === "delete") stamped(state);
+
+  return reshaped;
+}
+
+/**
+ * Describes one change a bundler reported for a catalogue file.
+ */
+interface Reported {
+  /**
+   * The kind of change, where the bundler reports one.
+   */
+  readonly change: undefined | Watched;
+
+  /**
+   * The environment the change was reported in, absent where the bundler binds none.
+   */
+  readonly environment: Bundling["environment"];
+
+  /**
+   * The normalised path of the file that changed.
+   */
+  readonly path: string;
+}
+
+/**
+ * Follows a catalogue change during a watching build or under a server that bundles, and brings a
+ * running page up to date under the server.
+ *
+ * @remarks
+ *   A server that serves a module per file reports the same change to `hotUpdate`, so a change
+ *   under that server is ignored here. A server that bundles runs no hot update hook. There the
+ *   changed pair goes to the page, and the page reloads when the set of languages and namespaces
+ *   changed, because a running page cannot take a new set from an event. A watching build has no
+ *   page.
+ * @param state - The catalogues found.
+ * @param options - Where to search and which language defines the keys.
+ * @param reported - The change, the environment and the file.
+ */
+function followed(state: State, options: Options, reported: Reported): void {
+  const { change, environment, path } = reported;
+
+  if (state.resolved.command === "build") {
+    rebuilt(state, options, change);
+
+    return;
+  }
+  if (environment?.config.isBundled !== true) return;
+
+  const reshaped = rebuilt(state, options, change);
+  const channel = environment.hot;
+
+  if (channel === undefined) return;
+  if (reshaped) channel.send(RELOAD);
+  else pushed(state, options, path, channel);
 }
 
 /**
@@ -450,19 +617,21 @@ function inlinedFiles(state: State, options: Options): readonly Catalogue[] {
  * Creates the plugin that finds the catalogues, types their keys, and serves `virtual:i18n`.
  *
  * @remarks
- *   On a dev server a catalogue change reaches the page as an event and not as a reload, so the
- *   page keeps its state. A build throws on an invalid catalogue. Every module lists the files it
- *   read as files to watch, so a bundler that rebuilds on a change rebuilds the module.
+ *   On a dev server the plugin sends a changed catalogue to the page as an event and not as a
+ *   reload, so the page keeps its state. A build throws on an invalid catalogue. Every module
+ *   lists the files it read as files to watch, so a bundler that rebuilds on a change rebuilds the
+ *   module.
  * @param options - Where to search and what to write. {@link Options} Documents every member, and
  *   every one has a default.
- * @returns The plugin, with its state already holding the working directory until
- *   `configResolved` replaces it.
+ * @returns The plugin, with its state set to the working directory until `configResolved`
+ *   replaces it.
  */
 export function i18n(options: Options = {}): Plugin {
   const state: State = {
     catalogues: [],
     index: new Map(),
     resolved: { command: "serve", root: process.cwd() },
+    sent: "",
     shape: "",
     stamp: join(scratchDir(SCRATCH, process.cwd()), STAMP),
   };
@@ -473,7 +642,7 @@ export function i18n(options: Options = {}): Plugin {
      * run.
      *
      * @throws {@link Error} When the command is `build` and a catalogue defines an unknown key or
-     *   drops a placeholder. The message carries every fault, one per line.
+     *   drops a placeholder. The message lists every fault, one per line.
      */
     buildStart(): void {
       const lines = wrong(state, options);
@@ -499,12 +668,12 @@ export function i18n(options: Options = {}): Plugin {
 
     /**
      * Registers every `locales` directory with the watcher, including those outside the project
-     * root.
+     * root, so a file, a namespace or a language that appears under one is reported.
      *
      * @param server - The dev server whose watcher the directories are added to.
      */
     configureServer(server: ViteDevServer): void {
-      server.watcher.add([...new Set(state.catalogues.map((one) => dirname(dirname(one.file))))]);
+      server.watcher.add([...new Set(state.catalogues.map((one) => localesOf(one)))]);
     },
 
     /**
@@ -513,9 +682,9 @@ export function i18n(options: Options = {}): Plugin {
      * @remarks
      *   The types are written again on an edit too, because a key or a placeholder added to the
      *   fallback language changes what the page may ask for.
-     * @param changed - The file, what happened to it, and the modules the change reached.
+     * @param changed - The file, what happened to it, and the modules the change affects.
      * @returns The catalogues module where the page has to reload it, an empty array for a
-     *   catalogue pushed to the page, or undefined for a file this plugin does not own, which
+     *   catalogue pushed to the page, or undefined for a file this plugin does not handle, which
      *   leaves the change to the bundler.
      */
     hotUpdate(this: Watching, changed: HotUpdateOptions): EnvironmentModuleNode[] | undefined {
@@ -576,24 +745,17 @@ export function i18n(options: Options = {}): Plugin {
     },
 
     /**
-     * Runs the search and the types again during a watching build or under a server that bundles,
-     * and rewrites the stamp when the set of languages and namespaces changed.
+     * Follows a catalogue change during a watching build or under a server that bundles.
      *
-     * @remarks
-     *   A server that serves a module per file reports the same change to `hotUpdate`, which pushes
-     *   the strings to the page, so this hook ignores a change under that server. A watching build
-     *   has no page, and a server that bundles runs no hot update hook, so both are followed here.
      * @param id - The path of the file that changed.
+     * @param change - Whether the file was created, deleted or updated, where the bundler reports
+     *   it.
      */
-    watchChange(this: Bundling, id: string): void {
-      if (!catalogued(normalizePath(id))) return;
-      if (state.resolved.command !== "build" && this.environment?.config.isBundled !== true) return;
+    watchChange(this: Bundling, id: string, change?: Watched): void {
+      const path = normalizePath(id);
 
-      const reshaped = refound(state, options);
-
-      retyped(state, options);
-
-      if (reshaped) stamped(state);
+      if (catalogued(path))
+        followed(state, options, { change, environment: this.environment, path });
     },
   };
 }

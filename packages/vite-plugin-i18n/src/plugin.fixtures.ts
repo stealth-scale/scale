@@ -6,7 +6,13 @@
 import { join } from "node:path";
 import { type EnvironmentModuleNode, type HotUpdateOptions } from "vite";
 
-import { type HookContext, hookContext, type ScratchWorkspace } from "@stealthscale/testing";
+import {
+  type Change,
+  type Command,
+  type HookContext,
+  hookContext,
+  type ScratchWorkspace,
+} from "@stealthscale/testing";
 
 import { APP } from "#find.fixtures.ts";
 import { type Changed, i18n, ID, type Options } from "#plugin.ts";
@@ -99,7 +105,54 @@ export interface Hooks {
   /**
    * Handles a change under a watching build or a server that bundles.
    */
-  readonly watchChange: (this: HookContext, id: string) => void;
+  readonly watchChange: (
+    this: HookContext,
+    id: string,
+    change?: { readonly event: Change },
+  ) => void;
+}
+
+/**
+ * A context in full bundle mode whose channel records every payload the plugin sends to the page.
+ */
+export interface Sending extends HookContext {
+  /**
+   * The environment, with its channel to the page.
+   */
+  readonly environment: HookContext["environment"] & {
+    /**
+     * Records the arguments of each call.
+     */
+    readonly hot: { readonly send: (...payload: readonly unknown[]) => void };
+  };
+
+  /**
+   * The arguments of every call to the channel, in call order.
+   */
+  readonly sent: ReadonlyArray<readonly unknown[]>;
+}
+
+/**
+ * Builds a context in full bundle mode whose channel records what the plugin sends.
+ *
+ * @param command - The command the context is built for. Serving by default.
+ */
+export function sending(command: Command = "serve"): Sending {
+  const context = hookContext([], command, true);
+  const sent: Array<readonly unknown[]> = [];
+
+  return {
+    ...context,
+    environment: {
+      ...context.environment,
+      hot: {
+        send: (...payload) => {
+          sent.push(payload);
+        },
+      },
+    },
+    sent,
+  };
 }
 
 /**
@@ -112,7 +165,7 @@ export const MODULE = { id: `\0${ID}` } as EnvironmentModuleNode;
 /**
  * Builds the plugin over the fixture workspace and resolves its configuration.
  *
- * @param scratch - The scratch workspace holding the fixture application.
+ * @param scratch - The scratch workspace that contains the fixture application.
  * @param command - Whether the bundler is building or serving. Serving by default.
  * @param options - The plugin options. None by default.
  * @returns The hooks.
@@ -152,14 +205,17 @@ export function loading(
  *
  * @param plugin - The hooks.
  * @param file - The file that changed.
- * @param context - The context the hook reads `this` from. A serving one that bundles by default.
+ * @param context - The context the hook reads `this` from. A serving one that bundles and records
+ *   what it sends by default.
+ * @param event - The kind of change the bundler reports, or undefined to report none.
  */
 export function watched(
   plugin: Hooks,
   file: string,
-  context: HookContext = hookContext([], "serve", true),
+  context: HookContext = sending(),
+  event?: Change,
 ): void {
-  plugin.watchChange.call(context, file);
+  plugin.watchChange.call(context, file, event === undefined ? undefined : { event });
 }
 
 /**
