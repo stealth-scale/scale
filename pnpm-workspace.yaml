@@ -16,6 +16,17 @@ catalog:
   "@changesets/changelog-github": ^1.0.1
   "@changesets/cli": ^3.0.2
   "@cyclonedx/cyclonedx-library": ^10.2.0
+  # The graph layout by rank. `layoutGraph` places a node graph's ranks with it.
+  "@dagrejs/dagre": 3.1.1
+  # The sortable kit's drag and drop engine, pinned exactly as one set. A 0.x minor may change the
+  # API, and the kit's recipe styles the attributes the engine writes, such as
+  # `data-dnd-placeholder`. `@dnd-kit/react` asks for the other three at `^0.5.0`.
+  "@dnd-kit/abstract": 0.5.0
+  "@dnd-kit/dom": 0.5.0
+  "@dnd-kit/helpers": 0.5.0
+  "@dnd-kit/react": 0.5.0
+  # The date input's values. The machine peers on it and takes its `DateValue`.
+  "@internationalized/date": ^3.12.4
   "@mdx-js/rollup": ^3.1.1
   "@module-federation/runtime": 2.9.0
   "@module-federation/vite": 1.21.5
@@ -24,11 +35,21 @@ catalog:
   "@pandacss/preset-base": 2.0.0-beta.17
   "@pandacss/types": 2.0.0-beta.17
   "@tanstack/highlight": 0.1.0
+  # The Markdown parser, pinned exactly. Its document tree is public but pre-1.0, and the renderer
+  # maps each node type it names to a component, so a release may add or rename a node.
+  "@tanstack/markdown": 0.0.15
   "@tanstack/react-form": ^1.33.5
   "@tanstack/react-hotkeys": 0.10.0
   "@tanstack/react-router": 1.170.34
+  # The data table's engine, pinned exactly. The kit registers every stock feature and reads each
+  # one's state and defaults, such as the page size, and a minor release may change a default.
+  "@tanstack/react-table": 9.2.4
+  # The data table's windowing, pinned exactly. It measures and places the rendered rows, and a
+  # release may change how it estimates a row or which rows it keeps rendered.
+  "@tanstack/react-virtual": 3.14.13
   "@testing-library/react": ^16.3.0
   "@types/babel__core": ^7.20.5
+  "@types/d3-force": ^3.0.10
   "@types/mdx": ^2.0.14
   "@types/node": ^26.5.1
   "@types/react": ^19.3.0
@@ -37,24 +58,70 @@ catalog:
   "@vitejs/plugin-react": ^6.1.1
   "@vitest/browser-playwright": 4.1.11
   "@vitest/coverage-v8": 4.1.11
+  # The graph engine, pinned exactly. The graph recipe restyles the classes React Flow writes, such
+  # as `react-flow__edge-path`, and a minor release may rename one.
+  "@xyflow/react": 12.12.0
   # A machine pins its own dependencies exactly: @zag-js/checkbox@1.44.0 asks for core, types,
   # utils, anatomy, dom-query and focus-visible at 1.44.0 and no range. A caret here would let two
   # machines resolve to different minors and install two copies of all six, including
   # focus-visible, which installs a document listener. The whole set moves at one version together.
+  "@zag-js/accordion": 1.44.0
+  "@zag-js/angle-slider": 1.44.0
+  "@zag-js/avatar": 1.44.0
+  "@zag-js/carousel": 1.44.0
   "@zag-js/checkbox": 1.44.0
   "@zag-js/clipboard": 1.44.0
   "@zag-js/collapsible": 1.44.0
   "@zag-js/collection": 1.44.0
+  "@zag-js/color-picker": 1.44.0
+  "@zag-js/color-utils": 1.44.0
+  "@zag-js/combobox": 1.44.0
+  "@zag-js/date-input": 1.44.0
+  "@zag-js/date-picker": 1.44.0
+  "@zag-js/dialog": 1.44.0
+  "@zag-js/dismissable": 1.44.0
+  "@zag-js/dom-query": 1.44.0
+  "@zag-js/editable": 1.44.0
+  "@zag-js/file-upload": 1.44.0
+  "@zag-js/file-utils": 1.44.0
+  "@zag-js/floating-panel": 1.44.0
   "@zag-js/focus-visible": 1.44.0
+  "@zag-js/highlight-word": 1.44.0
+  "@zag-js/hover-card": 1.44.0
   "@zag-js/i18n-utils": 1.44.0
+  "@zag-js/image-cropper": 1.44.0
+  "@zag-js/json-tree-utils": 1.44.0
   "@zag-js/listbox": 1.44.0
+  "@zag-js/marquee": 1.44.0
   "@zag-js/menu": 1.44.0
+  "@zag-js/navigation-menu": 1.44.0
+  "@zag-js/number-input": 1.44.0
+  "@zag-js/pagination": 1.44.0
+  "@zag-js/password-input": 1.44.0
+  "@zag-js/pin-input": 1.44.0
   "@zag-js/popover": 1.44.0
+  "@zag-js/presence": 1.44.0
+  "@zag-js/progress": 1.44.0
+  "@zag-js/qr-code": 1.44.0
+  "@zag-js/radio-group": 1.44.0
+  "@zag-js/rating-group": 1.44.0
   "@zag-js/react": 1.44.0
+  "@zag-js/scroll-area": 1.44.0
+  "@zag-js/select": 1.44.0
+  "@zag-js/signature-pad": 1.44.0
+  "@zag-js/slider": 1.44.0
+  "@zag-js/splitter": 1.44.0
+  "@zag-js/steps": 1.44.0
   "@zag-js/switch": 1.44.0
   "@zag-js/tabs": 1.44.0
+  "@zag-js/tags-input": 1.44.0
+  "@zag-js/timer": 1.44.0
+  "@zag-js/toast": 1.44.0
   "@zag-js/toc": 1.44.0
+  "@zag-js/toggle-group": 1.44.0
   "@zag-js/tooltip": 1.44.0
+  "@zag-js/tour": 1.44.0
+  "@zag-js/tree-view": 1.44.0
   "@zag-js/types": 1.44.0
   "@zag-js/utils": 1.44.0
   "@commitlint/cli": ^21.2.2
@@ -62,6 +129,12 @@ catalog:
   "@rolldown/plugin-babel": ^0.2.4
   "@standard-schema/spec": ^1.1.0
   babel-plugin-react-compiler: ^1.0.0
+  # The graph layout by force, pinned exactly. `layoutForce` runs its simulation from a seed, and a
+  # release that changes the integrator moves every node of a seeded layout.
+  d3-force: 3.0.0
+  # The code block's line and word diff, pinned exactly. A release that changes how it splits lines
+  # or words changes which lines and words a diff marks.
+  diff: 9.0.0
   eslint-plugin-jsdoc: ^64.3.10
   eslint-plugin-perfectionist: ^5.11.0
   eslint-plugin-tsdoc: ^0.5.2
@@ -71,9 +144,15 @@ catalog:
   i18next-resources-to-backend: ^1.2.3
   json-schema-library: ^11.6.2
   lefthook: ^2.1.12
+  # The phone input's formatting and validation, pinned exactly. Each release updates the numbering
+  # plans in its metadata, so a release changes how a number formats and whether it is valid.
+  libphonenumber-js: 1.13.14
   # Marks for the specimens alone. A published component takes its glyph from the page, so no
   # package depends on this at run time.
   lucide-react: ^1.47.0
+  # The input mask's engine. Only its `Mask` class is imported: the package's own input binding
+  # writes the value through React's value tracker, so React does not report the change.
+  maska: ^3.2.1
   oxc-transform-react: ^0.149.0
   packageurl-js: ^2.0.1
   playwright: ^1.63.0
@@ -83,6 +162,11 @@ catalog:
   react: ^19.3.0
   react-dom: ^19.3.0
   react-i18next: ^17.0.14
+  # The chart engine's peer. React publishes it beside react-dom, at the same version.
+  react-is: ^19.3.0
+  # The chart engine, pinned exactly. The chart recipe restyles the classes recharts writes on its
+  # SVG, such as `recharts-cartesian-axis-tick-value`, and a minor release may rename one.
+  recharts: 3.10.1
   spdx-expression-parse: ^5.0.0
   stylelint: ^17.15.0
   stylelint-config-standard: ^40.0.0
@@ -90,6 +174,9 @@ catalog:
   stylelint-order: ^8.1.1
   stylelint-use-nesting: ^6.0.2
   typescript: ^7.0.2
+  # The conversation's scroll engine, pinned exactly. It decides when the view follows the latest
+  # message and when a reader's own scroll stops it, and a release may change either.
+  use-stick-to-bottom: 1.1.6
   vite: npm:@voidzero-dev/vite-plus-core@0.3.3
   vite-plugin-stylelint: ^6.3.0
   vite-plus: 0.3.3
