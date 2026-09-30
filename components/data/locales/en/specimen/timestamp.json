@@ -1,0 +1,83 @@
+{
+  "about": "Timestamp renders an instant as a time element: the words a reader sees, and the instant in ISO 8601 in dateTime, which a screen reader, a crawler and a copy of the page resolve to the moment. It reads the instant as a date, as a distance from now, or as both. The examples measure every distance from one instant, 25 July 2026 at 16:30 in Amsterdam, so the page reads the same on any day.",
+  "activity": {
+    "about": "The unit follows the distance: the largest unit that counts at least one, from seconds to years. A distance of one day reads as yesterday.",
+    "events": {
+      "contract": "Contract signed",
+      "expense": "Expense claim approved",
+      "leave": "Sick leave logged",
+      "note": "Note added to profile",
+      "review": "Performance review",
+      "salary": "Salary review",
+      "timesheet": "Timesheet submitted"
+    },
+    "title": "Distances"
+  },
+  "deadline": {
+    "about": "An instant ahead of now reads in the future tense, from the same component.",
+    "closes": "Enrolment for BSc Data Science closes",
+    "title": "Ahead"
+  },
+  "imports": {
+    "about": "A cell that names no instant renders an empty time element without dateTime. Intl throws on an invalid date, which would take the whole preview down, and an invented instant is worse than none. The application writes the placeholder a reader needs.",
+    "blank": "(blank)",
+    "caption": "Import preview",
+    "columns": {
+      "cell": "Cell as exported",
+      "delivered": "Delivered",
+      "parcel": "Parcel"
+    },
+    "title": "A value it cannot read"
+  },
+  "live": {
+    "about": "Both rows show one instant, posted just under a minute before the page opened. The first row reads the clock every second and turns into minutes while you watch. The second row read the clock once. Nothing reads the clock again unless updateInterval asks.",
+    "once": "Read once at mount",
+    "ticking": "Read every second",
+    "title": "Keeping a distance true"
+  },
+  "payouts": {
+    "about": "The screen reads the clock once and passes it to every row as now, so the rows never drift apart and one change moves them all. A page rendered on a server passes the same now to match its hydration.",
+    "caption": "Payout run",
+    "columns": {
+      "amount": "Amount",
+      "initiated": "Initiated",
+      "reference": "Reference",
+      "status": "Status"
+    },
+    "measured": "Measured at",
+    "move": "Move the clock an hour",
+    "statuses": {
+      "initiated": "Initiated",
+      "returned": "Returned",
+      "settled": "Settled"
+    },
+    "title": "One clock for a list"
+  },
+  "permit": {
+    "about": "Both forms follow locale, so a Dutch permit file reads in Dutch whatever the catalogue's locale. Without locale a timestamp writes in the locale in scope.",
+    "steps": {
+      "granted": "Vergunning verleend",
+      "received": "Aanvraag ontvangen",
+      "sent": "Besluit verzonden"
+    },
+    "title": "Localized"
+  },
+  "readings": {
+    "about": "One instant in the three readings. absolute writes the date, which never goes stale. relative writes the distance and puts the date in title, which a browser shows on hover only. both writes the date after the distance.",
+    "title": "Readings"
+  },
+  "receipts": {
+    "about": "One order as a time in a list, a date on an invoice and a full stamp in an audit record, through the options of Intl.DateTimeFormat. Each states timeZone, so every reader reads the instant alike.",
+    "audit": "Audit record",
+    "invoice": "Invoice",
+    "list": "Order list",
+    "title": "Formats"
+  },
+  "title": "Timestamp",
+  "vitals": {
+    "about": "On a ward tablet nothing hovers, so a title never shows, and 6 hours ago is not a clinical record. both writes the exact instant on the page for a touch screen, a keyboard and a screen reader.",
+    "reading": "Blood pressure 128/82",
+    "recorded": "recorded",
+    "title": "The exact instant on the page"
+  }
+}

@@ -9,9 +9,35 @@ describe("index", () => {
       "BadgePropsProvider",
       "ColorSwatch",
       "ColorSwatchMix",
+      "Format",
+      "QrCode",
       "Stat",
       "Status",
       "Tag",
+      "Timer",
+      "Timestamp",
+    ]);
+  });
+
+  it("exports QrCode as a namespace of its parts", () => {
+    expect(Object.keys(barrel.QrCode).toSorted()).toStrictEqual([
+      "DownloadTrigger",
+      "Frame",
+      "Overlay",
+      "Pattern",
+      "Root",
+    ]);
+  });
+
+  it("exports Timer as a namespace of its parts and the parser", () => {
+    expect(Object.keys(barrel.Timer).toSorted()).toStrictEqual([
+      "ActionTrigger",
+      "Area",
+      "Control",
+      "Item",
+      "Root",
+      "Separator",
+      "parse",
     ]);
   });
 
@@ -34,6 +60,10 @@ describe("index", () => {
       "ValueText",
       "ValueUnit",
     ]);
+  });
+
+  it("exports Format as a namespace of its two formats", () => {
+    expect(Object.keys(barrel.Format).toSorted()).toStrictEqual(["Byte", "Number"]);
   });
 
   it("exports Status as a namespace of its parts", () => {

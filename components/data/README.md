@@ -1,8 +1,9 @@
 # @stealthscale/component-data
 
-React components that display one value: `Badge`, `Status`, `Stat`, `Tag` and `ColorSwatch`. Each
-component renders through a recipe, so a theme restyles it by extending the recipe. The preset under
-`./theme` registers the recipes with an application's compiler.
+React components that display one value: `Badge`, `Status`, `Stat`, `Tag`, `ColorSwatch`, `Format`,
+`Timestamp`, `Timer` and `QrCode`. Each component renders through a recipe, so a theme restyles it
+by extending the recipe. The preset under `./theme` registers the recipes with an application's
+compiler.
 
 Every value a theme can change is a recipe axis, and a caller sets it as a prop. A caller changes
 the rendered element with `as`.
@@ -13,7 +14,9 @@ the rendered element with `as`.
 pnpm add @stealthscale/component-data
 ```
 
-The package peers on `react` and `@stealthscale/theme`. An application lists the preset under
+The package peers on `react`, `@stealthscale/theme`, `@stealthscale/hooks` and
+`@stealthscale/provider-locale`, whose locale `Format` and `Timestamp` write in. It depends on
+`@zag-js/i18n-utils` for the number and size formatters. An application lists the preset under
 `./theme` among the presets its compiler installs.
 
 ## Badge
@@ -228,6 +231,231 @@ mode.
 
 The swatch has no text, so a screen reader reads nothing for it. Write the color's name or value
 beside it wherever a person needs to read it.
+
+## Format
+
+Writes a figure or a size the way a locale writes it: the separators, the symbol and where the
+symbol sits. Each renders a `data` element whose `value` is the number a machine reads.
+
+```tsx
+import { Format } from "@stealthscale/component-data";
+
+<Format.Number options={{ currency: "EUR", style: "currency" }} value={1056430.5} />;
+<Format.Byte value={1450000} />;
+```
+
+| Part            | Element | What it renders                                         |
+| --------------- | ------- | ------------------------------------------------------- |
+| `Format.Number` | `data`  | A number by the options of `Intl.NumberFormat`          |
+| `Format.Byte`   | `data`  | A size in bytes or bits, in the largest unit it reaches |
+
+- Both write in `locale`, else in the locale of the nearest `LocaleProvider`, which the shell
+  renders, else in the runtime's default locale. Switching the application's locale writes every
+  figure again.
+- `Format.Number` takes the options of `Intl.NumberFormat` as one `options` object, such as
+  `{ notation: "compact" }` or `{ signDisplay: "exceptZero", style: "percent" }`.
+- `Format.Byte` takes `unit` (`byte` by default, or `bit`), `unitDisplay` (`short` by default,
+  `long` or `narrow`), `unitSystem` (`decimal` by default, or `binary`) and `precision`, the
+  significant digits in a larger unit, 3 by default. A size under one kilo-unit writes the unit's
+  long name, "512 bytes", where `short` would write "512 byte" in English.
+- Under `binary` a larger unit is 1024 of the smaller, and its name is still the decimal one: `Intl`
+  names no kibibyte.
+- The recipe has no axis. Numerals are tabular, and a figure does not wrap.
+
+The formats do not offer a time or a relative time. `Timestamp` writes an instant.
+
+## Timestamp
+
+Renders an instant as a `time` element whose `dateTime` is the instant in ISO 8601. Its text is the
+instant as a date, as the distance from now, or as both.
+
+```tsx
+import { Timestamp } from "@stealthscale/component-data";
+
+<Timestamp value={order.placedAt} />;
+<Timestamp now={readAt} reads="relative" value={payout.initiatedAt} />;
+<Timestamp options={{ dateStyle: "long", timeZone: "Europe/Amsterdam" }} value={signedAt} />;
+```
+
+| Prop             | Values                                                           | Default                        |
+| ---------------- | ---------------------------------------------------------------- | ------------------------------ |
+| `value`          | a `Date`, milliseconds since the epoch, or a string `Date` reads | required                       |
+| `reads`          | `absolute`, `relative`, `both`                                   | `absolute`                     |
+| `options`        | the options of `Intl.DateTimeFormat`                             | a medium date and a short time |
+| `locale`         | a locale                                                         | the locale in scope            |
+| `now`            | a `Date` or milliseconds since the epoch                         | the clock at mount             |
+| `updateInterval` | milliseconds                                                     | none                           |
+
+- `absolute` writes the exact form. `relative` writes the distance from `now` and puts the exact
+  form in `title`. `both` writes the distance followed by the exact form in the muted ink, and sets
+  no `title`.
+- A distance takes the largest unit that counts at least one, from seconds to years, with a month of
+  30 days and a year of 365. The count is truncated. `Intl.RelativeTimeFormat` words it with
+  `numeric: "auto"`: "yesterday", "now", "in 3 hours".
+- The locale is `locale`, else the locale of the nearest `LocaleProvider`, else the runtime's
+  default, as for `Format`.
+- Pass one `now` to every row of a list, so the rows never drift apart and a page rendered on a
+  server matches its hydration. Without `now` the clock is read once at mount. `updateInterval`
+  reads it again every so many milliseconds, with one timer per timestamp.
+- A browser shows a `title` on hover only. Where the exact instant is part of the record, such as a
+  clinical reading, `reads="both"` puts it on the page for a touch screen, a keyboard and a screen
+  reader.
+- A value `Date` cannot read renders an empty `time` without `dateTime`.
+- The element is not a live region, so a distance that updates announces nothing.
+- The recipe has no axis. Numerals are tabular, and a timestamp does not wrap.
+
+Not offered:
+
+- A time of day without a date. A `Date` with `options={{ timeStyle: "short" }}` writes an instant's
+  time.
+- A threshold past which a distance turns into a date, a fixed tense, and a coarsest unit.
+
+## Timer
+
+Counts down to a target or up from a start in tabular figures, with buttons that start, pause,
+resume, reset and restart the count.
+
+```tsx
+import { Timer } from "@stealthscale/component-data";
+
+<Timer.Root autoStart countdown startMs={Timer.parse({ minutes: 15 })}>
+  <Timer.Area>
+    <Timer.Item type="minutes" />
+    <Timer.Separator>:</Timer.Separator>
+    <Timer.Item type="seconds" />
+  </Timer.Area>
+</Timer.Root>;
+<Timer.Root interval={10}>
+  <Timer.Area>
+    <Timer.Item type="seconds" />
+    <Timer.Separator>.</Timer.Separator>
+    <Timer.Item type="milliseconds" />
+  </Timer.Area>
+  <Timer.Control>
+    <Timer.ActionTrigger action="start">Start</Timer.ActionTrigger>
+    <Timer.ActionTrigger action="pause">Pause</Timer.ActionTrigger>
+    <Timer.ActionTrigger action="resume">Resume</Timer.ActionTrigger>
+    <Timer.ActionTrigger action="reset" variant="outline">
+      Reset
+    </Timer.ActionTrigger>
+  </Timer.Control>
+</Timer.Root>;
+```
+
+| Axis      | Values                                                             | Default   |
+| --------- | ------------------------------------------------------------------ | --------- |
+| `variant` | `solid`, `subtle`, `surface`, `outline`, `plain`                   | `plain`   |
+| `size`    | `sm`, `md`, `lg`                                                   | `md`      |
+| `palette` | `primary`, `secondary`, `accent`, `neutral`, and the four statuses | inherited |
+| `effect`  | `glow`, `pulse`                                                    | none      |
+
+| Part            | Element  | What it renders                                            |
+| --------------- | -------- | ---------------------------------------------------------- |
+| `Root`          | `div`    | The count above the buttons                                |
+| `Area`          | `div`    | The count, in the `timer` role                             |
+| `Item`          | `span`   | One unit of the count                                      |
+| `Separator`     | `span`   | A mark between two units, hidden from assistive software   |
+| `Control`       | `div`    | The row of buttons                                         |
+| `ActionTrigger` | `button` | The library's `Button`, which runs one action of the timer |
+
+The root takes the machine's options: `startMs`, `targetMs`, `countdown`, `interval`, `autoStart`,
+`onTick` and `onComplete`. The count ticks every `interval` milliseconds, 1000 by default. A
+countdown without `targetMs` runs to zero. `onTick` runs after the render that shows each new count,
+with that count. `onComplete` runs in the frame that shows the target.
+
+`Timer.parse` turns an object of `days`, `hours`, `minutes`, `seconds` and `milliseconds` into
+milliseconds. It throws for an object that names none of the first four. A date string returns its
+epoch milliseconds, so a countdown to a date passes the difference from `Date.now()`.
+
+`size` sets the count's heading text style: 18, 22.8 and 32.4px at the foundation's scale. The root
+passes `size` and `palette` to every `Button` inside it. A look other than `plain` sets each unit in
+a tile of that flat look. Under forced colors a tile keeps a `CanvasText` edge. The figures are
+tabular, so the count keeps its width while it ticks. An item pads its figures to two digits and the
+milliseconds to three. Each unit wraps at the next unit, the minutes at 60 and the hours at 24. A
+count that can pass an hour renders the hours.
+
+The area has the `timer` role, a live region that announces nothing while the count ticks. Its name
+is the time in words, such as "2 minutes, 5 seconds" in English. A page in another language passes
+`label`, a function of the time, to the area.
+
+The machine hides a trigger while its action does not apply: Start while the count runs or is
+paused, Pause unless it runs, Resume unless it is paused, and Reset while it is idle. A hidden
+trigger takes no room. A trigger that hides while it has focus moves focus to the first trigger that
+shows. Enter on Start leaves focus on Pause, and a finished countdown leaves it on Start.
+
+Not offered:
+
+- The root takes no `translations`, because the area takes its name from `label`.
+- The package does not export a root provider or a hook that returns the api. The parts read the
+  machine from `Timer.Root`.
+- A `Separator` after an item renders the item's unit, in place of the machine's item label and item
+  value parts.
+- A `Progress` reads the count from `onTick`, in place of the api's `progressPercent`.
+
+## QR code
+
+Encodes a value as a pattern a camera reads, with an optional mark over its middle and buttons that
+download it as an image.
+
+```tsx
+import { QrCode } from "@stealthscale/component-data";
+
+<QrCode.Root value="https://stealthscale.io/join/7fK2mQ">
+  <QrCode.Frame label="QR code for the invite link">
+    <QrCode.Pattern />
+  </QrCode.Frame>
+</QrCode.Root>;
+<QrCode.Root palette="primary" size="lg" value={address}>
+  <QrCode.Frame label="QR code for the pricing page">
+    <QrCode.Pattern />
+  </QrCode.Frame>
+  <QrCode.Overlay>
+    <ZapIcon />
+  </QrCode.Overlay>
+  <QrCode.DownloadTrigger fileName="pricing.png">Download PNG</QrCode.DownloadTrigger>
+</QrCode.Root>;
+```
+
+| Axis      | Values                                                             | Default |
+| --------- | ------------------------------------------------------------------ | ------- |
+| `size`    | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `full`                        | `md`    |
+| `palette` | `primary`, `secondary`, `accent`, `neutral`, and the four statuses | none    |
+| `effect`  | `glow`, `pulse`                                                    | none    |
+
+| Part              | Element  | What it renders                                                    |
+| ----------------- | -------- | ------------------------------------------------------------------ |
+| `Root`            | `div`    | A grid with the code in its first cell and every other child below |
+| `Frame`           | `svg`    | The code as an image, on its ground                                |
+| `Pattern`         | `path`   | The dark modules                                                   |
+| `Overlay`         | `div`    | A mark over the middle, hidden from assistive software             |
+| `DownloadTrigger` | `button` | The library's `Button`, which downloads the code                   |
+
+The root takes `value` or `defaultValue`, `encoding` and `pixelSize`. `encoding` states the
+encoder's options: `ecc`, `border`, `boostEcc`, `minVersion`, `maxVersion`, `maskPattern` and
+`invert`. The code keeps a quiet zone of four modules, the margin ISO/IEC 18004 asks for. While an
+`Overlay` renders, the code encodes at error correction `H`, which recovers up to 30% of the code.
+At the default `L`, a code under a mark a quarter of its side does not decode. `encoding` states
+either value instead.
+
+`size` sets the code's side: 64, 80, 128, 160, 192 and 256px, or the width of the container at
+`full`. The frame and the mark render in the light scheme, so the code is dark on light on a dark
+page as well. They keep their colors under forced colors, because the colors are the data. `palette`
+colors the pattern and the mark in the palette's solid.
+
+The frame is an image named "QR code" by default. Name it by what a scan does, such as "QR code to
+join the Guest network". The value is not the default name, because a code can contain a secret,
+such as an authenticator key or a network password.
+
+A press on `DownloadTrigger` writes the code to a file named by `fileName`, as `image/png` unless
+`mimeType` states `image/jpeg` or `image/svg+xml`. The image is black on white in any program that
+opens it, with the mark, at the size the code renders at times the device pixel ratio. `quality`
+sets the quality of a JPEG.
+
+Not offered:
+
+- The package does not export a root provider or a hook that returns the api. The root takes
+  `value`, and `DownloadTrigger` writes the file.
+- A status over the code, such as expired or scanned: an application renders it beside the code.
 
 ## Licence
 
