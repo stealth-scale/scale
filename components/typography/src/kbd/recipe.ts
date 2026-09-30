@@ -85,14 +85,14 @@ export const recipe = defineRecipe({
      *
      * @remarks
      *   `raised` is a keycap: the subtle fill, a hairline edge in `colorPalette.muted` and a 2px
-     *   bottom edge in `colorPalette.border`. The other looks read the `flat` layer styles.
+     *   bottom edge in `colorPalette.emphasized`. The other looks read the `flat` layer styles.
      *   `subtle` has no edge, so it draws a `CanvasText` hairline in forced colours.
      */
     variant: {
       ...flatVariants(["outline", "plain"]),
       raised: {
         background: "colorPalette.subtle",
-        borderBlockEndColor: "colorPalette.border",
+        borderBlockEndColor: "colorPalette.emphasized",
         borderBlockEndWidth: "indicator",
         borderColor: "colorPalette.muted",
         borderWidth: "control",

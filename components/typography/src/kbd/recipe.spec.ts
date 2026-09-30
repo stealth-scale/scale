@@ -68,9 +68,9 @@ describe("recipe", () => {
     expect(recipe.base).toMatchObject({ fontFamily: "body", justifyContent: "center" });
   });
 
-  it("draws a 2px bottom edge in colorPalette.border in the raised look", () => {
+  it("draws a 2px bottom edge in colorPalette.emphasized in the raised look", () => {
     expect(recipe.variants?.["variant"]?.["raised"]).toMatchObject({
-      borderBlockEndColor: "colorPalette.border",
+      borderBlockEndColor: "colorPalette.emphasized",
       borderBlockEndWidth: "indicator",
     });
   });

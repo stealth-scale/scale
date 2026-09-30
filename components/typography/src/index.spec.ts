@@ -9,6 +9,7 @@ describe("index", () => {
       "Code",
       "Em",
       "Heading",
+      "Highlight",
       "Icon",
       "Kbd",
       "List",

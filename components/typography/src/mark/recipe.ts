@@ -57,12 +57,19 @@ export const recipe = defineRecipe({
     },
 
     /**
-     * Inline padding from the inset scale. The plain and text looks set no padding.
+     * Inline padding from the inset scale, or `none`. The plain and text looks set no padding.
+     *
+     * @remarks
+     *   `none` is for a match inside a word, where padding splits the word: "Pay" marked in
+     *   "Payout" reads "Pay out" at `xs`.
      */
-    inset: sizeVariants(
-      (size) => ({ paddingInline: dense(`{spacing.inset.${size}}`) }),
-      ["xs", "sm", "md"],
-    ),
+    inset: {
+      none: { paddingInline: "0" },
+      ...sizeVariants(
+        (size) => ({ paddingInline: dense(`{spacing.inset.${size}}`) }),
+        ["xs", "sm", "md"],
+      ),
+    },
 
     /**
      * Entrance animation. Each value reads the theme's animation style of the same name.

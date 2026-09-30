@@ -1,10 +1,10 @@
 # @stealthscale/component-typography
 
 Text components: a paragraph, a heading, inline code, keycaps, runs of stressed, important,
-highlighted and quoted text, an icon, a list and a block quotation. Each component binds a recipe,
-and a theme restyles it by extending the recipe. Every value a theme can change is an axis of the
-recipe, so a caller sets it as a prop. `as` changes the element. A component with parts is a
-namespace, such as `Kbd.Root` and `List.Item`.
+highlighted and quoted text, the matches of a search, an icon, a list and a block quotation. Each
+component binds a recipe, and a theme restyles it by extending the recipe. Every value a theme can
+change is an axis of the recipe, so a caller sets it as a prop. `as` changes the element. A
+component with parts is a namespace, such as `Kbd.Root` and `List.Item`.
 
 ## Install
 
@@ -12,8 +12,9 @@ namespace, such as `Kbd.Root` and `List.Item`.
 pnpm add @stealthscale/component-typography
 ```
 
-The package peers on `react` and `@stealthscale/theme`. Add the preset under `./theme` to the
-presets of the application's compiler.
+The package peers on `react`, `@stealthscale/theme` and `@stealthscale/hooks`, whose `useHighlight`
+finds the matches `Highlight` marks. Add the preset under `./theme` to the presets of the
+application's compiler.
 
 ## Text
 
@@ -164,9 +165,51 @@ a `mark` only when the user enables it, and WCAG 1.4.1 fails a distinction made 
 | `variant` | `solid`, `subtle`, `surface`, `outline`, `plain`, `text`                           | `subtle`  |
 | `palette` | `primary`, `secondary`, `accent`, `neutral`, `info`, `success`, `warning`, `error` | inherited |
 | `radius`  | `l1`, `l2`, `l3`, `full`                                                           | `l1`      |
-| `inset`   | `xs`, `sm`, `md`. The `plain` and `text` looks set no inset                        | `xs`      |
+| `inset`   | `none`, `xs`, `sm`, `md`. The `plain` and `text` looks set no inset                | `xs`      |
 | `motion`  | `fade`, `rise`, `reveal`                                                           | none      |
 | `effect`  | `glow`, `shine`                                                                    | none      |
+
+`none` is for a match inside a word, where padding splits the word: "Pay" marked in "Payout" reads
+"Pay out" at `xs`.
+
+## Highlight
+
+`Highlight` renders a string with every match of a search query in a `Mark`, so a reader sees why a
+result matched.
+
+```tsx
+import { Highlight, Text } from "@stealthscale/component-typography";
+
+<Text>
+  <Highlight query={query}>{article.title}</Highlight>
+</Text>;
+<Highlight palette="warning" query={["refund", "chargeback"]} variant="solid">
+  {entry.summary}
+</Highlight>;
+```
+
+| Prop         | Values                               | Default    |
+| ------------ | ------------------------------------ | ---------- |
+| `children`   | the text, a string                   | required   |
+| `query`      | a term, or an array of terms         | required   |
+| `ignoreCase` | `true`, `false`                      | `true`     |
+| `inset`      | the mark's insets                    | `none`     |
+| every other  | the mark's axes and a `mark`'s props | the mark's |
+
+- The matching is `useHighlight`'s from `@stealthscale/hooks`: every occurrence of every term, by
+  substring, letter case ignored unless `ignoreCase` is false, each term trimmed, the longer term
+  first. It matches as a filter scope keeps rows, so a result the filter keeps shows its match.
+- Every match renders in `Mark` with the props the caller passes, at the `none` inset unless the
+  caller passes another.
+- The component renders no element of its own. The text between the matches renders as it is, so a
+  highlight goes wherever its string would.
+- A screen reader announces a `mark` only where its user turns highlights on.
+
+Not offered:
+
+- Marking the first occurrence alone.
+- Matching whole words only.
+- Matching `cafe` to `café`, which a filter scope does not match either.
 
 ## Quote
 
@@ -351,6 +394,7 @@ import { Blockquote } from "@stealthscale/component-typography";
 | `EmProps`                 | `Em`: the recipe's variants and an `em` element's props            |
 | `StrongProps`             | `Strong`: the recipe's variants and a `strong` element's props     |
 | `MarkProps`               | `Mark`: the recipe's variants and a `mark` element's props         |
+| `HighlightProps`          | `Highlight`: the text, the query, `ignoreCase` and `MarkProps`     |
 | `QuoteProps`              | `Quote`: the recipe's variants and a `q` element's props           |
 | `SpanProps`               | `Span`: the recipe's variants and a `span` element's props         |
 | `Kbd.RootProps`           | `Kbd.Root`: the recipe's variants and a `kbd` element's props      |

@@ -7,8 +7,6 @@
  *   leaves out, so no generator runs here.
  */
 
-/* eslint-disable import/max-dependencies -- a preset names every recipe its package registers, so its dependency count is the size of the package */
-
 import { definePreset } from "@stealthscale/theme/authoring";
 
 import { recipe as blockquote } from "#blockquote/recipe.ts";

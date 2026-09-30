@@ -36,4 +36,10 @@ describe("Root", () => {
 
     expect(slotElement(container, "list", "root").tagName).toBe("OL");
   });
+
+  it("forwards start to the element of a numbered list", () => {
+    const { container } = render(<Root as="ol" start={3} />);
+
+    expect(slotElement(container, "list", "root").getAttribute("start")).toBe("3");
+  });
 });

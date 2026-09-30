@@ -62,8 +62,12 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "radius")).toStrictEqual(["full", "l1", "l2", "l3"]);
   });
 
-  it("declares three insets on the inset axis", () => {
-    expect(valuesOf(recipe, "inset")).toStrictEqual(["md", "sm", "xs"]);
+  it("declares four insets on the inset axis", () => {
+    expect(valuesOf(recipe, "inset")).toStrictEqual(["md", "none", "sm", "xs"]);
+  });
+
+  it("sets no inline padding at the none inset", () => {
+    expect(recipe.variants?.["inset"]?.["none"]).toStrictEqual({ paddingInline: "0" });
   });
 
   it("sets only padding-inline at each inset", () => {
