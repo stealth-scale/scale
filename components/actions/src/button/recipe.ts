@@ -23,6 +23,19 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
+ * Returns the fill of a button that is on under forced colors: `Highlight` behind `HighlightText`.
+ *
+ * @remarks
+ *   Forced colors replace every background and remove every shadow, so without it a button that is
+ *   on reads the same as one that is off.
+ */
+function forcedOn(): SystemStyleObject {
+  return {
+    _highContrast: { background: "Highlight", color: "HighlightText", forcedColorAdjust: "none" },
+  };
+}
+
+/**
  * Returns the `_currentPage` and `_pressed` styles of a look with no fill of its own.
  *
  * @remarks
@@ -31,12 +44,18 @@ import {
  *   compiler emits a look's background in a later cascade layer than the base, and a later layer
  *   applies over an earlier one at any specificity. Pass `colorPalette.subtle` for a look with no
  *   resting fill and `colorPalette.muted` for a look that rests on the subtle fill, so the on state
- *   is one step deeper in both.
+ *   is one step deeper in both. A pressed button's edge is the palette's emphasized role, one step
+ *   darker than the outline look's muted edge.
  */
 function on(background: "colorPalette.muted" | "colorPalette.subtle"): SystemStyleObject {
   return {
-    _currentPage: { background, color: "colorPalette.fg", fontWeight: "semibold" },
-    _pressed: { background, borderColor: "colorPalette.border", color: "colorPalette.fg" },
+    _currentPage: { background, color: "colorPalette.fg", fontWeight: "semibold", ...forcedOn() },
+    _pressed: {
+      background,
+      borderColor: "colorPalette.emphasized",
+      color: "colorPalette.fg",
+      ...forcedOn(),
+    },
   };
 }
 
@@ -45,14 +64,12 @@ function on(background: "colorPalette.muted" | "colorPalette.subtle"): SystemSty
  *
  * @remarks
  *   The solid look has no deeper fill, and any other fill matches its hover fill. The on state is
- *   an inset shadow in the label ink, which is visible under hover, beside a focus ring outside the
- *   element, and in forced colors mode, where the browser replaces every background. `:active` is
- *   the momentary press.
+ *   the theme's inset line and the semibold weight. `:active` is the momentary press.
  */
 function marked(): SystemStyleObject {
   return {
-    _currentPage: { boxShadow: "inset", fontWeight: "semibold" },
-    _pressed: { boxShadow: "inset", fontWeight: "semibold" },
+    _currentPage: { boxShadow: "inset", fontWeight: "semibold", ...forcedOn() },
+    _pressed: { boxShadow: "inset", fontWeight: "semibold", ...forcedOn() },
   };
 }
 

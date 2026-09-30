@@ -1,8 +1,10 @@
 # @stealthscale/component-actions
 
-Draws what a person presses: the button, the square button that holds one glyph, and the clipboard
-whose trigger copies a value. Every component binds a recipe and draws nothing of its own, so a
-theme restyles all of them by extending the recipe. The preset under `./theme` registers the recipes
+Renders what a person presses: the button, the square button that contains one glyph, the group of
+buttons that stay pressed, the two marks a button swaps between, the toggle between light and dark,
+the clipboard whose trigger copies a value, and the trigger that saves a file built in the page.
+Every component binds a recipe or composes one and does not add styles of its own, so a theme
+restyles every component by extending its recipe. The preset under `./theme` registers the recipes
 with an application's compiler.
 
 Every value a theme can change on a component is an axis of its recipe, so a caller sets it as a
@@ -14,8 +16,9 @@ prop and writes no style. A caller changes the element a component draws with `a
 pnpm add @stealthscale/component-actions
 ```
 
-The package peers on `react`, `@stealthscale/theme` and `@stealthscale/hooks`. An application lists
-the preset under `./theme` among the presets its compiler installs.
+The package peers on `react`, `@stealthscale/theme`, `@stealthscale/hooks` and
+`@stealthscale/provider-color-mode`, whose `useColorMode` the color mode toggle reads. An
+application lists the preset under `./theme` among the presets its compiler installs.
 
 ## Button
 
@@ -92,9 +95,129 @@ fill matches what a screen reader announces:
 A link rendered as a button in a bar of sections sets `aria-current="page"` on the current section,
 and the recipe fills it the same way, in semibold. The ghost, glass, outline and plain looks take
 the palette's subtle fill while on, the subtle and surface looks take the muted fill, and the solid
-look draws an inset shadow.
+look draws an inset shadow. Under forced colors a button that is on fills with `Highlight` in every
+look.
 
 A control in a toolbar uses the ink of the text beside it. Set `palette="neutral"`.
+
+## ToggleGroup
+
+Renders buttons that stay pressed: one at a time, as a choice, or several at once, as a set of
+toggles. The root runs the Zag toggle group machine and renders the layout package's `Group`, and
+each item renders `Button`.
+
+```tsx
+import { ToggleGroup } from "@stealthscale/component-actions";
+
+<ToggleGroup.Root aria-label="Text style" defaultValue={["bold"]} multiple variant="outline">
+  <ToggleGroup.Item aria-label="Bold" shape="square" value="bold">
+    <BoldIcon size="1em" />
+  </ToggleGroup.Item>
+  <ToggleGroup.Item aria-label="Italic" shape="square" value="italic">
+    <ItalicIcon size="1em" />
+  </ToggleGroup.Item>
+</ToggleGroup.Root>;
+```
+
+| Part   | Element  | What it renders                                |
+| ------ | -------- | ---------------------------------------------- |
+| `Root` | `div`    | The layout's `Group`, attached by default      |
+| `Item` | `button` | The package's `Button`, pressed while it is on |
+
+- `ToggleGroup.Root` takes `value`, `defaultValue`, `onValueChange`, `multiple`, `deselectable`
+  (true by default), `orientation`, `disabled`, `loopFocus`, `rovingFocus`, `dir`, `id` and `ids`.
+  `ToggleGroup.Item` takes `value` and `disabled`, and every prop of `Button`.
+- Without `multiple` the root is a `radiogroup` and every item a radio with `aria-checked`. With
+  `multiple` the root is a `group` and every item reports `aria-pressed`. Name the root with
+  `aria-label` or `aria-labelledby`.
+- The root passes `size`, `variant` and `palette` to every item. An item that is on takes its look's
+  pressed fill. The solid look marks it with an inset shadow and a semibold label, which an icon
+  does not show.
+- `attached={false}` spaces the items by the group's `gap`. The group's other props, such as `grow`,
+  pass through.
+- The arrow keys, Home and End move focus between the items and skip a disabled one. Space and Enter
+  toggle the focused item. In a `toolbar` the focus stops at either end.
+- The group is one stop in the tab order. Tab enters it on its first item, and Shift+Tab returns to
+  the item focused last.
+
+## Swap
+
+Renders two marks in one place and shows one of them. When the control around it changes state, one
+mark leaves while the other enters. Both marks keep their room. The swap takes the size of the
+larger mark and nothing beside it moves.
+
+```tsx
+import { IconButton, Swap } from "@stealthscale/component-actions";
+import { Volume2Icon, VolumeXIcon } from "lucide-react";
+
+<IconButton aria-label="Mute" aria-pressed={muted} onClick={toggle}>
+  <Swap.Root swap={muted}>
+    <Swap.Indicator type="on">
+      <VolumeXIcon aria-hidden size="1em" />
+    </Swap.Indicator>
+    <Swap.Indicator type="off">
+      <Volume2Icon aria-hidden size="1em" />
+    </Swap.Indicator>
+  </Swap.Root>
+</IconButton>;
+```
+
+| Part        | Element | What it renders                                              |
+| ----------- | ------- | ------------------------------------------------------------ |
+| `Root`      | `span`  | The inline grid whose one cell both marks share              |
+| `Indicator` | `span`  | One mark: `on` while `swap` is true, `off` while it is false |
+
+| Axis     | Values                           | Default |
+| -------- | -------------------------------- | ------- |
+| `motion` | `scale`, `fade`, `slide`, `none` | `scale` |
+
+- `Swap.Root` takes `swap`, false by default, and writes `data-swap` as `on` or `off`. `lazyMount`
+  renders a mark only once it first shows. `unmountOnExit` removes a mark once it has left. Both are
+  false by default and leave both marks in the document.
+- The mark that leaves runs its exit motion while the other runs its entry. It is `inert` meanwhile
+  and then carries `data-hidden`. The recipe renders `data-hidden` as `visibility: hidden`: a hidden
+  mark keeps its room and leaves the accessibility tree. A swap that first renders shows its mark at
+  rest.
+- `scale` grows the entering mark from half its size and shrinks the leaving one, with a fade.
+  `fade` fades them. `slide` moves the entering mark up from below and the leaving one up and out.
+  `none` swaps them at once. Every motion swaps at once under reduced motion.
+- The swap has no role and no name. The control around it states the state: a toggle button keeps
+  one name and sets `aria-pressed`, and a button whose words change names the action a press takes
+  and sets no `aria-pressed`. An icon mark is `aria-hidden`.
+
+The swap does not offer these:
+
+- `RootProvider` and `useSwap`. A caller passes `swap` from its own state.
+- `hideMode`. A hidden mark keeps its room in every case.
+
+## ColorModeToggle
+
+Renders the button that switches the page between light and dark. It reads and sets the mode through
+`useColorMode` from `@stealthscale/provider-color-mode`, so it needs a `ColorModeProvider` above it,
+which the shell provider renders.
+
+```tsx
+import { ColorModeToggle } from "@stealthscale/component-actions";
+import { MoonIcon, SunIcon } from "lucide-react";
+
+<ColorModeToggle
+  dark={<MoonIcon aria-hidden size="1em" />}
+  light={<SunIcon aria-hidden size="1em" />}
+/>;
+```
+
+- The toggle is the package's `Button` as a ghost, neutral square. Every button prop passes through,
+  so a bar sets the size and the look its other controls use.
+- `aria-pressed` is true while the page is dark. The name, "Dark mode" unless `label` is passed,
+  stays the same in both states.
+- The toggle shows the resolved mode. While the choice follows the operating system, it shows the
+  mode the system chose, and a press stores the other mode as an explicit choice.
+- `dark` and `light` are the caller's glyphs. They change places through `Swap` with its default
+  motion.
+- `onClick` runs before the mode changes, and a handler that calls `preventDefault` keeps the mode.
+
+The toggle does not offer a choice to follow the operating system. A picker of light, dark and
+system sets `setColorMode` from `useColorMode` itself.
 
 ## Clipboard
 
@@ -168,6 +291,67 @@ clipboard has no colour or surface of its own, so it offers no `palette` or `eff
 | Axis   | Values           | Default |
 | ------ | ---------------- | ------- |
 | `size` | `sm`, `md`, `lg` | `md`    |
+
+## DownloadTrigger
+
+Saves a file built in the page when pressed. The browser receives the file through an anchor with a
+`download` attribute and an object URL that points at data in the page. The trigger renders
+`Button`, and it takes the axes listed under [Button](#button) and the variants a
+`ButtonPropsProvider` sets.
+
+- `data` is a string, a `Blob` or a `File`, or a function that returns one or a promise of one. The
+  trigger calls the function on each press to build the file when the reader asks for it.
+- `fileName` is the name the browser saves the file under.
+- `mimeType` sets the type of string data. A `Blob` or a `File` keeps its own type.
+
+```tsx
+import { download, DownloadTrigger } from "@stealthscale/component-actions";
+
+<DownloadTrigger data={csv} fileName="ledger.csv" mimeType="text/csv" variant="outline">
+  <DownloadIcon size="1em" />
+  Download the ledger
+</DownloadTrigger>;
+<DownloadTrigger
+  aria-label="Download ledger.csv"
+  data={csv}
+  fileName="ledger.csv"
+  shape="square"
+  variant="ghost"
+>
+  <DownloadIcon size="1em" />
+</DownloadTrigger>;
+```
+
+`onClick` runs before the download. A handler that calls `preventDefault` cancels it.
+
+While a `data` promise is pending, a page sets `aria-disabled` on the trigger and cancels a second
+press in `onClick`. The trigger has no pending state of its own. `aria-disabled` keeps focus on the
+trigger, where `disabled` would drop it:
+
+```tsx
+<DownloadTrigger
+  aria-disabled={pending}
+  data={compress}
+  fileName="payouts.csv.gz"
+  onClick={(event) => {
+    if (pending) event.preventDefault();
+  }}
+>
+  Download all payouts
+</DownloadTrigger>
+```
+
+A control that is not a button, such as a menu row, calls `download` with the same options. The
+promise it returns rejects when the `data` function throws or its promise rejects.
+
+```tsx
+<Menu.Root
+  onSelect={() => void download({ data: csv, fileName: "ledger.csv", mimeType: "text/csv" })}
+>
+```
+
+`download` saves text exactly as given and does not prepend a byte order mark. It creates its anchor
+in the document of the window it runs in. It revokes the object URL one task after the click.
 
 ## Licence
 

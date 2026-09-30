@@ -1,0 +1,48 @@
+{
+  "about": "Renders buttons that stay pressed: one at a time, as a choice, or several at once, as a set of toggles. The arrow keys move between the buttons, and Space and Enter toggle the focused one.",
+  "align": "Text alignment",
+  "alignments": {
+    "center": "Center",
+    "left": "Left",
+    "right": "Right"
+  },
+  "looks": {
+    "about": "The button's looks, as one attached strip. A button that is on takes its look's pressed fill, one step deeper than the look's rest. The `solid` look marks a pressed button with an inset shadow and a semibold label, which an icon does not show.",
+    "title": "Looks"
+  },
+  "orientation": {
+    "about": "`orientation=\"vertical\"` stacks the buttons, and the up and down arrow keys move between them.",
+    "title": "Orientation"
+  },
+  "show": "Show invoices",
+  "single": {
+    "about": "Without `multiple` the group keeps one button on and reads as a set of radios. `deselectable={false}` keeps a button on when it is pressed again.",
+    "title": "One at a time"
+  },
+  "sizes": {
+    "about": "The button's sizes, so a group in a toolbar is as tall as the buttons beside it.",
+    "title": "Sizes"
+  },
+  "spaced": {
+    "about": "`attached={false}` spaces the buttons by the group's gap. Archived is disabled, and the arrow keys skip it.",
+    "title": "Spaced"
+  },
+  "states": {
+    "about": "A disabled group dims every button and takes none out of the row.",
+    "title": "Disabled"
+  },
+  "statuses": {
+    "archived": "Archived",
+    "open": "Open",
+    "paid": "Paid",
+    "pending": "Pending"
+  },
+  "style": "Text style",
+  "styles": {
+    "bold": "Bold",
+    "italic": "Italic",
+    "strikethrough": "Strikethrough",
+    "underline": "Underline"
+  },
+  "title": "Toggle group"
+}

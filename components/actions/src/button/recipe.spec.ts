@@ -165,7 +165,7 @@ describe("recipe", () => {
   });
 
   it("fills the four unfilled looks with colorPalette.subtle when pressed or current", () => {
-    expect(recipe.compoundVariants?.[1]).toStrictEqual({
+    expect(recipe.compoundVariants?.[1]).toMatchObject({
       className: "button--on",
       css: {
         _currentPage: {
@@ -175,7 +175,7 @@ describe("recipe", () => {
         },
         _pressed: {
           background: "colorPalette.subtle",
-          borderColor: "colorPalette.border",
+          borderColor: "colorPalette.emphasized",
           color: "colorPalette.fg",
         },
       },
@@ -184,7 +184,7 @@ describe("recipe", () => {
   });
 
   it("fills the subtle and surface looks with colorPalette.muted when pressed or current", () => {
-    expect(recipe.compoundVariants?.[2]).toStrictEqual({
+    expect(recipe.compoundVariants?.[2]).toMatchObject({
       className: "button--on-deeper",
       css: {
         _currentPage: {
@@ -194,7 +194,7 @@ describe("recipe", () => {
         },
         _pressed: {
           background: "colorPalette.muted",
-          borderColor: "colorPalette.border",
+          borderColor: "colorPalette.emphasized",
           color: "colorPalette.fg",
         },
       },
@@ -208,7 +208,7 @@ describe("recipe", () => {
 
   it("applies the inset shadow to the solid look when pressed or current", () => {
     expect(recipe.compoundVariants).toHaveLength(4);
-    expect(recipe.compoundVariants?.at(-1)).toStrictEqual({
+    expect(recipe.compoundVariants?.at(-1)).toMatchObject({
       className: "button--on-marked",
       css: {
         _currentPage: { boxShadow: "inset", fontWeight: "semibold" },
@@ -217,6 +217,23 @@ describe("recipe", () => {
       variant: ["solid"],
     });
   });
+
+  it.each([1, 2, 3])(
+    "fills a button that is on with Highlight under forced colors in compound %i",
+    (index) => {
+      const forced = {
+        _highContrast: {
+          background: "Highlight",
+          color: "HighlightText",
+          forcedColorAdjust: "none",
+        },
+      };
+
+      expect(recipe.compoundVariants?.[index]).toMatchObject({
+        css: { _currentPage: forced, _pressed: forced },
+      });
+    },
+  );
 
   it("matches JSX tag names ending in Button", () => {
     expect(recipe.jsx).toStrictEqual([/Button$/u]);
