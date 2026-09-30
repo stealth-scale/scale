@@ -49,15 +49,18 @@ export interface Outline {
  *
  * @remarks
  *   The reading runs inside the browser, so every helper it calls is declared inside the callback.
- *   A key is lowercase words joined by dots. A file name such as `send.tsx` and a token name such
- *   as `bg.inverted` have the same shape. Text that ends in a common file extension and text in a
- *   `code` element are not reported as keys, because a scene's words render a token name as code.
+ *   A key is lowercase words joined by dots. A file name such as `send.tsx`, a host name such as
+ *   `ledger.internal` and a token name such as `bg.inverted` have the same shape. Text that ends in
+ *   a common file extension or in a top-level domain reserved for examples and private networks,
+ *   and text anywhere inside a `code` element, are not reported as keys, because a scene's words
+ *   render a token name as code.
  */
 export function outlined(root: Locator): Promise<Omit<Outline, "errors" | "scenes">> {
   return root.first().evaluate((element) => {
     const KEY = /^[a-z][a-z-]*(?:\.[a-z][a-z-]*)+$/u;
     const FILE =
       /\.(?:[cm]?[jt]sx?|json|csv|css|md|mdx|ya?ml|sh|html|svg|png|jpe?g|webp|pdf|log|txt|toml|xlsx|mov)$/u;
+    const HOST = /\.(?:example|internal|invalid|local|localhost|test)$/u;
     const LANDMARK = /^(?:nav|main|aside|section|form)$/u;
     const CONTROLS =
       "a[href], button, input, select, textarea, [role=menuitem], [role=menuitemradio], [role=menuitemcheckbox], [role=option], [role=tab], [role=switch], [role=checkbox]";
@@ -121,9 +124,9 @@ export function outlined(root: Locator): Promise<Omit<Outline, "errors" | "scene
       recipes[recipe] = (recipes[recipe] ?? 0) + 1;
     }
 
-    const raw = [...element.querySelectorAll(":not(code)")]
+    const raw = [...element.querySelectorAll(":not(code, code *)")]
       .map((one) => (one.children.length === 0 ? textOf(one) : ""))
-      .filter((text) => KEY.test(text) && !FILE.test(text));
+      .filter((text) => KEY.test(text) && !FILE.test(text) && !HOST.test(text));
 
     return { controls, headings, landmarks, raw, recipes };
   });
