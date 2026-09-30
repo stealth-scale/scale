@@ -1,42 +1,33 @@
 /**
- * Draws the control that switches the theme the catalogue wears.
+ * Renders the control that switches the catalogue's theme.
  */
 
 import { type ReactElement } from "react";
 
 import { CheckIcon } from "lucide-react";
 
+import { ColorSwatch } from "@stealthscale/component-data";
 import { Menu } from "@stealthscale/component-disclosure";
 import { Switcher, Toolbar } from "@stealthscale/component-screen";
 import { useTranslation } from "@stealthscale/provider-i18n";
 import { useThemeChoice } from "@stealthscale/provider-shell";
-import { css } from "@stealthscale/theme";
+import { token } from "@stealthscale/theme";
 
 import { Chevron } from "#chrome/chevron.tsx";
 
 /**
- * Draws a theme's swatch: a dot in that theme's own primary, whatever theme the page wears.
- *
- * @remarks
- *   The dot carries `data-theme` itself, so the compiler's tokens for that theme apply to it and
- *   `primary.solid` resolves to the theme the dot stands for. The mode follows the page, because a
- *   theme's dark tokens apply under the page's mode attribute as well.
+ * Colour of a theme's swatch: the primary solid of the theme the swatch's `data-theme` names.
  */
-const swatch = css({
-  background: "primary.solid",
-  borderRadius: "full",
-  boxSize: "50%",
-  margin: "auto",
-});
+const PRIMARY = token.var("colors.primary.solid");
 
 /**
- * Draws the control naming the theme in force, which opens the rest.
+ * Renders the switcher that names the current theme and opens a menu of every theme.
  *
  * @remarks
- *   The choice is the shell's, so choosing here redraws the page and is remembered under this
- *   application's name. The names are the themes' own, which is what a designer judging one
- *   against another asks for, and each carries a swatch of its primary. The control is an item of
- *   the bar's row, so draw it inside `Toolbar.Root`.
+ *   The shell provides the choice, so a choice here restyles the page and is stored under this
+ *   application's name. Each theme is listed by its own name with a swatch of its primary colour.
+ *   A swatch sets `data-theme`, so its colour is the primary of the theme it names, in the page's
+ *   mode. Render the control inside `Toolbar.Root`.
  */
 export function ThemeSwitcher(): ReactElement {
   const { t } = useTranslation("docs");
@@ -51,7 +42,7 @@ export function ThemeSwitcher(): ReactElement {
     >
       <Toolbar.Item as={Switcher.Trigger} label={t("chrome.theme")}>
         <Switcher.Mark>
-          <span className={swatch} data-theme={theme} />
+          <ColorSwatch data-theme={theme} shape="circle" size="inherit" value={PRIMARY} />
         </Switcher.Mark>
         <Switcher.Label>
           <Switcher.Name>{theme}</Switcher.Name>
@@ -76,7 +67,7 @@ export function ThemeSwitcher(): ReactElement {
                 <CheckIcon aria-hidden size="1em" />
               </Menu.ItemIndicator>
               <Menu.ItemMark>
-                <span className={swatch} data-theme={name} />
+                <ColorSwatch data-theme={name} shape="circle" size="inherit" value={PRIMARY} />
               </Menu.ItemMark>
               <Menu.ItemText>{name}</Menu.ItemText>
             </Menu.OptionItem>

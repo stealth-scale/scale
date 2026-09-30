@@ -1,52 +1,38 @@
 /**
- * Renders the toolbar link to the catalogue, marked as current on every catalogue page.
+ * Renders the bar's link to the catalogue, which a narrow bar moves into its menu.
  */
 
-import { type ComponentProps, type ReactElement } from "react";
+import { type ReactElement } from "react";
 
-import { Button } from "@stealthscale/component-actions";
+import { Toolbar } from "@stealthscale/component-screen";
 import { useTranslation } from "@stealthscale/provider-i18n";
-import { createLink, useRouteHref } from "@stealthscale/provider-router";
+import { useLinkProps, useRouteHref } from "@stealthscale/provider-router";
 import { useCatalogueMark } from "@stealthscale/specimen";
 
 import { CATALOGUE, INDEX } from "#catalogue.ts";
 
 /**
- * Renders the button over the router's link, so it navigates without a reload and takes
- * `aria-current`.
- */
-const Section = createLink(Button);
-
-/**
- * Describes the props of `SectionLink`: the props the toolbar row passes to a control.
- */
-export type SectionLinkProps = Omit<ComponentProps<typeof Section>, "children" | "to">;
-
-/**
- * Renders the link as a small ghost button in the toolbar.
+ * Renders the link to the catalogue's index as a toolbar link in the neutral ghost look.
  *
  * @remarks
- *   The element is an anchor in the ghost look, so it reads as navigation rather than an action,
- *   and the recipe fills it while it has `aria-current`. The toolbar item renders it through `as`,
- *   so the row's tab stop lands on the anchor. The catalogue decides whether the current route is
- *   inside it, because it declares the route ids, and returns the value `aria-current` takes.
- * @param props - The row's tab stop and the anchor's props.
- * @returns The anchor, styled as a button.
+ *   The router's link props supply the target and a press handler that navigates without a reload.
+ *   The handler leaves a press with a modifier key to the browser, so the link opens in a new tab.
+ *   The link is marked current on every catalogue page. A narrow bar renders it as a row of the
+ *   bar's menu, and the row calls the same handler.
+ * @returns The `a` element, or nothing while the bar lists the link in its menu.
  */
-export function SectionLink(props: SectionLinkProps): ReactElement {
+export function SectionLink(): null | ReactElement {
   const { t } = useTranslation("docs");
+  const { href = "", onClick } = useLinkProps({ to: useRouteHref(INDEX) });
 
   return (
-    <Section
-      aria-current={useCatalogueMark(CATALOGUE)}
-      as="a"
+    <Toolbar.Link
+      current={useCatalogueMark(CATALOGUE) === "page"}
+      href={href}
+      onClick={onClick}
       palette="neutral"
-      size="sm"
-      to={useRouteHref(INDEX)}
-      variant="ghost"
-      {...props}
     >
       {t("frame.catalogue")}
-    </Section>
+    </Toolbar.Link>
   );
 }

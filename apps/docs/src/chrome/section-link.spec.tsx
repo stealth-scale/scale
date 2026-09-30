@@ -44,4 +44,10 @@ describe("SectionLink", () => {
 
     expect(linked(result).classList).toContain(variantClass("button", "palette", "neutral"));
   });
+
+  it("applies the small size class", async () => {
+    const result = await opened("/components/actions/button");
+
+    expect(linked(result).classList).toContain(variantClass("button", "size", "sm"));
+  });
 });

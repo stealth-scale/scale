@@ -20,18 +20,23 @@
   "dependencies": {
     "@stealthscale/component-a11y": "workspace:^",
     "@stealthscale/component-actions": "workspace:^",
+    "@stealthscale/component-charts": "workspace:^",
     "@stealthscale/component-collections": "workspace:^",
     "@stealthscale/component-content": "workspace:^",
     "@stealthscale/component-data": "workspace:^",
     "@stealthscale/component-disclosure": "workspace:^",
     "@stealthscale/component-feedback": "workspace:^",
     "@stealthscale/component-forms": "workspace:^",
+    "@stealthscale/component-graphs": "workspace:^",
     "@stealthscale/component-layout": "workspace:^",
+    "@stealthscale/component-media": "workspace:^",
+    "@stealthscale/component-messaging": "workspace:^",
     "@stealthscale/component-modals": "workspace:^",
     "@stealthscale/component-navigation": "workspace:^",
     "@stealthscale/component-primitives": "workspace:^",
     "@stealthscale/component-screen": "workspace:^",
     "@stealthscale/component-surfaces": "workspace:^",
+    "@stealthscale/component-tables": "workspace:^",
     "@stealthscale/component-typography": "workspace:^",
     "@stealthscale/provider-color-mode": "workspace:^",
     "@stealthscale/provider-i18n": "workspace:^",
@@ -53,7 +58,8 @@
     "@stealthscale/theme-regatta": "workspace:^",
     "lucide-react": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "react-is": "catalog:"
   },
   "devDependencies": {
     "@rolldown/plugin-babel": "catalog:",

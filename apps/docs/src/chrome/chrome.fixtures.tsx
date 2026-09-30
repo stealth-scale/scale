@@ -1,12 +1,12 @@
 /**
- * Renders a control of the bar with the shell and the row it reads in scope, and drives it the way
- * a pointer does.
+ * Renders a control of the bar inside the shell and a toolbar, and drives it with pointer events.
  */
 
 import { type ReactElement } from "react";
 
 import { type RenderResult } from "@testing-library/react";
 import { catalogues } from "virtual:i18n";
+import { vi } from "vitest";
 
 import { Toolbar } from "@stealthscale/component-screen";
 import { Shell } from "@stealthscale/provider-shell";
@@ -16,19 +16,18 @@ import { drawn, pressed } from "@stealthscale/testing-react";
 import { THEMES } from "#themes.ts";
 
 /**
- * The locales a control is drawn with unless a case names others: English alone.
+ * Locales a control renders with unless a case passes others: English alone.
  */
 const ENGLISH: readonly [string, ...string[]] = ["en"];
 
 /**
- * Draws a control inside the shell and the bar's row, with settings kept in memory so two cases
- * share nothing.
+ * Renders a control inside the shell and a toolbar, with settings in a memory store per case.
  *
  * @remarks
- *   The row is there because a control of the bar is an item of it and throws outside one.
+ *   A control of the bar is a toolbar item, and a toolbar item throws outside a toolbar.
  * @param control - The control under test.
- * @param locales - The locales the shell offers, English alone where a case names none.
- * @returns The render, once the control's machine has committed.
+ * @param locales - The locales the shell offers. Defaults to English alone.
+ * @returns The render, after the control's machine has committed its first state.
  */
 export function shelled(
   control: ReactElement,
@@ -48,12 +47,27 @@ export function shelled(
 }
 
 /**
- * Opens a switcher and chooses one of its rows.
+ * Replaces the window's `matchMedia` with one that matches no query, as on a window narrower than
+ * every breakpoint.
  *
- * @param result - The render holding the switcher.
+ * @remarks
+ *   The test settings restore the global after each case.
+ */
+export function narrowed(): void {
+  vi.stubGlobal("matchMedia", (media: string) => ({
+    addEventListener: vi.fn(),
+    matches: false,
+    media,
+    removeEventListener: vi.fn(),
+  }));
+}
+
+/**
+ * Opens a switcher and presses one of its rows.
+ *
+ * @param result - The render that contains the switcher.
  * @param control - The accessible name of the switcher's control.
- * @param option - The words of the row to choose.
- * @returns Nothing. The caller reads the screen.
+ * @param option - The accessible name of the row to press.
  */
 export async function chosen(result: RenderResult, control: string, option: string): Promise<void> {
   await pressed(result.getByRole("button", { name: control }));
