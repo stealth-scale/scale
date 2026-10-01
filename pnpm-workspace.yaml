@@ -5,6 +5,7 @@ packages:
   - foundations/*
   - foundations/providers/*
   - packages/*
+  - sdk/*
   - themes/*
 
 catalogMode: prefer

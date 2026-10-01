@@ -1,53 +1,50 @@
 /**
- * What a commit message is checked against.
+ * Configures the checks commitlint runs on every commit message.
  *
- * The form is `type(scope): summary`, and `docs/standards/commit-messages.md` holds the rest. What
- * is written here is what a machine can decide; the register, the bullets and what never appears
- * are in that document.
- *
- * Two limits rather than one. `refactor(vite-config-typescript): ` spends 34 characters before the
- * summary starts, so a single 72-character header would leave 38 for the prose and the longest
- * package names would pay for the shortest summaries. The header takes the Conventional Commits
- * limit of 100 and the summary is held to 60 on its own, which is what keeps a subject short
- * whatever it is scoped to. A body line still wraps at 72, where git wraps one.
+ * @remarks
+ *   The form is `type(scope): summary`. `docs/standards/commit-messages.md` states the register,
+ *   the bullets and what a message leaves out, and this file states what a machine can check. The
+ *   header has the Conventional Commits limit of 100 characters and the summary a limit of 80 of
+ *   its own, because `refactor(vite-config-typescript): ` takes 34 characters before the summary
+ *   starts. A body line is at most 80 characters, and git wraps one at 72.
  */
 
 import { globSync, readFileSync } from "node:fs";
 
 /**
- * The kinds of change a commit can be.
- *
- * Conventional Commits' set without `style`, which this repository has no use for because `vp fmt`
+ * The types a commit may state: the Conventional Commits set without `style`, because `vp fmt`
  * settles formatting before a commit exists.
  */
 const TYPES = ["build", "chore", "ci", "docs", "feat", "fix", "perf", "refactor", "revert", "test"];
 
 /**
- * The organisation every package here publishes under, which a scope leaves off.
+ * The npm scope every package publishes under. A commit scope leaves it off.
  */
 const ORG = "@stealthscale/";
 
 /**
- * Reads the name a manifest declares, without the organisation in front of it.
+ * Returns the name a manifest declares, without the npm scope.
  *
- * The name comes from the manifest rather than from the directory holding it, because a package
- * nested a level deeper is named for what it is rather than for where it sits.
- *
- * @param at - The path of the manifest to read.
- * @returns The scope a commit writes to name that package.
+ * @remarks
+ *   The name comes from the manifest and not from the package's directory, because a package one
+ *   level deeper is named for what it is.
+ * @param at - Path of the manifest to read.
+ * @returns The scope a commit writes for the package.
  */
 function named(at: string): string {
-  const held: unknown = JSON.parse(readFileSync(at, "utf8"));
-  const name: unknown = typeof held === "object" && held !== null ? Reflect.get(held, "name") : "";
+  const manifest: unknown = JSON.parse(readFileSync(at, "utf8"));
+  const name: unknown =
+    typeof manifest === "object" && manifest !== null ? Reflect.get(manifest, "name") : "";
 
   return typeof name === "string" ? name.replace(ORG, "") : "";
 }
 
 /**
- * The packages a commit can name.
+ * The package scopes a commit may name.
  *
- * Read from the tree rather than listed, so a new package is a scope without anybody remembering to
- * add it here. An example takes no scope, and neither does a change spanning packages.
+ * @remarks
+ *   The list is read from the tree, so a new package is a scope as soon as it has a manifest. An
+ *   example takes no scope, and neither does a change that spans packages.
  */
 const SCOPES = globSync([
   "apps/*/package.json",
@@ -55,30 +52,31 @@ const SCOPES = globSync([
   "foundations/*/package.json",
   "foundations/providers/*/package.json",
   "packages/*/package.json",
+  "sdk/*/package.json",
   "themes/*/package.json",
 ])
   .map((at) => named(at))
   .toSorted();
 
 /**
- * The part of a parsed commit this rule reads.
+ * Describes the part of a parsed commit the rule reads.
  */
 interface Parsed {
   /**
-   * The summary after the type and the scope, or `null` where the header carries none.
+   * The summary after the type and the scope, or `null` where the header has none.
    */
   subject: null | string;
 }
 
 /**
- * Reports whether the subject names the change and then stops.
+ * Reports whether the subject names the change and stops there.
  *
- * A trailing `, so …`, `, which …` or `, not …` carries the reason, the contrast or the thing that
- * made the change possible, and each of those belongs in the body. No upstream rule reports it, and
- * a header pattern that rejected the comma would report it as an empty type instead.
- *
+ * @remarks
+ *   A trailing `, so …`, `, which …` or `, not …` adds a reason, a contrast or a cause, and each
+ *   of those belongs in the body. No upstream rule reports it. A header pattern that refused the
+ *   comma would report it as an empty type instead.
  * @param parsed - The parsed commit, of which only the subject is read.
- * @returns Whether the rule passed, and what to print when it did not.
+ * @returns Whether the rule passed, and the message to print where it did not.
  */
 function subjectNoComma({ subject }: Parsed): [boolean, string] {
   return [
@@ -88,7 +86,7 @@ function subjectNoComma({ subject }: Parsed): [boolean, string] {
 }
 
 /**
- * The rule as commitlint takes it.
+ * Registers the rule as a commitlint plugin.
  */
 const SUBJECT_NO_COMMA = { rules: { "subject-no-comma": subjectNoComma } };
 
