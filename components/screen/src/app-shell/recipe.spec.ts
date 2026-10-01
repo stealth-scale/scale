@@ -21,6 +21,7 @@ const PARTS = [
   "mainViewport",
   "aside",
   "footer",
+  "status",
   "content",
   "column",
   "section",
@@ -47,7 +48,7 @@ describe("recipe", () => {
     expect(recipe.className).toBe("app-shell");
   });
 
-  it("declares seventeen slots", () => {
+  it("declares eighteen slots", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
   });
 
@@ -101,6 +102,7 @@ describe("recipe", () => {
       footer: { borderBlockStartWidth: "hairline", borderColor: "border" },
       header: { borderBlockEndWidth: "hairline", borderColor: "border" },
       navbar: { borderColor: "border", borderInlineEndWidth: "hairline" },
+      status: { borderBlockStartWidth: "hairline", borderColor: "border" },
     });
   });
 
@@ -181,6 +183,26 @@ describe("recipe", () => {
     });
     expect(recipe.base?.["footer"]).toMatchObject({
       padding: "calc({spacing.gap.md} * var(--density, 1))",
+    });
+  });
+
+  it("lays the status bar's entries out in a row that wraps", () => {
+    expect(recipe.base?.["status"]).toMatchObject({
+      alignItems: "center",
+      display: "flex",
+      flexWrap: "wrap",
+    });
+  });
+
+  it("pads the status bar's block edges by the smallest gap", () => {
+    expect(recipe.base?.["status"]).toMatchObject({
+      paddingBlock: "calc({spacing.gap.xs} * var(--density, 1))",
+    });
+  });
+
+  it("pads the status bar's inline edges by the middle gap", () => {
+    expect(recipe.base?.["status"]).toMatchObject({
+      paddingInline: "calc({spacing.gap.md} * var(--density, 1))",
     });
   });
 

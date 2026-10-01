@@ -9,6 +9,7 @@
 - `AppShell` axes: `scroll`, `variant`, `divided`.
 - Add `AppShell.Rail`, `AppShell.Section`, panel `width` and `railWidth`, `foldsBelow`, and
   `WINDOW_HEIGHT`.
+- Add `AppShell.Status`, a status bar at the foot of the shell.
 - Add `when` to `AppShell.Footer`, and render `AppShell.Trigger` as the library's button.
 - Scroll `AppShell.Body`, `AppShell.Main`, panels and `Sidebar.Content` in `ScrollArea`.
 - Breaking: `AppShell.Body` and `Sidebar.Content` take no `as`.

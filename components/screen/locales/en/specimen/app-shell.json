@@ -4,6 +4,7 @@
   "accountsWhen": "To you · today at 08:52",
   "add": "Add",
   "addCard": "Add card",
+  "agents": "3 agents idle",
   "approvals": "Approvals",
   "archive": "Archive",
   "artist": "Artist",
@@ -43,9 +44,9 @@
   "closing": "Nice. Closing the release ticket.",
   "code": "Security code",
   "compose": "Compose",
-  "connected": "Connected · 3 agents idle",
+  "connected": "Connected",
   "console": {
-    "about": "A toolbar, a sidebar of pages with a search, the page, an aside and a footer. The menu button, the rail on the navbar's edge and ⌘B close the navbar to icons, and the sidebar follows. Details closes the aside. The navbar leaves the body below the `sm` breakpoint here and the aside below `lg`, and each opens over the page from its control.",
+    "about": "A toolbar, a sidebar of pages with a search, the page, an aside and a status bar. The menu button, the rail on the navbar's edge and ⌘B close the navbar to icons, and the sidebar follows. Details closes the aside. The navbar leaves the body below the `sm` breakpoint here and the aside below `lg`, and each opens over the page from its control. The status bar lays its entries out in a row at the foot of the shell.",
     "title": "An operations console"
   },
   "contents": "Contents",

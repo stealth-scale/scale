@@ -125,8 +125,8 @@ The bar does not offer these:
 
 ## AppShell
 
-Lays out an application: bars across the top and the bottom, and a body between them with a panel on
-either side of the main region.
+Lays out an application: bars across the top and the bottom, a body between them with a panel on
+either side of the main region, and a status bar at the foot.
 
 ```tsx
 import { AppShell, Sidebar } from "@stealthscale/component-screen";
@@ -148,6 +148,7 @@ import { AppShell, Sidebar } from "@stealthscale/component-screen";
     </AppShell.Aside>
   </AppShell.Body>
   <AppShell.Footer when="narrow">…</AppShell.Footer>
+  <AppShell.Status>…</AppShell.Status>
 </AppShell.Root>;
 ```
 
@@ -193,10 +194,17 @@ The shell has no `palette` and no `effect` axis, because its parts are container
 | `AppShell.Aside`   | `aside`  | `complementary` |
 | `AppShell.Section` | `div`    | none            |
 | `AppShell.Footer`  | `footer` | `contentinfo`   |
+| `AppShell.Status`  | `div`    | none            |
 | `AppShell.Trigger` | `button` | none            |
 
 `AppShell.Navbar` has no landmark, because a sidebar inside it renders its own navigation landmarks.
 Name `AppShell.Aside` with `aria-label` when an application renders more than one.
+
+Render `AppShell.Status` after the footer, for the state of the application: the connection, a sync,
+work that runs in the background. It lays its entries out in a row that wraps, padded by
+`spacing.gap.xs` above and below and `spacing.gap.md` at the sides, with a hairline above it under
+`divided`. It is not a live region, so an entry that reports a change renders its own `output`.
+Under `scroll="window"` the bar is at the end of the document.
 
 `AppShell.Section` is a padded band in a panel or in the main region. `grows` gives it the room its
 siblings leave, and `scrolls` makes it a scroll area, so the bands around it remain in place. A band

@@ -13,6 +13,7 @@ import { Header } from "#app-shell/header.tsx";
 import { Main } from "#app-shell/main.tsx";
 import { Navbar, type NavbarProps } from "#app-shell/navbar.tsx";
 import { Root, type RootProps } from "#app-shell/root.tsx";
+import { Status } from "#app-shell/status.tsx";
 import { Trigger } from "#app-shell/trigger.tsx";
 
 /**
@@ -62,7 +63,8 @@ export function tablet(children: ReactNode): ReactElement {
 }
 
 /**
- * Renders a whole shell: a header with the trigger, the three regions of the body and a footer.
+ * Renders a whole shell: a header with the trigger, the three regions of the body, a footer and a
+ * status bar.
  *
  * @param props - The navbar's props.
  * @returns The shell.
@@ -81,6 +83,7 @@ export function composed(props: NavbarProps = {}): ReactElement {
         <Aside aria-label="Detail">Totals</Aside>
       </Body>
       <Footer>Acme</Footer>
+      <Status>Saved</Status>
     </Root>
   );
 }

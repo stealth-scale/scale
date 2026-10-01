@@ -16,6 +16,7 @@ describe("index", () => {
       "Rail",
       "Root",
       "Section",
+      "Status",
       "Trigger",
       "WINDOW_HEIGHT",
       "useAppShellPanel",

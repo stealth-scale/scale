@@ -1,6 +1,6 @@
 /**
- * Exports the shell's parts and hooks. A caller composes `AppShell.Root` with bars and a body, and
- * the body with a panel on either side of `AppShell.Main`.
+ * Exports the shell's parts and hooks. A caller composes `AppShell.Root` with bars, a body and a
+ * status bar, and the body with a panel on either side of `AppShell.Main`.
  */
 
 export { Aside, type AsideProps } from "#app-shell/aside.tsx";
@@ -25,5 +25,6 @@ export {
   useNearestPanel,
   useOverlaid,
 } from "#app-shell/state.ts";
+export { Status, type StatusProps } from "#app-shell/status.tsx";
 export { Trigger, type TriggerProps } from "#app-shell/trigger.tsx";
 export { type PanelOptions } from "#app-shell/use-panel.ts";

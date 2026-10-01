@@ -164,12 +164,15 @@ export function Console(props: AppShell.RootProps): ReactElement {
           </AppShell.Section>
         </AppShell.Aside>
       </AppShell.Body>
-      <AppShell.Footer>
+      <AppShell.Status>
         <Status.Root palette="success" size="sm">
           <Status.Indicator />
           {t("connected")}
         </Status.Root>
-      </AppShell.Footer>
+        <Text as="span" size="sm" tone="muted">
+          {t("agents")}
+        </Text>
+      </AppShell.Status>
     </AppShell.Root>
   );
 }

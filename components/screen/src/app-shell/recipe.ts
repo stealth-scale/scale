@@ -3,12 +3,12 @@
  * and a panel on either side of the page in the body.
  *
  * @remarks
- *   The recipe has seventeen slots. The body, the main region, a panel's content and a band that
+ *   The recipe has eighteen slots. The body, the main region, a panel's content and a band that
  *   scrolls are the primitives package's scroll areas, so every bar in the shell is the theme's:
  *   `bodyViewport` and `row` are the body's viewport and content, `mainViewport` is the `main`
  *   element, `column` is the content of the main region and of a panel, and `scroller` is the root
- *   of a band that scrolls. A part that is left out takes no room. Every part is a container:
- *   the recipe sets the layout, the scrolling, the motion, the hairlines between regions and the
+ *   of a band that scrolls. A part that is left out takes no room. Every part is a container: the
+ *   recipe sets the layout, the scrolling, the motion, the hairlines between regions and the
  *   grounds, and the application styles the rest through a theme. The plain look fills no region,
  *   so the shell shows the ground it is placed on. The backdrop, a sheet and a pinned bar are
  *   filled, because the page is visible under each. A sheet is raised by a shadow. A panel in the
@@ -17,9 +17,10 @@
  *   fixed to the window with a backdrop behind it. The open and closed widths are the theme's
  *   `sizes.sidebar`, `sizes.aside` and `sizes.rail` unless a panel states its own. The window's
  *   height is `100dvh` unless an ancestor sets `WINDOW_HEIGHT`, so a shell staged in a box of a
- *   fixed height fills the box. The bars pad their content by the middle gap, and a section by the
- *   large gap. The recipe has no `palette` and no `effect` axis, because the parts are containers
- *   and the components inside them offer their own.
+ *   fixed height fills the box. The header and the footer pad their content by the middle gap, the
+ *   status bar pads its row of entries by the smallest gap above and below and the middle gap at
+ *   the sides, and a section pads by the large gap. The recipe has no `palette` and no `effect`
+ *   axis, because the parts are containers and the components inside them offer their own.
  */
 
 import { defineSlotRecipe, dense, surface } from "@stealthscale/theme/authoring";
@@ -122,6 +123,16 @@ export const recipe = defineSlotRecipe({
     },
     scroller: SCROLLER,
     section: SECTION,
+    status: {
+      alignItems: "center",
+      columnGap: dense("{spacing.gap.md}"),
+      display: "flex",
+      flexShrink: "0",
+      flexWrap: "wrap",
+      paddingBlock: dense("{spacing.gap.xs}"),
+      paddingInline: dense("{spacing.gap.md}"),
+      rowGap: dense("{spacing.gap.xs}"),
+    },
     trigger: { flexShrink: "0" },
   },
   className: CLASS,
@@ -138,6 +149,7 @@ export const recipe = defineSlotRecipe({
     "mainViewport",
     "aside",
     "footer",
+    "status",
     "content",
     "column",
     "section",
@@ -160,6 +172,7 @@ export const recipe = defineSlotRecipe({
         footer: { borderBlockStartWidth: "hairline", borderColor: "border" },
         header: { borderBlockEndWidth: "hairline", borderColor: "border" },
         navbar: { borderColor: "border", borderInlineEndWidth: "hairline" },
+        status: { borderBlockStartWidth: "hairline", borderColor: "border" },
       },
     },
 
