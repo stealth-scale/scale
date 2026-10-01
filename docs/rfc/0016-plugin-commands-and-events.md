@@ -4,7 +4,7 @@ title: "Plugin commands, events and notifications"
 author: Roy Klopper, drafted with Claude
 status: Draft
 created: 2026-09-30
-updated: 2026-09-30
+updated: 2026-10-01
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -82,9 +82,9 @@ export interface ResolvedCommand {
   readonly needs: Readonly<Record<string, string>>;
 
   /**
-   * Id of the plugin that declared the command.
+   * Id of the plugin that declares the command.
    */
-  readonly pluginId: string;
+  readonly plugin: string;
 
   /**
    * True where the command resolves with a result, so the palette does not list it.
@@ -116,7 +116,8 @@ export interface Command<R extends CommandReference = CommandReference> {
   readonly enabled: boolean;
 
   /**
-   * Keys formatted for the person's operating system, `⌘ ⇧ R` or `Ctrl+Shift+R`.
+   * Keys formatted for the person's operating system, `⌘ ⇧ R` or `Ctrl+Shift+R`. Absent where the
+   * command binds none.
    */
   readonly keys?: string | undefined;
 
@@ -126,11 +127,25 @@ export interface Command<R extends CommandReference = CommandReference> {
   readonly label: string;
 
   /**
-   * Runs the command with its arguments, and resolves with its result.
-   *
-   * @throws {@link Error} When the command's condition is false or no installed plugin declares it.
+   * Runs the command with its arguments, and resolves with its result. Rejects where the command's
+   * condition is false or no installed plugin declares it.
    */
   readonly run: (...args: CommandArguments<R>) => Promise<CommandResult<R>>;
+}
+
+/**
+ * Describes one command of an installed plugin, for a menu or a toolbar that lists them.
+ */
+export interface CommandStatus extends Omit<Command, "run"> {
+  /**
+   * The command as the build resolved it.
+   */
+  readonly command: ResolvedCommand;
+
+  /**
+   * Runs the command, with its arguments where it takes some, and resolves with its result.
+   */
+  readonly run: (args?: unknown) => Promise<unknown>;
 }
 
 /**
@@ -143,12 +158,27 @@ export function useCommand<R extends CommandReference>(reference: R): Command<R>
  * lists them.
  */
 export function useCommands(): readonly CommandStatus[];
+
+/**
+ * Returns true where a command may run: its plugin is on and its condition is true for the stores
+ * and the matched routes.
+ */
+export function isCommandEnabled(
+  command: ResolvedCommand,
+  stores: Pick<HostStores, "availability" | "flags" | "session">,
+  matched: ReadonlySet<string> | undefined,
+): boolean;
 ```
 
 - `enabled` is the command's condition evaluated against the host's stores and the router's matches
   (RFC-0014). It is false while the command's plugin is not on.
-- A command no installed plugin declares reads as disabled with the label its reference contains.
-  Its `run` rejects. A plugin may reference an optional plugin's command this way.
+- `isCommandEnabled` of `sdk-plugin` decides `enabled` for `useCommand` and `useCommands`, and for
+  the host's `run`, its key bindings and its palette, so every way of running a command applies one
+  test.
+- `useCommand` reads a command that no installed plugin declares as disabled. Its label is the
+  reference's own, translated in the catalogue of the plugin its id names, and its qualified id
+  where the reference states no label. Its `run` rejects. A plugin may reference an optional
+  plugin's command this way.
 
 ### Running a command
 
@@ -171,6 +201,83 @@ A run that is in progress when its plugin turns off completes. The next run refu
 
 ```ts
 /**
+ * Describes a toast: its words, its kind and how long it shows.
+ */
+export interface ToastOptions {
+  /**
+   * The toast's body, translated.
+   */
+  readonly description?: string | undefined;
+
+  /**
+   * Milliseconds the toast shows. The toaster's duration for the kind where left out.
+   */
+  readonly duration?: number | undefined;
+
+  /**
+   * The toast's title, translated.
+   */
+  readonly title?: string | undefined;
+
+  /**
+   * Kind of the toast, which its look and its duration follow.
+   */
+  readonly type?: "error" | "info" | "loading" | "success" | "warning" | undefined;
+}
+
+/**
+ * Raises and dismisses the product's toasts. The feedback package's `createToaster` returns one.
+ */
+export interface Toaster {
+  /**
+   * Raises a toast and returns its id.
+   */
+  readonly create: (options: ToastOptions) => string;
+
+  /**
+   * Dismisses the toast with the id given, or every toast without one.
+   */
+  readonly dismiss: (id?: string) => void;
+}
+
+/**
+ * Lists what a navigation states beside the route: the parameters its path names and its search.
+ */
+export interface NavigateOptions<Params extends PathParams = PathParams, Search = unknown> {
+  /**
+   * The parameters the route's path names, typed by the reference.
+   */
+  readonly params?: Params | undefined;
+
+  /**
+   * The search to open the route with, typed by the reference.
+   */
+  readonly search?: Search | undefined;
+}
+
+/**
+ * Runs declared queries and mutations through the host's data client, with each declaration's
+ * selectors and sample applied (RFC-0020).
+ */
+export interface HostData {
+  /**
+   * Runs a mutation with its variables and resolves with its data.
+   */
+  readonly mutate: <M extends MutationReference>(
+    mutation: M,
+    variables: MutationVariables<M>,
+  ) => Promise<MutationData<M>>;
+
+  /**
+   * Runs a query with its variables and resolves with its data, from the cache while it is fresh.
+   */
+  readonly query: <Q extends QueryReference>(
+    query: Q,
+    variables: QueryVariables<Q>,
+  ) => Promise<QueryData<Q>>;
+}
+
+/**
  * Lists what a command's function receives beside its arguments.
  */
 export interface HostApi {
@@ -181,19 +288,9 @@ export interface HostApi {
   readonly can: (permission: PermissionReference, resourceId?: string) => Promise<boolean>;
 
   /**
-   * Runs a declared query or mutation through the host's data client, with its declaration applied
-   * (RFC-0020).
+   * The host's data client, for declared queries and mutations.
    */
-  readonly data: {
-    readonly mutate: <M extends MutationReference>(
-      mutation: M,
-      variables: MutationVariables<M>,
-    ) => Promise<MutationData<M>>;
-    readonly query: <Q extends QueryReference>(
-      query: Q,
-      variables: QueryVariables<Q>,
-    ) => Promise<QueryData<Q>>;
-  };
+  readonly data: HostData;
 
   /**
    * Emits an event as the command's plugin.
@@ -213,9 +310,9 @@ export interface HostApi {
   /**
    * Navigates to a route by reference, with its parameters and its search.
    */
-  readonly navigate: <R extends RouteReference>(
-    to: R,
-    options?: NavigateOptions<R>,
+  readonly navigate: <Params extends PathParams, Search>(
+    to: RouteReference<string, Params, Search>,
+    options?: NavigateOptions<Params, NoInfer<Search>>,
   ) => Promise<void>;
 
   /**
@@ -241,7 +338,10 @@ export interface HostApi {
 ```
 
 - `navigate` resolves the reference through `routeHref` of `provider-router` and calls the router's
-  `navigate`, so a command links by reference like a component does.
+  `navigate`, so a command links by reference like a component does. It types the parameters and the
+  search by the reference, as `RouteLink` does.
+- `Toaster` and `ToastOptions` are structural, so the host passes the feedback package's toaster and
+  a command's module depends on `sdk-core` alone.
 - `can` reads the host's `access` store, so a decision the page already primed costs no request.
 
 A command module:
@@ -312,7 +412,9 @@ async function delegate(): Promise<void> {
 - A chord with `Mod` runs while a text field has focus, and a single key or a `Shift` or `Alt` chord
   does not. These are the library's defaults for `ignoreInputs` (`@tanstack/hotkeys` 0.8.0,
   `src/manager.utils.ts:26-34`).
-- The host binds `Mod+K` to open the palette. The build refuses a command that binds `Mod+K`.
+- The host binds `Mod+K` to open the palette. The build refuses a command that binds `Mod+K`,
+  `Meta+K` or `Control+K`, because `Mod+K` is `Meta+K` on a Mac and `Control+K` elsewhere. Chords
+  compare after the library's aliases resolve, so `Ctrl+K` is `Control+K`.
 - The build validates each binding with TanStack Hotkeys' `validateHotkey`, so a binding the library
   cannot read fails the build rather than never running.
 - The build warns where more than one command binds a chord, listing the commands, so the product's
@@ -366,24 +468,30 @@ export function useEvent<E extends EventReference>(
 export function useEmit<E extends EventReference>(event: E): (payload: EventPayload<E>) => void;
 ```
 
-| Rule                  | Behaviour                                                                                           |
-| --------------------- | --------------------------------------------------------------------------------------------------- |
-| Declared events only  | An emit of an event no installed plugin declares throws `No installed plugin declares the event …`  |
-| Who may emit          | The declaring plugin alone, unless the marker states `emit: "anyone"`. Another plugin's emit throws |
-| Delivery              | Synchronous, to every subscriber, in subscription order                                             |
-| Emits during delivery | Queued, and delivered after the current delivery                                                    |
-| Chains                | A delivery may queue 16 emits. The 17th is dropped and reported under the emitting plugin           |
-| Sticky events         | The last payload is kept and handed to each new subscriber when it subscribes                       |
-| Failures              | A handler that throws is reported under its plugin, and the other handlers still receive the event  |
-| Disposal              | A subscription ends when its component unmounts                                                     |
+| Rule                  | Behaviour                                                                                                         |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Declared events only  | An emit of an event no installed plugin declares throws `No installed plugin declares the event …`                |
+| Who may emit          | The declaring plugin alone, unless the marker states `emit: "anyone"`. Another plugin's emit throws               |
+| Delivery              | Synchronous, through `dispatchEvent`, to every subscriber, in subscription order                                  |
+| Emits during delivery | Delivered at once, depth first: the subscribers of an emit inside a handler receive it before the handler returns |
+| Nesting               | At most 16 deliveries run inside one another. The emit that would start the 17th is dropped and reported          |
+| Sticky events         | The last payload is kept and handed to each new subscriber when it subscribes                                     |
+| Failures              | A handler that throws is reported under its plugin, and the other handlers still receive the event                |
+| Disposal              | A subscription ends when its component unmounts                                                                   |
 
 - `useEvent` subscribes once per event and calls the handler through React's `useEffectEvent`, so a
   handler that closes over new state is always the current one and never resubscribes.
+- `useEvent` and `useEmit` act as the plugin of the scope the component renders in, and as the
+  product's own code outside every plugin's scope.
+- The bus wraps each handler, which reports the handler's error as `event-handler-failed` and
+  returns. Measured in Node 26.10.0, an error that leaves a listener does not stop the other
+  listeners, and Node raises it as an uncaught exception after `dispatchEvent` returns, which ends a
+  server process that does not handle it. The wrapper keeps the process running.
 - A plugin that is not on has its components unmounted, so its subscriptions have ended. Its events
   remain declared, so another plugin that emits an `anyone` event of that plugin succeeds and nobody
   receives it.
-- The chain limit stops two plugins from emitting in reply to each other forever. A delivery that
-  queues more than 16 emits is cut, and the cut is reported.
+- The nesting limit stops two plugins from emitting in reply to each other forever. The dropped emit
+  is reported as `event-chain-cut`, with the event's qualified id (RFC-0012).
 - A sticky event gives a late subscriber the current value of a fact, such as the project a switcher
   selected, so a plugin reads another plugin's state without importing its code.
 
@@ -425,7 +533,7 @@ dialogs (`components/modals/src/overlay/overlay.tsx:77-105`).
 | ----------------------------------------------------------- | ------------- | ---------------------------------------------------------------------------- |
 | A binding TanStack Hotkeys cannot read                      | The build     | The build fails, naming the command and the reason `validateHotkey` returned |
 | More than one command binds a chord                         | The build     | A warning listing the commands. A press runs the first enabled one           |
-| A command binds `Mod+K`                                     | The build     | The build fails                                                              |
+| A command binds `Mod+K`, `Meta+K` or `Control+K`            | The build     | The build fails                                                              |
 | `run` for a command no installed plugin declares            | The registry  | The promise rejects                                                          |
 | `run` while the command's condition is false                | The registry  | The promise rejects with the command's id                                    |
 | The command's module fails to load                          | The registry  | The promise rejects. The next run imports again                              |
@@ -434,13 +542,13 @@ dialogs (`components/modals/src/overlay/overlay.tsx:77-105`).
 | The function rejects when run from a component              | The component | The promise the component awaited rejects                                    |
 | An emit of an undeclared event, or by a plugin that may not | The bus       | `emit` throws                                                                |
 | A handler throws                                            | The bus       | A report under the subscriber. The other handlers still receive the event    |
-| A delivery queues more than 16 emits                        | The bus       | The emit is dropped and reported under the emitting plugin                   |
+| An emit would start a 17th nested delivery                  | The bus       | The emit is dropped and reported as `event-chain-cut`                        |
 
 ## Bounds
 
 - A command's module is imported once per page load. A module that failed to load is imported again
   on the next run.
-- A delivery queues at most 16 emits.
+- At most 16 deliveries run inside one another.
 - The palette lists the commands and the menu entries of the installed plugins. It filters them with
   `Command`'s own matching, which ignores case and accents.
 
@@ -463,6 +571,14 @@ event with the same id.
 type would not be tied to the request's. A command with a result is one typed call, with its
 condition checked and its code loaded on the first run.
 
+### A queue for emits made during a delivery
+
+An emit inside a handler waits until the current delivery ends, and a delivery may queue 16 emits.
+
+**Why not:** the bus would run a dispatcher of its own in place of the delivery `EventTarget`
+provides, which runs a nested `dispatchEvent` at once, depth first. The nesting limit stops a loop
+of replies as the queue's limit would.
+
 ### Events through React context
 
 Each plugin provides a context, and a subscriber reads it.
@@ -482,6 +598,8 @@ region orders every toast of the product.
   item needs a component that knows the selection.
 - An event is delivered synchronously. A handler that does slow work blocks the emitter until it
   returns, so a handler starts its own asynchronous work and returns.
+- Delivery is depth first, so the subscribers of an event a handler emits receive it before the
+  later handlers of the first event run.
 - The palette lists commands that are enabled now. A person looking for a command they may not run
   does not find it, and learns nothing about why.
 - `AppShell`'s panel `shortcut` and `Sidebar.Search`'s `shortcut` listen on the document themselves

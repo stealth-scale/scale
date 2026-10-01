@@ -4,7 +4,7 @@ title: "Plugin feature flags"
 author: Roy Klopper, drafted with Claude
 status: Draft
 created: 2026-09-30
-updated: 2026-09-30
+updated: 2026-10-01
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -69,9 +69,14 @@ The product chooses the flag service, and a plugin reads a flag through `sdk-plu
 
 ```ts
 /**
- * Lists a date in the form `2026-12-31`.
+ * Types a date in the form `2026-12-31`.
  */
 export type IsoDate = `${number}-${number}-${number}`;
+
+/**
+ * Lists the kinds of flag.
+ */
+export type FlagKind = "experiment" | "ops" | "release";
 
 /**
  * Lists what every flag states.
@@ -84,7 +89,7 @@ export interface FlagOptions extends MarkerOptions {
 }
 
 /**
- * States a release flag, which keeps merged code off until its release.
+ * Describes a release flag, which keeps merged code off until its release.
  */
 export interface ReleaseFlagOptions extends FlagOptions {
   /**
@@ -104,7 +109,7 @@ export interface ReleaseFlagOptions extends FlagOptions {
 }
 
 /**
- * States an ops flag, which an operator turns off during an incident.
+ * Describes an ops flag, which an operator turns off during an incident.
  */
 export interface OpsFlagOptions extends FlagOptions {
   /**
@@ -126,7 +131,7 @@ export interface OpsFlagOptions extends FlagOptions {
 }
 
 /**
- * States an experiment, whose value is one of its variants.
+ * Describes an experiment, whose value is one of its variants.
  */
 export interface ExperimentOptions<V extends string> extends FlagOptions {
   /**
@@ -160,7 +165,74 @@ export function flag(options: OpsFlagOptions | ReleaseFlagOptions): FlagMarker<b
  * Marks an experiment.
  */
 export function flag<const V extends string>(options: ExperimentOptions<V>): FlagMarker<V>;
+
+/**
+ * Describes a flag as its marker states it.
+ */
+export interface FlagMarker<
+  Value extends boolean | string = boolean | string,
+> extends MarkerOptions {
+  /**
+   * The flag's value, for the type checker alone.
+   */
+  readonly "~types"?: { readonly value: Value };
+
+  /**
+   * Value where neither an override, the flag source nor the product states one.
+   */
+  readonly default: Value;
+
+  /**
+   * Key of the flag's description in the plugin's catalogue.
+   */
+  readonly description: string;
+
+  /**
+   * Date by which the flag is removed, where it states one.
+   */
+  readonly expires?: IsoDate | undefined;
+
+  /**
+   * Whether the flag is a release flag, an ops flag or an experiment.
+   */
+  readonly flagKind: FlagKind;
+
+  /**
+   * The kind of the marker.
+   */
+  readonly kind: "featureFlag";
+
+  /**
+   * `"boolean"` for a release or an ops flag, `"string"` for an experiment.
+   */
+  readonly type: "boolean" | "string";
+
+  /**
+   * The variants of an experiment.
+   */
+  readonly variants?: readonly Value[] | undefined;
+}
+
+/**
+ * Points at a flag a plugin declared, with its value in the type alone.
+ */
+export interface FlagReference<
+  Value extends boolean | string = boolean | string,
+  Id extends string = string,
+>
+  extends Partial<Omit<FlagMarker<Value>, "~types" | "kind">>, Reference<"featureFlag", Id> {
+  /**
+   * The flag's value, for the type checker alone.
+   */
+  readonly "~types"?: { readonly value: Value };
+}
 ```
+
+- The marker states the flag's own kind as `flagKind`, because `kind` is the kind of every
+  reference, `featureFlag`.
+- `FlagReference` takes the value as its first type parameter, because every reader of a flag states
+  it: `FlagReference<boolean>` for a release or an ops flag, `FlagReference<"list" | "board">` for
+  an experiment.
 
 A contract with one flag of each kind:
 
@@ -206,6 +278,10 @@ export function useFeatureFlag<V extends string>(flag: FlagReference<V>): V;
 A condition reads a boolean flag or an experiment's variant, and never compares values any other
 way. A page that renders each variant differently reads the variant with `useFeatureFlag`.
 
+`useFeatureFlag` returns the reference's `default` for a flag that no installed plugin declares,
+such as an optional plugin's, and false where the reference states none. A condition reads such a
+flag as false.
+
 ### Value precedence
 
 The host takes a flag's value from the first of these sources that states one:
@@ -243,7 +319,7 @@ declare, is ignored and reported as `flag-ignored`, and the next source applies.
 
 ```ts
 /**
- * Names a flag and the type of value the host expects for it.
+ * Describes a flag and the type of value the host expects for it.
  */
 export interface FlagDescriptor {
   /**
@@ -311,7 +387,10 @@ that a variant condition gates counts as an exposure, because the person saw the
 ### The kill switch of every plugin
 
 - The build declares one ops flag per installed plugin, `host/plugin.<plugin id>`, with the default
-  on (RFC-0011).
+  on (RFC-0011). Its plugin is `host`, and its description is the key `flags.killSwitch` of the
+  host's catalogue.
+- A product may set a kill switch's value in `featureFlags`, like any other flag's:
+  `{ flag: "host/plugin.inspector", value: false }`.
 - A flag service that turns it off turns the plugin off for the sessions it targets: every page of
   the plugin is not found with the reason `unavailable`, every extension unplaced, every command
   disabled and every settings page and section hidden (RFC-0012, RFC-0013).
@@ -329,11 +408,11 @@ that a variant condition gates counts as an exposure, because the person saw the
  */
 export interface FlagActions {
   /**
-   * Overrides a flag's value in this tab, or removes the override where the value is undefined.
+   * Overrides a flag's value in this tab, or removes the override where no value is given.
    */
   readonly override: <V extends boolean | string>(
     flag: FlagReference<V>,
-    value: NoInfer<V> | undefined,
+    value?: NoInfer<V>,
   ) => void;
 
   /**
@@ -398,14 +477,14 @@ export interface CatalogueFlag extends CatalogueEntry {
   readonly default: boolean | string;
 
   /**
-   * Date by which the flag is removed. Absent on a kill switch.
+   * Date by which the flag is removed, where it states one. A kill switch states none.
    */
   readonly expires?: string | undefined;
 
   /**
    * The flag's kind.
    */
-  readonly kind: "experiment" | "ops" | "release";
+  readonly kind: FlagKind;
 
   /**
    * The product's value, where the product states one.
@@ -419,17 +498,25 @@ export interface CatalogueFlag extends CatalogueEntry {
 }
 
 /**
- * Describes every flag of a product's installed plugins.
+ * Describes every flag of a product's installed plugins, one kill switch per plugin included, for
+ * the flag service.
  */
 export interface FlagCatalogue {
+  /**
+   * Every flag, sorted by id.
+   */
   readonly flags: readonly CatalogueFlag[];
-  readonly product: { readonly id: string; readonly version: string };
+
+  /**
+   * The product the catalogue was built for.
+   */
+  readonly product: CatalogueProduct;
 }
 ```
 
 The flag service reads the file to create each flag with its default, its variants and its
 description, to list a flag's date, and to archive a flag that no release of the product declares.
-`CatalogueEntry` is the entry of the access catalogue (RFC-0014).
+`CatalogueEntry` and `CatalogueProduct` are the access catalogue's (RFC-0014).
 
 ### Removing a flag
 

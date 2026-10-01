@@ -83,7 +83,7 @@ export const approveMutation = defineMutation<ApproveData, { readonly id: string
 
 ```ts
 /**
- * States where a query's data states the person's actions on its records.
+ * Describes where a query's data states the person's actions on its records.
  */
 export interface DecisionSelector {
   /**
@@ -108,7 +108,7 @@ export interface DecisionSelector {
 }
 
 /**
- * States where a query's data contains records of one declared resource kind.
+ * Describes where a query's data contains records of one declared resource kind.
  */
 export interface RecordSelector {
   /**
@@ -133,7 +133,7 @@ export interface RecordSelector {
 }
 
 /**
- * States a query a plugin runs.
+ * Describes a query a plugin runs.
  */
 export interface QueryOptions<Data, Variables extends object> extends MarkerOptions {
   /**
@@ -170,11 +170,11 @@ export function query<const Data, const Variables extends object>(
 ): QueryMarker<Data, Variables>;
 
 /**
- * States which records a mutation changes.
+ * Describes which records a mutation changes.
  */
 export interface ChangeSelector {
   /**
-   * What happens to the records.
+   * Whether the records are created, deleted or updated.
    */
   readonly action: "created" | "deleted" | "updated";
 
@@ -190,7 +190,7 @@ export interface ChangeSelector {
 }
 
 /**
- * States a mutation a plugin runs.
+ * Describes a mutation a plugin runs.
  */
 export interface MutationOptions<Data, Variables extends object> extends MarkerOptions {
   /**
@@ -260,8 +260,12 @@ export const timeOffContract = defineContract("time-off", (self) => ({
   standalone host run on it.
 - A query's record and decision selectors use the resource kinds and the scoped permissions the
   contract declares, so a kind or a permission that does not exist fails to compile.
-- A mutation's changes are data: the kind, and the variable that contains the id. The host turns
-  them into the foundation's `Change` values when the mutation settles.
+- A mutation's changes are data: the kind, and the variable that contains the id. `useChange` turns
+  them into the foundation's `Change` values for each run, and the data client invalidates those
+  once the run settles:
+  - An updated or deleted record takes its id from the variable the declaration names. `useChange`
+    skips the declaration for a run whose variable is not a string or a number.
+  - A created record has an empty id, so the change refetches every list of its kind.
 
 ### The data a page needs
 
@@ -269,28 +273,33 @@ A route marker states the queries its page reads:
 
 ```ts
 /**
- * States one query a page reads, and the names its variables take from the route.
+ * Describes one query a page reads, and the names its variables take from the route.
  */
-export interface RouteData {
+export interface RouteData<Name extends string = string> {
   /**
    * The query.
    */
-  readonly query: QueryReference;
+  readonly query: Reference<"query">;
 
   /**
-   * Names of the query's variables, each read from the route's parameters, then from its search.
+   * Variables the query takes from the route, each read from the parameters, then from the search.
    */
-  readonly variables?: readonly string[] | undefined;
+  readonly variables?: readonly Name[] | undefined;
 }
 ```
 
-- `RouteOptions` gains `data?: readonly RouteData[]` (RFC-0010).
+- `RouteOptions` gains `data`, whose names are the parameters of the route's path and the members of
+  its search (RFC-0010).
 - The host compiles each plugin route with `loader: loadNeeds(needs)` of `provider-data`, one need
   per entry with the query's operation, its record selectors and the variable names (RFC-0005).
 - The route's chunk and its data load together when the router preloads it on intent. A page that
   reads its data with `useData` then renders from the cache.
 - The type checker refuses a variable name that is neither a parameter of the route's path nor a
   member of its search.
+- The build checks a variable against the parameters of the route's path and its parents' paths,
+  where neither the route nor a parent states a search, because the router merges a parent's
+  parameters and search into its children's. A Standard Schema states no member names at run time,
+  so a route under a search is the type checker's to check.
 
 ### Reading and changing data
 
@@ -308,7 +317,10 @@ export function useData<Q extends QueryReference>(
 ): QueryData<Q>;
 
 /**
- * Runs a declared mutation. The host invalidates the declared changes once it settles.
+ * Runs a declared mutation. Once a run settles, the data client invalidates the records its
+ * declared changes name.
+ *
+ * @throws {@link Error} When no installed plugin declares the mutation.
  */
 export function useChange<M extends MutationReference>(
   mutation: M,
@@ -323,6 +335,11 @@ export interface ChangeOptions<M extends MutationReference> {
    * The patches to apply at once to every query whose data contains a patched record.
    */
   readonly optimistic?: ((variables: MutationVariables<M>) => readonly RecordPatch[]) | undefined;
+
+  /**
+   * Scope whose mutations run one at a time, in the order they started, such as a record's id.
+   */
+  readonly scope?: string | undefined;
 }
 ```
 
@@ -340,10 +357,12 @@ export function Overview(): ReactNode {
   freshness, and reads them with the library's `useSuspenseQuery`. The same query and variables
   share one cache entry with the page's loader.
 - `useChange` runs the mutation through `useOperationMutation`, with the declared changes. An
-  optimistic patch is code, so the component states it.
+  optimistic patch is code, so the component states it. A scope is one string per hook, so a list
+  that changes many records renders one `useChange` per record, with the record's id as its scope
+  (RFC-0005).
 - A plugin reads another plugin's query by reference, as it links to another plugin's page. Where
-  the other plugin is optional, the component checks `usePlugin` or a condition first, because
-  `useData` throws for a query no installed plugin declares.
+  the other plugin is optional, the component checks `useWhen({ plugin: inventoryContract })` first,
+  because `useData` and `useChange` throw where no installed plugin declares the operation.
 - A command reads and changes data through `HostApi.data`, which runs declared queries and mutations
   through the same client (RFC-0016).
 
@@ -406,7 +425,7 @@ extensions: {
 
 ```ts
 /**
- * States a value the record a slot renders with must have.
+ * Describes a value the record a slot renders with must have.
  */
 export interface FieldCondition {
   /**
@@ -440,14 +459,14 @@ export interface FieldCondition {
 
 `resolveProduct` checks the data declarations with the rest (RFC-0011):
 
-| Check                                                                                       | Result  |
-| ------------------------------------------------------------------------------------------- | ------- |
-| Two installed plugins declare one operation id under different kinds                        | problem |
-| Two installed plugins declare one operation id                                              | warning |
-| A route's data names a variable that is not a parameter of its path, where it has no search | problem |
-| A decision's permission is not scoped, or its kind is not among the query's record kinds    | problem |
-| A record, decision or change selector names a resource kind no installed plugin declares    | problem |
-| A `field` condition is on anything but an extension of a slot that states `record`          | problem |
+| Check                                                                                                                                     | Result  |
+| ----------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| Two installed plugins declare one operation id under different kinds                                                                      | problem |
+| Two installed plugins declare one operation id                                                                                            | warning |
+| A route's data names a variable that is no parameter of its path or its parents' paths, where neither the route nor a parent has a search | problem |
+| A decision's permission is not scoped, or its kind is not among the query's record kinds                                                  | problem |
+| A record, decision or change selector names a resource kind no installed plugin declares                                                  | problem |
+| A `field` condition is on anything but an extension of a slot that states `record`                                                        | problem |
 
 The build writes a third catalogue beside the access and flag catalogues:
 
@@ -457,28 +476,29 @@ The build writes a third catalogue beside the access and flag catalogues:
  */
 export interface CataloguedOperation {
   /**
-   * The operation's id.
+   * The id the gateway runs the operation under.
    */
   readonly id: string;
 
   /**
-   * Whether the operation reads or changes records.
+   * `"query"` for an operation that reads records, `"mutation"` for one that changes them.
    */
   readonly kind: "mutation" | "query";
 
   /**
-   * The declaration's name in its contract.
+   * Name of the declaration in its contract.
    */
   readonly name: string;
 
   /**
-   * Id of the plugin that declares it.
+   * Id of the plugin that declares the operation.
    */
   readonly plugin: string;
 }
 
 /**
- * Describes every query and mutation a product's installed plugins declare.
+ * Describes every query and mutation a product's installed plugins declare, for the gateway's
+ * publishing step.
  */
 export interface OperationCatalogue {
   /**
@@ -487,13 +507,14 @@ export interface OperationCatalogue {
   readonly operations: readonly CataloguedOperation[];
 
   /**
-   * The product's id and version.
+   * The product the catalogue was built for.
    */
-  readonly product: { readonly id: string; readonly version: string };
+  readonly product: CatalogueProduct;
 }
 ```
 
-- The build writes it to `dist/.product/operations.json`.
+- The build writes it to `dist/.product/operations.json`. `CatalogueProduct` is the access
+  catalogue's (RFC-0014).
 - The deployment publishes the documents these ids name before the product goes live, so the gateway
   runs every operation the plugins need and refuses every other.
 - The product's own operations, such as its changes subscription, are published with the product's
@@ -523,6 +544,7 @@ export interface OperationCatalogue {
 | ------------------------------------------------------------ | -------------------------- | ---------------------------------------------------------------------- |
 | A plugin runs an operation no installed plugin declares      | The host's transport guard | The operation fails, naming its id                                     |
 | A plugin reads an optional plugin's query that is absent     | `useData`                  | Throws, naming the query                                               |
+| A plugin runs an optional plugin's mutation that is absent   | `useChange`                | Throws, naming the mutation                                            |
 | A selector finds no record in its sample                     | `checks()`                 | The case fails, naming the query and the selector                      |
 | A decision member in a query's data is not a boolean         | The host                   | No decision is primed for that record, and `useAccess` asks the source |
 | A route's data variable is absent from the route at run time | The gateway                | The query runs without it. A required variable is refused              |

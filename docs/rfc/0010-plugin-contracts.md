@@ -4,7 +4,7 @@ title: "Plugin contracts and manifests"
 author: Roy Klopper, drafted with Claude
 status: Draft
 created: 2026-09-30
-updated: 2026-09-30
+updated: 2026-10-01
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -83,6 +83,8 @@ A plugin is two packages, released together in one `fixed` changesets group:
   `time-off/request.approve`, which is the scope the service requires (RFC-0014).
 - `defineContract` throws where the plugin id or a name breaks its grammar, so a bad name fails when
   the contract module loads.
+- `qualify(pluginId, name)` of `sdk-core` returns a qualified id, and `pluginOf(id)` returns the
+  plugin id a qualified id starts with.
 
 ### References
 
@@ -137,27 +139,33 @@ export interface Reference<K extends ReferenceKind = ReferenceKind, Id extends s
 export type QualifiedId<P extends string, N extends string> = `${P}/${N}`;
 ```
 
-| Kind              | Marker              | Reference type                           | `~types` member     | Members at run time                                             |
-| ----------------- | ------------------- | ---------------------------------------- | ------------------- | --------------------------------------------------------------- |
-| `route`           | `route()`           | `RouteReference<Id, Params, Search>`     | `params`, `search`  | `path`, `parent`, `navigation`, `search`, `sample`, `when`      |
-| `slot`            | `slot()`            | `SlotReference<Id, Props>`               | `props`             | `arity`, `keyed`, `sample`                                      |
-| `extension`       | `extension()`       | `ExtensionReference<Id, Props>`          | `props`             | `target`, `position`, `order`, `match`, `required`, `when`      |
-| `command`         | `command()`         | `CommandReference<Id, Args, Result>`     | `args`, `result`    | `label`, `keys`, `arguments`, `result`, `when`                  |
-| `event`           | `event()`           | `EventReference<Id, Payload>`            | `payload`           | `emit`, `sticky`                                                |
-| `featureFlag`     | `flag()`            | `FlagReference<Id, Value>`               | `value`             | `kind`, `type`, `default`, `variants`, `expires`, `description` |
-| `permission`      | `permission()`      | `PermissionReference<Id, Scoped>`        | `scoped`            | `description`, `resource`                                       |
-| `resource`        | `resource()`        | `ResourceReference<Id>`                  | none                | `description`                                                   |
-| `role`            | `role()`            | `RoleReference<Id>`                      | none                | `description`, `permissions`                                    |
-| `entitlement`     | `entitlement()`     | `EntitlementReference<Id>`               | none                | `description`                                                   |
-| `menu`            | a name              | `MenuReference<Id>`                      | none                | none                                                            |
-| `query`           | `query()`           | `QueryReference<Id, Data, Variables>`    | `data`, `variables` | `operation`, `records`, `decisions`, `sample`, `staleTime`      |
-| `mutation`        | `mutation()`        | `MutationReference<Id, Data, Variables>` | `data`, `variables` | `operation`, `changes`, `sample`                                |
-| `settingsPage`    | `settingsPage()`    | `SettingsPageReference<Id>`              | none                | `label`, `order`, `when`                                        |
-| `settingsSection` | `settingsSection()` | `SettingsSectionReference<Id, Values>`   | `values`            | `target`, `label`, `order`, `schema`, `version`, `when`         |
+| Kind              | Marker              | Reference type                           | `~types` member     | Members at run time                                                  |
+| ----------------- | ------------------- | ---------------------------------------- | ------------------- | -------------------------------------------------------------------- |
+| `route`           | `route()`           | `RouteReference<Id, Params, Search>`     | `params`, `search`  | `path`, `parent`, `search`, `data`, `navigation`, `sample`, `when`   |
+| `slot`            | `slot()`            | `SlotReference<Id, Props, Keyed>`        | `props`, `keyed`    | `arity`, `keyed`, `record`, `sample`                                 |
+| `extension`       | `extension()`       | `ExtensionReference<Id, Props>`          | `props`             | `target`, `position`, `order`, `match`, `required`, `sample`, `when` |
+| `command`         | `command()`         | `CommandReference<Id, Args, Result>`     | `args`, `result`    | `label`, `keys`, `arguments`, `result`, `sample`, `when`             |
+| `event`           | `event()`           | `EventReference<Id, Payload>`            | `payload`           | `emit`, `sticky`                                                     |
+| `featureFlag`     | `flag()`            | `FlagReference<Value, Id>`               | `value`             | `flagKind`, `type`, `default`, `variants`, `expires`, `description`  |
+| `permission`      | `permission()`      | `PermissionReference<Id, Scoped>`        | `scoped`            | `description`, `resource`                                            |
+| `resource`        | `resource()`        | `ResourceReference<Id>`                  | none                | `description`                                                        |
+| `role`            | `role()`            | `RoleReference<Id>`                      | none                | `description`, `permissions`                                         |
+| `entitlement`     | `entitlement()`     | `EntitlementReference<Id>`               | none                | `description`                                                        |
+| `menu`            | a name              | `MenuReference<Id>`                      | none                | none                                                                 |
+| `query`           | `query()`           | `QueryReference<Id, Data, Variables>`    | `data`, `variables` | `operation`, `records`, `decisions`, `sample`, `staleTime`           |
+| `mutation`        | `mutation()`        | `MutationReference<Id, Data, Variables>` | `data`, `variables` | `operation`, `changes`, `sample`                                     |
+| `settingsPage`    | `settingsPage()`    | `SettingsPageReference<Id>`              | none                | `label`, `order`, `when`                                             |
+| `settingsSection` | `settingsSection()` | `SettingsSectionReference<Id, Values>`   | `values`            | `target`, `label`, `order`, `schema`, `schemaVersion`, `when`        |
 
 A `RouteReference` is structurally a `RouteRef` of `provider-router`: it has `id` and
 `~types.params`. RFC-0013 adds `~types.search` to `RouteRef`, so `RouteLink`, `useRouteParams` and
 `useRouteSearch` take a plugin's route reference with its types.
+
+- A flag's marker states the flag's own kind as `flagKind`, because `kind` is the reference's kind,
+  `featureFlag`. `FlagReference` takes the value first, because every reader of a flag states it:
+  `FlagReference<boolean>`, `FlagReference<"list" | "board">`.
+- A section's marker states its schema's version as `schemaVersion`, because a reference's `version`
+  is the version of the contract it was made from.
 
 ### Markers
 
@@ -207,17 +215,23 @@ no type argument from the call once the caller writes one.
 export type PathParams = Readonly<Record<string, string>>;
 
 /**
+ * Types the parameters of a path that names none.
+ */
+export type NoParams = Readonly<Record<never, string>>;
+
+/**
  * Types a path pattern with a `$name` segment for every parameter of `Params`.
  */
 export type PathWith<Params extends PathParams> = [keyof Params] extends [never]
   ? string
-  : UnionToIntersection<
-      keyof Params extends infer Name
-        ? Name extends string
-          ? `${string}$${Name}${string}`
+  : string &
+      UnionToIntersection<
+        keyof Params extends infer Name
+          ? Name extends string
+            ? `${string}$${Name}${string}`
+            : never
           : never
-        : never
-    >;
+      >;
 
 /**
  * Validates a page's search string. Any library that implements Standard Schema provides one.
@@ -225,7 +239,12 @@ export type PathWith<Params extends PathParams> = [keyof Params] extends [never]
 export type SearchSchema<Search = unknown> = StandardSchemaV1<unknown, Search>;
 
 /**
- * States where a route is listed.
+ * Points at a menu a contract declares by name.
+ */
+export type MenuReference<Id extends string = string> = Reference<"menu", Id>;
+
+/**
+ * Describes where a route is listed.
  */
 export interface NavigationItem {
   /**
@@ -245,37 +264,13 @@ export interface NavigationItem {
 }
 
 /**
- * States a page: its path, its parent, its search, its data, where it is listed and when it is
- * routed.
+ * Lists the members every route states, whatever its path names.
  */
-export interface RouteOptions<
-  Params extends PathParams = PathParams,
-  Search = unknown,
-> extends MarkerOptions {
-  /**
-   * The queries the page reads, which load with its code (RFC-0020).
-   */
-  readonly data?: readonly RouteData[] | undefined;
-
-  /**
-   * Menu entry of the route. Allowed only on a path without parameters.
-   */
-  readonly navigation?: NavigationItem | undefined;
-
+interface RouteMembers<Search> extends MarkerOptions {
   /**
    * Route the page nests under. The page renders where the parent renders `Outlet`.
    */
   readonly parent?: RouteReference | undefined;
-
-  /**
-   * Path pattern in the router's `$name` form, relative to the parent or to the frame.
-   */
-  readonly path: PathWith<Params>;
-
-  /**
-   * Parameters the plugin's tests open the page at. Required on a path with parameters.
-   */
-  readonly sample?: Params | undefined;
 
   /**
    * Validator of the search string the page reads.
@@ -289,15 +284,102 @@ export interface RouteOptions<
 }
 
 /**
+ * Lists the queries a page reads, each variable named by a parameter of the path or a member of
+ * the search (RFC-0020).
+ */
+interface Loaded<Params extends PathParams, Search> {
+  /**
+   * The queries the page reads, which load with its code.
+   */
+  readonly data?:
+    ReadonlyArray<RouteData<NoInfer<(keyof Params | keyof Search) & string>>> | undefined;
+}
+
+/**
+ * Lists the path a route states, with a `$name` segment for every parameter of `Params`.
+ */
+interface Pathed<Params extends PathParams> {
+  /**
+   * Path pattern in the router's `$name` form, relative to the parent or to the frame.
+   */
+  readonly path: PathWith<Params>;
+}
+
+/**
+ * Lists the members whose rule depends on whether the path names parameters: a route with
+ * parameters states a sample and no menu entry, and a route without them may state an entry.
+ */
+type Listed<Params extends PathParams> = [keyof Params] extends [never]
+  ? { readonly navigation?: NavigationItem | undefined; readonly sample?: undefined }
+  : { readonly navigation?: undefined; readonly sample: Params };
+
+/**
+ * Describes a page: its path, its parent, its search, its data, where it is listed and when it is
+ * routed.
+ */
+export type RouteOptions<Params extends PathParams = NoParams, Search = unknown> = Listed<Params> &
+  Loaded<Params, Search> &
+  Pathed<Params> &
+  RouteMembers<Search>;
+
+/**
+ * Describes a route as its marker states it.
+ *
+ * @remarks
+ *   The marker states `data`, `navigation`, `path` and `sample` as plain members. `RouteOptions`
+ *   applies the rules between them and the path's parameters, so the markers of every route share
+ *   one widest type, `RouteMarker`.
+ */
+export interface RouteMarker<
+  Params extends PathParams = PathParams,
+  Search = unknown,
+> extends RouteMembers<Search> {
+  /**
+   * The route's parameters and search, for the type checker alone.
+   */
+  readonly "~types"?: { readonly params: Params; readonly search: Search };
+
+  /**
+   * The queries the page reads, which load with its code.
+   */
+  readonly data?: readonly RouteData[] | undefined;
+
+  /**
+   * The kind of the marker.
+   */
+  readonly kind: "route";
+
+  /**
+   * Menu entry of the route.
+   */
+  readonly navigation?: NavigationItem | undefined;
+
+  /**
+   * Path pattern in the router's `$name` form, relative to the parent or to the frame.
+   */
+  readonly path: string;
+
+  /**
+   * Parameters the plugin's tests open the page at.
+   */
+  readonly sample?: Params | undefined;
+}
+
+/**
  * Marks a route.
  *
  * @returns The marker, with the parameters and the search in its type.
  */
-export function route<Params extends PathParams = PathParams, Search = unknown>(
+export function route<Params extends PathParams = NoParams, Search = unknown>(
   options: Parameterised<Params> & RouteOptions<Params, Search>,
-): RouteMarker<Params, Search>;
+): NoInfer<RouteMarker<Params, Search>>;
 ```
 
+- `Params` defaults to `NoParams`. A route that spreads no `params` may state `navigation` and
+  states no `sample`.
+- `route` returns `NoInfer<…>`. A contract's definition types its routes as `RouteMarker`. Without
+  `NoInfer`, TypeScript would infer `Params` from that type as `PathParams` and refuse a path
+  without `$`.
 - Every path is relative to its parent: `time-off/$id` under the frame, or `$id` under
   `self.route("overview")`. A leading slash is allowed and means the same, as it does in TanStack
   Router (`foundations/providers/router/src/map.ts:105-117`).
@@ -315,10 +397,9 @@ export function route<Params extends PathParams = PathParams, Search = unknown>(
 
 ```ts
 /**
- * States a slot: how many contributions it renders, whether it selects them by a value, and the
- * props its extensions render with in their tests.
+ * Lists the members a slot states beside its sample.
  */
-export interface SlotOptions<Props extends object = object> extends MarkerOptions, Propped<Props> {
+interface SlotMembers extends MarkerOptions {
   /**
    * Renders one contribution where `"one"`, and any number where left out. A keyed slot renders
    * one contribution per value.
@@ -336,13 +417,48 @@ export interface SlotOptions<Props extends object = object> extends MarkerOption
    * condition reads (RFC-0020).
    */
   readonly record?: ResourceReference | undefined;
-
-  /**
-   * Props an extension in the slot renders with in its own tests. Required where `Props` has a
-   * required member.
-   */
-  readonly sample?: Props | undefined;
 }
+
+/**
+ * Lists the sample a slot or an extension states: required where its props have a required member.
+ */
+type Sampled<Props extends object> = [RequiredKeys<Props>] extends [never]
+  ? { readonly sample?: Props | undefined }
+  : { readonly sample: Props };
+
+/**
+ * Describes a slot: how many contributions it renders, whether it selects them by a value, and the
+ * props its extensions render with in their tests.
+ */
+export type SlotOptions<Props extends object = object> = Sampled<Props> & SlotMembers;
+
+/**
+ * Marks a slot's options as keyed.
+ */
+interface Keying {
+  /**
+   * Renders only the extensions whose `match` equals the value the slot renders with.
+   */
+  readonly keyed: true;
+}
+
+/**
+ * Marks a keyed slot, which renders the extensions whose `match` equals the value it renders with.
+ *
+ * @returns The marker, with the props and the key in its type.
+ */
+export function slot<Props extends object = object>(
+  options: Keying & Propped<Props> & SlotOptions<Props>,
+): SlotMarker<Props, true>;
+
+/**
+ * Marks a slot that renders every extension placed in it.
+ *
+ * @returns The marker, with the props in its type.
+ */
+export function slot<Props extends object = object>(
+  options?: Propped<Props> & SlotOptions<Props>,
+): SlotMarker<Props, false>;
 
 /**
  * Lists where an extension goes against its target.
@@ -365,11 +481,27 @@ export interface EveryTarget {
 export type ExtensionTarget = EveryTarget | ExtensionReference | RouteReference | SlotReference;
 
 /**
- * States an extension: its target, its position, its rank, when it shows, and the props a
- * decorator of it renders with.
+ * Describes where an extension goes: its target and its position, each as written.
  */
-export interface ExtensionOptions<Props extends object = object>
-  extends MarkerOptions, Propped<Props> {
+export interface Placed<
+  Target extends ExtensionTarget = ExtensionTarget,
+  Position extends ExtensionPosition = ExtensionPosition,
+> {
+  /**
+   * Position against the target.
+   */
+  readonly position: Position;
+
+  /**
+   * The slot, route or extension the extension attaches to, or every member of a kind.
+   */
+  readonly target: Target;
+}
+
+/**
+ * Lists the members an extension states beside its target and its position.
+ */
+interface ExtensionMembers<Props extends object> extends MarkerOptions {
   /**
    * Value a keyed slot renders the extension for. Required where the target is a keyed slot, and
    * refused on any other target.
@@ -380,11 +512,6 @@ export interface ExtensionOptions<Props extends object = object>
    * Rank among the extensions in the same position, ascending. Unranked extensions follow.
    */
   readonly order?: number | undefined;
-
-  /**
-   * Position against the target.
-   */
-  readonly position: ExtensionPosition;
 
   /**
    * Marks the product as wrong without the extension. A person cannot remove it, and the host
@@ -398,16 +525,63 @@ export interface ExtensionOptions<Props extends object = object>
   readonly sample?: Props | undefined;
 
   /**
-   * What the extension attaches to.
-   */
-  readonly target: ExtensionTarget;
-
-  /**
    * Condition under which the extension shows. Always where it states none.
    */
   readonly when?: When | undefined;
 }
+
+/**
+ * Describes an extension: its target, its position, its rank, when it shows, and the props a
+ * decorator of it renders with.
+ */
+export type ExtensionOptions<Props extends object = object> = ExtensionMembers<Props> & Placed;
+
+/**
+ * Describes an extension as its marker states it, with its target and its position as written.
+ */
+export interface ExtensionMarker<
+  Props extends object = object,
+  Target extends ExtensionTarget = ExtensionTarget,
+  Position extends ExtensionPosition = ExtensionPosition,
+>
+  extends ExtensionMembers<Props>, Placed<Target, Position> {
+  /**
+   * The props a decorator of the extension renders with, for the type checker alone.
+   */
+  readonly "~types"?: { readonly props: Props };
+
+  /**
+   * The kind of the marker.
+   */
+  readonly kind: "extension";
+}
+
+/**
+ * Marks an extension, with its target and its position kept as written.
+ *
+ * @returns The marker, with the props, the target and the position in its type.
+ */
+export function extension<
+  Props extends object = object,
+  const Target extends ExtensionTarget = ExtensionTarget,
+  const Position extends ExtensionPosition = ExtensionPosition,
+>(
+  options: ExtensionMembers<Props> &
+    Placed<Target, Position> &
+    Propped<Props> &
+    Wrapping<Target, Position>,
+): ExtensionMarker<Props, Target, Position>;
 ```
+
+- A slot's marker and its reference record whether the slot is keyed as `Keyed` in `~types`: `true`
+  from the overload whose options state `keyed: true`, `false` from the other. `Slot` then requires
+  `match` on a keyed slot and refuses it on any other. A reference whose `Keyed` is `boolean` takes
+  `match` as optional (RFC-0013).
+- `Wrapping<Target, Position>` refuses a position other than `wrap` on a target that is every member
+  of a kind.
+- The marker keeps its target and its position as written, so `definePlugin` checks the component
+  against the props that target renders it with. A target from `self` becomes the slot or the
+  extension the contract declares under that id.
 
 An extension's component receives props determined by its target. `definePlugin` checks the
 component against them:
@@ -420,15 +594,23 @@ component against them:
 | `{ every: … }`    | `Record<string, unknown>`, and `targetId`                   |
 | Any, at `wrap`    | The above, and `children`: what it wraps, already decorated |
 
+`WrapProps.children` is typed `never`, so a component may state any type for its children. The host
+renders them with React.
+
 RFC-0013 defines how the host places each position and how a keyed slot selects its extensions.
 
 #### Commands and events
 
 ```ts
 /**
- * States a command: its label, its keys and when it may run.
+ * Describes a command that keys, the palette and components run without arguments.
  */
 export interface CommandOptions extends MarkerOptions {
+  /**
+   * Not stated: a command with arguments spreads `args`.
+   */
+  readonly arguments?: undefined;
+
   /**
    * Default binding in TanStack Hotkeys notation, `Mod+Shift+A`. Only a command without arguments
    * and without a result binds keys, because a key press has no arguments to give and no caller
@@ -440,6 +622,11 @@ export interface CommandOptions extends MarkerOptions {
    * Key of the command's text in the plugin's catalogue.
    */
   readonly label: string;
+
+  /**
+   * Not stated: a command with a result spreads `returns`.
+   */
+  readonly result?: undefined;
 
   /**
    * Condition under which the command may run, however it is run. Always where it states none.
@@ -464,36 +651,39 @@ export function returns<Result>(): Returning<Result>;
 /**
  * Lists what a command with arguments states beside its label: no keys, and a sample.
  */
-export type Called<Args, Result> = Omit<CommandOptions, "keys"> &
+export type Called<Args, Result> = {
+  /**
+   * Arguments the command's tests run it with.
+   */
+  readonly sample: NoInfer<Args>;
+} & Omit<CommandOptions, "arguments" | "keys" | "result"> &
   Partial<Returning<Result>> &
-  Taking<Args> & {
-    /**
-     * Arguments the command's tests run it with.
-     */
-    readonly sample: NoInfer<Args>;
-  };
+  Taking<Args>;
+
+/**
+ * Lists what a command without arguments that resolves with a result states: no keys.
+ */
+export type Resolving<Result> = Omit<CommandOptions, "keys" | "result"> & Returning<Result>;
 
 /**
  * Marks a command that keys, the palette and components run without arguments.
  */
-export function command(options: CommandOptions): CommandMarker<void, void>;
+export function command(options: CommandOptions): CommandMarker;
 
 /**
  * Marks a command that takes arguments, and resolves with a result where it spreads `returns`.
  */
 export function command<Args, Result = void>(
   options: Called<Args, Result>,
-): CommandMarker<Args, Result>;
+): NoInfer<CommandMarker<Args, Result>>;
 
 /**
  * Marks a command without arguments that resolves with a result, such as a picker.
  */
-export function command<Result>(
-  options: Omit<CommandOptions, "keys"> & Returning<Result>,
-): CommandMarker<void, Result>;
+export function command<Result>(options: Resolving<Result>): NoInfer<CommandMarker<void, Result>>;
 
 /**
- * States an event: who may emit it, and whether a late subscriber receives the last payload.
+ * Describes an event: who may emit it, and whether a late subscriber receives the last payload.
  */
 export interface EventOptions extends MarkerOptions {
   /**
@@ -511,14 +701,20 @@ export interface EventOptions extends MarkerOptions {
 /**
  * Marks an event with its payload: `event<{ requestId: string }>()`.
  */
-export function event<Payload = void>(options?: EventOptions): EventMarker<Payload>;
+export function event<Payload = void>(options?: EventOptions): NoInfer<EventMarker<Payload>>;
 ```
 
 - A command states its arguments with `args<Args>()` and its result with `returns<Result>()`, both
   spread into its options as `props` and `params` are. TypeScript derives both type parameters from
   the one call, which an explicit type argument for either would prevent.
 - `Called` requires `sample` and has no `keys` member, so a command with arguments that binds keys,
-  or has no sample, fails to compile. A command with a result has no `keys` member either.
+  or has no sample, fails to compile. `Resolving` has no `keys` member either.
+- `CommandOptions` states `arguments` and `result` as `undefined`, so the plain overload refuses a
+  spread of `args` or `returns`. TypeScript then types such a command with the overload for its
+  form.
+- The overloads for `Called` and `Resolving` return `NoInfer<…>`, as `route` does. A definition
+  types its commands as `CommandMarker<unknown, unknown>`, and a command keeps `void` as its result
+  inside it.
 - A command with a result lets one plugin ask another for a value without importing its code: the
   identity plugin's `pickPerson` opens its own dialog and resolves with the people picked
   (RFC-0016).
@@ -531,7 +727,7 @@ RFC-0014 defines how the host and the services use each of these four kinds.
 
 ```ts
 /**
- * States a permission: what it lets a person do, and the kind of resource it is granted on.
+ * Describes a permission: what it lets a person do, and the kind of resource it is granted on.
  */
 export interface PermissionOptions<Scoped extends boolean = boolean> extends MarkerOptions {
   /**
@@ -554,7 +750,7 @@ export function permission<const O extends PermissionOptions>(
 ): PermissionMarker<O["resource"] extends ResourceReference ? true : false>;
 
 /**
- * States a kind of resource a permission is granted on, such as a request or an invoice.
+ * Describes a kind of resource a permission is granted on, such as a request or an invoice.
  */
 export interface ResourceOptions extends MarkerOptions {
   /**
@@ -569,8 +765,8 @@ export interface ResourceOptions extends MarkerOptions {
 export function resource(options: ResourceOptions): ResourceMarker;
 
 /**
- * States a role: a named set of the plugin's own permissions that an access service offers as one
- * grant.
+ * Describes a role: a named set of the plugin's own permissions that an access service offers as
+ * one grant.
  */
 export interface RoleOptions extends MarkerOptions {
   /**
@@ -581,7 +777,7 @@ export interface RoleOptions extends MarkerOptions {
   /**
    * Permissions the role grants, each declared by the same contract.
    */
-  readonly permissions: readonly PermissionReference[];
+  readonly permissions: ReadonlyArray<Reference<"permission">>;
 }
 
 /**
@@ -590,7 +786,7 @@ export interface RoleOptions extends MarkerOptions {
 export function role(options: RoleOptions): RoleMarker;
 
 /**
- * States a capability a tenant is licensed for, such as a module or a feature of a plan.
+ * Describes a capability a tenant is licensed for, such as a module or a feature of a plan.
  */
 export interface EntitlementOptions extends MarkerOptions {
   /**
@@ -688,7 +884,7 @@ of JSON Schema, with each description a catalogue key:
 
 ```ts
 /**
- * States one configuration property.
+ * Describes one configuration property.
  */
 export interface ConfigProperty {
   /**
@@ -708,17 +904,30 @@ export interface ConfigProperty {
 }
 
 /**
+ * Lists what a schema states beside its properties.
+ */
+export interface SchemaOptions<R extends string> {
+  /**
+   * Properties a product has to state, by name. None where left out.
+   */
+  readonly required?: readonly R[] | undefined;
+}
+
+/**
  * Defines a configuration schema. The returned type records each property's kind.
  *
  * @param properties - The properties by name.
  * @param options - The names a product has to state. None where left out.
  * @returns A JSON Schema object that admits those properties and no other.
  */
-export function defineConfigSchema<const P extends ConfigProperties, const R extends Keys<P>>(
-  properties: P,
-  options?: SchemaOptions<R>,
-): DefinedSchema<P, R>;
+export function defineConfigSchema<
+  const P extends ConfigProperties,
+  const R extends keyof P & string = never,
+>(properties: P, options?: SchemaOptions<R>): DefinedSchema<P, R>;
 ```
+
+`R` is the union of the required names, `never` where the options are left out, so a schema without
+`required` requires nothing, and a required name the schema lacks fails to compile.
 
 `ConfigOf<S>` types what a component reads through `useConfig(schema)`, and `ConfigWritten<S>` types
 what a product writes through `installed` (RFC-0011). A property with a default is always present
@@ -737,14 +946,17 @@ export interface SettingsDefinition {
   /**
    * Pages the plugin creates, by name.
    */
-  readonly pages?: Readonly<Record<string, SettingsPageMarker>>;
+  readonly pages?: Readonly<Record<string, SettingsPageMarker>> | undefined;
 
   /**
    * Sections the plugin adds to its own pages or to another plugin's, by name.
    */
-  readonly sections?: Readonly<Record<string, SettingsSectionMarker>>;
+  readonly sections?: Readonly<Record<string, SettingsSectionMarker>> | undefined;
 }
 ```
+
+`SettingsSectionMarker` records the section's schema in its type, `undefined` for a section that
+renders a component, so a manifest that maps no component to such a section fails to compile.
 
 ### Defining a contract
 
@@ -753,24 +965,31 @@ export interface SettingsDefinition {
  * Lists the names a plugin declares, per kind.
  */
 export interface ContractDefinition {
-  readonly commands?: Readonly<Record<string, CommandMarker>>;
-  readonly config?: ConfigSchema;
-  readonly entitlements?: Readonly<Record<string, EntitlementMarker>>;
-  readonly events?: Readonly<Record<string, EventMarker>>;
-  readonly extensions?: Readonly<Record<string, ExtensionMarker>>;
-  readonly featureFlags?: Readonly<Record<string, FlagMarker>>;
-  readonly menus?: readonly string[];
-  readonly mutations?: Readonly<Record<string, MutationMarker>>;
-  readonly permissions?: Readonly<Record<string, PermissionMarker>>;
-  readonly queries?: Readonly<Record<string, QueryMarker>>;
-  readonly requires?: readonly Requirement[];
-  readonly resources?: Readonly<Record<string, ResourceMarker>>;
-  readonly roles?: Readonly<Record<string, RoleMarker>>;
-  readonly routes?: Readonly<Record<string, RouteMarker>>;
-  readonly settings?: SettingsDefinition;
-  readonly slots?: Readonly<Record<string, SlotMarker>>;
-  readonly version?: string;
+  readonly commands?: Readonly<Record<string, CommandMarker<unknown, unknown>>> | undefined;
+  readonly config?: ConfigSchema | undefined;
+  readonly entitlements?: Readonly<Record<string, EntitlementMarker>> | undefined;
+  readonly events?: Readonly<Record<string, EventMarker<unknown>>> | undefined;
+  readonly extensions?: Readonly<Record<string, ExtensionMarker>> | undefined;
+  readonly featureFlags?: Readonly<Record<string, FlagMarker>> | undefined;
+  readonly menus?: readonly string[] | undefined;
+  readonly mutations?: Readonly<Record<string, MutationMarker>> | undefined;
+  readonly permissions?: Readonly<Record<string, PermissionMarker>> | undefined;
+  readonly queries?: Readonly<Record<string, QueryMarker>> | undefined;
+  readonly requires?: readonly Requirement[] | undefined;
+  readonly resources?: Readonly<Record<string, ResourceMarker>> | undefined;
+  readonly roles?: Readonly<Record<string, RoleMarker>> | undefined;
+  readonly routes?: Readonly<Record<string, RouteMarker>> | undefined;
+  readonly settings?: SettingsDefinition | undefined;
+  readonly slots?: Readonly<Record<string, SlotMarker>> | undefined;
+  readonly version?: string | undefined;
 }
+
+/**
+ * Lists one factory per kind, each returning a reference to a name of the contract being defined.
+ */
+export type Self<P extends string> = {
+  readonly [K in ReferenceKind]: <N extends string>(name: N) => Reference<K, QualifiedId<P, N>>;
+};
 
 /**
  * Defines a plugin's contract: one typed reference per declared name.
@@ -778,8 +997,8 @@ export interface ContractDefinition {
  * @param pluginId - The plugin's id.
  * @param definition - The names per kind, or a function of `self` that returns them.
  * @returns The references per kind and name, with the plugin id, the requirements and the version.
- * @throws {@link Error} When the plugin id or a name breaks its grammar, or when `self` names a
- *   name the definition does not declare.
+ * @throws {@link Error} When the plugin id is the host's, when the plugin id or a name breaks its
+ *   grammar, or when `self` names a name the definition does not declare.
  */
 export function defineContract<const P extends string, const D extends ContractDefinition>(
   pluginId: P,
@@ -787,11 +1006,17 @@ export function defineContract<const P extends string, const D extends ContractD
 ): Contract<P, D>;
 ```
 
+`ContractDefinition` takes the widest marker of each kind: `CommandMarker<unknown, unknown>`,
+`EventMarker<unknown>`, and `RouteMarker`, whose `path` is a `string`. The marker of every command,
+event and route of a definition is assignable to it.
+
 A definition that references its own names is a function of `self`. `self` has one factory per kind,
 named after the kind: `self.route("detail")`, `self.permission("request.approve")`,
 `self.resource("request")`, `self.featureFlag("calendar")`, `self.query("requests")`. Each returns a
-bare reference from the name. `defineContract` records every name `self` produced and throws once
-the contract is built where a name is not declared:
+bare reference from the name: its qualified id and its kind. A bare reference is assignable wherever
+a reference of its kind is expected, because every other member of a reference is optional.
+`defineContract` records every name `self` produced and throws once the contract is built where a
+name is not declared:
 `The contract time-off references its own route "detial", which it does not declare.`
 
 `Contract<P, D>` has one member per kind, each a record of references keyed by name and typed by its
@@ -913,7 +1138,7 @@ from.
 
 ```ts
 /**
- * States when a name applies. Every member stated must be true.
+ * Describes when a name applies. Every member stated must be true.
  */
 export interface When {
   /**
@@ -974,7 +1199,7 @@ export interface When {
 }
 
 /**
- * States that an experiment serves one variant to the session.
+ * Describes the variant an experiment must serve the session.
  */
 export interface VariantCondition {
   /**
@@ -1084,7 +1309,7 @@ A requirement states a caret range over another contract's version:
 export type CaretRange = `^${string}`;
 
 /**
- * States a plugin another plugin needs, at a range of its contract's version.
+ * Describes a plugin another plugin needs, at a range of its contract's version.
  */
 export interface Requirement {
   /**
@@ -1109,7 +1334,7 @@ export interface Requirement {
 }
 
 /**
- * States that a plugin needs another plugin.
+ * Returns a requirement on another plugin, at a caret range of its contract's version.
  */
 export function needs(
   contract: AnyContract,
@@ -1134,15 +1359,19 @@ export function below(range: string, version: string): boolean;
   `^0.4.0` admits `0.4.7` and refuses `0.5.0`. `^0.0.3` admits `0.0.3` alone.
 - Every package in this repository is 0.x, so every minor of a contract is breaking for the ranges
   that name it.
-- A reference records the version of the contract it was made from. The build compares it with the
-  installed contract's version (RFC-0011):
-  - Compatible: nothing is reported.
-  - The installed version is below the reference's: the build fails, because the plugin may
-    reference a name the installed contract lacks.
-  - The installed version is a later major: the build warns.
-- The API version is the major and minor of `sdk-core`. `definePlugin` writes it into the manifest
-  as a caret range, `^0.1.0` today. The SDK packages release as one `linked` group, so one version
-  names the API. The build refuses a manifest whose range does not admit the installed `sdk-core`.
+- A reference records the version of the contract it was made from. The build compares the installed
+  contract's version with the caret range of that version, its prerelease and build left out
+  (RFC-0011):
+  - Equal to the reference's version, or inside the range: nothing is reported.
+  - Below the range: the build fails, because the plugin may reference a name the installed contract
+    lacks.
+  - Above the range, such as a later minor of a 0.x contract: the build warns.
+  - A reference whose version is not a version is a problem.
+- The API version is the major and minor of `sdk-core`. `API_RANGE` reads the version from
+  `#package.json`, which `sdk-core`'s `imports` map to its own manifest, and `definePlugin` writes
+  it into the manifest as a caret range: `^0.1.0` for every `sdk-core` 0.1.x. The SDK packages
+  release as one `linked` group, so the API has one version. The build refuses a manifest whose
+  range does not admit the installed `sdk-core`.
 
 ### Manifests
 
@@ -1152,6 +1381,10 @@ code. Component settings sections need code. Every other kind is data alone.
 ```ts
 /**
  * Renders what a plugin contributes: a function of its props.
+ *
+ * @remarks
+ *   `sdk-core` imports no React types, so a component's return type is `unknown` here, and
+ *   `sdk-plugin` types it as React's.
  */
 export type PluginComponent<Props> = (props: Props) => unknown;
 
@@ -1170,15 +1403,22 @@ export type ComponentModule<Props> = Readonly<Record<string, PluginComponent<Pro
 export type LazyComponent<Props = never> = () => Promise<ComponentModule<Props>>;
 
 /**
- * Maps a module's export names to the one command function it exports, typed by the command's
- * arguments `A`, its needs `N` and its result `R`.
+ * Maps a module's export names to the one command function it exports.
  */
-export type CommandModule<A, N, R> = Readonly<Record<string, CommandRun<A, N, R>>>;
+export type CommandModule<Args, Needs, Result> = Readonly<
+  Record<string, CommandRun<Args, Needs, Result>>
+>;
 
 /**
- * Imports the module of one command on first use.
+ * Imports the module of one command on first use: `() => import("#approve.command.ts")`.
+ *
+ * @remarks
+ *   The defaults take a module of any command function: a function that returns a value is not
+ *   assignable to one that returns `void`, so the widest result is `unknown`.
  */
-export type LazyCommand<A = never, N = never, R = void> = () => Promise<CommandModule<A, N, R>>;
+export type LazyCommand<Args = never, Needs = never, Result = unknown> = () => Promise<
+  CommandModule<Args, Needs, Result>
+>;
 
 /**
  * Runs a command with its arguments, the commands it needs, and the host's API, and returns the
@@ -1195,7 +1435,7 @@ export type CommandRun<Args, Needs, Result = void> = (
  */
 export interface PluginManifest<C extends AnyContract = AnyContract> {
   /**
-   * Caret range of the SDK API the manifest was built against.
+   * Caret range of the plugin API the manifest was built against.
    */
   readonly apiVersion: CaretRange;
 
@@ -1272,8 +1512,22 @@ extension({ position: "after", target: hostContract.slots.status });
 ```
 
 - `host` is a reserved plugin id. `defineContract` throws for any other contract that claims it.
+- The host's contract states no version. Every reference to it comes from the one `sdk-core` a
+  product installs, and a manifest's API range already checks that package.
 - The build adds one ops flag per installed plugin to the host's declarations,
   `host/plugin.<plugin id>`, which turns the whole plugin off during an incident (RFC-0015).
+
+The host's events and their payloads:
+
+| Event            | Payload         | Members                                                                          |
+| ---------------- | --------------- | -------------------------------------------------------------------------------- |
+| `navigated`      | `Navigated`     | `href`, and `matched`: the qualified id of every matched route, outermost first  |
+| `pluginChanged`  | `PluginChanged` | `on`, `pluginId`, and `reason`, a `PluginOffReason`, where the plugin turned off |
+| `recordsChanged` | `ChangeBatch`   | `changes`, each with the record's kind, its id and the action                    |
+| `sessionChanged` | `Session`       | The session of RFC-0014. The event is sticky                                     |
+
+`PluginOffReason` is `condition`, `off`, `requirement` or `unavailable`, the four reasons of
+RFC-0012's availability.
 
 ## Failure handling
 

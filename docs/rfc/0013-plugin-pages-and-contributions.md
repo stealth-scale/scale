@@ -4,7 +4,7 @@ title: "Plugin pages, the frame and contributions"
 author: Roy Klopper, drafted with Claude
 status: Draft
 created: 2026-09-30
-updated: 2026-09-30
+updated: 2026-10-01
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -231,11 +231,12 @@ export function useNavigation(menu?: MenuReference): readonly NavigationEntry[];
 
 ```ts
 /**
- * Titles the document after the page for as long as the caller is mounted.
+ * Titles the document `<title> · <product name>` for as long as the caller is mounted.
  *
  * @remarks
- *   The title is `<title> · <product name>`. Once the caller unmounts, the document is titled with
- *   the product's name alone.
+ *   The deepest matched page titles the document, so a list that renders its detail beside it
+ *   leaves the title to the detail. Once the caller unmounts, the document is titled with the
+ *   product's name alone.
  */
 export function useDocumentTitle(title: string): void;
 ```
@@ -340,7 +341,32 @@ export type SlotProps<R extends SlotReference> = {
 /**
  * Renders a slot's own content with every contribution placed in it.
  */
-export function Slot<R extends SlotReference>(props: SlotProps<R>): ReactElement;
+export function Slot<R extends SlotReference>(props: SlotProps<R>): ReactNode;
+
+/**
+ * Describes what a slot contains for the current page.
+ */
+export interface SlotContents {
+  /**
+   * Content the pages on screen contribute to the slot with `Into`, in order.
+   */
+  readonly contributions: readonly PageContribution[];
+
+  /**
+   * The extensions placed in the slot that it does not render, each with its reason.
+   */
+  readonly dropped: readonly Dropped[];
+
+  /**
+   * True where an extension or a page contribution renders in the slot.
+   */
+  readonly filled: boolean;
+
+  /**
+   * The extensions the slot renders, in order.
+   */
+  readonly rendered: readonly ResolvedExtension[];
+}
 
 /**
  * Reads what a slot contains for the current page, before anything renders.
@@ -350,7 +376,10 @@ export function useSlot(slot: SlotReference, match?: string): SlotContents;
 
 - `PropsMember<R>` requires `props` where the slot's `Props` has a required member, allows it where
   `Props` has optional members only, and omits it where the slot declares none.
-- `MatchMember<R>` requires `match`, a string, on a keyed slot, and omits it on any other.
+- `MatchMember<R>` requires `match`, a string, on a keyed slot, and refuses it on any other. A
+  reference whose `Keyed` is `boolean` takes `match` as optional (RFC-0010).
+- `useSlot` reads no record, so an extension's `field` condition is false there. A `Dropped` pairs
+  an extension with its `UnplacedReason` (RFC-0012).
 
 A feed renders each item with the extension for its type, and its own content for a type no plugin
 renders:
@@ -365,19 +394,25 @@ A slot resolves its contents on every render, from the resolved product and the 
 
 1. It takes the extensions placed in the slot by the manifests, the product and the person, in the
    order RFC-0017 defines.
-2. It removes each extension whose plugin is not on, which is quarantined, or whose condition is
-   false for the current page. A slot that states `record` evaluates each condition with the
-   `record` prop, which a `field` member reads (RFC-0020).
-3. Where the slot is keyed, it keeps the extensions whose `match` equals the slot's `match` prop.
+2. Where the slot is keyed, it drops each extension whose `match` differs from the slot's `match`
+   prop. This test runs first, so an extension for another value evaluates no condition and an
+   experiment in it counts no exposure.
+3. It drops each extension whose plugin is not on, which is quarantined, or whose condition is false
+   for the current page. A slot that states `record` evaluates each condition with the `record`
+   prop, which a `field` member reads (RFC-0020).
 4. Where the slot's `arity` is `"one"`, it keeps the first extension and reports the rest as
    `slot-full`.
-5. It renders the result by position:
+5. Where more than one `replace` extension is left, it keeps the last in order and drops the others
+   as `replaced`.
+6. It renders the result by position:
    - `before` extensions, in order, then the slot's children, then the `after` extensions, in order,
      then the page contributions made with `Into`, in their `order`.
-   - Where one or more `replace` extensions apply, the last in order renders in place of the
-     children.
+   - The `replace` extension that is left renders in place of the children.
    - `wrap` extensions nest around the result, the first in order outermost.
-   - Extensions whose target is `{ every: "slot" }` wrap the whole slot, outermost.
+   - Extensions whose target is `{ every: "slot" }` wrap the whole slot, the first in order
+     outermost.
+
+Each extension the slot drops keeps its reason, an `UnplacedReason` of RFC-0012.
 
 An extension for one value of a keyed slot states `position: "replace"`, so it renders in place of
 the slot's children, which render for a value that no extension matches.
@@ -391,9 +426,14 @@ Every extension renders:
 - As a target of its own. Another plugin's extension whose target is this extension renders before,
   after, around or in place of it, with this extension's props. A decorator renders plainly, without
   decorators of its own, so decoration ends after one level.
+- Inside the extensions whose target is `{ every: "extension" }`. They wrap each extension a slot
+  renders, outside the extension's own `wrap` decorators, the first in order outermost.
 
-A slot records that it is mounted for as long as it is mounted. The host reports an extension marked
-`required` as `unplaced` when the page settles and its slot is not mounted.
+Each mounted instance of a slot records its outcome in the host's `mounted` store for as long as it
+is mounted: the extensions it renders, decorators and wrappers included, and the reason it drops
+each other extension placed in it or attached to what it renders (`MountedSlot`, RFC-0012). The
+extension statuses read the outcomes. The host reports an extension marked `required` as `unplaced`
+when the page settles and its slot is not mounted.
 
 ### Contributions from a page
 
@@ -409,23 +449,25 @@ into the toolbar.
 - `Into` does not render anything where it is mounted. For as long as it is mounted, the slot
   renders its children after the slot's `after` extensions, in `order`.
 - `Into` takes its place in the slot when it mounts, and its content updates in that place, so a
-  title that changes does not move.
-- The contribution is React content that the slot renders, not a portal into the slot's element, so
-  it renders in the slot's providers and its own at once.
+  title that changes does not move. A change of `order` takes a new place, with the latest content.
+- The contribution is React content that the slot renders, not a portal into the slot's element. It
+  renders in the plugin scope `Into` renders in, so a hook that acts as a plugin, such as `useEmit`,
+  acts as the page's plugin. Every other context comes from above the slot.
 
 ### Loading
 
 - A plugin's modules form one chunk group, so its pages, extensions, commands and component sections
   load in one request (RFC-0011).
-- A route's `load` imports the page and, in parallel, the chunks of the plugins whose extensions
-  target a slot the route's plugin declares. The build computes that list from the contracts'
-  targets. The router preloads a route on intent (`defaultPreload: "intent"`), so pointing at a link
-  loads the page and the contributions to its slots together.
+- A route's `load` imports the page and, in parallel, the chunks of the plugins whose extensions are
+  placed in a slot the route's plugin declares, or target the route itself. The build computes that
+  list, the route's `loads`, after the product's placements, and leaves out disabled extensions and
+  the route's own plugin. The router preloads a route on intent (`defaultPreload: "intent"`), so
+  pointing at a link loads the page and the contributions to its slots together.
 - The route's `loader` fetches the queries its marker lists under `data` in the same preload, so the
   page's data arrives with its code (RFC-0020).
-- An extension's component is a `React.lazy` over its importer, inside a `Suspense` boundary per
-  slot whose fallback is empty, so a slot renders its own content first and its contributions as
-  they arrive.
+- An extension's component is a `React.lazy` over its importer, inside a `Suspense` boundary of its
+  own whose fallback is empty, so a slot renders its own content at once and each contribution as it
+  arrives.
 - Not measured yet: the request count and the time to content on `examples/app-plugins`, with and
   without the preloads.
 

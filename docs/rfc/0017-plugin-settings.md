@@ -4,7 +4,7 @@ title: "Plugin settings, switches and placements"
 author: Roy Klopper, drafted with Claude
 status: Draft
 created: 2026-09-30
-updated: 2026-09-30
+updated: 2026-10-01
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -142,7 +142,7 @@ export const timeOffContract = defineContract("time-off", (self) => ({
         target: identityContract.settings.pages.account,
       }),
       reminders: settingsSection({
-        label: "settings.reminders",
+        label: "settings.reminders.title",
         schema: {
           additionalProperties: false,
           properties: {
@@ -151,8 +151,8 @@ export const timeOffContract = defineContract("time-off", (self) => ({
           },
           type: "object",
         },
+        schemaVersion: 2,
         target: self.settingsPage("time-off"),
-        version: 2,
       }),
     },
   },
@@ -161,7 +161,7 @@ export const timeOffContract = defineContract("time-off", (self) => ({
 
 ```ts
 /**
- * States a settings page a plugin creates.
+ * Describes a settings page a plugin creates.
  */
 export interface SettingsPageOptions extends MarkerOptions {
   /**
@@ -181,7 +181,7 @@ export interface SettingsPageOptions extends MarkerOptions {
 }
 
 /**
- * States a section a plugin adds to a settings page, its own or another plugin's.
+ * Describes a section a plugin adds to a settings page, its own or another plugin's.
  */
 export interface SettingsSectionOptions<
   Schema extends SettingsSchema | undefined = undefined,
@@ -202,14 +202,14 @@ export interface SettingsSectionOptions<
   readonly schema?: Schema;
 
   /**
+   * Version of the schema that a stored value records. 1 where left out.
+   */
+  readonly schemaVersion?: number | undefined;
+
+  /**
    * The page the section renders on.
    */
   readonly target: SettingsPageReference;
-
-  /**
-   * Version of the schema, which a stored value records. 1 where left out.
-   */
-  readonly version?: number | undefined;
 
   /**
    * Condition under which the section renders.
@@ -217,6 +217,9 @@ export interface SettingsSectionOptions<
   readonly when?: When | undefined;
 }
 ```
+
+The schema's version is `schemaVersion`, because a reference's `version` is the version of the
+contract it was made from.
 
 #### The values schema
 
@@ -251,6 +254,8 @@ keyword outside that list (RFC-0011).
   - The form id is `settings.<section>`, so every label, description, choice and error message is a
     key of the section's plugin catalogue under `settings.<section>.fields.<path>`, the identifiers
     `provider-form` derives (`foundations/providers/form/src/identifiers.ts:64-81`).
+  - A catalogue key is a string or an object, never both, so a schema section's label is a key
+    beside its fields: `settings.reminders.title` beside `settings.reminders.fields`.
   - `translate` is the `t` of the section's plugin namespace.
   - `values` are the section's current values.
   - The section's Save button submits the form. A valid submission writes the values, and the form
@@ -274,19 +279,23 @@ keyword outside that list (RFC-0011).
  */
 export interface Settings<Values> {
   /**
-   * Stored values over the schema's defaults.
+   * The stored values over the schema's defaults.
    */
   readonly values: Values;
 
   /**
-   * Validates the change against the schema, writes it, and renders the section's readers again.
+   * Validates the change against the schema, writes it over the stored values, and renders the
+   * section's readers again.
    *
-   * @throws {@link Error} When the section is another plugin's, or the change is invalid.
+   * @throws {@link Error} Where the section is another plugin's, no installed plugin declares it,
+   *   or the schema refuses a value of the change.
    */
   readonly update: (change: Partial<Values>) => void;
 
   /**
    * Removes the stored value, so the section reads its defaults.
+   *
+   * @throws {@link Error} Where the section is another plugin's.
    */
   readonly reset: () => void;
 }
@@ -297,19 +306,30 @@ export interface Settings<Values> {
 export function useSettings<S extends SettingsSectionReference>(section: S): Settings<ValuesOf<S>>;
 ```
 
-- A plugin reads any section by reference and writes only its own.
+- A plugin reads any section by reference and writes only its own. The product's own code, outside
+  every plugin's scope, writes any section.
+- `useSettings` reads a section that no installed plugin declares, such as an optional plugin's, as
+  empty, and its `update` throws.
 - A read goes through these steps:
   1. The host reads the section's key. An absent key returns the defaults.
-  2. It parses the JSON. A value that does not parse is dropped and reported, and the defaults are
-     returned.
+  2. It parses the JSON, and checks for a whole `version` of 1 or more and an object of `values`. A
+     value that fails either check is dropped and reported, and the defaults are returned.
   3. Where the stored version is lower than the section's, it runs the manifest's migrations from
-     the stored version up, one version at a time. A missing migration drops the value.
-  4. Where the stored version is higher, which a rolled-back release leaves, it returns the defaults
-     and keeps the stored value for the newer release to read again.
+     the stored version up, one version at a time. A missing migration, or a migration that throws,
+     drops the value. The report contains the version, and the error where the migration threw.
+  4. Where the stored version is higher, which a rolled-back release leaves, it returns the
+     defaults. It keeps the stored value for the newer release to read again, and does not report
+     it.
   5. It validates each property against the schema, keeps the valid ones, drops the rest and reports
      each dropped property.
   6. It returns the kept properties over the defaults.
-- A write stores `{"version":<section version>,"values":<values>}` after the values pass the schema.
+- `useSettings` reports each dropped part as `setting-dropped`, with the key and the reason, once
+  per stored value it reads. Each reader reports on its own, so a section that two components read
+  reports each dropped part twice.
+- A write validates the change against the schema, and throws where the schema refuses a value. It
+  then stores `{"version":<section version>,"values":<values>}`, where the values are the change
+  over the stored values the read kept, not over the defaults. A default that a later release
+  changes then applies to every property the person never set.
 - A migration is a function in the manifest, because the host reads a section synchronously:
 
   ```ts
@@ -332,7 +352,8 @@ states its placements at build (RFC-0011), and a person states theirs at run tim
 
 ```ts
 /**
- * States what one layer of placements states about one slot.
+ * Describes what one layer of placements states about one slot, by qualified extension ids: the
+ * product's resolved placements, or a person's stored ones.
  */
 export interface SlotPlacement {
   /**
@@ -380,15 +401,18 @@ export function usePlacements(): Placements;
 The host resolves a slot's contents in this order (RFC-0013 renders the result):
 
 1. The extensions whose own target is the slot, from the manifests.
-2. The product's placements: `remove` takes an extension out, `add` puts one in.
-3. The person's placements, the same way. An extension marked `required` is never removed.
-4. It sorts the slot by the person's `order`, then the product's, then each extension's `order`,
-   then install order, then declaration order.
+2. The product's placements: `remove` takes an extension out, `add` puts one in. The build sorts the
+   slot by the product's `order`, then each extension's `order`, then install order, then
+   declaration order.
+3. The person's placements, the same way. An extension marked `required` is never removed. An
+   extension the person adds follows the extensions already placed, by its own `order` and then in
+   install order.
+4. The person's `order` lists extensions first, in that order. The rest keep their place.
 
-- `add` names a host region: `header`, `navigation`, `aside`, `footer`, `status`, `toolbar` and
-  their like (RFC-0013). A region renders extensions without props, so an extension moves between
-  regions without a props mismatch. The build refuses a product's `add` to any other slot, and the
-  host ignores and reports a person's.
+- `add` names one of the host's eight regions: `brand`, `header`, `userMenu`, `navigation`, `aside`,
+  `footer`, `status` and `toolbar` (RFC-0013). A region renders extensions without props, so an
+  extension moves between regions without a props mismatch. The build refuses a product's `add` to
+  any other slot, and the host ignores and reports a person's.
 - The host checks stored placements when it reads them. An id no installed plugin declares is
   dropped and reported.
 - The host does not render a layout editor. A plugin offers one through `usePlacements`.
@@ -413,10 +437,14 @@ reads the switches, the settings and the placements the browser wrote, and rende
 | --------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------- |
 | A stored switch for a locked or uninstalled plugin              | The host      | Ignored and reported                                                       |
 | A stored settings value does not parse                          | The host      | The defaults are returned, and a `setting-dropped` entry is reported       |
+| A stored value has no whole version or no object of values      | The host      | The defaults are returned, and a `setting-dropped` entry is reported       |
 | A stored version has no migration                               | The host      | The value is dropped and reported                                          |
+| A migration throws                                              | The host      | The value is dropped, and the report contains the version and the error    |
 | A stored version is higher than the section's                   | The host      | The defaults are returned, and the stored value is kept                    |
 | A stored property fails the schema                              | The host      | The property is dropped and reported. The valid properties remain          |
 | `update` with an invalid change, or on another plugin's section | `useSettings` | Throws                                                                     |
+| `update` on a section no installed plugin declares              | `useSettings` | Throws                                                                     |
+| `reset` on another plugin's section                             | `useSettings` | Throws                                                                     |
 | A section's target page is not rendered                         | The host      | The section renders on its plugin's first page, or is reported as unplaced |
 | A placement names an unknown slot or extension                  | The host      | The name is dropped and reported                                           |
 | A person's `add` names a slot that is not a region              | The host      | Ignored and reported                                                       |

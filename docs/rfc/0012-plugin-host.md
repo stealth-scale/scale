@@ -4,7 +4,7 @@ title: "The plugin host: state, evaluation and failure"
 author: Roy Klopper, drafted with Claude
 status: Draft
 created: 2026-09-30
-updated: 2026-09-30
+updated: 2026-10-01
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -241,7 +241,7 @@ argument keeps working.
 
 ### Stores
 
-Every hook of `sdk-plugin` reads one store, a value with its listeners, through
+Every hook of `sdk-plugin` reads the stores it needs, each a value with its listeners, through
 `useSyncExternalStore` with a selector. A component then renders again only when the value it
 selected changes.
 
@@ -262,23 +262,56 @@ export interface Store<T> {
 }
 ```
 
-| Store          | Value                                                       | Changes when                                                         | Read by                                                     |
-| -------------- | ----------------------------------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `session`      | The session, with its permissions and entitlements as sets  | The session source reports a change                                  | `useSession`, `usePermission`, `useEntitlement`, conditions |
-| `flags`        | Every flag the page has read, with its value and its source | A first read, the flag source reports a change, an override          | `useFeatureFlag`, conditions (RFC-0015)                     |
-| `switches`     | Every switchable plugin's switch, as the person set it      | A person switches a plugin, or another tab does                      | The Plugins page, `availability`                            |
-| `availability` | Every plugin's state: on, or the reason it is not           | A switch, a kill switch, a plugin condition or a requirement changes | Conditions, the route evaluator, `usePluginStatuses`        |
-| `access`       | Decisions on single resources for the session's subject     | A decision arrives, is primed, is forgotten, or the source reports   | `useAccess` (RFC-0014)                                      |
-| `placements`   | The person's placements per slot                            | A person changes a placement, or another tab does                    | `Slot`, `useSlot`                                           |
-| `quarantine`   | Every quarantined target, with its last error               | A target fails its last allowed render, or `retry` lifts it          | `Slot`, the route evaluator, the not-found page, reports    |
-| `mounted`      | Every slot on screen, with a count of its mounted instances | A `Slot` mounts or unmounts                                          | Reports                                                     |
-| `pages`        | Every page contribution made with `Into`                    | An `Into` mounts, changes or unmounts                                | `Slot`                                                      |
-| `reports`      | The last 100 runtime report entries                         | The host reports an entry                                            | The inspector                                               |
+| Store          | Value                                                           | Changes when                                                         | Read by                                                     |
+| -------------- | --------------------------------------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `session`      | The session, with its permissions and entitlements as sets      | The session source reports a change                                  | `useSession`, `usePermission`, `useEntitlement`, conditions |
+| `flags`        | Every flag the page has read, with its value and its source     | A first read, the flag source reports a change, an override          | `useFeatureFlag`, conditions (RFC-0015)                     |
+| `switches`     | Every switchable plugin's switch, as the person set it          | A person switches a plugin, or another tab does                      | The Plugins page, `availability`                            |
+| `availability` | Every plugin's state: on, or the reason it is not               | A switch, a kill switch, a plugin condition or a requirement changes | Conditions, the route evaluator, `usePluginStatuses`        |
+| `access`       | Decisions on single resources for the session's subject         | A decision arrives, is primed, is forgotten, or the source reports   | `useAccess` (RFC-0014)                                      |
+| `placements`   | The person's placements per slot                                | A person changes a placement, or another tab does                    | `Slot`, `useSlot`, `usePlacements`                          |
+| `quarantine`   | Every quarantined target, with its last error                   | A target fails its last allowed render, or `retry` lifts it          | `Slot`, the route evaluator, the not-found page, reports    |
+| `mounted`      | Every slot on screen, with the outcome of each mounted instance | A `Slot` mounts, unmounts or renders other extensions                | `useExtensionStatuses`, reports                             |
+| `pages`        | Every page contribution made with `Into`                        | An `Into` mounts, changes or unmounts                                | `Slot`, `useSlot`                                           |
+| `reports`      | The last 100 runtime report entries                             | The host reports an entry                                            | `useHostReports`                                            |
 
+- `sdk-plugin`'s `HostStores` lists every store but `switches`. The host alone reads and writes the
+  switches, and a plugin reads their effect through `availability`.
 - A plugin's settings are read through `useSettings`, straight from the setting store, because each
   section's value has a key of its own (RFC-0017).
-- A selector that returns an object returns the same object while its inputs are unchanged. The
-  host's selectors keep the last input and the last result for that reason.
+- A selector returns a primitive or a store's value, which is the same object until it changes. A
+  hook that builds an object selects a string signature of it, such as the JSON of a slot's ids, and
+  builds the object after the selection, so React compares a string.
+- The selector is the server snapshot as well, because a host per request keeps the request's
+  stores.
+
+The `mounted` store keeps one outcome per mounted instance of a slot:
+
+```ts
+/**
+ * Describes one mounted instance of a slot, and what it renders.
+ */
+export interface MountedSlot {
+  /**
+   * Why the instance does not render each extension placed in it or attached to what it renders,
+   * by qualified id.
+   */
+  readonly dropped: Readonly<Record<string, UnplacedReason>>;
+
+  /**
+   * The value a keyed slot renders with. Absent on a slot that is not keyed.
+   */
+  readonly match?: string | undefined;
+
+  /**
+   * Qualified ids of the extensions the instance renders, decorators and wrappers included.
+   */
+  readonly rendered: readonly string[];
+}
+```
+
+`dropped` includes the decorators and wrappers that do not render, so a decorator whose condition is
+false reads `condition` in the extension statuses (see "Status hooks").
 
 ### Availability
 
@@ -344,7 +377,8 @@ The route evaluator runs in `beforeLoad` on every navigation and every `router.i
 
 `HostNotFound` reads the data, and RFC-0013 lists what it renders for each reason. An extension, a
 command, a menu entry and a settings section evaluate their conditions without throwing, against the
-same stores and the router's matches.
+same stores and the router's matches. A component evaluates a condition the same way with
+`useWhen(when?)` of `sdk-plugin`, which returns true where no condition is given.
 
 ### Starting
 
@@ -368,7 +402,7 @@ In the browser:
 | The session changes                               | `session`, `availability`, `access`, `flags` | RFC-0014 lists the sequence: reset the data, invalidate, `identify`, evaluate the flags again |
 | A flag changes at the source                      | `flags`, `availability`                      | `router.invalidate()` where a value changed                                                   |
 | An override is set or removed                     | `flags`, `availability`                      | `router.invalidate()`                                                                         |
-| A person switches a plugin                        | `switches`, `availability`                   | `router.invalidate()`, and `host/pluginSwitched` on the bus                                   |
+| A person switches a plugin                        | `switches`, `availability`                   | `router.invalidate()`, and `host/pluginChanged` on the bus                                    |
 | Another tab switches a plugin                     | `switches`, `availability`                   | The same, from the setting store's notification                                               |
 | The access source reports a change                | `access`                                     | Every reader of `useAccess` asks again                                                        |
 | A person changes a placement                      | `placements`                                 | Every affected `Slot` renders again                                                           |
@@ -415,29 +449,30 @@ export type RenderTarget = `extension:${string}` | `route:${string}`;
  * Describes one entry the host reports.
  */
 export type HostReport =
-  | { readonly error: unknown; readonly kind: "access-failed" }
-  | { readonly error: unknown; readonly kind: "command-failed"; readonly target: string }
-  | { readonly kind: "event-chain-cut"; readonly target: string }
-  | { readonly error: unknown; readonly kind: "event-handler-failed"; readonly target: string }
-  | { readonly flag: string; readonly kind: "flag-exposed"; readonly variant: string }
-  | {
-      readonly flag: string;
-      readonly kind: "flag-ignored";
-      readonly source: "override" | "product" | "source";
-      readonly value: unknown;
-    }
-  | { readonly error: unknown; readonly kind: "flags-failed" }
-  | { readonly error: unknown; readonly kind: "quarantined"; readonly target: RenderTarget }
-  | {
-      readonly error: unknown;
-      readonly kind: "render-failed";
-      readonly target: "host" | RenderTarget;
-    }
-  | { readonly error: unknown; readonly kind: "session-failed" }
-  | { readonly key: string; readonly kind: "setting-dropped"; readonly reason: string }
-  | { readonly kind: "slot-full"; readonly slot: string; readonly target: string }
-  | { readonly kind: "unplaced"; readonly slot: string; readonly target: string };
+  | ChainCut
+  | FlagExposed
+  | FlagIgnored
+  | RenderFailed
+  | RunFailed
+  | SettingDropped
+  | SlotMissed
+  | SourceFailed
+  | TargetQuarantined;
 ```
+
+Each member of the union is an interface of `sdk-plugin` with a `kind` and the members of its kind:
+
+| Interface           | Kinds                                             | Members beside `kind`                                                                |
+| ------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `ChainCut`          | `event-chain-cut`                                 | `target`: the event whose emit the bus dropped (RFC-0016)                            |
+| `FlagExposed`       | `flag-exposed`                                    | `flag`, and `variant`: the variant the session is served                             |
+| `FlagIgnored`       | `flag-ignored`                                    | `flag`, `source` (`override`, `product` or `source`), and the `value` it stated      |
+| `RenderFailed`      | `render-failed`                                   | `error`, and `target`: a `RenderTarget`, or `host` for an error outside every plugin |
+| `RunFailed`         | `command-failed`, `event-handler-failed`          | `error`, and `target`: the command, or the event whose handler threw                 |
+| `SettingDropped`    | `setting-dropped`                                 | `key` of the stored value, and the `reason` it was dropped                           |
+| `SlotMissed`        | `slot-full`, `unplaced`                           | `slot`, and `target`: the extension that found no place                              |
+| `SourceFailed`      | `access-failed`, `flags-failed`, `session-failed` | `error` the source threw or rejected with                                            |
+| `TargetQuarantined` | `quarantined`                                     | `error` of the last render that threw, and `target`: a `RenderTarget`                |
 
 - Each entry records the plugin it concerns through its target's qualified id or its flag's.
 - The host passes each entry to `report`, which writes to the console by default with the prefix
@@ -465,24 +500,14 @@ entry of the Performance Timeline. The host adds a measure only while plugin cod
 `sdk-plugin` returns what the host knows about itself to a plugin that shows it, such as the
 inspector (RFC-0019):
 
-| Hook                     | Returns                                                                                                            |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------ |
-| `usePluginStatuses()`    | One `PluginStatus` per installed plugin                                                                            |
-| `useExtensionStatuses()` | One status per extension for the current page: placed or not, the slot, and the reason                             |
-| `useHostReports()`       | The build's warnings and the runtime entries of the `reports` store                                                |
-| `useFlagStatuses()`      | One status per declared flag: its kind, its value, the source of the value, its date, and whether it is overridden |
-| `useHostActions()`       | `retry(target)`, which lifts a quarantine                                                                          |
-| `useResolvedProduct()`   | The resolved product the host started from, without the manifests' code                                            |
-
-An extension that is not placed has one of these reasons:
-
-- Its plugin is not on, with the plugin's reason.
-- Its condition is false.
-- It is quarantined.
-- Its slot is not mounted.
-- Its slot takes one contribution, and another came first.
-- Its keyed slot rendered another value.
-- A placement by the product or the person moved it.
+| Hook                     | Returns                                                                                |
+| ------------------------ | -------------------------------------------------------------------------------------- |
+| `usePluginStatuses()`    | One `PluginStatus` per installed plugin, in install order                              |
+| `useExtensionStatuses()` | One `ExtensionStatus` per extension for the current page, in install order             |
+| `useHostReports()`       | `HostReports`: the build's warnings and the runtime entries of the `reports` store     |
+| `useFlagStatuses()`      | One `FlagStatus` per declared flag, the kill switches included, in the product's order |
+| `useHostActions()`       | `retry(target)`, which lifts a quarantine                                              |
+| `useResolvedProduct()`   | The resolved product the host started from, without the manifests' code                |
 
 ```ts
 /**
@@ -505,9 +530,9 @@ export interface PluginStatus {
   readonly quarantined: readonly Quarantined[];
 
   /**
-   * The reason the plugin is not on. Absent while it is on.
+   * The reason the plugin is not on. Undefined while it is on.
    */
-  readonly reason?: "condition" | "off" | "requirement" | "unavailable" | undefined;
+  readonly reason: PluginOffReason | undefined;
 
   /**
    * True where a person may switch it: the product did not lock it.
@@ -519,7 +544,108 @@ export interface PluginStatus {
    */
   readonly version: string | undefined;
 }
+
+/**
+ * Describes where one extension is on the current page.
+ */
+export interface ExtensionStatus {
+  /**
+   * The extension as the build resolved it.
+   */
+  readonly extension: ResolvedExtension;
+
+  /**
+   * True where a mounted slot renders the extension.
+   */
+  readonly placed: boolean;
+
+  /**
+   * The reason the extension's plugin is not on. Absent unless `reason` is `off`.
+   */
+  readonly pluginReason?: PluginOffReason | undefined;
+
+  /**
+   * Why no mounted slot renders the extension. Absent while it is placed.
+   */
+  readonly reason?: UnplacedReason | undefined;
+
+  /**
+   * Qualified id of the slot that renders or drops the extension, else of the slot it targets.
+   * Undefined for an extension around a page or another extension that no mounted slot records.
+   */
+  readonly slot: string | undefined;
+}
+
+/**
+ * Describes one declared flag and its value for the session.
+ */
+export interface FlagStatus {
+  /**
+   * The flag as the build resolved it: its kind, its default, its date and the product's value.
+   */
+  readonly flag: ResolvedFlag;
+
+  /**
+   * The value and its source. Absent while the page has not read the flag and no override applies.
+   */
+  readonly reading?: FlagReading | undefined;
+}
+
+/**
+ * Describes a flag's value for the session and the source it came from.
+ */
+export interface FlagReading {
+  /**
+   * The source that stated the value.
+   */
+  readonly origin: "contract" | "override" | "product" | "source";
+
+  /**
+   * The value: a boolean, or one of an experiment's variants.
+   */
+  readonly value: boolean | string;
+}
+
+/**
+ * Describes what the build and the host reported.
+ */
+export interface HostReports {
+  /**
+   * The last runtime entries the host reported, oldest first.
+   */
+  readonly entries: readonly HostReport[];
+
+  /**
+   * The build's warnings, which did not fail it.
+   */
+  readonly warnings: readonly Problem[];
+}
 ```
+
+An extension that is not placed has one of these reasons, an `UnplacedReason`:
+
+| Reason        | The extension                                                     |
+| ------------- | ----------------------------------------------------------------- |
+| `off`         | Its plugin is not on. `pluginReason` contains the plugin's reason |
+| `condition`   | Its condition is false                                            |
+| `quarantined` | It is quarantined                                                 |
+| `unmounted`   | Its slot is not mounted                                           |
+| `full`        | Its slot takes one contribution, and another came first           |
+| `match`       | Its keyed slot rendered another value                             |
+| `replaced`    | A later `replace` extension renders in its place                  |
+| `moved`       | A placement by the product or the person moved it                 |
+
+- A mounted instance that renders an extension places it. Otherwise the first instance that drops it
+  gives the reason.
+- When the mounted instances do not record an extension, its status takes the first of these reasons
+  that applies:
+  - `moved`, where the product disabled the extension
+  - `off`, where its plugin is not on
+  - `quarantined`, where it is quarantined
+  - `moved`, where its target slot is mounted
+  - `unmounted`, otherwise
+- A flag's reading is the tab's override where one applies, else the value the page read. The
+  statuses evaluate no flag the page has not read, so listing the flags counts no exposure.
 
 Every hook of `sdk-plugin` throws outside `HostProvider`, naming itself:
 `useSlot() found no host. A plugin's components render inside a host, and a test renders them with renderPlugin.`

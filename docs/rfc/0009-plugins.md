@@ -4,7 +4,7 @@ title: "Plugins: an application composed from plugins"
 author: Roy Klopper, drafted with Claude
 status: Draft
 created: 2026-09-30
-updated: 2026-09-30
+updated: 2026-10-01
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -135,7 +135,7 @@ RFC-0005 proposes the data foundation that every application uses, with plugins 
 | Package                                   | Directory                      | Depends on                                                                                                                                                                                                             | Contains                                                                                                                                                    |
 | ----------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `@stealthscale/sdk-core`                  | `sdk/core`                     | Types of `@standard-schema/spec`                                                                                                                                                                                       | Contracts, markers, operations, conditions, versions, `definePlugin`, `defineProduct`, `resolveProduct`, the host contract, sessions, the catalogues' types |
-| `@stealthscale/sdk-plugin`                | `sdk/plugin`                   | `sdk-core`, `provider-router`, `provider-i18n`, `provider-data`, React as a peer                                                                                                                                       | `Slot`, `Into` and the hooks a plugin's components use                                                                                                      |
+| `@stealthscale/sdk-plugin`                | `sdk/plugin`                   | `sdk-core`, `provider-router`, `provider-i18n`, `provider-data`, `provider-hotkeys`, `settings`, React as a peer                                                                                                       | `Slot`, `Into` and the hooks a plugin's components use                                                                                                      |
 | `@stealthscale/sdk-host`                  | `sdk/host`                     | `sdk-core`, `sdk-plugin`, `provider-router`, `provider-hotkeys`, `provider-form`, `provider-data`, `settings`, `component-screen`, `component-modals`, `component-feedback`, `component-navigation`, `component-forms` | `createHost`, `createHostRoutes`, `HostProvider`, the host's parts, the palette, the settings pages, and the OpenFeature adapter in `./openfeature`         |
 | `@stealthscale/vite-plugin-product`       | `packages/vite-plugin-product` | `sdk-core`, `vite-plugin-base`, `vite-plugin-i18n`, `vite` as a peer                                                                                                                                                   | The composition at build, `virtual:product` and the catalogues                                                                                              |
 | `@stealthscale/vite-config-product`       | `packages/vite-config-product` | `vite-plugin-product`, `vite-config-core`                                                                                                                                                                              | The product layer, the standalone layer and the two lint layers                                                                                             |
@@ -296,14 +296,15 @@ so both slices resolve a product the same way.
 2. Create `foundations/providers/data` with its `./router` and `./testing` entries (RFC-0005).
 3. Create `sdk/core`: identifiers, markers, references, operations, conditions, versions,
    `definePlugin`, `defineProduct`, `resolveProduct`, the host contract, sessions and the
-   catalogues' types. The `sdk` globs join the workspace and `sdk` joins the chunk patterns in the
+   catalogues' types. The `sdk/*` glob joins the workspace and `sdk` joins the chunk patterns in the
    same step, because a glob and a path pattern need a directory to match.
 4. Create `sdk/plugin` with the hooks and components that plugin code imports.
 5. Create `sdk/host` with the stores, the evaluator, the host's parts, the palette, the settings
    pages and the OpenFeature adapter.
 6. Create `packages/vite-plugin-product` and `packages/vite-config-product`.
 7. Create `packages/testing-plugin`, on `testing-react` and `testing-router`.
-8. Create the inspector plugin in `sdk/inspector`.
+8. Create the inspector plugin in `sdk/inspector`, and add the `sdk/inspector/*` glob to the
+   workspace.
 9. Add `examples/app-plugins`, a product of three plugins that the gate builds, with a frame, a
    permission on one resource, an entitlement, a release flag, an experiment, a command with a
    result, a page whose data loads with its route, and a mutation that changes a record another page

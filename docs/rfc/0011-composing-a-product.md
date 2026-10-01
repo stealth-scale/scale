@@ -4,7 +4,7 @@ title: "Composing a product from plugins at build"
 author: Roy Klopper, drafted with Claude
 status: Draft
 created: 2026-09-30
-updated: 2026-09-30
+updated: 2026-10-01
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -52,7 +52,7 @@ tree is complete before the router exists (RFC-0013).
 
 ```ts
 /**
- * States a product: the plugins it installs and what it states about each.
+ * Describes a product: the plugins it installs and what it states about each.
  */
 export interface ProductDefinition {
   /**
@@ -110,7 +110,7 @@ export function installed<const M extends PluginManifest>(
 ): InstalledPlugin;
 
 /**
- * States how a product installs one plugin.
+ * Describes how a product installs one plugin, with the configuration typed by its contract.
  */
 export interface Installing<C extends AnyContract> {
   /**
@@ -243,12 +243,56 @@ every manifest entry free of React.
  *
  * @param definition - The product's definition.
  * @param packages - Each installed plugin's web package, by plugin id.
+ * @param options - The catalogues, the namespaces, the day and the hotkey validator.
  * @returns The resolved product, the problems that fail the build and the warnings.
  */
 export function resolveProduct(
   definition: ProductDefinition,
   packages: Readonly<Record<string, PluginPackage>>,
+  options?: ResolveOptions,
 ): Resolution;
+
+/**
+ * Describes an installed plugin's web package, as the build found it on the product's graph.
+ */
+export interface PluginPackage {
+  /**
+   * Directory of the web package.
+   */
+  readonly directory: string;
+
+  /**
+   * Name of the web package.
+   */
+  readonly name: string;
+}
+
+/**
+ * Lists what the build passes beside the definition and the packages.
+ */
+export interface ResolveOptions {
+  /**
+   * The fallback language's catalogue of each namespace, nested as the files nest it. The words
+   * checks run where it is given.
+   */
+  readonly catalogues?: Readonly<Record<string, Readonly<Record<string, unknown>>>> | undefined;
+
+  /**
+   * The packages that publish each namespace, by namespace.
+   */
+  readonly namespaces?: Readonly<Record<string, readonly string[]>> | undefined;
+
+  /**
+   * The day the build runs, which a flag's date is compared with. The current date where left
+   * out.
+   */
+  readonly today?: IsoDate | undefined;
+
+  /**
+   * TanStack Hotkeys' `validateHotkey`. The keys checks other than the library's run without it.
+   */
+  readonly validateHotkey?: ((hotkey: string) => HotkeyCheck) | undefined;
+}
 
 /**
  * Describes what resolving a product returns.
@@ -274,7 +318,14 @@ export interface Resolution {
  * Describes one fault by the dotted path of its value and the reason.
  */
 export interface Problem {
+  /**
+   * Dotted path of the value at fault: `time-off.routes.request.sample`.
+   */
   readonly path: string;
+
+  /**
+   * Reason the value is at fault: `is required on a path with parameters`.
+   */
   readonly reason: string;
 }
 ```
@@ -283,22 +334,28 @@ export interface Problem {
 than stopping at the first. The second slice's loader calls the same function over the contracts
 that remotes serve (RFC-0009), so the two paths cannot resolve a product differently.
 
+`HotkeyCheck` is the result of TanStack Hotkeys' `validateHotkey`, `{ errors, valid }`. The build
+passes the function, so `sdk-core` depends on no hotkey library.
+
 It resolves in this order:
 
-1. Every plugin's identity, with its id, its API version and its contract's version.
-2. The requirements, and the cycles among them.
-3. The references every contract makes, against the installed contracts' versions and deprecations.
-4. Every plugin's condition, and one kill switch per installed plugin, `host/plugin.<plugin id>`
+1. The shapes of every contract, every manifest and the definition. Where one differs from its type,
+   the resolution returns after this step, because every later step reads them.
+2. Every plugin's identity, with its id, its API version and its contract's version.
+3. The requirements, and the cycles among them.
+4. The references every contract makes, against the installed contracts' versions and deprecations.
+5. Every plugin's condition, and one kill switch per installed plugin, `host/plugin.<plugin id>`
    (RFC-0015).
-5. The routes, with their paths, parents, conditions and menus.
-6. The slots and the extensions, with the product's placements laid over the manifests'.
-7. The commands and the events.
-8. The permissions, the resource kinds, the roles and the entitlements.
-9. The queries and mutations, their operations, selectors and samples, and each route's data.
-10. The flags, their dates and the product's values.
-11. The settings pages and sections.
-12. The configuration of each plugin, over its schema's defaults.
-13. The catalogue keys of every label and description.
+6. The routes, with their paths, parents, conditions and menus.
+7. The slots and the extensions, with the product's placements laid over the manifests'.
+8. The commands and the events.
+9. The permissions, the resource kinds, the roles and the entitlements.
+10. The queries and mutations, their operations, selectors and samples, and each route's data.
+11. The flags, their dates and the product's values.
+12. The settings pages and sections.
+13. The configuration of each plugin, over its schema's defaults.
+14. The catalogue keys of every label and description.
+15. Every manifest's code, against the names its contract declares.
 
 The build fails where a plugin's requirement is absent, so no product is deployed without a plugin
 that another plugin needs. The product's author fixes the definition.
@@ -307,7 +364,24 @@ that another plugin needs. The product's author fixes the definition.
 
 A problem fails the build. A warning is printed, kept in the resolved product, and listed by the
 inspector (RFC-0019). A reason reads `<path>: <reason>`, with the path dotted from the plugin id:
-`time-off.routes.request.sample: is required on a path with parameters`.
+`time-off.routes.request.sample: is required on a path with parameters`. `lineOf` writes a fault in
+that form.
+
+| Path                                        | Value at fault                                           |
+| ------------------------------------------- | -------------------------------------------------------- |
+| `<plugin id>.<member>.<name>`               | A member of a contract: `time-off.routes.request.sample` |
+| `<plugin id>.code.<member>.<name>`          | A manifest's code: `time-off.code.routes.overview`       |
+| `product.plugins.<plugin id>.when`          | The condition the product states for a plugin            |
+| `product.plugins.<plugin id>.config.<name>` | A configuration value the product states for a plugin    |
+| `product.plugins.<index>`                   | An installed plugin whose id cannot be read              |
+| `product.<member>`                          | A member of the product itself: `product.signIn`         |
+
+- A name whose plugin is installed and does not declare it is the references check's problem. A name
+  whose plugin is not installed is the fault of the area that reads it, a problem or a warning by
+  the following table. No fault is reported twice.
+- A region is one of the host's eight frame slots: `brand`, `header`, `userMenu`, `navigation`,
+  `aside`, `footer`, `status` and `toolbar` (RFC-0013). The structural slots `root`, `layout`,
+  `content` and `overlay` are not regions.
 
 | Area             | Check                                                                                             | Result  |
 | ---------------- | ------------------------------------------------------------------------------------------------- | ------- |
@@ -321,8 +395,8 @@ inspector (RFC-0019). A reason reads `<path>: <reason>`, with the path dotted fr
 |                  | An optional requirement is installed outside the range                                            | warning |
 |                  | Requirements form a cycle                                                                         | problem |
 | References       | A reference was made against a later version of a contract than the one installed                 | problem |
-|                  | A reference was made against an earlier major of a contract                                       | warning |
-|                  | A reference names a deprecated name, once per plugin that makes it                                | warning |
+|                  | The installed contract is above the caret range of a reference's version                          | warning |
+|                  | A reference names a deprecated name, once per plugin that makes it, its declaring plugin excepted | warning |
 |                  | A reference names a name the installed contract does not declare                                  | problem |
 | Plugins          | A plugin's condition states `route`, or names its own plugin                                      | problem |
 |                  | Plugin conditions form a cycle through their `plugin` members                                     | problem |
@@ -341,14 +415,14 @@ inspector (RFC-0019). A reason reads `<path>: <reason>`, with the path dotted fr
 |                  | The product names a slot or an extension no installed plugin declares                             | problem |
 | Commands, events | A binding `validateHotkey` of TanStack Hotkeys refuses                                            | problem |
 |                  | A command with arguments or a result binds keys, or a command with arguments states no sample     | problem |
-|                  | A command binds `Mod+K`                                                                           | problem |
+|                  | A command binds `Mod+K`, `Meta+K` or `Control+K`                                                  | problem |
 |                  | More than one command binds a chord                                                               | warning |
 |                  | A command needs a command of a plugin it does not require                                         | problem |
 | Access           | A permission names a resource kind no installed plugin declares                                   | problem |
 |                  | A role names a permission of another plugin, or names none                                        | problem |
 | Data             | Two installed plugins declare one operation id under different kinds                              | problem |
 |                  | Two installed plugins declare one operation id                                                    | warning |
-|                  | A route's data names a variable that is no parameter of its path, and the route has no search     | problem |
+|                  | A route's data names a variable that no parameter or search supplies (RFC-0020)                   | problem |
 |                  | A decision's permission is not scoped, or its kind is not among the query's record kinds          | problem |
 |                  | A record, decision or change selector names a resource kind no installed plugin declares          | problem |
 |                  | A `field` condition is on anything but an extension of a slot that states `record`                | problem |
@@ -392,7 +466,7 @@ export interface Product extends ResolvedProduct {
  */
 export interface ResolvedProduct {
   readonly commands: readonly ResolvedCommand[];
-  readonly entitlements: readonly ResolvedEntitlement[];
+  readonly entitlements: readonly ResolvedName[];
   readonly events: readonly ResolvedEvent[];
   readonly extensions: readonly ResolvedExtension[];
   readonly flags: readonly ResolvedFlag[];
@@ -402,7 +476,7 @@ export interface ResolvedProduct {
   readonly plugins: readonly ResolvedPlugin[];
   readonly productId: string;
   readonly queries: readonly ResolvedQuery[];
-  readonly resources: readonly ResolvedResource[];
+  readonly resources: readonly ResolvedName[];
   readonly roles: readonly ResolvedRole[];
   readonly routes: readonly ResolvedRoute[];
   readonly settings: ResolvedSettings;
@@ -419,13 +493,13 @@ export interface ResolvedProduct {
 | `plugins`                   | Id, version, `locked`, `enabled`, `eager`, the condition, its kill switch's id, requirements, the configuration over its defaults                  | RFC-0012, RFC-0017 |
 | `routes`                    | Qualified id, plugin, path, parent, navigation, condition joined with the product's, sample, data needs, and the plugins whose chunks load with it | RFC-0013, RFC-0020 |
 | `queries`, `mutations`      | Qualified id, plugin, operation id and kind, record, decision and change selectors, sample                                                         | RFC-0020           |
-| `slots`                     | Qualified id, plugin, arity, `keyed`, whether it is a region, and its extensions after the manifests' and the product's placements                 | RFC-0013, RFC-0017 |
-| `extensions`                | Qualified id, plugin, target key, position, order, `match`, `required`, condition, and whether it has a fallback                                   | RFC-0013           |
+| `slots`                     | Qualified id, plugin, arity, `keyed`, record kind, whether it is a region, and its extensions after the manifests' and the product's placements    | RFC-0013, RFC-0017 |
+| `extensions`                | Qualified id, plugin, target key, position, order, `match`, `required`, condition, whether it has a fallback, and whether the product disabled it  | RFC-0013           |
 | `commands`                  | The `ResolvedCommand` of RFC-0016                                                                                                                  | RFC-0016           |
 | `events`                    | Qualified id, plugin, `emit`, `sticky`                                                                                                             | RFC-0016           |
 | `flags`                     | Qualified id, plugin, kind, type, default, variants, `expires`, the product's value, description key                                               | RFC-0015           |
 | `permissions`               | Qualified id, plugin, resource kind, description key                                                                                               | RFC-0014           |
-| `resources`, `entitlements` | Qualified id, plugin, description key                                                                                                              | RFC-0014           |
+| `resources`, `entitlements` | `ResolvedName`: qualified id, plugin, description key                                                                                              | RFC-0014           |
 | `roles`                     | Qualified id, plugin, permissions, description key                                                                                                 | RFC-0014           |
 | `settings`                  | Pages and sections with their targets, orders, conditions, schemas and versions                                                                    | RFC-0017           |
 

@@ -4,7 +4,7 @@ title: "Plugin access: sessions, permissions and entitlements"
 author: Roy Klopper, drafted with Claude
 status: Draft
 created: 2026-09-30
-updated: 2026-09-30
+updated: 2026-10-01
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -263,7 +263,7 @@ A component checks a scoped permission on one resource with `useAccess`:
 
 ```ts
 /**
- * Names one resource: its kind's qualified id and its id.
+ * Identifies one resource by its kind's qualified id and its own id.
  */
 export interface ResourceRef {
   /**
@@ -454,16 +454,31 @@ The build writes every access declaration of the installed plugins into `dist/.p
 
 ```ts
 /**
+ * Describes the product a catalogue was built for.
+ */
+export interface CatalogueProduct {
+  /**
+   * Id of the product.
+   */
+  readonly id: string;
+
+  /**
+   * Version of the product.
+   */
+  readonly version: string;
+}
+
+/**
  * Describes one declared name in a catalogue.
  */
 export interface CatalogueEntry {
   /**
-   * What to use instead, where the name is deprecated.
+   * The contract's deprecation note. Absent where the name is not deprecated.
    */
   readonly deprecated?: string | undefined;
 
   /**
-   * The description, translated, by language.
+   * The description in each language the plugin's catalogues contain, by language.
    */
   readonly description: Readonly<Record<string, string>>;
 
@@ -473,20 +488,61 @@ export interface CatalogueEntry {
   readonly id: string;
 
   /**
-   * Id of the plugin that declares it.
+   * Id of the plugin that declares the name: `host` for a kill switch.
    */
   readonly plugin: string;
 }
 
 /**
- * Describes every access declaration of a product's installed plugins.
+ * Describes a permission in the access catalogue.
+ */
+export interface CataloguePermission extends CatalogueEntry {
+  /**
+   * Qualified id of the resource kind a scoped permission is granted on. Absent on a permission for
+   * the whole tenant.
+   */
+  readonly resource?: string | undefined;
+}
+
+/**
+ * Describes a role in the access catalogue.
+ */
+export interface CatalogueRole extends CatalogueEntry {
+  /**
+   * Qualified ids of the permissions the role grants.
+   */
+  readonly permissions: readonly string[];
+}
+
+/**
+ * Describes every access declaration of a product's installed plugins, for the access service and
+ * the licence service.
  */
 export interface AccessCatalogue {
+  /**
+   * Every entitlement.
+   */
   readonly entitlements: readonly CatalogueEntry[];
-  readonly permissions: readonly (CatalogueEntry & { readonly resource?: string | undefined })[];
-  readonly product: { readonly id: string; readonly version: string };
+
+  /**
+   * Every permission.
+   */
+  readonly permissions: readonly CataloguePermission[];
+
+  /**
+   * The product the catalogue was built for.
+   */
+  readonly product: CatalogueProduct;
+
+  /**
+   * Every resource kind.
+   */
   readonly resources: readonly CatalogueEntry[];
-  readonly roles: readonly (CatalogueEntry & { readonly permissions: readonly string[] })[];
+
+  /**
+   * Every role.
+   */
+  readonly roles: readonly CatalogueRole[];
 }
 ```
 
@@ -531,16 +587,22 @@ export default defineProduct({
 
 ### Evaluating a condition in the host
 
-The host builds the `ConditionContext` of RFC-0010 from its stores:
+`conditionContextOf(stores, place)` of `sdk-plugin` builds the `ConditionContext` of RFC-0010 from
+the host's stores as they are when the condition is evaluated:
 
-| Member          | From                                                                                                 |
-| --------------- | ---------------------------------------------------------------------------------------------------- |
-| `authenticated` | The session store                                                                                    |
-| `permitted`     | The session store's set of permissions                                                               |
-| `entitled`      | The session store's set of entitlements                                                              |
-| `flag`          | The flag store (RFC-0015)                                                                            |
-| `on`            | The availability store: installed, not stopped, switched on, its condition true, its requirements on |
-| `matched`       | The router's matches, for an extension, a command or a section. Undefined for a route and a plugin   |
+| Member          | From                                                                                                                             |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `authenticated` | The session store                                                                                                                |
+| `permitted`     | The session store's set of permissions                                                                                           |
+| `entitled`      | The session store's set of entitlements                                                                                          |
+| `flag`          | The flag store (RFC-0015). A flag no installed plugin declares is false                                                          |
+| `on`            | The availability store: installed, not stopped, switched on, its condition true, its requirements on                             |
+| `matched`       | `place.matched`: the router's matches, for an extension, a command, a section or a component. Undefined for a route and a plugin |
+| `field`         | `place.field`: the reader of the record a slot that states `record` renders with. Undefined everywhere else                      |
+
+- The context reads a flag only when a condition checks it, so an experiment counts an exposure only
+  where its variant determines what the person sees.
+- The route evaluator and a plugin's condition pass no place.
 
 A route's condition is evaluated before the route matches, so the location is not known there. The
 build refuses a `route` member in a route's condition and in a plugin's condition (RFC-0011).
