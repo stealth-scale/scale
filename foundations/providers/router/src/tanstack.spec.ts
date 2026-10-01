@@ -41,6 +41,7 @@ const OWN = [
   "useRouteHref",
   "useRouteMap",
   "useRouteParams",
+  "useRouteSearch",
 ] as const;
 
 describe("tanstack", () => {

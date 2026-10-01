@@ -1,15 +1,19 @@
 /**
- * Describes a route as a host declares it, rather than as the library builds one.
+ * Describes a route as a host declares it, in the form the compiler takes.
  */
 
 import { type FunctionComponent, type ReactNode } from "react";
 
+import { type StandardSchemaV1 } from "@standard-schema/spec";
+
+import { type AnyParams } from "#reference.ts";
+
 /**
- * Loads a page on first navigation, rather than with the bundle that declared it.
+ * Loads a page on the first navigation to it.
  *
  * @remarks
- *   A wrapper rather than a bare function, because a React component is a function too and nothing
- *   at run time separates one from an importer.
+ *   The importer is a member of an object, because a React component is a function too and nothing
+ *   at run time tells one from an importer.
  */
 export interface LazyPage {
   /**
@@ -18,78 +22,26 @@ export interface LazyPage {
   readonly export?: string | undefined;
 
   /**
-   * Imports the module holding the page.
+   * Imports the module that exports the page.
    */
   readonly load: () => Promise<Readonly<Record<string, FunctionComponent>>>;
 }
 
 /**
- * Reports one fault a schema found.
- */
-export interface SearchIssue {
-  /**
-   * The fault, in words a person can read.
-   */
-  readonly message: string;
-}
-
-/**
- * Reports that a value was refused, and why.
- */
-export interface SearchRefused {
-  /**
-   * Each fault the schema found.
-   */
-  readonly issues: readonly SearchIssue[];
-}
-
-/**
- * Reports that a value was accepted, and what it read as.
- */
-export interface SearchRead {
-  /**
-   * Nothing, which is how a reader tells an acceptance from a refusal.
-   */
-  readonly issues?: undefined;
-
-  /**
-   * The value, as the schema read it.
-   */
-  readonly value: unknown;
-}
-
-/**
- * Checks a value against a schema, in the shape Standard Schema settled on.
- */
-export interface StandardSurface {
-  /**
-   * Checks a value and returns what it read, or why it refused.
-   */
-  readonly validate: (
-    value: unknown,
-  ) => Promise<SearchRead | SearchRefused> | SearchRead | SearchRefused;
-}
-
-/**
- * Reads a search string into the values a route draws with.
+ * Validates a route's search string and types the values its page reads.
  *
  * @remarks
- *   Stated structurally rather than by the library's own name, so a declaration carries a validator
- *   from any library that implements Standard Schema without this package depending on any of them.
+ *   Any library that implements Standard Schema provides one. This package depends on the
+ *   specification's types alone, so a declaration takes a validator from any such library.
  */
-export interface SearchValidator {
-  /**
-   * The Standard Schema surface, which is the whole of what the library reads.
-   */
-  readonly "~standard": StandardSurface;
-}
+export type SearchValidator<Search = unknown> = StandardSchemaV1<unknown, Search>;
 
 /**
- * Draws a frame around whatever a route below it draws.
+ * Describes the props of a layout, which renders a frame around the route below it.
  */
 export interface LayoutProps {
   /**
-   * The route drawn inside the frame, which React supplies.
+   * The route below the layout, which React renders inside the frame.
    */
   readonly children?: ReactNode | undefined;
 
@@ -98,6 +50,41 @@ export interface LayoutProps {
    */
   readonly options?: Readonly<Record<string, unknown>> | undefined;
 }
+
+/**
+ * Lists what a declared route's loader receives.
+ */
+export interface RouteLoaderArgs {
+  /**
+   * The route's context, which contains whatever the application put in the router's context.
+   */
+  readonly context: unknown;
+
+  /**
+   * The parameters the route's path names.
+   */
+  readonly params: AnyParams;
+
+  /**
+   * True where the router loads the route ahead of a navigation.
+   */
+  readonly preload: boolean;
+
+  /**
+   * The route's search, as its validator returned it.
+   */
+  readonly search: unknown;
+
+  /**
+   * Signal that aborts when a later navigation supersedes this one.
+   */
+  readonly signal: AbortSignal;
+}
+
+/**
+ * Loads a route's data before its page renders.
+ */
+export type RouteLoader = (args: RouteLoaderArgs) => Promise<void> | void;
 
 /**
  * Describes one route a host declares, in the form the compiler takes.
@@ -109,7 +96,7 @@ export interface LayoutProps {
  */
 export interface RouteDeclaration<Condition = unknown> {
   /**
-   * Draws the page, either directly or loaded on first navigation.
+   * The page, as a component or as a module that loads on the first navigation to it.
    */
   readonly component: FunctionComponent | LazyPage;
 
@@ -119,7 +106,8 @@ export interface RouteDeclaration<Condition = unknown> {
   readonly id: string;
 
   /**
-   * The layouts it is drawn in, outermost first. Drawn bare where it names none.
+   * The layouts the page renders in, by name, outermost first. The page renders in none where the
+   * list is absent.
    */
   readonly layout?: readonly string[] | undefined;
 
@@ -129,12 +117,18 @@ export interface RouteDeclaration<Condition = unknown> {
   readonly layoutOptions?: Readonly<Record<string, unknown>> | undefined;
 
   /**
+   * Loads the route's data before its page renders, and again when its search changes.
+   */
+  readonly loader?: RouteLoader | undefined;
+
+  /**
    * The menu entry a menu reads, which the compiler writes onto the route without reading.
    */
   readonly navigation?: unknown;
 
   /**
-   * The pane it is drawn in, which this package refuses because it draws no panes.
+   * The pane the page renders in, which the compiler refuses, because a matched route renders the
+   * whole screen.
    */
   readonly outlet?: string | undefined;
 
@@ -154,7 +148,7 @@ export interface RouteDeclaration<Condition = unknown> {
   readonly sample?: Readonly<Record<string, string>> | undefined;
 
   /**
-   * Reads the search string this route draws with.
+   * Validates the route's search string, and types the values its page reads.
    */
   readonly search?: SearchValidator | undefined;
 
@@ -165,12 +159,12 @@ export interface RouteDeclaration<Condition = unknown> {
 }
 
 /**
- * Carries the name a route goes by, and whatever a menu reads off it.
+ * Describes the id a compiled route is named by, and the menu entry a menu reads from it.
  *
  * @remarks
- *   Written onto the route's `staticData`, which the library hands back on every match. A menu, a
- *   breadcrumb or a telemetry hook therefore reads the name off the page it is drawing rather than
- *   holding a second copy of the list.
+ *   The compiler writes it into the route's `staticData`, which the library returns with every
+ *   match. A menu, a breadcrumb or a telemetry hook reads the id from the match of the page on
+ *   screen, and keeps no second copy of the list.
  */
 export interface DeclaredRoute {
   /**
@@ -179,17 +173,22 @@ export interface DeclaredRoute {
   readonly id: string;
 
   /**
-   * The menu entry the declaration carried, passed through untouched.
+   * The menu entry the declaration stated, passed through untouched.
    */
   readonly navigation?: unknown;
 }
 
 /**
- * Reports whether a route's condition holds for whoever is asking.
+ * Returns whether a route's condition is true for the router whose context is given.
  *
  * @remarks
- *   Returning false makes the route a 404, because a route nobody may reach does not exist. An
- *   evaluator wanting anything else, such as sending an unauthenticated person to sign in, throws
- *   the library's own `redirect` instead.
+ *   Returning false makes the route not found, because a route nobody may open does not exist. An
+ *   evaluator that wants anything else, such as sending an unauthenticated person to sign in,
+ *   throws the library's own `redirect` instead. The context is the route's, as `beforeLoad`
+ *   receives it, so the evaluator reads the state of the router it runs in, and one tree serves
+ *   every router built from it.
  */
-export type Evaluate<Condition = unknown> = (when: Condition) => boolean;
+export type Evaluate<Condition = unknown, Context = unknown> = (
+  when: Condition,
+  context: Context,
+) => boolean;

@@ -46,6 +46,7 @@
     "test": "vp test"
   },
   "dependencies": {
+    "@standard-schema/spec": "catalog:",
     "@tanstack/router-core": "catalog:"
   },
   "devDependencies": {

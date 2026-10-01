@@ -2,7 +2,7 @@
  * Builds an application's router over TanStack Router from declared routes, and resolves a
  * reference to a declared route whose path a component's types do not know.
  *
- * The application calls `createRouter` itself, so every option TanStack Router exposes stays the
+ * The application calls `createRouter` itself, so every option TanStack Router exposes remains the
  * application's to set.
  *
  * @packageDocumentation
@@ -16,9 +16,17 @@ export {
   type LayoutProps,
   type LazyPage,
   type RouteDeclaration,
+  type RouteLoader,
+  type RouteLoaderArgs,
   type SearchValidator,
 } from "#declaration.ts";
-export { declaredOf, type MatchedRoute, useDeclaredRoute, useRouteParams } from "#declared.ts";
+export {
+  declaredOf,
+  type MatchedRoute,
+  useDeclaredRoute,
+  useRouteParams,
+  useRouteSearch,
+} from "#declared.ts";
 export { routerDefaults } from "#defaults.ts";
 export { routeHref, useRouteHref, useRouteMap } from "#href.ts";
 export { RouteLink, type RouteLinkProps } from "#link.tsx";

@@ -1,10 +1,15 @@
 import { type ReactNode } from "react";
 
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, type Mock, vi } from "vitest";
 
 import { compileRoutes } from "#compile.ts";
-import { type LayoutProps, type RouteDeclaration } from "#declaration.ts";
+import {
+  type LayoutProps,
+  type RouteDeclaration,
+  type RouteLoaderArgs,
+  type SearchValidator,
+} from "#declaration.ts";
 import { routeMap } from "#map.ts";
 import { quietly } from "#quiet.fixtures.ts";
 import {
@@ -21,7 +26,40 @@ import {
 } from "#tanstack.ts";
 
 /**
- * Draws nothing, which is enough for a route that is never rendered.
+ * Validates a search by reading `tab` from it, and `lines` where it states none.
+ */
+const TABBED: SearchValidator<{ readonly tab: string }> = {
+  "~standard": {
+    validate: (value) => ({
+      value: {
+        tab:
+          typeof value === "object" && value !== null && "tab" in value
+            ? String(value.tab)
+            : "lines",
+      },
+    }),
+    vendor: "acme",
+    version: 1,
+  },
+};
+
+/**
+ * Describes the router a case builds, beyond its tree.
+ */
+interface Settings {
+  /**
+   * The router's context.
+   */
+  readonly context?: object | undefined;
+
+  /**
+   * How long a loader's result is fresh, in milliseconds. Zero where it states none.
+   */
+  readonly fresh?: number | undefined;
+}
+
+/**
+ * Renders nothing, which is enough for a route that is never rendered.
  *
  * @returns Nothing.
  */
@@ -30,7 +68,7 @@ function Page(): null {
 }
 
 /**
- * Draws a layout that keeps whatever is below it.
+ * Renders a layout that returns the route below it.
  *
  * @param props - The route below the frame.
  * @returns The frame.
@@ -40,7 +78,7 @@ function Frame({ children }: LayoutProps): ReactNode {
 }
 
 /**
- * Draws a frame that reports the options the declaration stated for it.
+ * Renders a frame that writes the options the declaration stated for it.
  *
  * @param props - The route below the frame, and the stated options.
  * @returns The frame.
@@ -70,16 +108,20 @@ function tree(): { parent: AnyRoute; root: AnyRoute } {
  *
  * @param declarations - The declarations to compile.
  * @param options - The options the compiler needs beyond the declarations.
+ * @param settings - The router's context, and how long a loader's result stays fresh.
  * @returns The compiled routes, the parent they were placed under, the tree and the router.
  */
 function routed(
   declarations: readonly RouteDeclaration[],
   options: Omit<Parameters<typeof compileRoutes>[1], "parent"> = {},
+  settings: Settings = {},
 ): { compiled: readonly AnyRoute[]; parent: AnyRoute; router: AnyRouter; tree: AnyRoute } {
   const { parent, root } = tree();
   const compiled = compileRoutes(declarations, { ...options, parent });
   const built = root.addChildren([parent.addChildren([...compiled])]);
   const router = createRouter({
+    context: settings.context ?? {},
+    defaultStaleTime: settings.fresh ?? 0,
     history: createMemoryHistory({ initialEntries: ["/app"] }),
     routeTree: built,
   });
@@ -88,7 +130,7 @@ function routed(
 }
 
 /**
- * Lists the pathless routes a router holds, which are the frames the layouts compiled to.
+ * Lists the pathless routes of a router, which are the frames the layouts compiled to.
  *
  * @param router - The router to read.
  * @returns One id per pathless route.
@@ -100,7 +142,7 @@ function framesOf(router: { routesById: Readonly<Record<string, unknown>> }): st
 }
 
 /**
- * One declaration, with whatever a case overrides.
+ * Builds one declaration, with whatever a case overrides.
  *
  * @param over - The members to state beyond the defaults.
  * @returns The declaration.
@@ -110,9 +152,9 @@ function declared(over: Partial<RouteDeclaration> = {}): RouteDeclaration {
 }
 
 /**
- * Draws the host's own chrome around whatever a declared route draws.
+ * Renders the host's own chrome around the declared route below it.
  *
- * @returns The chrome, holding the outlet.
+ * @returns The chrome, with the outlet inside it.
  */
 function Shell(): ReactNode {
   return (
@@ -123,9 +165,9 @@ function Shell(): ReactNode {
 }
 
 /**
- * Builds a host whose shell draws around one declared route, and renders it.
+ * Builds a host whose shell renders around one declared route, and renders it.
  *
- * @param declaration - The one route the host draws.
+ * @param declaration - The one route the host renders.
  * @returns Nothing. The caller reads the screen.
  */
 async function hosted(declaration: RouteDeclaration): Promise<void> {
@@ -189,6 +231,15 @@ function pathsOf(router: AnyRouter): string[] {
     .toSorted();
 }
 
+/**
+ * Builds a loader that records every call and resolves at once.
+ *
+ * @returns The loader, as a spy.
+ */
+function recording(): Mock<(args: RouteLoaderArgs) => void> {
+  return vi.fn<(args: RouteLoaderArgs) => void>();
+}
+
 describe("compileRoutes", () => {
   it("compiles a declaration to a route under the parent it was given", () => {
     const { router } = routed([declared()]);
@@ -246,7 +297,7 @@ describe("compileRoutes", () => {
     expect(Object.keys(router.routesById)).toContain("/app/parent/child");
   });
 
-  it("draws a layout as a pathless parent that consumes no path segment", () => {
+  it("renders a layout as a pathless parent that consumes no path segment", () => {
     const { router, tree: built } = routed([declared({ layout: ["frame"] })], {
       layouts: { frame: Frame },
     });
@@ -255,7 +306,7 @@ describe("compileRoutes", () => {
     expect(routeMap(built).get("acme.one")?.fullPath).toBe("/app/one");
   });
 
-  it("draws the layout around the page with the options the declaration stated", async () => {
+  it("renders the layout around the page with the options the declaration stated", async () => {
     const { router } = routed(
       [
         declared({
@@ -330,7 +381,7 @@ describe("compileRoutes", () => {
     );
   });
 
-  it("refuses a declaration naming a layout a route above it already draws", () => {
+  it("refuses a declaration naming a layout a route above it already renders", () => {
     expect(() =>
       routed(
         [
@@ -339,7 +390,9 @@ describe("compileRoutes", () => {
         ],
         { layouts: { frame: Frame } },
       ),
-    ).toThrow("The route acme.child names the layout frame, which a route above it already draws.");
+    ).toThrow(
+      "The route acme.child names the layout frame, which a route above it already renders.",
+    );
   });
 
   it("refuses a declaration naming a layout nothing provides", () => {
@@ -363,13 +416,13 @@ describe("compileRoutes", () => {
     );
   });
 
-  it("refuses a declaration stating an outlet, because this package draws no panes", () => {
+  it("refuses a declaration stating an outlet", () => {
     expect(() => routed([declared({ outlet: "detail" })])).toThrow(
       "The route acme.one states the outlet detail.",
     );
   });
 
-  it("routes a declaration whose condition holds", async () => {
+  it("routes a declaration whose condition is true", async () => {
     const { router } = routed([declared({ when: "allowed" })], { evaluate: () => true });
 
     await router.navigate({ to: "/app/one" });
@@ -388,14 +441,28 @@ describe("compileRoutes", () => {
     expect(router.state.matches.some((match) => isNotFound(match.error))).toBe(true);
   });
 
-  it("hands the evaluator the condition the declaration stated", async () => {
-    const evaluate = vi.fn(() => true);
+  it("passes the evaluator the condition the declaration stated", async () => {
+    const evaluate = vi.fn<(when: unknown, context: unknown) => boolean>(() => true);
     const { router } = routed([declared({ when: { role: "admin" } })], { evaluate });
 
     await router.navigate({ to: "/app/one" });
     await router.load();
 
-    expect(evaluate).toHaveBeenCalledWith({ role: "admin" });
+    expect(evaluate.mock.lastCall?.[0]).toStrictEqual({ role: "admin" });
+  });
+
+  it("passes the evaluator the router's context", async () => {
+    const evaluate = vi.fn<(when: unknown, context: unknown) => boolean>(() => true);
+    const { router } = routed(
+      [declared({ when: "allowed" })],
+      { evaluate },
+      { context: { session: "ada" } },
+    );
+
+    await router.navigate({ to: "/app/one" });
+    await router.load();
+
+    expect(evaluate.mock.lastCall?.[1]).toStrictEqual({ session: "ada" });
   });
 
   it("names the declaration when it builds an error component for one", () => {
@@ -406,18 +473,103 @@ describe("compileRoutes", () => {
     expect(errorComponent).toHaveBeenCalledWith(expect.objectContaining({ id: "acme.one" }));
   });
 
-  it("reads a route's search through the validator the declaration carries", async () => {
-    const { router } = routed([
-      declared({
-        search: { "~standard": { validate: () => ({ value: { tab: "lines" } }) } },
-      }),
-    ]);
+  it("validates a route's search with the validator the declaration states", async () => {
+    const { router } = routed([declared({ search: TABBED })]);
 
     await router.navigate({ to: "/app/one" });
     await router.load();
 
-    expect(router.state.location.search).toEqual({ tab: "lines" });
+    expect({ ...router.state.location.search }).toStrictEqual({ tab: "lines" });
   });
+
+  it("passes the loader the parameters the route's path names", async () => {
+    const loader = recording();
+    const { router } = routed([declared({ loader, path: "/invoices/$id" })]);
+
+    await router.navigate({ to: "/app/invoices/42" });
+
+    expect({ ...loader.mock.lastCall?.[0].params }).toStrictEqual({ id: "42" });
+  });
+
+  it("passes the loader the search the route's validator returns", async () => {
+    const loader = recording();
+    const { router } = routed([declared({ loader, search: TABBED })]);
+
+    await router.navigate({ search: { tab: "history" }, to: "/app/one" });
+
+    expect(loader.mock.lastCall?.[0].search).toStrictEqual({ tab: "history" });
+  });
+
+  it("passes the loader the router's context", async () => {
+    const loader = recording();
+    const { router } = routed([declared({ loader })], {}, { context: { session: "ada" } });
+
+    await router.navigate({ to: "/app/one" });
+
+    expect(loader.mock.lastCall?.[0].context).toStrictEqual({ session: "ada" });
+  });
+
+  it("runs the loader again when the search changes within its fresh time", async () => {
+    const loader = recording();
+    const { router } = routed([declared({ loader, search: TABBED })], {}, { fresh: 60_000 });
+
+    await router.navigate({ search: { tab: "lines" }, to: "/app/one" });
+    await router.navigate({ search: { tab: "history" }, to: "/app/one" });
+
+    expect(loader).toHaveBeenCalledTimes(2);
+  });
+
+  it("runs the loader once for two navigations to one search within its fresh time", async () => {
+    const loader = recording();
+    const { router } = routed([declared({ loader, search: TABBED })], {}, { fresh: 60_000 });
+
+    await router.navigate({ search: { tab: "lines" }, to: "/app/one" });
+    await router.navigate({ search: { tab: "lines" }, to: "/app/one" });
+
+    expect(loader).toHaveBeenCalledOnce();
+  });
+
+  it("marks a navigation as no preload", async () => {
+    const loader = recording();
+    const { router } = routed([declared({ loader })]);
+
+    await router.navigate({ to: "/app/one" });
+
+    expect(loader.mock.lastCall?.[0].preload).toBe(false);
+  });
+
+  it("marks a preload as one", async () => {
+    const loader = recording();
+    const { router } = routed([declared({ loader })]);
+
+    await router.preloadRoute({ to: "/app/one" });
+
+    expect(loader.mock.lastCall?.[0].preload).toBe(true);
+  });
+
+  it("aborts the loader's signal when a later navigation supersedes it", async () => {
+    const signals: AbortSignal[] = [];
+    const { router } = routed([
+      declared({
+        loader: async ({ signal }) => {
+          signals.push(signal);
+
+          await new Promise((resolve) => {
+            signal.addEventListener("abort", resolve);
+          });
+        },
+      }),
+    ]);
+
+    void router.navigate({ to: "/app/one" });
+    await vi.waitFor(() => {
+      expect(signals).toHaveLength(1);
+    });
+    await router.navigate({ to: "/app" });
+
+    expect(signals[0]?.aborted).toBe(true);
+  });
+
   it("serves two servers their own routes from one process", () => {
     const first = served(["/one"]);
     const second = served(["/two"]);
@@ -431,17 +583,17 @@ describe("compileRoutes", () => {
   });
 
   it("serves a second server from the cache where the tree is the same object", () => {
-    const { tree: held } = served(["/one"]);
+    const { tree: kept } = served(["/one"]);
     const again = createRouter({
       history: createMemoryHistory({ initialEntries: ["/app"] }),
       isServer: true,
-      routeTree: held,
+      routeTree: kept,
     });
 
     expect(pathsOf(again)).toStrictEqual(["/app/one"]);
   });
 
-  it("draws the route's own error component where its page fails to load", async () => {
+  it("renders the route's own error component where its page fails to load", async () => {
     await quietly(() =>
       hosted(declared({ component: { load: () => Promise.reject(new Error("down")) } })),
     );
@@ -449,7 +601,7 @@ describe("compileRoutes", () => {
     expect(screen.getByTestId("failed").textContent).toBe("acme.one");
   });
 
-  it("keeps the host's chrome drawn where a plugin's page fails to load", async () => {
+  it("keeps the host's chrome rendered where a plugin's page fails to load", async () => {
     await quietly(() =>
       hosted(declared({ component: { load: () => Promise.reject(new Error("down")) } })),
     );
@@ -457,7 +609,7 @@ describe("compileRoutes", () => {
     expect(screen.getByTestId("shell").contains(screen.getByTestId("failed"))).toBe(true);
   });
 
-  it("draws the route's own error component where its page throws while rendering", async () => {
+  it("renders the route's own error component where its page throws while rendering", async () => {
     await quietly(() =>
       hosted(
         declared({
