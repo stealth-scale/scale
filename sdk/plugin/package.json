@@ -1,0 +1,90 @@
+{
+  "name": "@stealthscale/sdk-plugin",
+  "version": "0.1.0",
+  "description": "Renders what plugins contribute to a product's slots, and reads the host's sessions, access, flags, commands, events, settings and data in a plugin's components.",
+  "keywords": [
+    "plugins",
+    "react",
+    "sdk"
+  ],
+  "homepage": "https://github.com/stealth-scale/config/tree/main/sdk/plugin#readme",
+  "bugs": "https://github.com/stealth-scale/config/issues",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stealth-scale/config.git",
+    "directory": "sdk/plugin"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#*": "./src/*"
+  },
+  "exports": {
+    ".": {
+      "stealth-source": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.js",
+      "./package.json": "./package.json"
+    },
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "check": "vp check",
+    "prepublishOnly": "vp pack",
+    "test": "vp test"
+  },
+  "dependencies": {
+    "@stealthscale/sdk-core": "workspace:^"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/core": "catalog:",
+    "@stealthscale/provider-data": "workspace:^",
+    "@stealthscale/provider-hotkeys": "workspace:^",
+    "@stealthscale/provider-i18n": "workspace:^",
+    "@stealthscale/provider-router": "workspace:^",
+    "@stealthscale/settings": "workspace:^",
+    "@stealthscale/testing-config": "workspace:^",
+    "@stealthscale/vite-config": "workspace:^",
+    "@stealthscale/vite-config-react": "workspace:^",
+    "@stealthscale/vite-config-typescript": "workspace:^",
+    "@tanstack/react-hotkeys": "catalog:",
+    "@tanstack/react-query": "catalog:",
+    "@tanstack/react-router": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "happy-dom": "catalog:",
+    "i18next": "catalog:",
+    "oxc-transform-react": "catalog:",
+    "publint": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-i18next": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "@stealthscale/provider-data": "workspace:^",
+    "@stealthscale/provider-hotkeys": "workspace:^",
+    "@stealthscale/provider-i18n": "workspace:^",
+    "@stealthscale/provider-router": "workspace:^",
+    "@stealthscale/settings": "workspace:^",
+    "react": "catalog:"
+  },
+  "engines": {
+    "node": ">=26.0.0"
+  }
+}
