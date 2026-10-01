@@ -25,12 +25,12 @@ const VENDOR = /[\\/]node_modules[\\/]/u;
  * Matches a module path under an `@stealthscale` package or a workspace source directory.
  *
  * @remarks
- *   The pattern names the four workspace directories and does not match every path outside
- *   `node_modules`. An application's source also sits outside `node_modules`, and this group has
+ *   The pattern names the five workspace directories and does not match every path outside
+ *   `node_modules`. An application's source is outside `node_modules` as well, and this group has
  *   to exclude it.
  */
 const LIBRARY =
-  /[\\/](?:node_modules[\\/]@stealthscale|components|foundations|packages|themes)[\\/]/u;
+  /[\\/](?:node_modules[\\/]@stealthscale|components|foundations|packages|sdk|themes)[\\/]/u;
 
 /**
  * Declares the Vite command a production build runs under.
@@ -58,22 +58,22 @@ type Group = NonNullable<Splitting["groups"]>[number];
 /**
  * Matches a module path under `node_modules` or a workspace source directory.
  */
-const SUPPLIED = /[\\/](?:node_modules|components|foundations|packages|themes)[\\/]/u;
+const SUPPLIED = /[\\/](?:node_modules|components|foundations|packages|sdk|themes)[\\/]/u;
 
 /**
- * Groups every `@stealthscale` module an entry reaches statically into one initial chunk.
+ * Groups every `@stealthscale` module an entry imports statically into one initial chunk.
  */
 const LIBRARIED: Group = { name: "library", priority: 8, tags: ["$initial"], test: LIBRARY };
 
 /**
- * Groups modules reached by two or more entries and claimed by no initial group into one shared
+ * Groups modules that two or more entries import and no initial group claims into one shared
  * chunk.
  *
  * @remarks
  *   The `minShareCount` threshold counts static and dynamic entries alike, so a module the initial
- *   entry reaches passes it too, and the three initial groups claim that module first on priority.
- *   Without the group, rolldown emits one chunk per set of routes sharing a module, which produced
- *   a 0.1 kB chunk in the docs build.
+ *   entry imports passes it too, and the three initial groups claim that module first on priority.
+ *   Without the group, rolldown emits one chunk per set of routes that share a module, as small as
+ *   0.1 kB in the docs build.
  */
 const SHARED: Group = { minShareCount: 2, name: "shared", priority: 3, test: SUPPLIED };
 
@@ -101,16 +101,16 @@ function grouped(command: string): readonly Group[] {
  * @remarks
  *   A configuration whose output is an array is returned unchanged, because the function cannot
  *   tell which of several outputs belongs to the page. Groups the configuration already states
- *   keep their position ahead of these, so a plugin that assigns a module to a named chunk wins
- *   over a path pattern.
+ *   keep their position ahead of these, so a plugin that assigns a module to a named chunk takes
+ *   precedence over a path pattern.
  */
 function split(config: UserConfig, groups: readonly Group[]): UserConfig {
   const output = config.build?.rolldownOptions?.output;
 
   if (Array.isArray(output)) return config;
 
-  const held: Output = output ?? {};
-  const splitting = typeof held.codeSplitting === "object" ? held.codeSplitting : {};
+  const stated: Output = output ?? {};
+  const splitting = typeof stated.codeSplitting === "object" ? stated.codeSplitting : {};
   const codeSplitting: Splitting = {
     groups: [...(splitting.groups ?? []), ...groups],
     includeDependenciesRecursively: false,
@@ -120,7 +120,7 @@ function split(config: UserConfig, groups: readonly Group[]): UserConfig {
     ...config,
     build: {
       ...config.build,
-      rolldownOptions: { ...config.build?.rolldownOptions, output: { ...held, codeSplitting } },
+      rolldownOptions: { ...config.build?.rolldownOptions, output: { ...stated, codeSplitting } },
     },
   };
 }
@@ -133,7 +133,7 @@ function split(config: UserConfig, groups: readonly Group[]): UserConfig {
  *   Priority orders the patterns, so the vendor pattern is consulted last and does not claim an
  *   `@stealthscale` package installed from the registry. `includeDependenciesRecursively` is false,
  *   which places each module by its path alone and keeps the library's dependencies in the vendor
- *   chunk. No group matches an application module, so each entry keeps the modules it reaches and
+ *   chunk. No group matches an application module, so each entry keeps the modules it imports and
  *   two pages of one build do not share a bootstrap chunk. Only an override receives the command,
  *   which is why this layer is an override.
  */

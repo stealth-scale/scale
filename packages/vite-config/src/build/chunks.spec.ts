@@ -89,6 +89,10 @@ describe("chunks", () => {
     );
   });
 
+  it("matches a module under sdk in the library group", () => {
+    expect(landing("/r/sdk/core/src/index.ts")).toBe("library");
+  });
+
   it("omits the library group under a dev server", () => {
     expect(splitting(SERVING).groups.map((group) => group.name)).toStrictEqual([
       "framework",
@@ -111,13 +115,19 @@ describe("chunks", () => {
     });
   });
 
-  it("groups a supplied module reached by two entries into the shared chunk", () => {
+  it("groups a supplied module two entries import into the shared chunk", () => {
     const shared = splitting().groups.find((group) => group.name === "shared");
 
     expect(shared).toMatchObject({ minShareCount: 2, priority: 3 });
     expect(shared?.test?.test("/r/node_modules/.pnpm/@zag-js+core@1/node_modules/x.js")).toBe(true);
     expect(shared?.test?.test("/r/components/forms/src/switch/root.tsx")).toBe(true);
     expect(shared?.test?.test("/r/apps/docs/src/routes.tsx")).toBe(false);
+  });
+
+  it("matches a module under sdk in the shared group", () => {
+    const shared = splitting().groups.find((group) => group.name === "shared");
+
+    expect(shared?.test?.test("/r/sdk/plugin/src/slot.tsx")).toBe(true);
   });
 
   it("omits the shared group under a dev server", () => {
