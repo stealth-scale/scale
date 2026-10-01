@@ -44,12 +44,18 @@ catalog:
   "@tanstack/markdown": ^0.0.15
   "@tanstack/react-form": ^1.33
   "@tanstack/react-hotkeys": ^0.12
+  # The data client, which `provider-data` builds its queries and mutations on. A minor release may
+  # deprecate a method the foundation calls, as 5.102 deprecated `ensureQueryData`.
+  "@tanstack/react-query": ^5.104
   # The router, and the core it parses a route's path with. `provider-router` interpolates a path
   # through the core's segment helpers, which the router does not re-export, so both are exactly the
   # versions the router states: 1.170.40 depends on core 1.171.33. A second core would read the
   # segments another core parsed, and their format changed between two patch releases of the core.
   "@tanstack/react-router": 1.170.40
   "@tanstack/router-core": 1.171.33
+  # The router's integration with the data client, which streams the queries a server render reads
+  # into the page. It depends on its core at one exact version.
+  "@tanstack/react-router-ssr-query": ^1.167
   # The data table's engine. The kit registers every stock feature and reads each one's state and
   # defaults, such as the page size, so a minor release that changes a default changes the table.
   "@tanstack/react-table": ^9.2
