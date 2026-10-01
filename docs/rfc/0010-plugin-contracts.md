@@ -1372,7 +1372,7 @@ component makes on one resource.
 
 | What                                      | Where                                                      |
 | ----------------------------------------- | ---------------------------------------------------------- |
-| The router's route declaration            | `foundations/providers/router/src/declaration.ts:110-165`  |
+| The router's route declaration            | `foundations/providers/router/src/declaration.ts:97-159`   |
 | Paths relative to a parent                | `foundations/providers/router/src/map.ts:105-117`          |
 | Refusing a failing condition as not found | `docs/adr/0024-refuse-a-failing-condition-as-not-found.md` |
 | Routing: routes by reference and by id    | `docs/rfc/0006-routing.md`                                 |

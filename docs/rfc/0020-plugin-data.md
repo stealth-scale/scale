@@ -4,7 +4,7 @@ title: "Plugin data"
 author: Roy Klopper, drafted with Claude
 status: Draft
 created: 2026-09-30
-updated: 2026-09-30
+updated: 2026-10-01
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -64,8 +64,8 @@ A plugin defines its operations in its contract package, beside its contract. `s
 `defineQuery`, `defineMutation` and `defineSubscription`, and the `Operation` type they return is
 structurally the one `provider-data` defines. A contract package does not depend on a data library
 for them, and a web package passes the same values to `provider-data`'s functions. `provider-router`
-states the search validator structurally for the same reason
-(`foundations/providers/router/src/declaration.ts:73-85`).
+takes a search validator the same way: it depends on Standard Schema's types alone, and on no
+validation library (`foundations/providers/router/src/declaration.ts:30-37`).
 
 ```ts
 import { defineMutation, defineQuery } from "@stealthscale/sdk-core";
@@ -519,14 +519,14 @@ export interface OperationCatalogue {
 
 ## Failure handling
 
-| Failure                                                  | Detected by                | Outcome                                                                |
-| -------------------------------------------------------- | -------------------------- | ---------------------------------------------------------------------- |
-| A plugin runs an operation no installed plugin declares  | The host's transport guard | The operation fails, naming its id                                     |
-| A plugin reads an optional plugin's query that is absent | `useData`                  | Throws, naming the query                                               |
-| A selector finds no record in its sample                 | `checks()`                 | The case fails, naming the query and the selector                      |
-| A decision member in a query's data is not a boolean     | The host                   | No decision is primed for that record, and `useAccess` asks the source |
-| A route's data variable is missing at run time           | The loader                 | Throws, naming the route and the variable                              |
-| The person or the tenant changes                         | The host                   | `resetData`, then the new subject's decisions and data                 |
+| Failure                                                      | Detected by                | Outcome                                                                |
+| ------------------------------------------------------------ | -------------------------- | ---------------------------------------------------------------------- |
+| A plugin runs an operation no installed plugin declares      | The host's transport guard | The operation fails, naming its id                                     |
+| A plugin reads an optional plugin's query that is absent     | `useData`                  | Throws, naming the query                                               |
+| A selector finds no record in its sample                     | `checks()`                 | The case fails, naming the query and the selector                      |
+| A decision member in a query's data is not a boolean         | The host                   | No decision is primed for that record, and `useAccess` asks the source |
+| A route's data variable is absent from the route at run time | The gateway                | The query runs without it. A required variable is refused              |
+| The person or the tenant changes                             | The host                   | `resetData`, then the new subject's decisions and data                 |
 
 ## Bounds
 
@@ -593,4 +593,4 @@ access store already keeps for the session (RFC-0014).
 | The data foundation                  | `docs/rfc/0005-data.md`                                 |
 | Contracts, markers and conditions    | `docs/rfc/0010-plugin-contracts.md`                     |
 | Access and decisions on one resource | `docs/rfc/0014-plugin-access.md`                        |
-| A structurally stated validator      | `foundations/providers/router/src/declaration.ts:73-85` |
+| A validator typed by Standard Schema | `foundations/providers/router/src/declaration.ts:30-37` |

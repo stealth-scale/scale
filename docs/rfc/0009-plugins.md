@@ -281,22 +281,23 @@ so both slices resolve a product the same way.
 
 ### Changes to existing packages
 
-| Package               | Change                                                                                                                                         | RFC  |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| `provider-router`     | `Evaluate` receives the route's context as its second argument                                                                                 | 0012 |
-| `provider-router`     | `RouteDeclaration` takes `loader`, which the compiler passes to the route with the search as its dependencies                                  | 0005 |
-| `provider-router`     | `RouteRef` types the search. `useRouteSearch` reads it. `RouteLink` and `useRouteHref` take `search`. `SearchValidator` states its output type | 0013 |
-| `component-screen`    | `AppShell.Status`, a bar at the foot of the shell                                                                                              | 0013 |
-| `vite-config`         | `sdk` joins the workspace directories the chunk rules match (`packages/vite-config/src/build/chunks.ts:25-33`)                                 | 0011 |
-| `pnpm-workspace.yaml` | `sdk/*` and `sdk/inspector/*` join the workspace                                                                                               | 0009 |
+| Package               | Change                                                                                                                       | RFC  |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ---- |
+| `provider-router`     | `Evaluate` receives the route's context as its second argument                                                               | 0012 |
+| `provider-router`     | `RouteDeclaration` takes `loader`, which the compiler passes to the route with the search as its dependencies                | 0005 |
+| `provider-router`     | `RouteRef` types the search. `useRouteSearch` reads it. `RouteLink` takes `search`. `SearchValidator` states its output type | 0013 |
+| `component-screen`    | `AppShell.Status`, a bar at the foot of the shell                                                                            | 0013 |
+| `vite-config`         | `sdk` joins the workspace directories the chunk rules match (`packages/vite-config/src/build/chunks.ts:25-33`)               | 0011 |
+| `pnpm-workspace.yaml` | `sdk/*` and `sdk/inspector/*` join the workspace                                                                             | 0009 |
 
 ### Delivery
 
-1. Make the changes to existing packages listed in the preceding table.
+1. Make the changes to `provider-router` and `component-screen` listed in the preceding table.
 2. Create `foundations/providers/data` with its `./router` and `./testing` entries (RFC-0005).
 3. Create `sdk/core`: identifiers, markers, references, operations, conditions, versions,
    `definePlugin`, `defineProduct`, `resolveProduct`, the host contract, sessions and the
-   catalogues' types.
+   catalogues' types. The `sdk` globs join the workspace and `sdk` joins the chunk patterns in the
+   same step, because a glob and a path pattern need a directory to match.
 4. Create `sdk/plugin` with the hooks and components that plugin code imports.
 5. Create `sdk/host` with the stores, the evaluator, the host's parts, the palette, the settings
    pages and the OpenFeature adapter.

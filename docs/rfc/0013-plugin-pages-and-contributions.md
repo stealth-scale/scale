@@ -65,7 +65,7 @@ __root__                      HostRoot around the product's Frame; not found: Ho
 
 - `createHostRoutes(product)` returns a function of the root route. It compiles every plugin's
   routes and the settings routes in one `compileRoutes` call, so the compiler sees every path at
-  once (`foundations/providers/router/src/compile.ts:376-414`).
+  once (`foundations/providers/router/src/compile.ts:481-520`).
 - The product places the returned routes beside its own in the root's `addChildren` call, and
   `routeMap(tree)` refuses two routes with one id or one path under one parent
   (`foundations/providers/router/src/map.ts:51-103`).
@@ -133,9 +133,11 @@ export function useRouteSearch<Search>(to: RouteRef<AnyParams, Search>): Search;
 ```
 
 - `useRouteSearch` checks that the deepest declared match is the reference's route, as
-  `useRouteParams` does (`foundations/providers/router/src/declared.ts:99-113`), and returns the
+  `useRouteParams` does (`foundations/providers/router/src/declared.ts:117-124`), and returns the
   match's validated search.
-- `RouteLink` and `useRouteHref` take `search`, typed by the reference.
+- `RouteLink` takes `search`, typed by the reference, and passes it to the library's `Link` beside
+  the path. `routeHref` and `useRouteHref` return the path alone, because TanStack Router reads `to`
+  as a path and takes the search from `search` (router-core 1.171.33, `src/router.ts:1959-2112`).
 - `SearchValidator` gains the validator's output type, `StandardSchemaV1<unknown, Search>`, so a
   marker's validator types its reference (RFC-0010).
 
@@ -287,15 +289,15 @@ export function Frame(): ReactElement {
 | `navigation` | any number    | `AppShell.Navbar`, around a `Sidebar`               | navigation, from `Sidebar.Nav`        |
 | `aside`      | any number    | `AppShell.Aside`                                    | complementary                         |
 | `footer`     | any number    | `AppShell.Footer`                                   | contentinfo                           |
-| `status`     | any number    | `AppShell.Status`, a new part                       | none                                  |
+| `status`     | any number    | `AppShell.Status`                                   | none                                  |
 | `toolbar`    | any number    | `Page.Toolbar`, inside a page that renders the slot | none                                  |
 
 - `AppShell.Navbar` renders a `div`, and the `nav` landmark comes from the `Sidebar.Nav` inside it
   (`components/screen/src/app-shell/navbar.tsx`, `components/screen/src/sidebar/nav.tsx:36`).
-- `AppShell.Status` is a new part of `component-screen`: a bar at the foot of the shell, after
-  `AppShell.Footer` (`components/screen/src/app-shell/index.ts:6-29` lists the parts it joins). The
-  bar is not a live region, because a live region would announce every contribution. A contribution
-  that reports a change renders its own `output`.
+- `AppShell.Status` renders a bar at the foot of the shell, after `AppShell.Footer`
+  (`components/screen/src/app-shell/status.tsx`). The bar is not a live region, because a live
+  region would announce every contribution. A contribution that reports a change renders its own
+  `output`.
 - A frame omits a region's `AppShell` part while the region is empty, through
   `useSlot(slot).filled`, so an empty aside takes no column.
 

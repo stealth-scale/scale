@@ -236,7 +236,7 @@ export type Evaluate<Condition = unknown, Context = unknown> = (
 ```
 
 The compiler's gate passes `beforeLoad`'s own `context` through
-(`foundations/providers/router/src/compile.ts:281-285`). An evaluator that ignores the second
+(`foundations/providers/router/src/compile.ts:384-390`). An evaluator that ignores the second
 argument keeps working.
 
 ### Stores
@@ -394,7 +394,7 @@ export type RenderTarget = `extension:${string}` | `route:${string}`;
 
 - The host renders every extension inside an error boundary of its own, and every plugin route with
   an `errorComponent` that the compiler attaches per declaration
-  (`foundations/providers/router/src/compile.ts:20-26`).
+  (`foundations/providers/router/src/compile.ts:26-33`).
 - Each render that throws counts one failure for its target, and the count returns to zero when a
   render commits. The count is per render rather than per second, so a page rendered sixty times a
   minute and one rendered once an hour follow the same rule.
@@ -641,7 +641,7 @@ the fix until somebody retries. A target that still fails is quarantined again a
 
 | What                                      | Where                                                      |
 | ----------------------------------------- | ---------------------------------------------------------- |
-| The router's compiler and its gate        | `foundations/providers/router/src/compile.ts:258-286`      |
+| The router's compiler and its gate        | `foundations/providers/router/src/compile.ts:361-391`      |
 | Refusing a failing condition as not found | `docs/adr/0024-refuse-a-failing-condition-as-not-found.md` |
 | TanStack Router's `notFound`              | router-core 1.171.29, `src/not-found.ts:4-39`              |
 | Vite's preload error event                | https://vite.dev/guide/build#load-error-handling           |
