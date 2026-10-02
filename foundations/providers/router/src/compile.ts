@@ -5,6 +5,7 @@
 import { createElement, type FunctionComponent } from "react";
 
 import {
+  type EnteredLocation,
   type Evaluate,
   type LayoutProps,
   type RouteDeclaration,
@@ -105,6 +106,11 @@ interface Entering {
    * The route's context, which contains the router's.
    */
   readonly context: unknown;
+
+  /**
+   * The address the navigation enters.
+   */
+  readonly location: EnteredLocation;
 }
 
 /**
@@ -381,9 +387,9 @@ function gate<Condition, Context>(
     throw new Error(`The route ${declaration.id} states a condition and no evaluator was given.`);
   }
 
-  return ({ context }) => {
+  return ({ context, location }) => {
     // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the caller typed the router's context as `Context`, which the library cannot see for a compiled route
-    const allowed = evaluate(when, context as Context);
+    const allowed = evaluate(when, context as Context, location);
 
     // eslint-disable-next-line typescript/only-throw-error -- the library's refusal is a value, not an Error subclass
     if (!allowed) throw notFound();

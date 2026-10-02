@@ -12,6 +12,7 @@ export { basepathOf } from "#basepath.ts";
 export { type CompileOptions, compileRoutes } from "#compile.ts";
 export {
   type DeclaredRoute,
+  type EnteredLocation,
   type Evaluate,
   type LayoutProps,
   type LazyPage,

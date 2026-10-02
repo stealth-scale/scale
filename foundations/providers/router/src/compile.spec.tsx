@@ -5,6 +5,7 @@ import { describe, expect, it, type Mock, vi } from "vitest";
 
 import { compileRoutes } from "#compile.ts";
 import {
+  type EnteredLocation,
   type LayoutProps,
   type RouteDeclaration,
   type RouteLoaderArgs,
@@ -463,6 +464,18 @@ describe("compileRoutes", () => {
     await router.load();
 
     expect(evaluate.mock.lastCall?.[1]).toStrictEqual({ session: "ada" });
+  });
+
+  it("passes the evaluator the address the navigation enters", async () => {
+    const evaluate = vi.fn<
+      (when: unknown, context: unknown, location?: EnteredLocation) => boolean
+    >(() => true);
+    const { router } = routed([declared({ when: "allowed" })], { evaluate });
+
+    await router.navigate({ search: { tab: "open" }, to: "/app/one" });
+    await router.load();
+
+    expect(evaluate.mock.lastCall?.[2]?.href).toBe("/app/one?tab=open");
   });
 
   it("names the declaration when it builds an error component for one", () => {

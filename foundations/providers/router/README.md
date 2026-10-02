@@ -270,6 +270,11 @@ that runs it, such as a session a server put in the context for one request, so 
 every router built from it. Type the context with the second type parameter of `compileRoutes` and
 `Evaluate`.
 
+The evaluator receives the address the navigation enters as its third argument, an `EnteredLocation`
+whose `href` is the path, the search and the hash. The route's gate runs in `beforeLoad`, before the
+navigation commits, so a redirect to a sign-in page can include the address the person asked for. A
+caller that evaluates a condition outside a navigation, such as a menu, passes no location.
+
 - `search` validates the search string before the route loads. It takes a validator from any library
   that implements Standard Schema, and the page reads the result with `useRouteSearch`.
 - `loader` loads the route's data before its page renders. It receives the route's context, its

@@ -179,16 +179,28 @@ export interface DeclaredRoute {
 }
 
 /**
+ * Describes the address a navigation enters, as an evaluator reads it.
+ */
+export interface EnteredLocation {
+  /**
+   * The path, the search and the hash of the address, without its origin.
+   */
+  readonly href: string;
+}
+
+/**
  * Returns whether a route's condition is true for the router whose context is given.
  *
  * @remarks
  *   Returning false makes the route not found, because a route nobody may open does not exist. An
  *   evaluator that wants anything else, such as sending an unauthenticated person to sign in,
- *   throws the library's own `redirect` instead. The context is the route's, as `beforeLoad`
- *   receives it, so the evaluator reads the state of the router it runs in, and one tree serves
- *   every router built from it.
+ *   throws the library's own `redirect` instead, and reads the address to return to from
+ *   `location`. The context is the route's, as `beforeLoad` receives it, so the evaluator reads the
+ *   state of the router it runs in, and one tree serves every router built from it. A caller that
+ *   evaluates outside a navigation, such as a menu, passes no location.
  */
 export type Evaluate<Condition = unknown, Context = unknown> = (
   when: Condition,
   context: Context,
+  location?: EnteredLocation,
 ) => boolean;
