@@ -193,7 +193,10 @@ const definition = defineProduct({
 - `enabled` is the switch's state before a person chooses. `locked` keeps the plugin on for
   everybody.
 - `eager` loads the plugin's modules before the first render.
-- A plugin's `when` is the condition under which the whole plugin is available.
+- A plugin's `when` is the condition under which the whole plugin is available. The host computes a
+  plugin's availability after that of every plugin its condition names and every plugin it requires
+  without `optional`, so `resolveProduct` refuses a condition that names its own plugin, and a ring
+  of conditions and requirements.
 - `slots` adds, removes and orders the extensions of a slot. `extensions.disabled` leaves extensions
   out of every slot.
 - `featureFlags` sets flag values built with `setFlag`.
@@ -223,7 +226,7 @@ for (const fault of [...problems, ...warnings]) console.error(lineOf(fault));
 | Option           | Use                                                                                   |
 | ---------------- | ------------------------------------------------------------------------------------- |
 | `catalogues`     | The fallback language's catalogue of each namespace. The words checks need it         |
-| `namespaces`     | The packages that publish each namespace                                              |
+| `namespaces`     | The packages that publish each namespace, without the plugins' contract packages      |
 | `today`          | The day a flag's date is compared with. The current date where left out               |
 | `validateHotkey` | TanStack Hotkeys' `validateHotkey`. The keys checks other than its own run without it |
 
@@ -251,11 +254,15 @@ time-off.code.routes.overview: is missing, and the contract declares the route
 
 - `plugins` lists each installed plugin with its configuration, its switch, its lock and its kill
   switch, the ops flag `host/plugin.<plugin id>`.
-- `routes` lists every page with the queries it reads and the plugins whose code loads with it.
+- `routes` lists every page with the queries it reads and the plugins whose code loads with it. A
+  settings page is a route too, `host/settings/<page id>` at `<plugin id>/<name>` under the settings
+  route, listed in the settings menu. The host's account page is a route only where an installed
+  section targets it.
 - `slots` lists the extensions placed in each slot, sorted by the product's `order` and then by each
   extension's own `order`. Install order breaks a tie.
 - `commands`, `events`, `flags`, `permissions`, `resources`, `roles`, `entitlements`, `queries`,
-  `mutations` and `settings` list every declaration of their kind.
+  `mutations` and `settings` list every declaration of their kind. A flag, a permission, a resource
+  kind, a role and an entitlement state the contract's `deprecated` note where it has one.
 
 ## Catalogues
 
@@ -268,8 +275,8 @@ learn a product's declarations. Each states the product's id and version.
 | `FlagCatalogue`      | Every flag, one kill switch per plugin included        | The flag service                           |
 | `OperationCatalogue` | Every query and mutation, with the id the gateway runs | The gateway's publishing step              |
 
-- An access or flag entry contains its qualified id, its plugin, and its description in every
-  language the plugin's catalogues contain.
+- An access or flag entry contains its qualified id, its plugin, its description in every language
+  the plugin's catalogues contain, and the contract's deprecation note where it has one.
 - The access catalogue's lists and the flag catalogue's flags are sorted by id, so a diff of two
   releases lists every added and removed name.
 

@@ -22,4 +22,8 @@
 - Add `HostApi` and `Toaster` for a command's function.
 - Add `defineProduct`, `installed`, `FilledSlot` and `SlotPlacement`.
 - Add `resolveProduct`, `ResolveOptions`, `ResolvedProduct`, `Problem` and `lineOf`.
+- Refuse a ring of plugin conditions and requirements.
+- Resolve a route per settings page, `host/settings/<page id>`, in the settings menu.
 - Add `AccessCatalogue`, `FlagCatalogue` and `OperationCatalogue`.
+- Refuse a plugin id that any package but its contract package publishes as a namespace.
+- Add `deprecated` to `ResolvedName` and `ResolvedFlag`.

@@ -31,8 +31,10 @@ function checkPlugin(context: ResolveContext, installation: Installation, report
     report.problem(pluginId, "has no web package among the product's dependencies");
   }
 
-  if (publishers.length > 1) {
-    report.problem(pluginId, `is a catalogue namespace that ${publishers.join(" and ")} publish`);
+  if (publishers.length > 0) {
+    const verb = publishers.length === 1 ? "publishes" : "publish";
+
+    report.problem(pluginId, `is a catalogue namespace that ${publishers.join(" and ")} ${verb}`);
   }
 
   if (!compatible(manifest.apiVersion, pkg.version)) {

@@ -1,8 +1,10 @@
 import { timeOffContract } from "#define.fixtures.ts";
 import { defineContract } from "#define.ts";
 import { hostContract } from "#host.ts";
+import { lazy, reminders } from "#manifest.fixtures.ts";
 import { manifestOf } from "#resolve/resolve.fixtures.ts";
 import { type RouteMarker } from "#route.ts";
+import { settingsPage, settingsSection } from "#settings.ts";
 
 export function routing(
   pluginId: string,
@@ -93,3 +95,64 @@ export const ring = routing("ring", {
   first: { kind: "route", parent: { id: "ring/second", kind: "route" }, path: "first" },
   second: { kind: "route", parent: { id: "ring/first", kind: "route" }, path: "second" },
 });
+
+export const pagedContract = defineContract("paged", {
+  settings: {
+    pages: {
+      main: settingsPage({ label: "settings.main", order: 2, when: { authenticated: true } }),
+    },
+  },
+});
+
+export const paged = manifestOf(pagedContract);
+
+export const sectioned = manifestOf(
+  defineContract("sectioned", {
+    settings: {
+      sections: {
+        account: settingsSection({
+          label: "settings.account",
+          target: hostContract.settings.pages.account,
+        }),
+        extra: settingsSection({
+          label: "settings.extra",
+          target: pagedContract.settings.pages.main,
+        }),
+      },
+    },
+  }),
+  {
+    settings: {
+      account: { component: lazy({ reminders }) },
+      extra: { component: lazy({ reminders }) },
+    },
+  },
+);
+
+export const formed = manifestOf(
+  defineContract("formed", {
+    settings: {
+      sections: {
+        plain: settingsSection({
+          label: "settings.plain",
+          schema: { additionalProperties: false, properties: {}, type: "object" },
+          target: pagedContract.settings.pages.main,
+        }),
+      },
+    },
+  }),
+);
+
+export const PAGE_PLACED = {
+  extensions: [
+    {
+      disabled: false,
+      fallback: false,
+      id: "notes/banner",
+      plugin: "notes",
+      position: "before",
+      target: "route:host/settings/paged/main",
+    },
+  ],
+  slots: {},
+} as const;

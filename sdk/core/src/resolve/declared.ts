@@ -116,10 +116,8 @@ export function declarationsOf<K extends ReferenceKind>(
   context: ResolveContext,
   kind: K,
 ): ReadonlyArray<Declaration<Declared<K>>> {
-  const found = [...context.declared.values()].filter(({ reference }) => reference.kind === kind);
-
   // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the shapes check has checked each reference against its kind's marker
-  return found as unknown as ReadonlyArray<Declaration<Declared<K>>>;
+  return context.byKind[kind] as unknown as ReadonlyArray<Declaration<Declared<K>>>;
 }
 
 /**

@@ -136,6 +136,7 @@ export function resolveFlags(context: ResolveContext, report: Report): readonly 
   const flags: readonly ResolvedFlag[] = [
     ...declared.map(({ plugin, reference }) => ({
       default: reference.default,
+      deprecated: reference.deprecated,
       description: reference.description,
       expires: reference.expires,
       id: reference.id,

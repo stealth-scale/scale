@@ -12,7 +12,12 @@ export const switches = manifestOf(
         kind: "experiment",
         variants: ["list", "board"],
       }),
-      sync: flag({ default: true, description: "flags.sync", kind: "ops" }),
+      sync: flag({
+        default: true,
+        deprecated: "use the layout",
+        description: "flags.sync",
+        kind: "ops",
+      }),
     },
   }),
 );

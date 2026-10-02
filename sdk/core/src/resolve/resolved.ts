@@ -112,7 +112,7 @@ export interface ResolvedRoute {
   readonly data: readonly ResolvedRouteData[];
 
   /**
-   * Qualified id of the route.
+   * Qualified id of the route, or `host/settings/<page id>` for a settings page's route.
    */
   readonly id: string;
 
@@ -138,7 +138,7 @@ export interface ResolvedRoute {
   readonly path: string;
 
   /**
-   * Id of the plugin that declares the route.
+   * Id of the plugin that declares the route, or the settings page.
    */
   readonly plugin: string;
 
@@ -329,6 +329,11 @@ export interface ResolvedFlag {
   readonly default: boolean | string;
 
   /**
+   * The contract's deprecation note, where the flag is deprecated.
+   */
+  readonly deprecated?: string | undefined;
+
+  /**
    * Key of the flag's description in its plugin's catalogue.
    */
   readonly description: string;
@@ -373,6 +378,11 @@ export interface ResolvedFlag {
  * Describes a resource kind or an entitlement as the build resolved it.
  */
 export interface ResolvedName {
+  /**
+   * The contract's deprecation note, where the name is deprecated.
+   */
+  readonly deprecated?: string | undefined;
+
   /**
    * Key of the description in the plugin's catalogue.
    */

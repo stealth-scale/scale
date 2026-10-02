@@ -39,6 +39,8 @@ describe("resolveDeclarations", () => {
       ["host/settings", ["cards"]],
       ["time-off/overview", []],
       ["time-off/request", []],
+      ["host/settings/host/plugins", []],
+      ["host/settings/time-off/time-off", []],
     ]);
   });
 });

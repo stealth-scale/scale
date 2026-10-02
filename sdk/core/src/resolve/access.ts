@@ -81,22 +81,26 @@ export function resolveAccess(context: ResolveContext, report: Report): Accessed
 
   return {
     entitlements: declarationsOf(context, "entitlement").map(({ plugin, reference }) => ({
+      deprecated: reference.deprecated,
       description: reference.description,
       id: reference.id,
       plugin,
     })),
     permissions: permissions.map(({ plugin, reference }) => ({
+      deprecated: reference.deprecated,
       description: reference.description,
       id: reference.id,
       plugin,
       resource: reference.resource?.id,
     })),
     resources: declarationsOf(context, "resource").map(({ plugin, reference }) => ({
+      deprecated: reference.deprecated,
       description: reference.description,
       id: reference.id,
       plugin,
     })),
     roles: roles.map(({ plugin, reference }) => ({
+      deprecated: reference.deprecated,
       description: reference.description,
       id: reference.id,
       permissions: reference.permissions.map((one) => one.id),

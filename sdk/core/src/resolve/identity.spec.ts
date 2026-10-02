@@ -46,12 +46,27 @@ describe("checkIdentity", () => {
   });
 
   it("refuses a plugin id another package publishes a namespace under", () => {
-    const namespaces = { plain: ["@acme/plain-contract", "@acme/components"] };
+    const namespaces = { plain: ["@acme/components"] };
     const context = contextFor(productOf([installed(plain)]), { namespaces });
 
     expect(faultsOf(checkIdentity, context).problems).toStrictEqual([
-      "plain: is a catalogue namespace that @acme/plain-contract and @acme/components publish",
+      "plain: is a catalogue namespace that @acme/components publishes",
     ]);
+  });
+
+  it("names every package that publishes a namespace under a plugin id", () => {
+    const namespaces = { plain: ["@acme/components", "@acme/widgets"] };
+    const context = contextFor(productOf([installed(plain)]), { namespaces });
+
+    expect(faultsOf(checkIdentity, context).problems).toStrictEqual([
+      "plain: is a catalogue namespace that @acme/components and @acme/widgets publish",
+    ]);
+  });
+
+  it("passes a plugin id whose namespace no other package publishes", () => {
+    const context = contextFor(productOf([installed(plain)]), { namespaces: { plain: [] } });
+
+    expect(faultsOf(checkIdentity, context).problems).toStrictEqual([]);
   });
 
   it("refuses a manifest whose API range does not admit the installed sdk-core", () => {

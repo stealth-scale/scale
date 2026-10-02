@@ -110,11 +110,18 @@ describe("flags", () => {
     });
   });
 
+  it("resolves a flag's deprecation note", () => {
+    const [, sync] = resolveFlags(contextFor(productOf([installed(switches)])), report());
+
+    expect(sync?.deprecated).toBe("use the layout");
+  });
+
   it("resolves an experiment with its variants as text", () => {
     const [layout] = resolveFlags(contextFor(productOf([installed(switches)])), report());
 
     expect(layout).toStrictEqual({
       default: "list",
+      deprecated: undefined,
       description: "flags.layout",
       expires: "2099-01-01",
       id: "switches/layout",

@@ -62,6 +62,15 @@ describe("context", () => {
     expect([first?.plugin, first?.code, first?.contract]).toStrictEqual(["host", {}, hostContract]);
   });
 
+  it("groups the declared names by kind in the order they were declared", () => {
+    const context = contextFor(productOf([installed(timeOff)]));
+    const routes = [...context.declared.values()].filter(
+      ({ reference }) => reference.kind === "route",
+    );
+
+    expect(context.byKind.route).toStrictEqual(routes);
+  });
+
   it("keeps the host's declaration of a name a plugin claiming its id declares", () => {
     const context = contextFor(productOf([installed(claiming)]));
 

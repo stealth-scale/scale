@@ -5,6 +5,7 @@ import { plain, plainContract, timeOff } from "#product.fixtures.ts";
 import { installed } from "#product.ts";
 import { killSwitchOf, resolvePlugins } from "#resolve/plugins.ts";
 import { report } from "#resolve/problem.ts";
+import { alpha, beta, identity, teams } from "#resolve/requirements.fixtures.ts";
 import { contextFor, faultsOf, linesOf, productOf } from "#resolve/resolve.fixtures.ts";
 
 describe("plugins", () => {
@@ -72,5 +73,26 @@ describe("plugins", () => {
     expect(linesOf(faults).problems).toStrictEqual([
       "product.plugins.time-off.when: forms a cycle through plugin: time-off → plain → time-off",
     ]);
+  });
+
+  it("refuses a ring of a condition and a requirement", () => {
+    const faults = report();
+    const context = contextFor(
+      productOf([installed(identity, { when: { plugin: teams.contract } }), installed(teams)]),
+    );
+
+    resolvePlugins(context, faults);
+
+    expect(linesOf(faults).problems).toStrictEqual([
+      "product.plugins.identity.when: forms a cycle through plugin: identity → teams → identity",
+    ]);
+  });
+
+  it("leaves a ring of requirements alone to the requirements' check", () => {
+    const faults = report();
+
+    resolvePlugins(contextFor(productOf([installed(alpha), installed(beta)])), faults);
+
+    expect(faults.problems).toStrictEqual([]);
   });
 });

@@ -95,6 +95,11 @@ export interface Nested {
  */
 export interface ResolveContext {
   /**
+   * Every declared name, the host's included, grouped by kind, each group in install order.
+   */
+  readonly byKind: Readonly<Record<ReferenceKind, readonly Declaration[]>>;
+
+  /**
    * Every declared name, the host's included, by `<kind>:<qualified id>`, in install order.
    */
   readonly declared: ReadonlyMap<string, Declaration>;
@@ -257,6 +262,37 @@ export function conditionsIn(when: undefined | When, path: string): readonly Nes
 }
 
 /**
+ * Groups the declared names by kind, keeping their order.
+ *
+ * @param declared - Every declared name, by `<kind>:<qualified id>`.
+ */
+function byKindOf(
+  declared: ReadonlyMap<string, Declaration>,
+): Readonly<Record<ReferenceKind, readonly Declaration[]>> {
+  const kinds: Record<ReferenceKind, Declaration[]> = {
+    command: [],
+    entitlement: [],
+    event: [],
+    extension: [],
+    featureFlag: [],
+    menu: [],
+    mutation: [],
+    permission: [],
+    query: [],
+    resource: [],
+    role: [],
+    route: [],
+    settingsPage: [],
+    settingsSection: [],
+    slot: [],
+  };
+
+  for (const declaration of declared.values()) kinds[declaration.reference.kind].push(declaration);
+
+  return kinds;
+}
+
+/**
  * Builds the context the checks read.
  *
  * @param definition - The product's definition.
@@ -296,5 +332,13 @@ export function contextOf(
     }
   }
 
-  return { declared, definition, installations, installed, options, packages };
+  return {
+    byKind: byKindOf(declared),
+    declared,
+    definition,
+    installations,
+    installed,
+    options,
+    packages,
+  };
 }

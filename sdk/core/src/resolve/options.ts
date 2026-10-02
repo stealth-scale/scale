@@ -46,7 +46,9 @@ export interface ResolveOptions {
   readonly catalogues?: Readonly<Record<string, Readonly<Record<string, unknown>>>> | undefined;
 
   /**
-   * The packages that publish each namespace, by namespace.
+   * The packages that publish each namespace, by namespace, leaving out each installed plugin's
+   * contract package. A plugin whose id names a namespace one of them publishes is refused,
+   * because that package's words would merge with the plugin's.
    */
   readonly namespaces?: Readonly<Record<string, readonly string[]>> | undefined;
 

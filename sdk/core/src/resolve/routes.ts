@@ -1,13 +1,15 @@
 /**
  * Checks every route's path, parent, condition, parameters and menu, and resolves each route with
- * its condition joined with the product's.
+ * its condition joined with the product's, then a route per settings page.
  *
  * @remarks
  *   The router reads `home`, `/home` and `home/` as one path, so two routes conflict where their
  *   trimmed paths match under one parent. The host compiles each settings page as a child of
- *   `host/settings` at `<plugin id>/<name>`, so a route under `host/settings` conflicts with those
- *   too. The host evaluates a route's condition, and the product's condition joined into it, before
- *   the route matches, so neither states `route`.
+ *   `host/settings` at `<plugin id>/<name>`, under the id `host/settings/<plugin id>/<name>` and in
+ *   the settings menu, so a route under `host/settings` conflicts with those too. The host's
+ *   account page is a route only where an installed section targets it. The host evaluates a
+ *   route's condition, and the product's condition joined into it, before the route matches, so
+ *   neither states `route`.
  */
 
 import { type When } from "#condition.ts";
@@ -30,6 +32,11 @@ import { type Placed } from "#resolve/slots.ts";
  * Describes a declared route.
  */
 type RouteDeclaration = Declaration<Declared<"route">>;
+
+/**
+ * Describes a declared settings page.
+ */
+type PageDeclaration = Declaration<Declared<"settingsPage">>;
 
 /**
  * Matches a path segment in the `:name` form, which the router reads as text.
@@ -179,6 +186,15 @@ function checkLinks(context: ResolveContext, declaration: RouteDeclaration, repo
 }
 
 /**
+ * Returns the plugins of the extensions that target a route itself and are not disabled.
+ */
+function targetingOf(routeId: string, placed: Placed): readonly string[] {
+  return placed.extensions
+    .filter((one) => !one.disabled && one.target === `route:${routeId}`)
+    .map((one) => one.plugin);
+}
+
+/**
  * Returns the plugins whose chunks load with a route: those with an extension placed in a slot the
  * route's plugin declares, or targeting the route itself.
  *
@@ -186,19 +202,91 @@ function checkLinks(context: ResolveContext, declaration: RouteDeclaration, repo
  * @param placed - Every extension and slot.
  */
 function loadsOf(declaration: RouteDeclaration, placed: Placed): readonly string[] {
-  const { id } = declaration.reference;
   const plugins = new Set([
     ...Object.values(placed.slots)
       .filter((slot) => slot.plugin === declaration.plugin)
       .flatMap((slot) => slot.extensions.map((one) => pluginOf(one))),
-    ...placed.extensions
-      .filter((one) => !one.disabled && one.target === `route:${id}`)
-      .map((one) => one.plugin),
+    ...targetingOf(declaration.reference.id, placed),
   ]);
 
   plugins.delete(declaration.plugin);
 
   return [...plugins];
+}
+
+/**
+ * Returns the plugins whose chunks load with a settings page: those whose sections on the page
+ * render a component, and those with an extension targeting the page's route.
+ */
+function pageLoadsOf(
+  context: ResolveContext,
+  page: PageDeclaration,
+  routeId: string,
+  placed: Placed,
+): readonly string[] {
+  const plugins = new Set([
+    ...declarationsOf(context, "settingsSection")
+      .filter(
+        ({ code, name, reference }) =>
+          reference.target.id === page.reference.id &&
+          code.settings?.[name]?.component !== undefined,
+      )
+      .map(({ plugin }) => plugin),
+    ...targetingOf(routeId, placed),
+  ]);
+
+  plugins.delete(page.plugin);
+
+  return [...plugins];
+}
+
+/**
+ * Returns true where the host renders a settings page: every page but the host's account page,
+ * which renders where an installed section targets it.
+ *
+ * @param context - The installed plugins, every declared name and the build's options.
+ * @param page - The declared settings page.
+ */
+function isRouted(context: ResolveContext, page: PageDeclaration): boolean {
+  const { account } = hostContract.settings.pages;
+
+  return (
+    page.reference.id !== account.id ||
+    declarationsOf(context, "settingsSection").some(
+      ({ reference }) => reference.target.id === account.id,
+    )
+  );
+}
+
+/**
+ * Resolves a settings page as the route the host compiles for it: a child of the settings route at
+ * `<plugin id>/<name>`, listed in the settings menu, with the product's condition joined into the
+ * page's own.
+ *
+ * @param context - The installed plugins, every declared name and the build's options.
+ * @param page - The declared settings page.
+ * @param placed - Every extension and slot.
+ */
+function resolvePage(
+  context: ResolveContext,
+  page: PageDeclaration,
+  placed: Placed,
+): ResolvedRoute {
+  const settings = hostContract.routes.settings.id;
+  const { id, label, order, when } = page.reference;
+  const routeId = `${settings}/${id}`;
+
+  return {
+    data: [],
+    id: routeId,
+    loads: pageLoadsOf(context, page, routeId, placed),
+    navigation: { label, menu: hostContract.menus.settings.id, order },
+    parent: settings,
+    path: id,
+    plugin: page.plugin,
+    sample: undefined,
+    when: joined(context.definition.when, when),
+  };
 }
 
 /**
@@ -254,15 +342,21 @@ export function checkRoutes(context: ResolveContext, report: Report): void {
 }
 
 /**
- * Resolves every route, the host's included.
+ * Resolves every route, the host's included, then a route per settings page the host renders.
  *
  * @param context - The installed plugins, every declared name and the build's options.
  * @param placed - Every extension and slot, which decide the plugins whose chunks load with a
  *   route.
- * @returns Every route, the host's first.
+ * @returns Every declared route, the host's first, then the settings pages' routes, the host's
+ *   first.
  */
 export function resolveRoutes(context: ResolveContext, placed: Placed): readonly ResolvedRoute[] {
-  return declarationsOf(context, "route").map((declaration) =>
-    resolveRoute(context, declaration, placed),
-  );
+  return [
+    ...declarationsOf(context, "route").map((declaration) =>
+      resolveRoute(context, declaration, placed),
+    ),
+    ...declarationsOf(context, "settingsPage")
+      .filter((page) => isRouted(context, page))
+      .map((page) => resolvePage(context, page, placed)),
+  ];
 }
