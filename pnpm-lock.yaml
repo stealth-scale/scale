@@ -206,6 +206,12 @@ catalogs:
     '@module-federation/vite':
       specifier: ^1.22
       version: 1.22.1
+    '@openfeature/core':
+      specifier: ^1.12
+      version: 1.12.0
+    '@openfeature/web-sdk':
+      specifier: ^1.10
+      version: 1.10.0
     '@pandacss/compiler':
       specifier: ^2.0
       version: 2.0.0
@@ -221,6 +227,9 @@ catalogs:
     '@tanstack/highlight':
       specifier: ^0.1
       version: 0.1.0
+    '@tanstack/hotkeys':
+      specifier: 0.10.0
+      version: 0.10.0
     '@tanstack/markdown':
       specifier: ^0.0.15
       version: 0.0.15
@@ -1655,6 +1664,12 @@ importers:
       '@stealthscale/component-data':
         specifier: workspace:^
         version: link:../data
+      '@stealthscale/component-disclosure':
+        specifier: workspace:^
+        version: link:../disclosure
+      '@stealthscale/component-feedback':
+        specifier: workspace:^
+        version: link:../feedback
       '@stealthscale/component-primitives':
         specifier: workspace:^
         version: link:../primitives
@@ -1752,6 +1767,9 @@ importers:
       '@stealthscale/hooks':
         specifier: workspace:^
         version: link:../../foundations/hooks
+      '@stealthscale/provider-form':
+        specifier: workspace:^
+        version: link:../../foundations/providers/form
       '@stealthscale/provider-locale':
         specifier: workspace:^
         version: link:../../foundations/providers/locale
@@ -3068,15 +3086,48 @@ importers:
 
   examples/form-basic:
     dependencies:
-      '@stealthscale/example-form-fields':
+      '@stealthscale/component-a11y':
         specifier: workspace:^
-        version: link:../form-fields
+        version: link:../../components/a11y
+      '@stealthscale/component-actions':
+        specifier: workspace:^
+        version: link:../../components/actions
+      '@stealthscale/component-data':
+        specifier: workspace:^
+        version: link:../../components/data
+      '@stealthscale/component-disclosure':
+        specifier: workspace:^
+        version: link:../../components/disclosure
+      '@stealthscale/component-feedback':
+        specifier: workspace:^
+        version: link:../../components/feedback
+      '@stealthscale/component-forms':
+        specifier: workspace:^
+        version: link:../../components/forms
+      '@stealthscale/component-layout':
+        specifier: workspace:^
+        version: link:../../components/layout
+      '@stealthscale/component-primitives':
+        specifier: workspace:^
+        version: link:../../components/primitives
+      '@stealthscale/hooks':
+        specifier: workspace:^
+        version: link:../../foundations/hooks
       '@stealthscale/provider-form':
         specifier: workspace:^
         version: link:../../foundations/providers/form
+      '@stealthscale/provider-locale':
+        specifier: workspace:^
+        version: link:../../foundations/providers/locale
       '@stealthscale/settings':
         specifier: workspace:^
         version: link:../../foundations/settings
+      '@stealthscale/theme':
+        specifier: workspace:^
+        version: link:../../foundations/theme
+      '@stealthscale/theme-ink':
+        specifier: workspace:^
+        version: link:../../themes/ink
       '@tanstack/react-form':
         specifier: 'catalog:'
         version: 1.33.5(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -3090,15 +3141,18 @@ importers:
       '@stealthscale/vite-config':
         specifier: workspace:^
         version: link:../../packages/vite-config
-      '@stealthscale/vite-config-css':
-        specifier: workspace:^
-        version: link:../../packages/vite-config-css
       '@stealthscale/vite-config-react':
         specifier: workspace:^
         version: link:../../packages/vite-config-react
+      '@stealthscale/vite-config-theme':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-theme
       '@stealthscale/vite-config-typescript':
         specifier: workspace:^
         version: link:../../packages/vite-config-typescript
+      '@stealthscale/vite-plugin-theme':
+        specifier: workspace:^
+        version: link:../../packages/vite-plugin-theme
       '@testing-library/react':
         specifier: 'catalog:'
         version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -3126,15 +3180,48 @@ importers:
 
   examples/form-draft:
     dependencies:
-      '@stealthscale/example-form-fields':
+      '@stealthscale/component-a11y':
         specifier: workspace:^
-        version: link:../form-fields
+        version: link:../../components/a11y
+      '@stealthscale/component-actions':
+        specifier: workspace:^
+        version: link:../../components/actions
+      '@stealthscale/component-data':
+        specifier: workspace:^
+        version: link:../../components/data
+      '@stealthscale/component-disclosure':
+        specifier: workspace:^
+        version: link:../../components/disclosure
+      '@stealthscale/component-feedback':
+        specifier: workspace:^
+        version: link:../../components/feedback
+      '@stealthscale/component-forms':
+        specifier: workspace:^
+        version: link:../../components/forms
+      '@stealthscale/component-layout':
+        specifier: workspace:^
+        version: link:../../components/layout
+      '@stealthscale/component-primitives':
+        specifier: workspace:^
+        version: link:../../components/primitives
+      '@stealthscale/hooks':
+        specifier: workspace:^
+        version: link:../../foundations/hooks
       '@stealthscale/provider-form':
         specifier: workspace:^
         version: link:../../foundations/providers/form
+      '@stealthscale/provider-locale':
+        specifier: workspace:^
+        version: link:../../foundations/providers/locale
       '@stealthscale/settings':
         specifier: workspace:^
         version: link:../../foundations/settings
+      '@stealthscale/theme':
+        specifier: workspace:^
+        version: link:../../foundations/theme
+      '@stealthscale/theme-ink':
+        specifier: workspace:^
+        version: link:../../themes/ink
       '@tanstack/react-form':
         specifier: 'catalog:'
         version: 1.33.5(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -3148,15 +3235,18 @@ importers:
       '@stealthscale/vite-config':
         specifier: workspace:^
         version: link:../../packages/vite-config
-      '@stealthscale/vite-config-css':
-        specifier: workspace:^
-        version: link:../../packages/vite-config-css
       '@stealthscale/vite-config-react':
         specifier: workspace:^
         version: link:../../packages/vite-config-react
+      '@stealthscale/vite-config-theme':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-theme
       '@stealthscale/vite-config-typescript':
         specifier: workspace:^
         version: link:../../packages/vite-config-typescript
+      '@stealthscale/vite-plugin-theme':
+        specifier: workspace:^
+        version: link:../../packages/vite-plugin-theme
       '@testing-library/react':
         specifier: 'catalog:'
         version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -3182,65 +3272,50 @@ importers:
         specifier: 'catalog:'
         version: 5.0.1(@types/node@26.6.3)(@vitest/browser-playwright@5.0.1)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.3)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
 
-  examples/form-fields:
-    devDependencies:
-      '@stealthscale/provider-form':
-        specifier: workspace:^
-        version: link:../../foundations/providers/form
-      '@stealthscale/settings':
-        specifier: workspace:^
-        version: link:../../foundations/settings
-      '@stealthscale/vite-config':
-        specifier: workspace:^
-        version: link:../../packages/vite-config
-      '@stealthscale/vite-config-react':
-        specifier: workspace:^
-        version: link:../../packages/vite-config-react
-      '@stealthscale/vite-config-typescript':
-        specifier: workspace:^
-        version: link:../../packages/vite-config-typescript
-      '@tanstack/react-form':
-        specifier: 'catalog:'
-        version: 1.33.5(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@testing-library/react':
-        specifier: 'catalog:'
-        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@types/react':
-        specifier: 'catalog:'
-        version: 19.3.0
-      '@types/react-dom':
-        specifier: 'catalog:'
-        version: 19.3.0(@types/react@19.3.0)
-      happy-dom:
-        specifier: 'catalog:'
-        version: 20.14.5
-      oxc-transform-react:
-        specifier: 'catalog:'
-        version: 0.151.0
-      react:
-        specifier: 'catalog:'
-        version: 19.3.0
-      react-dom:
-        specifier: 'catalog:'
-        version: 19.3.0(react@19.3.0)
-      typescript:
-        specifier: 'catalog:'
-        version: 7.0.2
-      vitest:
-        specifier: 'catalog:'
-        version: 5.0.1(@types/node@26.6.3)(@vitest/browser-playwright@5.0.1)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.3)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
-
   examples/form-presentation:
     dependencies:
-      '@stealthscale/example-form-fields':
+      '@stealthscale/component-a11y':
         specifier: workspace:^
-        version: link:../form-fields
+        version: link:../../components/a11y
+      '@stealthscale/component-actions':
+        specifier: workspace:^
+        version: link:../../components/actions
+      '@stealthscale/component-data':
+        specifier: workspace:^
+        version: link:../../components/data
+      '@stealthscale/component-disclosure':
+        specifier: workspace:^
+        version: link:../../components/disclosure
+      '@stealthscale/component-feedback':
+        specifier: workspace:^
+        version: link:../../components/feedback
+      '@stealthscale/component-forms':
+        specifier: workspace:^
+        version: link:../../components/forms
+      '@stealthscale/component-layout':
+        specifier: workspace:^
+        version: link:../../components/layout
+      '@stealthscale/component-primitives':
+        specifier: workspace:^
+        version: link:../../components/primitives
+      '@stealthscale/hooks':
+        specifier: workspace:^
+        version: link:../../foundations/hooks
       '@stealthscale/provider-form':
         specifier: workspace:^
         version: link:../../foundations/providers/form
+      '@stealthscale/provider-locale':
+        specifier: workspace:^
+        version: link:../../foundations/providers/locale
       '@stealthscale/settings':
         specifier: workspace:^
         version: link:../../foundations/settings
+      '@stealthscale/theme':
+        specifier: workspace:^
+        version: link:../../foundations/theme
+      '@stealthscale/theme-ink':
+        specifier: workspace:^
+        version: link:../../themes/ink
       '@tanstack/react-form':
         specifier: 'catalog:'
         version: 1.33.5(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -3254,15 +3329,18 @@ importers:
       '@stealthscale/vite-config':
         specifier: workspace:^
         version: link:../../packages/vite-config
-      '@stealthscale/vite-config-css':
-        specifier: workspace:^
-        version: link:../../packages/vite-config-css
       '@stealthscale/vite-config-react':
         specifier: workspace:^
         version: link:../../packages/vite-config-react
+      '@stealthscale/vite-config-theme':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-theme
       '@stealthscale/vite-config-typescript':
         specifier: workspace:^
         version: link:../../packages/vite-config-typescript
+      '@stealthscale/vite-plugin-theme':
+        specifier: workspace:^
+        version: link:../../packages/vite-plugin-theme
       '@testing-library/react':
         specifier: 'catalog:'
         version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -3290,15 +3368,48 @@ importers:
 
   examples/form-rules:
     dependencies:
-      '@stealthscale/example-form-fields':
+      '@stealthscale/component-a11y':
         specifier: workspace:^
-        version: link:../form-fields
+        version: link:../../components/a11y
+      '@stealthscale/component-actions':
+        specifier: workspace:^
+        version: link:../../components/actions
+      '@stealthscale/component-data':
+        specifier: workspace:^
+        version: link:../../components/data
+      '@stealthscale/component-disclosure':
+        specifier: workspace:^
+        version: link:../../components/disclosure
+      '@stealthscale/component-feedback':
+        specifier: workspace:^
+        version: link:../../components/feedback
+      '@stealthscale/component-forms':
+        specifier: workspace:^
+        version: link:../../components/forms
+      '@stealthscale/component-layout':
+        specifier: workspace:^
+        version: link:../../components/layout
+      '@stealthscale/component-primitives':
+        specifier: workspace:^
+        version: link:../../components/primitives
+      '@stealthscale/hooks':
+        specifier: workspace:^
+        version: link:../../foundations/hooks
       '@stealthscale/provider-form':
         specifier: workspace:^
         version: link:../../foundations/providers/form
+      '@stealthscale/provider-locale':
+        specifier: workspace:^
+        version: link:../../foundations/providers/locale
       '@stealthscale/settings':
         specifier: workspace:^
         version: link:../../foundations/settings
+      '@stealthscale/theme':
+        specifier: workspace:^
+        version: link:../../foundations/theme
+      '@stealthscale/theme-ink':
+        specifier: workspace:^
+        version: link:../../themes/ink
       '@tanstack/react-form':
         specifier: 'catalog:'
         version: 1.33.5(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -3312,15 +3423,18 @@ importers:
       '@stealthscale/vite-config':
         specifier: workspace:^
         version: link:../../packages/vite-config
-      '@stealthscale/vite-config-css':
-        specifier: workspace:^
-        version: link:../../packages/vite-config-css
       '@stealthscale/vite-config-react':
         specifier: workspace:^
         version: link:../../packages/vite-config-react
+      '@stealthscale/vite-config-theme':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-theme
       '@stealthscale/vite-config-typescript':
         specifier: workspace:^
         version: link:../../packages/vite-config-typescript
+      '@stealthscale/vite-plugin-theme':
+        specifier: workspace:^
+        version: link:../../packages/vite-plugin-theme
       '@testing-library/react':
         specifier: 'catalog:'
         version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -4971,6 +5085,91 @@ importers:
         specifier: 'catalog:'
         version: 5.0.1(@types/node@26.6.3)(@vitest/browser-playwright@5.0.1)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.3)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
 
+  packages/testing-plugin:
+    dependencies:
+      '@stealthscale/sdk-core':
+        specifier: workspace:^
+        version: link:../../sdk/core
+    devDependencies:
+      '@arethetypeswrong/core':
+        specifier: 'catalog:'
+        version: 0.18.5
+      '@stealthscale/provider-data':
+        specifier: workspace:^
+        version: link:../../foundations/providers/data
+      '@stealthscale/provider-form':
+        specifier: workspace:^
+        version: link:../../foundations/providers/form
+      '@stealthscale/provider-router':
+        specifier: workspace:^
+        version: link:../../foundations/providers/router
+      '@stealthscale/sdk-host':
+        specifier: workspace:^
+        version: link:../../sdk/host
+      '@stealthscale/sdk-plugin':
+        specifier: workspace:^
+        version: link:../../sdk/plugin
+      '@stealthscale/settings':
+        specifier: workspace:^
+        version: link:../../foundations/settings
+      '@stealthscale/testing-config':
+        specifier: workspace:^
+        version: link:../testing-config
+      '@stealthscale/testing-react':
+        specifier: workspace:^
+        version: link:../testing-react
+      '@stealthscale/vite-config':
+        specifier: workspace:^
+        version: link:../vite-config
+      '@stealthscale/vite-config-i18n':
+        specifier: workspace:^
+        version: link:../vite-config-i18n
+      '@stealthscale/vite-config-react':
+        specifier: workspace:^
+        version: link:../vite-config-react
+      '@stealthscale/vite-config-typescript':
+        specifier: workspace:^
+        version: link:../vite-config-typescript
+      '@testing-library/react':
+        specifier: 'catalog:'
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.3.0(@types/react@19.3.0)
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 5.0.1(@vitest/browser@5.0.1)(vitest@5.0.1)
+      happy-dom:
+        specifier: 'catalog:'
+        version: 20.14.5
+      i18next:
+        specifier: 'catalog:'
+        version: 26.4.2(typescript@7.0.2)
+      oxc-transform-react:
+        specifier: 'catalog:'
+        version: 0.151.0
+      publint:
+        specifier: 'catalog:'
+        version: 0.3.24
+      react:
+        specifier: 'catalog:'
+        version: 19.3.0
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.3.0(react@19.3.0)
+      react-i18next:
+        specifier: 'catalog:'
+        version: 17.0.15(i18next@26.4.2(typescript@7.0.2))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@7.0.2)
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.1(@types/node@26.6.3)(@vitest/browser-playwright@5.0.1)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.3)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
+
   packages/testing-react:
     dependencies:
       axe-core:
@@ -5310,6 +5509,45 @@ importers:
         specifier: 'catalog:'
         version: 5.0.1(@types/node@26.6.3)(@vitest/browser-playwright@5.0.1)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.3)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
 
+  packages/vite-config-product:
+    devDependencies:
+      '@arethetypeswrong/core':
+        specifier: 'catalog:'
+        version: 0.18.5
+      '@stealthscale/testing-config':
+        specifier: workspace:^
+        version: link:../testing-config
+      '@stealthscale/vite-config':
+        specifier: workspace:^
+        version: link:../vite-config
+      '@stealthscale/vite-config-theme':
+        specifier: workspace:^
+        version: link:../vite-config-theme
+      '@stealthscale/vite-config-typescript':
+        specifier: workspace:^
+        version: link:../vite-config-typescript
+      '@stealthscale/vite-plugin-product':
+        specifier: workspace:^
+        version: link:../vite-plugin-product
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.6.3
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 5.0.1(@vitest/browser@5.0.1)(vitest@5.0.1)
+      publint:
+        specifier: 'catalog:'
+        version: 0.3.24
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vite:
+        specifier: 'catalog:'
+        version: '@voidzero-dev/vite-plus-core@1.0.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.3)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1)'
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.1(@types/node@26.6.3)(@vitest/browser-playwright@5.0.1)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.3)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
+
   packages/vite-config-react:
     dependencies:
       happy-dom:
@@ -5513,6 +5751,55 @@ importers:
         specifier: 'catalog:'
         version: 5.0.1(@types/node@26.6.3)(@vitest/browser-playwright@5.0.1)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.3)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
 
+  packages/vite-plugin-product:
+    dependencies:
+      '@tanstack/hotkeys':
+        specifier: 'catalog:'
+        version: 0.10.0
+    devDependencies:
+      '@arethetypeswrong/core':
+        specifier: 'catalog:'
+        version: 0.18.5
+      '@stealthscale/sdk-core':
+        specifier: workspace:^
+        version: link:../../sdk/core
+      '@stealthscale/testing':
+        specifier: workspace:^
+        version: link:../testing
+      '@stealthscale/testing-config':
+        specifier: workspace:^
+        version: link:../testing-config
+      '@stealthscale/vite-config':
+        specifier: workspace:^
+        version: link:../vite-config
+      '@stealthscale/vite-config-typescript':
+        specifier: workspace:^
+        version: link:../vite-config-typescript
+      '@stealthscale/vite-plugin-base':
+        specifier: workspace:^
+        version: link:../vite-plugin-base
+      '@stealthscale/vite-plugin-i18n':
+        specifier: workspace:^
+        version: link:../vite-plugin-i18n
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.6.3
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 5.0.1(@vitest/browser@5.0.1)(vitest@5.0.1)
+      publint:
+        specifier: 'catalog:'
+        version: 0.3.24
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vite:
+        specifier: 'catalog:'
+        version: '@voidzero-dev/vite-plus-core@1.0.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.3)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1)'
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.1(@types/node@26.6.3)(@vitest/browser-playwright@5.0.1)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.3)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
+
   packages/vite-plugin-sbom:
     dependencies:
       '@cyclonedx/cyclonedx-library':
@@ -5656,6 +5943,157 @@ importers:
       publint:
         specifier: 'catalog:'
         version: 0.3.24
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.1(@types/node@26.6.3)(@vitest/browser-playwright@5.0.1)(@vitest/browser-preview@5.0.1)(@vitest/coverage-v8@5.0.1)(@vitest/ui@5.0.1)(@voidzero-dev/vite-plus-core@1.0.0(@arethetypeswrong/core@0.18.5)(@types/node@26.6.3)(jiti@2.6.1)(publint@0.3.24)(typescript@7.0.2)(yaml@2.9.1))(happy-dom@20.14.5)
+
+  sdk/host:
+    dependencies:
+      '@stealthscale/sdk-core':
+        specifier: workspace:^
+        version: link:../core
+    devDependencies:
+      '@arethetypeswrong/core':
+        specifier: 'catalog:'
+        version: 0.18.5
+      '@openfeature/core':
+        specifier: 'catalog:'
+        version: 1.12.0
+      '@openfeature/web-sdk':
+        specifier: 'catalog:'
+        version: 1.10.0(@openfeature/core@1.12.0)
+      '@stealthscale/component-actions':
+        specifier: workspace:^
+        version: link:../../components/actions
+      '@stealthscale/component-feedback':
+        specifier: workspace:^
+        version: link:../../components/feedback
+      '@stealthscale/component-forms':
+        specifier: workspace:^
+        version: link:../../components/forms
+      '@stealthscale/component-layout':
+        specifier: workspace:^
+        version: link:../../components/layout
+      '@stealthscale/component-modals':
+        specifier: workspace:^
+        version: link:../../components/modals
+      '@stealthscale/component-navigation':
+        specifier: workspace:^
+        version: link:../../components/navigation
+      '@stealthscale/component-screen':
+        specifier: workspace:^
+        version: link:../../components/screen
+      '@stealthscale/component-typography':
+        specifier: workspace:^
+        version: link:../../components/typography
+      '@stealthscale/hooks':
+        specifier: workspace:^
+        version: link:../../foundations/hooks
+      '@stealthscale/provider-color-mode':
+        specifier: workspace:^
+        version: link:../../foundations/providers/color-mode
+      '@stealthscale/provider-data':
+        specifier: workspace:^
+        version: link:../../foundations/providers/data
+      '@stealthscale/provider-environment':
+        specifier: workspace:^
+        version: link:../../foundations/providers/environment
+      '@stealthscale/provider-form':
+        specifier: workspace:^
+        version: link:../../foundations/providers/form
+      '@stealthscale/provider-hotkeys':
+        specifier: workspace:^
+        version: link:../../foundations/providers/hotkeys
+      '@stealthscale/provider-i18n':
+        specifier: workspace:^
+        version: link:../../foundations/providers/i18n
+      '@stealthscale/provider-locale':
+        specifier: workspace:^
+        version: link:../../foundations/providers/locale
+      '@stealthscale/provider-router':
+        specifier: workspace:^
+        version: link:../../foundations/providers/router
+      '@stealthscale/provider-shell':
+        specifier: workspace:^
+        version: link:../../foundations/providers/shell
+      '@stealthscale/provider-viewport':
+        specifier: workspace:^
+        version: link:../../foundations/providers/viewport
+      '@stealthscale/sdk-plugin':
+        specifier: workspace:^
+        version: link:../plugin
+      '@stealthscale/settings':
+        specifier: workspace:^
+        version: link:../../foundations/settings
+      '@stealthscale/testing-config':
+        specifier: workspace:^
+        version: link:../../packages/testing-config
+      '@stealthscale/theme':
+        specifier: workspace:^
+        version: link:../../foundations/theme
+      '@stealthscale/vite-config':
+        specifier: workspace:^
+        version: link:../../packages/vite-config
+      '@stealthscale/vite-config-i18n':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-i18n
+      '@stealthscale/vite-config-react':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-react
+      '@stealthscale/vite-config-typescript':
+        specifier: workspace:^
+        version: link:../../packages/vite-config-typescript
+      '@tanstack/react-form':
+        specifier: 'catalog:'
+        version: 1.33.5(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tanstack/react-hotkeys':
+        specifier: 'catalog:'
+        version: 0.12.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tanstack/react-query':
+        specifier: 'catalog:'
+        version: 5.104.0(react@19.3.0)
+      '@tanstack/react-router':
+        specifier: 'catalog:'
+        version: 1.170.40(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tanstack/react-router-ssr-query':
+        specifier: 'catalog:'
+        version: 1.167.3(@tanstack/query-core@5.104.0)(@tanstack/react-query@5.104.0(react@19.3.0))(@tanstack/react-router@1.170.40(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@tanstack/router-core@1.171.33)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@testing-library/react':
+        specifier: 'catalog:'
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.3.0(@types/react@19.3.0)
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 5.0.1(@vitest/browser@5.0.1)(vitest@5.0.1)
+      happy-dom:
+        specifier: 'catalog:'
+        version: 20.14.5
+      i18next:
+        specifier: 'catalog:'
+        version: 26.4.2(typescript@7.0.2)
+      oxc-transform-react:
+        specifier: 'catalog:'
+        version: 0.151.0
+      publint:
+        specifier: 'catalog:'
+        version: 0.3.24
+      react:
+        specifier: 'catalog:'
+        version: 19.3.0
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.3.0(react@19.3.0)
+      react-i18next:
+        specifier: 'catalog:'
+        version: 17.0.15(i18next@26.4.2(typescript@7.0.2))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@7.0.2)
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
@@ -6658,6 +7096,14 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@openfeature/core@1.12.0':
+    resolution: {integrity: sha512-7PCPzyd1OC19begz30+CRknFB0ChtyaZUhk7YWrk+Bov1fpVw0HYkTXtoxxsvPfDZB9P9WsT7uixN+Z8f9+bcA==}
+
+  '@openfeature/web-sdk@1.10.0':
+    resolution: {integrity: sha512-qf+JmJSnaslhegNwoDDLn2Cf72P6cIobuAQPUb61MSkzJOZuVLU6f9pv/90FlLcK6UDtp6od//xZHW712rBrmg==}
+    peerDependencies:
+      '@openfeature/core': ^1.12.0
 
   '@oxc-project/runtime@0.151.0':
     resolution: {integrity: sha512-fNuliiqGTseerW2FTbxq6UOQavKL/NvNh9K3peJZZVNi1NbM4Ehscwp3MX9nu+9bfbSfmPUEivF779XQU5exiw==}
@@ -11204,6 +11650,12 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.3
+
+  '@openfeature/core@1.12.0': {}
+
+  '@openfeature/web-sdk@1.10.0(@openfeature/core@1.12.0)':
+    dependencies:
+      '@openfeature/core': 1.12.0
 
   '@oxc-project/runtime@0.151.0': {}
 

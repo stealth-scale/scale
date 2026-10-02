@@ -34,11 +34,19 @@ catalog:
   # second runtime beside it.
   "@module-federation/runtime": 2.9.0
   "@module-federation/vite": ^1.22
+  # The host's flag adapter, and the core the web SDK peers on. The adapter reads the evaluation
+  # details' error codes and reasons and the provider events, so a minor release may change one.
+  "@openfeature/core": ^1.12
+  "@openfeature/web-sdk": ^1.10
   "@pandacss/compiler": ^2.0
   "@pandacss/config": ^2.0
   "@pandacss/preset-base": ^2.0
   "@pandacss/types": ^2.0
   "@tanstack/highlight": ^0.1
+  # The hotkey parser the product build validates a command's keys with. `@tanstack/react-hotkeys`
+  # 0.12.0 depends on exactly this version, so the build parses a binding with the code that binds it
+  # on the page.
+  "@tanstack/hotkeys": 0.10.0
   # The Markdown parser. A caret on a 0.0.x version matches that version alone: its document tree is
   # public but pre-1.0, and the renderer maps each node type it names to a component, so a release
   # may add or rename a node.
