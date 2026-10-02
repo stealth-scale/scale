@@ -110,6 +110,27 @@ the plugin sends the event once. A language or a namespace appearing or disappea
 page, because a running page cannot take a new set from an event. A watching build writes the types
 and the stamp the same way and does not send the event.
 
+## The plugin's api
+
+Another plugin reads what the catalogue plugin found through its `api`. `cataloguesOf` returns it
+from the plugins of a resolved configuration, and returns undefined where the configuration has no
+`stealth:i18n` plugin.
+
+```ts
+import { cataloguesOf } from "@stealthscale/vite-plugin-i18n";
+
+const words = cataloguesOf(config.plugins);
+```
+
+| Member                       | Returns                                                                     |
+| ---------------------------- | --------------------------------------------------------------------------- |
+| `catalogues()`               | Every catalogue the last search found and `namespaces` kept, in merge order |
+| `fallback`                   | The language every key is defined in                                        |
+| `words(language, namespace)` | The pair's words with every file merged, as the page loads them             |
+
+`catalogues()` and `words()` read the last search when they are called, so they follow every change
+on a dev server.
+
 ## Licence
 
 MIT. See [LICENSE](LICENSE).

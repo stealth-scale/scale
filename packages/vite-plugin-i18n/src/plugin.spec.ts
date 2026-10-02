@@ -5,10 +5,74 @@ import { describe, expect, it, vi } from "vitest";
 import { hookContext, withScratchWorkspace } from "@stealthscale/testing";
 
 import { APP, WORKSPACE } from "#find.fixtures.ts";
-import { configured, loading, sending, updated, watched } from "#plugin.fixtures.ts";
-import { EVENT, ID } from "#plugin.ts";
+import { apiOf, configured, loading, sending, updated, watched } from "#plugin.fixtures.ts";
+import { cataloguesOf, EVENT, ID } from "#plugin.ts";
 
 describe("i18n", () => {
+  it("offers the namespace of every catalogue it found through its api", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const catalogues = apiOf(scratch)?.catalogues() ?? [];
+
+      expect([...new Set(catalogues.map(({ namespace }) => namespace))].toSorted()).toStrictEqual([
+        "controls",
+        "controls.demo",
+        "hooks",
+        "overlays",
+        "site",
+      ]);
+    });
+  });
+
+  it("offers through its api only the namespaces the namespaces option accepts", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const catalogues =
+        apiOf(scratch, {
+          namespaces: (namespace) => namespace !== "controls.demo",
+        })?.catalogues() ?? [];
+
+      expect(catalogues.some(({ namespace }) => namespace === "controls.demo")).toBe(false);
+    });
+  });
+
+  it.each([
+    { options: {}, want: "en" },
+    { options: { fallback: "nl" }, want: "nl" },
+  ])("offers $want as its api's fallback when the options state $options", ({ options, want }) => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      expect(apiOf(scratch, options)?.fallback).toBe(want);
+    });
+  });
+
+  it("merges every file of a pair through its api's words", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      expect(apiOf(scratch)?.words("en", "overlays")).toStrictEqual({
+        commands: "Actions",
+        menu: "Menu",
+        nested: { close: "Close {{what}}" },
+      });
+    });
+  });
+
+  it("returns no words through its api for a pair no catalogue names", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      expect(apiOf(scratch)?.words("de", "site")).toStrictEqual({});
+    });
+  });
+
+  it("returns no api where the plugins contain no catalogue plugin", () => {
+    expect(cataloguesOf([{ name: "stealth:other" }])).toBeUndefined();
+  });
+
   it("resolves the catalogues identifier with a prefix", () => {
     expect.hasAssertions();
 

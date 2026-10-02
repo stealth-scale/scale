@@ -15,7 +15,7 @@ import {
 } from "@stealthscale/testing";
 
 import { APP } from "#find.fixtures.ts";
-import { type Changed, i18n, ID, type Options } from "#plugin.ts";
+import { type CataloguesApi, cataloguesOf, type Changed, i18n, ID, type Options } from "#plugin.ts";
 
 /**
  * The two fields the plugin reads from a resolved configuration.
@@ -182,6 +182,23 @@ export function configured(
   plugin.configResolved({ command, root: join(scratch.root, APP) });
 
   return plugin;
+}
+
+/**
+ * Builds the plugin over the fixture workspace, resolves its configuration, and returns the api
+ * `cataloguesOf` finds among a configuration's plugins that contain it.
+ *
+ * @param scratch - The scratch workspace that contains the fixture application.
+ * @param options - The plugin options. None by default.
+ */
+export function apiOf(scratch: ScratchWorkspace, options: Options = {}): CataloguesApi | undefined {
+  const plugin = i18n(options);
+
+  // Vite types a plugin's hooks as object hooks, and this fixture calls them as functions.
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
+  (plugin as unknown as Hooks).configResolved({ command: "serve", root: join(scratch.root, APP) });
+
+  return cataloguesOf([{ name: "stealth:other" }, plugin]);
 }
 
 /**

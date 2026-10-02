@@ -28,6 +28,7 @@ import {
   pairId,
   pairModule,
   pairOfId,
+  type Words,
 } from "#emit.ts";
 import { type Catalogue, EXTENSION, found, LOCALES, namespaceOf } from "#find.ts";
 import { declared } from "#typegen.ts";
@@ -38,6 +39,46 @@ export { ID };
  * Resolved id of the catalogues module, with the leading NUL that marks it as generated.
  */
 const RESOLVED = `\0${ID}`;
+
+/**
+ * Name the plugin registers under, which `cataloguesOf` finds it by.
+ */
+const NAME = "stealth:i18n";
+
+/**
+ * Describes what the catalogue plugin offers another plugin through its `api`: the catalogues the
+ * page loads, and their words.
+ */
+export interface CataloguesApi {
+  /**
+   * Returns every catalogue the last search found and the namespaces option kept, in merge order.
+   */
+  readonly catalogues: () => readonly Catalogue[];
+
+  /**
+   * The language every key is defined in.
+   */
+  readonly fallback: string;
+
+  /**
+   * Returns one language's namespace with every file of the pair merged, or an empty object where
+   * no catalogue names the pair.
+   */
+  readonly words: (language: string, namespace: string) => Words;
+}
+
+/**
+ * Returns the catalogue plugin's `api` among a configuration's plugins, or undefined where the
+ * configuration has no catalogue plugin.
+ *
+ * @param plugins - The plugins of a resolved configuration.
+ */
+export function cataloguesOf(plugins: readonly Plugin[]): CataloguesApi | undefined {
+  const api: unknown = plugins.find((plugin) => plugin.name === NAME)?.api;
+
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the plugin registered under NAME is this module's, whose api is a CataloguesApi
+  return api as CataloguesApi | undefined;
+}
 
 /**
  * Name of the custom event a changed catalogue is sent to the page under.
@@ -614,6 +655,21 @@ function inlinedFiles(state: State, options: Options): readonly Catalogue[] {
 }
 
 /**
+ * Returns what the plugin offers another plugin through its `api`. The catalogues and the words are
+ * read from the state when they are called, so they follow every search after a change.
+ *
+ * @param state - The catalogues found, searched again on each change.
+ * @param options - The fallback language.
+ */
+function offered(state: State, options: Options): CataloguesApi {
+  return {
+    catalogues: () => state.catalogues,
+    fallback: options.fallback ?? FALLBACK,
+    words: (language, namespace) => mergedWords(filesOf(state.index, language, namespace)),
+  };
+}
+
+/**
  * Creates the plugin that finds the catalogues, types their keys, and serves `virtual:i18n`.
  *
  * @remarks
@@ -637,6 +693,8 @@ export function i18n(options: Options = {}): Plugin {
   };
 
   return {
+    api: offered(state, options),
+
     /**
      * Throws on an invalid catalogue during a build, and warns through the bundler on a dev server
      * run.
@@ -732,7 +790,7 @@ export function i18n(options: Options = {}): Plugin {
       return pairModule(files);
     },
 
-    name: "stealth:i18n",
+    name: NAME,
 
     /**
      * Claims the catalogues specifier and every pair specifier, leaving every other import alone.

@@ -11,3 +11,5 @@
 - Reload the page under a server that bundles when the languages or namespaces change.
 - Rewrite the stamp when a catalogue file appears or disappears.
 - Watch each package's `locales` directory, so a dev server finds a new language.
+- Add the plugin's `api`, with the catalogues found, the fallback language and each pair's words.
+- Add `cataloguesOf`, which returns the `api` among a configuration's plugins.
