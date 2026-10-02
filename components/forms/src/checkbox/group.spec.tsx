@@ -164,7 +164,7 @@ describe("Group", () => {
 
   it("matches the row after the parent with the recipe's indent selector", async () => {
     const { container } = await drawn(listed());
-    const indented = groupOf(container).querySelector(AFTER_PARENT.replace("&", ":scope"));
+    const indented = groupOf(container).querySelector(AFTER_PARENT.replaceAll("&", ":scope"));
 
     expect(indented?.textContent).toBe("email");
   });
