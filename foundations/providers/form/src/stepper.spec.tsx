@@ -44,7 +44,7 @@ function Jumping({ steps }: { readonly steps: Steps }): ReactElement {
 }
 
 /**
- * Builds a form from the schema over the store given and draws it in the steps given.
+ * Builds a form from the schema over the store given and renders it in the steps given.
  */
 function Page({
   steps = wizard,
@@ -70,7 +70,7 @@ function Page({
 }
 
 describe("Stepper", () => {
-  it("opens on the first step with the derived and the stated labels", () => {
+  it("opens on the first step under the label its name derives", () => {
     const { getByLabelText, getByRole } = render(<Page />);
 
     expect(getByRole("heading", { level: 2 }).textContent).toBe("Who");
@@ -128,7 +128,18 @@ describe("Stepper", () => {
     expect(document.activeElement).toBe(getByLabelText("Name"));
   });
 
-  it("moves forward once the step passes and writes the step into the draft", async () => {
+  it("moves forward once the step passes", async () => {
+    const { getByLabelText, getByRole } = render(<Page />);
+
+    fireEvent.change(getByLabelText("Name"), { target: { value: "Roy" } });
+    fireEvent.click(getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      expect(getByRole("heading", { level: 2 }).textContent).toBe("About you");
+    });
+  });
+
+  it("writes the step into the draft as a person moves forward", async () => {
     const store = memoryStore();
     const { getByLabelText, getByRole } = render(<Page store={store} />);
 
@@ -145,7 +156,7 @@ describe("Stepper", () => {
     });
   });
 
-  it("moves focus into the step once it is drawn", async () => {
+  it("moves focus into the step once it renders", async () => {
     const { getByLabelText, getByRole } = render(<Page />);
 
     fireEvent.change(getByLabelText("Name"), { target: { value: "Roy" } });
@@ -181,6 +192,21 @@ describe("Stepper", () => {
     });
   });
 
+  it("leaves focus on the tab a person activated", async () => {
+    const { getByRole } = render(<Page steps={{ ...wizard, kind: "tabs" }} />);
+    const tab = getByRole("button", { name: "About you" });
+
+    act(() => {
+      tab.focus();
+    });
+    fireEvent.click(tab);
+
+    await waitFor(() => {
+      expect(getByRole("heading", { level: 2 }).textContent).toBe("About you");
+    });
+    expect(document.activeElement).toBe(tab);
+  });
+
   it("refuses to move a wizard more than one step forward at a time", async () => {
     const three: Steps = { kind: "wizard", of: [...wizard.of, { name: "done", of: [] }] };
     const { getByLabelText, getByRole } = render(<Jumping steps={three} />);
@@ -205,7 +231,7 @@ describe("Stepper", () => {
     });
   });
 
-  it("refuses a move to an index no step is drawn at", () => {
+  it("refuses a move to an index without a step", () => {
     const { getByRole } = render(<Jumping steps={{ ...wizard, kind: "tabs" }} />);
 
     fireEvent.click(getByRole("button", { name: "Rewind" }));
@@ -214,7 +240,7 @@ describe("Stepper", () => {
     expect(getByRole("heading", { level: 2 }).textContent).toBe("Who");
   });
 
-  it("writes no draft when the tab being drawn is picked", () => {
+  it("writes no draft when the current tab is picked", () => {
     const store = memoryStore();
     const { getByRole } = render(<Page steps={{ ...wizard, kind: "tabs" }} store={store} />);
 
@@ -223,7 +249,7 @@ describe("Stepper", () => {
     expect(store.read(KEY)).toBeNull();
   });
 
-  it("draws nothing for steps with no step in them", () => {
+  it("renders nothing for steps with no step in them", () => {
     const { container } = render(<Page steps={{ of: [] }} />);
 
     expect(container.querySelector("h2")).toBeNull();

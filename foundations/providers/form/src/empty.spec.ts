@@ -34,7 +34,7 @@ function filled(): Record<string, unknown> {
 }
 
 describe("emptied", () => {
-  it("empties an enum and a const nobody defaulted to the empty value of the type", () => {
+  it("empties a choice nobody defaulted to the empty value of its type", () => {
     expect(emptied(schema, filled())).toStrictEqual({
       billing: { country: "" },
       consent: false,
@@ -44,6 +44,25 @@ describe("emptied", () => {
       rating: 0,
       topic: "",
       version: { major: 2 },
+    });
+  });
+
+  it("empties an array of choices nobody defaulted", () => {
+    const channels: Schema = {
+      properties: {
+        channels: {
+          items: { enum: ["email", "chat"], type: "string" },
+          minItems: 1,
+          type: "array",
+        },
+        tags: { default: ["new"], items: { enum: ["new", "old"], type: "string" }, type: "array" },
+      },
+      type: "object",
+    };
+
+    expect(emptied(channels, { channels: ["email"], tags: ["new"] })).toStrictEqual({
+      channels: [],
+      tags: ["new"],
     });
   });
 

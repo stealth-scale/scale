@@ -1,10 +1,10 @@
 /**
  * Publishes the foundation every form is built on: the contexts a bound field and a bound form
  * share, the engine that evaluates a schema and wraps it as the Standard Schema the form library
- * validates with, the defaults and message identifiers derived from a schema, how a form is drawn
- * as data, the factory a component package binds its components with, the hook that builds a
- * form from a schema, the provider that puts the engine, the renderers and the translator in
- * scope, and the draft that keeps a form across a refresh.
+ * validates with, the defaults and message identifiers derived from a schema, how a form is
+ * rendered as data, the factory a component package binds its components with, the hook that
+ * builds a form from a schema, the provider that puts the engine, the renderers and the translator
+ * in scope, and the draft that keeps a form across a refresh.
  *
  * @packageDocumentation
  */
@@ -73,12 +73,14 @@ export {
 } from "#presentation-of.ts";
 export {
   type Field,
+  type FieldWidth,
   type Group,
   isGroup,
   type Member,
   type Presentation,
   type Step,
   type Steps,
+  WIDTHS,
 } from "#presentation.ts";
 export { bound, choicesOf, countAt, propertyOf, requiredIn, textOf, valueAt } from "#property.ts";
 export { FormProvider, type FormProviderProps } from "#provider.tsx";

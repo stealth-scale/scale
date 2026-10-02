@@ -10,6 +10,10 @@ describe("identifiers", () => {
     { id: checkout.description("billing.vat"), want: "checkout.fields.billing.vat.description" },
     { id: checkout.placeholder("email"), want: "checkout.fields.email.placeholder" },
     { id: checkout.option("kind", "business"), want: "checkout.fields.kind.options.business" },
+    {
+      id: checkout.optionDescription("kind", "business"),
+      want: "checkout.fields.kind.descriptions.business",
+    },
     { id: checkout.legend("billing"), want: "checkout.groups.billing.legend" },
     { id: checkout.step("who"), want: "checkout.steps.who.label" },
     { id: checkout.action("submit"), want: "checkout.actions.submit" },
@@ -17,11 +21,15 @@ describe("identifiers", () => {
     expect(id).toBe(want);
   });
 
-  it("derives a failure's own identifier and the one the product shares", () => {
+  it("derives a failure's own identifier then the one the product shares", () => {
     expect(checkout.error("billing.vat", "minLength")).toStrictEqual([
       "checkout.errors.billing.vat.minLength",
       "errors.minLength",
     ]);
+  });
+
+  it("derives a mark's own identifier then the one the product shares", () => {
+    expect(checkout.mark("optional")).toStrictEqual(["checkout.marks.optional", "marks.optional"]);
   });
 
   it("collapses an index so one identifier covers every row", () => {

@@ -36,9 +36,21 @@ export interface Identifiers {
   readonly legend: (name: string) => string;
 
   /**
+   * Derives the identifiers of a mark beside a field's label, such as `optional`: the form's own,
+   * then the one the whole product shares.
+   */
+  readonly mark: (name: string) => readonly [own: string, shared: string];
+
+  /**
    * Derives the identifier of one choice of an enum.
    */
   readonly option: (path: string, value: string) => string;
+
+  /**
+   * Derives the identifier of the words under one choice of an enum, which a card shows below the
+   * choice's own words.
+   */
+  readonly optionDescription: (path: string, value: string) => string;
 
   /**
    * Derives the identifier of a field's placeholder.
@@ -74,7 +86,9 @@ export function identifiers(id: string): Identifiers {
     error: (path, keyword) => [of("errors", path, keyword), `errors.${keyword}`],
     label: (path) => of("fields", path, "label"),
     legend: (name) => of("groups", name, "legend"),
+    mark: (name) => [`${id}.marks.${name}`, `marks.${name}`],
     option: (path, value) => of("fields", path, `options.${value}`),
+    optionDescription: (path, value) => of("fields", path, `descriptions.${value}`),
     placeholder: (path) => of("fields", path, "placeholder"),
     step: (name) => of("steps", name, "label"),
   };

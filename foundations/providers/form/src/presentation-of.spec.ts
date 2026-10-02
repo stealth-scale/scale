@@ -24,7 +24,7 @@ const annotated: Schema = {
   properties: {
     billing: {
       properties: {
-        city: { type: "string", "x-span": 2 },
+        city: { type: "string", "x-span": 2, "x-width": "medium" },
         line1: { type: "string", "x-label": "common.street" },
       },
       type: "object",
@@ -62,7 +62,7 @@ const paths = [
 describe("presentationOf", () => {
   it("reads the keywords of every property into its field", () => {
     expect(presentationOf(annotated).fields).toStrictEqual({
-      "billing.city": { span: 2 },
+      "billing.city": { span: 2, width: "medium" },
       "billing.line1": { label: "common.street" },
       email: { autocomplete: "email", control: "email", placeholder: "checkout.hint" },
       "lines[].amount": { options: { currency: "EUR" } },
@@ -134,7 +134,9 @@ describe("presentationOf", () => {
   });
 
   it("ignores a keyword of the wrong type", () => {
-    const odd: Schema = { properties: { a: { type: "string", "x-options": 3, "x-span": "two" } } };
+    const odd: Schema = {
+      properties: { a: { type: "string", "x-options": 3, "x-span": "two", "x-width": "wide" } },
+    };
 
     expect(presentationOf(odd).fields).toStrictEqual({});
   });
@@ -228,7 +230,7 @@ describe("validatePresentation", () => {
 });
 
 describe("unplaced", () => {
-  it("lists the fields no member draws", () => {
+  it("lists the fields no member names", () => {
     expect(unplaced(presentationOf(annotated), paths)).toStrictEqual(["lines[].amount", "notes"]);
   });
 

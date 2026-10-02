@@ -10,15 +10,19 @@ import { type Translate, translateFrom } from "#translate.ts";
 import { useWords, wordsOf } from "#words.ts";
 
 const catalogue = translateFrom({
+  "checkout.actions.remove": "Remove line {{number}}",
   "checkout.actions.submit": "Place order",
   "checkout.errors.email.format": "Enter an address like name@example.com",
   "checkout.fields.email.description": "We never share it",
   "checkout.fields.email.label": "Email address",
+  "checkout.fields.kind.descriptions.business": "Invoices show your VAT number",
   "checkout.fields.kind.options.business": "A business",
   "checkout.groups.who.legend": "Who is ordering",
+  "checkout.marks.optional": "(if you like)",
   "checkout.steps.pay.label": "Payment",
   "errors.minLength": "Too short",
   "form.fields.email.label": "Any form's email",
+  "marks.optional": "(optional)",
   Taken: "That name is taken",
 });
 
@@ -27,7 +31,7 @@ const words = wordsOf(catalogue, "checkout");
 const schema: Schema = { properties: { email: { type: "string" } }, type: "object" };
 
 /**
- * Draws the label of the email field as the words in scope resolve it.
+ * Renders the label of the email field as the words in scope resolve it.
  */
 function Label(): ReactElement {
   return <output>{useWords().label("email")}</output>;
@@ -60,57 +64,139 @@ function Plain(): ReactElement {
 }
 
 describe("wordsOf", () => {
-  it("reads a label from the catalogue and falls back to the path or the words given", () => {
+  it("reads a label from the catalogue", () => {
     expect(words.label("email")).toBe("Email address");
+  });
+
+  it("writes the path out as a label the catalogue lacks", () => {
     expect(words.label("billing.vatNumber")).toBe("Vat number");
+  });
+
+  it("reads the words given as a label the catalogue lacks", () => {
     expect(words.label("billing.vatNumber", "VAT")).toBe("VAT");
   });
 
-  it("reads a legend and a step and an option with their names as the defaults", () => {
+  it("reads a legend from the catalogue", () => {
     expect(words.legend("who")).toBe("Who is ordering");
+  });
+
+  it("writes a group's name out as a legend the catalogue lacks", () => {
     expect(words.legend("billing")).toBe("Billing");
+  });
+
+  it("reads a step's label from the catalogue", () => {
     expect(words.step("pay")).toBe("Payment");
+  });
+
+  it("reads a choice from the catalogue", () => {
     expect(words.option("kind", "business")).toBe("A business");
+  });
+
+  it("reads a choice's value where the catalogue lacks the choice", () => {
     expect(words.option("kind", "individual")).toBe("individual");
   });
 
-  it("reads an action with the English given as the default", () => {
+  it("reads the words under a choice from the catalogue", () => {
+    expect(words.optionDescription("kind", "business")).toBe("Invoices show your VAT number");
+  });
+
+  it("reads an empty string under a choice the catalogue describes nowhere", () => {
+    expect(words.optionDescription("kind", "individual")).toBe("");
+  });
+
+  it("reads an action from the catalogue", () => {
     expect(words.action("submit", "Submit")).toBe("Place order");
+  });
+
+  it("reads the English given for an action the catalogue lacks", () => {
     expect(words.action("next", "Next")).toBe("Next");
   });
 
-  it("reads help text and a placeholder with the fallback or nothing as the default", () => {
+  it("writes the values into an action's words from the catalogue", () => {
+    expect(words.action("remove", "Remove item {{number}}", { number: 2 })).toBe("Remove line 2");
+  });
+
+  it("writes the values into the English given for an action", () => {
+    expect(words.action("add", "Add item {{number}}", { number: 3 })).toBe("Add item 3");
+  });
+
+  it("reads a mark under the form's identifier", () => {
+    expect(words.mark("optional", "(optional)")).toBe("(if you like)");
+  });
+
+  it("reads a mark under the shared identifier where the form's is absent", () => {
+    expect(wordsOf(catalogue, "signup").mark("optional", "optional")).toBe("(optional)");
+  });
+
+  it("reads the English given for a mark the catalogue lacks", () => {
+    expect(words.mark("recommended", "(recommended)")).toBe("(recommended)");
+  });
+
+  it("reads help text from the catalogue", () => {
     expect(words.description("email")).toBe("We never share it");
-    expect(words.description("name")).toBe("");
+  });
+
+  it("reads the fallback as help text the catalogue lacks", () => {
     expect(words.description("name", "Your full name")).toBe("Your full name");
+  });
+
+  it("reads empty help text without a catalogue entry or a fallback", () => {
+    expect(words.description("name")).toBe("");
+  });
+
+  it("reads an empty placeholder where the catalogue has none", () => {
     expect(words.placeholder("email")).toBe("");
   });
 
-  it("tries an identifier the presentation states before the derived one", () => {
+  it("reads a label under the identifier the presentation states", () => {
     expect(words.label("email", undefined, "checkout.actions.submit")).toBe("Place order");
+  });
+
+  it("reads a label under the derived identifier where the presentation's is absent", () => {
     expect(words.label("email", undefined, "absent")).toBe("Email address");
+  });
+
+  it("reads help text under the identifier the presentation states", () => {
     expect(words.description("name", "Fallback", "checkout.fields.email.description")).toBe(
       "We never share it",
     );
+  });
+
+  it("reads a placeholder under the identifier the presentation states", () => {
     expect(words.placeholder("name", "checkout.steps.pay.label")).toBe("Payment");
   });
 
-  it("reads a keyworded error under the form's identifier and then the shared one", () => {
+  it("reads a keyworded error under the form's identifier", () => {
     expect(words.error("email", { keyword: "format", message: "Bad" })).toBe(
       "Enter an address like name@example.com",
     );
+  });
+
+  it("reads a keyworded error under the shared identifier where the form's is absent", () => {
     expect(words.error("name", { keyword: "minLength", message: "Bad" })).toBe("Too short");
+  });
+
+  it("reads an error's development text where no catalogue key matches", () => {
     expect(words.error("name", { keyword: "maxLength", message: "Too long" })).toBe("Too long");
+  });
+
+  it("reads an error's keyword where it has no development text", () => {
     expect(words.error("name", { keyword: "taken" })).toBe("taken");
   });
 
-  it("reads a string error as its own identifier and a plain value as text", () => {
+  it("reads a string error as its own identifier", () => {
     expect(words.error("name", "Taken")).toBe("That name is taken");
+  });
+
+  it("reads a string error the catalogue lacks as its text", () => {
     expect(words.error("name", "Refused")).toBe("Refused");
+  });
+
+  it("reads an error that is not a string as its text", () => {
     expect(words.error("name", 42)).toBe("42");
   });
 
-  it("hands the translator the values an error carries", () => {
+  it("passes the translator the values of a keyworded error", () => {
     const seen: unknown[] = [];
     const spying: Translate = (keys, options) => {
       seen.push(keys, options);
