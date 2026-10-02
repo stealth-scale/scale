@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/component-messaging",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Renders conversations: turns of messages with a status and actions, a transcript that follows the latest message, reactions, attachments, mentions and a composer.",
   "keywords": [
     "chat",

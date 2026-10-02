@@ -1,5 +1,26 @@
 # @stealthscale/component-layout
 
+## 0.2.0
+
+### Minor Changes
+
+- [#35](https://github.com/stealth-scale/scale/pull/35) [`a4b1d24`](https://github.com/stealth-scale/scale/commit/a4b1d2460ded2afebd340ccdce38a79b1d880fdf) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Add `Group` with `align`, `attached`, `gap`, `grow`, `justify`, `orientation` and `dim`.
+  - Overlap an attached group by `borderWidths.control`, joined by position.
+  - Add `fill-<measure>` to the grid's `columns` axis.
+  - Read `span` on `Grid.Item`.
+  - Fix `Stack` ignoring `align` on a row.
+  - Add `blur` to `Frame`.
+  - Breaking: `Grid.Root justify` sets `justify-items` and offers `start`, `center`, `end`.
+  - Breaking: remove `flow="column"` from `Grid.Root`.
+  - Set `aria-orientation` on `Divider` from `orientation`.
+  - Add `label` and `labelPlacement` to `Divider`.
+  - Add a specimen per component.
+
+### Patch Changes
+
+- Updated dependencies [[`8d6817e`](https://github.com/stealth-scale/scale/commit/8d6817e34dc94a02b98933c39e2cd6f94cca5c34)]:
+  - @stealthscale/theme@0.4.0
+
 ## 0.1.0
 
 ### Minor Changes

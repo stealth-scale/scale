@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/component-layout",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Arranges what is already there: the boxes, the stacks, the rules between them and the surfaces under them.",
   "keywords": [
     "components",

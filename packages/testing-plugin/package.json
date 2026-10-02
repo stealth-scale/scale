@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/testing-plugin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Renders a plugin's components under a real host in a specification, with the session, decisions, flags and data a case states.",
   "keywords": [
     "plugins",

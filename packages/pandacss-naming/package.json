@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/pandacss-naming",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Writes the class names of a Panda CSS design system in one readable scheme, for the stylesheet and for the browser alike.",
   "keywords": [
     "class-names",

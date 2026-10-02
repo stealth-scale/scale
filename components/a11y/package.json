@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/component-a11y",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Draws what a keyboard and a screen reader need, and an eye does not.",
   "keywords": [
     "a11y",

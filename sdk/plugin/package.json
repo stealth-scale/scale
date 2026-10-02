@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/sdk-plugin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Renders what plugins contribute to a product's slots, and reads the host's sessions, access, flags, commands, events, settings and data in a plugin's components.",
   "keywords": [
     "plugins",

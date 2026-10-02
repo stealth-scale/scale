@@ -1,5 +1,30 @@
 # @stealthscale/testing-theme
 
+## 0.3.0
+
+### Minor Changes
+
+- [#32](https://github.com/stealth-scale/scale/pull/32) [`5a940ac`](https://github.com/stealth-scale/scale/commit/5a940acc5de052023da9dc78bf4e61bb5d0ab183) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Find a slot by its class before its `data-part` in `slotElement`.
+  - Add thresholds `tertiary`, `label`, `hairline` and `identity`, and raise `distinct` to 0.02.
+  - Add the `distinct`, `status`, `ramp` and `series` checks.
+  - Add `report(theme, options)` and `formatReport`.
+  - Export `colorAt`, `rampsOf`, `outsideGamut`, `gamut`, `statusPairs`, `distance`, `distanceFor`,
+    `simulated`, `written` and `DEFICIENCIES`.
+  - Add `recipe.emitted` and `recipe.order`.
+  - Check the `code` family, the `chart` role and the `series` family in `contract.roles`.
+  - Accept CSS system colors, `contrast-color(var(--x))` and `series.1` to `series.8` in
+    `recipe.colors`.
+  - Breaking: remove `recipe.subtle`.
+  - Reword three messages.
+  - Peer on `vitest` 5.0.
+  - Depend on `@pandacss/preset-base` 2.0.
+
+### Patch Changes
+
+- Updated dependencies [[`66681c2`](https://github.com/stealth-scale/scale/commit/66681c2fa7e2c8a98a41090d225423ee0c8b04cb), [`8d6817e`](https://github.com/stealth-scale/scale/commit/8d6817e34dc94a02b98933c39e2cd6f94cca5c34)]:
+  - @stealthscale/pandacss-naming@0.2.1
+  - @stealthscale/theme@0.4.0
+
 ## 0.2.0
 
 ### Minor Changes

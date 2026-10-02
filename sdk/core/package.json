@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/sdk-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Declares the contracts and manifests of plugins, evaluates their conditions, and resolves a product from them, without loading another package at run time.",
   "keywords": [
     "contract",

@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/provider-data",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Reads and changes an application's data through the operations its gateway publishes: the transport, the query client, invalidation by record, route loaders and server rendering.",
   "keywords": [
     "data",

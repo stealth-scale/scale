@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/testing-react",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Reads a rendered React component and checks it against the component contract.",
   "license": "MIT",
   "repository": {

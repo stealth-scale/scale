@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/testing-router",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Mounts a route tree in a specification and renders the page a path matches.",
   "keywords": [
     "react",

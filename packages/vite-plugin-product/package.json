@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/vite-plugin-product",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Composes a product from its plugins while it builds: checks every plugin against the others, resolves the product, and serves it as virtual:product.",
   "keywords": [
     "plugins",

@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/component-media",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Renders pictures of people and things, crops pictures, shows slides and plays clips: an avatar, an image cropper, a carousel and a video.",
   "keywords": [
     "avatar",

@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/specimen",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Declares what a page of a catalogue is, and draws a component once per value of an axis.",
   "keywords": [
     "catalogue",

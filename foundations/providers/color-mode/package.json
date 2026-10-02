@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/provider-color-mode",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Puts a colour mode in scope, remembers what a person chose, and settles the first paint before the page draws.",
   "keywords": [
     "color-mode",

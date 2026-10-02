@@ -1,5 +1,16 @@
 # @stealthscale/testing-react
 
+## 0.9.0
+
+### Minor Changes
+
+- [#38](https://github.com/stealth-scale/scale/pull/38) [`4a42977`](https://github.com/stealth-scale/scale/commit/4a42977d47a88b2053038c54e515cfa8488c406e) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Add `unhovered(element)`.
+  - Exclude `[hidden]` elements from `accessibilityViolations`.
+  - Add `frame: true` to `accessibilityViolations`.
+  - Run axe with `iframes: false`.
+  - Reword the error `part` throws for a missing part.
+  - Peer on `vitest` 5.0.
+
 ## 0.8.0
 
 ### Minor Changes

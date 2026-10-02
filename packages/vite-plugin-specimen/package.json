@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/vite-plugin-specimen",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Indexes specimen files from their source, so a catalogue lists every page without loading one.",
   "keywords": [
     "catalogue",

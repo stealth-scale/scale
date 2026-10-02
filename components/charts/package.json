@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/component-charts",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Renders data as charts over recharts: a figure with a measured plot, a tooltip, a legend that switches series, and series colors from the theme.",
   "keywords": [
     "charts",

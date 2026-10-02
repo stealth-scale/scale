@@ -1,5 +1,30 @@
 # @stealthscale/vite-config-react
 
+## 0.9.0
+
+### Minor Changes
+
+- [#35](https://github.com/stealth-scale/scale/pull/35) [`b588ff3`](https://github.com/stealth-scale/scale/commit/b588ff39d85f40125c2665be19124d208d485ae9) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Fail a test that updates a component outside `act`.
+  - Add `lint.composed`, which turns off `import/max-dependencies` for fixtures.
+
+- [#43](https://github.com/stealth-scale/scale/pull/43) [`53c8e11`](https://github.com/stealth-scale/scale/commit/53c8e11d08212900f3edbd9bfb68685f7f1bf02e) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Load `@mdx-js/rollup` when the MDX plugin is constructed, not when the package is imported.
+  - Read icon imports from the bundler's parse instead of matching text.
+
+- [#38](https://github.com/stealth-scale/scale/pull/38) [`832064c`](https://github.com/stealth-scale/scale/commit/832064cb73b2d437c496f551b26202ca96cdd954) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Add `plugin.icons()`, which imports each `lucide-react` icon from its own file.
+  - Exclude `*.specimen.tsx` from the refresh transform.
+  - Add `compiler: "build"`, which runs the React Compiler in builds only.
+
+- [#44](https://github.com/stealth-scale/scale/pull/44) [`764f8e4`](https://github.com/stealth-scale/scale/commit/764f8e4d6637c9f281727dd428217fd9cd8d4455) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Exclude `*.example.tsx` from Fast Refresh in `plugin.refresh()`.
+  - Run the React Compiler through `oxc-transform-react` in place of the Babel bridge.
+  - Drop the `@rolldown/plugin-babel` and `babel-plugin-react-compiler` peers.
+  - Peer on `oxc-transform-react` 0.151.
+  - Peer on `vite` 8.3 and `vitest` 5.0.
+
+### Patch Changes
+
+- Updated dependencies [[`b588ff3`](https://github.com/stealth-scale/scale/commit/b588ff39d85f40125c2665be19124d208d485ae9), [`808c86b`](https://github.com/stealth-scale/scale/commit/808c86be6484d08a16b059d7d31680c5929257b4), [`ab77490`](https://github.com/stealth-scale/scale/commit/ab774905ada897d5d8912490a2e6a98294f31057), [`832064c`](https://github.com/stealth-scale/scale/commit/832064cb73b2d437c496f551b26202ca96cdd954), [`10e17cb`](https://github.com/stealth-scale/scale/commit/10e17cbabdb003f4b911834221df7bf04d975fe5), [`a097939`](https://github.com/stealth-scale/scale/commit/a09793940f7ccc5fd616bcae8d965cb2b4239dc0)]:
+  - @stealthscale/vite-config@0.7.0
+
 ## 0.8.0
 
 ### Minor Changes

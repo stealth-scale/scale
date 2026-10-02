@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/component-screen",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Lays an application out on whatever screen it is opened on: the shell, the page, the toolbar and the sidebar, each folding on its own as the screen narrows.",
   "keywords": [
     "components",

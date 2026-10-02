@@ -1,5 +1,13 @@
 # @stealthscale/testing-router
 
+## 0.1.1
+
+### Patch Changes
+
+- [#38](https://github.com/stealth-scale/scale/pull/38) [`70f258d`](https://github.com/stealth-scale/scale/commit/70f258d9060c497ded332400cfde04f49c337251) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Settle the render inside `act` in `mountRouter` and `mountRoute` before returning.
+- Updated dependencies [[`9c2af0c`](https://github.com/stealth-scale/scale/commit/9c2af0cbd07058744c266740ee1188f46eaa6a3f), [`345722c`](https://github.com/stealth-scale/scale/commit/345722c508064b16202cb9363668b44352f7a706)]:
+  - @stealthscale/provider-router@0.2.0
+
 ## 0.1.0
 
 ### Minor Changes

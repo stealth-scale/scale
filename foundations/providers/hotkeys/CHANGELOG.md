@@ -1,5 +1,11 @@
 # @stealthscale/provider-hotkeys
 
+## 0.2.0
+
+### Minor Changes
+
+- [#44](https://github.com/stealth-scale/scale/pull/44) [`9d2dd1b`](https://github.com/stealth-scale/scale/commit/9d2dd1b6a573174fca3711d63465dbdd0605fc0f) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Peer on `@tanstack/react-hotkeys` 0.12.
+
 ## 0.1.0
 
 ### Minor Changes

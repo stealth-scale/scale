@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/vite-config-product",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Configures an application composed from plugins and the standalone page of a plugin, and lints the contract and web packages of a plugin.",
   "keywords": [
     "plugins",

@@ -1,5 +1,11 @@
 # @stealthscale/testing-config
 
+## 0.6.0
+
+### Minor Changes
+
+- [#44](https://github.com/stealth-scale/scale/pull/44) [`791fc09`](https://github.com/stealth-scale/scale/commit/791fc09a3f58b30375168810ed56fd664acfd7df) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Skip `*.example.tsx` in `source.specs` and `source.declared`.
+
 ## 0.5.0
 
 ### Minor Changes

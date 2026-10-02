@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/hooks",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "The React hooks a component uses to read the page it draws into: how the page is read, what it measures, and what a value was on the previous render.",
   "keywords": [
     "hooks",
