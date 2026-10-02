@@ -1,5 +1,14 @@
 # @stealthscale/pandacss-compiler
 
+## 0.2.1
+
+### Patch Changes
+
+- [#43](https://github.com/stealth-scale/scale/pull/43) [`66681c2`](https://github.com/stealth-scale/scale/commit/66681c2fa7e2c8a98a41090d225423ee0c8b04cb) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Leave an author's class inside a raw condition unchanged when rewriting selectors.
+  - Depend on `@pandacss/compiler` 2.0.
+- Updated dependencies [[`66681c2`](https://github.com/stealth-scale/scale/commit/66681c2fa7e2c8a98a41090d225423ee0c8b04cb)]:
+  - @stealthscale/pandacss-naming@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes

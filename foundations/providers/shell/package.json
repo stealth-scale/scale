@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/provider-shell",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Composes every provider an application renders, in the order each depends on the one before.",
   "keywords": [
     "provider",

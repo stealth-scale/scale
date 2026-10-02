@@ -1,5 +1,36 @@
 # @stealthscale/vite-plugin-theme
 
+## 0.2.0
+
+### Minor Changes
+
+- [#43](https://github.com/stealth-scale/scale/pull/43) [`66681c2`](https://github.com/stealth-scale/scale/commit/66681c2fa7e2c8a98a41090d225423ee0c8b04cb) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Keep rendered configurations, codegen staging and the lock in the system temp directory.
+  - Generate under one lock shared by the Vite plugin and the packer plugin.
+  - Generate from the packer plugin on its first build when nothing is generated yet.
+  - Replay pending stylesheet updates in order, and keep one sheet per environment.
+  - Fail a build on an error, and keep the last good sheet in dev.
+  - Leave an author's class inside a raw condition unchanged.
+  - Match compound extensions against the inherited preset graph.
+  - Watch every manifest that discovery reads.
+
+- [#34](https://github.com/stealth-scale/scale/pull/34) [`35ed1e2`](https://github.com/stealth-scale/scale/commit/35ed1e20a3ba344ad15a13b716123b04f6db88d6) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Watch every workspace package's source directory from `theme.stylesheet()`.
+  - Make `Application.themes` optional, and compile the foundation without a theme.
+  - Install the base preset without its patterns.
+  - Take a preset only from a package that is or depends on the system package.
+  - Write every moded color as one `light-dark()` value.
+  - Scope a theme's rules to the nearest `[data-theme]`.
+  - Start the compiler at `buildStart` without blocking the dev server's first request.
+  - Apply a change once, and send nothing when the compiled rules are unchanged.
+  - Apply changes under a bundling dev server from `watchChange`.
+  - Peer on `vite` 8.3 and `vitest` 5.0.
+  - Depend on `@pandacss/compiler`, `@pandacss/preset-base` and `@pandacss/types` 2.0.
+
+### Patch Changes
+
+- Updated dependencies [[`66681c2`](https://github.com/stealth-scale/scale/commit/66681c2fa7e2c8a98a41090d225423ee0c8b04cb), [`ea7263b`](https://github.com/stealth-scale/scale/commit/ea7263ba8a41ef6bca751d5982194c6cec0824a7), [`725cf7e`](https://github.com/stealth-scale/scale/commit/725cf7eb750c998e795e546db2809009e6c3c2b5)]:
+  - @stealthscale/pandacss-compiler@0.2.1
+  - @stealthscale/vite-plugin-base@0.3.0
+
 ## 0.1.3
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/component-graphs",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Renders node graphs over React Flow: a canvas of named nodes and ports, removable edges, zoom controls, a minimap, and layouts by rank or by force.",
   "keywords": [
     "components",

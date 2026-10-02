@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/provider-viewport",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Lays a subtree out for a stated width rather than the window's, and answers which breakpoint it is at.",
   "keywords": [
     "breakpoint",

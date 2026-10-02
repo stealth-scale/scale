@@ -1,5 +1,19 @@
 # @stealthscale/component-a11y
 
+## 0.1.1
+
+### Patch Changes
+
+- [#35](https://github.com/stealth-scale/scale/pull/35) [`a4b1d24`](https://github.com/stealth-scale/scale/commit/a4b1d2460ded2afebd340ccdce38a79b1d880fdf) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Type `RovingFocus.Item`'s `ref` as `Ref<HTMLElement>`.
+  - Write an `id` on a roving item only when the caller passes one.
+  - Mark the item with the tab stop `data-stop` instead of `data-active`.
+  - Fix the focused position of `SkipNav.Link` and `VisuallyHidden focusable`.
+  - Throw a named error for `RovingFocus.Item` outside `RovingFocus.Root`.
+  - Add a specimen per component.
+- Updated dependencies [[`699ee75`](https://github.com/stealth-scale/scale/commit/699ee7513a1df84d019c9310a8131a6700ba5bd4), [`8d6817e`](https://github.com/stealth-scale/scale/commit/8d6817e34dc94a02b98933c39e2cd6f94cca5c34)]:
+  - @stealthscale/hooks@0.2.0
+  - @stealthscale/theme@0.4.0
+
 ## 0.1.0
 
 ### Minor Changes

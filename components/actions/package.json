@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/component-actions",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Renders what a person presses: a button, a toggle group, a swap, a color mode toggle, a clipboard and a download trigger.",
   "keywords": [
     "actions",

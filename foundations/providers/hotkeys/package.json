@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/provider-hotkeys",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Publishes the keyboard shortcuts a page answers to, under this design system's own name.",
   "keywords": [
     "hotkeys",

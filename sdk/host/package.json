@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/sdk-host",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Hosts a product composed from plugins: the state its plugins read, its routes, the parts of its frame, its palette and its settings pages.",
   "keywords": [
     "plugins",

@@ -1,5 +1,18 @@
 # @stealthscale/testing
 
+## 0.4.0
+
+### Minor Changes
+
+- [#43](https://github.com/stealth-scale/scale/pull/43) [`ee9bec3`](https://github.com/stealth-scale/scale/commit/ee9bec31de357f6b26e79e755b6c2ee86159102e) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Bind a fresh serving context in `loaded` when a spec passes none.
+  - Add the `changed`, `created`, `removed` and `updated` drivers.
+  - Add the hook context with its command and bundling flag.
+  - Add an asynchronous scratch workspace.
+
+- [#38](https://github.com/stealth-scale/scale/pull/38) [`832064c`](https://github.com/stealth-scale/scale/commit/832064cb73b2d437c496f551b26202ca96cdd954) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - `loaded(plugin, id, context)` binds `context` as `this` when it is given.
+
+- [#44](https://github.com/stealth-scale/scale/pull/44) [`9d2dd1b`](https://github.com/stealth-scale/scale/commit/9d2dd1b6a573174fca3711d63465dbdd0605fc0f) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Peer on `vite` 8.3 and `vitest` 5.0.
+
 ## 0.3.0
 
 ### Minor Changes

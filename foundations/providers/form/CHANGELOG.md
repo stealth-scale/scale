@@ -1,5 +1,21 @@
 # @stealthscale/provider-form
 
+## 0.2.0
+
+### Minor Changes
+
+- [#44](https://github.com/stealth-scale/scale/pull/44) [`02dda13`](https://github.com/stealth-scale/scale/commit/02dda131a19849e9d7ea4018c1c973525ce47014) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Add `values` to `Words.action`, which its words interpolate.
+  - Add `Words.mark` and `Identifiers.mark`.
+  - Add `Words.optionDescription` and `Identifiers.optionDescription`.
+  - Add `Field.width` and the `x-width` keyword, with `FieldWidth` and `WIDTHS`.
+  - Keep focus on the activated tab when a tabbed form changes steps.
+  - Start an array whose items list choices as an empty array.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @stealthscale/settings@0.1.0
+
 ## 0.1.0
 
 ### Minor Changes

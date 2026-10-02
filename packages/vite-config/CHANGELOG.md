@@ -1,5 +1,46 @@
 # @stealthscale/vite-config
 
+## 0.7.0
+
+### Minor Changes
+
+- [#35](https://github.com/stealth-scale/scale/pull/35) [`b588ff3`](https://github.com/stealth-scale/scale/commit/b588ff39d85f40125c2665be19124d208d485ae9) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Fail a test that updates a component outside `act`.
+  - Add `lint.composed`, which turns off `import/max-dependencies` for fixtures.
+
+- [#43](https://github.com/stealth-scale/scale/pull/43) [`ab77490`](https://github.com/stealth-scale/scale/commit/ab774905ada897d5d8912490a2e6a98294f31057) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Load the inventory plugin when the plugin is constructed, not when the tier is imported.
+  - Run `pack.hook()` moments on every bundle of a `pack` list.
+  - Write `define.manifest()` constants for the packer as well as for Vite.
+  - Derive `pack.published()` entries for a package that is its own root.
+  - Set the `node` platform in `pack.preset.node()`.
+  - Add `pack.builtins()`, which `pack.preset.web()` uses to refuse Node built-ins.
+  - Remove the `app` group from `build.chunks()`.
+  - Raise the spec size limit to 900 lines.
+  - Re-export `located` and `resolvingMetadata`.
+
+- [#38](https://github.com/stealth-scale/scale/pull/38) [`832064c`](https://github.com/stealth-scale/scale/commit/832064cb73b2d437c496f551b26202ca96cdd954) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Add `server.bundled()`, full bundle mode for dev servers, on by default in the application preset.
+  - Bundle every dynamic import when the dev server starts.
+  - Add a `library` chunk to `build.chunks()` for the house packages.
+
+- [#43](https://github.com/stealth-scale/scale/pull/43) [`10e17cb`](https://github.com/stealth-scale/scale/commit/10e17cbabdb003f4b911834221df7bf04d975fe5) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Add a `shared` chunk to `build.chunks()` for modules that two or more lazy routes import.
+
+- [#44](https://github.com/stealth-scale/scale/pull/44) [`a097939`](https://github.com/stealth-scale/scale/commit/a09793940f7ccc5fd616bcae8d965cb2b4239dc0) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Exclude the root's `.scratch` directory from test and coverage globs.
+  - Match a module under `sdk` in the `library` and `shared` chunk groups.
+  - Test each inventory layer's options against a fixture instead of loading the plugin.
+  - Add `lint.registered(files)`, which turns off `import/max-dependencies` for `**/src/theme.ts`.
+  - Check packed types with attw's `esm-only` profile.
+  - Exclude the repository's copies from tests and coverage by globs relative to the root.
+  - Peer on `@module-federation/vite` 1.22, `eslint-plugin-jsdoc` 64.5 and
+    `eslint-plugin-perfectionist` 5.12.
+  - Peer on `vite` 8.3, `vitest` 5.0, `@vitest/browser-playwright` 5.0.1 and `@vitest/coverage-v8`
+    5.0.1.
+
+### Patch Changes
+
+- [#34](https://github.com/stealth-scale/scale/pull/34) [`808c86b`](https://github.com/stealth-scale/scale/commit/808c86be6484d08a16b059d7d31680c5929257b4) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Exclude `.claude/**` worktrees from test and coverage globs, anchored at the root.
+- Updated dependencies [[`4a5c301`](https://github.com/stealth-scale/scale/commit/4a5c3012adeb289593f28045a10bb4f3d5b47fca), [`66b780d`](https://github.com/stealth-scale/scale/commit/66b780d8f4ede66cee40e3b0130bf6bcf2177171)]:
+  - @stealthscale/vite-config-core@0.4.0
+  - @stealthscale/vite-plugin-sbom@0.3.2
+
 ## 0.6.0
 
 ### Minor Changes

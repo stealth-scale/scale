@@ -1,5 +1,26 @@
 # @stealthscale/provider-shell
 
+## 0.2.0
+
+### Minor Changes
+
+- [#38](https://github.com/stealth-scale/scale/pull/38) [`3385a3c`](https://github.com/stealth-scale/scale/commit/3385a3c8d3d1f1c19affe900b6e046ca22c1619f) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Breaking: `Shell` takes `themes` in place of `theme`. The first theme is the default.
+  - Store the chosen theme as the setting `theme`, limited to the offered themes.
+  - Add `useThemeChoice()`, which returns `{ theme, themes, setTheme }`.
+  - Add `themeSetting` and `THEME_SETTING` for readers without React.
+
+### Patch Changes
+
+- Updated dependencies [[`dece6ae`](https://github.com/stealth-scale/scale/commit/dece6ae8193e5204079c50c5a9311360243d3557), [`9d2dd1b`](https://github.com/stealth-scale/scale/commit/9d2dd1b6a573174fca3711d63465dbdd0605fc0f), [`a4b1d24`](https://github.com/stealth-scale/scale/commit/a4b1d2460ded2afebd340ccdce38a79b1d880fdf), [`8d6817e`](https://github.com/stealth-scale/scale/commit/8d6817e34dc94a02b98933c39e2cd6f94cca5c34)]:
+  - @stealthscale/provider-color-mode@0.2.0
+  - @stealthscale/provider-hotkeys@0.2.0
+  - @stealthscale/provider-viewport@0.2.0
+  - @stealthscale/theme@0.4.0
+  - @stealthscale/provider-environment@0.1.0
+  - @stealthscale/provider-i18n@0.1.0
+  - @stealthscale/provider-locale@0.1.0
+  - @stealthscale/settings@0.1.0
+
 ## 0.1.0
 
 ### Minor Changes

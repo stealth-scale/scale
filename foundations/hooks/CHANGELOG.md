@@ -1,5 +1,18 @@
 # @stealthscale/hooks
 
+## 0.2.0
+
+### Minor Changes
+
+- [#40](https://github.com/stealth-scale/scale/pull/40) [`699ee75`](https://github.com/stealth-scale/scale/commit/699ee7513a1df84d019c9310a8131a6700ba5bd4) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Add `splitEnumerable(split)` and `omitUndefined(options)`.
+  - Add filter scopes: `useFilterScope`, `FilterContext`, `useFilteredRow`, `useFilterActive`,
+    `useFilterEmpty`, `createFilterScope`.
+  - Add `createLabelling(name)`.
+  - Add `useCrowded()`.
+  - Add `usePresence()` over `@zag-js/presence`.
+  - Add `useHighlight()` over `@zag-js/highlight-word`.
+  - Add `revealSideways(element, frame)`.
+
 ## 0.1.0
 
 ### Minor Changes

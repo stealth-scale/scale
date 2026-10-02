@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/provider-form",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Publishes the foundation every form is built on: the contexts a bound field and a bound form share, the engine that evaluates a JSON Schema, the provider, and the draft kept across a refresh.",
   "keywords": [
     "form",

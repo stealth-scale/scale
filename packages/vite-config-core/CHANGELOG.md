@@ -1,5 +1,15 @@
 # @stealthscale/vite-config-core
 
+## 0.4.0
+
+### Minor Changes
+
+- [#43](https://github.com/stealth-scale/scale/pull/43) [`4a5c301`](https://github.com/stealth-scale/scale/commit/4a5c3012adeb289593f28045a10bb4f3d5b47fca) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Read only `STEALTH_*`, `VITE_*`, `CI`, `CI_COMMIT_SHA` and `GITHUB_SHA` from the environment.
+  - Skip `plugins` contributions while resolving metadata, and keep `pack.plugins`.
+  - Export `resolvingMetadata`, `appended` and `located`.
+  - Resolve a plugin package from the module that names it through `located`.
+  - Peer on `vite` 8.3 and `vitest` 5.0.
+
 ## 0.3.0
 
 ### Minor Changes

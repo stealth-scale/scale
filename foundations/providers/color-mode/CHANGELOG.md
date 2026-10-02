@@ -1,5 +1,18 @@
 # @stealthscale/provider-color-mode
 
+## 0.2.0
+
+### Minor Changes
+
+- [#43](https://github.com/stealth-scale/scale/pull/43) [`dece6ae`](https://github.com/stealth-scale/scale/commit/dece6ae8193e5204079c50c5a9311360243d3557) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Escape every `<` in the inlined script.
+  - Publish `colorModeScript` under `./script`.
+
+### Patch Changes
+
+- Updated dependencies [[`8d6817e`](https://github.com/stealth-scale/scale/commit/8d6817e34dc94a02b98933c39e2cd6f94cca5c34)]:
+  - @stealthscale/theme@0.4.0
+  - @stealthscale/settings@0.1.0
+
 ## 0.1.0
 
 ### Minor Changes

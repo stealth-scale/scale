@@ -1,5 +1,24 @@
 # @stealthscale/vite-plugin-base
 
+## 0.3.0
+
+### Minor Changes
+
+- [#43](https://github.com/stealth-scale/scale/pull/43) [`ea7263b`](https://github.com/stealth-scale/scale/commit/ea7263ba8a41ef6bca751d5982194c6cec0824a7) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Add `withLock`, a cross-process lock directory with an owner, a grace period and a wait.
+  - Add `scratchDir`, a plugin's scratch directory outside the workspace.
+  - Write generated files through a staged rename.
+  - Stop a directory sync on a source that cannot be listed.
+  - Resolve export maps in Node's order and `node_modules` to a package's real directory.
+  - Key lockfile records by `name@version`, and add `installedOf`.
+  - Split a lockfile key at the first `@` after its first character.
+
+- [#40](https://github.com/stealth-scale/scale/pull/40) [`725cf7e`](https://github.com/stealth-scale/scale/commit/725cf7eb750c998e795e546db2809009e6c3c2b5) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Add `quoted(text)`, which writes a string as a JavaScript string literal.
+  - Write every string and key in `literal()` through `quoted`.
+  - Peer on `vite` 8.3 and `vitest` 5.0.
+  - Add `Imported.loaded`: every module an import evaluated, with its namespace, in evaluation order.
+  - Add `Importer.invalidate(files)`, which drops the transforms of the files given and every
+    evaluated module.
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,5 +1,43 @@
 # @stealthscale/vite-plugin-specimen
 
+## 0.2.0
+
+### Minor Changes
+
+- [#43](https://github.com/stealth-scale/scale/pull/43) [`ee9bec3`](https://github.com/stealth-scale/scale/commit/ee9bec31de357f6b26e79e755b6c2ee86159102e) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Regenerate the index when a specimen is added, removed or changes its metadata.
+  - Import the compiler's type through the types module.
+
+- [#43](https://github.com/stealth-scale/scale/pull/43) [`c578d12`](https://github.com/stealth-scale/scale/commit/c578d12f4f26dbedd2b60f4bada00f4f4458ebf1) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Write every page into one `pages` chunk and every page's props into one `props` chunk.
+
+- [#34](https://github.com/stealth-scale/scale/pull/34) [`e94c22a`](https://github.com/stealth-scale/scale/commit/e94c22a6c39e1c13d8f99b46334ae8ecc7b65192) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Classify a property declared by a runtime dependency as an option.
+  - Add `Indexed.namespace`.
+  - Breaking: remove `virtual:specimen-fragments/<id>`, `Fragments`, `Indexed.fragments` and
+    `Indexed.source`.
+  - Give every specimen its own hot update boundary, which dispatches `specimen:updated`.
+  - Name a page's chunk and its props chunk after the page.
+  - Write `Indexed.path` relative to the root.
+  - Write strings in generated modules through `quoted()`.
+  - Include a page chunk's dependencies recursively.
+  - Export `source` from every `*.example.tsx`.
+  - Read a factory's `*Props` type as a part.
+  - Read each module a specimen and its examples import once.
+  - Classify each declaration's file once per package.
+  - Read a package's dependencies once per compiler.
+  - Ask the compiler for no call signatures of literal and intrinsic types.
+  - Read every page in one program for each set of compiler options.
+  - Keep each page's props on disk under Vite's `cacheDir`, keyed by the page's package, the workspace
+    packages it builds on, the lockfile and the reader.
+  - Stop the compiler a minute after a dev server's last read.
+  - Keep the part of the module beside the specimen where two modules export one name.
+  - Leave a class's private members out of `shapes`.
+  - Peer on `vite` 8.3.
+
+### Patch Changes
+
+- [#44](https://github.com/stealth-scale/scale/pull/44) [`0324a1c`](https://github.com/stealth-scale/scale/commit/0324a1ce2c511a04ae16dbe027d1d06d90e04921) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Write the `pages` and `props` chunks in a build only, not under a dev server.
+- Updated dependencies [[`ea7263b`](https://github.com/stealth-scale/scale/commit/ea7263ba8a41ef6bca751d5982194c6cec0824a7), [`725cf7e`](https://github.com/stealth-scale/scale/commit/725cf7eb750c998e795e546db2809009e6c3c2b5)]:
+  - @stealthscale/vite-plugin-base@0.3.0
+
 ## 0.1.0
 
 ### Minor Changes

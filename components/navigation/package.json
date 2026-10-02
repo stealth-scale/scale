@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/component-navigation",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Draws the ways a person moves between places: links, tabs, breadcrumbs and rails.",
   "keywords": [
     "components",

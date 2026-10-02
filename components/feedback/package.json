@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/component-feedback",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Draws the system reporting on itself: what is loading, what went wrong, what state a thing is in.",
   "keywords": [
     "components",

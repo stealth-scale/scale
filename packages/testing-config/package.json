@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/testing-config",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Lists every part of the house contract a config, plugin or library package breaks.",
   "keywords": [
     "config",

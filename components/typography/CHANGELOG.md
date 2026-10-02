@@ -1,5 +1,35 @@
 # @stealthscale/component-typography
 
+## 0.2.0
+
+### Minor Changes
+
+- [#35](https://github.com/stealth-scale/scale/pull/35) [`d577ce3`](https://github.com/stealth-scale/scale/commit/d577ce3a013b0af1f6cd2dce358f496382a58616) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Add `Em`, `Strong`, `Mark`, `Quote` and `Span`.
+  - Add `Highlight` over `useHighlight`, and peer on `@stealthscale/hooks`.
+  - Add `tone="subtle"` to `Text`, `Heading`, `Strong` and `Em`.
+  - Add `display` to `Heading`.
+  - Add `mask` values `edges` and `radial` to `Text`.
+  - Offer every `Text` ink on `Icon`.
+  - Break words wider than their container in `Text` and `Heading`.
+  - Breaking: `Mark`, `Code` and `Blockquote.Root` take `palette` in place of `status`.
+  - Breaking: `Kbd` is a namespace: `Kbd.Root` and `Kbd.Group`. `Kbd.Root` takes `palette`.
+  - Size keycaps from the tag scale: 19.2, 21.6 and 24px.
+  - Hang the blockquote's mark in a gutter, and add the `surface` look.
+  - Add `inset="none"` to `Mark`.
+  - Forward `start` from `List.Root`.
+  - Fix `Icon` overriding an icon's own `fill`.
+  - Fix a mirrored `Icon` losing its mirror while spinning.
+  - Render code and flat keycaps without a hover state.
+  - Add a specimen per component.
+
+### Patch Changes
+
+- [#35](https://github.com/stealth-scale/scale/pull/35) [`a4b1d24`](https://github.com/stealth-scale/scale/commit/a4b1d2460ded2afebd340ccdce38a79b1d880fdf) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Emit every status value through `statusEmitted()` in `staticCss` of every recipe with a `status`
+    axis.
+- Updated dependencies [[`699ee75`](https://github.com/stealth-scale/scale/commit/699ee7513a1df84d019c9310a8131a6700ba5bd4), [`8d6817e`](https://github.com/stealth-scale/scale/commit/8d6817e34dc94a02b98933c39e2cd6f94cca5c34)]:
+  - @stealthscale/hooks@0.2.0
+  - @stealthscale/theme@0.4.0
+
 ## 0.1.0
 
 ### Minor Changes

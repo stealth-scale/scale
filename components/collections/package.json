@@ -1,6 +1,6 @@
 {
   "name": "@stealthscale/component-collections",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Renders a set of records: lists, tables, grids, trees, and lists and boards a person reorders by dragging.",
   "keywords": [
     "collections",

@@ -1,5 +1,16 @@
 # @stealthscale/vite-config-css
 
+## 0.3.0
+
+### Minor Changes
+
+- [#44](https://github.com/stealth-scale/scale/pull/44) [`9d2dd1b`](https://github.com/stealth-scale/scale/commit/9d2dd1b6a573174fca3711d63465dbdd0605fc0f) Thanks [@stealth-rklopper](https://github.com/stealth-rklopper)! - - Peer on `vite` 8.3 and `vitest` 5.0.
+
+### Patch Changes
+
+- Updated dependencies [[`4a5c301`](https://github.com/stealth-scale/scale/commit/4a5c3012adeb289593f28045a10bb4f3d5b47fca)]:
+  - @stealthscale/vite-config-core@0.4.0
+
 ## 0.2.0
 
 ### Minor Changes
