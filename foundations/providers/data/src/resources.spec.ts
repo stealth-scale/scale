@@ -1,64 +1,26 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import {
-  containsRecord,
-  patchRecords,
-  type RecordPatch,
-  type ResourceSelector,
-} from "#resources.ts";
-
-/**
- * The kind of every record the specification reads.
- */
-const REQUEST = "time-off/request";
-
-/**
- * A selector over the requests of a list.
- */
-const REQUESTS: ResourceSelector = { at: "requests.items", id: "id", list: true, type: REQUEST };
-
-/**
- * A selector over a request that is the data itself.
- */
-const ITSELF: ResourceSelector = { id: "id", type: REQUEST };
-
-/**
- * Builds a list of two open requests.
- *
- * @returns The data.
- */
-function listed(): { readonly requests: { readonly items: readonly object[] } } {
-  return {
-    requests: {
-      items: [
-        { id: "7", status: "open" },
-        { id: "8", status: "open" },
-      ],
-    },
-  };
-}
-
-/**
- * Builds a patch that approves one request.
- *
- * @param id - Id of the request.
- * @returns The patch.
- */
-function approving(id: string): RecordPatch {
-  return { apply: (record) => ({ ...record, status: "approved" }), id, type: REQUEST };
-}
-
-/**
- * Builds a patch that removes one request.
- *
- * @param id - Id of the request.
- * @returns The patch.
- */
-function removing(id: string): RecordPatch {
-  return { apply: vi.fn<RecordPatch["apply"]>(), id, type: REQUEST };
-}
+import { approving, ITSELF, listed, removing, REQUEST, REQUESTS } from "#resources.fixtures.ts";
+import { containsRecord, findRecords, patchRecords } from "#resources.ts";
 
 describe("resources", () => {
+  it("returns each record a selector finds with its id", () => {
+    expect(findRecords(listed(), REQUESTS)).toStrictEqual([
+      { id: "7", record: { id: "7", status: "open" } },
+      { id: "8", record: { id: "8", status: "open" } },
+    ]);
+  });
+
+  it("returns a numeric id as a string", () => {
+    expect(findRecords({ id: 7 }, ITSELF)).toStrictEqual([{ id: "7", record: { id: 7 } }]);
+  });
+
+  it("leaves out a found record whose id is neither a string nor a number", () => {
+    expect(findRecords([{ id: null }, { id: "8" }], ITSELF)).toStrictEqual([
+      { id: "8", record: { id: "8" } },
+    ]);
+  });
+
   it("finds a record that is the data itself", () => {
     expect(containsRecord({ id: "7" }, [ITSELF], { id: "7", type: REQUEST })).toBe(true);
   });

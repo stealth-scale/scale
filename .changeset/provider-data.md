@@ -11,6 +11,8 @@
 - Add `operationQuery` and `operationKey`.
 - Add `useOperationMutation`, with an idempotency key per call, optimistic patches and a scope.
 - Add `invalidateChanges` and the resource selectors it reads.
+- Add `findRecords` and `FoundRecord`.
+- Add `mutateOperation`, which runs a mutation outside a component.
 - Add `useNetwork` and `resetData`.
 - Add `loadNeeds` and `setupDataIntegration` in `./router`.
 - Add `sampledTransport` and `createTestDataClient` in `./testing`.

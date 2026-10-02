@@ -19,6 +19,7 @@ export {
   fieldErrorsOf,
 } from "#errors.ts";
 export { type GatewayOptions, gatewayTransport } from "#gateway.ts";
+export { mutateOperation } from "#mutate.ts";
 export {
   type KeyedVariables,
   type OperationMutateOptions,
@@ -44,6 +45,12 @@ export {
   type OperationQueryOptions,
 } from "#queries.ts";
 export { resetData } from "#reset.ts";
-export { type RecordPatch, type ResourceRef, type ResourceSelector } from "#resources.ts";
+export {
+  findRecords,
+  type FoundRecord,
+  type RecordPatch,
+  type ResourceRef,
+  type ResourceSelector,
+} from "#resources.ts";
 export * from "#tanstack.ts";
 export { type RunOptions, type Transport } from "#transport.ts";

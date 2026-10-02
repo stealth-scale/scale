@@ -98,6 +98,25 @@ approve.mutate({ id });
 - The library keys the mutation `["operation", id]`. Filter `useMutationState` by that key to show a
   pending creation, whose `variables` are its `KeyedVariables`.
 
+Run a mutation from code outside a component, such as a command, with `mutateOperation`:
+
+```ts
+import { mutateOperation } from "@stealthscale/provider-data";
+
+const approved = await mutateOperation(
+  client,
+  approveRequest,
+  { id },
+  {
+    changes: ({ id }) => [{ action: "updated", id, type: "time-off/request" }],
+  },
+);
+```
+
+- A run takes a fresh idempotency key that every retry repeats, retries by the client's defaults and
+  waits while the page is offline.
+- Once the run settles, the stated `changes` are invalidated. A run applies no optimistic patch.
+
 ## Invalidation by record
 
 State where a query's data contains records, so a change to a record invalidates every query that
@@ -116,6 +135,10 @@ const REQUESTS: ResourceSelector = {
 | -------------------- | --------------------------------------------------------- |
 | `updated`, `deleted` | Every query whose selectors find the record's kind and id |
 | `created`            | Every query with a `list` selector of the record's kind   |
+
+`findRecords(data, selector)` returns each record a selector finds in a query's data, with its id as
+a string. It walks the selector's path as invalidation does, every array on the way included, and
+leaves out a record whose id is neither a string nor a number.
 
 Changes arrive from three sources:
 

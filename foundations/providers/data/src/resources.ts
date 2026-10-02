@@ -50,6 +50,21 @@ export interface ResourceSelector {
 }
 
 /**
+ * Describes one record a selector finds in a query's data.
+ */
+export interface FoundRecord {
+  /**
+   * The record's id, as a string.
+   */
+  readonly id: string;
+
+  /**
+   * The record.
+   */
+  readonly record: Readonly<Record<string, unknown>>;
+}
+
+/**
  * Describes how one record looks after a change.
  */
 export interface RecordPatch extends ResourceRef {
@@ -105,6 +120,27 @@ function recordsIn(
 }
 
 /**
+ * Returns each record a selector finds in a query's data, with its id.
+ *
+ * @remarks
+ *   The walk follows the selector's path and every array on the way, as invalidation and patches
+ *   read the data. A record whose id member is neither a string nor a number is left out.
+ * @param data - The query's data.
+ * @param selector - The path of the records and the member that contains each record's id.
+ * @returns Every record found, in the order of the data.
+ */
+export function findRecords(
+  data: unknown,
+  selector: Pick<ResourceSelector, "at" | "id">,
+): readonly FoundRecord[] {
+  return recordsIn(data, pathOf(selector.at)).flatMap((record) => {
+    const id = idOf(record, selector.id);
+
+    return id === undefined ? [] : [{ id, record }];
+  });
+}
+
+/**
  * Returns true where a query's data contains a record, through the selectors of the record's kind.
  *
  * @param data - The query's data.
@@ -119,8 +155,7 @@ export function containsRecord(
 ): boolean {
   return selectors.some(
     (selector) =>
-      selector.type === ref.type &&
-      recordsIn(data, pathOf(selector.at)).some((record) => idOf(record, selector.id) === ref.id),
+      selector.type === ref.type && findRecords(data, selector).some(({ id }) => id === ref.id),
   );
 }
 

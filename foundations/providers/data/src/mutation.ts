@@ -117,6 +117,28 @@ interface Snapshot {
 }
 
 /**
+ * Returns the function that runs one keyed call of an operation's mutation through the client's
+ * transport.
+ *
+ * @remarks
+ *   The function sends the call's idempotency key, which the library passes again with the same
+ *   variables object on every retry. `useOperationMutation` and `mutateOperation` both run their
+ *   calls through it.
+ * @param client - The data client, whose transport runs the operation.
+ * @param operation - The mutation operation.
+ * @returns The library's `mutationFn` for the operation.
+ */
+export function runnerOf<Data, Variables extends object>(
+  client: QueryClient,
+  operation: Operation<Data, Variables, "mutation">,
+): (keyed: KeyedVariables<Variables>) => Promise<Data> {
+  return (keyed) =>
+    settingsOf(client).transport.run(operation, keyed.variables, {
+      idempotencyKey: keyed.idempotencyKey,
+    });
+}
+
+/**
  * Returns data with every patch applied through a query's selectors.
  *
  * @param data - The query's data.
@@ -220,10 +242,7 @@ export function useOperationMutation<Data, Variables extends object>(
     KeyedVariables<Variables>,
     Snapshot | undefined
   >({
-    mutationFn: (keyed) =>
-      settingsOf(client).transport.run(operation, keyed.variables, {
-        idempotencyKey: keyed.idempotencyKey,
-      }),
+    mutationFn: runnerOf(client, operation),
     mutationKey: [OPERATION, operation.id],
     onError: (_error, _keyed, snapshot) => {
       restored(client, snapshot);
