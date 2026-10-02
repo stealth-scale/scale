@@ -5,8 +5,10 @@
  * @remarks
  *   The members come from `pnpm ls`, so a package added under any workspace glob is planned
  *   without this file changing. Only a definite answer from the registry decides whether a package
- *   is published: a registry that cannot be reached, or that refuses the question, ends the plan.
- *   `apply.ts` prints the plan and runs it with `--yes`.
+ *   is published: a registry that does not respond, or that refuses the question, ends the plan.
+ *   Every npm command runs from a directory outside the workspace, because npm refuses to run
+ *   inside it: the root manifest names pnpm under `devEngines`. `apply.ts` prints the plan and runs
+ *   it with `--yes`.
  */
 
 import { readFileSync } from "node:fs";
@@ -17,7 +19,7 @@ import { type Runner } from "./run.ts";
 /**
  * Identifies the repository whose release workflow the registry is asked to trust.
  */
-export const REPO = "stealth-scale/config";
+export const REPO = "stealth-scale/scale";
 
 /**
  * Identifies the workflow file the registry is asked to trust, under the repository's
@@ -86,7 +88,7 @@ interface Listed {
 }
 
 /**
- * Returns true when a parsed value carries the path a listing row needs, and narrows it to
+ * Returns true when a parsed value has the path a listing row needs, and narrows it to
  * {@link Listed}.
  */
 function isListed(one: unknown): one is Listed {
@@ -94,7 +96,7 @@ function isListed(one: unknown): one is Listed {
 }
 
 /**
- * Carries the two facts a member's manifest adds to its listing row.
+ * Lists the two facts a member's manifest adds to its listing row.
  */
 interface Declared {
   /**
@@ -112,13 +114,18 @@ interface Declared {
  * Reads package.json in a directory for its `build` script and its `private` flag.
  */
 function manifestOf(path: string): Declared {
-  const held: unknown = JSON.parse(readFileSync(join(path, "package.json"), "utf8"));
+  const manifest: unknown = JSON.parse(readFileSync(join(path, "package.json"), "utf8"));
   const scripts: unknown =
-    typeof held === "object" && held !== null ? Reflect.get(held, "scripts") : undefined;
+    typeof manifest === "object" && manifest !== null
+      ? Reflect.get(manifest, "scripts")
+      : undefined;
 
   return {
     builds: typeof scripts === "object" && scripts !== null && "build" in scripts,
-    private: typeof held === "object" && held !== null && Reflect.get(held, "private") === true,
+    private:
+      typeof manifest === "object" &&
+      manifest !== null &&
+      Reflect.get(manifest, "private") === true,
   };
 }
 
@@ -158,13 +165,16 @@ export async function members(run: Runner, root: string): Promise<readonly Membe
  * Asks the registry whether a package exists under a name.
  *
  * @remarks
- *   Only a `404` counts as absence. An expired login, an unreachable network and a rate limit say
- *   nothing either way, and ending the plan there beats planning a publish over a package the
- *   registry already has.
+ *   Only a `404` counts as absence. An expired login, an unreachable network and a rate limit
+ *   leave the question open, and the plan ends there rather than plan a publish over a package
+ *   the registry already has.
+ * @param run - The runner the command goes through.
+ * @param name - The package name.
+ * @param outside - A directory outside the workspace, which npm runs from.
  * @throws {@link Error} When the registry gives no answer either way.
  */
-export async function published(run: Runner, name: string): Promise<boolean> {
-  const ran = await run("npm", ["view", name, "name", "--json"]);
+export async function published(run: Runner, name: string, outside: string): Promise<boolean> {
+  const ran = await run("npm", ["view", name, "name", "--json"], outside);
 
   if (ran.code === 0) return true;
   if (/E404|code E404|404 Not Found/u.test(`${ran.stdout}\n${ran.stderr}`)) return false;
@@ -194,10 +204,13 @@ function trusts(one: unknown): boolean {
  *   A command that exits non-zero counts as no trust. A listing that is not JSON ends the plan
  *   instead, because matching the repository name against prose would count a record that merely
  *   mentions the repository as trust.
+ * @param run - The runner the command goes through.
+ * @param name - The package name.
+ * @param outside - A directory outside the workspace, which npm runs from.
  * @throws {@link Error} When the listing is not JSON, with the first 200 characters of it.
  */
-export async function trusted(run: Runner, name: string): Promise<boolean> {
-  const ran = await run("npm", ["trust", "list", name, "--json"]);
+export async function trusted(run: Runner, name: string, outside: string): Promise<boolean> {
+  const ran = await run("npm", ["trust", "list", name, "--json"], outside);
 
   if (ran.code !== 0) return false;
 
@@ -221,23 +234,30 @@ export async function trusted(run: Runner, name: string): Promise<boolean> {
  * @remarks
  *   A package the registry does not have is planned for both steps, since trust is granted on a
  *   name the registry already knows.
+ * @param run - The runner the commands go through.
+ * @param root - The workspace root, which pnpm lists the members from.
+ * @param outside - A directory outside the workspace, which npm runs from.
  * @throws {@link Error} When a question to the registry gets no answer.
  */
-export async function planned(run: Runner, root: string): Promise<readonly Planned[]> {
+export async function planned(
+  run: Runner,
+  root: string,
+  outside: string,
+): Promise<readonly Planned[]> {
   const found = (await members(run, root)).filter((one) => !one.private);
-  const held: Planned[] = [];
+  const plan: Planned[] = [];
 
   for (const member of found) {
-    const already = await published(run, member.name);
+    const already = await published(run, member.name, outside);
 
-    held.push({
+    plan.push({
       member,
       publish: !already,
-      trust: already ? !(await trusted(run, member.name)) : true,
+      trust: already ? !(await trusted(run, member.name, outside)) : true,
     });
   }
 
-  return held;
+  return plan;
 }
 
 /**
