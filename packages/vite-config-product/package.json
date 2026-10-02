@@ -1,0 +1,70 @@
+{
+  "name": "@stealthscale/vite-config-product",
+  "version": "0.1.0",
+  "description": "Configures an application composed from plugins and the standalone page of a plugin, and lints the contract and web packages of a plugin.",
+  "keywords": [
+    "plugins",
+    "vite-config"
+  ],
+  "homepage": "https://github.com/stealth-scale/config/tree/main/packages/vite-config-product#readme",
+  "bugs": "https://github.com/stealth-scale/config/issues",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stealth-scale/config.git",
+    "directory": "packages/vite-config-product"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#*": "./src/*"
+  },
+  "exports": {
+    ".": {
+      "stealth-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json"
+    },
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "check": "vp check",
+    "prepublishOnly": "vp pack",
+    "test": "vp test"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/core": "catalog:",
+    "@stealthscale/testing-config": "workspace:^",
+    "@stealthscale/vite-config": "workspace:^",
+    "@stealthscale/vite-config-theme": "workspace:^",
+    "@stealthscale/vite-config-typescript": "workspace:^",
+    "@stealthscale/vite-plugin-product": "workspace:^",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "publint": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "@stealthscale/vite-config": "workspace:^",
+    "@stealthscale/vite-config-theme": "workspace:^",
+    "@stealthscale/vite-plugin-product": "workspace:^",
+    "vite": "catalog:peer"
+  },
+  "engines": {
+    "node": ">=26.0.0"
+  }
+}
