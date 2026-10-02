@@ -1,0 +1,56 @@
+{
+  "about": "The box a reader writes a message in: an optional strip for the message it replies to, the files waiting to be sent, a text that grows with its content, and a row of controls with attach and send. Enter sends, Shift+Enter starts a new line, and a paste of files attaches them.",
+  "answering": "Answering. Press stop to interrupt.",
+  "askLabel": "Ask the assistant",
+  "askPlaceholder": "Ask about last quarter",
+  "attach": "Attach files",
+  "cancelEdit": "Stop editing",
+  "cancelReply": "Cancel the reply",
+  "design": "Design",
+  "edit": {
+    "about": "ArrowUp in an empty composer loads the last message for editing, with a strip that says so. Escape or the strip's own control leaves the edit, and a send replaces the message. The composer here is controlled through `value`, so the caller writes the last message into it.",
+    "title": "Editing the last message"
+  },
+  "editPlaceholder": "Press the up arrow to edit your last message",
+  "editing": "Editing your message",
+  "engineering": "Engineering",
+  "files": "Files to send",
+  "finance": "Finance",
+  "first": "I'll send the contract tomorrow.",
+  "hint": "Ctrl+Enter to send",
+  "label": "Message",
+  "mentionPlaceholder": "Type @ to mention a teammate",
+  "mentions": {
+    "about": "`triggers` makes `@` open a mention. The caller finds the people whose names contain the term `onQueryChange` reports, and the list above the box offers them. The arrows move the highlight, Enter or Tab inserts the name, and Escape closes the list. A sent message marks each mention with the typography `Mark`.",
+    "title": "Mentions"
+  },
+  "people": "People",
+  "placeholder": "Write a message",
+  "remove": "Remove {{name}}",
+  "reply": {
+    "about": "A strip above the text shows the message the reply answers. Escape or the strip's own control dismisses it, and focus returns to the text. Picked, dropped or pasted files wait above the text as small tiles, each with a control that removes it. Files alone make a message that can be sent.",
+    "title": "A reply with files"
+  },
+  "replyPlaceholder": "Reply to Ada",
+  "replying": "Replying to Ada Okafor: The invoice from Northwind is in.",
+  "sales": "Sales",
+  "send": "Send",
+  "sent_one": "Sent “{{text}}” with {{count}} file.",
+  "sent_other": "Sent “{{text}}” with {{count}} files.",
+  "sent_zero": "Sent “{{text}}”.",
+  "size": {
+    "about": "The size sets the text style and the inset around the text and the controls.",
+    "title": "Sizes"
+  },
+  "stop": "Stop the answer",
+  "stopping": {
+    "about": "While an answer runs the composer is `busy`: it sends nothing, and the send control turns into a stop control that interrupts the answer. Focus stays on the control across the swap. Here Ctrl+Enter or Cmd+Enter sends, and Enter starts a new line.",
+    "title": "Stopping an answer"
+  },
+  "title": "Composer",
+  "variant": {
+    "about": "The box takes the field looks: outline, subtle and flushed. Its edge, its focus ring and its invalid and disabled states come from the textarea inside it.",
+    "title": "Looks"
+  },
+  "you": "You"
+}

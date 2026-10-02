@@ -92,7 +92,7 @@ describe("scope", () => {
     ]);
   });
 
-  it("nests what an extension states for every instance", () => {
+  it("nests the base styles an extension states", () => {
     const scoped = scopedPreset(theme("abyss", { recipes: { button: { base: { gap: "3" } } } }));
 
     expect(scoped).toMatchObject([
@@ -120,7 +120,7 @@ describe("scope", () => {
     ]);
   });
 
-  it("leaves a slot value that is not a style object as it is", () => {
+  it("leaves a slot value that is not a style object unchanged", () => {
     const scoped = scopedPreset(
       theme("abyss", { slotRecipes: { dialog: { base: { backdrop: "unexpected" } } } }),
     );
@@ -178,7 +178,7 @@ describe("scope", () => {
     ]);
   });
 
-  it("leaves a compound variant that states no styles as it is", () => {
+  it("leaves a compound variant that states no styles unchanged", () => {
     const scoped = scopedPreset(
       theme("abyss", { recipes: { button: { compoundVariants: [{ size: "lg" }] } } }),
     );
@@ -339,7 +339,7 @@ describe("scope", () => {
     ]);
   });
 
-  it("matches a selection listing several values whatever their order", () => {
+  it("matches a selection listing several values in any order", () => {
     const published: Compounds = {
       recipes: { button: [{ className: "button--wide", size: ["sm", "lg"] }] },
       slotRecipes: {},
@@ -402,7 +402,7 @@ describe("scope", () => {
     ]);
   });
 
-  it("nests every leaf of a nested composition inside the tree it found them in", () => {
+  it("nests every leaf of a nested composition inside its group", () => {
     const scoped = scopedPreset(
       theme("abyss", {
         layerStyles: {
@@ -430,28 +430,31 @@ describe("scope", () => {
     ]);
   });
 
-  it("nests an animation style but not a value that is no style object", () => {
+  it("nests the value of an animation style under the attribute", () => {
     const scoped = scopedPreset(
-      theme("abyss", {
-        animationStyles: { fade: { value: { animationName: "fade-in" } }, odd: { value: "x" } },
-      }),
+      theme("abyss", { animationStyles: { fade: { value: { animationName: "fade-in" } } } }),
     );
 
     expect(scoped).toMatchObject([
       {
         theme: {
           extend: {
-            animationStyles: {
-              fade: { value: { [ABYSS]: { animationName: "fade-in" } } },
-              odd: { value: "x" },
-            },
+            animationStyles: { fade: { value: { [ABYSS]: { animationName: "fade-in" } } } },
           },
         },
       },
     ]);
   });
 
-  it("states nothing an extension did not state", () => {
+  it("leaves an animation value that is not a style object unchanged", () => {
+    const scoped = scopedPreset(theme("abyss", { animationStyles: { odd: { value: "x" } } }));
+
+    expect(scoped).toMatchObject([
+      { theme: { extend: { animationStyles: { odd: { value: "x" } } } } },
+    ]);
+  });
+
+  it("writes no key an extension did not state", () => {
     const [scoped] = scopedPreset(theme("abyss", { recipes: { button: { base: { gap: "3" } } } }));
 
     expect(Object.keys(scoped ?? {})).toStrictEqual(["name", "theme"]);
@@ -481,7 +484,7 @@ describe("scope", () => {
     ]);
   });
 
-  it("reaches every ancestor with the oldest first", () => {
+  it("scopes every ancestor with the oldest first", () => {
     const parent: SwitchablePreset = {
       name: "@stealthscale/theme-deep",
       presets: [FATHOM],
@@ -501,7 +504,7 @@ describe("scope", () => {
     expect(scoped.map((each) => each.name)).toStrictEqual(["theme:abyss:switched"]);
   });
 
-  it("names an ancestor that has no name", () => {
+  it("names an ancestor preset that declares no name as an unnamed preset", () => {
     const unnamed: SwitchablePreset = { theme: { extend: { recipes: { button: {} } } } };
 
     expect(scopedPreset(derived("abyss", unnamed))[0]?.name).toBe(
@@ -538,7 +541,7 @@ describe("scope", () => {
     ]);
   });
 
-  it("scopes what a derived theme inherits beside its own under the one attribute", () => {
+  it("scopes every level of a derived theme under the one attribute", () => {
     const stated = [derived("abyss", FATHOM, { recipes: { button: { base: { gap: "4" } } } })];
 
     expect(scopedPresets(stated).map((each) => each.name)).toStrictEqual([

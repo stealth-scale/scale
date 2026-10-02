@@ -27,7 +27,7 @@ const CHOICES: Report["choices"] = [
 ];
 
 /**
- * Reads the frame a device drew.
+ * Reads the iframe out of a rendered device, throwing where the frame slot holds anything else.
  */
 function framed(container: HTMLElement): HTMLIFrameElement {
   const frame = slotElement(container, "device", "frame");
@@ -38,7 +38,7 @@ function framed(container: HTMLElement): HTMLIFrameElement {
 }
 
 /**
- * Reads the size the root wrote for the frame.
+ * Reads the width and height the root wrote as custom properties.
  */
 function sized(container: HTMLElement): readonly [width: string, height: string] {
   const { style } = slotElement(container, "device", "root");
@@ -47,8 +47,8 @@ function sized(container: HTMLElement): readonly [width: string, height: string]
 }
 
 /**
- * Posts a report to the page, as the framed document at an address would: from the device's own
- * frame, at the page's origin.
+ * Dispatches the report message the framed document at an address would send, from the device's
+ * iframe and at the page's origin.
  */
 function reported(address: string, choices: Report["choices"]): void {
   act(() => {
@@ -69,25 +69,60 @@ describe("Device", () => {
     expect(framed(container).getAttribute("src")).toBe("/framed#actions/button/2");
   });
 
-  it("names the frame after the scene and sizes it as the device", () => {
+  it("titles the frame with the scene title", () => {
     const { container } = render(<Device device={PHONE} scene={SCENE} />);
 
     expect(framed(container).title).toBe("Sizes");
+  });
+
+  it("renders the frame in a scroll area that scrolls across", async () => {
+    const { container } = await drawn(<Device device={PHONE} scene={SCENE} />);
+    const content = slotElement(container, "device", "content");
+
+    expect(content.contains(framed(container))).toBe(true);
+    expect(content.classList.contains("scroll-area__content--horizontal")).toBe(true);
+  });
+
+  it("names the stage's viewport by the scene title", async () => {
+    const { container } = await drawn(<Device device={PHONE} scene={SCENE} />);
+
+    expect(container.querySelector(".scroll-area__viewport")?.getAttribute("aria-label")).toBe(
+      "Sizes",
+    );
+  });
+
+  it("sets the root width and height to the device size", () => {
+    const { container } = render(<Device device={PHONE} scene={SCENE} />);
+
     expect(sized(container)).toStrictEqual(["320px", "568px"]);
+  });
+
+  it("renders the device size as a caption", () => {
+    const { container } = render(<Device device={PHONE} scene={SCENE} />);
+
     expect(container.textContent).toContain("320 × 568");
   });
 
-  it("neither defers nor sandboxes the frame", () => {
+  it("sets no loading attribute on the frame", () => {
     const { container } = render(<Device device={PHONE} scene={SCENE} />);
 
     expect(framed(container).hasAttribute("loading")).toBe(false);
+  });
+
+  it("sets no sandbox attribute on the frame", () => {
+    const { container } = render(<Device device={PHONE} scene={SCENE} />);
+
     expect(framed(container).hasAttribute("sandbox")).toBe(false);
   });
 
-  it("draws no picker until the document reports the axes the scene offers", async () => {
-    const { container, queryAllByRole } = await drawn(<Device device={PHONE} scene={SCENE} />);
+  it("renders no picker before a document reports its choices", async () => {
+    const { queryAllByRole } = await drawn(<Device device={PHONE} scene={SCENE} />);
 
     expect(queryAllByRole("button")).toHaveLength(0);
+  });
+
+  it("renders a picker per choice the document reports", async () => {
+    const { queryAllByRole } = await drawn(<Device device={PHONE} scene={SCENE} />);
 
     reported("#actions/button/2", CHOICES);
 
@@ -95,6 +130,13 @@ describe("Device", () => {
       "sizesm",
       "sampleoutline",
     ]);
+  });
+
+  it("renders the pickers into the device's bar", async () => {
+    const { container } = await drawn(<Device device={PHONE} scene={SCENE} />);
+
+    reported("#actions/button/2", CHOICES);
+
     expect(slotElement(container, "device", "bar").querySelectorAll("button")).toHaveLength(2);
   });
 
@@ -106,7 +148,7 @@ describe("Device", () => {
     expect(queryAllByRole("button")).toHaveLength(0);
   });
 
-  it("frames the sample the pickers name", async () => {
+  it("sets the frame source to the sample the pickers name", async () => {
     const { container, getByRole } = await drawn(<Device device={PHONE} scene={SCENE} />);
 
     reported("#actions/button/2", CHOICES);
@@ -122,7 +164,7 @@ describe("Device", () => {
     expect(framed(container).getAttribute("src")).toBe("/framed#actions/button/2?v=2&x=1");
   });
 
-  it("loads the framed page under the base the router serves the application at", async () => {
+  it("prefixes the frame source with the router basepath", async () => {
     const root = createAppRootRoute()({
       component: () => <Device device={PHONE} scene={SCENE} />,
     });

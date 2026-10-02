@@ -1,13 +1,11 @@
 /**
- * Draws what an alert says first.
+ * Renders the headline of the alert.
  *
  * @remarks
- *   The element is `span` rather than a heading, because an alert is read out as one run and a
- *   heading inside a live region puts a level into the outline for something that is gone a moment
- *   later. A notice that stays on the page and belongs in the outline takes `as="h2"` or the level
- *   the page needs.
- *   The title is where the status is said in words. An alert whose status reaches a reader through
- *   its palette and its mark alone fails WCAG 1.4.1.
+ *   The default element is a `span`, because a live region is announced as one utterance and a
+ *   heading in it adds an outline entry for content that usually disappears. A persistent notice
+ *   that belongs in the outline passes `as="h2"` or the level the document uses. The title states
+ *   the severity in words, because WCAG 1.4.1 rejects a status told by color alone.
  */
 
 import { type ComponentProps } from "react";
@@ -15,11 +13,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#alert/context.ts";
 
 /**
- * Says what the alert is about.
+ * Renders a span at medium weight.
  */
 export const Title = withContext("span", "title");
 
 /**
- * Describes what the title takes: everything a styled span takes.
+ * Describes the props of Alert.Title: the props of a span element.
  */
 export type TitleProps = ComponentProps<typeof Title>;

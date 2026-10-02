@@ -1,10 +1,9 @@
 /**
- * Binds the icon's recipe to the element that draws it.
+ * Binds the icon recipe to React.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. A recipe file that also bound one would put the runtime behind
- *   every compiler configuration that reads it.
+ *   The binding is a separate module from the recipe, because the theme compiler imports the recipe
+ *   at build time and must not load the React runtime.
  */
 
 import { createRecipeContext } from "@stealthscale/theme";
@@ -12,6 +11,9 @@ import { createRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#icon/recipe.ts";
 
 /**
- * Binds the recipe once, for the icon and for whatever sets its variants from above.
+ * Creates the icon recipe's `withContext` binding and its `PropsProvider`.
+ *
+ * @remarks
+ *   `PropsProvider` sets variants on every element bound below it.
  */
 export const { PropsProvider, withContext } = createRecipeContext(recipe);

@@ -1,5 +1,5 @@
 /**
- * Publishes the icon: a mark drawn as the artwork a caller hands in.
+ * Exposes the icon component to the package barrel.
  */
 
 export { Icon, type IconProps } from "#icon/icon.ts";

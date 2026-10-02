@@ -1,14 +1,10 @@
 /**
- * Draws the control that sorts a column.
+ * Renders the button that sorts a column, inside its header.
  *
  * @remarks
- *   The element is `button`, inside the column header rather than in place of it. A `th` that is
- *   itself pressable has no role a reader can act on, and one carrying `tabindex` announces a
- *   control that says nothing. A button inside it is reachable, pressable and named by its own
- *   words, which is the arrangement the WAI-ARIA practices describe for a sortable column.
- *   The header states `aria-sort`, not this. The attribute says which way the column runs now, and
- *   it belongs on the cell a screen reader reads when it reaches the column.
- *   Sorting is the page's. This draws the affordance and reports the press.
+ *   The element is a `button` inside the `th`, the pattern the WAI-ARIA practices give for a
+ *   sortable column. The header states `aria-sort`. The button reports the press, and sorting is
+ *   the caller's.
  */
 
 import { type ComponentProps } from "react";
@@ -16,11 +12,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#table/context.ts";
 
 /**
- * Presses to sort the column its header names.
+ * Renders the `button` with the table's sorter class and `type="button"`.
  */
 export const Sorter = withContext("button", "sorter", { defaultProps: { type: "button" } });
 
 /**
- * Describes what the control takes: everything a styled button takes.
+ * Describes the props of the sorter: the props of a `button`.
  */
 export type SorterProps = ComponentProps<typeof Sorter>;

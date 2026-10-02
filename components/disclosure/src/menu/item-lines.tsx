@@ -1,10 +1,9 @@
 /**
- * Stacks a row's words over a line about them.
+ * Renders the column of a row's text and description.
  *
  * @remarks
- *   A column that fills the room the mark and the keys leave, so the words and the description
- *   under them are cut at the same edge. A row with words alone needs none of this and writes
- *   `ItemText` on its own.
+ *   The column grows to fill the row, so the text and the description truncate at one edge. A row
+ *   with text alone renders `ItemText` without it.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -13,20 +12,20 @@ import { withContext } from "#menu/context.ts";
 import { useMenu } from "#menu/machine.ts";
 
 /**
- * Draws the column at the size the root states.
+ * Renders the `span` with the menu's item lines class.
  */
 const Stacked = withContext("span", "itemLines");
 
 /**
- * Describes what the column takes.
+ * Describes the props of a row's lines: the props of a `span`.
  */
 export type ItemLinesProps = ComponentProps<typeof Stacked>;
 
 /**
- * Draws the column, checking a menu stands above it.
+ * Renders the column, and throws when no menu is above it.
  *
- * @param props - Everything a styled span takes.
- * @returns The column, holding the words and the line under them.
+ * @param props - The props of a `span`.
+ * @returns The `span` element.
  */
 export function ItemLines(props: ItemLinesProps): ReactElement {
   useMenu();

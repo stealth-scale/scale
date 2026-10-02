@@ -1,6 +1,5 @@
 /**
- * Draws a passage of code in the library's code block, headed by what it is and the control that
- * copies it.
+ * Renders a code sample in the library's code block, with a title and a copy control in the header.
  */
 
 import { type ReactElement } from "react";
@@ -12,32 +11,32 @@ import { CodeBlock } from "@stealthscale/component-content";
 import { useWords } from "#words.ts";
 
 /**
- * Describes what a passage takes.
+ * Props of `Code`: the source, its language and the header text.
  */
 export interface CodeProps {
   /**
-   * The code, as written.
+   * Source code to render.
    */
   readonly code: string;
 
   /**
-   * The language the code is in, as the highlighter names it. Default: `tsx`.
+   * Language name the highlighter uses. Defaults to `tsx`.
    */
   readonly language?: string | undefined;
 
   /**
-   * The words at the head of the block, saying what the code is.
+   * Header text that describes the code.
    */
   readonly title: string;
 }
 
 /**
- * Draws the code block at the small size, with the block's own copy control in its header.
+ * Renders the code block at the small size, with the block's copy control in its header.
  *
  * @remarks
- *   The control reads the code off the root, so the passage is written once. The catalogue hands
- *   it the two marks and the words it is named with, because the library ships no icon set and the
- *   block's package ships no words.
+ *   The copy control reads the code from the root, so the sample is passed once. The catalogue
+ *   passes the two icons and the translated accessible names, because the library ships no icon set
+ *   and the code block package ships no words.
  */
 export function Code({ code, language = "tsx", title }: CodeProps): ReactElement {
   const { t } = useWords();
@@ -49,7 +48,8 @@ export function Code({ code, language = "tsx", title }: CodeProps): ReactElement
         <CodeBlock.Control>
           <CodeBlock.Copy
             copied={<CheckIcon aria-hidden size="1em" />}
-            translations={{ triggerLabel: (copied) => t(copied ? "code.copied" : "code.copy") }}
+            copiedLabel={t("code.copied")}
+            label={t("code.copy")}
           >
             <CopyIcon aria-hidden size="1em" />
           </CodeBlock.Copy>

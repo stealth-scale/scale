@@ -1,26 +1,108 @@
 {
-  "about": "Shows one panel at a time, chosen from a strip of controls.",
+  "about": "Renders a list of tabs and the panel of the selected tab.",
   "activity": "Activity",
-  "distribution": {
-    "about": "Where the controls sit in a strip they do not fill.",
-    "title": "Distribution"
+  "closing": {
+    "about": "Closable tabs over a caller's list of files. Press a tab's close control, press a tab with the middle button, or press Delete on the focused tab. The selection and the focus move to the next tab, else the previous one. The unsaved file shows a status dot. Closing the last file shows the empty state.",
+    "title": "Closing tabs"
+  },
+  "controlled": {
+    "about": "A controlled tab list with two buttons outside the list. Close article closes the selected article and selects the next one through `Tabs.selectionAfterClose`, the rule the tabs follow. Reopen the articles puts the closed articles back in their places, before or after the selected one, and the indicator follows the selected tab.",
+    "title": "Closing from outside the list"
+  },
+  "drafts": {
+    "body": "Order {{number}} is a draft. Nothing is sent until you submit it.",
+    "close": "Close draft",
+    "label": "Draft orders",
+    "name": "Order {{number}}"
+  },
+  "files": {
+    "about": {
+      "build": "Builds the packages on every push to a pull request.",
+      "deploy": "Deploys the main branch to production after the checks pass.",
+      "nightly": "Runs the full suite against every browser at 02:00 UTC.",
+      "release": "Tags a release and publishes the packages to the registry."
+    },
+    "close": "Close file",
+    "empty": {
+      "about": "Every workflow file is closed.",
+      "reopen": "Reopen the files",
+      "title": "No open files"
+    },
+    "label": "Open files",
+    "names": {
+      "build": "build.yml",
+      "deploy": "deploy.yml",
+      "nightly": "nightly.yml",
+      "release": "release.yml"
+    },
+    "unsaved": "unsaved changes"
   },
   "fitted": {
-    "about": "Controls taking what they need, and controls sharing the strip's width between them.",
+    "about": "Tabs at their own width, and tabs sharing the list's width equally, in the enclosed look, where each tab's width shows.",
     "title": "Fitted"
   },
-  "holds": "What the account holds.",
-  "lately": "What has happened lately.",
-  "looks": {
-    "about": "Every look at every size.",
-    "title": "Looks and sizes"
+  "holds": "The balance, the limits and the owners of the account.",
+  "justify": {
+    "about": "Every distribution of the tabs in a list wider than they are.",
+    "title": "Distribution"
   },
+  "label": "Account",
+  "lately": "The payments and changes of the last thirty days.",
   "orientation": {
-    "about": "The strip across the top, and down the side. Which way it runs is the machine's setting, not an axis, and the bar follows it.",
+    "about": "A list down the start of a settings page. The machine's `orientation` option sets it, and the indicator and the arrow keys follow: ArrowDown and ArrowUp move between the tabs.",
     "title": "Orientation"
   },
   "overview": "Overview",
+  "palette": {
+    "about": "Every palette in the line look. The palette colours the indicator and the selected tab's text.",
+    "title": "Palettes"
+  },
+  "preferences": {
+    "bodies": {
+      "billing": "The card on file, the billing address and past invoices.",
+      "notifications": "Which events send an email, and which only show here.",
+      "profile": "Your name, your photo and the language of the interface.",
+      "security": "Your password, two-factor sign-in and active sessions."
+    },
+    "label": "Preferences",
+    "names": {
+      "billing": "Billing",
+      "notifications": "Notifications",
+      "profile": "Profile",
+      "security": "Security"
+    }
+  },
+  "reader": {
+    "bodies": {
+      "billing": "Change the card a subscription is billed to, and the day it is billed.",
+      "disputes": "Answer a disputed payment with the evidence the bank asks for.",
+      "invoices": "Download an invoice, or send it again to another address.",
+      "refunds": "Refund a payment in full or in part within 180 days."
+    },
+    "close": "Close article",
+    "closeTab": "Close article",
+    "label": "Help articles",
+    "names": {
+      "billing": "Billing",
+      "disputes": "Disputes",
+      "invoices": "Invoices",
+      "refunds": "Refunds"
+    },
+    "reopen": "Reopen the articles"
+  },
+  "scrolling": {
+    "about": "Fourteen draft orders in a list that scrolls sideways inside a scroll area, whose edges fade. The selected tab scrolls itself into view, and the page does not scroll.",
+    "title": "Many tabs"
+  },
   "settings": "Settings",
+  "size": {
+    "about": "Every size. The size sets the tab's height and text on the control scale, and the panel's padding.",
+    "title": "Sizes"
+  },
   "title": "Tabs",
-  "tuned": "What can be changed."
+  "tuned": "The notifications, the currency and the statement day.",
+  "variant": {
+    "about": "Every look.",
+    "title": "Looks"
+  }
 }

@@ -1,14 +1,12 @@
 /**
- * States what a grid is: a root that lays its entries out in columns, and an entry that may span
- * more than one of them.
+ * Styles a grid's root and items: columns, gap, flow, alignment and spans.
  *
  * @remarks
- *   Every value is a semantic gap, a count of columns, a named measure or a CSS alignment, so a
- *   theme moves the spacing and the measures of every grid by restating two scales. The columns
- *   axis states a count or a measure: a count draws that many equal columns, and `fit-<measure>`
- *   draws as many columns of that measure as there is room for and wraps the rest, which is the
- *   whole of the grid's responsiveness and needs no breakpoint from the page. `fill-<measure>`
- *   keeps the columns a short row leaves empty, so an entry alone on a row keeps its measure.
+ *   Every value reads a gap token, a column count, a width token or a CSS alignment keyword. A
+ *   count renders that many equal columns. `fit-<width>` renders as many columns of that width as
+ *   the room holds and stretches them over the row. `fill-<width>` renders the same columns and
+ *   keeps the empty tracks, so a lone item keeps its width. The recipe reads no breakpoint. The
+ *   recipe has no `palette` or `effect` axis, because a grid renders no box of its own.
  */
 
 import {
@@ -18,14 +16,12 @@ import {
   filledColumns,
   fittedColumns,
   gapSizes,
-  justifyVariants,
   onSlot,
   spanCounts,
 } from "@stealthscale/theme/authoring";
 
 /**
- * Draws a grid of one column at the middle gap until a caller says otherwise, with its entries
- * each a column wide.
+ * Defaults to one column at the `md` gap.
  */
 export const recipe = defineSlotRecipe({
   base: { item: { minInlineSize: "0" }, root: { display: "grid" } },
@@ -34,19 +30,56 @@ export const recipe = defineSlotRecipe({
   jsx: [/^Grid(\.\w+)?$/u],
   slots: ["root", "item"],
   variants: {
+    /**
+     * Block alignment of each item in its row.
+     */
     align: onSlot("root", alignVariants()),
+
+    /**
+     * Column template: a count, `fit-<width>` or `fill-<width>`.
+     */
     columns: {
       ...onSlot("root", columnCounts()),
       ...onSlot("root", filledColumns()),
       ...onSlot("root", fittedColumns()),
     },
+
+    /**
+     * Auto-placement algorithm. Items fill each row in order.
+     *
+     * @remarks
+     *   `dense` fills a hole an earlier spanning item left with a later item. The axis has no
+     *   column flow, because the recipe sets no row template, and column flow without one places
+     *   every item in the first row.
+     */
     flow: {
-      column: { root: { gridAutoFlow: "column" } },
       dense: { root: { gridAutoFlow: "row dense" } },
       row: { root: { gridAutoFlow: "row" } },
     },
+
+    /**
+     * Gap token between the rows and the columns.
+     */
     gap: onSlot("root", gapSizes()),
-    justify: onSlot("root", justifyVariants()),
+
+    /**
+     * Inline alignment of each item in its column.
+     *
+     * @remarks
+     *   The value sets `justify-items`. Every column template fills the row, so `justify-content`
+     *   has no free space to distribute. Unset, the items stretch to the column.
+     */
+    justify: {
+      start: { root: { justifyItems: "start" } },
+
+      center: { root: { justifyItems: "center" } },
+
+      end: { root: { justifyItems: "end" } },
+    },
+
+    /**
+     * Number of columns an item spans. `full` spans every column.
+     */
     span: { ...onSlot("item", spanCounts()), full: { item: { gridColumn: "1 / -1" } } },
   },
 });

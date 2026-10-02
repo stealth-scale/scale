@@ -1,66 +1,65 @@
 /**
- * Turns the worker's message exchange into a promise the page can await.
+ * Wraps the request and reply a worker exchanges in a promise the page awaits.
  *
  * @remarks
- *   The worker is described by the members this module actually calls, so a test drives it with
- *   an object literal and needs no worker runtime. Every request carries a number of its own and
- *   the worker echoes it, so two runs in flight at once each settle with their own total.
+ *   The `Totaller` interface declares only the members this module calls, so a specification drives
+ *   it with an object literal and needs no worker runtime. Every request carries an id the worker
+ *   echoes, so two requests in flight at once settle independently.
  */
 
 import { type Amount } from "@stealthscale/example-lib-core";
 
 /**
- * The message a run is sent as.
+ * Describes the message the client posts for one run of amounts.
  */
 export interface Request {
   /**
-   * The run of amounts to total.
+   * Lists the amounts to total.
    */
   readonly amounts: readonly Amount[];
 
   /**
-   * The number the reply carries back, so the page tells one run's total from another's.
+   * Gives the id the reply echoes, which matches a total to the request that asked for it.
    */
   readonly id: number;
 }
 
 /**
- * The message a total comes back as.
+ * Describes the message the worker posts back with the total.
  */
 export interface Reply {
   /**
-   * The number of the request the total answers.
+   * Gives the id of the request this total belongs to.
    */
   readonly id: number;
 
   /**
-   * The total, or undefined for an empty run.
+   * Gives the total, or undefined for an empty run.
    */
   readonly total: Amount | undefined;
 }
 
 /**
- * The events the client listens for, and what each hands the listener.
+ * Maps each event this module listens for to the event object its listener receives.
  */
 interface Heard {
   /**
-   * The worker threw, or could not be started at all.
+   * Fires when the worker throws, or could not be started at all.
    */
   readonly error: ErrorEvent;
 
   /**
-   * The worker sent a reply.
+   * Fires when the worker posts a reply.
    */
   readonly message: MessageEvent<Reply>;
 }
 
 /**
- * The part of a worker that sends a run of amounts and hears the total back.
+ * Declares the members of a worker this module calls.
  *
  * @remarks
- *   A DOM Worker satisfies this without being cast. Describing these members rather than the
- *   whole interface also keeps this module away from terminate, which would end a worker its
- *   caller still owns.
+ *   A DOM `Worker` satisfies this interface without a cast. `terminate` is left out, because
+ *   ending a worker stays the caller's business.
  */
 export interface Totaller {
   /**
@@ -69,40 +68,39 @@ export interface Totaller {
   addEventListener: <Of extends keyof Heard>(of: Of, held: (event: Heard[Of]) => void) => void;
 
   /**
-   * Hands the worker a run of amounts to total.
+   * Posts one run of amounts to the worker.
    */
   postMessage: (request: Request) => void;
 
   /**
-   * Takes a listener off again, once its request is settled.
+   * Removes a listener once its request has settled.
    */
   removeEventListener: <Of extends keyof Heard>(of: Of, held: (event: Heard[Of]) => void) => void;
 }
 
 /**
- * How long a run may take before the promise rejects, in milliseconds.
+ * Sets how long a run may take before the promise rejects, in milliseconds.
  */
 const PATIENCE = 10_000;
 
 /**
- * The number the next request is sent under.
+ * Counts the requests this module has posted, which gives each one its id.
  */
 let next = 0;
 
 /**
- * Sends a run of amounts to a worker and settles with the total it sends back.
+ * Posts a run of amounts to a worker and resolves with the total it replies.
  *
  * @remarks
- *   The listeners go on before the run is sent, so a worker replying inside postMessage is still
- *   heard, and both come off once the promise settles, however it settled. A reply to another
- *   request is left for that request's listener. A worker that throws on the run, or dies, rejects
- *   the promise with the error event's message, and a worker that answers nothing rejects it when
- *   the patience runs out, so a page never waits on a total that is not coming.
- * @param worker - The worker to send the run to.
- * @param amounts - The run to total.
- * @param patience - How long to wait for the total, in milliseconds.
+ *   Both listeners are registered before the request is posted, so a worker that replies inside
+ *   `postMessage` is still heard, and both come off once the promise settles either way. A reply
+ *   naming another id is left to that request's listener. The timeout keeps a page from waiting on
+ *   a total that is not coming.
+ * @param worker - The worker the request is posted to.
+ * @param amounts - The amounts to total.
+ * @param patience - The time to wait for the reply, in milliseconds. Ten seconds where absent.
  * @returns The total the worker computed, or undefined for an empty run.
- * @throws {@link Error} When the worker fails, or answers nothing within the patience.
+ * @throws {@link Error} When the worker reports an error, or sends no reply before the timeout.
  */
 export function totalled(
   worker: Totaller,
@@ -115,7 +113,7 @@ export function totalled(
 
   return new Promise<Amount | undefined>((settle, reject) => {
     /**
-     * Takes every listener off and stops the clock, whichever way the promise settled.
+     * Removes both listeners and clears the timeout, however the promise settled.
      */
     const done = (): void => {
       clearTimeout(clock);
@@ -124,7 +122,8 @@ export function totalled(
     };
 
     /**
-     * Settles with the total when the reply answers this request, and ignores any other reply.
+     * Resolves with the total when the reply names this request's id, and ignores every other
+     * reply.
      */
     const onMessage = (event: MessageEvent<Reply>): void => {
       if (event.data.id !== id) return;
@@ -134,7 +133,7 @@ export function totalled(
     };
 
     /**
-     * Rejects with what the worker reported.
+     * Rejects with the message the error event reported.
      */
     const onError = (event: ErrorEvent): void => {
       done();

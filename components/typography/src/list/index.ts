@@ -1,7 +1,5 @@
 /**
- * Publishes the list: entries the browser numbers or bullets, or marks the caller draws beside
- * them, composed as `List.Root` holding `List.Item`, each with a `List.Indicator` where the
- * caller draws the mark.
+ * Exposes the list parts to the package barrel, which publishes them as the `List` namespace.
  */
 
 export { Indicator, type IndicatorProps } from "#list/indicator.ts";

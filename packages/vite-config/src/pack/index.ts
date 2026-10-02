@@ -2,9 +2,9 @@
  * Collects the layers that configure the packer a library is published from.
  *
  * @remarks
- *   A package states what it publishes in its manifest and lets `published` derive the build from
- *   it, or states the entries itself with `entry`. The rest of this directory adds one packer
- *   setting each on top of whichever of the two it chose.
+ *   A package picks one of two starting points: declare what it publishes in its manifest and let
+ *   `published` derive the build from that, or name the entries directly with `entry`. Every other
+ *   layer here adds a single packer setting on top of that choice.
  */
 
 export { builtins } from "#pack/builtins.ts";

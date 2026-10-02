@@ -1,86 +1,89 @@
 /**
- * Keeps what each panel of a shell says about itself, so a control anywhere in the shell reads the
- * panel it points at.
+ * Stores each panel's state for one shell, so a control anywhere in the shell reads the panel it
+ * points at.
  *
  * @remarks
- *   A trigger in the header and the panel it opens in the body are siblings, so neither can hand
- *   the other anything through a context. The shell holds a store between them: a panel writes what
- *   it is doing, and whoever reads the store is drawn again when that changes.
- *   The store is read through `useSyncExternalStore` rather than kept in state, because a panel
- *   writes to it when it is laid out and state written from an effect is what React 19 reports. The
- *   source this was ported from kept the same list in `useState` and wrote it from a layout effect.
- *   A write that changes nothing tells nobody, so a panel that publishes the same facts on every
- *   render costs its readers nothing.
+ *   A trigger in the header and the panel it opens in the body are siblings, so neither can pass
+ *   state to the other through context. The shell keeps a store between them: a panel publishes its
+ *   state, and every subscriber re-renders when it changes. Readers use `useSyncExternalStore`,
+ *   because a panel publishes in a layout effect and React 19 reports state set from an effect.
+ *   Publishing an equal state does not notify subscribers.
  */
 
 import { useSyncExternalStore } from "react";
 
+import { type Collapse } from "#app-shell/state.ts";
+
 /**
- * Describes what one panel says about itself.
+ * Describes the state one panel publishes.
  */
 export interface Panel {
   /**
-   * The address of the panel's element, which a control that opens it points at.
+   * Result of closing the panel in the body: `hide` hides it, and `icons` leaves a rail.
+   */
+  readonly collapse: Collapse;
+
+  /**
+   * Identifier of the panel's element, which a trigger's `aria-controls` points at.
    */
   readonly id: string;
 
   /**
-   * Whether the panel is shown: open in the body, or laid over the page where it is collapsed.
+   * Whether the panel is shown: open in the body, or open over the page.
    */
   readonly open: boolean;
 
   /**
-   * Whether the window is too narrow to hold the panel beside the page and the panel is laid over
-   * it instead.
+   * Whether the shell is too narrow for the panel and the panel is over the page.
    */
   readonly overlaid: boolean;
 
   /**
-   * Shows or hides the panel, in whichever way it is shown now.
+   * Shows or hides the panel.
    */
   readonly setOpen: (open: boolean) => void;
 
   /**
-   * Whether the window is too narrow to hold the panel beside the page and the panel has dropped
-   * under it as a block instead.
+   * Whether the shell is too narrow for the panel and the panel has dropped under the page.
    */
   readonly stacked: boolean;
 }
 
 /**
- * Describes the panels of one shell, by the name each was drawn under.
+ * Describes the panels of one shell, keyed by name.
  */
 export type Panels = Readonly<Record<string, Panel>>;
 
 /**
- * Describes where a shell keeps its panels.
+ * Describes the store of one shell's panels.
  */
 export interface PanelStore {
   /**
-   * Writes what a panel is doing, or takes a panel that has left off the list.
+   * Stores a panel's state under its name, or removes the panel when no state is passed.
    */
   readonly publish: (name: string, panel?: Panel) => void;
 
   /**
-   * Reads every panel as it stands.
+   * Returns every panel.
    */
   readonly read: () => Panels;
 
   /**
-   * Tells a reader whenever a panel changes.
+   * Registers a listener called on every change.
    *
-   * @returns How to stop.
+   * @returns A function that removes the listener.
    */
   readonly subscribe: (onChange: () => void) => () => void;
 }
 
 /**
- * Reports whether a panel is doing what it was already doing.
+ * Returns whether two panel states are equal in every field.
  */
 function same(one: Panel | undefined, other: Panel | undefined): boolean {
   if (one === undefined || other === undefined) return one === other;
 
   return (
+    one.collapse === other.collapse &&
     one.id === other.id &&
     one.open === other.open &&
     one.overlaid === other.overlaid &&
@@ -90,9 +93,9 @@ function same(one: Panel | undefined, other: Panel | undefined): boolean {
 }
 
 /**
- * Opens a store for one shell to keep its panels in.
+ * Creates an empty panel store for one shell.
  *
- * @returns The store, empty.
+ * @returns The store, empty until a panel publishes.
  */
 export function panelStore(): PanelStore {
   const listeners = new Set<() => void>();
@@ -120,11 +123,10 @@ export function panelStore(): PanelStore {
 }
 
 /**
- * Reads every panel of a shell and follows the store, so the reader is drawn again when a panel
- * opens, closes, or changes what it is doing.
+ * Reads every panel of a shell and re-renders the caller when a panel changes.
  *
- * @param store - The store the shell keeps its panels in.
- * @returns Every panel, by the name each was drawn under.
+ * @param store - The shell's panel store.
+ * @returns Every panel, keyed by name.
  */
 export function usePanels(store: PanelStore): Panels {
   return useSyncExternalStore(store.subscribe, store.read, store.read);

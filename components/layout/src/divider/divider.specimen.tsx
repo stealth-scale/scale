@@ -1,57 +1,101 @@
 /**
- * Shows the divider: a line across a column of things and a line down a row of them.
+ * Catalogue page for the divider.
  *
  * @remarks
- *   The axis is read off the recipe, so an orientation added to the theme reaches the page
- *   without this file changing. Each line stands between two tiles in a stack running the other
- *   way, because a line between nothing shows nothing. The words are keys under `divider` in the
- *   catalogue's namespace, kept beside this file in `locales/en/specimen/divider.json`.
+ *   Two hand-written scenes render the `orientation` axis, because each orientation needs a stack
+ *   that runs the other way and an example cannot read `props.orientation`. A horizontal divider
+ *   separates the lines of an order summary from its total in a 320px room. A vertical divider
+ *   separates two groups of toolbar buttons. `scenesOf` generates the `labelPlacement` scene, one
+ *   labelled line per place in a 384px room. Two hand-written scenes label the days of an activity
+ *   feed at the start and centre "or" between two ways to sign in. Every scene renders a component
+ *   from `examples/` and shows that file as its source. The words are keys under `divider` in
+ *   `locales/en/specimen/divider.json`.
  */
 
-import { type ReactElement } from "react";
+import { Room, type Scene, scenesOf, specimen } from "@stealthscale/specimen";
 
-import { Matrix, type Scene, specimen, Tile, useWords, valuesOf } from "@stealthscale/specimen";
-
-import { Divider } from "#divider/divider.ts";
+import { type DividerProps } from "#divider/divider.ts";
+import * as feed from "#divider/examples/feed.example.tsx";
+import * as placement from "#divider/examples/placement.example.tsx";
+import * as signin from "#divider/examples/signin.example.tsx";
+import * as summary from "#divider/examples/summary.example.tsx";
+import * as toolbar from "#divider/examples/toolbar.example.tsx";
 import { recipe } from "#divider/recipe.ts";
-import { Stack } from "#stack/stack.ts";
 
 /**
- * Draws yesterday and today with a line between them, in both orientations.
+ * Hand-written scene for a horizontal divider.
  */
-function Orientations(): ReactElement {
-  const { t } = useWords("divider");
-
-  return (
-    <Matrix knob="orientation" of={valuesOf(recipe, "orientation")}>
-      {(orientation) => (
-        <Stack align="stretch" direction={orientation === "vertical" ? "row" : "column"}>
-          <Tile>{t("yesterday")}</Tile>
-          <Divider
-            aria-orientation={orientation === "vertical" ? "vertical" : undefined}
-            orientation={orientation}
-          />
-          <Tile>{t("today")}</Tile>
-        </Stack>
-      )}
-    </Matrix>
-  );
-}
+export const horizontal: Scene = {
+  about: "divider.horizontal.about",
+  axes: ["orientation"],
+  draw: () => (
+    <Room size="xs">
+      <summary.Summary />
+    </Room>
+  ),
+  example: summary,
+  title: "divider.horizontal.title",
+};
 
 /**
- * Both orientations.
+ * Hand-written scene for a vertical divider.
  */
-export const orientations: Scene = {
-  about: "divider.orientations.about",
-  draw: Orientations,
-  title: "divider.orientations.title",
+export const vertical: Scene = {
+  about: "divider.vertical.about",
+  axes: ["orientation"],
+  draw: toolbar.Toolbar,
+  example: toolbar,
+  title: "divider.vertical.title",
+};
+
+/**
+ * Hand-written scene for the days of an activity feed, each labelled at the start of its line.
+ */
+export const days: Scene = {
+  about: "divider.feed.about",
+  draw: () => (
+    <Room size="xs">
+      <feed.Feed />
+    </Room>
+  ),
+  example: feed,
+  title: "divider.feed.title",
+};
+
+/**
+ * Hand-written scene for "or" centred between a passkey and an email sign-in.
+ */
+export const access: Scene = {
+  about: "divider.signIn.about",
+  draw: () => (
+    <Room size="xs">
+      <signin.SignIn />
+    </Room>
+  ),
+  example: signin,
+  title: "divider.signIn.title",
 };
 
 export default specimen({
   about: "divider.about",
-  group: "Layout",
-  id: "layout/divider",
-  imports: 'import { Divider, Stack } from "@stealthscale/component-layout";',
-  scenes: [orientations],
+  id: "components/layout/divider",
+  imports: 'import { Divider } from "@stealthscale/component-layout";',
+  scenes: [
+    horizontal,
+    vertical,
+    ...scenesOf<DividerProps>(recipe, {
+      axes: { labelPlacement: { direction: "column" } },
+      draw: (props) => (
+        <Room size="sm">
+          <placement.Placement {...props} />
+        </Room>
+      ),
+      example: placement,
+      namespace: "divider",
+      skip: { orientation: "the hand-written horizontal and vertical scenes render it" },
+    }),
+    days,
+    access,
+  ],
   title: "divider.title",
 });

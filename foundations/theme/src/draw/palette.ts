@@ -1,22 +1,24 @@
 /**
- * Draws one palette of ten roles from one color and the page and the ink of each mode, and the
+ * Draws one palette of eleven roles from one color and the page and the ink of each mode, and the
  * eleven hue palettes an application names a hue of.
  *
  * @remarks
- *   The solid is the color as stated. Where it fails to stand from the page or to carry a label,
- *   its lightness moves, hue and chroma kept, and a theme that wants it untouched says so. The
- *   quiet fills sit at the fill ladder's lightness tinted towards the solid, so every palette's
- *   fills share one lightness and differ by hue alone. The ink, the line and the ring are the
- *   solid raised towards the ink until each reads at its ratio on the worst surface it is drawn
- *   on.
+ *   The solid is the color as stated. Where it misses the boundary ratio against the page, or the
+ *   label ratio under its label, its lightness moves with its hue and chroma kept, unless the theme
+ *   sets `keep`. The quiet fills are at the fill ladder's lightness, tinted towards the solid, so
+ *   every palette's fills share one lightness and differ by hue alone. The ink, the line and the
+ *   ring are the solid raised towards the ink until each meets its ratio on the worst surface it is
+ *   drawn on. The chart color is the solid moved towards a light page, to the lightest lightness
+ *   that keeps the boundary ratio, and after dark the solid, a grey solid moved to the text ratio.
  */
 
 import { type Hue, type HuePalette, HUES, type Moded, type Role } from "#contract.ts";
-import { lightened, lightnessOf, mixed, stated } from "#draw/color.ts";
+import { GREY_CHROMA, lightened, lightnessOf, mixed, polar, stated } from "#draw/color.ts";
 import { contrast } from "#draw/contrast.ts";
 import {
   type DrawOptions,
   type Inked,
+  isDark,
   type Ladder,
   ladderOf,
   raised,
@@ -55,13 +57,25 @@ const STEPS_TO_BOUND = 64;
 const HALVINGS = 8;
 
 /**
+ * Fixes how many halvings find the lightest chart color that keeps the boundary ratio, which places
+ * it within 1/4096 of the way from the solid to the page.
+ */
+const CHART_HALVINGS = 12;
+
+/**
+ * Fixes how far above the boundary ratio a chart color is drawn, so a renderer that rounds a color
+ * to eight bits a channel still measures it at the ratio.
+ */
+const CHART_MARGIN = 0.05;
+
+/**
  * Fixes the step of the foundation's ramp a canonical color is read at on each side.
  */
 const STEPS: Readonly<Record<Side, number>> = { dark: 400, light: 600 };
 
 /**
- * Fixes the two colors a label falls back to where neither the theme's ink nor its page carries
- * it on a solid.
+ * Fixes the darker of the two colors a label falls back to when neither the theme's ink nor its
+ * page meets the label ratio on a solid.
  */
 const BLACK = "#000000";
 
@@ -98,17 +112,17 @@ export function canonical(hue: Hue): Readonly<Record<Side, string>> {
 }
 
 /**
- * Picks what a solid's label is inked in: the ink or the page of its own side where either
- * carries the label, and otherwise black or white.
+ * Picks the color a solid's label is inked in: the ink or the page of the solid's side when either
+ * meets the label ratio, else black or white.
  *
  * @remarks
- *   A theme's ink and page are the two colors already on the screen, so a label drawn from one of
- *   them belongs to the theme. Where the solid is a mid-tone neither can read on, the label
- *   leaves the palette rather than the solid moving: a brand's action color survives and the
- *   words on it stay legible. Measured on Dusk's coral, whose navy ink carries a label at 3.01:1
- *   and whose black carries it at 6.46:1. Black and white bracket every color there is, so the
- *   better of the two is never worse than the ink or the page, and the worse of the two still
- *   clears 4.58:1 on the one color where they meet.
+ *   A theme's ink and page are the two colors already on the screen, so a label in one of them
+ *   belongs to the theme. On a mid-tone solid that neither meets, the label leaves the palette and
+ *   the solid keeps its lightness, so a brand's action color is unchanged and its words keep the
+ *   label ratio. Measured on Dusk's coral: a label in its navy ink measures 3.01:1, and one in
+ *   black 6.46:1. Black and white bracket every color, so the better of the two is never worse
+ *   than the ink or the page, and the worse of the two still clears 4.58:1 on the one color where
+ *   they meet.
  * @param color - The solid the label is drawn on.
  * @param side - The page and the ink of the side the solid was drawn for.
  * @param label - The ratio the label has to clear.
@@ -122,8 +136,8 @@ function over(color: string, side: Written, label: number): string {
 }
 
 /**
- * Picks the color a hovered solid moves towards, which is whichever end of the side is furthest
- * from the label it carries.
+ * Picks the color a hovered solid moves towards: whichever end of the side is furthest from the
+ * solid's label.
  */
 function away(label: string, side: Written): string {
   return [side.page, BLACK, WHITE].reduce(
@@ -134,18 +148,19 @@ function away(label: string, side: Written): string {
 
 /**
  * Moves a color in lightness towards a bound only as far as a predicate needs: to the first of
- * the steps between the two at which it holds, refined by halving, or to nothing where it holds
- * at none of them.
+ * the steps between the two at which the predicate is true, refined by halving, or to nothing when
+ * it is true at none of them.
  *
  * @remarks
- *   Stepped rather than halved from the bound, because a label can hold on a window between the
- *   color and the bound and fail at the bound itself: a solid moved towards the page reads with
- *   the ink on it for a while, and then stops standing from the page.
+ *   The search steps from the color rather than halving from the bound, because a label can meet
+ *   its ratio on a window between the color and the bound and fail at the bound itself: a solid
+ *   moved towards the page keeps the ink's label ratio for a while, and then drops below the
+ *   boundary ratio against the page.
  */
 function movedUntil(
   color: string,
   bound: string,
-  holds: (candidate: string) => boolean,
+  passes: (candidate: string) => boolean,
 ): string | undefined {
   const start = lightnessOf(color);
   const end = lightnessOf(bound);
@@ -156,36 +171,36 @@ function movedUntil(
   const at = (share: number): string => lightened(color, start + (end - start) * share);
 
   for (let step = 1; step <= STEPS_TO_BOUND; step += 1) {
-    if (!holds(at(step / STEPS_TO_BOUND))) continue;
+    if (!passes(at(step / STEPS_TO_BOUND))) continue;
 
     let failing = (step - 1) / STEPS_TO_BOUND;
-    let holding = step / STEPS_TO_BOUND;
+    let passing = step / STEPS_TO_BOUND;
 
     for (let round = 0; round < HALVINGS; round += 1) {
-      const middle = (failing + holding) / 2;
+      const middle = (failing + passing) / 2;
 
-      if (holds(at(middle))) holding = middle;
+      if (passes(at(middle))) passing = middle;
       else failing = middle;
     }
 
-    return at(holding);
+    return at(passing);
   }
 
   return undefined;
 }
 
 /**
- * Moves a solid towards the ink until it stands from the page and the panel.
+ * Moves a solid towards the ink until it meets the boundary ratio against the page and the panel.
  *
  * @remarks
- *   Standing is the only reason a solid moves. Its label is settled afterwards and separately: a
- *   label falls back to black or white, and the worse of those two clears 4.58:1 on any color
- *   there is, so no brand color has to give up its lightness to carry one. A theme that asks more
- *   of its labels than that hears it from the gate rather than finding its brand quietly redrawn.
+ *   The boundary ratio is the only reason a solid moves. Its label is settled afterwards and
+ *   separately: a label falls back to black or white, and the worse of those two clears 4.58:1 on
+ *   any color, so no brand color gives up its lightness for a label. A theme that asks more of its
+ *   labels than that gets a report from the gate, and its brand color is not redrawn.
  */
 function settled(solid: string, side: Written, ladder: Ladder, ratios: Ratios): string {
   /**
-   * Reports whether a candidate stands from the page and the panel at the boundary ratio.
+   * Reports whether a candidate meets the boundary ratio against the page and the panel.
    */
   const standing = (candidate: string): boolean =>
     contrast(candidate, ladder.page) >= ratios.boundary &&
@@ -194,6 +209,76 @@ function settled(solid: string, side: Written, ladder: Ladder, ratios: Ratios): 
   if (standing(solid)) return solid;
 
   return movedUntil(solid, side.ink, standing) ?? solid;
+}
+
+/**
+ * Moves a color towards the page's lightness as far as a predicate holds, which finds the color
+ * nearest the page that still passes.
+ *
+ * @remarks
+ *   The search halves the way from the color to the page, so the color that passes lies within
+ *   1/4096 of the way from the last color that fails. The color passes where the search starts.
+ */
+function towardsPage(
+  color: string,
+  ladder: Ladder,
+  passes: (candidate: string) => boolean,
+): string {
+  const start = lightnessOf(color);
+  const end = lightnessOf(ladder.page);
+
+  /**
+   * Places the color a share of the way to the page's lightness.
+   */
+  const at = (share: number): string => lightened(color, start + (end - start) * share);
+
+  let passing = 0;
+  let failing = 1;
+
+  for (let round = 0; round < CHART_HALVINGS; round += 1) {
+    const middle = (passing + failing) / 2;
+
+    if (passes(at(middle))) passing = middle;
+    else failing = middle;
+  }
+
+  return at(passing);
+}
+
+/**
+ * Moves a solid towards a light page while it keeps the boundary ratio against the page and the
+ * panel, which gives the lightest color a line, a bar or a sector can take.
+ *
+ * @remarks
+ *   A solid is dark enough for a label on it, which on a light page is darker than a chart's mark
+ *   needs: the canonical teal measures 5.61:1 on the foundation's page, where a mark needs 3:1
+ *   (WCAG 1.4.11). The chart color keeps the solid's hue and chroma at the boundary ratio plus a
+ *   twentieth. A solid short of that ratio, a kept one included, moves towards the ink until it
+ *   meets the ratio. On a dark page a hue's solid is already light and saturated, and the chart
+ *   color is the solid. A grey solid after dark is the ink or near it, which would outshine every
+ *   hue, so it moves towards the page to the text ratio.
+ */
+function charted(solid: string, side: Written, ladder: Ladder, ratios: Ratios): string {
+  /**
+   * Returns whether a candidate meets a ratio against the page and the panel.
+   */
+  const meets =
+    (ratio: number) =>
+    (candidate: string): boolean =>
+      contrast(candidate, ladder.page) >= ratio && contrast(candidate, ladder.panel) >= ratio;
+  const passes = meets(ratios.boundary + CHART_MARGIN);
+
+  if (isDark(side)) {
+    const inked = meets(ratios.text);
+
+    return polar(solid).chroma < GREY_CHROMA && inked(solid)
+      ? towardsPage(solid, ladder, inked)
+      : solid;
+  }
+
+  if (!passes(solid)) return movedUntil(solid, side.ink, passes) ?? solid;
+
+  return towardsPage(solid, ladder, passes);
 }
 
 /**
@@ -209,11 +294,10 @@ function tinted(step: string, solid: string, share: number): string {
  * room in that direction.
  *
  * @remarks
- *   A hovered solid moves away from its label, so the label reads better under the pointer, and
- *   a hovered line moves towards the ink. A solid at white or black, which the neutral's is after
- *   dark, has nowhere to go that way and moves the other way instead. The step is a distance in
- *   lightness rather than a share of the way, because a share of a short way is a move nobody
- *   sees.
+ *   A hovered solid moves away from its label, so the label's contrast rises under the pointer,
+ *   and a hovered line moves towards the ink. A solid at white or black, as the neutral's is after
+ *   dark, has no room in that direction and moves the other way. The step is a distance in
+ *   lightness rather than a share of the way, because a share of a short way is too small to see.
  */
 function hovered(color: string, towards: string): string {
   const from = lightnessOf(color);
@@ -224,13 +308,13 @@ function hovered(color: string, towards: string): string {
 }
 
 /**
- * Draws the ten roles of one side from the solid, the page and the ink of that side.
+ * Draws the eleven roles of one side from the solid, the page and the ink of that side.
  *
  * @remarks
- *   The line and the ring are measured on every surface a control sits on, the wells included,
- *   because a ring has to be seen wherever focus lands. The ink is measured on the page, the
- *   raised surfaces, the wells and the palette's own fills, which is where a palette's words are
- *   set.
+ *   The line and the ring are measured on every surface a control can be placed on, the wells
+ *   included, because a ring must be visible on any element that takes focus. The ink is measured
+ *   on the page, the raised surfaces, the wells and the palette's own fills, which are the surfaces
+ *   a palette's words are set on.
  */
 function sideRoles(color: string, side: Written, options: DrawOptions): Record<Role, string> {
   const ratios = ratiosOf(options);
@@ -249,6 +333,7 @@ function sideRoles(color: string, side: Written, options: DrawOptions): Record<R
   return {
     border: line,
     "border.hover": hovered(line, side.ink),
+    chart: charted(solid, side, ladder, ratios),
     contrast: label,
     emphasized: fills[2],
     fg: raised(solid, side.ink, [...surfaces, ...fills], ratios.text),
@@ -278,6 +363,7 @@ export function drawn(solid: Solid, modes: Inked, options: DrawOptions = {}): Hu
 
   return {
     border: { DEFAULT: role("border"), hover: role("border.hover") },
+    chart: role("chart"),
     contrast: role("contrast"),
     emphasized: role("emphasized"),
     fg: role("fg"),

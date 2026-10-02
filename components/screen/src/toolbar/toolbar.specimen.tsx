@@ -1,133 +1,117 @@
 /**
- * Shows the toolbar: every look at every size, and every corner of an outlined row.
+ * Catalogue page for the toolbar.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every row holds the same controls: a primary filter, a secondary export,
- *   a tertiary column picker behind a separator, the folded control at the end, and a search that
- *   covers the row once it is narrow. The rows run down the page, because a row folds on its own
- *   width and a cell of a grid would fold every one. The words are keys under `toolbar` in the
- *   catalogue's namespace, kept beside this file in `locales/en/specimen/toolbar.json`.
+ *   Every hand-written scene renders its toolbar plain inside an outlined sample, the box a
+ *   toolbar sits in on a page. The folding scene renders the publishing example twice: at the
+ *   card's width and in a room a phone's width, because the row folds on its own width. The sizes
+ *   scene renders the editor at every size. `scenesOf` generates the looks and the corners from the
+ *   invoices example, and the corners render on an outlined row, because a plain row has no edge.
+ *   The samples and the rooms never appear in the examples. The words are keys under `toolbar` in
+ *   `locales/en/specimen/toolbar.json`.
  */
 
-import { type ReactElement } from "react";
+import { Stack } from "@stealthscale/component-layout";
+import { Room, Sample, type Scene, scenesOf, specimen } from "@stealthscale/specimen";
 
-import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
-import { SearchInput } from "@stealthscale/component-forms";
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
-import { type Scale } from "@stealthscale/theme/authoring";
-
-import * as Toolbar from "#toolbar/index.ts";
+import * as examples from "#toolbar/examples/index.ts";
+import type * as Toolbar from "#toolbar/index.ts";
 import { recipe } from "#toolbar/recipe.ts";
 
 /**
- * Describes what the controls of a row are told.
+ * Hand-written scene for a toolbar with three bands, a group and a separator.
  */
-interface ControlsProps {
-  /**
-   * The step every control is drawn at, which is the row's own.
-   */
-  readonly size: Scale;
-}
-
-/**
- * Draws the controls every row holds.
- *
- * @remarks
- *   The controls take the row's size, because the row's own axis moves the gaps and the
- *   separator alone. A row at every size around controls at the middle one drew eight rows that
- *   differed by a few pixels of gap.
- */
-function Controls({ size }: ControlsProps): ReactElement {
-  const { t } = useWords("toolbar");
-
-  return (
-    <ButtonPropsProvider value={{ size }}>
-      <Toolbar.Start>
-        <Toolbar.Action as={Button} priority="primary" variant="subtle">
-          {t("filter")}
-        </Toolbar.Action>
-        <Toolbar.Action as={Button} priority="secondary" variant="ghost">
-          {t("export")}
-        </Toolbar.Action>
-        <Toolbar.Separator />
-        <Toolbar.Action as={Button} priority="tertiary" variant="ghost">
-          {t("columns")}
-        </Toolbar.Action>
-      </Toolbar.Start>
-      <Toolbar.End>
-        <Toolbar.Folded as={Button} variant="ghost">
-          {t("more")}
-        </Toolbar.Folded>
-      </Toolbar.End>
-      <Toolbar.Search>
-        <SearchInput aria-label={t("search")} size={size} />
-      </Toolbar.Search>
-    </ButtonPropsProvider>
-  );
-}
-
-/**
- * Draws the row in every look at every size.
- */
-function Looks(): ReactElement {
-  const { t } = useWords("toolbar");
-
-  return (
-    <Matrix
-      across={{ knob: "size", of: valuesOf(recipe, "size") }}
-      knob="variant"
-      of={valuesOf(recipe, "variant")}
-    >
-      {(variant, size) => (
-        <Toolbar.Root aria-label={t("invoices")} size={size} variant={variant}>
-          <Controls size={size} />
-        </Toolbar.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws an outlined row at every corner.
- */
-function Corners(): ReactElement {
-  const { t } = useWords("toolbar");
-
-  return (
-    <Matrix direction="column" knob="radius" of={valuesOf(recipe, "radius")}>
-      {(radius) => (
-        <Toolbar.Root aria-label={t("invoices")} radius={radius} variant="outline">
-          <Controls size="md" />
-        </Toolbar.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Every look at every size.
- */
-export const looks: Scene = {
-  about: "toolbar.looks.about",
-  draw: Looks,
-  title: "toolbar.looks.title",
+export const whole: Scene = {
+  about: "toolbar.whole.about",
+  draw: () => (
+    <Sample place="stretch" variant="outline">
+      <examples.editor.Editor />
+    </Sample>
+  ),
+  example: examples.editor,
+  title: "toolbar.whole.title",
 };
 
 /**
- * Every corner.
+ * Hand-written scene for one toolbar wide and at a phone's width.
  */
-export const corners: Scene = {
-  about: "toolbar.corners.about",
-  draw: Corners,
-  title: "toolbar.corners.title",
+export const folding: Scene = {
+  about: "toolbar.folding.about",
+  draw: () => (
+    <Stack gap="lg">
+      <Sample place="stretch" variant="outline">
+        <examples.publishing.Publishing />
+      </Sample>
+      <Room size="sm">
+        <Sample place="stretch" variant="outline">
+          <examples.publishing.Publishing />
+        </Sample>
+      </Room>
+    </Stack>
+  ),
+  example: examples.publishing,
+  title: "toolbar.folding.title",
+};
+
+/**
+ * Sizes the sizes scene renders, from the smallest.
+ */
+const SIZES = ["sm", "md", "lg"] as const;
+
+/**
+ * Hand-written scene for the editor at every size.
+ */
+export const sizes: Scene = {
+  about: "toolbar.size.about",
+  axes: ["size"],
+  draw: () => (
+    <Stack gap="lg">
+      {SIZES.map((size) => (
+        <Sample key={size} place="stretch" variant="outline">
+          <examples.editor.Editor size={size} />
+        </Sample>
+      ))}
+    </Stack>
+  ),
+  example: examples.editor,
+  props: { size: "sm" } satisfies Omit<Toolbar.RootProps, "aria-label">,
+  title: "toolbar.size.title",
+};
+
+/**
+ * Hand-written scene for controls with tab stops of their own.
+ */
+export const loose: Scene = {
+  about: "toolbar.loose.about",
+  draw: () => (
+    <Sample place="stretch" variant="outline">
+      <examples.loose.Loose />
+    </Sample>
+  ),
+  example: examples.loose,
+  title: "toolbar.loose.title",
 };
 
 export default specimen({
   about: "toolbar.about",
-  group: "Screen",
-  id: "screen/toolbar",
+  id: "components/screen/toolbar",
   imports: 'import { Toolbar } from "@stealthscale/component-screen";',
-  scenes: [looks, corners],
+  scenes: [
+    whole,
+    folding,
+    sizes,
+    loose,
+    ...scenesOf<Omit<Toolbar.RootProps, "aria-label">>(recipe, {
+      axes: {
+        radius: { direction: "column", with: { variant: "outline" } },
+        variant: { direction: "column" },
+      },
+      draw: (props) => <examples.invoices.Invoices {...props} />,
+      example: examples.invoices,
+      namespace: "toolbar",
+      order: ["variant", "radius"],
+      skip: { size: "The sizes scene renders every size with its controls at the same size." },
+    }),
+  ],
   title: "toolbar.title",
 });

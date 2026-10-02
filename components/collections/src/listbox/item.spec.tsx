@@ -9,25 +9,25 @@ import { composed, offered } from "#listbox/listbox.fixtures.tsx";
 import { ROWS } from "#listbox/rows.fixtures.ts";
 
 describe("Item", () => {
-  it("draws a div inside the root it needs above it", () => {
+  it("renders a div", () => {
     const { container } = render(offered(<Item item={ROWS[0]} />));
 
     expect(slotElement(container, "listbox", "item").tagName).toBe("DIV");
   });
 
-  it("carries the option role", () => {
+  it("renders the element with the option role", () => {
     render(offered(<Item item={ROWS[0]} />));
 
     expect(screen.getByRole("option")).toBeTruthy();
   });
 
-  it("takes no tab stop, because focus rests on the list", () => {
+  it("sets no tabindex", () => {
     render(offered(<Item item={ROWS[0]} />));
 
     expect(screen.getByRole("option").getAttribute("tabindex")).toBeNull();
   });
 
-  it("reports itself as unchosen until it is picked", () => {
+  it("sets aria-selected to false by default", () => {
     render(composed());
 
     expect(screen.getByRole("option", { name: "Invoices" }).getAttribute("aria-selected")).toBe(
@@ -35,7 +35,7 @@ describe("Item", () => {
     );
   });
 
-  it("reports itself as chosen once it is pressed", async () => {
+  it("sets aria-selected to true after a press", async () => {
     render(composed());
     await pressed(screen.getByRole("option", { name: "Invoices" }));
 

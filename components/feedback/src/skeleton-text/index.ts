@@ -1,6 +1,5 @@
 /**
- * Publishes the paragraph of skeleton: the column of bars standing in for lines of text, and the
- * provider that sets the column's variants from above.
+ * Exports the skeleton text placeholder and the provider that sets its props for descendants.
  */
 
 export { PropsProvider as SkeletonTextPropsProvider } from "#skeleton-text/context.ts";

@@ -16,5 +16,12 @@ export {
   type Words,
 } from "#emit.ts";
 export { type Catalogue, found, LOCALES } from "#find.ts";
-export { type Changed, EVENT, i18n, type Options } from "#plugin.ts";
+export {
+  type CataloguesApi,
+  cataloguesOf,
+  type Changed,
+  EVENT,
+  i18n,
+  type Options,
+} from "#plugin.ts";
 export { declared, FOUNDATION } from "#typegen.ts";

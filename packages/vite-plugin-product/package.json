@@ -1,0 +1,78 @@
+{
+  "name": "@stealthscale/vite-plugin-product",
+  "version": "0.1.0",
+  "description": "Composes a product from its plugins while it builds: checks every plugin against the others, resolves the product, and serves it as virtual:product.",
+  "keywords": [
+    "plugins",
+    "vite-plugin"
+  ],
+  "homepage": "https://github.com/stealth-scale/config/tree/main/packages/vite-plugin-product#readme",
+  "bugs": "https://github.com/stealth-scale/config/issues",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stealth-scale/config.git",
+    "directory": "packages/vite-plugin-product"
+  },
+  "files": [
+    "client.d.ts",
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#*": "./src/*"
+  },
+  "exports": {
+    ".": {
+      "stealth-source": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json",
+    "./client": "./client.d.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.mjs",
+      "./package.json": "./package.json",
+      "./client": "./client.d.ts"
+    },
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "check": "vp check",
+    "prepublishOnly": "vp pack",
+    "test": "vp test"
+  },
+  "dependencies": {
+    "@tanstack/hotkeys": "catalog:"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/core": "catalog:",
+    "@stealthscale/sdk-core": "workspace:^",
+    "@stealthscale/testing": "workspace:^",
+    "@stealthscale/testing-config": "workspace:^",
+    "@stealthscale/vite-config": "workspace:^",
+    "@stealthscale/vite-config-typescript": "workspace:^",
+    "@stealthscale/vite-plugin-base": "workspace:^",
+    "@stealthscale/vite-plugin-i18n": "workspace:^",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "publint": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "@stealthscale/sdk-core": "workspace:^",
+    "@stealthscale/vite-plugin-base": "workspace:^",
+    "@stealthscale/vite-plugin-i18n": "workspace:^",
+    "vite": "catalog:peer"
+  },
+  "engines": {
+    "node": ">=26.0.0"
+  }
+}

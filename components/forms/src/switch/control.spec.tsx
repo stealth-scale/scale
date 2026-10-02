@@ -7,26 +7,26 @@ import { Control } from "#switch/control.tsx";
 import { composed, pressed, thrown } from "#switch/switch.fixtures.tsx";
 
 describe("Control", () => {
-  it("draws a span inside the root it needs above it", () => {
+  it("renders a span", () => {
     const { container } = render(thrown(<Control />));
 
     expect(slotElement(container, "switch", "control").tagName).toBe("SPAN");
   });
 
-  it("keeps the track out of the accessibility tree", () => {
+  it("hides the track from assistive technology", () => {
     const { container } = render(thrown(<Control />));
 
     expect(slotElement(container, "switch", "control").getAttribute("aria-hidden")).toBe("true");
   });
 
-  it("reports the state the machine is in", async () => {
+  it("sets data-state to checked after a press", async () => {
     const { container } = render(composed());
     await pressed(screen.getByRole("switch"));
 
     expect(slotElement(container, "switch", "control").dataset["state"]).toBe("checked");
   });
 
-  it("reports a switch the field around it marks wrong", () => {
+  it("sets data-invalid on an invalid switch", () => {
     const { container } = render(composed({ invalid: true }));
 
     expect(slotElement(container, "switch", "control").dataset["invalid"]).toBe("");

@@ -1,0 +1,30 @@
+{
+  "about": "Shows that something is loading, beside words or over the content it replaces. Over content, the loader hides it and keeps its box, so the layout does not shift when the content returns.",
+  "button": {
+    "about": "A button loaded and loading. The label is hidden and keeps its width, so the button does not resize when the save starts or ends.",
+    "title": "In a button"
+  },
+  "ledger": "Matched against the ledger, then written back.",
+  "lines": "Four hundred lines",
+  "matching": "Matching",
+  "palette": {
+    "about": "The spinner in each semantic palette's solid color. Without a palette the spinner takes the ink of the surrounding text.",
+    "title": "Palettes"
+  },
+  "placement": {
+    "about": "The spinner before or after its words. Both stay on one line in any container.",
+    "title": "Placement"
+  },
+  "save": "Save changes",
+  "saving": "Saving changes",
+  "scrim": {
+    "about": "The overlay's fill over a card that is loading. `veil` keeps the content visible behind the spinner, `glass` blurs it, and `none` leaves it unchanged.",
+    "title": "Scrims"
+  },
+  "settled": "£17,500.40 settled",
+  "title": "Loader",
+  "value": {
+    "about": "A value loaded and loading. The spinner is centred over the hidden value, and screen readers read the label `Loading` in its place.",
+    "title": "Over a value"
+  }
+}

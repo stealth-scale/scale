@@ -1,6 +1,7 @@
 /**
- * Registers the renderers this page adds to the field library's own: a number with a currency
- * beside it, and a multi-line box a field names by `control`.
+ * Registers the renderers this page adds to the binding's own: a number in the currency its
+ * options name, and the page's own multi-line box, which a field names by `control` in place of
+ * the binding's.
  */
 
 import { byControl, RANK, type Renderer } from "@stealthscale/provider-form";

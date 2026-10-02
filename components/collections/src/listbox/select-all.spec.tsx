@@ -11,10 +11,10 @@ import { COLLECTION } from "#listbox/rows.fixtures.ts";
 import { SelectAll } from "#listbox/select-all.tsx";
 
 /**
- * Draws a part inside a list of several, which is the only kind the row belongs on.
+ * Renders the children inside a root in the multiple selection mode.
  *
  * @param children - The part under test.
- * @returns The root, holding it.
+ * @returns The root with the children inside it.
  */
 function several(children: ReactNode): ReactElement {
   return (
@@ -25,7 +25,7 @@ function several(children: ReactNode): ReactElement {
 }
 
 describe("SelectAll", () => {
-  it("draws a button inside the root it needs above it", () => {
+  it("renders a button", () => {
     const { container } = render(several(<SelectAll>All</SelectAll>));
 
     expect(slotElement(container, "listbox", "selectAll").tagName).toBe("BUTTON");
@@ -43,26 +43,26 @@ describe("SelectAll", () => {
     ).toStrictEqual([]);
   });
 
-  it("submits nothing, because a list of rows is not a form", () => {
+  it("sets type button", () => {
     render(several(<SelectAll>All</SelectAll>));
 
     expect(screen.getByRole("button").getAttribute("type")).toBe("button");
   });
 
-  it("reports the list as off while no row is picked", () => {
+  it("sets aria-pressed to false while no row is selected", () => {
     render(several(<SelectAll>All</SelectAll>));
 
     expect(screen.getByRole("button").getAttribute("aria-pressed")).toBe("false");
   });
 
-  it("turns every row on when it is pressed", async () => {
+  it("selects every row on a press", async () => {
     render(several(<SelectAll>All</SelectAll>));
     await pressed(screen.getByRole("button"));
 
     expect(screen.getByRole("button").getAttribute("aria-pressed")).toBe("true");
   });
 
-  it("clears every row when it is pressed a second time", async () => {
+  it("clears the selection on a second press", async () => {
     render(several(<SelectAll>All</SelectAll>));
     await pressed(screen.getByRole("button"));
     await pressed(screen.getByRole("button"));
@@ -70,7 +70,7 @@ describe("SelectAll", () => {
     expect(screen.getByRole("button").getAttribute("aria-pressed")).toBe("false");
   });
 
-  it("reports the list as part-way through while some of it is picked", () => {
+  it("sets aria-pressed to mixed while part of the list is selected", () => {
     render(
       <Root collection={COLLECTION} defaultValue={["invoices"]} selectionMode="multiple">
         <SelectAll>All</SelectAll>
@@ -80,7 +80,7 @@ describe("SelectAll", () => {
     expect(screen.getByRole("button").getAttribute("aria-pressed")).toBe("mixed");
   });
 
-  it("says how much of the list is on so a box inside it reads the same state", () => {
+  it("sets data-state to indeterminate while part of the list is selected", () => {
     const { container } = render(
       <Root collection={COLLECTION} defaultValue={["invoices"]} selectionMode="multiple">
         <SelectAll>All</SelectAll>
@@ -90,13 +90,13 @@ describe("SelectAll", () => {
     expect(slotElement(container, "listbox", "selectAll").dataset["state"]).toBe("indeterminate");
   });
 
-  it("draws no box of its own on a list whose rows carry none", () => {
+  it("renders no checkbox in a list without boxed", () => {
     const { container } = render(several(<SelectAll>All</SelectAll>));
 
     expect(container.querySelector("[class*=itemCheckbox]")).toBeNull();
   });
 
-  it("carries the same box as the rows beneath it on a boxed list", () => {
+  it("renders the checkbox with the mark in a boxed list", () => {
     const { container } = render(
       <Root boxed collection={COLLECTION} mark="check" mixedMark="dash" selectionMode="multiple">
         <SelectAll>All</SelectAll>
@@ -106,7 +106,7 @@ describe("SelectAll", () => {
     expect(slotElement(container, "listbox", "itemCheckbox").textContent).toBe("check");
   });
 
-  it("draws the part-checked mark while some of the list is on", () => {
+  it("renders the mixed mark while part of a boxed list is selected", () => {
     const { container } = render(
       <Root
         boxed
@@ -123,7 +123,7 @@ describe("SelectAll", () => {
     expect(slotElement(container, "listbox", "itemCheckbox").textContent).toBe("dash");
   });
 
-  it("calls the handler a caller passed as well as turning the rows on", async () => {
+  it("calls the caller's onClick on a press", async () => {
     let called = 0;
 
     render(

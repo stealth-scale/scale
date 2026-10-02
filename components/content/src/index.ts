@@ -1,11 +1,15 @@
 /**
- * Publishes a body of something for reading: a passage of code, and in time markdown, a diff, a
- * document, a record about a thing. Each component binds a recipe a theme can extend and draws
- * nothing of its own. The recipes reach an application's compiler through the preset under
- * `./theme`, and the components reach its bundle through here. A component with parts is
- * published as a namespace, `CodeBlock.Root`.
+ * Provides `CodeBlock`, which renders a passage of source code, terminal output or the diff of two
+ * versions, `JsonTreeView`, which renders a JSON value as a tree, `Markdown`, which renders a
+ * Markdown document with the library's components, and `Marquee`, which moves a strip of items in a
+ * loop. Each takes its whole appearance from a recipe a theme can extend. An application installs
+ * the recipes through the preset at `./theme` and imports the components from here. A component
+ * made of parts is exported as a namespace, so a caller writes `CodeBlock.Root`.
  *
  * @packageDocumentation
  */
 
 export * as CodeBlock from "#code-block/index.ts";
+export * as JsonTreeView from "#json-tree-view/index.ts";
+export * from "#markdown/index.ts";
+export * as Marquee from "#marquee/index.ts";

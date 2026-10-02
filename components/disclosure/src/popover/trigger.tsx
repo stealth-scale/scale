@@ -1,10 +1,9 @@
 /**
- * Draws the control that opens the panel.
+ * Renders the button that opens and closes the popover.
  *
  * @remarks
- *   The machine writes whether the panel is open, which panel it controls, and the handlers that
- *   open and shut it. The element is `button`, because a control a browser does not focus is a
- *   control a keyboard never reaches.
+ *   The element is a `button`, so a keyboard focuses it. The machine sets `aria-expanded`,
+ *   `aria-controls` and the press handlers.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,20 +14,20 @@ import { withContext } from "#popover/context.ts";
 import { usePopover } from "#popover/machine.ts";
 
 /**
- * Draws the part at the size the root states.
+ * Renders the `button` with the popover's trigger class.
  */
 const Drawn = withContext("button", "trigger");
 
 /**
- * Describes what the part takes.
+ * Describes the props of the trigger: the props of a `button`.
  */
 export type TriggerProps = ComponentProps<typeof Drawn>;
 
 /**
- * Draws the control that opens the panel.
+ * Renders the trigger with the machine's trigger props merged over the caller's.
  *
- * @param props - Everything a styled button takes.
- * @returns The part, carrying what the machine writes onto it.
+ * @param props - The props of a `button`.
+ * @returns The `button` element.
  */
 export function Trigger(props: TriggerProps): ReactElement {
   const api = usePopover();

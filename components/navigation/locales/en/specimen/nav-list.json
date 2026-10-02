@@ -1,31 +1,42 @@
 {
-  "about": "Draws the destinations a page is reached from: rows one under another, and branches that open onto rows of their own.",
+  "about": "A list of links a page is reached from: rows in a column, and branches that expand a nested list.",
   "billing": "Billing",
-  "corners": {
-    "about": "Every corner, on the row naming the page being read.",
-    "title": "Corners"
+  "effect": {
+    "about": "A glow around the current row, in the palette's solid at half opacity.",
+    "title": "Effects"
   },
-  "highlights": {
-    "about": "Every highlight at every size, drawn on the row carrying `aria-current`.",
+  "guide": {
+    "about": "Every style of the line down a nested list. The line is aligned with the centre of the branch's icon.",
+    "title": "Guides"
+  },
+  "highlight": {
+    "about": "Every highlight at every size, on the row with `aria-current`.",
     "title": "Highlights and sizes"
   },
   "iconic": {
-    "about": "The list as it is, and collapsed to a rail: the rows become squares, the counts and the chevrons go, and the words stay in the document for a screen reader.",
+    "about": "The list in full and collapsed to a rail. In the rail every row is a square that contains its icon. The counts, the controls and the nested rows are hidden, and the text remains in the accessibility tree. A link with `tooltip` shows its words beside the icon on hover and on focus.",
     "title": "Iconic"
   },
   "invoices": "Invoices",
-  "looks": {
-    "about": "A list of rows, and a dock of destinations across the foot of a screen.",
-    "title": "Looks"
-  },
-  "main": "Main",
-  "open": "Open settings",
   "overview": "Overview",
+  "palette": {
+    "about": "The eight semantic palettes, on the fill highlight. The palette sets the highlight, the hover fill and the branch rows.",
+    "title": "Palettes"
+  },
+  "radius": {
+    "about": "Every corner, on the current row.",
+    "title": "Corners"
+  },
+  "rename": "Rename {{name}}",
   "reveal": {
-    "about": "An action always drawn, and one that appears with the pointer and stays under a coarse pointer or while the row holds focus.",
+    "about": "A control that is always visible, and one that appears on hover. The control on the current row is always visible. The others appear under the pointer, while their row has focus, and under a coarse pointer.",
     "title": "Reveal"
   },
   "settings": "Settings",
   "team": "Team",
-  "title": "Nav list"
+  "title": "Nav list",
+  "variant": {
+    "about": "A column of rows, and a dock of equal columns across the foot of a screen, each an icon over its label.",
+    "title": "Looks"
+  }
 }

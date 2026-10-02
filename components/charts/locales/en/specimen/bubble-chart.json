@@ -1,0 +1,47 @@
+{
+  "about": "A scatter whose points also show a third measure as their area. Recharts scales the area, not the radius, so a point twice the value is twice the ink. Readers judge area roughly, so the tooltip writes the value.",
+  "accounts": {
+    "about": "Seats against weekly active seats, each account sized by its annual recurring revenue. Each series lists its points largest first, so the small ones render on top.",
+    "active": "Weekly active",
+    "arr": "ARR",
+    "business": "Business",
+    "caption": "Business accounts use fewer of their seats: weekly activity falls to 43% at 200 seats, against 58% or more on every Team account.",
+    "label": "Weekly active seats by account size",
+    "seats": "Seats",
+    "team": "Team",
+    "title": "Two series"
+  },
+  "features": {
+    "about": "One series of features: adoption across accounts against the rating users give, each feature sized by its weekly users. yDomain runs the rating axis from 1 to 5, the scale the rating uses.",
+    "adoption": "Adoption",
+    "caption": "The best-rated feature, at 4.6, is adopted by only 29% of accounts.",
+    "features": "Features",
+    "label": "Rating by adoption per feature",
+    "rating": "Rating",
+    "title": "One series",
+    "users": "Weekly users"
+  },
+  "largest": {
+    "about": "defaultIndex opens the tooltip at the largest account when the chart first renders. The tooltip writes the size's value beside the two axes' values.",
+    "caption": "The largest account, €216K a year, uses 66% of its 240 seats weekly.",
+    "title": "Tooltip"
+  },
+  "narrow": {
+    "about": "The accounts in a room 20rem wide, the column of a phone. The points keep their areas, so they crowd more than on a wide plot.",
+    "title": "Narrow room"
+  },
+  "plans": "Plans",
+  "quiet": {
+    "about": "A chart without points renders the empty state in the plot's place, at the plot's ratio.",
+    "accounts": "Accounts",
+    "caption": "Weekly active seats by account size.",
+    "empty": "No accounts yet.",
+    "title": "Empty"
+  },
+  "replay": {
+    "about": "animate grows each point from its centre when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the points at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "title": "Bubble chart"
+}

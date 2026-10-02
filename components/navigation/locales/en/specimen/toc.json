@@ -1,23 +1,29 @@
 {
-  "about": "Lists the headings on a page and marks the ones on screen, so a reader sees where they are and jumps to where they want to be.",
+  "about": "A list of links to the headings on a page, with an indicator next to the headings in view.",
   "following": {
-    "about": "A rail over three passages on this page. Scroll, and the mark moves to the heading on screen. Press a row, and the page scrolls to it.",
-    "title": "Following the reader"
+    "about": "The aside placement next to three sections of this page. The table of contents sticks to the top of the viewport while the page scrolls, and the indicator moves to the headings in view. Clicking a link scrolls the page to its heading.",
+    "title": "Aside placement"
   },
   "headings": {
-    "toc-first": "The first passage",
+    "toc-first": "The first section",
     "toc-install": "Install",
     "toc-overview": "Overview",
     "toc-peers": "Peers",
-    "toc-second": "The second passage",
-    "toc-third": "The third passage",
+    "toc-second": "The second section",
+    "toc-third": "The third section",
     "toc-usage": "Usage"
   },
   "onThisPage": "On this page",
-  "passage": "A short passage under the heading, long enough to give the page something to scroll past.",
-  "sizes": {
-    "about": "Every size, with the mark on the second heading and a heading one level in indented under the one above it.",
+  "palette": {
+    "about": "The eight semantic palettes, with the indicator on the second heading. The palette sets the indicator and the focus ring.",
+    "title": "Palettes"
+  },
+  "passage": "This section gives the page enough height to scroll. The table of contents marks its heading while the heading is in view.",
+  "second": "With the aside placement the table of contents is sticky. It stays in the viewport while this column scrolls, so the indicator stays visible.",
+  "size": {
+    "about": "Every size, with the indicator on the second heading. A heading at depth 3 is indented by one gap.",
     "title": "Sizes"
   },
+  "third": "Clicking a link scrolls the page to its heading and writes the heading's ID to the URL fragment. The indicator then moves to that heading.",
   "title": "Table of contents"
 }

@@ -1,11 +1,9 @@
 /**
- * Draws inline code through its recipe.
+ * Renders inline code through the code recipe.
  *
  * @remarks
- *   The binding stamps the recipe's name on the element and writes the class of each variant a
- *   caller picks. The element is `code`, which a screen reader announces as such. The component
- *   adds no ink, no size and no margin. All of that is the recipe's, so a theme moves every
- *   snippet by extending it.
+ *   The element is `code`. A code block with lines, a title and a copy control is `CodeBlock` in
+ *   the content package.
  */
 
 import { type ComponentProps } from "react";
@@ -13,12 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#code/context.ts";
 
 /**
- * Draws a snippet of code inside a line, in a look, a size and the palette of its status.
+ * Renders a `code` element with the classes of the code recipe.
  */
 export const Code = withContext("code");
 
 /**
- * Describes what a snippet takes: the variants its recipe offers, and everything a styled code
- * element takes.
+ * Describes the props of Code: the recipe's variants and the props of a `code` element.
  */
 export type CodeProps = ComponentProps<typeof Code>;

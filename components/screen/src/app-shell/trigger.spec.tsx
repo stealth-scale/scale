@@ -10,19 +10,19 @@ import { Navbar } from "#app-shell/navbar.tsx";
 import { Trigger } from "#app-shell/trigger.tsx";
 
 describe("Trigger", () => {
-  it("draws a control inside the shell it needs above it", () => {
+  it("renders a button inside the root", () => {
     const { container } = render(shell(<Trigger>Navigation</Trigger>));
 
     expect(slotElement(container, "app-shell", "trigger").tagName).toBe("BUTTON");
   });
 
-  it("submits nothing a form around the shell holds", () => {
+  it("defaults type to button", () => {
     const { container } = render(shell(<Trigger>Navigation</Trigger>));
 
     expect(slotElement(container, "app-shell", "trigger").getAttribute("type")).toBe("button");
   });
 
-  it("points at the panel it opens", () => {
+  it("points aria-controls at its panel", () => {
     const { container } = render(composed());
 
     expect(screen.getByRole("button", { name: "Navigation" }).getAttribute("aria-controls")).toBe(
@@ -30,19 +30,19 @@ describe("Trigger", () => {
     );
   });
 
-  it("says whether the panel it points at is shown", () => {
+  it("sets aria-expanded to true while its panel is open", () => {
     render(composed());
 
     expect(screen.getByRole("button", { expanded: true, name: "Navigation" })).toBeTruthy();
   });
 
-  it("says a panel is closed while it points at one nothing has drawn", () => {
+  it("sets aria-expanded to false when no panel has its name", () => {
     render(shell(<Trigger>Navigation</Trigger>));
 
     expect(screen.getByRole("button", { expanded: false })).toBeTruthy();
   });
 
-  it("opens the panel it points at", async () => {
+  it("opens its panel on a press", async () => {
     const { container } = render(narrowed(composed()));
 
     await pressed(screen.getByRole("button", { name: "Navigation" }));
@@ -50,7 +50,7 @@ describe("Trigger", () => {
     expect(slotElement(container, "app-shell", "navbar").dataset["state"]).toBe("open");
   });
 
-  it("closes the panel it points at", async () => {
+  it("closes its open panel on a press", async () => {
     const { container } = render(composed());
 
     await pressed(screen.getByRole("button", { name: "Navigation" }));
@@ -58,7 +58,7 @@ describe("Trigger", () => {
     expect(slotElement(container, "app-shell", "navbar").dataset["state"]).toBe("closed");
   });
 
-  it("leaves the panel alone where the caller stopped the press", async () => {
+  it("leaves its panel unchanged when onClick prevents the default", async () => {
     const { container } = render(
       shell(
         <>
@@ -81,15 +81,23 @@ describe("Trigger", () => {
     expect(slotElement(container, "app-shell", "navbar").dataset["state"]).toBe("open");
   });
 
-  it("turns its own mark with the panel", () => {
+  it("writes its panel's state as data-state", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "app-shell", "trigger").dataset["state"]).toBe("open");
   });
 
-  it("leaves the document where the panel it points at has dropped under the page", () => {
+  it("renders nothing while its panel is under the page", () => {
     render(narrowed(composed({ folds: "under" })));
 
     expect(screen.queryByRole("button", { name: "Navigation" })).toBeNull();
+  });
+
+  it("renders the library's button as a neutral ghost", () => {
+    const { container } = render(shell(<Trigger>Navigation</Trigger>));
+
+    expect([...slotElement(container, "app-shell", "trigger").classList]).toStrictEqual(
+      expect.arrayContaining(["button", "button--ghost", "button--neutral"]),
+    );
   });
 });

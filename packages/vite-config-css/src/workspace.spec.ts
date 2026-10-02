@@ -1,5 +1,5 @@
 /**
- * Covers the root call, which is expected to contribute nothing.
+ * Covers the layers the workspace root call returns.
  */
 
 import { describe, expect, it } from "vitest";
@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 import { workspace } from "#workspace.ts";
 
 describe("workspace", () => {
-  it("contributes nothing at a root", () => {
+  it("returns an empty array", () => {
     expect(workspace()).toStrictEqual([]);
   });
 });

@@ -1,9 +1,9 @@
 /**
- * Binds the sidebar's recipe to the elements that draw its parts.
+ * Binds the sidebar's recipe to the elements of its parts.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime.
+ *   The binding is in its own module, because an application's compiler reads the recipe at build
+ *   time and the binding imports the runtime.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";

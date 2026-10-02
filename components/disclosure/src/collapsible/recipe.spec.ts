@@ -1,31 +1,46 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
+import page from "#collapsible/collapsible.specimen.tsx";
 import { recipe } from "#collapsible/recipe.ts";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("covers every axis in the scenes of its specimen", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("leaves no scene naming a value the recipe lacks", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Collapsible"] })).toStrictEqual([]);
   });
 
-  it("names its class collapsible", () => {
+  it("sets className to collapsible", () => {
     expect(recipe.className).toBe("collapsible");
   });
 
-  it("draws the four parts a collapsible is composed of", () => {
+  it("declares four slots", () => {
     expect([...recipe.slots].toSorted()).toStrictEqual(["content", "indicator", "root", "trigger"]);
   });
 
-  it("offers the three axes a collapsible takes", () => {
-    expect(axesOf(recipe)).toStrictEqual(["motion", "size", "variant"]);
+  it("declares four axes", () => {
+    expect(axesOf(recipe)).toStrictEqual(["motion", "palette", "size", "variant"]);
   });
 
-  it("draws an unframed collapsible sliding open at the middle size by default", () => {
-    expect(defaultsOf(recipe)).toStrictEqual({ motion: "slide", size: "md", variant: "plain" });
+  it("defaults to a plain collapsible at md in neutral sliding open", () => {
+    expect(defaultsOf(recipe)).toStrictEqual({
+      motion: "slide",
+      palette: "neutral",
+      size: "md",
+      variant: "plain",
+    });
   });
 
-  it("offers the eight sizes every component shares", () => {
+  it("declares the eight shared sizes", () => {
     expect(valuesOf(recipe, "size")).toStrictEqual([
       "2xl",
       "3xl",
@@ -38,15 +53,46 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers the four ways the pair is set off from the page", () => {
+  it("sets the palette on the root", () => {
+    expect(recipe.variants?.["palette"]?.["warning"]).toStrictEqual({
+      root: { colorPalette: "warning" },
+    });
+  });
+
+  it("emits every palette", () => {
+    expect(recipe.staticCss).toContainEqual({
+      palette: ["primary", "secondary", "accent", "neutral", "info", "success", "warning", "error"],
+    });
+  });
+
+  it("declares four looks", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual(["outline", "plain", "subtle", "surface"]);
   });
 
-  it("offers the three ways the block appears and goes", () => {
+  it("rounds the subtle trigger with the root's radius", () => {
+    expect(recipe.variants?.["variant"]?.["subtle"]?.["trigger"]).toMatchObject({
+      _open: { borderEndEndRadius: "0", borderEndStartRadius: "0" },
+      borderRadius: "l2",
+    });
+    expect(recipe.variants?.["variant"]?.["subtle"]?.["root"]).toMatchObject({
+      borderRadius: "l2",
+    });
+  });
+
+  it("outlines the subtle box in CanvasText under forced colors", () => {
+    expect(recipe.variants?.["variant"]?.["subtle"]?.["root"]?.["_highContrast"]).toStrictEqual({
+      outlineColor: "CanvasText",
+      outlineOffset: "calc({borderWidths.hairline} * -1)",
+      outlineStyle: "solid",
+      outlineWidth: "hairline",
+    });
+  });
+
+  it("declares three motions", () => {
     expect(valuesOf(recipe, "motion")).toStrictEqual(["fade", "none", "slide"]);
   });
 
-  it("reads an animation style the theme owns for each motion but none", () => {
+  it("animates slide with the theme's collapse styles", () => {
     expect(recipe.variants?.["motion"]?.["slide"]).toStrictEqual({
       content: {
         _closed: { animationStyle: "collapse.out" },
@@ -55,7 +101,7 @@ describe("recipe", () => {
     });
   });
 
-  it("steps the trigger the block and the mark together at one name", () => {
+  it("sizes the trigger the content and the indicator from one size", () => {
     expect(recipe.variants?.["size"]?.["md"]).toStrictEqual({
       content: { padding: "calc({spacing.inset.md} * var(--density, 1))" },
       indicator: { boxSize: "calc({sizes.icon.md} * var(--density, 1))" },
@@ -73,25 +119,25 @@ describe("recipe", () => {
     });
   });
 
-  it("turns the mark half a revolution while the block is open", () => {
+  it("turns the indicator 180deg while open", () => {
     expect(recipe.base?.["indicator"]).toMatchObject({ _open: { rotate: "180deg" } });
   });
 
-  it("holds the mark still for a reader who asked for less motion", () => {
+  it("removes the indicator's transition under reduced motion", () => {
     expect(recipe.base?.["indicator"]).toMatchObject({
       _motionReduce: { transitionDuration: "none" },
     });
   });
 
-  it("clips the block so it has a height to animate from", () => {
+  it("clips the content's overflow", () => {
     expect(recipe.base?.["content"]).toStrictEqual({ overflow: "hidden" });
   });
 
-  it("names the property the mark actually turns in", () => {
+  it("transitions the indicator's rotate property", () => {
     expect(recipe.base?.["indicator"]).toMatchObject({ transitionProperty: "rotate" });
   });
 
-  it("tracks the tag named Collapsible and every part under it", () => {
+  it("matches every Collapsible tag", () => {
     expect(recipe.jsx).toStrictEqual([/^Collapsible(\.\w+)?$/u]);
   });
 });

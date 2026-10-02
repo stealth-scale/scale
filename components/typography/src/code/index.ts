@@ -1,5 +1,5 @@
 /**
- * Publishes inline code: a snippet set apart from the words around it.
+ * Exposes the inline code component to the package barrel.
  */
 
 export { Code, type CodeProps } from "#code/code.ts";

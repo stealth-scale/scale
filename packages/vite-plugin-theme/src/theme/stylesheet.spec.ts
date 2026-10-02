@@ -99,8 +99,8 @@ function linked(workspace: ScratchWorkspace): void {
 }
 
 /**
- * The part of an update a specification chooses: the file, the modules the server resolved for
- * it, and the time the server reports it under.
+ * The part of an update a case chooses: the file, the modules the server resolved for it, and the
+ * time the server reports it under.
  */
 interface Report {
   readonly file: string;
@@ -109,8 +109,14 @@ interface Report {
 }
 
 /**
- * Reports an update to the plugin under a time of the specification's choosing, the way a server
- * reports one change to each of its environments.
+ * Calls the plugin's `hotUpdate` hook with an update of type `update`, under a timestamp the case
+ * chooses.
+ *
+ * @remarks
+ *   The `updated` driver fixes the timestamp to the current time. The cases about applying one
+ *   change once need two environments to report the same timestamp, so they build the update here
+ *   instead.
+ * @throws {@link Error} When the plugin declares no `hotUpdate` hook.
  */
 function reported(
   plugin: ReturnType<typeof stylesheet>,
@@ -135,7 +141,8 @@ function reported(
 }
 
 /**
- * Names the environment of a context, the way a server names each of its environments.
+ * Names a context's environment, as a dev server names each of its own, and returns that same
+ * context.
  */
 function named(
   context: ReturnType<typeof hookContext>,
@@ -164,14 +171,15 @@ const COLLISION: ScratchFiles = {
 };
 
 /**
- * Strips the environment off a context, the way a server that bundles calls a hook.
+ * Copies a context with its environment stripped off, which is how a server that bundles calls a
+ * hook.
  *
  * @remarks
  *   Typed as the context it was built from, because the drivers take one, and the plugin under
  *   test reads the environment as absent either way.
  */
 function bundling(context: ReturnType<typeof hookContext>): ReturnType<typeof hookContext> {
-  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- a bundling server hands the hook a context typed as carrying an environment and carrying none, which is the case under test
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- a bundling server calls the hook with a context whose type declares an environment it does not supply, which is the case under test
   return { ...context, environment: undefined } as unknown as ReturnType<typeof hookContext>;
 }
 
@@ -179,9 +187,17 @@ async function serving(
   plugin: ReturnType<typeof stylesheet>,
   watched: string[],
   invalidated: string[] = [],
+  sent: unknown[] = [],
 ): Promise<void> {
   const server = {
     environments: {
+      client: {
+        hot: {
+          send(payload: unknown): void {
+            sent.push(payload);
+          },
+        },
+      },
       ssr: {
         moduleGraph: {
           onFileChange(file: string): void {
@@ -219,7 +235,7 @@ async function compiled(workspace: ScratchWorkspace, graphed = false): Promise<C
 }
 
 describe("stylesheet", () => {
-  it("names the plugin for its factory", () => {
+  it("names itself stealth:theme.stylesheet", () => {
     expect(stylesheet().name).toBe("stealth:theme.stylesheet");
   });
 
@@ -227,7 +243,7 @@ describe("stylesheet", () => {
     expect(stylesheet().enforce).toBe("pre");
   });
 
-  it("resolves the stylesheet subpath to a module of its own", async () => {
+  it("resolves only the system package's styles.css to the virtual module", async () => {
     const found = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const { plugin } = await compiled(workspace);
 
@@ -250,7 +266,7 @@ describe("stylesheet", () => {
     expect(found).toBe(`${VIRTUAL}?direct`);
   });
 
-  it("loads the virtual stylesheet with the cascade order and nothing else", async () => {
+  it("loads the virtual stylesheet as the cascade order alone", async () => {
     const found = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const { plugin } = await compiled(workspace);
 
@@ -260,7 +276,7 @@ describe("stylesheet", () => {
     expect(found).toStrictEqual([`${DECLARED}\n`, undefined]);
   });
 
-  it("loads the virtual stylesheet and starts the compiler where nothing has yet", async () => {
+  it("loads the virtual stylesheet before buildStart has run", async () => {
     const found = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const plugin = stylesheet(OPTIONS);
 
@@ -330,7 +346,7 @@ describe("stylesheet", () => {
     expect(found[1]).toBe(`${DECLARED}\n`);
   });
 
-  it("compiles through an environment of its own when the server's runner is absent", async () => {
+  it("compiles through an environment of the plugin's when the server's runner is absent", async () => {
     const found = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const plugin = stylesheet(OPTIONS);
 
@@ -377,7 +393,7 @@ describe("stylesheet", () => {
     expect(added).toStrictEqual([]);
   });
 
-  it("writes nothing into the application and renders the configuration under its scratch", async () => {
+  it("renders the configuration outside the application directory", async () => {
     const written = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const { plugin } = await compiled(workspace);
 
@@ -433,7 +449,7 @@ describe("stylesheet", () => {
     expect(written).toBeUndefined();
   });
 
-  it("watches the statement and the source it compiled from", async () => {
+  it("watches every file the compile read", async () => {
     const watched = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const { context, plugin, sheet } = await compiled(workspace);
 
@@ -448,7 +464,7 @@ describe("stylesheet", () => {
     expect(watched).toContain("node_modules/@acme/design/package.json");
   });
 
-  it("warns when no package beside the system package contributes a preset", async () => {
+  it("warns when no package other than the system package contributes a preset", async () => {
     const warned = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const { context, plugin, sheet } = await compiled(workspace);
 
@@ -461,7 +477,7 @@ describe("stylesheet", () => {
     expect(warned[0]).toContain("no component's rules");
   });
 
-  it("compiles once for every stylesheet that declares the cascade order", async () => {
+  it("compiles once however many stylesheets declare the cascade order", async () => {
     const found = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const { context, plugin, sheet } = await compiled(workspace);
       const first = await transformed(plugin, context, DECLARED, sheet);
@@ -473,7 +489,7 @@ describe("stylesheet", () => {
     expect(found).toStrictEqual({ same: true, warned: 1 });
   });
 
-  it("compiles a contributor's recipe and stays quiet", async () => {
+  it("compiles a contributor's recipe without a warning", async () => {
     const files = {
       ...APP,
       ...KIT,
@@ -495,7 +511,7 @@ describe("stylesheet", () => {
     expect(found).toStrictEqual({ badge: true, warned: [] });
   });
 
-  it("recompiles from disk when a source file changes without restarting the compiler", async () => {
+  it("serves the rules of an edited source file after the change is reported", async () => {
     const written = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const { context, plugin, sheet } = await compiled(workspace);
 
@@ -538,7 +554,25 @@ describe("stylesheet", () => {
     expect(invalidated).toStrictEqual(["styles.css"]);
   });
 
-  it("restarts the compiler when the statement changes", async () => {
+  it("drops a file the configuration was built from before it reimports the presets", async () => {
+    const found = await withScratchWorkspaceAsync(APP, async (workspace) => {
+      const plugin = stylesheet(OPTIONS);
+      const invalidated: string[] = [];
+      const context = hookContext();
+
+      await serving(plugin, [], invalidated);
+      await configured(plugin, { ...RESOLVED, root: workspace.root });
+      await started(plugin, context);
+      await loaded(plugin, VIRTUAL);
+      await updated(plugin, context, workspace.path("theme.config.ts"));
+
+      return invalidated.map((at) => at.slice(workspace.root.length + 1));
+    });
+
+    expect(found).toStrictEqual(["theme.config.ts"]);
+  });
+
+  it("renders the configuration again when the statement changes", async () => {
     const written = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const { context, plugin, sheet } = await compiled(workspace);
 
@@ -552,7 +586,7 @@ describe("stylesheet", () => {
     expect(written).toContain('"forged"');
   });
 
-  it("serves the rules of the restarted compiler rather than the ones compiled before", async () => {
+  it("serves the tokens a changed statement adds", async () => {
     const written = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const { context, plugin, sheet } = await compiled(workspace);
 
@@ -583,7 +617,7 @@ describe("stylesheet", () => {
     expect(invalidated).toStrictEqual(["styles.css"]);
   });
 
-  it("applies a change once however many times the server reports it and invalidates each graph", async () => {
+  it("applies a change once however many environments report it", async () => {
     const found = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const { context, plugin, sheet } = await compiled(workspace, true);
       const other = hookContext([sheet]);
@@ -608,7 +642,7 @@ describe("stylesheet", () => {
     expect(found).toStrictEqual({ compiles: 1, invalidated: ["styles.css", "styles.css"] });
   });
 
-  it("applies every change a server that reports no time makes to one file", async () => {
+  it("applies every change to one file from a server that reports no timestamp", async () => {
     const written = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const { context, plugin, sheet } = await compiled(workspace);
       const file = workspace.path("src/page.tsx");
@@ -639,7 +673,7 @@ describe("stylesheet", () => {
     expect(found).toStrictEqual([]);
   });
 
-  it("applies a change a bundling server reports with no environment and leaves the modules alone", async () => {
+  it("applies a change a bundling server reports with no environment", async () => {
     const found = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const { context, plugin, sheet } = await compiled(workspace);
 
@@ -722,7 +756,7 @@ describe("stylesheet", () => {
     expect(written).not.toContain("c-red");
   });
 
-  it("assembles again when the statement changes while the first assembly is under way", async () => {
+  it("renders the configuration again when the statement changes during the first assembly", async () => {
     const written = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const plugin = stylesheet(OPTIONS);
       const context = hookContext();
@@ -756,7 +790,7 @@ describe("stylesheet", () => {
     expect(written).toContain("c-blue");
   });
 
-  it("keeps another environment's stylesheet when one environment's graph lacks it", async () => {
+  it("invalidates the stylesheet only in the environment whose graph holds it", async () => {
     const invalidated = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const plugin = stylesheet(OPTIONS);
       const sheet = workspace.path("styles.css");
@@ -815,7 +849,7 @@ describe("stylesheet", () => {
     ).rejects.toThrow("the stylesheet did not compile");
   });
 
-  it("serves the rules and reports the collision under a dev server", async () => {
+  it("keeps serving the rules when the rename reports a collision under a dev server", async () => {
     const found = await withScratchWorkspaceAsync(COLLISION, async (workspace) => {
       const { context, plugin, sheet } = await compiled(workspace);
       const written = await transformed(plugin, context, DECLARED, sheet);
@@ -827,7 +861,7 @@ describe("stylesheet", () => {
     expect(found.warned).toContain("naming/collision");
   });
 
-  it("keeps the rules compiled before an error under a dev server", async () => {
+  it("serves what did compile after an error rather than the rules it had", async () => {
     const found = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const { context, plugin, sheet } = await compiled(workspace);
       const before = await transformed(plugin, context, DECLARED, sheet);
@@ -840,11 +874,28 @@ describe("stylesheet", () => {
       return { same: before === after, warned: context.warned.join("\n") };
     });
 
-    expect(found.same).toBe(true);
-    expect(found.warned).toContain("keeps the rules compiled before");
+    expect(found.same).toBe(false);
+    expect(found.warned).toContain("missing from the stylesheet");
   });
 
-  it("forgets a stylesheet the graph no longer holds", async () => {
+  it("lands a rule that compiles while another one in the same save does not", async () => {
+    const written = await withScratchWorkspaceAsync(COLLISION, async (workspace) => {
+      const { context, plugin, sheet } = await compiled(workspace);
+
+      await transformed(plugin, context, DECLARED, sheet);
+      workspace.write({
+        "src/page.tsx":
+          'import { css } from "@acme/design";\n\nexport const Page = () => [css({ color: "A" }), css({ color: "a" }), css({ margin: "13px" })];\n',
+      });
+      await updated(plugin, context, workspace.path("src/page.tsx"));
+
+      return transformed(plugin, context, DECLARED, sheet);
+    });
+
+    expect(written).toContain("13px");
+  });
+
+  it("invalidates nothing when the graph does not hold the stylesheet", async () => {
     const invalidated = await withScratchWorkspaceAsync(APP, async (workspace) => {
       const { context, plugin, sheet } = await compiled(workspace, false);
 
@@ -957,7 +1008,7 @@ describe("stylesheet", () => {
     expect(found).toStrictEqual({ imported: true, resolved: true });
   });
 
-  it("imports a face nothing installed by its name", async () => {
+  it("imports a font package nothing installed by its name", async () => {
     const files = { ...APP, "theme.config.ts": statement('["@f/absent"]') };
     const found = await withScratchWorkspaceAsync(files, async (workspace) => {
       const { plugin } = await compiled(workspace);

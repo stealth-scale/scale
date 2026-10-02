@@ -1,13 +1,12 @@
 /**
- * Works out what one panel is doing, and writes it to the shell.
+ * Computes one panel's state and publishes it to the shell.
  *
  * @remarks
- *   A panel answers three questions: whether the shell is wide enough to hold it beside the page,
- *   whether it is open, and whether anything else is over the page in front of it. The first is
- *   measured off the shell's own element, the second is the caller's where the caller states it,
- *   and the third is read back out of the store every panel writes to. The measurement is taken on
- *   the shell rather than on the window, so a shell drawn in a frame or a catalogue folds on the
- *   room it was given.
+ *   A panel's state has three inputs: whether the shell is wide enough for it beside the page,
+ *   whether it is open, and whether another panel is over the page. The width comes from the
+ *   shell's root, the open state from the caller when the caller controls it, and the other panels
+ *   from the store. The panel measures the root and not the window, so a shell in a frame or a
+ *   catalogue folds on its own width.
  */
 
 import { type RefObject, useCallback, useId, useMemo, useRef } from "react";
@@ -22,96 +21,99 @@ import { type Collapse, type Fold, type Side, useOverlaid, useShell } from "#app
 import { useFocused } from "#focus/index.ts";
 
 /**
- * The width each side stops fitting beside the page under, where the panel states none.
+ * Breakpoint below which each side folds when the panel sets none.
  *
  * @remarks
- *   Navigation folds on a phone. What goes with the page folds on anything narrower than a desk,
- *   because a page squeezed between navigation and detail reads as neither.
+ *   The navigation folds below `md`. The end side folds below `lg`, because a page between the
+ *   navigation and a detail panel on a tablet is too narrow for either.
  */
-const FOLDS_BELOW: Readonly<Record<Side, Breakpoint>> = { end: "lg", start: "md" };
+export const FOLDS_BELOW: Readonly<Record<Side, Breakpoint>> = { end: "lg", start: "md" };
 
 /**
- * Describes what a panel takes.
+ * Value of `foldsBelow` for a panel that never folds.
+ */
+const NEVER = "never";
+
+/**
+ * Describes the options of a panel.
  */
 export interface PanelOptions {
   /**
-   * How much of the panel closing it in the body leaves: nothing, or a rail wide enough for the
-   * marks inside it. Default: nothing.
+   * Result of closing the panel in the body: `hide` hides it, and `icons` leaves a rail wide
+   * enough for its icons. Defaults to `hide`.
    */
   readonly collapse?: Collapse | undefined;
 
   /**
-   * Whether the panel starts open, where nothing controls it. Default: open.
+   * Whether the panel starts open when the caller does not control it. Defaults to `true`.
    */
   readonly defaultOpen?: boolean | undefined;
 
   /**
-   * Where the panel goes where the shell is too narrow to hold it beside the page: over it behind a
-   * backdrop, or under it as a block. Default: over it.
+   * Where the panel goes when the shell is too narrow for it: over the page behind a backdrop, or
+   * under the page as a block. Defaults to `over`.
    */
   readonly folds?: Fold | undefined;
 
   /**
-   * The breakpoint whose width the shell stops holding the panel beside the page under. Default:
-   * `md` on the start side and `lg` on the end side.
+   * Breakpoint below which the panel folds, or `never` for a panel in the body at every width.
+   * Defaults to `md` on the start side and `lg` on the end side.
    */
-  readonly foldsBelow?: Breakpoint | undefined;
+  readonly foldsBelow?: "never" | Breakpoint | undefined;
 
   /**
-   * The name a trigger elsewhere in the shell points at. Default: `navbar` on the start side and
-   * `aside` on the end side.
+   * Name a trigger uses to find the panel. Defaults to `navbar` on the start side and `aside` on
+   * the end side.
    */
   readonly name?: string | undefined;
 
   /**
-   * Hears the panel open and close.
+   * Called with the new state when the panel opens or closes.
    */
   readonly onOpenChange?: ((open: boolean) => void) | undefined;
 
   /**
-   * Whether the panel is open, where the application controls it.
+   * Whether the panel is open, when the application controls it.
    */
   readonly open?: boolean | undefined;
 
   /**
-   * A key that opens and closes the panel with the platform's modifier held: `b` for ⌘B or Ctrl+B.
-   * Nothing by default.
+   * Key that toggles the panel with the platform's modifier held: `b` for ⌘B and Ctrl+B. No
+   * shortcut by default.
    */
   readonly shortcut?: string | undefined;
 }
 
 /**
- * Describes what the panel's element is drawn with.
+ * Describes what the panel's element renders with.
  */
 export interface Drawn {
   /**
-   * Whether the panel takes neither a press nor a Tab: closed to nothing in the body, closed over
-   * the page, or standing behind another panel that is over the page.
+   * Whether the panel is inert: closed to nothing in the body, closed over the page, or behind
+   * another panel that is over the page.
    */
   readonly inert: boolean;
 
   /**
-   * The panel as the shell and its own parts read it.
+   * The panel's published state.
    */
   readonly panel: Panel;
 }
 
 /**
- * Reads whether a panel takes neither a press nor a Tab.
+ * Returns whether a panel is inert.
  */
 function inertness(panel: Panel, collapse: Collapse, behind: boolean): boolean {
   return behind || (!panel.open && (panel.overlaid || collapse === "hide"));
 }
 
 /**
- * Reads whether a panel is open, whichever way it is shown.
+ * Returns whether a panel is shown, and the setter for its current mode.
  *
  * @remarks
- *   A panel over the page keeps its own answer, because a sheet is shown because a reader asked for
- *   it and what the panel was doing in the body says nothing about that. An application that states
- *   `open` overrules that, because a caller that has taken the state has taken it at every width. A
- *   panel under the page is always shown, because there is nothing to open it with and nothing it
- *   would uncover.
+ *   A panel over the page keeps its own open state, which starts closed. A caller's `open` applies
+ *   at every width and replaces that state. A panel under the page is always shown, because nothing
+ *   can open or close it.
  */
 function useShown(
   overlaid: boolean,
@@ -137,13 +139,12 @@ function useShown(
 }
 
 /**
- * Wraps a panel's setter so that opening it writes down where the reader was standing.
+ * Wraps a panel's setter so that opening it records the focused element.
  *
  * @remarks
- *   The note is taken while the press that asked for the panel is still being handled. A sheet
- *   makes the rest of the shell inert, and a browser takes focus off anything it has just made
- *   inert, so a look at the document one render later would find the body rather than the control
- *   that was pressed.
+ *   The setter records the element while the press that opens the panel is being handled. An open
+ *   sheet makes the rest of the shell inert, and a browser moves focus off an element it makes
+ *   inert, so the element must be read before the next render.
  */
 function useAsked(setShown: Panel["setOpen"]): [RefObject<HTMLElement | null>, Panel["setOpen"]] {
   const asked = useRef<HTMLElement | null>(null);
@@ -162,19 +163,17 @@ function useAsked(setShown: Panel["setOpen"]): [RefObject<HTMLElement | null>, P
 }
 
 /**
- * Works out what one panel is doing and writes it to the shell for the rest of it to read.
+ * Computes one panel's state and publishes it to the shell.
  *
  * @remarks
- *   Whether the reader is taken into the panel is read back out of the store rather than off the
- *   panel's own state. The bars and the page go inert on what the store says, one commit after the
- *   panel decides, and a browser refuses to focus anything inert. Reading the same signal is what
- *   keeps the two in step: the reader is taken in only once everything else has gone inert, and
- *   handed back only once it has stopped being inert.
- * @param side - Which side of the page the panel sits on.
+ *   Focus moves into the panel on the store's state and not on the panel's own. The bars and the
+ *   main region become inert on the store's state, one commit after the panel changes, and a
+ *   browser does not focus an inert element. Reading the same state moves focus in only after the
+ *   rest of the shell is inert, and back only after it stops being inert.
+ * @param side - Side of the page the panel is on.
  * @param options - How the panel folds and closes.
- * @param inner - The element the panel's contents sit in, which the reader is taken into while the
- *   panel is over the page.
- * @returns The panel as the shell reads it, and whether its element takes a press.
+ * @param inner - The content wrapper, which receives focus while the panel is over the page.
+ * @returns The panel's state and whether its element is inert.
  */
 export function usePanel(
   side: Side,
@@ -184,16 +183,17 @@ export function usePanel(
   const { collapse = "hide", folds = "over" } = options;
   const name = options.name ?? (side === "start" ? "navbar" : "aside");
   const shell = useShell();
-  const below = options.foldsBelow ?? FOLDS_BELOW[side];
-  const narrow = useNarrow(shell.root, widthOf(below), below);
+  const stated = options.foldsBelow ?? FOLDS_BELOW[side];
+  const below = stated === NEVER ? FOLDS_BELOW[side] : stated;
+  const narrow = useNarrow(shell.root, widthOf(below), below) && stated !== NEVER;
   const overlaid = narrow && folds === "over";
   const stacked = narrow && folds === "under";
   const [shown, setShown] = useShown(overlaid, stacked, options);
   const [asked, setOpen] = useAsked(setShown);
   const id = useId();
   const panel = useMemo<Panel>(
-    () => ({ id, open: shown, overlaid, setOpen, stacked }),
-    [id, overlaid, setOpen, shown, stacked],
+    () => ({ collapse, id, open: shown, overlaid, setOpen, stacked }),
+    [collapse, id, overlaid, setOpen, shown, stacked],
   );
   const sheets = useOverlaid();
   const sheet = sheets.some((each) => each.id === id);

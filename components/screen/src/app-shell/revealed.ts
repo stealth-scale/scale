@@ -1,39 +1,38 @@
 /**
- * Holds whether a panel laid over the page is shown, and forgets it whenever the shell crosses the
- * width the panel folds at.
+ * Stores whether a panel over the page is open, and resets it to closed whenever the shell crosses
+ * the panel's fold width.
  *
  * @remarks
- *   A panel over the page is a sheet, and a sheet is shown because a reader asked for it. Whatever
- *   the panel was doing in the body says nothing about that, so the sheet starts closed and starts
- *   closed again every time the shell narrows anew. An application opened on a phone should not
- *   open with its navigation across the page, and one dragged narrow after the navigation was open
- *   should not put it over the page unasked. The width is held beside the answer and compared while
- *   rendering, which is how React asks a component to drop state a prop has made stale. An effect
- *   would show the sheet for one frame before taking it away again.
+ *   A panel over the page is a sheet, and a sheet opens only when the reader asks for it. It starts
+ *   closed, and closes again every time the shell becomes narrow, so an application on a phone
+ *   does not open with its navigation over the page. The hook stores the width with the state and
+ *   compares them during render, which is how React resets state that a prop has made stale. An
+ *   effect would show the sheet for one frame before the reset.
  */
 
 import { useCallback, useState } from "react";
 
 /**
- * Describes what is held: whether the sheet is shown, and the width that was true when it was set.
+ * Describes the stored state: whether the sheet is open, and whether the shell was narrow when the
+ * state was set.
  */
 interface Revealed {
   /**
-   * Whether the shell was narrow when the answer was set.
+   * Whether the shell was narrow when the state was set.
    */
   readonly narrow: boolean;
 
   /**
-   * Whether the sheet is shown.
+   * Whether the sheet is open.
    */
   readonly open: boolean;
 }
 
 /**
- * Answers whether the sheet is shown, across one spell of narrowness.
+ * Returns whether the sheet is open during the current narrow period.
  *
- * @param narrow - Whether the shell is too narrow to hold the panel beside the page.
- * @returns Whether the sheet is shown, and how to show or hide it.
+ * @param narrow - Whether the shell is too narrow for the panel beside the page.
+ * @returns Whether the sheet is open, and its setter.
  */
 export function useRevealed(narrow: boolean): readonly [boolean, (open: boolean) => void] {
   const [held, setHeld] = useState<Revealed>({ narrow, open: false });

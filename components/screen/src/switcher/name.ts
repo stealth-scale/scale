@@ -1,9 +1,8 @@
 /**
- * Draws the current thing's name.
+ * Renders the name of the current workspace, project or environment.
  *
  * @remarks
- *   Cut short rather than wrapped, so a long name leaves the control one line tall and the sidebar
- *   holding it keeps its rhythm.
+ *   The name truncates instead of wrapping, so the control keeps one line.
  */
 
 import { type ComponentProps } from "react";
@@ -11,11 +10,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#switcher/context.ts";
 
 /**
- * Draws the name at the size the control states.
+ * Renders the name `span` at the switcher's size.
  */
 export const Name = withContext("span", "name");
 
 /**
- * Describes what the name takes.
+ * Describes the props of `Name`.
  */
 export type NameProps = ComponentProps<typeof Name>;

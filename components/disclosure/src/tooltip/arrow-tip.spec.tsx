@@ -7,13 +7,13 @@ import { ArrowTip } from "#tooltip/arrow-tip.tsx";
 import { hinted } from "#tooltip/tooltip.fixtures.tsx";
 
 describe("ArrowTip", () => {
-  it("draws a div inside the root it needs above it", () => {
+  it("renders a div", () => {
     const { container } = render(hinted(<ArrowTip />));
 
     expect(slotElement(container, "tooltip", "arrowTip").tagName).toBe("DIV");
   });
 
-  it("is filled from the custom property the box states its surface as", () => {
+  it("fills with --arrow-background", () => {
     const { container } = render(hinted(<ArrowTip />));
 
     expect(slotElement(container, "tooltip", "arrowTip").style.background).toBe(
@@ -21,7 +21,7 @@ describe("ArrowTip", () => {
     );
   });
 
-  it("fills the whole of the arrow the machine placed", () => {
+  it("sizes itself to the full arrow", () => {
     const { container } = render(hinted(<ArrowTip />));
     const { style } = slotElement(container, "tooltip", "arrowTip");
 
@@ -29,7 +29,7 @@ describe("ArrowTip", () => {
     expect(style.height).toBe("100%");
   });
 
-  it("draws the element as names", () => {
+  it("renders the element as names", () => {
     const { container } = render(hinted(<ArrowTip as="span" />));
 
     expect(slotElement(container, "tooltip", "arrowTip").tagName).toBe("SPAN");

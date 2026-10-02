@@ -1,42 +1,52 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
 import { recipe } from "#span/recipe.ts";
+import page from "#span/span.specimen.tsx";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("covers every variant axis in the scenes of its specimen page", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("has no scene that writes a value the recipe does not offer", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Span"] })).toStrictEqual([]);
   });
 
-  it("names its class span", () => {
+  it("sets className to span", () => {
     expect(recipe.className).toBe("span");
   });
 
-  it("offers the four axes a neutral run takes", () => {
+  it("declares four variant axes", () => {
     expect(axesOf(recipe)).toStrictEqual(["motion", "tone", "truncate", "weight"]);
   });
 
-  it("offers no size axis so a run keeps the size of the line it sits in", () => {
+  it("declares no size axis", () => {
     expect(axesOf(recipe)).not.toContain("size");
   });
 
-  it("picks nothing when nothing is asked for", () => {
+  it("declares no default variant", () => {
     expect(defaultsOf(recipe)).toStrictEqual({});
   });
 
-  it("offers the four weights", () => {
+  it("declares four weights on the weight axis", () => {
     expect(valuesOf(recipe, "weight")).toStrictEqual(["bold", "medium", "normal", "semibold"]);
   });
 
-  it("turns the run into an inline block so the overflow it hides applies", () => {
+  it("renders a truncated span as an inline block", () => {
     expect(recipe.variants?.["truncate"]?.["true"]).toMatchObject({
       display: "inline-block",
       overflow: "hidden",
     });
   });
 
-  it("tracks every tag whose name ends in Span", () => {
+  it("matches every JSX tag that ends in Span", () => {
     expect(recipe.jsx).toStrictEqual([/Span$/u]);
   });
 });

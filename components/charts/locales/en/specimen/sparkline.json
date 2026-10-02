@@ -1,0 +1,70 @@
+{
+  "about": "The shape of a run of values at the size of a word, without axes or a tooltip. The line spans the run's own range, so the figure it belongs to goes beside it.",
+  "builds": {
+    "about": "label names a run shown without a figure, as an image with that name. It takes no tab stop.",
+    "label": "Build time over the last 15 builds, from 4.2 to 3.1 minutes",
+    "title": "Without a figure"
+  },
+  "errors": {
+    "about": "color takes a palette's chart color, here the error palette's for errors per hour.",
+    "help": "+11 in 12 hours",
+    "label": "Errors per hour",
+    "title": "Palette",
+    "value": "14"
+  },
+  "launch": {
+    "about": "area fills under the line with the chart's gradient. The line spans the run's own range, so a fill measures volume only for a run that starts at zero, as a count since launch does.",
+    "help": "+300 this month",
+    "label": "Customers since launch",
+    "title": "Area",
+    "value": "1,240"
+  },
+  "offline": {
+    "about": "A value that is not a finite number leaves a gap in the line, here two readings the sensor missed. A zero in their place would plot a fall that never happened.",
+    "help": "Two readings missed",
+    "label": "Server room",
+    "title": "Missing readings",
+    "value": "21.8 °C"
+  },
+  "replay": {
+    "about": "animate reveals the line from its start when the sparkline mounts, and Replay mounts it again. Under reduced motion recharts renders it at once.",
+    "label": "Customers since launch, from 0 to 1,240",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "revenue": {
+    "about": "The week's revenue as a stat with the run of daily revenue beside it. The sparkline is hidden from assistive technology, because the stat states the figure.",
+    "help": "+12% on last week",
+    "label": "Revenue this week",
+    "title": "Beside a figure",
+    "value": "€48,120"
+  },
+  "services": {
+    "about": "p95 latency per service with the last 24 hours at the small size in each row. Each run spans its own range, so checkout's rise and search's fall read at a glance.",
+    "api": "API",
+    "auth": "Auth",
+    "caption": "p95 latency per service",
+    "checkout": "Checkout",
+    "day": "Last 24 hours",
+    "now": "p95 now",
+    "search": "Search",
+    "service": "Service",
+    "title": "In a table"
+  },
+  "size": {
+    "about": "Three boxes on the grid, four times as wide as they are tall: 64 by 16 pixels at sm, 96 by 24 at md and 128 by 32 at lg.",
+    "title": "Sizes"
+  },
+  "stretch": {
+    "about": "stretch fills the width of the container at the size's height, here a room 24rem wide.",
+    "title": "Stretch"
+  },
+  "target": {
+    "about": "baseline={300} renders a dashed line at the 300 ms target, and the range widens to include it.",
+    "help": "Above the 300 ms target at 13:00 and 14:00",
+    "label": "p95 latency",
+    "title": "Baseline",
+    "value": "190 ms"
+  },
+  "title": "Sparkline"
+}

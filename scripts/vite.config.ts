@@ -1,11 +1,10 @@
 /**
- * Runs the specifications of the scripts lane as a test project of the workspace.
+ * Registers the scripts lane as a test project of the workspace.
  *
  * @remarks
- *   The lane is outside every workspace package, so the root lists this directory as a project
- *   beside the packages. A plain Vite configuration rather than a tier: the scripts run under Node
- *   as they are, and nothing here is packed, linted apart from the root, or counted by the
- *   coverage policy, which counts `src/` alone.
+ *   The lane sits outside every workspace package, so the root names this directory in its test
+ *   projects. It extends no tier: the scripts run under Node as they are, nothing here is packed,
+ *   linting comes from the root, and the coverage policy counts `src/` alone.
  */
 
 import { defineConfig } from "vite";

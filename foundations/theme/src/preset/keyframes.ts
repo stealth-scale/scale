@@ -5,6 +5,9 @@
  *   The sizes a panel expands to and collapses from are custom properties the component measures
  *   and writes, so one keyframe serves every panel. The loops that run while nothing is pressed
  *   move by a share of the element's own size or of the viewport, so none of them names a length.
+ *   A marquee's copy moves by the share the component writes as `--marquee-translate`, a whole
+ *   copy back or forward. A scale starts or ends `--scale-distance` short of full size, 0.04 where
+ *   a recipe sets none, so a recipe sets how far a mark grows without restating the movement.
  *   How far a meteor falls is the exception, because it crosses a box rather than the page, and it
  *   is a custom property the sky sets, over the viewport where a sky sets none.
  */
@@ -54,6 +57,14 @@ export const keyframes: CssKeyframes = {
     "50%": { transform: "translateY(-6%)" },
   },
   marquee: { from: { transform: "translateX(0)" }, to: { transform: "translateX(-50%)" } },
+  "marquee-x": {
+    from: { transform: "translateX(0)" },
+    to: { transform: "translateX(var(--marquee-translate, -100%))" },
+  },
+  "marquee-y": {
+    from: { transform: "translateY(0)" },
+    to: { transform: "translateY(var(--marquee-translate, -100%))" },
+  },
   meteor: {
     "70%": { opacity: "1" },
     from: { opacity: "1", transform: "rotate(215deg) translateX(0)" },
@@ -76,12 +87,12 @@ export const keyframes: CssKeyframes = {
   },
   "rotate-angle": { to: { "--angle": "360deg" } },
   "scale-in": {
-    from: { opacity: "0", transform: "scale(0.96)" },
+    from: { opacity: "0", transform: "scale(calc(1 - var(--scale-distance, 0.04)))" },
     to: { opacity: "1", transform: "scale(1)" },
   },
   "scale-out": {
     from: { opacity: "1", transform: "scale(1)" },
-    to: { opacity: "0", transform: "scale(0.96)" },
+    to: { opacity: "0", transform: "scale(calc(1 - var(--scale-distance, 0.04)))" },
   },
   spin: { from: { transform: "rotate(0deg)" }, to: { transform: "rotate(360deg)" } },
   twinkle: { "0%, 100%": { opacity: "0.2" }, "50%": { opacity: "1" } },

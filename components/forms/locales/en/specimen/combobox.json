@@ -1,0 +1,127 @@
+{
+  "about": "A text field that narrows a list of rows as a person types. The input is a combobox and keeps focus while the arrow keys move a highlight through the listbox under it. Enter picks the highlighted row, Escape closes the list and then restores the value's text, and leaving the field with a text that matches no row restores the value's text too. Emptying the text clears the value. A hidden select submits the value, not the text, with a form.",
+  "accounts": {
+    "bridge": "Bridge Ledger",
+    "clear": "Clear account",
+    "empty": "No account matches.",
+    "halden": "Halden & Co",
+    "ilan": "Ilan Trust",
+    "label": "Account",
+    "marek": "Marek Logistics",
+    "perrin": "Perrin Freight",
+    "placeholder": "Search accounts",
+    "toggle": "Show accounts",
+    "voss": "Voss Holdings (frozen)"
+  },
+  "countries": {
+    "argentina": "Argentina",
+    "australia": "Australia",
+    "austria": "Austria",
+    "belgium": "Belgium",
+    "brazil": "Brazil",
+    "canada": "Canada",
+    "denmark": "Denmark",
+    "empty": "No country matches.",
+    "finland": "Finland",
+    "france": "France",
+    "germany": "Germany",
+    "ireland": "Ireland",
+    "japan": "Japan",
+    "label": "Country",
+    "netherlands": "Netherlands",
+    "norway": "Norway",
+    "placeholder": "Type a country",
+    "portugal": "Portugal",
+    "spain": "Spain",
+    "sweden": "Sweden",
+    "toggle": "Show countries"
+  },
+  "custom": {
+    "about": "With allowCustomValue the field keeps a text that matches no row, and a form submits the text. Type a new label and press Enter or Save.",
+    "title": "A value the list does not have"
+  },
+  "desks": {
+    "freight": "Freight",
+    "settlements": "Settlements"
+  },
+  "grouped": {
+    "about": "Rows go into groups, each named by its label. A group whose rows the text filters out leaves the list with them.",
+    "title": "Rows in groups"
+  },
+  "highlight": {
+    "about": "The row the highlight is on takes a tint, a fill or a bar at its start, as a select marks it. Type into a combobox and move through its rows with the arrow keys.",
+    "title": "Highlights"
+  },
+  "highlighted": {
+    "about": "With inputBehavior set to autohighlight the first row that matches is highlighted as a person types, so Enter picks it. With openOnClick a press on the field opens the whole list. Each row marks the letters that matched.",
+    "title": "The first match highlighted"
+  },
+  "labels": {
+    "bug": "Bug",
+    "design": "Design",
+    "docs": "Docs",
+    "empty": "No label matches. Press Enter to keep what you typed.",
+    "infra": "Infrastructure",
+    "label": "Label",
+    "none": "Nothing saved yet.",
+    "placeholder": "Type or pick a label",
+    "research": "Research",
+    "saved": "Saved label: {{label}}",
+    "submit": "Save",
+    "toggle": "Show labels"
+  },
+  "multiple": {
+    "about": "With multiple a pick adds a row to the value, clears the text and leaves the list open. The caller shows the value as tags under the field, each with a button that removes it.",
+    "title": "Several choices"
+  },
+  "owner": {
+    "help": "The owner takes over the account's open invoices.",
+    "label": "New owner",
+    "required": "Choose who takes over the account.",
+    "sent": "Submitted owner={{id}}",
+    "submit": "Hand over"
+  },
+  "people": {
+    "ada": "Ada Okafor",
+    "empty": "No one matches.",
+    "grace": "Grace Lindqvist",
+    "hana": "Hana Sato",
+    "ines": "Inés Moreau",
+    "jonas": "Jonas Becker",
+    "mateo": "Mateo Rossi",
+    "placeholder": "Search people",
+    "priya": "Priya Nair",
+    "toggle": "Show people"
+  },
+  "recipients": {
+    "label": "Recipients",
+    "placeholder": "Add people",
+    "remove": "Remove {{name}}"
+  },
+  "required": {
+    "about": "Inside a field the combobox takes the field's label, its helper and error texts, and its required and invalid states. The form submits the person's ID, not the name in the field. Hand over without an owner to see the error.",
+    "title": "In a required field"
+  },
+  "size": {
+    "about": "The sizes a field passes down. The input is a control of the same size, so a combobox, a select and an input of one size line up in a form, and the rows read the body role one size smaller.",
+    "title": "Sizes"
+  },
+  "stated": {
+    "about": "A disabled combobox dims and takes no focus. A read-only combobox takes focus and opens nothing. An invalid combobox takes the error edge, and its trigger the error ink.",
+    "title": "Disabled, read-only and invalid"
+  },
+  "states": {
+    "disabled": "Disabled",
+    "invalid": "Invalid",
+    "readOnly": "Read-only"
+  },
+  "status": {
+    "about": "The status sets the edge and the focus ring from its palette, the same as a text field's.",
+    "title": "Statuses"
+  },
+  "title": "Combobox",
+  "variant": {
+    "about": "The three field looks of the theme, the same as a text field's and a select's.",
+    "title": "Looks"
+  }
+}

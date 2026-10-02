@@ -1,0 +1,79 @@
+{
+  "about": "Raises a short message into a region fixed to an edge of the window, and removes it after its duration. A pointer resting on the region, or focus inside it, pauses every toast, and Alt+T moves focus to the region. A screen reader hears each new toast through the region's polite live region. A toast that is missed is gone, so nothing a reader needs is only in one.",
+  "dismiss": "Dismiss",
+  "kinds": {
+    "about": "The five types. The type sets the toast's palette, which the indicator reads, and its duration: 2 seconds for `success`, 5 for the others, and no timer for `loading`.",
+    "error": {
+      "description": "The bank could not verify the account.",
+      "show": "Error",
+      "title": "Payout held"
+    },
+    "info": {
+      "description": "ledger-2026-09.csv is in your downloads.",
+      "show": "Info",
+      "title": "Export ready"
+    },
+    "loading": {
+      "description": "Matching 400 lines against the bank.",
+      "show": "Loading",
+      "title": "Reconciling"
+    },
+    "success": {
+      "description": "€1,240.00 is on its way to NL91 ABNA 0417 1643 00.",
+      "show": "Success",
+      "title": "Payout sent"
+    },
+    "title": "Kinds",
+    "warning": {
+      "description": "The card ending in 4242 expires this month.",
+      "show": "Warning",
+      "title": "Card expiring"
+    }
+  },
+  "promise": {
+    "about": "`promise` raises one loading toast and rewrites it as the work settles: the success in its place, or the error. The first trigger settles after 2 seconds, the second fails after 2 seconds.",
+    "error": "Export failed",
+    "failed": "Nothing was written.",
+    "fails": "Export, failing",
+    "file": "ledger-2026-09.csv",
+    "lines": "400 lines",
+    "loading": "Exporting the ledger",
+    "succeeds": "Export, settling",
+    "success": "Exported",
+    "title": "Promise"
+  },
+  "queue": {
+    "about": "The toaster shows 5 toasts at a time and queues the rest. The trigger raises 8 at once: 5 show, and the others arrive as those close.",
+    "description": "Line {{line}} could not be matched.",
+    "heading": "Line not matched",
+    "show": "Report 8 failures",
+    "title": "Queue"
+  },
+  "region": {
+    "about": "The region an application renders once, at its root, for one toaster. Its render function returns each toast's parts: the indicator's glyph by type, the title, the description, the action and the close button. A trigger anywhere in the application raises into the same toaster.",
+    "description": "Your changes to the payout schedule are saved.",
+    "heading": "Schedule saved",
+    "show": "Show a toast",
+    "title": "Region"
+  },
+  "sync": {
+    "about": "A toast raised with an id is rewritten in place through `update`. The report starts as a loading toast, changes its description after 1.5 seconds and turns into a success after 3.",
+    "done": "400 of 400 lines matched.",
+    "halfway": "200 of 400 lines matched.",
+    "heading": "Reconciling",
+    "matched": "Reconciled",
+    "show": "Reconcile the ledger",
+    "started": "Matching 400 lines.",
+    "title": "Updated in place"
+  },
+  "title": "Toast",
+  "undo": {
+    "about": "A toast with an action. A press on Undo runs the action, then dismisses the toast. The toast closes after 10 seconds, which gives a reader time to reach the button.",
+    "action": "Undo",
+    "description": "PO-2026-0731 is no longer scheduled.",
+    "heading": "Payout removed",
+    "restored": "Payout restored",
+    "show": "Remove the payout",
+    "title": "Action"
+  }
+}

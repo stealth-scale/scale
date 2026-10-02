@@ -1,0 +1,81 @@
+{
+  "about": "Takes the files a person picks, drops or pastes, and lists them with their sizes. It checks each file against the types, sizes and count it accepts, and lists a refused file with its reasons.",
+  "attachments": {
+    "about": "The page keeps the files in its state and adds up their size. `validate` refuses a file that would take the total over 25 MB, and the field reports how many it refused. The clear button removes every file.",
+    "attach": "Attach files",
+    "clear": "Remove all",
+    "label": "Attachments",
+    "over_one": "{{count}} file would take the attachments over 25 MB.",
+    "over_other": "{{count}} files would take the attachments over 25 MB.",
+    "title": "A total limit",
+    "used_one": "{{count}} file, {{size, number(maximumFractionDigits: 1)}} of 25 MB",
+    "used_other": "{{count}} files, {{size, number(maximumFractionDigits: 1)}} of 25 MB"
+  },
+  "evidence": {
+    "about": "A required upload in a form. A submit with no file marks the field invalid and shows its error text. Adding a file clears it.",
+    "drop": "Drop photos or PDFs here, or press to choose",
+    "hint": "Up to three files",
+    "label": "Proof of delivery",
+    "needed": "Add at least one photo or PDF.",
+    "submit": "Submit claim",
+    "title": "Required in a form"
+  },
+  "folder": {
+    "about": "`directory` asks the picker for a folder, and the upload takes every CSV file in it. Each row shows the file's path inside the folder.",
+    "choose": "Choose a folder",
+    "label": "Bank exports",
+    "title": "A folder of files"
+  },
+  "photo": {
+    "about": "One image with its picture in the row. On a phone `capture` opens the front camera. A second photo replaces the first.",
+    "drop": "Drop a photo here, or press to take one",
+    "label": "Profile photo",
+    "title": "A photo and its preview"
+  },
+  "reasons": {
+    "exists": "Already added.",
+    "large": "Larger than 2 MB.",
+    "many": "More than three files.",
+    "type": "Not a PDF."
+  },
+  "receipts": {
+    "drop": "Drop receipts here, or press to choose",
+    "hint": "PNG, JPG, WebP or PDF, up to 5 MB each",
+    "label": "Receipts"
+  },
+  "refused": {
+    "about": "The upload takes PDFs up to 2 MB, three at most. A refused file goes into a list of its own with its reasons, which the example maps from the machine's codes to words.",
+    "drop": "Drop invoices here, or press to choose",
+    "hint": "PDF only, up to 2 MB each",
+    "label": "Invoices",
+    "title": "Refused files and why"
+  },
+  "remove": "Remove {{name}}",
+  "screenshots": {
+    "about": "Tab to the area and paste an image from the clipboard. `transformFiles` renames a pasted image, which a browser names image.png, after the time it arrived.",
+    "hint": "A pasted image takes the time it arrived as its name",
+    "label": "Screenshots",
+    "named": "Screenshot {{time, datetime}}.png",
+    "paste": "Paste a screenshot here, or drop one",
+    "title": "Pasted screenshots"
+  },
+  "size": {
+    "about": "The sizes a field and a fieldset pass down. The dropzone is at least 128, 160 or 192px tall, and each row's preview is the control height.",
+    "title": "Sizes"
+  },
+  "states": {
+    "about": "Invalid, read-only and disabled. A read-only or disabled upload takes the dropzone out of the tab order and disables its buttons.",
+    "title": "States"
+  },
+  "statement": {
+    "about": "One PDF behind a button. A second file replaces the first, and the row's button removes it.",
+    "choose": "Choose a PDF",
+    "label": "Bank statement",
+    "title": "Behind a button"
+  },
+  "title": "File upload",
+  "variant": {
+    "about": "The outline look fills the dropzone with the panel, and the subtle look with the subtle ground. Both dash the field's edge.",
+    "title": "Looks"
+  }
+}

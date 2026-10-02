@@ -1,115 +1,153 @@
 /**
- * Shows the input group: a mark at each side and at both, every size, and both alignments.
+ * Catalogue page for the input group.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. The marks are a currency symbol and a unit, both decorative, so each
- *   states `aria-hidden` and the field is named itself. The words are keys under `input-group` in
- *   the catalogue's namespace, kept beside this file in `locales/en/specimen/input-group.json`.
+ *   Ten hand-written scenes show the group in use, each in a room of a phone's width: search,
+ *   password, addons, country code, card number, card details in one row, card details in two rows,
+ *   counter, button and a disabled group. `scenesOf` generates the looks scene, the sizes scene,
+ *   the statuses scene crossed with the looks, and the alignment scene. The sizes are not crossed
+ *   with the looks, because three 4xl groups side by side leave a phone-width field no room. The
+ *   states scene is hand-written, because focus, `readOnly` and `aria-invalid` are states of the
+ *   field, not recipe axes. Its focused row renders inside `Focused`. The disabled group has its
+ *   own scene, because a disabled `fieldset` around the group disables its fields. Every scene
+ *   renders a component from `examples/` and shows that file as its source. The page imports the
+ *   parts' barrel as a type, so the props reader finds the parts. The words are keys under
+ *   `input-group` in `locales/en/specimen/input-group.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { Focused, Matrix, Room, type Scene, scenesOf, specimen } from "@stealthscale/specimen";
 
-import * as InputGroup from "#input-group/index.ts";
+import * as examples from "#input-group/examples/index.ts";
+import type * as InputGroup from "#input-group/index.ts";
 import { recipe } from "#input-group/recipe.ts";
-import { Textarea } from "#textarea/textarea.tsx";
 
 /**
- * Draws an amount field with a mark on each side the group names.
+ * States of the states scene, in reading order.
  */
-function Marks(): ReactElement {
-  const { t } = useWords("input-group");
-
-  return (
-    <Matrix knob="marks" of={valuesOf(recipe, "marks")}>
-      {(marks) => (
-        <InputGroup.Root marks={marks}>
-          {marks === "end" ? null : <InputGroup.Start aria-hidden>€</InputGroup.Start>}
-          <InputGroup.Field aria-label={t("amount")} inputMode="decimal" />
-          {marks === "start" ? null : <InputGroup.End aria-hidden>EUR</InputGroup.End>}
-        </InputGroup.Root>
-      )}
-    </Matrix>
-  );
-}
+const STATES = ["rest", "focused", "readOnly", "invalid"] as const;
 
 /**
- * Draws the field with both marks at every size.
+ * Maps each state to the field props that put the group in it. `Focused` stages the focused state.
+ */
+const STATED: Readonly<Record<(typeof STATES)[number], InputGroup.FieldProps>> = {
+  focused: {},
+  invalid: { "aria-invalid": true },
+  readOnly: { readOnly: true },
+  rest: {},
+};
+
+/**
+ * Builds a hand-written scene that renders one example in a room of a phone's width.
  *
- * @remarks
- *   The size is stated on the field as well as on the group. The group's size is the room a mark
- *   takes, and the field's is its own height, so a group at one size around a field at another
- *   drew the marks stepping while the box stayed put.
+ * @param name - Key of the scene under `input-group.scenes`.
+ * @param example - Example module, whose source the scene shows.
+ * @param Example - Component the example module exports.
+ * @returns The scene.
  */
-function Sizes(): ReactElement {
-  const { t } = useWords("input-group");
-
-  return (
-    <Matrix knob="size" of={valuesOf(recipe, "size")}>
-      {(size) => (
-        <InputGroup.Root size={size}>
-          <InputGroup.Start aria-hidden>€</InputGroup.Start>
-          <InputGroup.Field aria-label={t("amount")} inputMode="decimal" size={size} />
-          <InputGroup.End aria-hidden>EUR</InputGroup.End>
-        </InputGroup.Root>
-      )}
-    </Matrix>
-  );
+function roomed(name: string, example: object, Example: () => ReactElement): Scene {
+  return {
+    about: `input-group.scenes.${name}.about`,
+    draw: () => (
+      <Room size="sm">
+        <Example />
+      </Room>
+    ),
+    example,
+    title: `input-group.scenes.${name}.title`,
+  };
 }
 
 /**
- * Draws the marks against a box of several lines, at both places.
+ * Hand-written scenes, one per example of the group in use.
  */
-function Alignment(): ReactElement {
-  const { t } = useWords("input-group");
-
-  return (
-    <Matrix knob="align" of={valuesOf(recipe, "align")}>
-      {(align) => (
-        <InputGroup.Root align={align}>
-          <InputGroup.Start aria-hidden>€</InputGroup.Start>
-          <InputGroup.Field aria-label={t("amount")} as={Textarea} />
-          <InputGroup.End aria-hidden>EUR</InputGroup.End>
-        </InputGroup.Root>
-      )}
-    </Matrix>
-  );
-}
+export const shown: readonly Scene[] = [
+  roomed("search", examples.search, examples.search.Search),
+  roomed("password", examples.password, examples.password.Password),
+  roomed("website", examples.website, examples.website.Website),
+  roomed("phone", examples.phone, examples.phone.Phone),
+  roomed("cardNumber", examples.cardNumber, examples.cardNumber.CardNumber),
+  roomed("card", examples.card, examples.card.Card),
+  roomed("payment", examples.payment, examples.payment.Payment),
+  roomed("counter", examples.counter, examples.counter.Counter),
+  roomed("coupon", examples.coupon, examples.coupon.Coupon),
+];
 
 /**
- * A mark at each side and at both.
+ * Looks of an addon, filled and plain.
  */
-export const marks: Scene = {
-  about: "input-group.marks.about",
-  draw: Marks,
-  title: "input-group.marks.title",
+const ADDON_LOOKS = ["filled", "plain"] as const;
+
+/**
+ * Hand-written scene for the two looks of an addon.
+ */
+export const addons: Scene = {
+  about: "input-group.addons.about",
+  draw: () => (
+    <Room size="sm">
+      <Matrix knob="look" of={ADDON_LOOKS}>
+        {(look) => <examples.rate.Rate look={look} />}
+      </Matrix>
+    </Room>
+  ),
+  example: examples.rate,
+  props: { look: "plain" },
+  title: "input-group.addons.title",
 };
 
 /**
- * Every size.
+ * Hand-written scene for the focus, read-only and invalid states.
  */
-export const sizes: Scene = {
-  about: "input-group.sizes.about",
-  draw: Sizes,
-  title: "input-group.sizes.title",
-};
-
-/**
- * Both alignments.
- */
-export const alignment: Scene = {
-  about: "input-group.alignment.about",
-  draw: Alignment,
-  title: "input-group.alignment.title",
+export const states: Scene = {
+  about: "input-group.states.about",
+  draw: () => (
+    <Room size="sm">
+      <Matrix knob="state" of={STATES}>
+        {(state) =>
+          state === "focused" ? (
+            <Focused>
+              <examples.price.Price />
+            </Focused>
+          ) : (
+            <examples.price.Price {...STATED[state]} />
+          )
+        }
+      </Matrix>
+    </Room>
+  ),
+  example: examples.price,
+  props: { "aria-invalid": true },
+  title: "input-group.states.title",
 };
 
 export default specimen({
   about: "input-group.about",
-  group: "Forms",
-  id: "forms/input-group",
-  imports: 'import { InputGroup, Textarea } from "@stealthscale/component-forms";',
-  scenes: [marks, sizes, alignment],
+  id: "components/forms/input-group",
+  imports: 'import { InputGroup } from "@stealthscale/component-forms";',
+  scenes: [
+    ...shown,
+    addons,
+    ...scenesOf<InputGroup.RootProps>(recipe, {
+      axes: {
+        align: {
+          draw: (props) => (
+            <Room size="sm">
+              <examples.notes.Notes {...props} />
+            </Room>
+          ),
+          example: examples.notes,
+        },
+        status: { across: "variant" },
+        variant: {},
+      },
+      draw: (props) => <examples.amount.Amount {...props} />,
+      example: examples.amount,
+      namespace: "input-group",
+      order: ["variant", "size", "status", "align"],
+    }),
+    states,
+    roomed("locked", examples.locked, examples.locked.Locked),
+  ],
   title: "input-group.title",
 });

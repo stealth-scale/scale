@@ -91,8 +91,7 @@ function encoded(channel: number): number {
 }
 
 /**
- * Writes a linear color the way CSS reads one, so a simulated color can be measured like any
- * other.
+ * Returns a linear color as a CSS `rgb()` string, so a simulated color is measured like any other.
  */
 export function written(color: Linear): string {
   return `rgb(${String(encoded(color.red))} ${String(encoded(color.green))} ${String(encoded(color.blue))})`;

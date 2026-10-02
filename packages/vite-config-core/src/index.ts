@@ -2,10 +2,9 @@
  * Defines a layer and composes a list of them into one Vite config.
  *
  * @remarks
- *   Three passes settle the result: every preset merges, then every
- *   contribution appends, then every override rewrites. Two layers of
- *   different kinds never compete on their position in the array, and only a
- *   removal reads that position at all.
+ *   Composition runs three passes: every preset merges, then every contribution appends, then
+ *   every override rewrites. Only a removal reads a layer's position in the array. Two layers of
+ *   different kinds never compete on order.
  * @packageDocumentation
  */
 

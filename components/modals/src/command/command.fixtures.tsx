@@ -1,5 +1,5 @@
 /**
- * Builds the command palette a part's specification needs above it.
+ * Renders the palettes the part specifications test, and drives the field.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -15,11 +15,11 @@ import { List } from "#command/list.tsx";
 import { Root, type RootProps } from "#command/root.tsx";
 
 /**
- * Draws whatever a case wants measured inside the panel that holds the palette.
+ * Renders a part inside a root with the fixture actions.
  *
  * @param children - The part under test.
- * @param props - Whatever the case sets on the panel.
- * @returns The panel, holding it.
+ * @param props - The root's props, without the actions and the list's name.
+ * @returns The root.
  */
 export function palette(
   children: ReactNode,
@@ -33,11 +33,10 @@ export function palette(
 }
 
 /**
- * Types into a palette's field and waits for the list to settle.
+ * Sets the field to a query and waits for the filtered list and its announcement to settle.
  *
- * @param field - The field to type into.
- * @param text - What to type.
- * @returns Nothing. The caller reads the screen.
+ * @param field - The query field.
+ * @param text - The query.
  */
 export async function typed(field: HTMLElement, text: string): Promise<void> {
   fireEvent.change(field, { target: { value: text } });
@@ -45,10 +44,20 @@ export async function typed(field: HTMLElement, text: string): Promise<void> {
 }
 
 /**
- * Draws a whole palette, so a case can type into it and read what is left.
+ * Presses a control and waits for the list it filters to settle.
  *
- * @param props - Whatever the case sets on the panel.
- * @returns The parts composed the way a caller composes them.
+ * @param control - The control to press.
+ */
+export async function pressed(control: HTMLElement): Promise<void> {
+  fireEvent.click(control);
+  await settled();
+}
+
+/**
+ * Renders a palette with a field and a list, and the empty message inside the list.
+ *
+ * @param props - The root's props, without the actions and the list's name.
+ * @returns The palette.
  */
 export function composed(props: Omit<RootProps, "actions" | "aria-label"> = {}): ReactElement {
   return (

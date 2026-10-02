@@ -1,9 +1,9 @@
 /**
- * Walks a block of tokens, however deep it nests, and tells a token from the group around it.
+ * Walks a block of tokens to any depth, telling a token apart from the group that holds it.
  */
 
 /**
- * Describes one token found in a block: where it is, and what it holds.
+ * One token a walk found, with the path that led to it.
  */
 export interface Leaf {
   /**
@@ -12,13 +12,13 @@ export interface Leaf {
   path: string;
 
   /**
-   * The token's value: a string, or one value per mode.
+   * The token's value: either a string, or one value per mode.
    */
   value: unknown;
 }
 
 /**
- * Reports whether a node is a token, which is an object carrying a value.
+ * Reports whether a node is a token, which in this format means an object with a `value` property.
  */
 export function isToken(node: unknown): node is object {
   return typeof node === "object" && node !== null && "value" in node;
@@ -28,8 +28,8 @@ export function isToken(node: unknown): node is object {
  * Lists every token under a block with its dotted path, in the order the block states them.
  *
  * @remarks
- *   A group is any object that is not a token, so a palette's nested roles and a family's members
- *   are reached alike. A value that is neither is passed over.
+ *   Any object that is not a token counts as a group, so a palette's nested roles and a family's
+ *   members are reached the same way. Anything that is neither is skipped.
  */
 export function leaves(block?: unknown, prefix = ""): readonly Leaf[] {
   if (typeof block !== "object" || block === null) return [];
@@ -44,7 +44,7 @@ export function leaves(block?: unknown, prefix = ""): readonly Leaf[] {
 }
 
 /**
- * Reads the node a dotted path reaches, or undefined where the path leaves the block.
+ * Follows a dotted path into a block, or undefined where the path runs off the end of it.
  */
 export function nodeAt(block: unknown, path: string): unknown {
   let node = block;
@@ -59,7 +59,7 @@ export function nodeAt(block: unknown, path: string): unknown {
 }
 
 /**
- * Reports whether a dotted path reaches a token, either outright or as a group's own value.
+ * Reports whether a dotted path lands on a token, directly or through a group's DEFAULT.
  */
 export function stated(block: unknown, path: string): boolean {
   const node = nodeAt(block, path);
@@ -68,7 +68,8 @@ export function stated(block: unknown, path: string): boolean {
 }
 
 /**
- * Writes a file name in camel case, which is the key a recipe or an extension is listed under.
+ * Converts a file name to camel case, which is the key a recipe or an extension is registered
+ * under.
  */
 export function camelCased(name: string): string {
   return name.replaceAll(/-([a-z0-9])/gu, (_match, letter: string) => letter.toUpperCase());

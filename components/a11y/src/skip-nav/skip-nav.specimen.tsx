@@ -1,51 +1,48 @@
 /**
- * Shows the skip link: the link that comes into view under focus, and the target it lands on.
+ * Catalogue page for the skip link and its target.
  *
  * @remarks
- *   The skip link has no axis, so the scene draws the pair once rather than a matrix. The pair
- *   names its own target, because the catalogue's shell already holds a skip link pointing at the
- *   default one, and two links to one target would be two controls that do the same thing. The
- *   words are keys under `skip-nav` in the catalogue's namespace, kept beside this file in
+ *   The recipe has no axis, so the page has one hand-written scene: an invoice list whose skip link
+ *   moves focus past the filters, inside `Contained`, so Tab reveals the link at the list's corner
+ *   and not at the window's. At rest the scene shows what a pointer user sees, so a still image
+ *   shows no link. The example takes its fragment id from `useId`, because the catalogue shell
+ *   already renders a skip link to `#content`. The scene renders a component from `examples/` and
+ *   shows that file as its source. The words are keys under `skip-nav` in
  *   `locales/en/specimen/skip-nav.json`.
  */
 
-import { type ReactElement, useId } from "react";
+import { type ReactElement } from "react";
 
-import { Stack } from "@stealthscale/component-layout";
-import { type Scene, specimen, Tile, useWords } from "@stealthscale/specimen";
+import { Contained, Room, type Scene, specimen } from "@stealthscale/specimen";
 
-import { Link, Target } from "#skip-nav/index.ts";
+import * as invoices from "#skip-nav/examples/invoices.example.tsx";
 
 /**
- * Draws the link and the target it points at.
+ * Renders the invoice list in a 512px room that contains its fixed link.
  */
 function Pair(): ReactElement {
-  const { t } = useWords("skip-nav");
-  const id = useId();
-
   return (
-    <Stack>
-      <Link href={`#${id}`}>{t("skip")}</Link>
-      <Target id={id}>
-        <Tile>{t("content")}</Tile>
-      </Target>
-    </Stack>
+    <Room size="lg">
+      <Contained>
+        <invoices.Invoices />
+      </Contained>
+    </Room>
   );
 }
 
 /**
- * The link and its target.
+ * Hand-written scene for the link and the target.
  */
 export const pair: Scene = {
   about: "skip-nav.pair.about",
   draw: Pair,
+  example: invoices,
   title: "skip-nav.pair.title",
 };
 
 export default specimen({
   about: "skip-nav.about",
-  group: "Accessibility",
-  id: "a11y/skip-nav",
+  id: "components/a11y/skip-nav",
   imports: 'import { SkipNav } from "@stealthscale/component-a11y";',
   scenes: [pair],
   title: "skip-nav.title",

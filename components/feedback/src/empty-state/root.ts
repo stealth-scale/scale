@@ -1,10 +1,10 @@
 /**
- * Draws the panel every other part sits in.
+ * Renders the panel of the empty state.
  *
  * @remarks
- *   The element is `div` and carries no role. What an empty state means is in its words, and a
- *   region role on every one of them would make a page of empty panels a page of landmarks. A page
- *   that wants the panel announced states its own role on it.
+ *   The element is a `div` with no role. A dashboard of empty panels with a landmark each would
+ *   list every panel in a screen reader's landmark menu. A surface that needs the panel announced
+ *   sets its own role.
  */
 
 import { type ComponentProps } from "react";
@@ -12,11 +12,11 @@ import { type ComponentProps } from "react";
 import { withProvider } from "#empty-state/context.ts";
 
 /**
- * Draws the panel and sets the size every part below it reads.
+ * Renders a div and provides the size to the parts inside it.
  */
 export const Root = withProvider("div", "root");
 
 /**
- * Describes what the panel takes.
+ * Describes the props of EmptyState.Root: the recipe's size and the props of a div element.
  */
 export type RootProps = ComponentProps<typeof Root>;

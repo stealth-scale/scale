@@ -1,18 +1,14 @@
 /**
- * Draws one sample of one scene and nothing else, for the frame a page shows it in at a device's
- * size.
+ * Renders one sample of one scene and nothing else, for the iframe a page shows it in at a
+ * device's size.
  *
  * @remarks
- *   What an application routes its framed page to. The frame loads the application at that page
- *   with a sample's address in the fragment, so everything in the document, the styling engine's
- *   media queries and the parts that portal to the body included, sees a window of the device's
- *   size. The address is read off the fragment and followed as it changes, because the frame has
- *   no router of its own to follow it with. The scene is drawn in a pane that meets the window
- *   the way the scene meets its card, or at the window's edges for a scene that fills the window,
- *   and the matrix or the board inside it draws the one sample the address picks, bare, and tells
- *   the page holding the frame which samples it offers. The
- *   document's root is marked as framed, so the kit's preset makes it see-through and the sample
- *   sits on the card that holds the frame.
+ *   An application routes its framed page to this component. The frame loads the application at
+ *   that page with a sample's address in the fragment, so everything in the document, the styling
+ *   engine's media queries and the parts that portal to the body included, sees a window of the
+ *   device's size. The address is read from the fragment and followed as it changes, because the
+ *   frame runs no router of its own. The document root is marked as framed, so the kit's preset
+ *   makes it transparent and the sample sits on the card around the frame.
  */
 
 import { type ReactElement, useEffect, useSyncExternalStore } from "react";
@@ -26,17 +22,19 @@ import { Pane } from "#framed/pane.ts";
 import { type Frame, type Scene } from "#page.ts";
 
 /**
- * Describes what the framed page takes.
+ * The props {@link Framed} accepts.
  */
 export interface FramedProps {
   /**
-   * Every page the index found.
+   * Every page the index found, searched for the one the address names.
    */
   readonly pages: readonly Indexed[];
 }
 
 /**
- * Tells React when the fragment changes.
+ * Subscribes to `hashchange` for `useSyncExternalStore`.
+ *
+ * @returns The function that removes the listener again.
  */
 function subscribe(onChange: () => void): () => void {
   window.addEventListener("hashchange", onChange);
@@ -47,22 +45,28 @@ function subscribe(onChange: () => void): () => void {
 }
 
 /**
- * Reads the fragment as it stands.
+ * Reads the current fragment, as the client snapshot for `useSyncExternalStore`.
  */
 function snapshot(): string {
   return window.location.hash;
 }
 
 /**
- * Reads the fragment as it stands, on a server: none.
+ * Supplies the empty fragment as the server snapshot for `useSyncExternalStore`.
+ *
+ * @remarks
+ *   A server has no `window` to read a fragment from, and the address only matters once the
+ *   component has hydrated.
  */
 function absent(): string {
   return "";
 }
 
 /**
- * Says how a scene meets the window: at its edges for one that fills the window, whatever frame
- * it meets its card with, and otherwise the way it meets its card.
+ * Chooses the frame a scene takes in the pane.
+ *
+ * @returns `bleed` for a viewport scene, and otherwise the scene's own frame, defaulting to
+ *   `inset`.
  */
 function framing(scene: Scene): Frame {
   if (scene.viewport === true) return "bleed";
@@ -71,7 +75,7 @@ function framing(scene: Scene): Frame {
 }
 
 /**
- * Marks the document's root as framed while the page is drawn.
+ * Marks the document root as framed for as long as the component is mounted.
  */
 function useMarked(): void {
   useEffect(() => {
@@ -84,10 +88,13 @@ function useMarked(): void {
 }
 
 /**
- * Draws the sample the fragment addresses, bare.
+ * Renders the sample the fragment addresses, and nothing else.
  *
+ * @remarks
+ *   The address is re-read on every `hashchange`, so the frame follows the sample a page picks
+ *   without reloading the document.
  * @param props - Every page the index found.
- * @returns The sample, or nothing while the page loads or where the address names none.
+ * @returns The sample, or null while the module is pending and when the address names no scene.
  */
 export function Framed({ pages }: FramedProps): null | ReactElement {
   const fragment = useSyncExternalStore(subscribe, snapshot, absent);

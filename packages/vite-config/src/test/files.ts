@@ -4,7 +4,7 @@
 
 import { type Preset, preset } from "@stealthscale/vite-config-core";
 
-import { FOREIGN, WORKTREE_TESTS } from "#ignore/foreign.ts";
+import { FOREIGN, IN_COPIES } from "#ignore/foreign.ts";
 
 /**
  * The one spelling of a test file this repository uses.
@@ -18,12 +18,12 @@ const TESTS = ["**/*.spec.{ts,tsx}"];
  *   The runner recognises .test as well by default. Keeping one spelling means
  *   nobody has to check which a package chose, at the price that a file named
  *   .test is collected by nothing and reports no failure while doing it. The
- *   agent worktrees below the root are left out, so a run from the main checkout
- *   collects no specification twice.
+ *   agent worktrees and the scratch below the root are left out, so a run from
+ *   the main checkout collects no specification twice.
  */
 export function files(): Preset {
   return preset({
-    config: { test: { exclude: [...FOREIGN, WORKTREE_TESTS], include: TESTS } },
+    config: { test: { exclude: [...FOREIGN, ...IN_COPIES], include: TESTS } },
     name: "test.files",
   });
 }

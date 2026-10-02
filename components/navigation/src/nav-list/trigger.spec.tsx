@@ -9,19 +9,19 @@ import { branched } from "#nav-list/nav-list.fixtures.tsx";
 import { Trigger } from "#nav-list/trigger.tsx";
 
 describe("Trigger", () => {
-  it("draws a button inside the branch it needs above it", () => {
+  it("renders a BUTTON element inside a branch", () => {
     const { container } = render(branched(<Trigger>Settings</Trigger>));
 
     expect(slotElement(container, "nav-list", "trigger").tagName).toBe("BUTTON");
   });
 
-  it("says it submits nothing, so a row inside a form does not", () => {
+  it("sets type to button", () => {
     render(branched(<Trigger>Settings</Trigger>));
 
     expect(screen.getByRole("button").getAttribute("type")).toBe("button");
   });
 
-  it("names the list it controls", () => {
+  it("sets aria-controls to the content id", () => {
     const { container } = render(
       branched(
         <>
@@ -36,7 +36,7 @@ describe("Trigger", () => {
     );
   });
 
-  it("keeps a handler a caller hands it beside opening the branch", async () => {
+  it("keeps the caller's onClick handler when it opens the branch", async () => {
     const heard = vi.fn<() => void>();
 
     render(branched(<Trigger onClick={heard}>Settings</Trigger>));
@@ -46,7 +46,7 @@ describe("Trigger", () => {
     expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("true");
   });
 
-  it("says where it was written when it is drawn outside a branch", () => {
+  it("throws an error naming NavList.Branch when rendered outside a branch", () => {
     expect(rootedViolations({ Trigger }, /NavList.Branch/u)).toStrictEqual([]);
   });
 });

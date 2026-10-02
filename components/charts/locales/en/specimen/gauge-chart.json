@@ -1,0 +1,68 @@
+{
+  "about": "One value on a dial from a range's minimum to its maximum, with zones that name what the value means. A gauge shows where one value is in a range, and a bar chart compares values.",
+  "critical": {
+    "about": "Past the error budget the reading takes the error palette's color, and the name under the figure names its zone, so no one has to match a color.",
+    "caption": "p99 latency is 1,080ms, past the 900ms error budget.",
+    "title": "Critical zone"
+  },
+  "disk": {
+    "about": "A share as a percentage: max 1 ends the dial at the whole volume, and valueOptions writes the figure and the range's ends in percent.",
+    "caption": "The primary volume is 86% full, in the filling zone.",
+    "label": "Disk use of the primary volume",
+    "title": "Percentage"
+  },
+  "latency": {
+    "about": "A checkout API's p99 latency against its error budget. The reading fills the dial from 0 in its zone's color, the figure and the zone's name are written in the middle, and the zones form the thin ring outside.",
+    "caption": "p99 latency is 740ms, inside the 900ms error budget.",
+    "label": "Checkout p99 latency",
+    "title": "Latency"
+  },
+  "narrow": {
+    "about": "The latency in a room 20rem wide, the column of a phone.",
+    "title": "Narrow room"
+  },
+  "overrun": {
+    "about": "A value past max fills the dial to its end, and the figure writes the value itself, 4,000ms, where the dial ends at 1,200ms.",
+    "caption": "p99 latency is 4,000ms, more than three times the dial's 1,200ms.",
+    "title": "Past max"
+  },
+  "quiet": {
+    "about": "A value that is not a finite number renders the empty state in the plot's place, at the plot's ratio.",
+    "caption": "Checkout p99 latency over the last five minutes.",
+    "empty": "No reading in the last five minutes.",
+    "title": "Empty"
+  },
+  "replay": {
+    "about": "animate sweeps the reading and the zones in from the start of the dial when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the dial at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "short": {
+    "about": "Zones that end before max leave the rest of the range as the track, so the dial shows which part of its range the zones name.",
+    "caption": "No zone covers latency past 900ms, where 1,050ms is.",
+    "title": "Zones that end early"
+  },
+  "throughput": {
+    "about": "Without zones the reading takes the theme's first series color, and centerLabel writes the unit under the figure.",
+    "caption": "The service handles 3,120 requests a second of the 5,000 it was tested to.",
+    "label": "Checkout throughput",
+    "title": "Without zones",
+    "unit": "requests a second"
+  },
+  "tiles": {
+    "about": "Three gauges in a grid of three columns, each captioned by its resource. limits false leaves the range's ends out at this size.",
+    "cpu": "CPU",
+    "disk": "Disk",
+    "memory": "Memory",
+    "title": "Tiles"
+  },
+  "title": "Gauge chart",
+  "zones": {
+    "critical": "Critical",
+    "filling": "Filling",
+    "fine": "Fine",
+    "full": "Full",
+    "healthy": "Healthy",
+    "watch": "Watch"
+  }
+}

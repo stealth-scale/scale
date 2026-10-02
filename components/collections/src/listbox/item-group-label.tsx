@@ -1,10 +1,9 @@
 /**
- * Draws the heading naming a set of rows.
+ * Renders the label of a group of rows.
  *
  * @remarks
- *   It carries a presentation role and the group points at it, so the words reach a reader through
- *   the group's name rather than as a row of the list. A heading counted as a row would be one a
- *   reader walks onto and cannot choose.
+ *   The label has `role="presentation"` and the group's `aria-labelledby` references it, so a
+ *   screen reader reads it as the group's name and never as a row.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,25 +14,25 @@ import { withContext } from "#listbox/context.ts";
 import { useListbox } from "#listbox/machine.ts";
 
 /**
- * Draws the heading at the size the root states.
+ * Renders the `span` with the listbox's item group label class.
  */
 const Headed = withContext("span", "itemGroupLabel");
 
 /**
- * Describes what a group's heading takes.
+ * Describes the props of a group label: its group's identifier and the props of a `span`.
  */
 export interface ItemGroupLabelProps extends ComponentProps<typeof Headed> {
   /**
-   * The identifier of the group these words name.
+   * Identifier of the group the label names.
    */
   readonly htmlFor: string;
 }
 
 /**
- * Labels a set of rows, without being a row itself.
+ * Renders a group label with the machine's item group label props.
  *
- * @param props - The group it names, and everything a styled span takes.
- * @returns The heading, pointed at by its group.
+ * @param props - The group's identifier, and the attributes and children of the `span` element.
+ * @returns The `span` element the group's `aria-labelledby` references.
  */
 export function ItemGroupLabel({ htmlFor, ...rest }: ItemGroupLabelProps): ReactElement {
   const api = useListbox();

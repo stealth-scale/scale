@@ -2,18 +2,17 @@
  * Configures the React Compiler, which memoises a component so that nothing has to by hand.
  *
  * @remarks
- *   The compiler runs as a Babel pass rather than through the React plugin's own `compiler`
- *   option. That option asks the plugin to resolve `babel-plugin-react-compiler` from its own
- *   directory, and an isolated node_modules gives it no way to reach a package this workspace
- *   installed, so the option compiles nothing and silently turns fast refresh off as well.
- *   Running the preset through the Babel bridge resolves it from here, where it is declared.
+ *   The compiler runs through `oxc-transform-react`, oxc's native port of it, in a transform of
+ *   this package's own. The React plugin's `compiler` option runs the same port, but only over the
+ *   React plugin's `include` and `exclude`, which leave out every specimen and example, and the
+ *   packer never runs the React plugin. The transform leaves JSX in place, and the bundler's own
+ *   transform compiles it afterwards.
  */
 
-import babel from "@rolldown/plugin-babel";
-import { reactCompilerPreset } from "@vitejs/plugin-react";
-import { type UserConfig } from "vite";
+import { type TransformResult } from "oxc-transform-react";
+import { type Environment, type Plugin, type UserConfig } from "vite";
 
-import { type Layer, override, type Override } from "@stealthscale/vite-config";
+import { type Layer, located, override, type Override } from "@stealthscale/vite-config";
 
 import { major } from "#version.ts";
 
@@ -21,24 +20,58 @@ import { major } from "#version.ts";
  * The mode a specification run composes its configuration under.
  *
  * @remarks
- *   The compiler writes a memo cache around every component it compiles, and each cache is a branch
- *   the author did not write. Coverage counts those branches, so a package holding itself to full
- *   branch coverage would be asked to exercise a compiler's caching rather than its own code. A
- *   specification reads what the author wrote, and the build is what proves the compiled form.
+ *   The compiler writes a memo cache around every component it compiles, and coverage counts each
+ *   cache as a branch. Under a full branch-coverage requirement, a package would then have to
+ *   exercise the compiler's caching. Specifications read the source as written, and the build
+ *   proves the compiled form.
  */
 const TESTING = "test";
 
 /**
- * The file kinds the compiler reads.
+ * Matches the id of a TypeScript, JavaScript or MDX module, with or without the query a dev server
+ * appends.
  *
  * @remarks
- *   Markdown that renders is named apart rather than folded into the character class, because a
- *   class of `jtm` would claim `.msx` and still miss `.mdx`. The MDX plugin puts itself ahead of
- *   this one, so what arrives here is the component a document compiled to. The alternative closes
- *   on a query instead of on the end of the identifier, because the dev server appends one to
- *   every module it re-transforms and a pattern anchored at the end would skip all of them.
+ *   The pattern names `.mdx` in an alternative of its own, because a character class of `jtm` would
+ *   match `.msx` and miss `.mdx`. The MDX plugin runs first, so an `.mdx` module arrives here as
+ *   the component its document compiled to.
  */
 const COMPILED = /\.(?:[jt]sx?|mdx)(?:$|\?)/u;
+
+/**
+ * Dependency path pattern. Installed packages contain compiled code.
+ */
+const UNTOUCHED = /\/node_modules\//u;
+
+/**
+ * Declaration file pattern: `.d.ts`, `.d.mts`, `.d.cts` and `.d.<extension>.ts`.
+ *
+ * @remarks
+ *   A declaration contains no component. The packer's declaration build passes every declaration
+ *   through the plugins as a module of its own form, and the compiler parses a file with a
+ *   declaration name as ambient code, which refuses that form.
+ */
+const DECLARED = /\.d\.(?:[^./?]+\.)?[cm]?ts(?:$|\?)/u;
+
+/**
+ * Source text that contains a component or hook name: a capitalised name, a name that opens on
+ * `use` and a capital or a digit, `memo` or `forwardRef`.
+ *
+ * @remarks
+ *   The React plugin tests a module with the same expression before it hands the module to the
+ *   compiler. The bundler applies it before it calls the transform, so the transform never receives
+ *   a module without a match.
+ */
+const CANDIDATE = /forwardRef|memo|\b(?:[A-Z]|use[A-Z0-9])/u;
+
+/**
+ * The query a dev server appends to a module id.
+ *
+ * @remarks
+ *   The compiler reads the language from the file's extension, and it fails to parse a TypeScript
+ *   module whose id still ends in a query.
+ */
+const QUERY = /\?.*$/su;
 
 /**
  * The newest React the compiler has a target for.
@@ -56,52 +89,65 @@ const OLDEST = "17";
 const TARGETS = [OLDEST, "18", NEWEST] as const;
 
 /**
- * The errors the compiler raises rather than swallowing.
+ * The compiler errors that stop a build.
  *
  * @remarks
- *   A critical error is the compiler failing its own invariant, and an unrecognised one is a case
- *   it has no reading for. Both mean the compiler is wrong rather than the code, and at the
- *   shipped default of `none` both leave the function uncompiled without a word. Every other bail
- *   is a pattern the compiler declines on purpose and still skips quietly.
+ *   A critical error is the compiler failing one of its own invariants, and an unrecognised one is
+ *   a case it has no handling for. Both mean the compiler is wrong and the code is not. At the
+ *   compiler's default of `none`, both leave the function uncompiled without a diagnostic. Every
+ *   other bail is a pattern the compiler declines on purpose and skips without a diagnostic.
  */
 const RAISED = "critical_errors";
+
+/**
+ * The compiler's package, in a variable so that the specifier below is not a literal.
+ *
+ * @remarks
+ *   Vite bundles a configuration file before it runs it, and it resolves a literal specifier inside
+ *   a dynamic import at bundle time, against the configuration. A variable leaves the specifier for
+ *   {@link located} to resolve from this package.
+ */
+const PORT = "oxc-transform-react";
+
+/**
+ * The React a memo cache is written for.
+ */
+type Target = (typeof TARGETS)[number];
 
 /**
  * Narrows what the compiler reads and which runtime it writes against.
  */
 export interface Compiled {
   /**
-   * Whether the compiler runs under a build alone, leaving a dev server's transforms to the JSX
-   * plugin. Everywhere but a specification run where a caller states nothing.
+   * Restricts the compiler to a build when set to `build`. The compiler otherwise runs everywhere
+   * but in a specification run.
    *
    * @remarks
-   *   The compiler is most of what a cold dev transform costs, so a package that wants the faster
-   *   loop states `build` and keeps the memoised form for what it ships. What it gives up is the
-   *   compiler's reading of its components while it edits them, which is where the compiler
-   *   reports a memoisation it could not keep.
+   *   `build` takes the compiler's cost out of a dev server's transforms and keeps the memoised
+   *   form in what a package publishes. A dev server then reports no compiler error while a
+   *   component is edited, and the build reports it instead.
    */
   only?: "build";
 
   /**
-   * Which React the memo cache is written for. The installed one where a caller states none. React
-   * 19 carries the runtime itself, and an earlier one takes it from `react-compiler-runtime`.
+   * Which React the memo cache is written for. A caller that states none gets the installed React.
+   * React 19 includes the runtime, and an earlier one takes it from `react-compiler-runtime`.
    */
-  target?: (typeof TARGETS)[number];
+  target?: Target;
 }
 
 /**
  * Reads the target from the React a build resolves.
  *
  * @remarks
- *   The target comes from the tree rather than from a constant here, so a major upgrade needs no
- *   edit in this package and no edit in a consumer. A React newer than the compiler knows about
- *   takes the newest target, because every one of those carries the runtime in React itself, which
- *   is the whole of what the newest target means.
+ *   The target comes from the tree, so a major upgrade needs no edit in this package and no edit in
+ *   a consumer. A React newer than the compiler knows about takes the newest target, because every
+ *   one of those includes the runtime, which is the whole of what the newest target means.
  * @param stated - The target a caller named, if any.
  * @returns The target to write the memo cache against.
  * @throws {@link Error} When the installed React is older than any target the compiler has.
  */
-function targeted(stated: Compiled["target"]): (typeof TARGETS)[number] {
+function targeted(stated: Compiled["target"]): Target {
   if (stated !== undefined) return stated;
 
   const held = major();
@@ -117,61 +163,107 @@ function targeted(stated: Compiled["target"]): (typeof TARGETS)[number] {
 }
 
 /**
- * Returns the preset, having proved that the compiler behind it can be loaded.
+ * Returns the module a memo cache imports its runtime from.
+ */
+function runtimeOf(target: Target): string {
+  return target === NEWEST ? "react/compiler-runtime" : "react-compiler-runtime";
+}
+
+/**
+ * Resolves the compiler from this package, naming the package to install where it is missing.
  *
  * @remarks
- *   The preset resolves the compiler when Babel first asks it for one, which is during a
- *   transform. A package missing the dependency would then compile every file with a preset that
- *   contributes nothing, and would build clean while memoising none of it. Asking for the preset
- *   here moves that failure to the moment the configuration is composed, where it names the
- *   package that has to install something.
- * @param target - The React the memo cache is written for.
- * @returns The preset, ready for the Babel bridge.
- * @throws {@link Error} When the compiler cannot be resolved from this package.
+ *   The configuration is composed before any module is compiled, so a package without the compiler
+ *   fails here with an instruction, before its first transform.
+ * @throws {@link Error} When the compiler is not installed beside this package.
  */
-function installed(target: Compiled["target"]): ReturnType<typeof reactCompilerPreset> {
-  const preset = reactCompilerPreset({ panicThreshold: RAISED, target });
-  const build = preset.preset;
-
-  if (typeof build !== "function") return preset;
-
+function resolved(): string {
   try {
-    // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the preset takes the api Babel hands it, and forcing the resolve needs none of it
-    (build as () => unknown)();
+    return located(PORT, import.meta.url);
   } catch (error) {
     throw new Error(
-      "the React Compiler cannot be loaded: add babel-plugin-react-compiler and @rolldown/plugin-babel to this package, or pass compiler: false to react.layers()",
+      `the React Compiler cannot be loaded: add ${PORT} to this package, or pass compiler: false to react.layers()`,
       { cause: error },
     );
   }
-
-  return preset;
 }
 
 /**
- * Builds the bridge that runs the compiler over what a package compiles.
- *
- * @param target - The React the memo cache is written for.
- * @returns The plugin, which the bundler resolves before it runs.
+ * Returns the message a failed compile is reported with: each diagnostic and its code frame.
  */
-function bridge(target: Compiled["target"]): ReturnType<typeof babel> {
-  return babel({ include: COMPILED, presets: [installed(target)] });
+function failure(file: string, result: TransformResult): string {
+  const diagnostics = result.errors.map((error) =>
+    [error.message, error.codeframe].filter((part) => part !== null).join("\n"),
+  );
+
+  return [`the React Compiler could not compile ${file}`, ...diagnostics].join("\n\n");
 }
 
 /**
- * One bundle the packer builds, which is the whole of `pack` unless a package states several.
+ * Builds the transform that runs the compiler over what a package compiles.
+ *
+ * @remarks
+ *   The compiler loads at the first module the transform receives, so a run that compiles nothing
+ *   never loads it. The transform leaves a server environment alone, as the React plugin does, and
+ *   the dev server pre-bundles the runtime the memo cache imports.
+ * @param target - The React the memo cache is written for.
+ * @param port - The compiler's entry, resolved from this package.
+ */
+function bridge(target: Target, port: string): Plugin {
+  let loading: Promise<typeof import("oxc-transform-react")> | undefined;
+
+  return {
+    applyToEnvironment: (environment) => environment.config.consumer === "client",
+    config: (): UserConfig => ({ optimizeDeps: { include: [runtimeOf(target)] } }),
+    enforce: "pre",
+    name: "react.plugin.compiler",
+    transform: {
+      filter: { code: CANDIDATE, id: { exclude: [UNTOUCHED, DECLARED], include: COMPILED } },
+
+      /**
+       * Compiles one module, and stops the build with the compiler's diagnostics where it fails.
+       *
+       * @remarks
+       *   The packer's context has no environment, and a module compiled there gets a source map.
+       *   A build writes one only where it writes source maps itself.
+       */
+      async handler(code, id) {
+        // eslint-disable-next-line typescript/no-unsafe-type-assertion -- a dynamic import of a specifier in a variable resolves to any, and PORT gives the reason for the variable
+        loading ??= import(port) as Promise<typeof import("oxc-transform-react")>;
+
+        const environment: Environment | undefined = this.environment;
+        const file = id.replace(QUERY, "");
+        const result = await (
+          await loading
+        ).transform(file, code, {
+          jsx: "preserve",
+          reactCompiler: { panicThreshold: RAISED, target },
+          sourcemap:
+            environment?.config.command !== "build" || environment.config.build.sourcemap !== false,
+        });
+
+        if (result.fatal) this.error(failure(file, result));
+
+        return { code: result.code, map: result.map ?? null };
+      },
+    },
+  };
+}
+
+/**
+ * One bundle the packer builds, which is the whole of `pack` unless a package states an array.
  */
 type Bundle = Exclude<NonNullable<UserConfig["pack"]>, readonly unknown[]>;
 
 /**
- * Appends the bridge to one bundle's own plugin list.
+ * Appends the transform to one bundle's own plugin list.
  *
  * @remarks
- *   What the bundle already holds is nested rather than spread, because the packer's plugin field
- *   takes a single plugin, a list, a promise of either, or `false`, and a list nested inside a list
- *   is flattened. Spreading it would iterate whichever of those it is.
+ *   The bundle's own list is nested in a list, because the packer's plugin field takes a single
+ *   plugin, a list, a promise of either, or `false`, and the packer flattens nested lists. A spread
+ *   would iterate whichever of those the field contains.
  */
-function also(bundle: Bundle, plugin: ReturnType<typeof babel>): Bundle {
+function also(bundle: Bundle, plugin: Plugin): Bundle {
   return { ...bundle, plugins: [bundle.plugins ?? [], plugin] };
 }
 
@@ -181,15 +273,15 @@ function also(bundle: Bundle, plugin: ReturnType<typeof babel>): Bundle {
 const SERVING = "serve";
 
 /**
- * Adds the compiler to the plugins a tier already built, for everything but a specification run,
- * and but a dev server where the caller asked for the compiler under a build alone.
+ * Adds the compiler to the plugins a tier built, except in a specification run and in a dev server
+ * where the caller asked for the compiler under a build alone.
  *
  * @remarks
- *   An override rather than a contribution, because only an override is handed the mode and the
- *   command the configuration is being composed under.
+ *   An override, because only an override receives the mode and the command the configuration is
+ *   composed under.
  */
-function built(stated: Compiled, target: Compiled["target"]): Override {
-  const plugin = bridge(target);
+function built(stated: Compiled, target: Target, port: string): Override {
+  const plugin = bridge(target, port);
 
   return override({
     because: "a memoised component renders again only when what it reads has changed",
@@ -207,16 +299,13 @@ function built(stated: Compiled, target: Compiled["target"]): Override {
  * Adds the compiler to the plugins the packer runs, for a package that has a packer.
  *
  * @remarks
- *   The packer reads `pack.plugins` and nothing under `plugins`, so a library needs the bridge
- *   stated a second time. Without it a library publishes what its author wrote, and a consumer
- *   installing it compiles nothing under `node_modules`, so the published copy is the one place
- *   the memo cache never gets written.
- *   An override rather than a contribution, because a contribution would invent a packer for an
- *   application, which has none and builds through `plugins` alone. An override reads the config
- *   every layer composed and can leave an application as it found it.
+ *   The packer reads `pack.plugins` and nothing under `plugins`, so a library states the transform
+ *   a second time for its published components to be memoised. A consumer compiles nothing under
+ *   `node_modules`. The layer is an override, because a contribution would add a packer to an
+ *   application, which builds through `plugins` alone.
  */
-function packed(target: Compiled["target"]): Override {
-  const plugin = bridge(target);
+function packed(target: Target, port: string): Override {
+  const plugin = bridge(target, port);
 
   return override({
     because: "the packer reads its own plugin list, and a published component is memoised there",
@@ -237,18 +326,18 @@ function packed(target: Compiled["target"]): Override {
  * Memoises every component and hook a package compiles, in the build and in the packer.
  *
  * @remarks
- *   A component the compiler memoised needs no `useMemo` and no `useCallback` for speed. Both are
- *   still written where a caller depends on one identity for the life of a component, which the
- *   compiler does not promise: it caches against the values it read, so an identity changes when
- *   one of them does.
- *   Both plugin instances are constructed when this call runs, not when the configuration
- *   resolves, so two calls produce two independent pairs.
- * @param stated - Which React to write the memo cache for, React 19 where a caller states none,
- *   and whether to compile under a build alone.
+ *   A component the compiler memoised needs `useMemo` and `useCallback` only where a caller depends
+ *   on one identity for the life of the component. The compiler caches against the values a
+ *   component read, so an identity changes when one of them does. Each call constructs its own two
+ *   plugin instances.
+ * @param stated - The React to write the memo cache for, and whether to compile under a build
+ *   alone. The installed React by default.
  * @returns Each layer under the name of the call that produced it.
+ * @throws {@link Error} When the installed React has no target, or the compiler is not installed.
  */
 export function compiler(stated: Compiled = {}): readonly Layer[] {
   const target = targeted(stated.target);
+  const port = resolved();
 
-  return [built(stated, target), packed(target)];
+  return [built(stated, target, port), packed(target, port)];
 }

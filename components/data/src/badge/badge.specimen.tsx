@@ -1,111 +1,53 @@
 /**
- * Shows the badge: every look at every size, every status in every look, and every corner at
- * every size on a count.
+ * Catalogue page for the badge.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. The words are keys under `badge` in the catalogue's namespace, kept
- *   beside this file in `locales/en/specimen/badge.json`.
+ *   `scenesOf` generates the look, palette, corner and effect scenes. The look and corner scenes
+ *   cross the size axis, and the palette scene crosses the look axis. The marks scene is
+ *   hand-written, because an icon is a child and not a recipe axis. Every scene renders a
+ *   component from `examples/` and shows that file as its source. The words are keys under
+ *   `badge` in `locales/en/specimen/badge.json`.
  */
 
-import { type ReactElement } from "react";
+import { type Scene, scenesOf, specimen } from "@stealthscale/specimen";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
-
-import { Badge } from "#badge/badge.ts";
+import * as count from "#badge/examples/count.example.tsx";
+import * as draft from "#badge/examples/draft.example.tsx";
+import * as marks from "#badge/examples/marks.example.tsx";
 import { recipe } from "#badge/recipe.ts";
 
 /**
- * Every look the recipe draws.
+ * Hand-written scene for badges that lead with an icon.
  */
-const LOOKS = valuesOf(recipe, "variant");
-
-/**
- * Every size the recipe draws.
- */
-const SIZES = valuesOf(recipe, "size");
-
-/**
- * Draws a draft label in every look at every size.
- */
-function Looks(): ReactElement {
-  const { t } = useWords("badge");
-
-  return (
-    <Matrix across={{ knob: "size", of: SIZES }} knob="variant" of={LOOKS}>
-      {(variant, size) => (
-        <Badge size={size} variant={variant}>
-          {t("draft")}
-        </Badge>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws a live label in every status in every look.
- */
-function Statuses(): ReactElement {
-  const { t } = useWords("badge");
-
-  return (
-    <Matrix across={{ knob: "variant", of: LOOKS }} knob="status" of={valuesOf(recipe, "status")}>
-      {(status, variant) => (
-        <Badge status={status} variant={variant}>
-          {t("live")}
-        </Badge>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws a count at every corner at every size.
- */
-function Corners(): ReactElement {
-  return (
-    <Matrix across={{ knob: "size", of: SIZES }} knob="radius" of={valuesOf(recipe, "radius")}>
-      {(radius, size) => (
-        <Badge radius={radius} size={size} status="error">
-          12
-        </Badge>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Every look at every size.
- */
-export const looks: Scene = {
-  about: "badge.looks.about",
-  draw: Looks,
-  title: "badge.looks.title",
-};
-
-/**
- * Every status in every look.
- */
-export const statuses: Scene = {
-  about: "badge.statuses.about",
-  draw: Statuses,
-  title: "badge.statuses.title",
-};
-
-/**
- * Every corner at every size.
- */
-export const corners: Scene = {
-  about: "badge.corners.about",
-  draw: Corners,
-  title: "badge.corners.title",
+export const marked: Scene = {
+  about: "badge.marks.about",
+  draw: marks.Marks,
+  example: marks,
+  title: "badge.marks.title",
 };
 
 export default specimen({
   about: "badge.about",
-  group: "Data",
-  id: "data/badge",
+  id: "components/data/badge",
   imports: 'import { Badge } from "@stealthscale/component-data";',
-  scenes: [looks, statuses, corners],
+  scenes: [
+    ...scenesOf<Parameters<typeof draft.Draft>[0]>(recipe, {
+      axes: {
+        palette: { across: "variant" },
+        radius: {
+          across: "size",
+          draw: (props) => <count.Count {...props} />,
+          example: count,
+          with: { palette: "error" },
+        },
+        variant: { across: "size" },
+      },
+      draw: (props) => <draft.Draft {...props} />,
+      example: draft,
+      namespace: "badge",
+      order: ["variant", "palette", "radius", "effect"],
+    }),
+    marked,
+  ],
   title: "badge.title",
 });

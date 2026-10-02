@@ -7,19 +7,19 @@ import { composed, disclosed, pressed } from "#collapsible/collapsible.fixtures.
 import { Content } from "#collapsible/content.tsx";
 
 describe("Content", () => {
-  it("draws a div inside the root it needs above it", () => {
+  it("renders a div", () => {
     const { container } = render(disclosed(<Content>The block</Content>));
 
     expect(slotElement(container, "collapsible", "content").tagName).toBe("DIV");
   });
 
-  it("is hidden while the block is closed", () => {
+  it("sets hidden while closed", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "collapsible", "content").hasAttribute("hidden")).toBe(true);
   });
 
-  it("is shown once the control is pressed", async () => {
+  it("removes hidden on a press of the trigger", async () => {
     const { container } = render(composed());
 
     await pressed(screen.getByRole("button"));
@@ -27,19 +27,19 @@ describe("Content", () => {
     expect(slotElement(container, "collapsible", "content").hasAttribute("hidden")).toBe(false);
   });
 
-  it("carries no state on the first render of a block that starts open", () => {
+  it("sets no data-state on the first render of open content", () => {
     const { container } = render(composed({ defaultOpen: true }));
 
     expect(slotElement(container, "collapsible", "content").dataset["state"]).toBeUndefined();
   });
 
-  it("carries the state the recipe styles the closed block by", () => {
+  it("sets data-state closed while closed", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "collapsible", "content").dataset["state"]).toBe("closed");
   });
 
-  it("is named by the machine so the control can point at it", () => {
+  it("takes the id the trigger's aria-controls names", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "collapsible", "content").id).toBe(
@@ -47,7 +47,7 @@ describe("Content", () => {
     );
   });
 
-  it("draws the element as names", () => {
+  it("renders the element as names", () => {
     const { container } = render(disclosed(<Content as="section">The block</Content>));
 
     expect(slotElement(container, "collapsible", "content").tagName).toBe("SECTION");

@@ -11,10 +11,11 @@
  *   the top edge goes, each row becomes a line captioned by its own value, and every cell carries
  *   the caption the top edge held, wrapping where the row runs out of room. The root is the
  *   container the grid measures itself against, because a grid folds on the room it is given and
- *   not on the window. A grid wider than its column once unfolded scrolls across, because a row
- *   folded under itself no longer lines up with the caption above it. The cells are centred in
- *   their row, so a row of one control at every size reads as one line of controls, the small ones
- *   on the middle of the tall ones, which is how a row of mixed controls lines up on a page.
+ *   not on the window. A grid wider than its column once unfolded scrolls across in the primitives
+ *   package's scroll area, because a row folded under itself no longer lines up with the caption
+ *   above it. The cells are centred in their row, so a row of one control at every size reads as
+ *   one line of controls, the small ones on the middle of the tall ones, which is how a row of
+ *   mixed controls lines up on a page.
  *   The two gaps are set apart from each other. A row carries a caption of its own at the start of
  *   it, and the row gap is what holds that pair together against the pair above, so it is drawn
  *   wider than the gap between two cells that share one caption.
@@ -35,15 +36,14 @@ import {
 const UNFOLDED = "@/md";
 
 /**
- * The room the scrolling grid leaves round its cells, and takes back again.
+ * The room the unfolded grid leaves round its cells, which its scroll area takes back again.
  *
  * @remarks
- *   A grid that scrolls across is a scroll container on both axes, because CSS resolves a visible
- *   overflow against a scrolling one to `auto`. Anything a cell paints outside its own box was
- *   cut at the grid's edge, so a button carrying the theme's glow lost the top and the bottom of
- *   it and read as a halo with a flat lid. The room is the widest glow the theme draws, so the
- *   largest of them clears the edge, and the same room comes off as a negative margin, which
- *   leaves the grid occupying what it did before.
+ *   The scroll area's viewport clips on both axes, so anything a cell paints outside its own box
+ *   is cut at the viewport's edge, and a button with the theme's glow would read as a halo with a
+ *   flat lid. The grid pads its block edges by the widest glow the theme draws, so the largest of
+ *   them clears the edge, and the scroll area takes the same room back as a negative margin, so
+ *   the matrix occupies what the grid alone does.
  */
 const HALO = "{sizes.12}";
 
@@ -94,8 +94,6 @@ export const recipe = defineSlotRecipe({
         alignItems: "center",
         columnGap: dense("{spacing.gap.lg}"),
         display: "grid",
-        marginBlock: `calc(${HALO} * -1)`,
-        overflowX: "auto",
         paddingBlock: HALO,
         rowGap: dense("{spacing.gap.xl}"),
       },
@@ -110,12 +108,13 @@ export const recipe = defineSlotRecipe({
       gap: dense("{spacing.gap.lg}"),
       [UNFOLDED]: { display: "contents" },
     },
+    scroller: { [UNFOLDED]: { marginBlock: `calc(${HALO} * -1)` } },
     side: { flexBasis: "full", [UNFOLDED]: { flexBasis: "auto" } },
   },
   className: "matrix",
   defaultVariants: { across: "1" },
   jsx: [/^Matrix(\.\w+)?$/u],
-  slots: ["root", "grid", "head", "row", "side", "cell", "label"],
+  slots: ["root", "scroller", "grid", "head", "row", "side", "cell", "label"],
   variants: {
     /**
      * How many values run across, beside the column the side captions take.

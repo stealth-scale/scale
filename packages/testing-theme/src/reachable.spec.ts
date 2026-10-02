@@ -15,18 +15,18 @@ const INK = { color: "fg" };
 const SIZES = { lg: { height: "control.lg" }, md: { height: "control.md" } };
 
 describe("reachable", () => {
-  it("reports a value that states no styles", () => {
+  it("reports a value that declares no styles", () => {
     expect(
       emptyViolations({ base: INK, className: "x", variants: { size: { md: INK, none: {} } } }),
     ).toStrictEqual(["x offers size none with no styles, so its class has no rule"]);
   });
 
-  it("passes a base that states no styles", () => {
+  it("reports nothing for a base that declares no styles", () => {
     expect(emptyViolations({ base: {}, className: "x" })).toStrictEqual([]);
     expect(emptyViolations({ className: "x" })).toStrictEqual([]);
   });
 
-  it("reports a compound that states no styles and passes over one that is not an object", () => {
+  it("reports a compound that declares no styles and skips one that is not an object", () => {
     const recipe = {
       base: INK,
       className: "x",
@@ -43,7 +43,7 @@ describe("reachable", () => {
     );
   });
 
-  it("reports a slot recipe's value that states no styles on any slot", () => {
+  it("reports a slot recipe's value that declares no styles on any slot", () => {
     const recipe = defineSlotRecipe({
       base: { root: { display: "flex" }, title: { textStyle: "heading.md" } },
       className: "card",
@@ -56,7 +56,7 @@ describe("reachable", () => {
     ]);
   });
 
-  it("passes a slot nothing styles", () => {
+  it("reports nothing for a slot no value styles", () => {
     const recipe = defineSlotRecipe({
       base: { root: { display: "flex" } },
       className: "card",
@@ -67,7 +67,7 @@ describe("reachable", () => {
     expect(emptyViolations(recipe)).toStrictEqual([]);
   });
 
-  it("reads a slot as styled only where an object states styles on it", () => {
+  it("returns true only where an object declares styles on the slot", () => {
     expect(slotStyled({ root: INK }, "root")).toBe(true);
     expect(slotStyled({ root: {} }, "root")).toBe(false);
     expect(slotStyled("odd", "root")).toBe(false);
@@ -124,13 +124,13 @@ describe("reachable", () => {
     ]);
   });
 
-  it("passes over a compound that is not an object when reading selections", () => {
+  it("skips a compound that is not an object when reading selections", () => {
     expect(
       selectionViolations({ base: INK, className: "x", compoundVariants: [null] }),
     ).toStrictEqual([]);
   });
 
-  it("passes patterns that match every name where every pattern matches a name", () => {
+  it("reports nothing when every pattern matches a name and every name matches a pattern", () => {
     const recipe = { base: INK, className: "button", jsx: [/Button$/u, "SubmitButton"] };
 
     expect(jsxViolations(recipe, ["Button", "IconButton", "SubmitButton"])).toStrictEqual([]);
@@ -145,7 +145,7 @@ describe("reachable", () => {
     ]);
   });
 
-  it("reports a recipe that states no patterns where names are given", () => {
+  it("reports a recipe that declares no jsx patterns when names are given", () => {
     expect(jsxViolations({ base: INK, className: "button" }, ["Button"])).toStrictEqual([
       "button states no jsx patterns",
     ]);

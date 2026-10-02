@@ -1,14 +1,14 @@
 /**
- * Draws the rows left after what a person typed.
+ * Renders the actions that match the query, grouped under their headings.
  *
  * @remarks
- *   The rows are the listbox's parts, so the roles, the highlight and what a screen reader says as
- *   it moves all come from that component. This one gathers the actions under their headings and
- *   draws the mark, the words and the keystroke of each.
- *   Whatever a caller puts inside stands where nothing matches, which is a `Command.Empty`.
- *   A group is named by its position rather than by its heading. The machine builds an element
- *   identifier from the name it is given, and a heading holding a space makes an identifier no
- *   selector can query, which is what a page reading the document falls over on.
+ *   The rows are listbox items, so the listbox sets their roles, the highlight and what a screen
+ *   reader announces as the highlight moves. The list groups the actions and lays out each row's
+ *   glyph, label and shortcut. It renders its children in place of the rows when nothing matches,
+ *   which is where `Command.Empty` goes. A group's id comes from its index, because the machine
+ *   derives a DOM id from it and a heading with a space would make an id no selector can query. The
+ *   rows scroll in the scroll area of the listbox's content, which fills the room the panel leaves
+ *   below the field.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -20,25 +20,22 @@ import { withContext } from "#command/context.ts";
 import { useCommand } from "#command/state.ts";
 
 /**
- * Draws the scroller at the size the panel states.
+ * Renders the `div` with the recipe's list class, which the listbox's content fills.
  */
-const Scrolled = withContext("div", "list");
+const Listed = withContext("div", "list");
 
 /**
- * Draws a row's keystroke at the end of it.
+ * Renders the `kbd` with the recipe's shortcut class, at the end of a row.
  */
 const Struck = withContext("kbd", "shortcut");
 
 /**
- * Describes what the list takes.
+ * Describes the props of the list: the props of a `div`.
  */
-export type ListProps = ComponentProps<typeof Scrolled>;
+export type ListProps = ComponentProps<typeof Listed>;
 
 /**
- * Draws one row of the list.
- *
- * @param action - The action the row stands for.
- * @returns The row, holding its mark, its words and its keystroke.
+ * Renders one action as a listbox item, with its shortcut when it has one.
  */
 function row(action: CommandAction): ReactElement {
   return (
@@ -51,17 +48,17 @@ function row(action: CommandAction): ReactElement {
 }
 
 /**
- * Lists what is left, under the headings the actions name.
+ * Renders the matching actions grouped by heading, or the children when nothing matches.
  *
- * @param props - The line standing where nothing matches, and everything a styled div takes.
- * @returns The scroller, holding the rows or the empty line.
+ * @param props - The message for no match as children, and the props of a `div`.
+ * @returns The `div` element that contains the listbox.
  */
 export function List({ children, ...rest }: ListProps): ReactElement {
   const palette = useCommand();
   const left = palette.collection.items;
 
   return (
-    <Scrolled {...rest}>
+    <Listed {...rest}>
       {left.length === 0 ? (
         children
       ) : (
@@ -78,6 +75,6 @@ export function List({ children, ...rest }: ListProps): ReactElement {
           ))}
         </Listbox.Content>
       )}
-    </Scrolled>
+    </Listed>
   );
 }

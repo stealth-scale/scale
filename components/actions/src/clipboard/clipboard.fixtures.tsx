@@ -1,5 +1,5 @@
 /**
- * Builds the clipboard a part's specification needs above it, every part reading one machine.
+ * Renders clipboard parts inside a root for the specs, all sharing one machine.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -16,16 +16,16 @@ import { Root, type RootProps } from "#clipboard/root.tsx";
 import { Trigger } from "#clipboard/trigger.tsx";
 
 /**
- * The value every case copies.
+ * Value every case copies.
  */
 export const LINK = "https://stealthscale.io/payouts/4109";
 
 /**
- * Draws whatever a case wants measured inside the root that runs the machine.
+ * Renders a tree inside a root that runs the machine.
  *
- * @param children - The part under test.
- * @param props - Whatever the case sets on the root.
- * @returns The root, holding it.
+ * @param children - Part under test.
+ * @param props - Root props, applied over the value.
+ * @returns The root with the part inside.
  */
 export function clipped(children: ReactNode, props: Partial<RootProps> = {}): ReactElement {
   return (
@@ -36,13 +36,13 @@ export function clipped(children: ReactNode, props: Partial<RootProps> = {}): Re
 }
 
 /**
- * Presses a control and waits for the machine to settle.
+ * Clicks an element and waits for the machine's transition.
  *
  * @remarks
- *   A machine schedules its own update, so the state a case reads back has not changed yet unless
- *   the press is flushed. Every case that presses something goes through this.
- * @param control - The control to press.
- * @returns Nothing. The caller reads the screen.
+ *   The machine schedules its update after the click, so a DOM read directly after the click
+ *   returns the previous state. Every case that clicks uses this helper.
+ * @param control - Element to click.
+ * @returns A promise that resolves after the update flushes.
  */
 export async function pressed(control: HTMLElement): Promise<void> {
   fireEvent.click(control);
@@ -50,10 +50,10 @@ export async function pressed(control: HTMLElement): Promise<void> {
 }
 
 /**
- * Draws a whole clipboard, so a case can press the trigger and read what the parts do.
+ * Renders a label, a field and a trigger under one root.
  *
- * @param props - Whatever the case sets on the root.
- * @returns The parts composed the way a caller composes them.
+ * @param props - Root props, applied over the value.
+ * @returns The root with the three parts.
  */
 export function composed(props: Partial<RootProps> = {}): ReactElement {
   return clipped(

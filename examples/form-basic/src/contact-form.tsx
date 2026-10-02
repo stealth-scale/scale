@@ -1,10 +1,10 @@
 /**
- * Draws the contact form, generated from its schema.
+ * Renders the contact form, generated from its schema.
  */
 
 import { type ReactElement } from "react";
 
-import { useSchemaForm } from "@stealthscale/example-form-fields";
+import { useSchemaForm } from "@stealthscale/component-forms/form";
 
 import { type Contact, contact } from "#schema.ts";
 
@@ -19,7 +19,7 @@ export interface ContactFormProps {
 }
 
 /**
- * Draws the contact form from its schema: the fieldsets and fields its `x-form` keyword states,
+ * Renders the contact form from its schema: the fieldsets and fields its `x-form` keyword states,
  * validated by the schema on submit and then on every change, with every word read under
  * `contact`.
  */

@@ -1,0 +1,89 @@
+{
+  "about": "Flows between the stages of a process as bands whose widths follow their values, such as a month's visitors by channel, then by what they did. Each node is a bar in its own color with its name beside it, and each flow is a band in its source's color. The arrow keys walk each node, then the flows it sends. A sankey shows where a quantity goes as it splits and merges, and a funnel is the better chart for one path.",
+  "in": "In",
+  "income": {
+    "about": "A year's income statement: three lines of revenue add up to the revenue, which splits into its cost and the gross profit, which splits into the costs of running the company and the operating profit. valueOptions writes the amounts in compact euros.",
+    "caption": "Operating profit is €1.5M of €11.7M in revenue.",
+    "label": "Income statement for the year",
+    "title": "An income statement",
+    "value": "Amount"
+  },
+  "leak": {
+    "about": "flowBalance returns each node's inflow and outflow. Triage receives 1,200 tickets and sends 1,050 on, so its bar is taller than the bands that leave it, and the caption names the difference.",
+    "caption": "{{name}} receives {{lost}} more tickets than it sends on.",
+    "label": "Support tickets for the week by channel and outcome",
+    "title": "A leak",
+    "value": "Tickets"
+  },
+  "loop": {
+    "about": "25 refunded customers came back to the cart, a flow that closes a loop. A sankey shows flow in one direction, so the chart leaves the flow out, and sankeyCycles returns it for the caption.",
+    "caption_one": "{{names}} closes a loop, so the chart leaves it out.",
+    "caption_other": "{{names}} close loops, so the chart leaves them out.",
+    "flow": "{{from}} → {{to}}",
+    "label": "Carts for the week by outcome",
+    "title": "A loop left out",
+    "value": "Carts"
+  },
+  "names": {
+    "abandoned": "Abandoned",
+    "admin": "Administration",
+    "cancelled": "Cancelled",
+    "cart": "Cart",
+    "chat": "Chat",
+    "checkout": "Checkout",
+    "cost": "Cost of revenue",
+    "email": "Email",
+    "escalated": "Escalated",
+    "free": "Free plan",
+    "gross": "Gross profit",
+    "hardware": "Hardware",
+    "left": "Left",
+    "operating": "Operating profit",
+    "ordered": "Ordered",
+    "organic": "Organic search",
+    "paid": "Paid search",
+    "phone": "Phone",
+    "refunded": "Refunded",
+    "research": "Research",
+    "revenue": "Revenue",
+    "sales": "Sales",
+    "services": "Services",
+    "signup": "Signed up",
+    "social": "Social",
+    "solved": "Solved",
+    "subscribed": "Subscribed",
+    "subscriptions": "Subscriptions",
+    "trial": "Trial",
+    "triage": "Triage"
+  },
+  "narrow": {
+    "about": "The visitors in a room 20rem wide, the column of a phone. The columns move closer, and each name is written beside its bar.",
+    "title": "Narrow room"
+  },
+  "out": "Out",
+  "palette": {
+    "about": "Each channel states its palette: organic teal, paid purple, social orange, email pink. Every other node takes the next series color, and each band takes its source's color. values false leaves the values out.",
+    "caption": "Most visitors left without signing up.",
+    "title": "Palettes"
+  },
+  "quiet": {
+    "about": "A sankey without flows renders the empty state in the plot's place, at the plot's ratio.",
+    "caption": "Visitors this month.",
+    "empty": "No visitors in this period.",
+    "title": "Empty"
+  },
+  "share": "Of source",
+  "signups": {
+    "about": "defaultIndex opens the tooltip at the second mark of the walk, the organic visitors who signed up, when the chart first renders. The walk visits each node, then the flows it sends. The band lifts, the other marks fade, and the tooltip writes the flow's value and its share of the channel's visitors.",
+    "caption": "Organic search sent 3,100 of the 7,000 sign-ups.",
+    "title": "Tooltip"
+  },
+  "title": "Sankey chart",
+  "visitors": {
+    "about": "September's 25,900 visitors by channel, then by what they did. Each channel is a bar in its own color, and its bands take that color to where the visitors went. A node that sends nothing is at the last column with its name before its bar. flowBalance returns each node's inflow and outflow, and the caption states two rates from it.",
+    "caption": "{{signedUp}}% of visitors signed up, and {{subscribed}}% of those who signed up subscribed.",
+    "label": "Visitors for September by channel and outcome",
+    "title": "Visitors by channel and outcome",
+    "value": "Visitors"
+  }
+}

@@ -12,11 +12,10 @@ its own.
 pnpm add -D @stealthscale/vite-config-react
 ```
 
-The package peers on `@rolldown/plugin-babel`, `@stealthscale/vite-config`,
-`@testing-library/react`, `@vitejs/plugin-react`, `babel-plugin-react-compiler`, `happy-dom`,
-`oxc-transform-react`, `react`, `react-dom`, `vite` and `vitest`. Install all eleven. A package that
-writes MDX installs `@mdx-js/rollup` and `@types/mdx` as well. Both are optional peers. It runs on
-Node 26 and later.
+The package peers on `@stealthscale/vite-config`, `@testing-library/react`, `@vitejs/plugin-react`,
+`happy-dom`, `oxc-transform-react`, `react`, `react-dom`, `vite` and `vitest`. Install all nine. A
+package that writes MDX installs `@mdx-js/rollup` and `@types/mdx` as well. Both are optional peers.
+It runs on Node 26 and later.
 
 ## Usage
 
@@ -65,23 +64,23 @@ drops one layer by name and keeps the rest.
 
 ### Layers
 
-| Export                 | Signature                                   | What it returns                                                                                                                                              |
-| ---------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `layers`               | `(stated?: Rendering) => readonly Layer[]`  | `react.plugin.refresh`, both `plugin.compiler` layers, `react.test.cleanup` and `react.test.document`, plus both `plugin.mdx` layers when `mdx` is true      |
-| `workspace`            | `() => readonly Layer[]`                    | Seven lint and format layers, every rule ordered ahead of every relaxation                                                                                   |
-| `federation.installed` | `(read?: () => unknown) => string`          | The version string React's own manifest declares                                                                                                             |
-| `federation.shared`    | `(version?: string) => federation.Shared`   | `react` and `react-dom` as singletons, at the range of the installed major                                                                                   |
-| `fmt.imports`          | `() => Override`                            | An override sorting React ahead of every other import group                                                                                                  |
-| `lint.fixtures`        | `() => Contribution`                        | A relaxation lifting `react/no-multi-comp` from a specification                                                                                              |
-| `lint.plugins`         | `() => readonly Contribution[]`             | One contribution per plugin, `react` first and `jsx-a11y` second                                                                                             |
-| `lint.rendered`        | `() => Contribution`                        | A relaxation excusing `.spec.tsx` and `.fixtures.tsx` from the docblock rules                                                                                |
-| `lint.rules`           | `() => Contribution`                        | Six React rules, declared over `**/*.{ts,tsx}`                                                                                                               |
-| `lint.runtime`         | `() => Contribution`                        | A relaxation switching `react/react-in-jsx-scope` off                                                                                                        |
-| `plugin.compiler`      | `(stated?: Compiled) => readonly Layer[]`   | `react.plugin.compiler`, which appends the Babel pass to the plugins the tier built, and `react.plugin.compiler(pack)`, which gives the packer the same pass |
-| `plugin.mdx`           | `(stated?: Documented) => readonly Layer[]` | `react.plugin.mdx`, which puts the MDX plugin ahead of every other, and `react.plugin.mdx(pack)`, which gives the packer the same plugin                     |
-| `plugin.refresh`       | `(stated?: Refreshed) => Contribution`      | The React plugin, appended to whatever plugins the tier built                                                                                                |
-| `test.cleanup`         | `() => Contribution`                        | The absolute path of `./vitest.setup.ts`, appended to `test.setupFiles`                                                                                      |
-| `test.document`        | `() => Preset`                              | A preset setting `test.environment` to `happy-dom`                                                                                                           |
+| Export                 | Signature                                   | What it returns                                                                                                                                                             |
+| ---------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `layers`               | `(stated?: Rendering) => readonly Layer[]`  | `react.plugin.refresh`, both `plugin.compiler` layers, `react.test.cleanup` and `react.test.document`, plus both `plugin.mdx` layers when `mdx` is true                     |
+| `workspace`            | `() => readonly Layer[]`                    | Seven lint and format layers, every rule ordered ahead of every relaxation                                                                                                  |
+| `federation.installed` | `(read?: () => unknown) => string`          | The version string React's own manifest declares                                                                                                                            |
+| `federation.shared`    | `(version?: string) => federation.Shared`   | `react` and `react-dom` as singletons, at the range of the installed major                                                                                                  |
+| `fmt.imports`          | `() => Override`                            | An override sorting React ahead of every other import group                                                                                                                 |
+| `lint.fixtures`        | `() => Contribution`                        | A relaxation lifting `react/no-multi-comp` from a specification                                                                                                             |
+| `lint.plugins`         | `() => readonly Contribution[]`             | One contribution per plugin, `react` first and `jsx-a11y` second                                                                                                            |
+| `lint.rendered`        | `() => Contribution`                        | A relaxation excusing `.spec.tsx` and `.fixtures.tsx` from the docblock rules                                                                                               |
+| `lint.rules`           | `() => Contribution`                        | Six React rules, declared over `**/*.{ts,tsx}`                                                                                                                              |
+| `lint.runtime`         | `() => Contribution`                        | A relaxation switching `react/react-in-jsx-scope` off                                                                                                                       |
+| `plugin.compiler`      | `(stated?: Compiled) => readonly Layer[]`   | `react.plugin.compiler`, which appends the compiler's transform to the plugins the tier built, and `react.plugin.compiler(pack)`, which gives the packer the same transform |
+| `plugin.mdx`           | `(stated?: Documented) => readonly Layer[]` | `react.plugin.mdx`, which puts the MDX plugin ahead of every other, and `react.plugin.mdx(pack)`, which gives the packer the same plugin                                    |
+| `plugin.refresh`       | `(stated?: Refreshed) => Contribution`      | The React plugin, appended to whatever plugins the tier built                                                                                                               |
+| `test.cleanup`         | `() => Contribution`                        | The absolute path of `./vitest.setup.ts`, appended to `test.setupFiles`                                                                                                     |
+| `test.document`        | `() => Preset`                              | A preset setting `test.environment` to `happy-dom`                                                                                                                          |
 
 Note: a preset replaces the environment a tier set rather than adding to it. `react.test.document`
 is a preset. A package that needs another document implementation takes the layer back by name with
@@ -93,11 +92,17 @@ is a preset. A package that needs another document implementation takes the laye
 alone and selects the automatic JSX runtime. Each field of `Refreshed` widens or narrows one of
 those defaults. A field left undefined keeps the default.
 
-| Field    | Type                | Default                                                        |
-| -------- | ------------------- | -------------------------------------------------------------- |
-| `also`   | `readonly RegExp[]` | Empty. Each pattern compiles beside the five kinds listed here |
-| `except` | `readonly RegExp[]` | Empty. Each pattern joins `/node_modules/`                     |
-| `from`   | `string`            | `react`, also exported as `plugin.FACTORY`                     |
+Fast Refresh skips `*.specimen.tsx` and `*.example.tsx`. JSX in those files still compiles. A
+specimen exports scenes next to its components, and the specimen plugin appends a `source` string
+export to each example. The refresh runtime invalidates a module with a non-component export, and a
+bundled dev server turns that invalidation into a full page reload. The specimen plugin makes each
+specimen accept its own update instead, and an example edit propagates to its specimen.
+
+| Field    | Type                | Default                                                                          |
+| -------- | ------------------- | -------------------------------------------------------------------------------- |
+| `also`   | `readonly RegExp[]` | Empty. Each pattern compiles beside the five kinds listed here                   |
+| `except` | `readonly RegExp[]` | Empty. Each pattern joins `/node_modules/`, `*.specimen.tsx` and `*.example.tsx` |
+| `from`   | `string`            | `react`, also exported as `plugin.FACTORY`                                       |
 
 Note: the automatic runtime imports the factory itself. No file under this transform needs React in
 scope. `web.json` selects the default factory for the type checker, so a package that changes `from`
@@ -110,17 +115,17 @@ compiler reads what a component renders from and writes a memo cache around it, 
 renders again only when one of those values has changed. A component it compiled needs no `useMemo`
 and no `useCallback` for speed.
 
-It returns two layers. `react.plugin.compiler` appends the pass to what a tier builds, and
-`react.plugin.compiler(pack)` gives the packer the same pass, so a library publishes memoised
-components. Without the second one a library would publish what its author wrote, and a consumer
-installing it compiles nothing under `node_modules`.
+`react.plugin.compiler` appends the transform to what a tier builds, and
+`react.plugin.compiler(pack)` appends it to what the packer builds. A consumer installing a library
+compiles nothing under `node_modules`, so a library publishes memoised components only through the
+second layer.
 
-The memo cache is written against the React a build resolves. React is a peer of this package, so
-the version comes from the consumer's own tree and a major upgrade needs no edit anywhere. React 19
-carries the runtime itself. React 17 and 18 take it from `react-compiler-runtime`, which a package
-on either version installs beside React. A React newer than the compiler has a target for takes the
-newest target, because every one of those carries the runtime in React. A React older than 17 fails
-when the configuration is composed, naming the version it read.
+React is a peer of this package, so the layer reads the React version from the consumer's own tree
+and writes the memo cache against it. A major upgrade of React needs no edit anywhere. React 19
+includes the runtime. React 17 and 18 take it from `react-compiler-runtime`, which a package on
+either version installs beside React. A React newer than the compiler has a target for takes the
+newest target, because every one of those includes the runtime. A React older than 17 fails when the
+configuration is composed, naming the version it read.
 
 `Compiled` has one field, `target`, which overrides that reading. State it where a package renders
 against a React it does not install, such as a library published for a consumer on an older one.
@@ -142,43 +147,28 @@ Warning: `useMemo` and `useCallback` still have one use the compiler does not co
 caches against the values a component read, so the identity it returns changes when one of them
 does. Write either hook where a caller depends on one identity for the whole life of a component.
 
-The compiler runs through the Babel bridge rather than through the React plugin's own `compiler`
-option. That option resolves `babel-plugin-react-compiler` from the plugin's own directory. An
-isolated `node_modules` gives it no path to a package this workspace installed, so the option
-compiles nothing and turns fast refresh off as well. The bridge resolves the preset from this
-package, where it is declared.
-
-Warning: a package missing `babel-plugin-react-compiler` or `@rolldown/plugin-babel` fails when its
-configuration is composed, naming both. Babel resolves a preset during a transform rather than when
-it is configured, so without that check the package would build clean and memoise none of it.
+The compiler runs through `oxc-transform-react`, oxc's native port of it, in a transform of this
+package's own. The React plugin's `compiler` option runs the same port, but only over the React
+plugin's `include` and `exclude`, which leave out every specimen and example, and the packer never
+runs the React plugin. The transform leaves JSX in place for the bundler's own transform, which
+compiles it and, in a dev server, adds Fast Refresh. A package without `oxc-transform-react` fails
+when its configuration is composed, and the error message contains the name of the package to
+install.
 
 The layer raises the compiler's `panicThreshold` from `none` to `critical_errors`. A critical error
 is the compiler failing one of its own invariants, and an unrecognised one is a case it has no
-handling for. Both mean the compiler is wrong rather than the code, and the build stops on either.
+handling for. Both mean the compiler is wrong and the code is not. The build stops on either.
 
 A function the compiler declines on purpose is left as written and reported nowhere, which covers
 every pattern it cannot prove safe to memoise. Mark such a function with the `"use no memo"`
 directive, which turns a refusal the build would stop on into a decision the source records. The
-server environment is left out on the same terms, excused by the preset's `applyToEnvironmentHook`.
-A package that renders on the server runs that half uncompiled.
+transform applies to a client environment alone. A package that renders on the server runs that half
+uncompiled.
 
-Neither layer applies where the mode is `test`. Each memo cache is a branch nobody wrote, and
-coverage counts it, so a package held to full branch coverage would be asked to exercise a
-compiler's caching rather than its own code. A specification reads what its author wrote. The build
-is what proves the compiled form, and it fails on any error the compiler raises.
-
-Warning: the compiler asks a Babel node path whether it is an `LVal`. Babel 8 took
-`AssignmentPattern` out of that alias, so under Babel 8 the compiler refuses every
-`const { a = 1 } = b` and leaves the whole function uncompiled without reporting it. The bridge
-accepts either major. A repository states an override to hold the peer at 7:
-
-```yaml
-overrides:
-  "@rolldown/plugin-babel>@babel/core": ^7.29.0
-```
-
-Babel 7 ships no types of its own, so a package reading the bridge's own types installs
-`@types/babel__core` beside it.
+Neither layer applies where the mode is `test`. Coverage counts each memo cache as a branch, so a
+package that requires full branch coverage would have to exercise the compiler's caching. A
+specification reads what its author wrote, and the build proves the compiled form. The build fails
+on any error the compiler raises.
 
 ### MDX
 

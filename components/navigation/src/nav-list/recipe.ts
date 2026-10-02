@@ -1,22 +1,15 @@
 /**
- * Defines the styles a navigation list is drawn with.
+ * Declares the navigation list's slot recipe: rows of links, branches that expand a nested list,
+ * and the count, control and indicator at the end of a row.
  *
  * @remarks
- *   Ten parts. The root is the list, an item is a row, a link is the destination a reader presses,
- *   and an action and a badge sit at the end of a row. A branch is a row that opens: the trigger is
- *   the row, the indicator is the mark that turns, and the content is the list beneath it. The
- *   skeleton is the shape of a row still on its way.
- *   A row is drawn from the theme's `row` fragment rather than borrowed from the button. A
- *   destination is not a control, and a row carrying two recipes carried two heights, whichever the
- *   stylesheet happened to write last.
- *   A nested list reuses the item and the link rather than naming a second pair. The content mutes
- *   the ink and every row below it inherits, so one rule says a nested row is quieter and the parts
- *   a caller composes stay the same at every depth. It slides open and closed from the height the
- *   branch's machine measures, through the theme's collapse motion, and the mark on the row turns
- *   a quarter as it opens, so a reader sees the list arrive rather than appear.
- *   `iconic` draws the rows as squares with their words read but not seen. It is a variant rather
- *   than an attribute read from an ancestor, so the slot recipe hands it to every part through the
- *   root and no part selects on a scope it does not own.
+ *   A row reads the theme's `row` fragment and no second recipe, so one rule sets its height. A
+ *   nested list reuses `Item` and `Link`, and `Content` sets the subtle ink the nested rows
+ *   inherit. `Content` animates between the heights the collapsible machine measures, and the
+ *   indicator rotates a quarter turn as the branch opens. `iconic` renders every row as a square
+ *   containing its icon, with the text kept for screen readers, and removes the end padding, so a
+ *   row with a control is as wide as a row without one. The count, the control and the indicator
+ *   share one column at the end of a row.
  */
 
 import {
@@ -27,54 +20,71 @@ import {
   HIGHLIGHTS,
   highlightVariants,
   interactive,
+  onSlot,
   onSlots,
+  paletteVariants,
   row,
-  type Scale,
   sizeVariants,
-  type SystemStyleObject,
   truncate,
 } from "@stealthscale/theme/authoring";
 
-/**
- * The class this recipe is compiled under, which a selector reaching across parts reads.
- *
- * @remarks
- *   The binding writes one class per part, `nav-list__action`, and stamps no attribute naming the
- *   part. A rule that selects another part therefore selects the class, and builds it from this
- *   constant so the two cannot drift.
- */
-const CLASS = "nav-list";
+import { centred, inset, lighter, reserved, rowed, trailing, tucked } from "#nav-list/metrics.ts";
 
 /**
- * Selects the control at the end of a row from a rule written on the row.
+ * The recipe's class name, used to build the selectors that reach from one part to another.
+ *
+ * @remarks
+ *   The binding writes one class per part, such as `nav-list__action`, and no part attribute, so a
+ *   selector across parts targets the class, built from this constant. The keyboard module reads
+ *   the same constant to find the rows.
+ */
+export const CLASS = "nav-list";
+
+/**
+ * Selects the control at the end of a row, from a rule on the row.
  */
 const ACTION = `.${CLASS}__action`;
 
 /**
- * Writes what a row collapsed to a mark is drawn as: a square holding the mark alone, with the
- * words it was written with kept for a screen reader.
+ * Selects the count at the end of a row, from a rule on the row.
+ */
+const BADGE = `.${CLASS}__badge`;
+
+/**
+ * Selects either the count or the control at the end of a row.
+ */
+const TRAILED = `:is(${ACTION}, ${BADGE})`;
+
+/**
+ * Styles a row of the iconic list: a square containing the icon, with the text hidden visually.
  *
  * @remarks
- *   The words go out of sight rather than out of the document, because a destination with no name
- *   is one a screen reader announces as `link` and nothing else. Clipping them with the square's
- *   overflow would leave them taking room inside it and squashing the mark they were meant to leave
- *   alone, so they are taken out of the flow instead. A mark drawn as `svg` is what stays; anything
- *   else a caller wants seen goes in one.
+ *   The text remains in the accessibility tree through `srOnly`, because a link without a name is
+ *   announced as `link` alone. `srOnly` also takes the text out of the flow, where clipping by
+ *   overflow would leave it inside the square and squeeze the icon. Only an `svg` child remains
+ *   visible. The square has no inline padding, so the icon is centred in it.
  */
 const SQUARED = {
   "& > :not(svg)": { srOnly: true },
   aspectRatio: "square",
   inlineSize: "auto",
   justifyContent: "center",
+  paddingInline: "0",
 };
 
 /**
- * Writes what every row a reader presses shares: the theme's row, the whole width of the list, and
- * words that are cut short rather than wrapped.
+ * Styles every row a person presses: the theme's row fragment at the full width of the list, with
+ * a minimum width of zero so the text can truncate.
+ *
+ * @remarks
+ *   A row takes the list's muted ink, and the current row takes `fg`. The `highlight` axis writes
+ *   the current row's ink again in a later layer, so the fill highlight's contrast ink applies over
+ *   `fg`. The bar highlight writes no ink and keeps `fg`.
  */
 const PRESSABLE = {
   ...row(),
   ...interactive(),
+  _currentPage: { color: "fg" },
   _hover: { background: "colorPalette.subtle" },
   cursor: "button",
   inlineSize: "full",
@@ -83,33 +93,11 @@ const PRESSABLE = {
 };
 
 /**
- * Writes the room a row takes at one size: as tall as a tag of that name, with the label, the
- * inset and the gap two steps below it, and the page being read set in the ink and semibold.
+ * Positions a part at the end of a row: absolutely, over the row, centred on the block axis.
  *
  * @remarks
- *   A list of destinations is read down a column, twenty rows at a time, and a row set in the
- *   label of a control at the same name reads as a column of buttons. The words and the inset step
- *   down twice, so a medium list is a column of short rows in the smallest label, which is how a
- *   sidebar keeps its whole tree in view. The current page's weight is written here beside the
- *   label rather than on the row's base, because the label states a weight of its own and the
- *   compiler lets a variant's value beat the base's, whichever was written later.
- *   The row is never shorter than the grid step at twenty-four CSS pixels, whatever the theme's
- *   density and whatever step it is drawn at. A row is a target a reader points at, and a small
- *   list under a theme drawn tighter measured 20.5 pixels with 2.9 between rows, which is under
- *   both what 2.5.8 asks of a target and what its spacing exception allows.
- */
-function rowed(size: Scale): SystemStyleObject {
-  return {
-    _currentPage: { color: "fg", fontWeight: "semibold" },
-    blockSize: `max({sizes.6}, ${dense(`{sizes.tag.${size}}`)})`,
-    gap: dense(`{spacing.gap.${below(below(size))}}`),
-    paddingInline: dense(`{spacing.inset.${below(below(size))}}`),
-    textStyle: `label.${below(below(size))}`,
-  };
-}
-
-/**
- * Writes what sits at the end of a row: over the row, centred against it, out of the flow.
+ *   The part is out of the flow so the highlight fill spans the whole row. In the flow, the fill
+ *   would stop where the control begins and leave a notch at the end of the row.
  */
 const BESIDE = {
   insetInlineEnd: "0",
@@ -119,12 +107,58 @@ const BESIDE = {
 };
 
 /**
- * Draws a column of rows at the middle size, tinting the row the reader is on.
+ * Styles the control at the end of a row as an unfilled square button that fills on hover.
+ *
+ * @remarks
+ *   The end column sizes the action, so it fits inside the row at every size. The hover fill is
+ *   `emphasized`, two steps darker than the row's `subtle` hover and one step darker than the tint
+ *   highlight, so a hovered control shows an edge on its hovered row.
+ */
+const ACTING = {
+  ...BESIDE,
+  ...interactive(),
+  _hover: { background: "colorPalette.emphasized", color: "fg" },
+  appearance: "none",
+  background: "transparent",
+  borderRadius: "l1",
+  borderStyle: "none",
+  color: "fg.muted",
+  padding: "0",
+};
+
+/**
+ * Selects the row a person presses, a link or a trigger, from a rule on the item.
+ */
+const PRESSED = `:is(.${CLASS}__link, .${CLASS}__trigger)`;
+
+/**
+ * Selects the row for the current page by its `aria-current` attribute.
+ */
+const CURRENT = '[aria-current="page"]';
+
+/**
+ * Selects a branch's nested list whose trigger leads with an icon, from a rule on the branch.
+ */
+const UNDER_ICON = `&:has(> .${CLASS}__trigger > svg:first-child) > .${CLASS}__content`;
+
+/**
+ * The glow the `effect` axis puts around the current row.
+ */
+const GLOWING = { _currentPage: { layerStyle: "glow.sm" } };
+
+/**
+ * Styles a column of rows at the md size in muted ink, tinting the current row.
+ *
+ * @remarks
+ *   The rows take `fg.muted` from the root, a nested list's rows take `fg.subtle`, and the current
+ *   row takes `fg`. The count sets its own ink. The count is a sibling of the link, so it does not
+ *   inherit the ink of the link's highlight, and the compound for the fill highlight sets the
+ *   fill's contrast ink on it.
  */
 export const recipe = defineSlotRecipe({
   base: {
-    action: BESIDE,
-    badge: { ...BESIDE, pointerEvents: "none" },
+    action: ACTING,
+    badge: { ...BESIDE, color: "fg.muted", pointerEvents: "none" },
     branch: { listStyle: "none", minInlineSize: "0" },
     content: {
       _closed: { animationStyle: "collapse.out" },
@@ -132,7 +166,7 @@ export const recipe = defineSlotRecipe({
       "&[hidden]": { display: "none" },
       borderColor: "border",
       borderInlineStartWidth: "hairline",
-      color: "fg.muted",
+      color: "fg.subtle",
       display: "flex",
       flexDirection: "column",
       listStyle: "none",
@@ -153,9 +187,19 @@ export const recipe = defineSlotRecipe({
       transitionProperty: "rotate",
       transitionTimingFunction: "press",
     },
-    item: { listStyle: "none", minInlineSize: "0", position: "relative" },
+    item: {
+      /**
+       * The row keeps its hover fill while the pointer is on its control. The control is a sibling
+       * of the link, so the link's own hover ends when the pointer moves onto the control.
+       */
+      [`&:has(> ${ACTION}:hover) > ${PRESSED}`]: { background: "colorPalette.subtle" },
+      listStyle: "none",
+      minInlineSize: "0",
+      position: "relative",
+    },
     link: PRESSABLE,
     root: {
+      color: "fg.muted",
       display: "flex",
       flexDirection: "column",
       listStyle: "none",
@@ -169,7 +213,7 @@ export const recipe = defineSlotRecipe({
       appearance: "none",
       background: "transparent",
       borderStyle: "none",
-      color: "colorPalette.fg",
+      color: "inherit",
     },
   },
   className: CLASS,
@@ -180,6 +224,7 @@ export const recipe = defineSlotRecipe({
         badge: { srOnly: true },
         content: { display: "none" },
         indicator: { display: "none" },
+        item: { [`&:has(> ${TRAILED}) > ${PRESSED}`]: { paddingInlineEnd: "0" } },
         link: { ...SQUARED },
         trigger: { ...SQUARED },
       },
@@ -187,8 +232,38 @@ export const recipe = defineSlotRecipe({
       name: "squared",
       variant: "list",
     },
+
+    /**
+     * The count and the control next to the current row take the fill's contrast ink when the
+     * highlight is a fill.
+     *
+     * @remarks
+     *   The count is positioned over the filled row, where the muted ink is 3.1:1 against the
+     *   fill, under the 4.5:1 WCAG 1.4.3 requires for text. The control's icon is under the same
+     *   fill. The tint and bar highlights leave the row on the page surface, where the muted ink
+     *   meets the ratio. Both parts follow the link in the DOM, so the rule selects them as
+     *   following siblings of the current row. The control hovers to the fill's own hover role,
+     *   because `emphasized` is lighter than the solid fill.
+     */
+    {
+      css: {
+        action: {
+          [`${PRESSED}${CURRENT} ~ &`]: {
+            _hover: { background: "colorPalette.solid.hover", color: "colorPalette.contrast" },
+            color: "colorPalette.contrast",
+          },
+        },
+        badge: {
+          [`${PRESSED}${CURRENT} ~ &`]: { color: "colorPalette.contrast" },
+        },
+      },
+      highlight: "fill",
+      name: "inked",
+      variant: "list",
+    },
   ],
   defaultVariants: {
+    guide: "solid",
     highlight: "tint",
     radius: "l2",
     reveal: "always",
@@ -210,7 +285,25 @@ export const recipe = defineSlotRecipe({
   ],
   variants: {
     /**
-     * How the row naming the page the reader is on is marked.
+     * The halo around the current row, in the palette's solid at half opacity.
+     */
+    effect: onSlots({ link: { glow: GLOWING }, trigger: { glow: GLOWING } }),
+
+    /**
+     * The style of the line down the start of a nested list.
+     *
+     * @remarks
+     *   `none` removes the line and keeps the indent.
+     */
+    guide: onSlot("content", {
+      dashed: { borderInlineStartStyle: "dashed" },
+      dotted: { borderInlineStartStyle: "dotted" },
+      none: { borderInlineStartStyle: "none" },
+      solid: { borderInlineStartStyle: "solid" },
+    }),
+
+    /**
+     * How the current row is marked.
      */
     highlight: onSlots({
       link: highlightVariants(HIGHLIGHTS, "_currentPage"),
@@ -218,13 +311,21 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * Whether the rows are drawn as squares holding a mark, their words read but not seen.
+     * Whether the rows render as squares containing their icons, with the text kept for screen
+     * readers.
      *
      * @remarks
-     *   The words stay in the document under `srOnly`, because a row with no name is no row to a
-     *   screen reader. The sidebar that collapses states this; the list never measures anything.
+     *   A sidebar that collapses to a rail sets it. The list measures nothing itself.
      */
     iconic: { true: { root: { alignItems: "center" } } },
+
+    /**
+     * The palette the highlight, the hover fill and the branch rows read.
+     *
+     * @remarks
+     *   The palette is set on the root, and every part inherits the palette's custom properties.
+     */
+    palette: onSlot("root", paletteVariants()),
 
     radius: onSlots({
       link: cornerVariants(["l1", "l2", "l3", "full"]),
@@ -232,11 +333,12 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * When the control beside a row is drawn.
+     * When the control at the end of a row is visible.
      *
      * @remarks
-     *   A control revealed on hover stays drawn under a coarse pointer, where there is no hover to
-     *   reveal it with, and while anything inside the row holds focus, so a keyboard reaches it.
+     *   With `hover`, the control is hidden until its row is hovered. It is visible on the current
+     *   row and under a coarse pointer, which cannot hover. It is also visible while any element in
+     *   its row has focus, so a keyboard user can operate it.
      */
     reveal: {
       always: { action: { opacity: "1" } },
@@ -249,31 +351,73 @@ export const recipe = defineSlotRecipe({
           transitionTimingFunction: "press",
         },
         item: {
-          [`&:focus-within ${ACTION}, &:hover ${ACTION}`]: { opacity: "1" },
+          [`&:focus-within ${ACTION}, &:hover ${ACTION}, &:has(> ${PRESSED}${CURRENT}) ${ACTION}`]:
+            {
+              opacity: "1",
+            },
         },
       },
     },
 
     size: onSlots({
+      action: sizeVariants((size) => ({ ...trailing(size), ...tucked(size) }), ["sm", "md", "lg"]),
+
+      /**
+       * The count's text style is the row label's.
+       */
+      badge: sizeVariants(
+        (size) => ({
+          ...trailing(size),
+          ...tucked(size),
+          textStyle: `label.${lighter(size)}`,
+        }),
+        ["sm", "md", "lg"],
+      ),
+      branch: sizeVariants(
+        (size) => ({ [UNDER_ICON]: { marginInlineStart: centred(size) } }),
+        ["sm", "md", "lg"],
+      ),
+
+      /**
+       * A nested list's rows are as far apart as the list's own. Without an icon on the trigger,
+       * the line is at the trigger's inset, under the start of its text.
+       */
       content: sizeVariants(
         (size) => ({
-          gap: dense(`{spacing.gap.${below(size)}}`),
-          marginInlineStart: dense(`{spacing.inset.${below(size)}}`),
+          gap: dense(`{spacing.gap.${lighter(size)}}`),
+          marginInlineStart: inset(size),
           paddingBlock: "0.5",
           paddingInlineStart: dense(`{spacing.inset.${below(size)}}`),
         }),
         ["sm", "md", "lg"],
       ),
+
+      indicator: sizeVariants(trailing, ["sm", "md", "lg"]),
+      /**
+       * The end padding a row keeps for the count or the control positioned over it.
+       *
+       * @remarks
+       *   The rule is on this axis, not in the item's base, because the compiler puts variants in a
+       *   layer over the base, and the row's own `paddingInline` comes from this axis. A later
+       *   layer applies over any specificity, so the same rule in the base, three classes deep,
+       *   would lose to a variant one class deep.
+       */
+      item: sizeVariants(
+        (size) => ({
+          [`&:has(> ${TRAILED}) > ${PRESSED}`]: { paddingInlineEnd: reserved(size) },
+        }),
+        ["sm", "md", "lg"],
+      ),
       link: sizeVariants(rowed, ["sm", "md", "lg"]),
       root: sizeVariants(
-        (size) => ({ gap: dense(`{spacing.gap.${below(below(size))}}`) }),
+        (size) => ({ gap: dense(`{spacing.gap.${lighter(size)}}`) }),
         ["sm", "md", "lg"],
       ),
       skeleton: sizeVariants(
         (size) => ({
           blockSize: dense(`{sizes.tag.${size}}`),
-          gap: dense(`{spacing.gap.${below(below(size))}}`),
-          paddingInline: dense(`{spacing.inset.${below(below(size))}}`),
+          gap: dense(`{spacing.gap.${lighter(size)}}`),
+          paddingInline: inset(size),
         }),
         ["sm", "md", "lg"],
       ),
@@ -284,19 +428,30 @@ export const recipe = defineSlotRecipe({
      * Whether the rows run down the side of a page or across the foot of a screen.
      *
      * @remarks
-     *   The dock is the pattern a thumb reaches: a handful of destinations in equal columns, each a
-     *   mark over its words. It keeps clear of the room a device reserves at the foot of the
-     *   screen for a home indicator.
-     *   It is named `dock` rather than `bar` because the `highlight` axis already offers `bar`, and
-     *   two values of that name on one slot compile to one class that the later of them wins.
+     *   `dock` lays a few links out in equal columns, each an `icon.lg` icon over a `label.xs`
+     *   caption, and pads the root by the safe area a device reserves at the foot of the screen.
+     *   The current destination is marked by `fg` and the semibold weight, with no fill. It is
+     *   named `dock` because the `highlight` axis already offers `bar`, and two values with one
+     *   name on a slot compile to one class.
      */
     variant: {
       dock: {
-        item: { flex: "1" },
-        link: { blockSize: "auto", flexDirection: "column", justifyContent: "center" },
+        item: { flex: "1", minInlineSize: "0" },
+        link: {
+          _currentPage: { background: "transparent", color: "fg" },
+          "& > svg": { boxSize: dense("{sizes.icon.lg}") },
+          blockSize: "auto",
+          flexDirection: "column",
+          gap: dense("{spacing.gap.xs}"),
+          justifyContent: "center",
+          paddingBlock: dense("{spacing.gap.sm}"),
+          paddingInline: dense("{spacing.gap.xs}"),
+          textStyle: "label.xs",
+        },
         root: {
           alignItems: "stretch",
           flexDirection: "row",
+          gap: dense("{spacing.gap.xs}"),
           paddingBlockEnd: "safe.bottom",
         },
       },

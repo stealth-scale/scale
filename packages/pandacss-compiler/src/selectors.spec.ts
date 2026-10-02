@@ -48,13 +48,21 @@ describe("renameSelectors", () => {
     expect(css).toBe(".button--loading { opacity: 0.5 }");
   });
 
-  it("removes the rule for a boolean variant at false and reports it", () => {
-    const { css, diagnostics } = renameSelectors(
+  it("removes the rule for a boolean variant at false", () => {
+    const { css } = renameSelectors(
       ".button--loading-false { opacity: 1 }\n.button { color: red }",
       CONFIG,
     );
 
     expect(css).toBe(".button { color: red }");
+  });
+
+  it("reports the class of a boolean variant at false as a warning", () => {
+    const { diagnostics } = renameSelectors(
+      ".button--loading-false { opacity: 1 }\n.button { color: red }",
+      CONFIG,
+    );
+
     expect(diagnostics).toStrictEqual([
       {
         code: "naming/unreachable",
@@ -75,7 +83,7 @@ describe("renameSelectors", () => {
     expect(css).toBe(".card__content--bleed { margin: 0 }");
   });
 
-  it("removes a selector that descends from a class no element carries", () => {
+  it("removes a selector that descends from an unreachable class", () => {
     const { css } = renameSelectors(
       ".button--loading-false .icon { opacity: 1 }\n.button { color: red }",
       CONFIG,
@@ -102,7 +110,7 @@ describe("renameSelectors", () => {
     expect(css).toBe(".button { color: red }");
   });
 
-  it("keeps a negation of a class no element carries as written", () => {
+  it("keeps a negation of an unreachable class as written", () => {
     const { css } = renameSelectors(
       ".button > :not(.button--loading-false):hover { opacity: 1 }\n.button:not(.button--loading-false, .button--size-sm) { opacity: 1 }",
       CONFIG,
@@ -113,7 +121,7 @@ describe("renameSelectors", () => {
     );
   });
 
-  it("leaves a selector an earlier removal took away as it is", () => {
+  it("removes a rule whose selector names two unreachable classes", () => {
     const { css } = renameSelectors(
       ".button--loading-false .card__content--bleed-false { opacity: 1 }\n:is(.button--loading-false .card__content--bleed-false) { opacity: 1 }\n.button { color: red }",
       CONFIG,
@@ -122,16 +130,22 @@ describe("renameSelectors", () => {
     expect(css).toBe(".button { color: red }");
   });
 
-  it("removes a block the removal leaves empty and keeps a layer statement", () => {
+  it("removes a block the removal left empty", () => {
     const { css } = renameSelectors(
-      "@layer a, b;\n@layer a { @media (min-width: 40rem) { .button--loading-false { opacity: 1 } } }\n@layer b { .button { color: red } }",
+      "@layer a { @media (min-width: 40rem) { .button--loading-false { opacity: 1 } } }\n@layer b { .button { color: red } }",
       CONFIG,
     );
 
-    expect(css).toBe("@layer a, b;\n@layer b { .button { color: red } }");
+    expect(css).toBe("@layer b { .button { color: red } }");
   });
 
-  it("renames an atomic class and escapes the name it writes", () => {
+  it("keeps an at-rule that declares no block", () => {
+    const { css } = renameSelectors("@layer a, b;\n.button { color: red }", CONFIG);
+
+    expect(css).toBe("@layer a, b;\n.button { color: red }");
+  });
+
+  it("renames an atomic class the compiler escaped", () => {
     const { css } = renameSelectors(
       String.raw`.\32xl\:c-blue { color: blue }` +
         "\n" +
@@ -140,6 +154,14 @@ describe("renameSelectors", () => {
     );
 
     expect(classesOf(css)).toStrictEqual(["2xl:c-blue", "grid-ar-sizes-32"]);
+  });
+
+  it("writes a renamed class without the escapes the compiler wrote", () => {
+    const { css } = renameSelectors(
+      String.raw`.grid-ar-\{sizes\.32\} { grid-auto-rows: 8rem }`,
+      CONFIG,
+    );
+
     expect(css).toContain(".grid-ar-sizes-32 {");
   });
 
@@ -196,8 +218,8 @@ describe("renameSelectors", () => {
     expect(diagnostics.map((each) => each.help)).toStrictEqual([["md:[&_>_*]:flex-sh-0"]]);
   });
 
-  it("reports the classes kept under a raw condition as one warning", () => {
-    const { css, diagnostics } = renameSelectors(
+  it("keeps a class under a raw condition as the compiler wrote it", () => {
+    const { css } = renameSelectors(
       String.raw`.\[\&_\>_\*\]\:c-red > * { color: red }` +
         "\n" +
         String.raw`.\[\@media_\(min-width\:_40rem\)\]\:c-green { color: green }`,
@@ -205,6 +227,16 @@ describe("renameSelectors", () => {
     );
 
     expect(classesOf(css)).toStrictEqual(["[&_>_*]:c-red", "[@media_(min-width:_40rem)]:c-green"]);
+  });
+
+  it("gathers every class kept under a raw condition into one warning", () => {
+    const { diagnostics } = renameSelectors(
+      String.raw`.\[\&_\>_\*\]\:c-red > * { color: red }` +
+        "\n" +
+        String.raw`.\[\@media_\(min-width\:_40rem\)\]\:c-green { color: green }`,
+      CONFIG,
+    );
+
     expect(diagnostics).toStrictEqual([
       {
         code: "naming/raw-condition",
@@ -216,7 +248,7 @@ describe("renameSelectors", () => {
     ]);
   });
 
-  it("leaves a class an author named inside a raw condition as the markup carries it", () => {
+  it("leaves a class an author named inside a raw condition unchanged", () => {
     const { css, diagnostics } = renameSelectors(
       String.raw`.\[\&_\.childBox\]\:c-red .childBox { color: red }` +
         "\n" +
@@ -233,19 +265,34 @@ describe("renameSelectors", () => {
     expect(diagnostics.map((each) => each.code)).toStrictEqual(["naming/raw-condition"]);
   });
 
-  it("leaves a class no declaration wrote as it is and reports no collision for two of them", () => {
-    const { css, diagnostics } = renameSelectors(
+  it("leaves a class no declaration wrote unchanged", () => {
+    const { css } = renameSelectors(
       ".prose { max-width: 60ch }\n.fooBar { color: red }\n.foo-bar { color: blue }",
       CONFIG,
     );
 
     expect(classesOf(css)).toStrictEqual(["prose", "fooBar", "foo-bar"]);
+  });
+
+  it("reports no collision for two authored classes that would rename to one name", () => {
+    const { diagnostics } = renameSelectors(
+      ".prose { max-width: 60ch }\n.fooBar { color: red }\n.foo-bar { color: blue }",
+      CONFIG,
+    );
+
     expect(diagnostics).toStrictEqual([]);
   });
 
-  it("leaves a keyframe step and a rule without a class as they are", () => {
-    const sheet =
-      "@keyframes spin { from { opacity: 0 } 12.5% { opacity: 1 } }\n:where(:root, :host) { --x: 1 }";
+  it("leaves a keyframe step unchanged", () => {
+    const sheet = "@keyframes spin { from { opacity: 0 } 12.5% { opacity: 1 } }";
+    const { css, diagnostics } = renameSelectors(sheet, CONFIG);
+
+    expect(css).toBe(sheet);
+    expect(diagnostics).toStrictEqual([]);
+  });
+
+  it("leaves a rule that names no class unchanged", () => {
+    const sheet = ":where(:root, :host) { --x: 1 }";
     const { css, diagnostics } = renameSelectors(sheet, CONFIG);
 
     expect(css).toBe(sheet);

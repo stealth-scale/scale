@@ -30,11 +30,16 @@ describe("findings", () => {
     expect(distinct(found)).toStrictEqual({ diagnostics: [], kept: found });
   });
 
-  it("keeps the first installation of a name and reports the second as an error", () => {
+  it("keeps the first installation of a name", () => {
+    const found = [contributor("@acme/kit", "/k1"), contributor("@acme/kit", "/k2")];
+
+    expect(distinct(found).kept).toStrictEqual([found[0]]);
+  });
+
+  it("reports the second installation of a name as an error", () => {
     const found = [contributor("@acme/kit", "/k1"), contributor("@acme/kit", "/k2")];
     const held = distinct(found);
 
-    expect(held.kept).toStrictEqual([found[0]]);
     expect(held.diagnostics).toHaveLength(1);
     expect(held.diagnostics[0]).toMatchObject({
       code: "theme/duplicate-contributor",
@@ -43,7 +48,7 @@ describe("findings", () => {
     expect(held.diagnostics[0]?.message).toContain("installed twice, at /k1 and at /k2");
   });
 
-  it("reports a theme compound no published recipe declares and passes a declared one", () => {
+  it("reports only the theme compound no published recipe declares", () => {
     const diagnostics = withScratchWorkspace({}, (workspace) =>
       findings({
         found: [contributor("@acme/kit", "/k")],

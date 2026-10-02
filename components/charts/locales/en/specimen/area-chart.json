@@ -1,0 +1,56 @@
+{
+  "about": "A filled area per declared series over a category or time axis. The fill states that the amount under the line means something, such as a volume.",
+  "bandwidth": {
+    "about": "Inbound and outbound traffic over a day. Each area fades from its line to transparent at the axis, so each shows through the other.",
+    "caption": "Inbound traffic peaked at 310 Mb/s at 09:00. Outbound peaked three hours later.",
+    "inbound": "Inbound",
+    "label": "Bandwidth per hour",
+    "outbound": "Outbound",
+    "title": "Overlapping areas"
+  },
+  "busiest": {
+    "about": "defaultIndex opens the tooltip at the busiest hour when the chart first renders. The pointer or the arrow keys move it from there.",
+    "caption": "At 09:00 inbound traffic was 310 Mb/s and outbound 140 Mb/s.",
+    "title": "Tooltip"
+  },
+  "internal": {
+    "about": "defaultHiddenKeys hides replication traffic on the first render. Its name is struck through in the legend, and a press on it shows the area.",
+    "caption": "Replication between regions was under 60 Mb/s all day.",
+    "replication": "Replication",
+    "title": "Hidden series"
+  },
+  "narrow": {
+    "about": "The traffic in a room 20rem wide, the column of a phone. recharts shows every second time tick, so no two labels overlap.",
+    "title": "Narrow room"
+  },
+  "offline": {
+    "about": "A day without readings renders the empty state in the plot's place, and no legend.",
+    "caption": "Bandwidth per hour today.",
+    "empty": "No traffic recorded today.",
+    "title": "Empty"
+  },
+  "replay": {
+    "about": "animate reveals each area from the start of the axis to its end when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the areas at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "series": "Directions",
+  "storage": {
+    "about": "One series of storage in use at the start of each month, in the teal palette.",
+    "caption": "Storage in use grew by 330 GB since April, to 742 GB.",
+    "label": "Storage in use per month",
+    "title": "One area",
+    "used": "In use"
+  },
+  "title": "Area chart",
+  "zoom": {
+    "about": "A range Slider from the forms package picks the days the chart plots out of a year of rows. Each thumb is named, writes its date as its value text, and moves with the arrow keys, Page Up, Page Down, Home and End.",
+    "caption": "Weekday visitors grew from 3,900 to 6,448 over the year. They passed 10,500 in the launch week from August 27.",
+    "from": "From",
+    "label": "Visitors per day",
+    "range": "Days shown",
+    "title": "Zoom",
+    "to": "To",
+    "visitors": "Visitors"
+  }
+}

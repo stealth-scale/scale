@@ -1,12 +1,10 @@
 /**
- * Draws one panel of the set.
+ * Renders one panel.
  *
  * @remarks
- *   A panel names the control that shows it with `value`. The machine writes the tabpanel role, the
- *   reference back to that control, and the hiding, so a panel nobody chose is out of the tab order
- *   and out of the accessibility tree.
- *   The panel takes a tab stop of its own where it holds nothing a keyboard can reach, which is how
- *   a person tabbing out of the strip lands on what they just chose rather than skipping it.
+ *   The panel takes the `value` of the tab that shows it. The machine sets `role="tabpanel"`,
+ *   `aria-labelledby` and `hidden` on a panel that is not selected. A panel takes `tabIndex={0}`,
+ *   so Tab from the list lands on the selected panel.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -17,25 +15,25 @@ import { withContext } from "#tabs/context.ts";
 import { useTabs } from "#tabs/machine.ts";
 
 /**
- * Draws the panel at the room the root states.
+ * Renders the `div` with the tabs' content class.
  */
 const Shown = withContext("div", "content");
 
 /**
- * Describes what a panel takes.
+ * Describes the props of a panel: its value and the props of a `div`.
  */
 export interface ContentProps extends ComponentProps<typeof Shown> {
   /**
-   * Says which control shows this panel.
+   * Value of the tab that shows the panel.
    */
   readonly value: string;
 }
 
 /**
- * Appears while the control it names is the one in force.
+ * Renders a panel with the machine's content props merged over the caller's.
  *
- * @param props - The control it names, and everything a styled div takes.
- * @returns The panel, named and hidden by the machine.
+ * @param props - The tab's value and the props of a `div`.
+ * @returns The `div` element.
  */
 export function Content({ value, ...rest }: ContentProps): ReactElement {
   const api = useTabs();

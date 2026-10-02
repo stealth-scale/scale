@@ -1,0 +1,32 @@
+{
+  "about": "An `iframe` for a document the application does not control, sandboxed by default: no scripts, no forms, no popups and no same-origin access. It sends no referrer, loads when the reader scrolls near it, and keeps one of the theme's ratios before its document loads. `title` names it for a screen reader.",
+  "email": {
+    "amount": "€1,240.00 due on 30 March",
+    "body": "Your invoice for March is ready. Pay it by bank transfer or with the card on file.",
+    "from": "Northwind Trading",
+    "heading": "Your March invoice",
+    "title": "Preview of the March invoice email"
+  },
+  "preview": {
+    "about": "A customer's email template in a frame that grants nothing. Its markup and inline styles render as they will in an inbox, and no script in it runs. `ratio=\"portrait\"` gives the preview a tall box.",
+    "title": "Email preview"
+  },
+  "radius": {
+    "about": "The corners of the frame, from the theme's corner tokens.",
+    "title": "Corners"
+  },
+  "ratio": {
+    "about": "The shape the frame keeps before and after its document loads, from the theme's seven ratios, so nothing below it moves when the document arrives. A document taller than its frame scrolls inside it.",
+    "title": "Ratios"
+  },
+  "scripted": {
+    "about": "A partner's currency converter that needs scripts. `sandbox=\"allow-scripts\"` grants that one capability, so the script runs and still cannot read the page around it, submit a form or open a window.",
+    "title": "Granting scripts"
+  },
+  "title": "Iframe",
+  "widget": {
+    "amount": "Amount in USD",
+    "converted": "Converted:",
+    "title": "Currency converter"
+  }
+}

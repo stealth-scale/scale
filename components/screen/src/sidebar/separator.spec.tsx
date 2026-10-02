@@ -7,19 +7,19 @@ import { Separator } from "#sidebar/separator.ts";
 import { aside } from "#sidebar/sidebar.fixtures.tsx";
 
 describe("Separator", () => {
-  it("draws a rule inside the column it needs above it", () => {
+  it("renders an hr inside the root", () => {
     const { container } = render(aside(<Separator />));
 
     expect(slotElement(container, "sidebar", "separator").tagName).toBe("HR");
   });
 
-  it("parts one block of destinations from the next for a screen reader", () => {
+  it("exposes the separator role", () => {
     render(aside(<Separator />));
 
     expect(screen.getByRole("separator")).toBeTruthy();
   });
 
-  it("leaves the tree where a caller draws one purely for rhythm", () => {
+  it("leaves the accessibility tree when aria-hidden is passed", () => {
     render(aside(<Separator aria-hidden />));
 
     expect(screen.queryByRole("separator")).toBeNull();

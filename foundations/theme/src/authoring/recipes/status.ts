@@ -1,50 +1,61 @@
 /**
- * Writes the `status` axis of a recipe, which sets the palette, and of a form field, which draws
- * its edge beside it.
+ * Writes the axes that point a recipe's palette at a semantic palette: `status` and `palette` for
+ * any component, and a `status` axis for a form field that also sets the field's edge.
  *
  * @remarks
- *   An alert with four statuses and six looks is one recipe: the status sets the palette, the
- *   look reads the palette's roles, and no value in the recipe is a color. A theme decides what
- *   hue an error is. Each helper offers every status where a recipe names none, so a component
- *   that reports two of them states two and the compiler emits no rule for the others.
+ *   Each axis sets `colorPalette` and the recipe reads the palette's roles, so no value in a recipe
+ *   is a color and a theme decides every hue. Each helper offers every value when a recipe names
+ *   none, and the compiler emits no rule for a value a recipe leaves out.
  */
 
 import { type Axis, axis } from "#authoring/recipes/axis.ts";
-import { type Status, STATUSES } from "#contract.ts";
+import { FIELD_EDGE } from "#authoring/recipes/field.ts";
+import { type Palette, PALETTES, type Status, STATUSES } from "#contract.ts";
 import { type RecipeRule } from "#pandacss.ts";
 
 /**
- * Writes the `status` axis, each status pointing the palette at the semantic palette of its
- * name.
+ * Writes the `status` axis: each status sets `colorPalette` to the semantic palette of its name.
  */
 export const statusVariants: Axis<Status> = axis(STATUSES, (status) => ({ colorPalette: status }));
 
 /**
- * Writes the `status` axis of a form field, each status pointing the palette at the semantic
- * palette of its name and drawing the edge in the line family's member of the same name.
+ * Writes the `palette` axis: each value sets `colorPalette` to the semantic palette of its name.
  *
  * @remarks
- *   A field states its edge outright rather than leaving it to the palette. The line family holds
- *   one border per status at the step the contrast gate measured against a panel, and the palette's
- *   own border role sits two steps darker, so a field that read the palette for its edge would be
- *   drawn heavier than the invalid state the same field already has.
+ *   The axis offers the three brand palettes and `neutral` beside the four statuses, for a
+ *   component whose color is a choice rather than a report. A component that reports a state
+ *   offers `statusVariants` instead.
  */
-export const fieldStatusVariants: Axis<Status> = axis(STATUSES, (status) => ({
-  borderColor: `border.${status}`,
-  colorPalette: status,
+export const paletteVariants: Axis<Palette> = axis(PALETTES, (palette) => ({
+  colorPalette: palette,
 }));
 
 /**
- * Writes the `staticCss` entry a recipe with a `status` axis carries.
+ * Writes the `status` axis of a form field: each status sets `colorPalette` and writes the field's
+ * edge property from the border family member of the same name.
  *
  * @remarks
- *   The compiler emits a rule for a value it reads from a literal in an application's source. A
- *   status is the one axis an application usually does not write: it hands over what a record, a
- *   validator or a server said, and the compiler sees a name it cannot follow. Without this the
- *   class lands on the element with no rule behind it, and a component reporting an error draws in
- *   its default palette. The values are listed rather than asked for with `true`, which the
- *   compiler's own types offer for an axis and its compiler ignores.
- * @param statuses - The statuses the recipe offers, which is every one unless it names fewer.
+ *   The border family holds one border per status at the step the contrast gate measures against a
+ *   panel. The palette's own `border` role is two steps darker, so an edge read from the palette
+ *   would be heavier than the field's invalid edge. The value is written to the edge property, so
+ *   the field's look paints with it, and again under `_invalid`, because a field that reports a
+ *   warning is usually also marked invalid and would otherwise take the error edge.
+ */
+export const fieldStatusVariants: Axis<Status> = axis(STATUSES, (status) => ({
+  _invalid: { [FIELD_EDGE]: `{colors.border.${status}}` },
+  colorPalette: status,
+  [FIELD_EDGE]: `{colors.border.${status}}`,
+}));
+
+/**
+ * Returns the `staticCss` entry for a recipe with a `status` axis.
+ *
+ * @remarks
+ *   The compiler emits rules only for values it reads as literals in application source. An
+ *   application usually passes a status from data, so without this entry the class has no rule and
+ *   the component renders in its default palette. The values are listed because the compiler
+ *   ignores `true` for an axis, although its types accept it.
+ * @param statuses - The statuses the recipe offers. Defaults to all four.
  */
 export function statusEmitted(statuses: readonly Status[] = STATUSES): RecipeRule {
   return { status: [...statuses] };

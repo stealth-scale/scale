@@ -1,6 +1,6 @@
 /**
- * Publishes the group that holds one tab stop for a set of controls, composed as
- * `RovingFocus.Root` holding `RovingFocus.Item`.
+ * Exposes the roving focus parts to the package barrel, which publishes them as the `RovingFocus`
+ * namespace.
  */
 
 export { Item, type ItemProps } from "#roving-focus/item.tsx";

@@ -9,37 +9,40 @@ function fieldOf(layer: Layer | undefined, field: "at" | "item"): unknown {
 }
 
 describe("workspace", () => {
-  it("states five layers for the specimens below the root", () => {
-    expect(workspace()).toHaveLength(5);
+  it("returns eight layers for the workspace root", () => {
+    expect(workspace()).toHaveLength(8);
   });
 
-  it("names every layer under this package", () => {
+  it("prefixes every layer name with specimen.", () => {
     expect(workspace().every((layer) => layer.name.startsWith("specimen."))).toBe(true);
   });
 
-  it("names each layer for what it states", () => {
+  it("returns the specimen layers before the example layers", () => {
     expect(workspace().map((layer) => layer.name)).toStrictEqual([
       "specimen.uncounted(**/*.specimen.tsx)",
       "specimen.exported",
       "specimen.undocumented",
       "specimen.described",
       "specimen.composed",
+      "specimen.example.uncounted(**/*.example.tsx)",
+      "specimen.example.undocumented",
+      "specimen.example.composed",
     ]);
   });
 
-  it("stops the root run counting a specimen it lints", () => {
+  it("adds the specimen glob to the coverage exclusions first", () => {
     expect(fieldOf(workspace()[0], "at")).toBe("test.coverage.exclude");
   });
 
-  it("states why every layer exists", () => {
+  it("gives every layer a non-empty reason", () => {
     expect(workspace().every((layer) => "because" in layer && layer.because !== "")).toBe(true);
   });
 
-  it("covers any specimen in the workspace when no files are named", () => {
+  it("defaults the specimen glob to every specimen file", () => {
     expect(fieldOf(workspace()[0], "item")).toBe("**/*.specimen.tsx");
   });
 
-  it("covers the files a caller names instead", () => {
+  it("uses the specimen globs passed as files", () => {
     expect(fieldOf(workspace(["components/**/*.specimen.tsx"])[0], "item")).toBe(
       "components/**/*.specimen.tsx",
     );

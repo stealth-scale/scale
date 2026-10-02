@@ -1,0 +1,50 @@
+{
+  "about": "A box of one colour, or of two to four, over a checkerboard that shows a translucent colour as translucent. The swatch has no text, so write the colour's name or value beside it where a person needs it.",
+  "after": "is the error colour.",
+  "before": "The red",
+  "caption": "Cinder's colours",
+  "columns": {
+    "colour": "Colour",
+    "role": "Role",
+    "value": "Value"
+  },
+  "mix": {
+    "about": "Two to four colours in one box: two halves, two quarters over a half, or four quarters. `ColorSwatchMix` selects the division from the number of colours it receives.",
+    "title": "Mixes"
+  },
+  "palette": {
+    "about": "A theme's four colours as square swatches in an attached group, so the colours meet without gaps.",
+    "title": "A palette"
+  },
+  "roles": {
+    "ink": "Ink",
+    "page": "Page",
+    "panel": "Panel",
+    "primary": "Primary"
+  },
+  "sentence": {
+    "about": "`inherit` sizes the swatch to 1em, so it matches the height of the surrounding text and is centred on it.",
+    "title": "In a sentence"
+  },
+  "shape": {
+    "about": "Square corners for a row of colours without gaps, rounded corners by default, and a circle for a picked value.",
+    "title": "Shapes"
+  },
+  "size": {
+    "about": "Every step of the icon scale, `full`, which fills its container, and `inherit`, which takes the height of the surrounding text.",
+    "title": "Sizes"
+  },
+  "themes": {
+    "about": "Each palette theme as a round mix of its four colours next to its name, as a theme picker lists them.",
+    "title": "Themes"
+  },
+  "title": "Color swatch",
+  "tokens": {
+    "about": "A table of colour tokens: the swatch, the role and the value. The value is written out, because the swatch has no text a screen reader can read.",
+    "title": "Colour tokens"
+  },
+  "translucent": {
+    "about": "An opaque red and the same red at 40% opacity. The checkerboard shows through the translucent one.",
+    "title": "Translucent"
+  }
+}

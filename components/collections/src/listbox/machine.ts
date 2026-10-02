@@ -1,77 +1,105 @@
 /**
- * Runs the listbox's machine and carries what it answers down to the parts.
+ * Runs the listbox machine and provides its api to the parts.
  *
  * @remarks
- *   The machine is connected once, at the root, so every part reads one api from one running
- *   machine. A part drawn outside the root throws where it was written rather than drawing wrongly
- *   and saying nothing.
- *   The id is the machine's and never an element's. It builds every reference between the label,
- *   the field and the list from it, so a caller naming their own passes it here and the references
- *   follow.
+ *   The root starts one machine and every part reads the api from context, so the label, the field
+ *   and the rows report one highlight and one selection. The machine derives every element's
+ *   identifier and ARIA reference from `id`.
  */
 
 import * as listbox from "@zag-js/listbox";
 import { normalizeProps, useMachine } from "@zag-js/react";
 
-import { createRequiredContext, splitEnumerable } from "@stealthscale/hooks";
-
-import { stated } from "#stated.ts";
+import { createRequiredContext, omitUndefined, splitEnumerable } from "@stealthscale/hooks";
 
 /**
- * Describes what one row of a list holds, as far as a part is concerned.
+ * Describes one item of a collection as the parts receive it.
  *
  * @remarks
- *   The machine types a row as `any`, because a collection holds whatever a caller put in it. A
- *   part takes `unknown` instead and hands it straight back, which keeps the looser type at the one
- *   boundary that needs it rather than letting it reach every file that draws a row.
+ *   The machine types an item as `any`. The parts take `unknown` and pass it back unchanged, so
+ *   `any` stays in the machine's types.
  */
 export type ListboxItem = unknown;
 
 /**
- * Describes what the machine answers: a prop getter per part, beside its state and its methods.
+ * Describes the api `listbox.connect` returns: a prop getter per part, and the machine's state and
+ * methods.
  *
  * @remarks
- *   Inferred off `connect` rather than named, so the parts take exactly what the machine hands
- *   them. The inferred type reaches `@zag-js/types`, which this package declares for that reason
- *   alone: a declaration file naming a type from a package nobody declared is not portable.
+ *   The type is the return type of `connect`, so it follows the installed machine. It references
+ *   `@zag-js/types`, so the package declares that dependency, or a consumer's declarations would
+ *   not resolve.
  */
 export type ListboxApi = ReturnType<typeof listbox.connect>;
 
 /**
- * Describes what a caller sets on the machine, less the id it is given.
- *
- * @remarks
- *   The collection stays required, because a list with no rows to draw is not a list. The id is
- *   optional here and generated at the root, so a caller who names nothing still gets the
- *   references between the label, the field and the rows.
+ * Describes the machine options the root takes. `collection` is required and `id` is optional.
  */
 export type ListboxOptions = {
   /**
-   * The identifier every reference between the parts is built from.
+   * Base of every element identifier the machine generates. React generates one when the caller
+   * states none.
    */
   id?: string | undefined;
 } & Omit<listbox.Props, "id">;
 
 /**
- * Hands the running machine to every part, and reads it back.
+ * Provides the connected api to the parts, and reads it back.
+ *
+ * @remarks
+ *   `useListbox` throws for a part rendered outside `Listbox.Root`.
  */
 export const [ApiProvider, useListbox] = createRequiredContext<ListboxApi>("Listbox");
 
 /**
- * Starts the machine and connects it.
+ * Runs Zag's listbox machine with a highlight on the first selected row when the list takes focus.
  *
- * @param options - The settings the root split out, the id among them.
- * @returns The api every part reads.
+ * @remarks
+ *   The WAI-ARIA listbox pattern moves focus to the first selected option when the list takes
+ *   focus. Zag highlights the first row on focus only while nothing is selected. This machine also
+ *   highlights the first selected row, in the collection's order, when the list takes focus with a
+ *   selection and no highlight, so the arrow keys move from that row in either orientation.
+ */
+const MACHINE: typeof listbox.machine = {
+  ...listbox.machine,
+  implementations: {
+    ...listbox.machine.implementations,
+    actions: {
+      ...listbox.machine.implementations?.actions,
+
+      /**
+       * Marks the list focused, and highlights its first selected row when the list's own element
+       * takes focus with no row highlighted.
+       */
+      setFocused({ context, event, prop }) {
+        context.set("focused", true);
+        if (event.type !== "CONTENT.FOCUS" || context.get("highlightedValue") !== null) return;
+
+        const selected = new Set(context.get("value"));
+        const first = prop("collection")
+          .getValues()
+          .find((value) => selected.has(value));
+
+        if (first !== undefined) context.set("highlightedValue", first);
+      },
+    },
+  },
+};
+
+/**
+ * Starts the listbox machine and returns its connected api.
+ *
+ * @param options - The machine options split from the root's props, with `id` resolved.
+ * @returns The connected api.
  */
 export function useListboxMachine(options: listbox.Props): ListboxApi {
-  return listbox.connect(useMachine(listbox.machine, stated(options)), normalizeProps);
+  return listbox.connect(useMachine(MACHINE, omitUndefined(options)), normalizeProps);
 }
 
 /**
- * Splits what the machine reads from what the element does.
+ * Splits the root's props into the machine's options and the element's props.
  *
  * @remarks
- *   The machine states which props are its own, so the root never lists them and never drifts from
- *   the version it is built against.
+ *   The key list comes from the machine's own `splitProps`, so it follows the installed machine.
  */
 export const splitListboxProps = splitEnumerable(listbox.splitProps);

@@ -1,0 +1,37 @@
+{
+  "about": "Highlight marks every match of a search query in a text, each in the mark component, so a reader sees why a result matched. It matches as the search filters: by substring, with letter case ignored, each term trimmed and the longer term first.",
+  "letters": {
+    "about": "One query with letter case ignored, the default, and matched. Ignored, it marks Net and the net in network. Matched, it marks the lower-case net alone.",
+    "query": "net",
+    "text": "Net 30 terms apply to every invoice on the network plan.",
+    "title": "Letter case"
+  },
+  "looks": {
+    "about": "Every match takes the props of the mark, so a theme styles a match as it styles any highlight. The text look marks by weight, for a reader who does not see the fill.",
+    "query": "settled",
+    "text": "The dispute was raised on Tuesday and settled on Friday.",
+    "title": "Looks"
+  },
+  "search": {
+    "about": "Type in the field: the list keeps the titles that contain the query and marks it in each, as a help centre shows its results.",
+    "articles": {
+      "chargebacks": "Chargebacks and disputes",
+      "fees": "Fees for international payments",
+      "methods": "Payment methods by country",
+      "payouts": "Payout schedules",
+      "refunds": "Refunds and partial refunds"
+    },
+    "clear": "Clear the search",
+    "label": "Search the help centre",
+    "query": "pay",
+    "title": "Search results"
+  },
+  "terms": {
+    "about": "Several terms mark together, each wherever it occurs in the text.",
+    "chargeback": "chargeback",
+    "refund": "refund",
+    "text": "A refund returns a payment to the customer. A chargeback is a refund the customer's bank takes back after a dispute, and every chargeback costs a fee.",
+    "title": "Several terms"
+  },
+  "title": "Highlight"
+}

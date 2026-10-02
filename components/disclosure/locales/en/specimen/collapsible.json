@@ -1,18 +1,27 @@
 {
-  "about": "Shows and hides the block beneath a control.",
+  "about": "Renders a trigger that shows and hides the content beneath it.",
   "arrives": "Arrives Thursday between nine and noon. Somebody has to be in to sign for it.",
   "delivery": "Delivery details",
-  "looks": {
-    "about": "Every look at every size, each open so the block shows. The size sets the control, the block and the mark from one step of the scale.",
-    "title": "Looks and sizes"
-  },
   "motion": {
-    "about": "How the block opens: sliding, fading, or at once. Press the control to see it.",
+    "about": "Every motion: the content slides, fades, or appears at once. Press a trigger to see it.",
     "title": "Motion"
   },
+  "palette": {
+    "about": "Every palette, open in the subtle look, which fills the box with the palette's subtle fill. A warning or an error palette marks content a page wants read before it is opened.",
+    "title": "Palettes"
+  },
   "preview": {
-    "about": "A block that leaves a strip showing while closed, so a reader sees the first line and the control reveals the rest.",
+    "about": "With `collapsedHeight=\"2lh\"`, the closed content keeps its first two lines visible, and the trigger shows the rest.",
     "title": "Preview"
   },
-  "title": "Collapsible"
+  "size": {
+    "about": "Every size, closed. The size sets the trigger, the indicator and the content's padding.",
+    "title": "Sizes"
+  },
+  "terms": "Deliveries run Monday to Friday and arrive between eight in the morning and six in the evening. A parcel nobody is in for goes to the depot named on the card, where it is held for ten days. A parcel a courier could not fit through the door is brought back the next working day at no charge. Where a delivery is late by more than a working day the postage is returned, and where it is late by three the order is.",
+  "title": "Collapsible",
+  "variant": {
+    "about": "Every look, open. The surface look adds a shadow to the outline look's edge.",
+    "title": "Looks"
+  }
 }

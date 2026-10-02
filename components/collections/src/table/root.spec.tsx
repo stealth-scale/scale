@@ -9,13 +9,13 @@ import { type ScrollerProps } from "#table/scroller.tsx";
 import { composed, scrolled } from "#table/table.fixtures.tsx";
 
 describe("Root", () => {
-  it("draws a table inside the scroller it needs above it", () => {
+  it("renders a table", () => {
     const { container } = render(scrolled(<Root />));
 
     expect(slotElement(container, "table", "root").tagName).toBe("TABLE");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(recipe, (props: ScrollerProps) => render(composed(props)).container, {
         slot: "root",
@@ -23,13 +23,13 @@ describe("Root", () => {
     ).toStrictEqual([]);
   });
 
-  it("is read as a table named by its caption", () => {
+  it("names the table from its caption", () => {
     render(composed());
 
     expect(screen.getByRole("table", { name: "Invoices this quarter" })).toBeDefined();
   });
 
-  it("shares the columns evenly where a caller fixes the layout", () => {
+  it("applies the fixed layout class with layout fixed", () => {
     const { container } = render(composed({ layout: "fixed" }));
 
     expect([...slotElement(container, "table", "root").classList].join(" ")).toContain("fixed");

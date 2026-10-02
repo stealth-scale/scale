@@ -31,11 +31,16 @@
       "stealth-source": "./src/index.ts",
       "default": "./dist/index.js"
     },
+    "./theme": {
+      "stealth-source": "./src/theme.ts",
+      "default": "./dist/theme.js"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
     "exports": {
       ".": "./dist/index.js",
+      "./theme": "./dist/theme.js",
       "./package.json": "./package.json"
     },
     "access": "public"
@@ -46,19 +51,26 @@
     "prepublishOnly": "vp pack",
     "test": "vp test"
   },
+  "dependencies": {
+    "@zag-js/react": "catalog:",
+    "@zag-js/scroll-area": "catalog:",
+    "@zag-js/types": "catalog:"
+  },
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
-    "@rolldown/plugin-babel": "catalog:",
+    "@stealthscale/component-actions": "workspace:^",
     "@stealthscale/component-layout": "workspace:^",
+    "@stealthscale/hooks": "workspace:^",
+    "@stealthscale/theme": "workspace:^",
     "@stealthscale/vite-config": "workspace:^",
     "@stealthscale/vite-config-i18n": "workspace:^",
     "@stealthscale/vite-config-react": "workspace:^",
     "@stealthscale/vite-config-specimen": "workspace:^",
+    "@stealthscale/vite-config-theme": "workspace:^",
     "@stealthscale/vite-config-typescript": "workspace:^",
     "@testing-library/react": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "babel-plugin-react-compiler": "catalog:",
     "happy-dom": "catalog:",
     "oxc-transform-react": "catalog:",
     "publint": "catalog:",
@@ -68,6 +80,8 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
+    "@stealthscale/hooks": "workspace:^",
+    "@stealthscale/theme": "workspace:^",
     "react": "catalog:",
     "react-dom": "catalog:"
   },

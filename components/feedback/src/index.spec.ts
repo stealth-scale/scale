@@ -3,20 +3,28 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#index.ts";
 
 describe("index", () => {
-  it("names every component the package publishes and nothing beside them", () => {
+  it("exports the public runtime names and no others", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Alert",
       "EmptyState",
+      "Loader",
+      "LoaderOverlay",
+      "Meter",
+      "Progress",
+      "ProgressCircle",
       "Skeleton",
       "SkeletonPropsProvider",
       "SkeletonText",
       "SkeletonTextPropsProvider",
+      "Spinner",
+      "Toast",
     ]);
   });
 
-  it("publishes a component with parts as a namespace of its short names", () => {
+  it("exports Alert as a namespace of its parts", () => {
     expect(Object.keys(barrel.Alert).toSorted()).toStrictEqual([
       "Aside",
+      "CloseTrigger",
       "Content",
       "Description",
       "Indicator",
@@ -26,7 +34,42 @@ describe("index", () => {
     ]);
   });
 
-  it("publishes neither a recipe nor a binding", () => {
+  it("exports Meter as a namespace of its parts", () => {
+    expect(Object.keys(barrel.Meter).toSorted()).toStrictEqual([
+      "Label",
+      "Marker",
+      "Range",
+      "Root",
+      "Segment",
+      "Track",
+      "ValueText",
+    ]);
+  });
+
+  it("exports Progress as a namespace of its parts", () => {
+    expect(Object.keys(barrel.Progress).toSorted()).toStrictEqual([
+      "Label",
+      "Marker",
+      "Range",
+      "Root",
+      "Segment",
+      "Track",
+      "ValueText",
+    ]);
+  });
+
+  it("exports ProgressCircle as a namespace of its parts", () => {
+    expect(Object.keys(barrel.ProgressCircle).toSorted()).toStrictEqual([
+      "Circle",
+      "Label",
+      "Range",
+      "Root",
+      "Track",
+      "ValueText",
+    ]);
+  });
+
+  it("exports no name that starts with recipe or with or use", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {

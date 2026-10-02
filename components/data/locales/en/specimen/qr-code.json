@@ -1,0 +1,51 @@
+{
+  "about": "Encodes a value as a pattern a camera reads, dark on a light ground in both color modes. The frame is an image with a name, and a download writes the code black on white.",
+  "authenticator": {
+    "about": "Two-factor setup: the code contains an `otpauth://` address with its secret, so the frame is named by what a scan does and never by the value. The key under it is for typing by hand.",
+    "label": "QR code to add Stealth Scale to an authenticator app",
+    "manual": "Or type this key into the app:",
+    "scan": "Scan the code with your authenticator app.",
+    "title": "Authenticator setup"
+  },
+  "download": {
+    "about": "`QrCode.DownloadTrigger` renders the library's button and writes the code with its mark as a PNG by default, or as an SVG with `mimeType`. The file is black on white, whatever the palette on screen, and the mark stays centred on the code above the buttons.",
+    "label": "QR code for the pricing page",
+    "png": "Download PNG",
+    "svg": "Download SVG",
+    "title": "Download"
+  },
+  "effect": {
+    "about": "`glow` puts a halo around the code. `pulse` animates the halo and stops for a reader who asked for less motion.",
+    "title": "Effects"
+  },
+  "invite": {
+    "label": "QR code for the invite link"
+  },
+  "live": {
+    "about": "The value follows a field as a person types, and the frame is named by the address it encodes, which is public here. An empty field renders no code.",
+    "field": "Link to share",
+    "label": "QR code for {{link}}",
+    "title": "Live value"
+  },
+  "mark": {
+    "about": "A mark over the middle covers modules, so the root raises the error correction to `H`, which recovers up to 30% of the code. The mark renders on the code's light ground.",
+    "label": "QR code for the Stealth Scale home page",
+    "title": "With a mark"
+  },
+  "network": {
+    "about": "A card for a guest network. The code contains the network's password, so the frame is named by the network alone.",
+    "label": "QR code to join the Guest network",
+    "name": "Network: Guest",
+    "scan": "Scan to join the Wi-Fi.",
+    "title": "Guest network"
+  },
+  "palette": {
+    "about": "The palette colors the pattern and the mark in the palette's solid, which keeps the contrast a camera needs on the light ground.",
+    "title": "Palettes"
+  },
+  "size": {
+    "about": "The code's side on the size grid: 64, 80, 128, 160, 192 and 256px, or the width of its container at `full`.",
+    "title": "Sizes"
+  },
+  "title": "QR code"
+}

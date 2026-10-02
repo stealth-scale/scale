@@ -1,11 +1,9 @@
 /**
- * Draws a paragraph through its recipe.
+ * Renders a paragraph through the text recipe.
  *
  * @remarks
- *   The binding stamps the recipe's name on the element and writes the class of each variant a
- *   caller picks. The component adds no ink, no size and no margin. All of that is the recipe's,
- *   so a theme moves every paragraph by extending it. A caller changes the element with `as`,
- *   for a run of words inside a line that reads as a paragraph and is a `span`.
+ *   The component sets no style of its own. `as` changes the element, for example to a `span` for
+ *   text inside a line.
  */
 
 import { type ComponentProps } from "react";
@@ -13,12 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#text/context.ts";
 
 /**
- * Draws a paragraph in a size, an ink, a weight and an alignment.
+ * Renders a `p` element with the classes of the text recipe.
  */
 export const Text = withContext("p");
 
 /**
- * Describes what a paragraph takes: the variants its recipe offers, and everything a styled
- * paragraph element takes.
+ * Describes the props of Text: the recipe's variants and the props of a `p` element.
  */
 export type TextProps = ComponentProps<typeof Text>;

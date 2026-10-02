@@ -1,53 +1,7 @@
 body {
-  font-family: system-ui, sans-serif;
   margin: 2rem auto;
   max-width: 48rem;
-}
-
-fieldset {
-  border: 1px solid #ccc;
-  margin-block: 1rem;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-block: 0.75rem;
-}
-
-.row {
-  display: flex;
-  gap: 1rem;
-}
-
-.grid {
-  display: grid;
-  gap: 1rem;
-}
-
-.columns-3 {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.span-2 {
-  grid-column: span 2;
-}
-
-.item {
-  border-block-end: 1px solid #eee;
-  padding-block-end: 0.5rem;
-}
-
-.amount {
-  align-items: end;
-  display: flex;
-  gap: 0.5rem;
-}
-
-[role="alert"] {
-  color: #b00020;
-  margin: 0;
+  padding-inline: 1rem;
 }
 
 table {

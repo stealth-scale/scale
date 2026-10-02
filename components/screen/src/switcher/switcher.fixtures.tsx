@@ -1,11 +1,13 @@
 /**
- * Builds the switcher a part's specification needs above it.
+ * Builds the switchers the specifications render.
  */
 
 import { type ReactElement, type ReactNode } from "react";
 
 import { Menu } from "@stealthscale/component-disclosure";
 
+import { Action } from "#switcher/action.tsx";
+import { type Choice } from "#switcher/choice.ts";
 import { Detail } from "#switcher/detail.ts";
 import { Label } from "#switcher/label.ts";
 import { Name } from "#switcher/name.ts";
@@ -13,26 +15,47 @@ import { Root, type RootProps } from "#switcher/root.tsx";
 import { Trigger } from "#switcher/trigger.tsx";
 
 /**
- * Draws whatever a case wants measured inside the switcher that hands down the variants.
+ * Three workspaces: one with a plan, one without, and one the reader cannot switch to.
+ */
+export const CHOICES: readonly Choice[] = [
+  { detail: "Pro plan", label: "Acme", value: "acme" },
+  { label: "Globex Corporation", value: "globex" },
+  { disabled: true, label: "Old Books", value: "old" },
+];
+
+/**
+ * Renders a switcher from the three workspaces, with one action after them.
+ *
+ * @param props - The root's props.
+ * @returns The switcher.
+ */
+export function chosen(props: RootProps = {}): ReactElement {
+  return (
+    <Root checkIcon="✓" indicator="⇕" items={CHOICES} label="Workspace" {...props}>
+      <Action value="new">New workspace</Action>
+    </Root>
+  );
+}
+
+/**
+ * Renders a part inside the root, which provides the variants.
  *
  * @param children - The part under test.
- * @param props - Whatever the case sets on the switcher.
- * @returns The switcher, holding it.
+ * @param props - The root's props.
+ * @returns The root with the part inside it.
  */
 export function switched(children: ReactNode, props: RootProps = {}): ReactElement {
   return <Root {...props}>{children}</Root>;
 }
 
 /**
- * Draws the control alone, with the list closed.
+ * Renders the control without a positioner, so the menu is closed.
  *
  * @remarks
- *   A case that reads the control rather than the list takes this, because an open menu measures
- *   where to place itself after the render returns and a synchronous case would read the control
- *   before that settled. React reports the state the machine writes then as an update outside
- *   `act`.
- * @param props - Whatever the case sets on the switcher.
- * @returns The switcher, holding the control and no list.
+ *   A synchronous case that reads the control uses this fixture. An open menu positions itself
+ *   after the render returns, and React reports the machine's state update then as outside `act`.
+ * @param props - The root's props.
+ * @returns The switcher with the control only.
  */
 export function triggered(props: RootProps = {}): ReactElement {
   return (
@@ -48,11 +71,10 @@ export function triggered(props: RootProps = {}): ReactElement {
 }
 
 /**
- * Draws a whole switcher, so a case can read what the control says and what the panel holds.
+ * Renders an open switcher with two rows, one of them checked.
  *
- * @param props - Whatever the case sets on the switcher.
- * @returns The parts composed the way a caller composes them: the control, and the menu's own
- *   panel of rows.
+ * @param props - The root's props.
+ * @returns The switcher with the control and the menu's positioner and content.
  */
 export function composed(props: RootProps = {}): ReactElement {
   return (

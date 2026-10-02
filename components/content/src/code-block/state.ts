@@ -1,30 +1,58 @@
 /**
- * Hands the code a block holds down to the passage that sets it.
+ * Provides the code, its language and the title's naming from the root to the parts.
  *
  * @remarks
- *   The root holds the code and the language once, so a caller writes each on the root and a part
- *   below reads them there. A part drawn outside a root throws where it was written rather than
- *   drawing nothing and saying so nowhere.
+ *   The root is the only part that takes the code and the language. The context is required, so a
+ *   part rendered outside a root throws an error that names `CodeBlock.Root`. The title reports
+ *   itself to the root while it renders, so the scrolling region of the code is named by the
+ *   title's ID only while that element exists.
  */
 
-import { createRequiredContext } from "@stealthscale/hooks";
+import { createLabelling, createRequiredContext } from "@stealthscale/hooks";
+
+import { type DiffLine } from "#code-block/changes.ts";
 
 /**
- * Describes what the parts of a code block read.
+ * Describes the value every part of a code block reads from the root.
  */
 export interface CodeState {
   /**
-   * The code, as written.
+   * Earlier version of the code, which a diff compares the code against, or undefined.
+   */
+  readonly before: string | undefined;
+
+  /**
+   * Lines of the diff from `before` to the code, or undefined while the root has no `before`.
+   */
+  readonly changes: readonly DiffLine[] | undefined;
+
+  /**
+   * Source text, exactly as the caller passed it.
    */
   readonly code: string;
 
   /**
-   * The language the code is in, as the highlighter names it, or nothing for plain text.
+   * Language name as the highlighter knows it, or undefined for plain text.
    */
   readonly language: string | undefined;
+
+  /**
+   * Whether a `CodeBlock.Title` renders, which then names the scrolling region.
+   */
+  readonly titled: boolean;
+
+  /**
+   * ID the title takes, which the scrolling region references while the title renders.
+   */
+  readonly titleId: string;
 }
 
 /**
- * Hands the code to every part, and reads it back.
+ * Provider the root renders, and the hook each part calls to read the code.
  */
 export const [CodeProvider, useCode] = createRequiredContext<CodeState>("CodeBlock.Root");
+
+/**
+ * Provider through which the title reports that it renders, and the hook the title calls.
+ */
+export const [LabellingProvider, useLabelled] = createLabelling("CodeBlock.Root");

@@ -59,8 +59,14 @@ fetched by the first page a reader opens and cached for every page after it, so 
 loader where the index was asked to read them. Every page's props share one chunk,
 `props-[hash].js`, loaded where somebody first opens them and not again for another page.
 
-A page states its own import line and each scene its own source. Neither is read out of the file, so
-the plugin parses no syntax tree.
+The pages chunk holds each page's dependencies, so a component the entry also reaches is bundled
+with them. The entry's own chunk then imports the pages chunk and runs it first. The React plugin
+writes its refresh preamble into the document, and a dev server that bundles folds that preamble
+into the entry's chunk, so a component in the pages chunk read the refresh runtime before the
+preamble installed it and threw. A build therefore writes both chunks and a dev server writes
+neither. Both are a caching measure for a reader, and a dev server has no reader to cache for.
+
+A page states its own import line. The index reads no scene source from the specimen file.
 
 Add the types with a triple-slash directive from a file the project already compiles.
 
@@ -81,10 +87,12 @@ const { dropped, parts, shapes } = await import("virtual:specimen-props/data/bad
 ```
 
 Left out, no page carries props and no compiler starts, so an installation without TypeScript still
-indexes. Stated, the first page opened starts a compiler, and the pages after it reuse that one.
+indexes. Stated, the plugin serves a page from its store while the page's inputs are unchanged, and
+the first page it cannot serve starts a compiler, which the pages after it reuse.
 
-A part is a `*Props` type a module exports beside the part it is named after, from the specimen's
-own package. The reader resolves that type to its properties and classifies each one by every
+A part is a `*Props` type that a module in the specimen's own package exports beside the value it is
+named after: `RootProps` beside the part `Root`, or `CreateOverlayProps` beside the factory
+`createOverlay`. The reader resolves that type to its properties and classifies each one by every
 declaration behind it:
 
 | Where a property is declared                                        | What it is                               |
@@ -113,12 +121,38 @@ under the reason each was cut, so a table can show its own arithmetic rather tha
 members. A union written under a name is recorded as its options, which is what turns `size: Scale`
 into its eight steps. A type from TypeScript's own libraries is skipped.
 
+Where two modules a page imports export a part of one name, the part of the module beside the
+specimen is kept. A page documents its own `RootProps`, not the one of a field it renders inside.
+
 `Reading` takes `depth`, how far to follow the types a prop refers to, and `members`, how many a
 type may hold before it is named rather than listed. Both have defaults.
 
-A change to any typed file under a searched directory restarts the compiler and reloads every props
-module that was already loaded. Re-resolving one page costs tens of milliseconds, which is cheaper
-than serving text that no longer matches the types.
+### The compiler and the store
+
+The compiler opens one program for each set of compiler options the pages' packages parse to, and
+lists the pages as the program's files. Packages that extend the same configuration share one
+program, so the compiler checks each type they share once. The programs' configurations are written
+under Vite's `cacheDir`, in `specimen`.
+
+The store keeps each page's props in `specimen/props` under the same directory, keyed by everything
+they are read from:
+
+- the files of the page's package, and of every workspace package it depends on, depends on
+  optionally or peers on, and of every workspace package those depend on in turn
+- the files of the workspace packages it develops against, which include the configuration its
+  tsconfig extends
+- the lockfile, which pins every installed package and the compiler itself
+- the reader's own code and the `Reading`
+
+A build or a dev server whose pages are all kept never starts the compiler. An edit to a component
+changes the keys of the pages of its package and of the packages built on it.
+
+A dev server stops the compiler a minute after the last page it read, and the next page the store
+cannot serve starts it again. A build keeps the compiler until the bundle closes.
+
+A change to any typed file under a searched directory drops the store's hashes, restarts the
+compiler and reloads every props module that was already loaded. A reloaded page whose key did not
+change is served from the store again.
 
 ## Unreadable files
 
@@ -127,6 +161,23 @@ reason as its opening and a loader that rejects with the same reason. A build th
 every unreadable file in one error.
 
 One identifier declared by two files is the same fault. The second is refused and names the first.
+
+## Example files
+
+The plugin transforms every file matching `*.example.tsx`. It appends the file's text to the module
+as a string export named `source`, which a catalogue scene shows when it states `example`. The text
+is the file as written, with its `#` imports rewritten:
+
+- All imports through `#` subpaths merge into one named import from the package name in the nearest
+  `package.json`.
+- A namespace import becomes a named import of the same name. `import * as Tag from "#tag/index.ts"`
+  becomes `import { Tag } from "@stealthscale/component-data"`.
+- A default import through a `#` subpath throws, because a package barrel has no default export.
+
+Exclude example files from Fast Refresh, as `@stealthscale/vite-config-react` does. The `source`
+export disqualifies the module as a refresh boundary, so the refresh runtime would invalidate it and
+a bundled dev server would reload the page. With the exclusion, an edit propagates to the importing
+specimen, which accepts it.
 
 ## Hot updates
 
@@ -147,12 +198,13 @@ The directories the patterns start in are added to the watcher, including those 
 root, because a dev server watches its own root and nothing above it.
 
 A server that bundles runs no hot update hook and reports a change to `watchChange` instead. A
-change to a typed file restarts the compiler there. The index lists a stamp file as a file it
-watches, and the plugin rewrites the stamp when a specimen appears, disappears, or changes the
-metadata it declares, classified the way a hot update is with the file read from disk. The bundler
-then generates the index again on its next rebuild, and a scene-only edit leaves the stamp and the
-index alone. The stamp is under the system's temporary directory, in a directory named for the
-project root, so the task runner counts it as neither an input nor an output.
+change to a typed file drops the store's hashes and restarts the compiler there. The index lists a
+stamp file as a file it watches, and the plugin rewrites the stamp when a specimen appears,
+disappears, or changes the metadata it declares, classified the way a hot update is with the file
+read from disk. The bundler then generates the index again on its next rebuild, and a scene-only
+edit leaves the stamp and the index alone. The stamp is under the system's temporary directory, in a
+directory named for the project root, so the task runner counts it as neither an input nor an
+output.
 
 ## Licence
 

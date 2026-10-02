@@ -1,0 +1,77 @@
+{
+  "about": "Moments on one time window across lanes, such as deploys and incidents per service. Moments of a lane closer than minGap of the window share a marker that counts them, and every lane shares the window, so the lanes compare.",
+  "burst": {
+    "about": "Seven alerts within two minutes share one marker in the color of its loudest moment. defaultIndex opens the tooltip at the marker: the heading names the lane and the range, and the rows list five alerts and then moreLabel's count of the rest.",
+    "alerts": "Alerts",
+    "caption": "Seven alerts in two minutes followed the deploy at 13:52 UTC.",
+    "changes": "Changes",
+    "checkout": "Checkout failures above 1%",
+    "deploy": "Deploy api 4.12",
+    "errors": "Error rate above 2%",
+    "label": "Changes and alerts during the incident",
+    "latency": "p99 latency above 800 ms",
+    "more_one": "{{count}} more alert",
+    "more_other": "{{count}} more alerts",
+    "queue": "Queue depth above 5,000",
+    "recovered": "Error rate recovered",
+    "rollback": "Rollback to api 4.11",
+    "title": "Clusters"
+  },
+  "deploys": {
+    "about": "Deploys and incidents of four services over one day, a lane per service in the order lanes lists them. A moment without a lane goes into the lane otherLabel names. The time axis writes five evenly spaced times in 24-hour UTC.",
+    "api": "API",
+    "backlog": "Queue backlog",
+    "backup": "Nightly backup",
+    "caption": "The api raised three alerts between 14:03 and 14:09 UTC and rolled back at 16:20.",
+    "cleared": "Backlog cleared",
+    "db": "Database",
+    "deploy": "Deploy {{version}}",
+    "errors": "Error rate alert",
+    "failover": "Failover drill",
+    "label": "Deploys and incidents on 28 September",
+    "latency": "Latency alert",
+    "notice": "Status page notice",
+    "other": "Other",
+    "rollback": "Rollback to {{version}}",
+    "slow": "Slow queries",
+    "title": "Lanes",
+    "web": "Web",
+    "worker": "Worker"
+  },
+  "narrow": {
+    "about": "The day's deploys in a room 20rem wide, the column of a phone. Each lane keeps its name, and the time axis leaves out a time that would meet another.",
+    "title": "Narrow room"
+  },
+  "quiet": {
+    "about": "A timeline without a moment inside its window renders the empty state in the plot's place.",
+    "caption": "Deploys and incidents today.",
+    "empty": "No deploys or incidents today.",
+    "label": "Deploys and incidents today",
+    "title": "Empty"
+  },
+  "releases": {
+    "about": "One lane of releases over a year. A chart of one lane renders no lane axis, and the tooltip heads a marker with its date alone. ticks sets three dates on the time axis, and labelOptions writes them in the medium date style.",
+    "caption": "Two of the year's nine releases needed a patch within three days.",
+    "label": "Releases from October 2025 to September 2026",
+    "patch": "Patch {{version}}",
+    "release": "Release {{version}}",
+    "title": "One lane"
+  },
+  "replay": {
+    "about": "animate grows each marker from its centre when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the markers at once.",
+    "caption": "The web deployed three times, and the api rolled back after its alerts.",
+    "label": "Deploys on 28 September",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "select": {
+    "about": "onSelect receives a marker's moments on a press, or on Enter or Space while the arrow keys walk the markers. The line under the chart lists the moments of the marker selected last.",
+    "caption": "Press a marker to list its moments.",
+    "label": "Deploys and incidents of the api and the database",
+    "none": "No marker selected.",
+    "picked_one": "Selected: {{list}}",
+    "picked_other": "Selected {{count}} moments: {{list}}",
+    "title": "Selection"
+  },
+  "title": "Timeline chart"
+}

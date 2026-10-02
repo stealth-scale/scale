@@ -1,0 +1,43 @@
+{
+  "about": "Crops a picture: a selection over the part to keep, which a pointer drags and resizes and the arrow keys move, over a picture that zooms, turns, flips and pans. The application reads the crop and exports it as an image.",
+  "banner": {
+    "about": "`fixedCropArea` keeps a 3:1 frame in place. Drag the picture to pan it under the frame, scroll or pinch to zoom, and use the arrow keys on the frame to pan and plus or minus to zoom.",
+    "title": "Fixed frame"
+  },
+  "bannerInstructions": "Use the arrow keys to move the picture under the frame. Press plus or minus to zoom.",
+  "bannerLabel": "Position the banner",
+  "cover": {
+    "about": "A 16:9 crop for a cover photo, with buttons that turn the picture a quarter turn either way, flip it and reset it. The buttons call the api `useImageCropper` returns.",
+    "title": "Cover with rotation and flip"
+  },
+  "coverLabel": "Crop the cover photo",
+  "flip": "Flip horizontally",
+  "free": {
+    "about": "A crop of any shape, at least 80 pixels on each side and at most 200 pixels tall. `onCropChange` reports the crop, and `valueText` writes the value a screen reader hears.",
+    "title": "Free crop"
+  },
+  "label": "Crop the photo",
+  "name": "Ada Okafor",
+  "photo": {
+    "about": "Drag the selection to move it and its handles to resize it. Focus the selection with Tab, move it with the arrow keys, resize it with Alt and an arrow, and zoom with plus and minus. Shift and Control take larger steps.",
+    "title": "Crop"
+  },
+  "profile": {
+    "about": "A round, square crop for a profile picture. `getCroppedImage` exports the crop at 256 pixels, and the avatar shows it.",
+    "title": "Profile picture"
+  },
+  "profileLabel": "Crop your profile picture",
+  "radius": {
+    "about": "The viewport's corners, from the tightest to the roundest. A fully round viewport would clip the selection's corners, so the axis stops at `l3`.",
+    "title": "Corners"
+  },
+  "reset": "Reset",
+  "rotateLeft": "Rotate left",
+  "rotateRight": "Rotate right",
+  "save": "Use as profile picture",
+  "size": "Crop: {{width}} × {{height}} px",
+  "title": "Image cropper",
+  "valueText": "{{width}} by {{height}} pixels",
+  "zoomIn": "Zoom in",
+  "zoomOut": "Zoom out"
+}

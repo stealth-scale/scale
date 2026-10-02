@@ -1,106 +1,268 @@
 /**
- * Defines the styles a field with a mark at one end or both is drawn with.
+ * Recipe for the input group: one field box that contains fields, marks and addons in one or more
+ * rows.
  *
  * @remarks
- *   Four parts. The root is the box the rest sit in, the field takes the typing, and the start and
- *   the end hold a mark each. The marks are drawn over the field rather than beside it, and the
- *   field reserves room for them, so the typing never runs underneath.
- *   The group writes no padding. The size axis states the room a mark takes on the root, and the
- *   marks axis hands it to the control's own inset property on the side a mark sits. The control's
- *   recipe is the one rule writing its padding either way, so the two never race for the property
- *   and a theme that restyles the control keeps the room. Any control reading `controlSizes` goes
- *   in the field, not the text field alone.
- *   A mark takes no pointer, so a press over one reaches the field behind it, and whatever the
- *   mark holds takes the pointer back. A decorative glyph that swallowed a press would leave part
- *   of the field dead to a pointer and working to a keyboard.
- *   The align axis pins a mark to the block start for a control that runs to several lines, where
- *   a mark centred against the whole box floats in the middle of it.
+ *   Five slots. The root is the box: it draws the edge, the surface and every state from the
+ *   theme's wrapped field, read from the controls inside it. Fields, marks and addons are flex
+ *   items at their own widths, so a mark of any width never covers the text. A field is a bare
+ *   control that grows from zero into the free width, or keeps the width of its `size` attribute. A
+ *   mark holds an icon, a unit, a separator, a counter or a button, and a button at either end sits
+ *   4px from the edge. An addon is a segment that reaches the box's edge at either end, with a
+ *   divider on the side that faces the fields. A divider also separates two adjacent fields, and an
+ *   inset lies on both sides of every divider. Forced colors replace an input's own edge color with
+ *   the browser's gray, so a divider between fields paints `CanvasText` there. A root that contains
+ *   rows stacks them and draws a divider between them, and each row lays out its items the way a
+ *   root without rows does. The gap between items is half the text size. The field's height sets
+ *   the row's height, so the box grows by 1px when a subtle or flushed look widens its edge on
+ *   focus and the look's -1px margin keeps the content below in place. The recipe has no `palette`
+ *   axis, because a field's color reports a state, and no `effect` axis, because an effect would
+ *   compete with the focus ring and the status edge.
  */
 
 import {
-  CONTROL_INSET_END,
-  CONTROL_INSET_START,
+  below,
   defineSlotRecipe,
   dense,
+  FIELD_EDGE,
+  fieldStatusVariants,
+  onSlot,
   onSlots,
+  type Scale,
   sizeVariants,
+  statusEmitted,
+  wrappedField,
+  wrappedFieldVariants,
 } from "@stealthscale/theme/authoring";
 
 /**
- * The property the group states the room a mark takes in, which every step of the size axis
- * writes and the marks axis hands to one side or both.
+ * Class name of the recipe, from which the binding writes each part's class.
  */
-const ROOM = "--input-group-room";
+const CLASS = "input-group";
 
 /**
- * Writes what both marks share, since the two differ only in the end they sit at.
+ * Custom property that carries the box's inline inset. The size axis and the flushed look set it,
+ * and the root, the rows, the addons and the marks read it.
  */
-const MARK = {
-  "& > *": { pointerEvents: "auto" },
-  color: "fg.muted",
-  display: "inline-flex",
-  justifyContent: "center",
-  pointerEvents: "none",
-  position: "absolute",
-  top: "0",
-  zIndex: "1",
-};
+const INSET = "--input-group-inset";
 
 /**
- * Draws a field with a mark at either end, at the middle size until a caller says otherwise.
+ * The box's inline inset, read from {@link INSET}.
+ */
+const PADDED = `var(${INSET})`;
+
+/**
+ * Corner radius inside the box's edge, for an addon at either end.
+ */
+const INNER = "calc({radii.l2} - {borderWidths.control})";
+
+/**
+ * Gap between the items of a row: half the group's text size.
+ */
+const GAP = "0.5em";
+
+/**
+ * Selects a mark that contains a control, such as a button or a link.
+ */
+const CONTROLLED = ":has(> :is(a, button))";
+
+/**
+ * Selects a root that contains rows.
+ */
+const ROWED = `&:has(> .${CLASS}__row)`;
+
+/**
+ * Divider in the field's edge color on the inline start side.
+ */
+const DIVIDER_START = {
+  borderInlineStartColor: `var(${FIELD_EDGE})`,
+  borderInlineStartStyle: "solid",
+  borderInlineStartWidth: "control",
+} as const;
+
+/**
+ * Wrapped field looks lifted onto the root.
+ */
+const LOOKS = onSlot("root", wrappedFieldVariants());
+
+/**
+ * Returns the height of one row inside the box at one size: the control height less both edges.
+ */
+function inner(size: Scale): string {
+  return `calc(${dense(`{sizes.control.${size}}`)} - {borderWidths.control} * 2)`;
+}
+
+/**
+ * Defines the input group recipe: an outline box at size `md` with its items centred by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
-    end: { ...MARK, insetInlineEnd: "0" },
-    root: { display: "block", position: "relative", width: "full" },
-    start: { ...MARK, insetInlineStart: "0" },
+    addon: {
+      "&:first-child": {
+        borderEndStartRadius: INNER,
+        borderStartStartRadius: INNER,
+        marginInlineStart: `calc(${PADDED} * -1)`,
+      },
+      "&:last-child": {
+        borderEndEndRadius: INNER,
+        borderStartEndRadius: INNER,
+        marginInlineEnd: `calc(${PADDED} * -1)`,
+      },
+      "&:not(:first-child)": {
+        ...DIVIDER_START,
+        marginInlineStart: `calc(${PADDED} - ${GAP})`,
+      },
+      "&:not(:last-child)": {
+        borderInlineEndColor: `var(${FIELD_EDGE})`,
+        borderInlineEndStyle: "solid",
+        borderInlineEndWidth: "control",
+        marginInlineEnd: `calc(${PADDED} - ${GAP})`,
+      },
+      alignItems: "center",
+      alignSelf: "stretch",
+      color: "fg.muted",
+      columnGap: GAP,
+      display: "flex",
+      flex: "none",
+      paddingInline: PADDED,
+      whiteSpace: "nowrap",
+    },
+    field: {
+      _placeholder: { color: "fg.muted" },
+      "&:is(select)": { flex: "none", inlineSize: "auto" },
+      "&:is(textarea)": { alignSelf: "stretch", resize: "none" },
+      "&[size]": { flex: "none", inlineSize: "auto" },
+      "& + &": {
+        ...DIVIDER_START,
+        _highContrast: { borderInlineStartColor: "CanvasText" },
+        marginInlineStart: `calc(${PADDED} - ${GAP})`,
+        paddingInlineStart: PADDED,
+      },
+      alignSelf: "center",
+      appearance: "none",
+      background: "transparent",
+      borderStyle: "none",
+      color: "fg",
+      flex: "1 1 0",
+      font: "inherit",
+      inlineSize: "0",
+      letterSpacing: "inherit",
+      minInlineSize: "0",
+      outline: "none",
+      padding: "0",
+    },
+    mark: {
+      "& svg": { boxSize: "1.25em", flexShrink: "0" },
+      [`&:first-child${CONTROLLED}`]: { marginInlineStart: `calc({spacing.1} - ${PADDED})` },
+      [`&:last-child${CONTROLLED}`]: { marginInlineEnd: `calc({spacing.1} - ${PADDED})` },
+      alignItems: "center",
+      color: "fg.muted",
+      display: "inline-flex",
+      flex: "none",
+      fontVariantNumeric: "tabular-nums",
+      justifyContent: "center",
+      whiteSpace: "nowrap",
+    },
+    root: {
+      ...wrappedField(),
+      borderRadius: "l2",
+      columnGap: GAP,
+      cursor: "field",
+      display: "flex",
+      inlineSize: "full",
+      margin: "0",
+      minInlineSize: "0",
+      paddingInline: PADDED,
+      [ROWED]: { flexDirection: "column", paddingInline: "0" },
+    },
+    row: {
+      "&:not(:first-child)": {
+        borderBlockStartColor: `var(${FIELD_EDGE})`,
+        borderBlockStartStyle: "solid",
+        borderBlockStartWidth: "control",
+      },
+      [`&:not(:first-child) > .${CLASS}__addon`]: {
+        borderStartEndRadius: "0",
+        borderStartStartRadius: "0",
+      },
+      [`&:not(:last-child) > .${CLASS}__addon`]: {
+        borderEndEndRadius: "0",
+        borderEndStartRadius: "0",
+      },
+      alignItems: "inherit",
+      alignSelf: "stretch",
+      columnGap: GAP,
+      display: "flex",
+      minInlineSize: "0",
+      paddingInline: PADDED,
+    },
   },
-  className: "input-group",
-  defaultVariants: { align: "center", marks: "both", size: "md" },
+  className: CLASS,
+  defaultVariants: { align: "center", size: "md", variant: "outline" },
   jsx: [/^InputGroup(\.\w+)?$/u],
-  slots: ["root", "field", "start", "end"],
+  slots: ["root", "row", "field", "mark", "addon"],
+  staticCss: [statusEmitted()],
   variants: {
     /**
-     * Where a mark sits against a control that runs to more than one line.
+     * Cross-axis alignment of each row.
+     *
+     * @remarks
+     *   `start` keeps each mark on the first line of a field that runs to several lines, such as a
+     *   textarea.
      */
     align: {
-      start: {
-        end: { alignItems: "start", blockSize: "full" },
-        start: { alignItems: "start", blockSize: "full" },
-      },
+      start: { root: { alignItems: "flex-start" } },
 
-      center: {
-        end: { alignItems: "center", blockSize: "full" },
-        start: { alignItems: "center", blockSize: "full" },
-      },
+      center: { root: { alignItems: "center" } },
     },
 
     /**
-     * Which ends of the field reserve room for a mark.
-     */
-    marks: {
-      both: {
-        root: { [CONTROL_INSET_END]: `var(${ROOM})`, [CONTROL_INSET_START]: `var(${ROOM})` },
-      },
-      end: { root: { [CONTROL_INSET_END]: `var(${ROOM})` } },
-      start: { root: { [CONTROL_INSET_START]: `var(${ROOM})` } },
-    },
-
-    /**
-     * The room a mark takes, which is a square on the control scale, and the label a mark's word is
-     * set in, which is the step's own. A mark set in the body size overran a small square: `EUR`
-     * ran past the end of an extra small field.
+     * Row height, text size and inline inset. The height reads the control scale, the text the
+     * label role at the normal weight, and the inset the inset scale one size smaller.
      */
     size: onSlots({
-      end: sizeVariants((size) => ({
-        inlineSize: dense(`{sizes.control.${size}}`),
-        textStyle: `label.${size}`,
+      field: sizeVariants((size) => ({
+        "&:is(textarea)": {
+          blockSize: "auto",
+          paddingBlock: `calc((${inner(size)} - 1lh) / 2)`,
+        },
+        blockSize: inner(size),
       })),
-      root: sizeVariants((size) => ({ [ROOM]: `{sizes.control.${size}}` })),
-      start: sizeVariants((size) => ({
-        inlineSize: dense(`{sizes.control.${size}}`),
+      mark: sizeVariants((size) => ({ minBlockSize: inner(size) })),
+      root: sizeVariants((size) => ({
+        fontWeight: "normal",
+        [INSET]: dense(`{spacing.inset.${below(size)}}`),
         textStyle: `label.${size}`,
       })),
     }),
+
+    /**
+     * Status the group reports. Each value sets the edge and the focus ring from that status's
+     * palette.
+     */
+    status: onSlot("root", fieldStatusVariants()),
+
+    /**
+     * Edges and surface of the box, and the fill of a filled addon.
+     *
+     * @remarks
+     *   A filled addon takes the surface one step darker than the box: `bg.subtle` on the outline
+     *   look, `bg.muted` on the subtle look. A plain addon has no fill, and a flushed addon has no
+     *   fill in either look. The flushed box keeps the smallest inset, the same as the flushed
+     *   input.
+     */
+    variant: {
+      flushed: {
+        root: { ...LOOKS.flushed.root, [INSET]: dense("{spacing.inset.xs}") },
+      },
+      outline: {
+        addon: { "&[data-look=filled]": { background: "bg.subtle" } },
+        root: LOOKS.outline.root,
+      },
+      subtle: {
+        addon: { "&[data-look=filled]": { background: "bg.muted" } },
+        root: LOOKS.subtle.root,
+      },
+    },
   },
 });

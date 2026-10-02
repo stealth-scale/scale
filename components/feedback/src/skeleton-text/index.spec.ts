@@ -3,14 +3,14 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#skeleton-text/index.ts";
 
 describe("index", () => {
-  it("names every export and nothing beside it", () => {
+  it("exports SkeletonText and SkeletonTextPropsProvider only", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "SkeletonText",
       "SkeletonTextPropsProvider",
     ]);
   });
 
-  it("publishes neither the recipe nor the binding", () => {
+  it("exports no recipe binding or bare PropsProvider", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {

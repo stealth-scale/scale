@@ -1,11 +1,9 @@
 /**
- * Draws the keystroke that runs a row without the menu, at the row's end.
+ * Renders the keyboard shortcut at a row's end.
  *
  * @remarks
- *   A `kbd` rather than a span, because the words are keys a reader presses. It is pushed to the
- *   row's end and set in the muted ink a step under the row's words, so the words are read first
- *   and the keys are found where every menu puts them. It says nothing a screen reader needs
- *   beyond the keys themselves, which are read as part of the row.
+ *   The element is a `kbd`. The recipe places it at the row's end, two sizes smaller than the
+ *   row's text, in `fg.muted`. A screen reader reads the keys with the row.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -14,20 +12,20 @@ import { withContext } from "#menu/context.ts";
 import { useMenu } from "#menu/machine.ts";
 
 /**
- * Draws the keys at the size the root states.
+ * Renders the `kbd` with the menu's item command class.
  */
 const Struck = withContext("kbd", "itemCommand");
 
 /**
- * Describes what the keys take.
+ * Describes the props of a row's shortcut: the props of a `kbd`.
  */
 export type ItemCommandProps = ComponentProps<typeof Struck>;
 
 /**
- * Draws the keys that run the row, checking a menu stands above them.
+ * Renders the shortcut, and throws when no menu is above it.
  *
- * @param props - Everything a styled kbd takes.
- * @returns The keys, at the row's end.
+ * @param props - The props of a `kbd`.
+ * @returns The `kbd` element.
  */
 export function ItemCommand(props: ItemCommandProps): ReactElement {
   useMenu();

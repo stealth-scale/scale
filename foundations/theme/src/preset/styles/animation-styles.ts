@@ -18,7 +18,8 @@ import { type AnimationStyle, type AnimationStyles } from "#pandacss.ts";
 type Motion = Record<"value", AnimationStyle>;
 
 /**
- * Lists each placement against the side the anchored element sits on.
+ * Pairs each placement with the side of the floating element that faces its anchor, which the
+ * slide starts from.
  */
 const SLIDES: ReadonlyArray<readonly [placement: string, anchored: string]> = [
   ["top", "bottom"],
@@ -71,6 +72,22 @@ function slide(direction: "from" | "to", fade: string, pace: string, curve: stri
 }
 
 /**
+ * Lists the edges a sheet slides in from, as the keyframes name them.
+ */
+const EDGES = ["top", "bottom", "left", "right"] as const;
+
+/**
+ * Writes the motions of a panel attached to one edge of the window: the whole way in from that edge
+ * while fading in, and the whole way back out while fading out.
+ */
+function sheet(edge: (typeof EDGES)[number]): Record<"in" | "out", Motion> {
+  return {
+    in: motion(`slide-from-${edge}-full, fade-in`, "enter", "enter"),
+    out: motion(`slide-to-${edge}-full, fade-out`, "leave", "leave"),
+  };
+}
+
+/**
  * Writes one motion the scroll position drives rather than the clock.
  *
  * @remarks
@@ -91,7 +108,8 @@ function scrolled(name: string, timeline: string, more: AnimationStyle): Motion 
 }
 
 /**
- * Lists the motions: the entering and leaving pairs, the loops, and the scrolled ones.
+ * Lists the motions: the entering and leaving pairs, a sheet's pair per edge, the loops, and the
+ * scrolled ones.
  */
 export const animationStyles: AnimationStyles = {
   aurora: loop("bg-drift", "ambientSlower", "in-out"),
@@ -105,6 +123,8 @@ export const animationStyles: AnimationStyles = {
   },
   float: loop("float", "ambientSlow", "in-out"),
   marquee: loop("marquee", "ambientSlower", "linear"),
+  "marquee-x": loop("marquee-x", "ambientSlower", "linear"),
+  "marquee-y": loop("marquee-y", "ambientSlower", "linear"),
   meteor: {
     value: {
       ...loop("meteor", "ambientSlow", "linear").value,
@@ -133,10 +153,15 @@ export const animationStyles: AnimationStyles = {
     in: motion("scale-in, fade-in", "enter", "enter"),
     out: motion("scale-out, fade-out", "leave", "leave"),
   },
+  sheet: Object.fromEntries(EDGES.map((edge) => [edge, sheet(edge)])),
   shimmer: loop("bg-position", "ambientSlow", "linear"),
   "slide-fade": {
     in: slide("from", "fade-in", "enter", "enter"),
     out: slide("to", "fade-out", "leave", "leave"),
+  },
+  "slide-up": {
+    in: motion("slide-from-bottom, fade-in", "enter", "enter"),
+    out: motion("slide-to-top, fade-out", "leave", "leave"),
   },
   spin: loop("spin", "ambient", "linear"),
   sweep: loop("rotate-angle", "ambientSlow", "linear"),

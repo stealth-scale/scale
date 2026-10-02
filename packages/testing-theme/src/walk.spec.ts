@@ -31,7 +31,7 @@ describe("walked", () => {
     ]);
   });
 
-  it("walks the variants and the styles of the compound variants", () => {
+  it("lists the strings under the variants and under a compound variant's css", () => {
     const { strings } = walked({
       className: "x",
       compoundVariants: [{ css: { color: "fg" }, variant: "solid" }],
@@ -52,7 +52,7 @@ describe("walked", () => {
     ]);
   });
 
-  it("passes over a value that is neither a string nor an object", () => {
+  it("lists no string for a value that is neither a string nor an object", () => {
     expect(walked({ base: { flexGrow: 1 }, className: "x" }).strings).toStrictEqual([]);
   });
 });

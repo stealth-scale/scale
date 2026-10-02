@@ -14,10 +14,10 @@ import {
 } from "#tooltip/machine.ts";
 
 /**
- * Runs the machine and reports what it answers, so a case can read its state off the screen.
+ * Runs the machine and renders its state through a part that reads the context.
  *
- * @param props - The settings the machine is started with.
- * @returns The state, drawn as text.
+ * @param props - The machine's options.
+ * @returns The state as text.
  */
 function Running(props: TooltipOptions): ReactElement {
   const api = useTooltipMachine(props);
@@ -30,9 +30,9 @@ function Running(props: TooltipOptions): ReactElement {
 }
 
 /**
- * Reads the running machine through the hook a part reads it through.
+ * Renders the open state the context reports.
  *
- * @returns Whether the box is open.
+ * @returns A `span` with `open` or `shut`.
  */
 function Reader(): ReactElement {
   const api = useTooltip();
@@ -41,13 +41,13 @@ function Reader(): ReactElement {
 }
 
 describe("splitTooltipProps", () => {
-  it("takes the machine's settings out of what the root was handed", () => {
+  it("returns the machine's options first", () => {
     const [options] = splitTooltipProps({ closeDelay: 0, openDelay: 0 });
 
     expect(options).toStrictEqual({ closeDelay: 0, openDelay: 0 });
   });
 
-  it("leaves everything the element takes behind", () => {
+  it("returns the element's props second", () => {
     const [, rest] = splitTooltipProps({ openDelay: 0, size: "lg" });
 
     expect(rest).toStrictEqual({ size: "lg" });
@@ -55,19 +55,19 @@ describe("splitTooltipProps", () => {
 });
 
 describe("useTooltipMachine", () => {
-  it("answers a running machine a part can read", async () => {
+  it("provides a running machine to a part", async () => {
     await drawn(<Running defaultOpen />);
 
     expect(screen.getByTestId("state").textContent).toBe("open");
   });
 
-  it("starts shut where a caller says nothing", async () => {
+  it("starts closed", async () => {
     await drawn(<Running />);
 
     expect(screen.getByTestId("state").textContent).toBe("shut");
   });
 
-  it("keeps the machine's own default where a caller hands over nothing for it", async () => {
+  it("keeps the machine's default for an undefined option", async () => {
     await drawn(<Running defaultOpen openDelay={undefined} />);
 
     expect(screen.getByTestId("state").textContent).toBe("open");

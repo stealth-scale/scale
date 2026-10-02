@@ -58,9 +58,9 @@ Set `eager` to inline every language and fetch nothing. A workspace with no cata
 empty lists and an empty loader table, and the module runs.
 
 Each module lists the catalogue files it read as files to watch, so a bundler that rebuilds on a
-watched file's change rebuilds the module. The catalogues module also lists a stamp file the plugin
-rewrites whenever a language or a namespace appears or disappears, because a directory handed to a
-watcher says nothing about a file appearing under it.
+watched file's change rebuilds the module. The catalogues module also lists a stamp file. The plugin
+rewrites the stamp whenever a catalogue file appears or disappears. A bundler watches only the files
+a module read.
 
 Add the types with a triple-slash directive from a file the project already compiles.
 
@@ -93,16 +93,43 @@ A plural form is checked against any form of the same key, and may write the cou
 
 ## Hot updates
 
+A dev server watches the `locales` directory of every package the search found, including one
+outside the project root. A file, a namespace or a language added under it is found without a
+restart.
+
 On a dev server that serves a module per file, a changed catalogue is sent to the page as an
 `i18n:catalogue` event carrying the pair merged afresh. The foundation replaces the words in place,
 so the page keeps its state, and the types are written again for a key or a placeholder the edit
 added. A file joining a namespace that exists is pushed the same way. A language or a namespace
-appearing or disappearing changes the set a running page holds, so the catalogues module is handed
+appearing or disappearing changes the set a running page has, so the catalogues module is handed
 back for a reload rather than pushed.
 
-A dev server that bundles runs no hot update hook. There, a change to a catalogue rebuilds the
-modules that listed it, a language or a namespace appearing rewrites the stamp the catalogues module
-listed, and the types are written again from `watchChange`. A watching build follows the same path.
+A dev server that bundles does not call the hot update hook. There, `watchChange` sends the same
+event and writes the types again. The server's watcher and the bundler's both report an edit, and
+the plugin sends the event once. A language or a namespace appearing or disappearing reloads the
+page, because a running page cannot take a new set from an event. A watching build writes the types
+and the stamp the same way and does not send the event.
+
+## The plugin's api
+
+Another plugin reads what the catalogue plugin found through its `api`. `cataloguesOf` returns it
+from the plugins of a resolved configuration, and returns undefined where the configuration has no
+`stealth:i18n` plugin.
+
+```ts
+import { cataloguesOf } from "@stealthscale/vite-plugin-i18n";
+
+const words = cataloguesOf(config.plugins);
+```
+
+| Member                       | Returns                                                                     |
+| ---------------------------- | --------------------------------------------------------------------------- |
+| `catalogues()`               | Every catalogue the last search found and `namespaces` kept, in merge order |
+| `fallback`                   | The language every key is defined in                                        |
+| `words(language, namespace)` | The pair's words with every file merged, as the page loads them             |
+
+`catalogues()` and `words()` read the last search when they are called, so they follow every change
+on a dev server.
 
 ## Licence
 

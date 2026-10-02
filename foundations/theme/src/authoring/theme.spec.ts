@@ -20,6 +20,16 @@ function root(): Theme {
   });
 }
 
+function unnameable(): Theme {
+  return defineTheme({
+    extends: root(),
+    name: "abyss",
+    recipes: {
+      button: { compoundVariants: [{ css: { fontWeight: "bold" }, size: { color: "fg" } }] },
+    },
+  });
+}
+
 describe("defineTheme", () => {
   it("keeps the name the theme is switched by", () => {
     expect(defineTheme({ colors: COLORS, name: "fathom" }).name).toBe("fathom");
@@ -37,11 +47,11 @@ describe("defineTheme", () => {
     expect(root().preset.name).toBe("@stealthscale/theme-fathom");
   });
 
-  it("draws the four families and the eight intents from the colors", () => {
+  it("draws the five families and the eight intents from the colors", () => {
     const colors = root().variant.semanticTokens?.colors ?? {};
 
     expect(Object.keys(colors).toSorted()).toStrictEqual(
-      ["bg", "border", "code", "fg", ...PALETTES].toSorted(),
+      ["bg", "border", "code", "fg", "series", ...PALETTES].toSorted(),
     );
     expect(tokenAt(colors, "bg.DEFAULT")).toStrictEqual({ _dark: "#18181b", base: "#fafafa" });
     expect(tokenAt(colors, "primary.solid.DEFAULT")).toBeDefined();
@@ -145,7 +155,7 @@ describe("defineTheme", () => {
     expect(tokens?.fonts).toStrictEqual({ body: { value: "Inter" }, heading: { value: "Inter" } });
   });
 
-  it("carries a recipe extension into the preset", () => {
+  it("puts a recipe extension in the preset", () => {
     const theme = defineTheme({
       colors: COLORS,
       name: "fathom",
@@ -155,7 +165,7 @@ describe("defineTheme", () => {
     expect(Object.keys(theme.preset.theme?.extend?.recipes ?? {})).toStrictEqual(["button"]);
   });
 
-  it("carries a slot recipe extension under its own key", () => {
+  it("puts a slot recipe extension in the preset under its own key", () => {
     const theme = defineTheme({
       colors: COLORS,
       name: "fathom",
@@ -175,7 +185,7 @@ describe("defineTheme", () => {
     expect(Reflect.get(theme.variant, "recipes")).toBeUndefined();
   });
 
-  it("carries the looks into the preset and not the variant", () => {
+  it("puts the looks in the preset", () => {
     const theme = defineTheme({
       colors: COLORS,
       looks: {
@@ -192,6 +202,15 @@ describe("defineTheme", () => {
       "semanticTokens",
       "textStyles",
     ]);
+  });
+
+  it("leaves the looks out of the variant", () => {
+    const theme = defineTheme({
+      colors: COLORS,
+      looks: { textStyles: { md: { value: { fontSize: "1.0625rem" } } } },
+      name: "folio",
+    });
+
     expect(Reflect.get(theme.variant, "textStyles")).toBeUndefined();
   });
 
@@ -212,15 +231,23 @@ describe("defineTheme", () => {
     });
   });
 
-  it("carries a hosted face and a global style into the preset", () => {
+  it("puts a hosted face in the preset", () => {
     const theme = defineTheme({
       colors: COLORS,
       fontface: { Acme: [{ src: "url(acme.woff2)" }] },
-      globalCss: { body: { letterSpacing: "wide" } },
       name: "fathom",
     });
 
     expect(theme.preset.globalFontface).toBeDefined();
+  });
+
+  it("puts a global style in the preset", () => {
+    const theme = defineTheme({
+      colors: COLORS,
+      globalCss: { body: { letterSpacing: "wide" } },
+      name: "fathom",
+    });
+
     expect(theme.preset.globalCss).toBeDefined();
   });
 
@@ -231,7 +258,7 @@ describe("defineTheme", () => {
     expect(preset.globalCss).toBeUndefined();
   });
 
-  it("carries a token stated outright into the variant", () => {
+  it("puts a token stated outright in the variant", () => {
     const { variant } = root();
 
     expect(variant.tokens?.colors?.["gray"]).toStrictEqual({ 500: { value: "#808080" } });
@@ -289,7 +316,7 @@ describe("defineTheme", () => {
     expect(variant.semanticTokens?.colors?.["primary"]).toBeDefined();
   });
 
-  it("carries the axes as merged through the lineage", () => {
+  it("returns the axes merged through the lineage", () => {
     const parent = defineTheme({ colors: COLORS, name: "p", shape: { corner: "1rem" } });
     const child = defineTheme({ extends: parent, name: "c", shape: { control: "2px" } });
 
@@ -341,7 +368,7 @@ describe("defineTheme", () => {
     );
   });
 
-  it("carries a derived theme's recipe extensions in its own preset", () => {
+  it("puts a derived theme's recipe extensions in its own preset", () => {
     const theme = defineTheme({
       extends: root(),
       name: "abyss",
@@ -351,22 +378,13 @@ describe("defineTheme", () => {
     expect(Object.keys(theme.preset.theme?.extend?.recipes ?? {})).toStrictEqual(["button"]);
   });
 
-  it("refuses a compound matched on a value a class name cannot carry", () => {
-    const written = (): Theme =>
-      defineTheme({
-        extends: root(),
-        name: "abyss",
-        recipes: {
-          button: { compoundVariants: [{ css: { fontWeight: "bold" }, size: { color: "fg" } }] },
-        },
-      });
-
-    expect(written).toThrow(
-      "button is extended with a compound matched on a value a class name cannot carry",
+  it("throws for a compound matched on a value that cannot be part of a class name", () => {
+    expect(unnameable).toThrow(
+      "button is extended with a compound matched on a value that cannot be part of a class name",
     );
   });
 
-  it("takes a compound whose every value a class name carries", () => {
+  it("takes a compound whose every value can be part of a class name", () => {
     const theme = defineTheme({
       extends: root(),
       name: "abyss",

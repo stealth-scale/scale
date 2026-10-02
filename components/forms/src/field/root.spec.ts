@@ -13,11 +13,11 @@ describe("Root", () => {
     expect(violations(Root, { as: true, children: true, element: "DIV" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule holding every part", async () => {
+  it("returns no accessibility violation for a field with every part", async () => {
     await expect(accessibilityViolations(() => composed())).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "root",
@@ -25,25 +25,25 @@ describe("Root", () => {
     ).toStrictEqual([]);
   });
 
-  it("carries no role because the control inside it keeps its own", () => {
+  it("renders a div with no role", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "field", "root").hasAttribute("role")).toBe(false);
   });
 
-  it("marks itself wrong so every part below reads one state", () => {
+  it("sets data-invalid while the field is invalid", () => {
     const { container } = render(composed({ invalid: true }));
 
     expect(slotElement(container, "field", "root").dataset["invalid"]).toBe("true");
   });
 
-  it("states one identifier the parts derive the rest from", () => {
+  it("gives the control the identifier the caller states", () => {
     render(composed({ id: "email" }));
 
     expect(screen.getByRole("textbox").getAttribute("id")).toBe("email");
   });
 
-  it("generates an identifier where a caller states none", () => {
+  it("generates an identifier when the caller states none", () => {
     render(composed());
 
     expect(screen.getByRole("textbox").getAttribute("id")).toBeTruthy();

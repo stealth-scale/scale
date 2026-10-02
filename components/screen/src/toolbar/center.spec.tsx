@@ -7,7 +7,7 @@ import { Center } from "#toolbar/center.ts";
 import { ranged } from "#toolbar/toolbar.fixtures.tsx";
 
 describe("Center", () => {
-  it("draws a div inside the row it needs above it", () => {
+  it("renders a div", () => {
     const { container } = render(ranged(<Center>April</Center>));
 
     expect(slotElement(container, "toolbar", "center").tagName).toBe("DIV");

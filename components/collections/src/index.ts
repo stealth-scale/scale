@@ -1,14 +1,22 @@
 /**
- * Publishes many of a thing: the lists, tables and grids that render a set of records. Each
- * component binds a recipe a theme can extend and draws nothing of its own. The recipes reach an
- * application's compiler through the preset under `./theme`, and the components reach its bundle
- * through here. A component with parts is published as a namespace, `Table.Root`.
+ * Components that render a set of records: data lists, listboxes, tables, grids, timelines,
+ * transfer lists, trees, a status matrix, lists and boards a person reorders by dragging, and rows
+ * whose actions a swipe reveals.
+ * Every component takes its styling from a slot recipe
+ * that a theme can override, and carries no styling of its own. An application installs the recipes
+ * by adding the preset at `./theme` to its compiler configuration, and imports the components from
+ * here. A component built from parts is exported as a namespace, so its root is `Table.Root`.
  *
  * @packageDocumentation
  */
 
 export * from "#collection/index.ts";
+export * as DataList from "#data-list/index.ts";
 export * as Listbox from "#listbox/index.ts";
+export * as Sortable from "#sortable/index.ts";
 export * from "#status-matrix/index.ts";
+export * as SwipeActions from "#swipe-actions/index.ts";
 export * as Table from "#table/index.ts";
+export * as Timeline from "#timeline/index.ts";
 export * from "#transfer/index.ts";
+export * as TreeView from "#tree-view/index.ts";

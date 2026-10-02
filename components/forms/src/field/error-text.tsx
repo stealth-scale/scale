@@ -1,15 +1,12 @@
 /**
- * Draws what went wrong with the field.
+ * Renders what is wrong with the field's value, or the status it reports.
  *
  * @remarks
- *   The element is `p`. It renders nothing where the field is not wrong, so a screen reader moving
- *   through the form never reaches a message about a fault that is not there.
- *   It states `role="alert"`, so a message raised after a person submits reaches a reader who is
- *   not looking at the field. The region is mounted with the message in it rather than before it,
- *   which some screen readers announce late. The alternative is an empty live region on every
- *   field of the form, which is read on the way past whether or not it holds anything.
- *   The ink is the palette's, which the root's `status` axis sets. A field reporting something
- *   other than a fault states that status once on the root.
+ *   The element is a `p` with the identifier the control's `aria-describedby` lists. It renders
+ *   while the field is invalid or reports a status, and nothing otherwise. It sets `role="alert"`
+ *   only while the field is invalid, so an error raised on submit is announced and a status that
+ *   is not a fault is not. The ink comes from the palette the root's `status` sets, and defaults
+ *   to the error palette. A leading `svg` is sized to the text and centred on its first line.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -18,25 +15,25 @@ import { withContext } from "#field/context.ts";
 import { useField } from "#field/state.ts";
 
 /**
- * Draws the message at the size the root states.
+ * Renders the `p` with the field's error text class.
  */
 const Worded = withContext("p", "errorText");
 
 /**
- * Describes what the message takes: everything a styled p takes.
+ * Describes the props of the error text: the props of a `p`.
  */
 export type ErrorTextProps = ComponentProps<typeof Worded>;
 
 /**
- * Says what went wrong, where the field is wrong.
+ * Renders the error text while the field is invalid or reports a status.
  *
- * @param props - Everything a styled p takes.
- * @returns The message, or nothing where the field is not wrong.
+ * @param props - The props of a `p`.
+ * @returns The error text, or nothing.
  */
 export function ErrorText(props: ErrorTextProps): ReactElement | undefined {
-  const { ids, invalid } = useField();
+  const { ids, invalid, status } = useField();
 
-  if (!invalid) return undefined;
+  if (!invalid && status === undefined) return undefined;
 
-  return <Worded id={ids.errorText} role="alert" {...props} />;
+  return <Worded id={ids.errorText} {...(invalid ? { role: "alert" } : {})} {...props} />;
 }

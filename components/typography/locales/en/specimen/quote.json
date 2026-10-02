@@ -1,19 +1,19 @@
 {
-  "about": "Quotes a run of words inside the line around it, with the marks the browser draws for the language in force.",
-  "after": " and moved on.",
-  "before": "She called it",
-  "claim": "a measured claim",
-  "inks": {
-    "about": "The quotation in every ink, inside a line of ordinary words.",
-    "title": "Inks"
-  },
+  "about": "Renders a quotation inside a line of text. The browser adds the quotation marks of the language in `lang`.",
+  "after": ".",
+  "before": "The auditor called the report",
+  "claim": "complete and accurate",
   "marks": {
-    "about": "The marks the browser draws, and none where the text already holds its punctuation.",
+    "about": "`auto` adds the browser's quotation marks. `none` adds no marks, for text that contains its own punctuation.",
     "title": "Marks"
   },
   "motion": {
-    "about": "How the quotation enters the line.",
+    "about": "The animation a quotation enters with. Each one runs once when the quotation mounts.",
     "title": "Motion"
   },
-  "title": "Quote"
+  "title": "Quote",
+  "tone": {
+    "about": "The quotation in every text ink, inside a line of body text. The inverted ink is for a dark surface, so its cell renders on `bg.inverted`.",
+    "title": "Inks"
+  }
 }

@@ -1,0 +1,107 @@
+{
+  "about": "Renders nested rows that open and close, walked by the keyboard as one control. A branch row opens the rows under it and an item row ends a path. The tree reads a collection, and a render function renders each node's row from the node and its state.",
+  "docs": {
+    "about": "An item with an `href` renders a link, which follows its address on a press and on Enter. `TreeView.BranchIndentGuide`, passed to `TreeView.Nodes` as `indentGuide`, runs a line down every open branch under its indicator.",
+    "actions": "Actions",
+    "button": "Button",
+    "changelog": "Changelog",
+    "collections": "Collections",
+    "components": "Components",
+    "configure": "Configure",
+    "install": "Install",
+    "label": "Documentation",
+    "listbox": "Listbox",
+    "start": "Getting started",
+    "themes": "Themes",
+    "title": "Links",
+    "toggle-group": "Toggle group",
+    "tree-view": "Tree view"
+  },
+  "effect": {
+    "about": "The glow surrounds a selected row in the palette's solid color.",
+    "title": "Effects"
+  },
+  "explorer": {
+    "label": "Files"
+  },
+  "lazy": {
+    "about": "A branch that declares `childrenCount` loads its children through `loadChildren` the first time it opens. The row reports `aria-busy` while it loads, and the example turns its indicator into a spinner. The caller keeps the collection that `onLoadChildrenComplete` returns.",
+    "americas": "Americas",
+    "amsterdam": "Amsterdam",
+    "asia": "Asia",
+    "berlin": "Berlin",
+    "europe": "Europe",
+    "label": "Offices",
+    "lisbon": "Lisbon",
+    "new-york": "New York",
+    "sao-paulo": "São Paulo",
+    "singapore": "Singapore",
+    "title": "Loading children",
+    "tokyo": "Tokyo"
+  },
+  "outline": {
+    "about": "With `expandOnClick={false}` a press on a row selects it, and a press on `TreeView.BranchTrigger` opens it. The caller controls `expandedValue`, so two buttons open and close every branch. A node with `disabled` takes no selection and opens no rows.",
+    "appendix": "Appendix",
+    "collapse": "Collapse all",
+    "errors": "Errors",
+    "expand": "Expand all",
+    "findings": "Findings",
+    "goals": "Goals",
+    "introduction": "Introduction",
+    "label": "Report outline",
+    "latency": "Latency",
+    "raw-data": "Raw data",
+    "results": "Results",
+    "summary": "Summary",
+    "survey": "Survey",
+    "title": "Outline"
+  },
+  "palette": {
+    "about": "The palette sets the selected fill, the focus ring and the checkboxes.",
+    "title": "Palettes"
+  },
+  "permissions": {
+    "about": "With `checkable`, every row reports `aria-checked` and Space toggles the check. A branch is checked while every node under it is, and partly checked while some are. `TreeView.NodeCheckbox` shows the check and toggles it under a pointer.",
+    "billing": "Billing",
+    "change-plan": "Change plan",
+    "count": "{{count}} of {{total}} permissions granted",
+    "delete-workspace": "Delete workspace",
+    "download-invoices": "Download invoices",
+    "invite-members": "Invite members",
+    "label": "Permissions",
+    "members": "Members",
+    "remove-members": "Remove members",
+    "rename-workspace": "Rename workspace",
+    "settings": "Settings",
+    "title": "Checkable",
+    "view-invoices": "View invoices"
+  },
+  "rename": {
+    "about": "With `canRename`, F2 opens `TreeView.NodeRenameInput` over the focused row. Enter keeps the new name, Escape cancels, and focus returns to the row. The caller replaces the node in its collection in `onRenameComplete`.",
+    "hint": "Select a file and press",
+    "input": "Rename",
+    "label": "Drafts",
+    "title": "Renaming"
+  },
+  "search": {
+    "about": "`filter` returns a collection of the matching nodes and their branches. While a query is typed, every branch of that collection is open.",
+    "clear": "Clear search",
+    "empty": "No documents match “{{query}}”.",
+    "field": "Search documents",
+    "label": "Documents",
+    "title": "Filtering"
+  },
+  "selected": {
+    "about": "The fill of a selected row. Subtle and solid fill it with the palette, and plain sets its text in medium weight.",
+    "title": "Selected looks"
+  },
+  "selection": {
+    "about": "In `multiple` mode Ctrl or Cmd with a press adds a row to the selection, Shift with a press or an arrow extends it, and Ctrl+A selects every row.",
+    "title": "Selection modes"
+  },
+  "size": {
+    "about": "Rows measure 24, 32 and 40px. The size also sets the text, the marks, the inset and the indent of each level.",
+    "title": "Sizes"
+  },
+  "title": "Tree view"
+}

@@ -8,7 +8,7 @@ import { Link } from "#toc/link.tsx";
 import { composed, railed } from "#toc/toc.fixtures.tsx";
 
 describe("Link", () => {
-  it("draws an anchor inside the root it needs above it", async () => {
+  it("forwards href to the anchor", async () => {
     await drawn(
       railed(
         <Link href="#sizes" item={{ depth: 2, value: "sizes" }}>
@@ -20,7 +20,7 @@ describe("Link", () => {
     expect(screen.getByRole("link", { name: "Sizes" }).getAttribute("href")).toBe("#sizes");
   });
 
-  it("says it leads to the place on screen while its heading is", async () => {
+  it("sets aria-current to location when its heading is active", async () => {
     await drawn(composed({ defaultActiveIds: ["sizes"] }));
 
     expect(screen.getByRole("link", { name: "sizes" }).getAttribute("aria-current")).toBe(
@@ -28,13 +28,13 @@ describe("Link", () => {
     );
   });
 
-  it("says nothing while its heading is off screen", async () => {
+  it("omits aria-current when its heading is inactive", async () => {
     await drawn(composed({ defaultActiveIds: ["sizes"] }));
 
     expect(screen.getByRole("link", { name: "looks" }).getAttribute("aria-current")).toBeNull();
   });
 
-  it("scrolls the container a caller names to the heading when pressed", async () => {
+  it("scrolls scrollEl to the heading on click", async () => {
     const heading = document.createElement("h2");
     const box = document.createElement("div");
 
@@ -60,7 +60,7 @@ describe("Link", () => {
     window.location.hash = "";
   });
 
-  it("draws the element as names", async () => {
+  it("renders the element passed as as", async () => {
     const { container } = await drawn(
       railed(
         <Link as="button" item={{ depth: 2, value: "sizes" }}>

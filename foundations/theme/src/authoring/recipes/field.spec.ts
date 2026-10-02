@@ -3,51 +3,69 @@ import { describe, expect, it } from "vitest";
 import { recipeViolations } from "@stealthscale/testing-theme";
 
 import { defineRecipe } from "#authoring/recipe.ts";
-import { field, wrappedField } from "#authoring/recipes/field.ts";
+import {
+  field,
+  FIELD_EDGE,
+  FOCUS_RING,
+  WITHIN_DISABLED,
+  WITHIN_FOCUS,
+  WITHIN_INVALID,
+  WITHIN_READ_ONLY,
+  wrappedField,
+} from "#authoring/recipes/field.ts";
 
 describe("field", () => {
-  it("draws the panel surface with the control's boundary at the control's width", () => {
+  it("sets the panel surface and an edge at the control stroke width", () => {
     expect(field()).toMatchObject({
       background: "bg.panel",
-      borderColor: "border.emphasized",
+      borderColor: `var(${FIELD_EDGE})`,
       borderWidth: "control",
       color: "fg",
+      [FIELD_EDGE]: "{colors.border.emphasized}",
     });
   });
 
-  it("darkens the edge to the tertiary ink under a pointer", () => {
-    expect(field()).toMatchObject({ _hover: { borderColor: "fg.subtle" } });
+  it("writes the tertiary ink to the edge under hover", () => {
+    expect(field()).toMatchObject({ _hover: { [FIELD_EDGE]: "{colors.fg.subtle}" } });
   });
 
-  it("draws the placeholder in the muted ink", () => {
+  it("sets the placeholder in the muted ink", () => {
     expect(field()).toMatchObject({ _placeholder: { color: "fg.muted" } });
   });
 
-  it("draws an invalid field in the error palette", () => {
+  it("writes the error edge and ring color under the invalid state", () => {
     expect(field()).toMatchObject({
-      _invalid: { borderColor: "border.error", focusRingColor: "error.focusRing" },
+      _invalid: { [FIELD_EDGE]: "{colors.border.error}", focusRingColor: "error.focusRing" },
     });
   });
 
-  it("draws the focus ring inside the box", () => {
+  it("insets the focus ring by the ring width", () => {
     expect(field()).toMatchObject({
+      _focusVisible: { outlineOffset: "calc({borderWidths.ring} * -1)" },
       focusRingColor: "colorPalette.focusRing",
       focusVisibleRing: "inside",
     });
   });
 
-  it("reads the disabled look and the subtle surface for a read-only field", () => {
+  it("applies the disabled layer style under the disabled state", () => {
+    expect(field()).toMatchObject({ _disabled: { layerStyle: "disabled" } });
+  });
+
+  it("sets the subtle surface on a control marked read-only by an attribute", () => {
     expect(field()).toMatchObject({
-      _disabled: { layerStyle: "disabled" },
-      _readOnly: { background: "bg.subtle" },
+      "&:is([readonly], [data-readonly], [aria-readonly=true])": { background: "bg.subtle" },
     });
   });
 
-  it("raises the field to the middle control height on a coarse pointer", () => {
+  it("reads no :read-only pseudo-class", () => {
+    expect(field()).not.toHaveProperty("_readOnly");
+  });
+
+  it("sets the md control height as the least height under a coarse pointer", () => {
     expect(field()).toMatchObject({ _touch: { minBlockSize: "control.md" } });
   });
 
-  it("settles at the pace and the curve every pressed control settles at", () => {
+  it("transitions at the press duration and easing", () => {
     expect(field()).toMatchObject({
       transitionDuration: "press",
       transitionProperty: "common",
@@ -55,32 +73,57 @@ describe("field", () => {
     });
   });
 
-  it("passes the recipe checks", () => {
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(defineRecipe({ base: field(), className: "x" }))).toStrictEqual([]);
   });
 });
 
 describe("wrappedField", () => {
-  it("rests the same way a field does", () => {
+  it("sets the same surface and edge as a field", () => {
     expect(wrappedField()).toMatchObject({
       background: "bg.panel",
-      borderColor: "border.emphasized",
+      borderColor: `var(${FIELD_EDGE})`,
       borderWidth: "control",
       color: "fg",
+      [FIELD_EDGE]: "{colors.border.emphasized}",
     });
   });
 
-  it("reads every state from the control the box holds", () => {
+  it.each([WITHIN_DISABLED, WITHIN_FOCUS, WITHIN_INVALID, WITHIN_READ_ONLY])(
+    "writes the box state %s",
+    (selector) => {
+      expect(wrappedField()).toHaveProperty([selector]);
+    },
+  );
+
+  it("reads no state from the box element itself", () => {
     const wrapped = wrappedField();
 
-    expect(wrapped).toHaveProperty("&:has(> :disabled, > [data-disabled])");
-    expect(wrapped).toHaveProperty("&:has(> :read-only:not(:disabled))");
-    expect(wrapped).toHaveProperty("&:has(> :focus-visible, > [data-focus-visible])");
     expect(wrapped).not.toHaveProperty("_readOnly");
     expect(wrapped).not.toHaveProperty("_invalid");
   });
 
-  it("writes no value a theme cannot move", () => {
+  it("sets --focus-ring-color to FOCUS_RING", () => {
+    expect(wrappedField()).toMatchObject({ "--focus-ring-color": FOCUS_RING });
+  });
+
+  it("reads the ring color from the compiler's property with its fallbacks", () => {
+    expect(FOCUS_RING).toBe(
+      "var(--focus-ring-color-prop, var(--global-color-focus-ring, #005FCC))",
+    );
+  });
+
+  it("matches keyboard focus on form controls only", () => {
+    expect(WITHIN_FOCUS).toBe(
+      "&:has(:is(input, select, textarea):is(:focus-visible, [data-focus-visible]))",
+    );
+  });
+
+  it("matches a box that contains no enabled control", () => {
+    expect(WITHIN_DISABLED).toBe("&:not(:has(:is(input, select, textarea):enabled))");
+  });
+
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(defineRecipe({ base: wrappedField(), className: "x" }))).toStrictEqual(
       [],
     );

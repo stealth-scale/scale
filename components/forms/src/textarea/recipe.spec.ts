@@ -1,59 +1,84 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
 import { recipe, VALUE } from "#textarea/recipe.ts";
+import page from "#textarea/textarea.specimen.tsx";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("covers every axis in the scenes of its specimen", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("leaves no scene naming a value the recipe lacks", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("references a token on every value a theme has to be able to change", () => {
     expect(
       recipeViolations(recipe, { names: ["Textarea"], parts: ["root", "control"] }),
     ).toStrictEqual([]);
   });
 
-  it("names its class textarea", () => {
+  it("uses the class name textarea", () => {
     expect(recipe.className).toBe("textarea");
   });
 
-  it("styles the two parts a textarea draws", () => {
+  it("declares the root and control slots", () => {
     expect(recipe.slots).toStrictEqual(["root", "control"]);
   });
 
-  it("offers the five axes a textarea takes", () => {
+  it("declares five axes", () => {
     expect(axesOf(recipe)).toStrictEqual(["grip", "grows", "size", "status", "variant"]);
   });
 
-  it("draws an outlined box a person drags taller when nothing is asked for", () => {
+  it("defaults to an outline field at size md with a vertical grip", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ grip: "vertical", size: "md", variant: "outline" });
   });
 
-  it("offers the three ways a person drags the box bigger", () => {
+  it("offers three grip values", () => {
     expect(valuesOf(recipe, "grip")).toStrictEqual(["both", "none", "vertical"]);
   });
 
-  it("names the drag axis apart from the CSS property it writes", () => {
+  it("declares no axis named resize", () => {
     expect(axesOf(recipe)).not.toContain("resize");
   });
 
-  it("measures the text with a copy drawn in the same grid cell", () => {
+  it("renders the copy of the text in the root's grid cell", () => {
     expect(recipe.base?.["root"]).toMatchObject({
       "&::after": { content: `attr(${VALUE}) " "`, visibility: "hidden" },
       display: "grid",
     });
   });
 
-  it("holds the height open where a line ends in a newline", () => {
+  it("preserves line breaks in the copy", () => {
     expect(recipe.base?.["root"]?.["&::after"]).toMatchObject({ whiteSpace: "pre-wrap" });
   });
 
-  it("wraps the copy and the control at one width", () => {
+  it("places the copy and the control in one cell without padding", () => {
     const copy = recipe.base?.["root"]?.["&::after"];
 
     expect(copy).toMatchObject({ gridArea: "1 / 1 / 2 / 2", padding: "0" });
     expect(recipe.base?.["control"]).toMatchObject({ gridArea: "1 / 1 / 2 / 2", padding: "0" });
   });
 
-  it("stops a growing box being dragged against its own measurement", () => {
+  it("reads the md inset one size smaller on every side", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["root"]).toMatchObject({
+      paddingBlock: "calc({spacing.inset.sm} * var(--density, 1))",
+      paddingInlineStart:
+        "var(--control-inset-start, calc({spacing.inset.sm} * var(--density, 1)))",
+    });
+  });
+
+  it("sets the smallest inline inset on a flushed field", () => {
+    expect(recipe.variants?.["variant"]?.["flushed"]?.["root"]).toMatchObject({
+      paddingInlineStart:
+        "var(--control-inset-start, calc({spacing.inset.xs} * var(--density, 1)))",
+    });
+  });
+
+  it("turns off resizing on a growing field", () => {
     expect(recipe.compoundVariants).toStrictEqual([
       {
         className: "textarea__control--measured",
@@ -64,7 +89,23 @@ describe("recipe", () => {
     ]);
   });
 
-  it("tracks the tag named Textarea", () => {
+  it("caps the copy of a growing field at its row limit", () => {
+    expect(recipe.variants?.["grows"]?.["true"]?.["root"]).toStrictEqual({
+      "&[data-capped]::after": {
+        maxBlockSize: "calc(var(--textarea-max-rows) * 1lh)",
+        overflow: "hidden",
+      },
+    });
+  });
+
+  it("scrolls the control of a growing field that has a row limit", () => {
+    expect(recipe.variants?.["grows"]?.["true"]?.["control"]).toStrictEqual({
+      "[data-capped] > &": { overflowY: "auto" },
+      overflow: "hidden",
+    });
+  });
+
+  it("tracks JSX named Textarea", () => {
     expect(recipe.jsx).toStrictEqual([/^Textarea$/u]);
   });
 });

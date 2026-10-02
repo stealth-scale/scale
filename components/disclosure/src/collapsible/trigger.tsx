@@ -1,10 +1,9 @@
 /**
- * Draws the control a person presses to show and hide the block.
+ * Renders the button that shows and hides the content.
  *
  * @remarks
- *   The element is `button`, and the machine writes what tells a screen reader what it does:
- *   whether the block is expanded, and which element it controls. Neither is this component's to
- *   state, because the machine holds the id both sides are named by.
+ *   The element is a `button`. The machine sets `aria-expanded` and `aria-controls`, because it
+ *   owns the ids of the trigger and the content.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,20 +14,20 @@ import { withContext } from "#collapsible/context.ts";
 import { useCollapsible } from "#collapsible/machine.ts";
 
 /**
- * Draws the control at the size the root states.
+ * Renders the `button` with the collapsible's trigger class.
  */
 const Pressed = withContext("button", "trigger");
 
 /**
- * Describes what the trigger takes.
+ * Describes the props of the trigger: the props of a `button`.
  */
 export type TriggerProps = ComponentProps<typeof Pressed>;
 
 /**
- * Shows the block where it is hidden, and hides it where it is shown.
+ * Renders the trigger with the machine's trigger props merged over the caller's.
  *
- * @param props - Everything a styled button takes.
- * @returns The control, carrying what the machine says it does.
+ * @param props - The props of a `button`.
+ * @returns The `button` element.
  */
 export function Trigger(props: TriggerProps): ReactElement {
   const api = useCollapsible();

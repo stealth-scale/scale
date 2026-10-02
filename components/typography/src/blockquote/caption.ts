@@ -1,9 +1,9 @@
 /**
- * Draws the caption under a quotation, which names who said it.
+ * Renders the caption of a block quotation, which names the source.
  *
  * @remarks
- *   The element is `figcaption`, which the browser ties to the figure around it. The caption
- *   draws its slot in the variants the root was given, muted and in the caption role.
+ *   The element is `figcaption`, which labels the `figure` root. The caption reads the `caption`
+ *   text style in the muted ink.
  */
 
 import { type ComponentProps } from "react";
@@ -11,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#blockquote/context.ts";
 
 /**
- * Draws the caption, muted, in the caption role.
+ * Renders a `figcaption` element with the caption slot's classes.
  */
 export const Caption = withContext("figcaption", "caption");
 
 /**
- * Describes what the caption takes: everything a styled figcaption element takes.
+ * Describes the props of Blockquote.Caption: the props of a `figcaption` element.
  */
 export type CaptionProps = ComponentProps<typeof Caption>;

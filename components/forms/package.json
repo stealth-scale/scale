@@ -31,6 +31,10 @@
       "stealth-source": "./src/index.ts",
       "default": "./dist/index.js"
     },
+    "./form": {
+      "stealth-source": "./src/form.ts",
+      "default": "./dist/form.js"
+    },
     "./theme": {
       "stealth-source": "./src/theme.ts",
       "default": "./dist/theme.js"
@@ -40,6 +44,7 @@
   "publishConfig": {
     "exports": {
       ".": "./dist/index.js",
+      "./form": "./dist/form.js",
       "./theme": "./dist/theme.js",
       "./package.json": "./package.json"
     },
@@ -52,15 +57,47 @@
     "test": "vp test"
   },
   "dependencies": {
+    "@internationalized/date": "catalog:",
+    "@stealthscale/component-actions": "workspace:^",
+    "@stealthscale/component-data": "workspace:^",
+    "@stealthscale/component-disclosure": "workspace:^",
+    "@stealthscale/component-feedback": "workspace:^",
+    "@stealthscale/component-primitives": "workspace:^",
+    "@zag-js/angle-slider": "catalog:",
     "@zag-js/checkbox": "catalog:",
+    "@zag-js/collection": "catalog:",
+    "@zag-js/color-picker": "catalog:",
+    "@zag-js/color-utils": "catalog:",
+    "@zag-js/combobox": "catalog:",
+    "@zag-js/date-input": "catalog:",
+    "@zag-js/date-picker": "catalog:",
+    "@zag-js/dismissable": "catalog:",
+    "@zag-js/dom-query": "catalog:",
+    "@zag-js/editable": "catalog:",
+    "@zag-js/file-upload": "catalog:",
+    "@zag-js/focus-visible": "catalog:",
+    "@zag-js/number-input": "catalog:",
+    "@zag-js/password-input": "catalog:",
+    "@zag-js/pin-input": "catalog:",
+    "@zag-js/radio-group": "catalog:",
+    "@zag-js/rating-group": "catalog:",
     "@zag-js/react": "catalog:",
+    "@zag-js/select": "catalog:",
+    "@zag-js/signature-pad": "catalog:",
+    "@zag-js/slider": "catalog:",
     "@zag-js/switch": "catalog:",
-    "@zag-js/types": "catalog:"
+    "@zag-js/tags-input": "catalog:",
+    "@zag-js/types": "catalog:",
+    "@zag-js/utils": "catalog:",
+    "libphonenumber-js": "catalog:",
+    "maska": "catalog:"
   },
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
-    "@rolldown/plugin-babel": "catalog:",
+    "@stealthscale/component-layout": "workspace:^",
     "@stealthscale/hooks": "workspace:^",
+    "@stealthscale/provider-form": "workspace:^",
+    "@stealthscale/provider-locale": "workspace:^",
     "@stealthscale/theme": "workspace:^",
     "@stealthscale/vite-config": "workspace:^",
     "@stealthscale/vite-config-i18n": "workspace:^",
@@ -71,7 +108,6 @@
     "@testing-library/react": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "babel-plugin-react-compiler": "catalog:",
     "happy-dom": "catalog:",
     "lucide-react": "catalog:",
     "oxc-transform-react": "catalog:",
@@ -83,8 +119,15 @@
   },
   "peerDependencies": {
     "@stealthscale/hooks": "workspace:^",
+    "@stealthscale/provider-form": "workspace:^",
+    "@stealthscale/provider-locale": "workspace:^",
     "@stealthscale/theme": "workspace:^",
     "react": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "@stealthscale/provider-form": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=26.0.0"

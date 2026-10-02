@@ -7,19 +7,19 @@ import { blocked } from "#section/section.fixtures.tsx";
 import { Title } from "#section/title.tsx";
 
 describe("Title", () => {
-  it("draws a second-level heading inside the block it needs above it", () => {
+  it("renders an h2", () => {
     const { container } = render(blocked(<Title>Billing</Title>));
 
     expect(slotElement(container, "section", "title").tagName).toBe("H2");
   });
 
-  it("is a heading a screen reader can jump to", () => {
+  it("sets role heading at level 2", () => {
     render(blocked(<Title>Billing</Title>));
 
     expect(screen.getByRole("heading", { level: 2, name: "Billing" })).toBeTruthy();
   });
 
-  it("draws the level a nested section needs", () => {
+  it("renders the level as names", () => {
     render(blocked(<Title as="h3">Billing</Title>));
 
     expect(screen.getByRole("heading", { level: 3 })).toBeTruthy();

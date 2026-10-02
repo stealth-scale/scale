@@ -14,86 +14,86 @@ import {
 } from "#app-shell/state.ts";
 
 /**
- * Reads one panel of the shell by name, the way an application reads it.
+ * Renders whether the panel named `navbar` is open, read through `useAppShellPanel`.
  *
- * @returns Whether the panel is shown.
+ * @returns A span with `open` or `shut`.
  */
 function Named(): ReactElement {
   return (
-    <span data-testid="held">{useAppShellPanel("navbar")?.open === true ? "open" : "shut"}</span>
+    <span data-testid="read">{useAppShellPanel("navbar")?.open === true ? "open" : "shut"}</span>
   );
 }
 
 /**
- * Reads the panel a part sits in, the way a part inside one reads it.
+ * Renders the identifier of the panel above, read through `useNearestPanel`.
  *
- * @returns The address of the panel above it.
+ * @returns A span with the identifier.
  */
 function Nearest(): ReactElement {
-  return <span data-testid="held">{useNearestPanel().id}</span>;
+  return <span data-testid="read">{useNearestPanel().id}</span>;
 }
 
 /**
- * Counts what stands over the page, the way a part behind the backdrop reads it.
+ * Renders the number of panels over the page, read through `useOverlaid`.
  *
- * @returns How many panels stand over the page.
+ * @returns A span with the count.
  */
 function Counted(): ReactElement {
-  return <span data-testid="held">{useOverlaid().length}</span>;
+  return <span data-testid="read">{useOverlaid().length}</span>;
 }
 
 describe("COLLAPSES", () => {
-  it("lists the two things closing a panel leaves", () => {
+  it("lists hide and icons", () => {
     expect(COLLAPSES).toStrictEqual(["hide", "icons"]);
   });
 });
 
 describe("FOLDS", () => {
-  it("lists the two places a folded panel goes", () => {
+  it("lists over and under", () => {
     expect(FOLDS).toStrictEqual(["over", "under"]);
   });
 });
 
 describe("useAppShellPanel", () => {
-  it("answers the panel drawn under the name it was asked for", () => {
+  it("returns the panel with the name passed", () => {
     render(bodied(<Navbar>{<Named />}</Navbar>));
 
-    expect(screen.getByTestId("held").textContent).toBe("open");
+    expect(screen.getByTestId("read").textContent).toBe("open");
   });
 
-  it("answers nothing for a name no panel was drawn under", () => {
+  it("returns undefined for a name no panel uses", () => {
     render(bodied(<Named />));
 
-    expect(screen.getByTestId("held").textContent).toBe("shut");
+    expect(screen.getByTestId("read").textContent).toBe("shut");
   });
 
-  it("throws where no shell stands above the reader", () => {
+  it("throws outside AppShell.Root", () => {
     expect(() => render(<Named />)).toThrow(/AppShell\.Root/u);
   });
 });
 
 describe("useNearestPanel", () => {
-  it("answers the panel it sits in", () => {
+  it("returns the panel above the caller", () => {
     const { container } = render(bodied(<Navbar>{<Nearest />}</Navbar>));
 
-    expect(screen.getByTestId("held").textContent).toBe(
+    expect(screen.getByTestId("read").textContent).toBe(
       container.querySelector(".app-shell__navbar")?.id,
     );
   });
 
-  it("throws where no panel stands above the reader", () => {
+  it("throws outside a panel", () => {
     expect(() => render(bodied(<Nearest />))).toThrow(/AppShell panel/u);
   });
 });
 
 describe("useOverlaid", () => {
-  it("counts nothing while every panel sits beside the page", () => {
+  it("returns no panel while every panel is beside the page", () => {
     render(bodied(<Navbar>{<Counted />}</Navbar>));
 
-    expect(screen.getByTestId("held").textContent).toBe("0");
+    expect(screen.getByTestId("read").textContent).toBe("0");
   });
 
-  it("counts a panel the application has opened over the page", () => {
+  it("returns a panel that is open over the page", () => {
     render(
       narrowed(
         bodied(
@@ -104,6 +104,6 @@ describe("useOverlaid", () => {
       ),
     );
 
-    expect(screen.getByTestId("held").textContent).toBe("1");
+    expect(screen.getByTestId("read").textContent).toBe("1");
   });
 });

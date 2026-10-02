@@ -1,11 +1,10 @@
 /**
- * Draws the line standing where nothing matches.
+ * Renders the message the list shows when no action matches the query.
  *
  * @remarks
- *   Say what was looked through. `No commands match` tells a reader the palette searched and found
- *   nothing, where `No results` leaves them unsure whether it searched at all.
- *   The list draws this only when it is empty, so the words are in the document exactly when they
- *   are true and a screen reader walking the panel never reads them over a list of rows.
+ *   The list renders it only while no action matches, so a screen reader never reads it above
+ *   rows. Name what was searched in the message, such as "No command matches", because "No
+ *   results" does not say what the palette searched.
  */
 
 import { type ComponentProps } from "react";
@@ -13,11 +12,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#command/context.ts";
 
 /**
- * Draws the line at the size the panel states.
+ * Renders the `p` with the recipe's empty class, centred in the list.
  */
 export const Empty = withContext("p", "empty");
 
 /**
- * Describes what the empty line takes.
+ * Describes the props of the empty message: the props of a `p`.
  */
 export type EmptyProps = ComponentProps<typeof Empty>;

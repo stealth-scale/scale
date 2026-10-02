@@ -1,74 +1,74 @@
 /**
- * Shows the keycap: every look at every size, and every status in every look.
+ * Catalogue page for the keycap.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. The keys are the keys themselves and are not translated. The scene words
- *   are keys under `kbd` in the catalogue's namespace, kept beside this file in
- *   `locales/en/specimen/kbd.json`.
+ *   `scenesOf` generates the look scene, crossed with the size axis, and the palette scene, crossed
+ *   with the look axis. Hand-written scenes render the modifier and named keys, a combination
+ *   inside a line of body text, and a list of commands with their combinations in a 384px room.
+ *   Every scene renders a component from `examples/` and shows that file as its source. Key labels
+ *   are literal and the other words are keys under `kbd` in `locales/en/specimen/kbd.json`.
  */
 
-import { type ReactElement } from "react";
+import { Room, type Scene, scenesOf, specimen } from "@stealthscale/specimen";
 
-import { Matrix, type Scene, specimen, valuesOf } from "@stealthscale/specimen";
-
-import { Kbd } from "#kbd/kbd.ts";
+import * as escape from "#kbd/examples/escape.example.tsx";
+import * as keys from "#kbd/examples/keys.example.tsx";
+import * as sentence from "#kbd/examples/sentence.example.tsx";
+import * as shortcuts from "#kbd/examples/shortcuts.example.tsx";
 import { recipe } from "#kbd/recipe.ts";
 
 /**
- * Every look the recipe draws.
+ * Hand-written scene for the modifier and named keys.
  */
-const LOOKS = valuesOf(recipe, "variant");
+export const named: Scene = {
+  about: "kbd.keys.about",
+  draw: keys.Keys,
+  example: keys,
+  title: "kbd.keys.title",
+};
 
 /**
- * Draws the escape key in every look at every size.
+ * Hand-written scene for a combination inside a line of body text.
  */
-function Looks(): ReactElement {
-  return (
-    <Matrix across={{ knob: "size", of: valuesOf(recipe, "size") }} knob="variant" of={LOOKS}>
-      {(variant, size) => (
-        <Kbd size={size} variant={variant}>
-          Esc
-        </Kbd>
-      )}
-    </Matrix>
-  );
-}
+export const inline: Scene = {
+  about: "kbd.sentence.about",
+  draw: sentence.Sentence,
+  example: sentence,
+  title: "kbd.sentence.title",
+};
 
 /**
- * Draws the command key in every status in every look.
+ * Hand-written scene for a list of commands in a 384px room.
  */
-function Statuses(): ReactElement {
-  return (
-    <Matrix across={{ knob: "variant", of: LOOKS }} knob="status" of={valuesOf(recipe, "status")}>
-      {(status, variant) => (
-        <Kbd status={status} variant={variant}>
-          ⌘K
-        </Kbd>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Every look at every size.
- */
-export const looks: Scene = { about: "kbd.looks.about", draw: Looks, title: "kbd.looks.title" };
-
-/**
- * Every status in every look.
- */
-export const statuses: Scene = {
-  about: "kbd.statuses.about",
-  draw: Statuses,
-  title: "kbd.statuses.title",
+export const listed: Scene = {
+  about: "kbd.shortcuts.about",
+  draw: () => (
+    <Room size="sm">
+      <shortcuts.Shortcuts />
+    </Room>
+  ),
+  example: shortcuts,
+  title: "kbd.shortcuts.title",
 };
 
 export default specimen({
   about: "kbd.about",
-  group: "Typography",
-  id: "typography/kbd",
+  id: "components/typography/kbd",
   imports: 'import { Kbd } from "@stealthscale/component-typography";',
-  scenes: [looks, statuses],
+  scenes: [
+    ...scenesOf<Parameters<typeof escape.Escape>[0]>(recipe, {
+      axes: {
+        palette: { across: "variant" },
+        variant: { across: "size" },
+      },
+      draw: (props) => <escape.Escape {...props} />,
+      example: escape,
+      namespace: "kbd",
+      order: ["variant", "palette"],
+    }),
+    named,
+    inline,
+    listed,
+  ],
   title: "kbd.title",
 });

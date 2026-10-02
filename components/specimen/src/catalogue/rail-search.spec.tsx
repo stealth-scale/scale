@@ -1,77 +1,80 @@
-import { type ReactElement, useState } from "react";
+import { type ReactElement } from "react";
 
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { NavList } from "@stealthscale/component-navigation";
 import { AppShell, Sidebar } from "@stealthscale/component-screen";
-import { type Hotkey } from "@stealthscale/provider-hotkeys";
 import { pressed } from "@stealthscale/testing-react";
 
-import { RailSearch } from "#catalogue/rail-search.tsx";
+import { RailSearch, type RailSearchProps } from "#catalogue/rail-search.tsx";
 
 /**
- * Draws the search in a shell whose navigation a trigger opens and closes, beside an output
- * reporting the words typed.
+ * Renders the search above a block of two pages, in a shell whose navigation a trigger opens and
+ * closes.
  */
-function Searched({
-  panel,
-  shortcut,
-}: {
-  readonly panel?: string;
-  readonly shortcut?: Hotkey;
-}): ReactElement {
-  const [query, setQuery] = useState("");
-
+function Searched(props: RailSearchProps): ReactElement {
   return (
     <AppShell.Root>
       <AppShell.Header>
-        <AppShell.Trigger {...(panel === undefined ? {} : { panel })}>Navigation</AppShell.Trigger>
+        <AppShell.Trigger>Navigation</AppShell.Trigger>
       </AppShell.Header>
       <AppShell.Body>
-        <AppShell.Navbar {...(panel === undefined ? {} : { name: panel })}>
+        <AppShell.Navbar>
           <Sidebar.Root>
             <Sidebar.Header>
-              <RailSearch
-                onValueChange={setQuery}
-                panel={panel}
-                shortcut={shortcut}
-                value={query}
-              />
+              <RailSearch {...props} />
             </Sidebar.Header>
+            <Sidebar.Content>
+              <Sidebar.Nav aria-label="Catalogue">
+                <NavList.Root>
+                  <NavList.Item>
+                    <NavList.Link href="/components/actions/button">Button</NavList.Link>
+                  </NavList.Item>
+                  <NavList.Item>
+                    <NavList.Link href="/components/data/badge">Badge</NavList.Link>
+                  </NavList.Item>
+                </NavList.Root>
+              </Sidebar.Nav>
+            </Sidebar.Content>
           </Sidebar.Root>
         </AppShell.Navbar>
-        <AppShell.Main>
-          <output>{query}</output>
-        </AppShell.Main>
+        <AppShell.Main />
       </AppShell.Body>
     </AppShell.Root>
   );
 }
 
 describe("RailSearch", () => {
-  it("draws a search box named for the filter", () => {
+  it("names the field Filter pages", () => {
     render(<Searched />);
 
     expect(screen.getByRole("searchbox", { name: "Filter pages" })).toBeDefined();
   });
 
-  it("reports the words a reader types", () => {
-    render(<Searched />);
+  it("takes the name the caller passes as aria-label", () => {
+    render(<Searched aria-label="Search the docs" />);
 
-    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "but" } });
-
-    expect(screen.getByRole("status").textContent).toBe("but");
+    expect(screen.getByRole("searchbox", { name: "Search the docs" })).toBeDefined();
   });
 
-  it("draws the control that empties the field once words are typed", () => {
+  it("renders the clear control once the field has a value", () => {
     render(<Searched />);
 
-    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "but" } });
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "bad" } });
 
     expect(screen.getByRole("button", { name: "Clear the filter" })).toBeDefined();
   });
 
-  it("states the shortcut on the field", () => {
+  it("hides a page whose title does not contain the query", () => {
+    render(<Searched />);
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "bad" } });
+
+    expect(screen.queryByRole("link", { name: "Button" })).toBeNull();
+  });
+
+  it("sets aria-keyshortcuts to the platform's modifier and K", () => {
     render(<Searched />);
 
     expect(screen.getByRole("searchbox").getAttribute("aria-keyshortcuts")).toBe(
@@ -79,49 +82,7 @@ describe("RailSearch", () => {
     );
   });
 
-  it("states and follows the shortcut a caller names instead", () => {
-    render(<Searched shortcut="Mod+Shift+F" />);
-
-    expect(screen.getByRole("searchbox").getAttribute("aria-keyshortcuts")).toBe(
-      "Control+Shift+F Meta+Shift+F",
-    );
-
-    fireEvent.keyDown(document.body, { ctrlKey: true, key: "k" });
-
-    expect(document.activeElement).not.toBe(screen.getByRole("searchbox"));
-
-    fireEvent.keyDown(document.body, { ctrlKey: true, key: "F", shiftKey: true });
-
-    expect(document.activeElement).toBe(screen.getByRole("searchbox"));
-  });
-
-  it("states a shortcut without the platform's modifier as written", () => {
-    render(<Searched shortcut="F3" />);
-
-    expect(screen.getByRole("searchbox").getAttribute("aria-keyshortcuts")).toBe("F3");
-  });
-
-  it("opens the panel a caller names before putting the reader in the field", async () => {
-    render(<Searched panel="tools" />);
-
-    await pressed(screen.getByRole("button", { name: "Navigation" }));
-
-    expect(screen.getByRole("button", { name: "Navigation" }).getAttribute("aria-expanded")).toBe(
-      "false",
-    );
-
-    await act(() => {
-      fireEvent.keyDown(document.body, { ctrlKey: true, key: "k" });
-
-      return Promise.resolve();
-    });
-
-    expect(screen.getByRole("button", { name: "Navigation" }).getAttribute("aria-expanded")).toBe(
-      "true",
-    );
-  });
-
-  it("puts the reader in the field when the modifier and K are pressed", () => {
+  it("moves focus to the field on the platform's modifier and K", () => {
     render(<Searched />);
 
     fireEvent.keyDown(document.body, { ctrlKey: true, key: "k" });
@@ -129,7 +90,7 @@ describe("RailSearch", () => {
     expect(document.activeElement).toBe(screen.getByRole("searchbox"));
   });
 
-  it("opens a closed navigation before putting the reader in the field", async () => {
+  it("opens a closed navigation on the platform's modifier and K", async () => {
     render(<Searched />);
 
     await pressed(screen.getByRole("button", { name: "Navigation" }));
@@ -147,6 +108,13 @@ describe("RailSearch", () => {
     expect(screen.getByRole("button", { name: "Navigation" }).getAttribute("aria-expanded")).toBe(
       "true",
     );
-    expect(document.activeElement).toBe(screen.getByRole("searchbox"));
+  });
+
+  it("moves focus to the first page on the down arrow", () => {
+    render(<Searched />);
+
+    fireEvent.keyDown(screen.getByRole("searchbox"), { key: "ArrowDown" });
+
+    expect(document.activeElement).toBe(screen.getByRole("link", { name: "Button" }));
   });
 });

@@ -1,5 +1,5 @@
 /**
- * Renders the page a path matches, so a specification reads a screen rather than a route tree.
+ * Renders the page a route tree matches at a given path, for a specification.
  */
 
 import { createElement } from "react";
@@ -17,29 +17,29 @@ import {
 } from "@stealthscale/provider-router";
 
 /**
- * Describes what one mount produced.
+ * The render one mount produced, together with the router that produced it.
  */
 export interface Mounted {
   /**
-   * The render Testing Library returned, which a query is scoped to.
+   * The Testing Library render result. Queries are scoped to it.
    */
   readonly result: RenderResult;
 
   /**
-   * The router the page was drawn from, which a case navigates with.
+   * The router that rendered the page. A case navigates through it.
    */
   readonly router: AnyRouter;
 }
 
 /**
- * Builds a router over a tree, at a path, with the map every link resolves through.
+ * Builds a router over a route tree, opened at a path, holding the map every link resolves through.
  *
  * @remarks
- *   A router of its own each time. Two cases sharing one would navigate each other, and the library
- *   keeps a process-wide cache of a processed tree that is keyed by the tree's identity.
- * @param tree - The assembled tree, as `createRouter` takes it.
- * @param at - The path to open. The site root where a caller states none.
- * @returns The router, loaded by the caller.
+ *   Every call builds a new router, because two cases sharing one would navigate each other. The
+ *   router library caches a processed tree process-wide under that tree's identity.
+ * @param tree - The assembled route tree, as `createRouter` takes it.
+ * @param at - Path to open. Defaults to the site root.
+ * @returns The router, with its matches not yet loaded.
  */
 export function routerOver(tree: AnyRoute, at = "/"): AnyRouter {
   return createRouter({
@@ -51,29 +51,26 @@ export function routerOver(tree: AnyRoute, at = "/"): AnyRouter {
 }
 
 /**
- * Renders the page a path matches, waiting for everything that path loads.
+ * Renders the page a path matches, after the router has loaded that path's matches.
  *
- * @param tree - The assembled tree, as `createRouter` takes it.
- * @param at - The path to open. The site root where a caller states none.
- * @returns The render, and the router the page was drawn from.
+ * @param tree - The assembled route tree, as `createRouter` takes it.
+ * @param at - Path to open. Defaults to the site root.
+ * @returns The render, and the router that produced the page.
  */
 export function mountRoute(tree: AnyRoute, at = "/"): Promise<Mounted> {
   return mountRouter(routerOver(tree, at));
 }
 
 /**
- * Renders the page a router is on, waiting for everything that page loads.
+ * Renders the page a router is on, after the router has loaded that page's matches.
  *
  * @remarks
- *   Use this where the application already builds its own router, such as one that takes a session.
- *   `mountRoute` covers the case where a specification has a tree and nothing else.
- *   The render is settled before it is handed back, the way `drawn` settles one. A page holding a
- *   component built on a state machine writes its first state on a microtask after the render
- *   returns, and React reports that write as an update outside `act`. A page is free to hold one,
- *   so every mount waits rather than every specification of a page that does.
+ *   The render is settled before this returns. A component built on a state machine writes its
+ *   first state on a microtask after the render, and React reports that write as an update outside
+ *   `act`.
  * @param router - The router to render.
- * @param at - A path to navigate to first, or nothing to render where the router already is.
- * @returns The render, and the router the page was drawn from.
+ * @param at - Path to navigate to first. Defaults to the router's current location.
+ * @returns The render, and the router that produced the page.
  */
 export async function mountRouter(router: AnyRouter, at?: string): Promise<Mounted> {
   if (at !== undefined) await router.navigate({ to: at });

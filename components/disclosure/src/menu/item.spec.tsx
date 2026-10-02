@@ -8,25 +8,25 @@ import { Item } from "#menu/item.tsx";
 import { composed, kept, listed } from "#menu/menu.fixtures.tsx";
 
 describe("Item", () => {
-  it("draws a div inside the root it needs above it", async () => {
+  it("renders a div", async () => {
     const { container } = await drawn(listed(<Item value="rename">Rename</Item>));
 
     expect(slotElement(container, "menu", "item").tagName).toBe("DIV");
   });
 
-  it("carries the menu item role", async () => {
+  it("sets role menuitem", async () => {
     await drawn(composed({ defaultOpen: true }));
 
     expect(screen.getByRole("menuitem", { name: "Rename" })).toBeDefined();
   });
 
-  it("names itself so the machine can report which row was chosen", async () => {
+  it("sets data-value to its value", async () => {
     const { container } = await drawn(listed(<Item value="rename">Rename</Item>));
 
     expect(slotElement(container, "menu", "item").dataset["value"]).toBe("rename");
   });
 
-  it("says a reader cannot choose it where a caller disables it", async () => {
+  it("sets aria-disabled when disabled", async () => {
     await drawn(composed({ defaultOpen: true }));
 
     expect(screen.getByRole("menuitem", { name: "Archive" }).getAttribute("aria-disabled")).toBe(
@@ -34,7 +34,7 @@ describe("Item", () => {
     );
   });
 
-  it("reports nothing when a disabled row is pressed", async () => {
+  it("calls no onSelect for a disabled row", async () => {
     const told = vi.fn<(details: { readonly value: string }) => void>();
 
     await drawn(composed({ defaultOpen: true, onSelect: told }));
@@ -43,19 +43,19 @@ describe("Item", () => {
     expect(told).not.toHaveBeenCalled();
   });
 
-  it("says what the row is for where a caller states a tone", async () => {
+  it("sets data-tone to its tone", async () => {
     await drawn(composed({ defaultOpen: true }));
 
     expect(screen.getByRole("menuitem", { name: "Delete" }).dataset["tone"]).toBe("critical");
   });
 
-  it("carries no tone where a caller states none", async () => {
+  it("sets no data-tone without a tone", async () => {
     await drawn(composed({ defaultOpen: true }));
 
     expect(screen.getByRole("menuitem", { name: "Rename" }).dataset["tone"]).toBeUndefined();
   });
 
-  it("says the highlight is on it once the pointer goes down", async () => {
+  it("sets data-highlighted on pointer down", async () => {
     await drawn(composed({ defaultOpen: true }));
 
     const row = screen.getByRole("menuitem", { name: "Rename" });
@@ -66,7 +66,7 @@ describe("Item", () => {
     expect(screen.getByRole("menuitem", { name: "Rename" }).dataset["highlighted"]).toBe("");
   });
 
-  it("matches typeahead on the words a caller gives it rather than the ones it shows", async () => {
+  it("sets data-valuetext to its valueText", async () => {
     const { container } = await drawn(
       listed(
         <Item value="rename" valueText="Change the name">
@@ -78,21 +78,21 @@ describe("Item", () => {
     expect(slotElement(container, "menu", "item").dataset["valuetext"]).toBe("Change the name");
   });
 
-  it("shuts the menu once a row is chosen", async () => {
+  it("closes the menu on select", async () => {
     await drawn(composed({ defaultOpen: true }));
     await pressed(screen.getByRole("menuitem", { name: "Rename" }));
 
     expect(screen.queryByRole("menu")).toBeNull();
   });
 
-  it("leaves the menu open where the row says choosing it does not close", async () => {
+  it("keeps the menu open with closeOnSelect false", async () => {
     await drawn(kept({ defaultOpen: true }));
     await pressed(screen.getByRole("menuitem", { name: "Bold" }));
 
     expect(screen.getByRole("menu")).toBeDefined();
   });
 
-  it("draws the element as names", async () => {
+  it("renders the element as names", async () => {
     const { container } = await drawn(
       listed(
         <Item as="a" value="rename">

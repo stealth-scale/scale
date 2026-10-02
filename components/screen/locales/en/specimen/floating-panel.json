@@ -1,0 +1,70 @@
+{
+  "about": "A floating panel is a window over the page that a person opens from a trigger, moves by its header and resizes from its edges and corners. The page around it remains in use. Minimize leaves the header, Maximize fills the window and Restore returns the panel to its size and place. While the panel itself has focus, the arrow keys move it and Alt with an arrow resizes it. Escape closes the panel in front.",
+  "close": "Close",
+  "controlled": {
+    "about": "The application keeps the open state and the size in its own state. It passes them as open and size, and takes each change from onOpenChange and onSizeChange. The line under the button reports the place and the size. Reset in the panel restores the first size.",
+    "body": "Resize the panel from an edge, then reset it.",
+    "heading": "Size",
+    "place": "At {{x}}, {{y}}, {{width}} by {{height}} pixels",
+    "reset": "Reset the size",
+    "title": "Controlled open state and size",
+    "trigger": "Size"
+  },
+  "inspector": {
+    "about": "The panel opens under its trigger through getAnchorPosition and contains form fields. Tab moves from the trigger into the panel and from the panel's last field to the page after the trigger.",
+    "height": "Height",
+    "heading": "Layer",
+    "locked": "Lock the layer",
+    "name": "Name",
+    "title": "Anchored to the trigger",
+    "trigger": "Layer",
+    "value": "Hero image",
+    "width": "Width"
+  },
+  "maximize": "Maximize",
+  "minimize": "Minimize",
+  "notes": {
+    "about": "The panel opens in the middle of the window. Drag the header to move it and any edge or corner to resize it. Minimize leaves the header, Maximize fills the window, and a double click on the header maximizes and restores it.",
+    "body": "The launch moves to the first week of November. Marketing needs the final screenshots by the end of October.",
+    "heading": "Launch notes",
+    "title": "Stages and resizing",
+    "trigger": "Notes"
+  },
+  "preview": {
+    "about": "The panel keeps its proportions as it resizes, between 240 and 640 pixels wide.",
+    "ada": "Ada Lovelace",
+    "heading": "Call with Ada",
+    "leave": "Leave the call",
+    "speaking": "Ada Lovelace is speaking",
+    "title": "Locked aspect ratio",
+    "trigger": "Join the call"
+  },
+  "restore": "Restore",
+  "snapped": {
+    "about": "The panel moves and resizes in steps of 16 pixels, remains inside the window, and is between 256 and 480 pixels wide.",
+    "heading": "Shortcuts",
+    "shortcuts": {
+      "bold": { "keys": "Ctrl+B", "label": "Bold" },
+      "italic": { "keys": "Ctrl+I", "label": "Italic" },
+      "link": { "keys": "Ctrl+K", "label": "Link" },
+      "undo": { "keys": "Ctrl+Z", "label": "Undo" }
+    },
+    "title": "Grid and limits",
+    "trigger": "Shortcuts"
+  },
+  "stacked": {
+    "about": "Two panels open side by side. A press or focus in a panel brings it in front, and Escape closes the panel in front.",
+    "history": {
+      "body": "Seven edits since the last save.",
+      "heading": "History",
+      "trigger": "History"
+    },
+    "layers": {
+      "body": "Three layers: the title, the image and the background.",
+      "heading": "Layers",
+      "trigger": "Layers"
+    },
+    "title": "Stacked panels"
+  },
+  "title": "Floating panel"
+}

@@ -9,7 +9,7 @@ import { Text } from "@stealthscale/component-typography";
 
 import { useChoices } from "#device/choices.ts";
 import { useFrame } from "#device/frame.ts";
-import { Bar, Frame, Root, Size, Stage } from "#device/parts.ts";
+import { Bar, Content, Frame, Root, ScrollArea, Size, Stage } from "#device/parts.ts";
 import { Picker } from "#device/picker.tsx";
 import { HEIGHT, WIDTH } from "#device/recipe.ts";
 import { type Held } from "#device/scene.ts";
@@ -39,7 +39,9 @@ export type DeviceProps = Held;
  *   deferral of a frame proved unreliable: a frame scrolled past never loaded in one browser and
  *   a frame under the fold never loaded in another, and a frame that stays blank reads as a
  *   scene that failed. It is not sandboxed, because what it loads is this application at its own
- *   origin, which a sandbox that let it run and read its settings would not have held anyway.
+ *   origin, which a sandbox that let it run and read its settings would not have held anyway. The
+ *   stage is the primitives package's scroll area, which scrolls across a device wider than the
+ *   card, and its viewport is a region named by the scene's title while it overflows.
  * @param props - The device and the scene.
  * @returns The bar and the frame.
  */
@@ -73,8 +75,13 @@ export function Device({ device, scene }: DeviceProps): ReactElement {
           </Text>
         </Size>
       </Bar>
-      <Stage>
-        <Frame key={key} src={src} title={scene.title} />
+      <Stage scrolls="horizontal">
+        <ScrollArea.Viewport aria-label={scene.title}>
+          <Content>
+            <Frame key={key} src={src} title={scene.title} />
+          </Content>
+        </ScrollArea.Viewport>
+        <ScrollArea.Scrollbar orientation="horizontal" />
       </Stage>
     </Root>
   );

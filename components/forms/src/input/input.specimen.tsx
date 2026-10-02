@@ -1,113 +1,87 @@
 /**
- * Shows the text field: every look at every size, every status in every look, and the states a
- * page puts it in.
+ * Catalogue page for the input.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every field is named with `aria-label`, because a field with no name is
- *   announced as `edit text` and nothing more. The words are keys under `input` in the
- *   catalogue's namespace, kept beside this file in `locales/en/specimen/input.json`.
+ *   `scenesOf` generates the sizes scene and the statuses scene, each crossed with the looks. The
+ *   states scene is hand-written, because focus, `disabled`, `readOnly` and `aria-invalid` are
+ *   element states, not recipe axes. Its focused row renders each look inside `Focused`, which
+ *   marks the field as focused by keyboard. Every scene renders a component from `examples/` and
+ *   shows that file as its source. The words are keys under `input` in
+ *   `locales/en/specimen/input.json`.
  */
 
-import { type ReactElement } from "react";
+import { Focused, Matrix, type Scene, scenesOf, specimen, valuesOf } from "@stealthscale/specimen";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
-
-import { Input } from "#input/input.ts";
+import * as email from "#input/examples/email.example.tsx";
+import * as reference from "#input/examples/reference.example.tsx";
+import * as search from "#input/examples/search.example.tsx";
 import { recipe } from "#input/recipe.ts";
 
 /**
- * The states a page puts a field in, beside the field as it is.
- */
-const STATES = ["default", "disabled", "readOnly", "invalid"] as const;
-
-/**
- * Every look the recipe draws.
+ * Look values, crossed with every other axis.
  */
 const LOOKS = valuesOf(recipe, "variant");
 
 /**
- * Draws a search field in every look at every size.
+ * States of the states scene, in reading order.
  */
-function Looks(): ReactElement {
-  const { t } = useWords("input");
-
-  return (
-    <Matrix across={{ knob: "size", of: valuesOf(recipe, "size") }} knob="variant" of={LOOKS}>
-      {(variant, size) => <Input aria-label={t("search")} size={size} variant={variant} />}
-    </Matrix>
-  );
-}
+const STATES = ["rest", "focused", "disabled", "readOnly", "invalid"] as const;
 
 /**
- * Draws an address field in every status in every look.
+ * Maps each state to the props that put a field in it. `Focused` stages the focused state.
  */
-function Statuses(): ReactElement {
-  const { t } = useWords("input");
-
-  return (
-    <Matrix across={{ knob: "variant", of: LOOKS }} knob="status" of={valuesOf(recipe, "status")}>
-      {(status, variant) => (
-        <Input aria-label={t("email")} placeholder={t("email")} status={status} variant={variant} />
-      )}
-    </Matrix>
-  );
-}
+const STATED: Readonly<Record<(typeof STATES)[number], Parameters<typeof reference.Reference>[0]>> =
+  {
+    disabled: { disabled: true },
+    focused: {},
+    invalid: { "aria-invalid": true },
+    readOnly: { readOnly: true },
+    rest: {},
+  };
 
 /**
- * Draws an address field in every state, in every look.
- */
-function States(): ReactElement {
-  const { t } = useWords("input");
-
-  return (
-    <Matrix across={{ knob: "variant", of: LOOKS }} knob="state" of={STATES}>
-      {(state, variant) => (
-        <Input
-          aria-invalid={state === "invalid" ? true : undefined}
-          aria-label={t("email")}
-          defaultValue={t("email")}
-          disabled={state === "disabled"}
-          readOnly={state === "readOnly"}
-          variant={variant}
-        />
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Every look at every size.
- */
-export const looks: Scene = {
-  about: "input.looks.about",
-  draw: Looks,
-  title: "input.looks.title",
-};
-
-/**
- * Every status in every look.
- */
-export const statuses: Scene = {
-  about: "input.statuses.about",
-  draw: Statuses,
-  title: "input.statuses.title",
-};
-
-/**
- * Every state in every look.
+ * Hand-written scene for the focus, disabled, read-only and invalid states on every look.
  */
 export const states: Scene = {
   about: "input.states.about",
-  draw: States,
+  draw: () => (
+    <Matrix across={{ knob: "variant", of: LOOKS }} knob="state" of={STATES}>
+      {(state, variant) =>
+        state === "focused" ? (
+          <Focused>
+            <reference.Reference variant={variant} />
+          </Focused>
+        ) : (
+          <reference.Reference {...STATED[state]} variant={variant} />
+        )
+      }
+    </Matrix>
+  ),
+  example: reference,
+  props: { "aria-invalid": true, variant: "outline" },
   title: "input.states.title",
 };
 
 export default specimen({
   about: "input.about",
-  group: "Forms",
-  id: "forms/input",
+  id: "components/forms/input",
   imports: 'import { Input } from "@stealthscale/component-forms";',
-  scenes: [looks, statuses, states],
+  scenes: [
+    ...scenesOf<Parameters<typeof search.Search>[0]>(recipe, {
+      axes: {
+        size: { across: "variant" },
+        status: {
+          across: "variant",
+          draw: (props) => <email.Email {...props} />,
+          example: email,
+        },
+      },
+      draw: (props) => <search.Search {...props} />,
+      example: search,
+      namespace: "input",
+      order: ["size", "status"],
+    }),
+    states,
+  ],
   title: "input.title",
 });

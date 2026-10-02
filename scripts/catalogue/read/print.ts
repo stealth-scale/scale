@@ -1,65 +1,71 @@
 /**
- * Prints a reading as text, one block per part of it.
+ * Formats a `pnpm dom` reading as text, one block per reading.
  */
 
 import { type Finding } from "./audit.ts";
 import { type Box } from "./boxes.ts";
+import { type Measure, type Row } from "./measure.ts";
 import { type Outline } from "./outline.ts";
 import { type Computed, type Rule } from "./styles.ts";
 import { type Drawn, lined } from "./tree.ts";
 
 /**
- * Describes everything one run read.
+ * Every reading one run took. Each optional member is present only when requested.
  */
 export interface Reading {
   /**
-   * The accessibility tree, as a screen reader hears it, where asked.
+   * Accessibility tree, as Playwright's ARIA snapshot.
    */
   readonly aria?: string;
 
   /**
-   * The audit's findings, where asked.
+   * Axe violations.
    */
   readonly axe?: readonly Finding[];
 
   /**
-   * The boxes, where asked.
+   * Element boxes.
    */
   readonly boxes?: readonly Box[];
 
   /**
-   * The computed styles, where asked: one record per element.
+   * Computed styles, one record per element.
    */
   readonly css?: readonly Computed[];
 
   /**
-   * The outline.
+   * Measurement rows by measurement.
+   */
+  readonly measures?: Readonly<Partial<Record<Measure, readonly Row[]>>>;
+
+  /**
+   * Outline of the region.
    */
   readonly outline: Outline;
 
   /**
-   * The rules that reached the element, where asked.
+   * Rules matching the element, least specific first.
    */
   readonly rules?: readonly Rule[];
 
   /**
-   * The target read, named.
+   * Target slug.
    */
   readonly target: string;
 
   /**
-   * The tokens in force, where asked.
+   * Custom properties on the root, by name.
    */
   readonly tokens?: Readonly<Record<string, string>>;
 
   /**
-   * The tree, where asked.
+   * Element tree.
    */
   readonly tree?: readonly Drawn[];
 }
 
 /**
- * Writes the outline's blocks.
+ * Formats the full outline.
  */
 function outlineLines(outline: Outline): string[] {
   return [
@@ -86,7 +92,7 @@ function outlineLines(outline: Outline): string[] {
 }
 
 /**
- * Writes the computed styles' block.
+ * Formats the computed styles, one indented block per element.
  */
 function cssLines(css: readonly Computed[]): string[] {
   const lines = ["", `css:${css.length === 0 ? " nothing matched" : ""}`];
@@ -103,7 +109,7 @@ function cssLines(css: readonly Computed[]): string[] {
 }
 
 /**
- * Writes the rules' block.
+ * Formats the matched rules, one indented block per rule.
  */
 function ruleLines(rules: readonly Rule[]): string[] {
   const lines = ["", "rules, least specific first:"];
@@ -118,7 +124,7 @@ function ruleLines(rules: readonly Rule[]): string[] {
 }
 
 /**
- * Writes the audit's block.
+ * Formats the axe violations, one block per rule with its targets.
  */
 function axeLines(findings: readonly Finding[]): string[] {
   const lines = ["", `axe: ${findings.length === 0 ? "no violations" : ""}`];
@@ -133,7 +139,7 @@ function axeLines(findings: readonly Finding[]): string[] {
 }
 
 /**
- * Writes the boxes' block.
+ * Formats the boxes, one line per element.
  */
 function boxLines(boxes: readonly Box[]): string[] {
   return [
@@ -147,7 +153,26 @@ function boxLines(boxes: readonly Box[]): string[] {
 }
 
 /**
- * Writes the tree's block.
+ * Formats the measurements, one block per measurement and one line per row.
+ */
+function measureLines(measures: Readonly<Partial<Record<Measure, readonly Row[]>>>): string[] {
+  const lines: string[] = [];
+
+  for (const [kind, rows] of Object.entries(measures)) {
+    lines.push("", `measure ${kind}:${rows.length === 0 ? " nothing to measure" : ""}`);
+
+    for (const { named, ...values } of rows) {
+      const pairs = Object.entries(values).map(([label, value]) => `${label}=${String(value)}`);
+
+      lines.push(`  ${String(named)}  ${pairs.join(" ")}`);
+    }
+  }
+
+  return lines;
+}
+
+/**
+ * Formats the element tree.
  */
 function treeLines(tree: readonly Drawn[]): string[] {
   const lines = ["", "tree:"];
@@ -158,15 +183,13 @@ function treeLines(tree: readonly Drawn[]): string[] {
 }
 
 /**
- * Prints a reading as text.
+ * Formats a reading as text.
  *
  * @remarks
- *   The outline is printed in full only where nothing else was read, or where asked for beside
- *   the rest, so a reading of one element's styles is not buried under the page's headings. The
- *   scenes and the console errors are printed either way, because a scene's title is what the
- *   next command names and an error is never noise.
- * @param reading - Everything one run read.
- * @param outline - Whether the whole outline is printed beside the other readings.
+ *   The full outline is printed when it is the only reading or when `outline` is true. Otherwise
+ *   only the scene titles and the console errors are printed above the other readings.
+ * @param reading - Every reading one run took.
+ * @param outline - Prints the full outline beside the other readings.
  * @returns The text, block by block.
  */
 export function printed(reading: Reading, outline: boolean): string {
@@ -179,6 +202,7 @@ export function printed(reading: Reading, outline: boolean): string {
     optional(reading.aria, ariaLines),
     optional(reading.axe, axeLines),
     optional(reading.boxes, boxLines),
+    optional(reading.measures, measureLines),
     optional(reading.tokens, tokenLines),
   ];
 
@@ -186,17 +210,18 @@ export function printed(reading: Reading, outline: boolean): string {
 }
 
 /**
- * Writes a block for a reading that may be absent, and nothing where it is.
+ * Formats an optional reading, or returns no lines when it is absent.
  */
-function optional<Read>(
-  read: Read | undefined,
-  write: (read: Read) => readonly string[],
+function optional<Value>(
+  value: undefined | Value,
+  write: (value: Value) => readonly string[],
 ): readonly string[] {
-  return read === undefined ? [] : write(read);
+  return value === undefined ? [] : write(value);
 }
 
 /**
- * Writes the two lines of the outline that are printed beside any other reading.
+ * Formats the scene titles and the console errors, the part of the outline printed beside any
+ * other reading.
  */
 function briefLines(outline: Outline): string[] {
   return [
@@ -207,14 +232,14 @@ function briefLines(outline: Outline): string[] {
 }
 
 /**
- * Writes the accessibility tree's block.
+ * Formats the accessibility tree, indented.
  */
 function ariaLines(aria: string): string[] {
   return ["", "aria:", ...aria.split("\n").map((one) => `  ${one}`)];
 }
 
 /**
- * Writes the tokens' block.
+ * Formats the tokens, one line per custom property.
  */
 function tokenLines(tokens: Readonly<Record<string, string>>): string[] {
   return ["", "tokens:", ...Object.entries(tokens).map(([name, value]) => `  ${name}: ${value}`)];

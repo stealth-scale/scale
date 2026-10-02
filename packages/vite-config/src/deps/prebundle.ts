@@ -1,37 +1,37 @@
 /**
- * Declares a dependency the scan cannot find by reading imports statically.
+ * Declares a dependency Vite's static import scan cannot find on its own.
  */
 
 import { contribute, type Contribution } from "@stealthscale/vite-config-core";
 
 /**
- * Directs every contribution here at the list of specifiers Vite converts up front.
+ * The config path of the specifier list Vite prebundles before it serves.
  */
 const AT = "optimizeDeps.include";
 
 /**
- * Gathers the specifiers to convert up front with the reason the scan overlooks each one.
+ * The specifiers to prebundle, and one reason covering why the scan misses all of them.
  */
 export interface Prebundled {
   /**
-   * Records what hides these imports from a static read of the source.
+   * The reason a static read of the source does not find these imports.
    */
   because: string;
 
   /**
-   * Repeats each specifier exactly as an import writes it, deep subpath and all.
+   * Each specifier exactly as an import writes it, deep subpath included.
    */
   deps: readonly string[];
 }
 
 /**
- * Converts each specifier to ESM up front, whether or not the scan turned it up.
+ * Prebundles each specifier to ESM whether or not the dependency scan found it.
  *
  * @remarks
- *   A dependency reached only through a dynamic `import()` or a computed
- *   specifier is discovered mid-session, and the discovery costs a page reload.
- *   A specifier named here is dealt with before the server answers anything.
- * @returns One contribution per specifier, and nothing at all for an empty list.
+ *   A dependency reached only through a dynamic import or a computed specifier is discovered
+ *   mid-session, and that discovery costs a page reload. A specifier listed here is prebundled
+ *   before the server handles its first request.
+ * @returns One contribution per specifier, or an empty array when deps is empty.
  */
 export function prebundle(stated: Prebundled): readonly Contribution[] {
   return stated.deps.map((held) =>

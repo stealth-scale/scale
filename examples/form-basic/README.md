@@ -33,10 +33,12 @@ return (
 );
 ```
 
-`useSchemaForm` starts from the schema's defaults, puts the schema in the form's dynamic slot so it
+`useSchemaForm` comes from `@stealthscale/component-forms/form`, the binding the forms package
+publishes. It starts from the schema's defaults, puts the schema in the form's dynamic slot so it
 validates on submit and then on every change, and moves focus to the first refused field on a
-submit. `form.Fields` draws the members the schema's `x-form` states through the renderers of
-`@stealthscale/example-form-fields`. `form.Submit` reads its words from the catalogue.
+submit. `form.Fields` renders the members the schema's `x-form` states through the binding's
+renderers. The topic is an `enum` of two choices, so it renders as a radio group. `form.Submit`
+reads its words from the catalogue.
 
 ## The schema
 

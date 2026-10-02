@@ -1,26 +1,39 @@
 /**
- * Draws the panel every band of a card sits in.
+ * Renders the panel that contains every band of a card.
  *
  * @remarks
- *   The element is `article`, which a screen reader announces and lets a reader move between, so a
- *   page of cards is navigable rather than one run of text. A card that is part of its surroundings
- *   rather than a composition of its own takes `as="div"`.
- *   An article carries no name of its own. Point `aria-labelledby` at the title's `id` where the
- *   card stands alone, or state `aria-label`. An unnamed one is announced as `article` and nothing
- *   more.
- *   The root takes every variant and hands them to the bands below it.
+ *   The element is an `article`, which a screen reader lists and moves between. Name it: point
+ *   `aria-labelledby` at the title's `id`, or pass `aria-label`. Pass `as="div"` for a card that is
+ *   part of its surroundings. The root resolves every variant, and the other parts read them from
+ *   context.
  */
 
-import { type ComponentProps } from "react";
+import { type ComponentProps, createElement, type ReactElement } from "react";
 
 import { withProvider } from "#card/context.ts";
 
 /**
- * Draws the panel, and states the variants every band reads.
+ * Renders the root slot and provides the recipe's variants to the other parts.
  */
-export const Root = withProvider("article", "root");
+const Styled = withProvider("article", "root");
 
 /**
- * Describes what a card takes: the recipe's variants, and everything an article takes.
+ * Describes the props of `Root`: the recipe's variants and the props of an `article`.
  */
-export type RootProps = ComponentProps<typeof Root>;
+export type RootProps = ComponentProps<typeof Styled>;
+
+/**
+ * Renders the root, with `aria-disabled` on a disabled card.
+ *
+ * @remarks
+ *   `aria-disabled` announces the card's content as unavailable and marks it inactive for contrast
+ *   checks. An `aria-disabled` the caller passes takes precedence.
+ * @param props - The recipe's variants and the props of an `article`.
+ * @returns The root element.
+ */
+export function Root(props: RootProps): ReactElement {
+  return createElement(
+    Styled,
+    props.disabled === true ? { "aria-disabled": true, ...props } : props,
+  );
+}

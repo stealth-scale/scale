@@ -1,5 +1,5 @@
 /**
- * Draws the line saying what would be here, or what to do about it.
+ * Renders the sentence that says why the surface is empty or what to do next.
  */
 
 import { type ComponentProps } from "react";
@@ -7,11 +7,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#empty-state/context.ts";
 
 /**
- * Draws the explanation, quieter than the title and at one size whatever the panel's is.
+ * Renders a paragraph in the muted ink at `body.sm`, at every size of the root.
  */
 export const Description = withContext("p", "description");
 
 /**
- * Describes what the description takes.
+ * Describes the props of EmptyState.Description: the props of a paragraph element.
  */
 export type DescriptionProps = ComponentProps<typeof Description>;

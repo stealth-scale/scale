@@ -1,0 +1,89 @@
+{
+  "about": "A marquee moves a strip of items across or down in a loop. Its pause control stops it until the reader plays it again, and under pauseOnInteraction a pointer over it or focus inside it pauses it while it is there. A screen reader reads the items once, and the copies that fill the loop are hidden from it and from Tab. Under reduced motion the items rest and the pause control is hidden.",
+  "controlled": {
+    "about": "The application keeps the pause in its own state. It passes it as paused and takes each change from onPauseChange, so the switch and the marquee report the same state.",
+    "hold": "Hold the rates",
+    "label": "Exchange rates",
+    "rates": {
+      "chf": "CHF 0.94",
+      "eur": "EUR 1.08",
+      "gbp": "GBP 1.27",
+      "jpy": "JPY 0.0067"
+    },
+    "title": "Controlled pause"
+  },
+  "finite": {
+    "about": "The strip waits a second, runs twice and stops. onLoopComplete counts the loops and onComplete reports the end.",
+    "done": "The notices ran twice.",
+    "label": "Service notices",
+    "loops_one": "{{count}} loop so far",
+    "loops_other": "{{count}} loops so far",
+    "notices": {
+      "contact": "Questions go to the support desk.",
+      "maintenance": "Maintenance on Saturday night.",
+      "window": "Payments pause from 1 to 3 AM."
+    },
+    "title": "Finite loops"
+  },
+  "gap": {
+    "about": "Gap sets the space between two items, and the same space across the join of two copies.",
+    "title": "Gaps"
+  },
+  "logos": {
+    "customers": {
+      "bridge": "Bridge Ledger",
+      "halden": "Halden & Co",
+      "ilan": "Ilan Trust",
+      "perrin": "Perrin Freight",
+      "voss": "Voss Holdings"
+    },
+    "label": "Customers"
+  },
+  "pause": "Pause",
+  "play": "Play",
+  "rtl": {
+    "about": "Under dir=\"rtl\" the items read from the right and the strip moves towards the right, the start of the line. The pause control sits at the left, the end of the line.",
+    "title": "Right to left"
+  },
+  "speed": {
+    "about": "Speed sets how many pixels the strip moves each second: 25, 50 and 100.",
+    "label": "Principles",
+    "title": "Speeds",
+    "words": {
+      "build": "Build",
+      "learn": "Learn",
+      "plan": "Plan",
+      "ship": "Ship"
+    }
+  },
+  "testimonials": {
+    "about": "The strip moves up through a column of quotes, with an edge at the top and the bottom.",
+    "label": "What customers say",
+    "quotes": {
+      "ada": {
+        "name": "Ada Lovelace, Analytical Engines",
+        "text": "Our month-end close takes a day now."
+      },
+      "grace": {
+        "name": "Grace Hopper, Compiler Works",
+        "text": "Every invoice finds its payment."
+      },
+      "margaret": {
+        "name": "Margaret Hamilton, Flight Software",
+        "text": "The reports are ready before we ask."
+      }
+    },
+    "title": "Vertical"
+  },
+  "ticker": {
+    "about": "Headlines move at 40 pixels a second. The pointer over the strip or focus inside it pauses it while it is there, and the pause control stops it until it is pressed again.",
+    "headlines": {
+      "launch": { "text": "The new reports are live for every workspace.", "topic": "Launch" },
+      "outage": { "text": "Card payments are delayed by up to an hour.", "topic": "Incident" },
+      "rates": { "text": "The base rate holds at 4.25 percent.", "topic": "Rates" }
+    },
+    "label": "Headlines",
+    "title": "Paused by the pointer"
+  },
+  "title": "Marquee"
+}

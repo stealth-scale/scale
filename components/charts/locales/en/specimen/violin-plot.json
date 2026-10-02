@@ -1,0 +1,54 @@
+{
+  "about": "The distribution of each group as the density of its values, mirrored about the middle of its band, with its quartiles inside. The tooltip lists the values each density peaks at, which a box plot cannot show.",
+  "endpoints": {
+    "about": "The response times of 50 requests to each of three endpoints. Each violin is as wide as its bar at its own densest value, so its width compares within the group only. Inside it are the whisker line, the middle half as a narrow bar and the median as a hollow point.",
+    "caption": "Search peaks at 22ms and at 167ms, cache hits and index reads, and its middle half spans the gap between them.",
+    "checkout": "Checkout",
+    "label": "Response times of the shop's API by endpoint",
+    "profile": "Profile",
+    "search": "Search",
+    "title": "Response times"
+  },
+  "narrow": {
+    "about": "The three endpoints in a room 20rem wide, the column of a phone. Each violin takes its share of the width, at most 110px.",
+    "title": "Narrow room"
+  },
+  "outline": {
+    "about": "quartiles false leaves out the whisker line, the quartile bar and the median, for a violin read for its outline alone. The key then names the density alone.",
+    "caption": "8 of 50 profile requests take more than 100ms.",
+    "title": "Outline alone"
+  },
+  "peaks": {
+    "about": "defaultIndex opens the tooltip at a group when the chart first renders. The rows are the median, the middle half, the range, the values the density peaks at and the count.",
+    "caption": "Search peaks at 22 and 167ms, while its median of 25ms describes the cache hits alone.",
+    "title": "Tooltip"
+  },
+  "plans": {
+    "about": "Session lengths on three plans, the violins in the teal palette's chart color. valueDomain fixes the axis at 0 to 60 minutes, so every month's chart compares on one scale. This month's longest session took 39 minutes, and the rounded axis would end at 40.",
+    "caption": "Team's median of 23.5 minutes falls between its peaks near 5 and 35 minutes, and 2 of its 40 sessions last 15 to 25 minutes.",
+    "free": "Free",
+    "label": "Session lengths by plan",
+    "pro": "Pro",
+    "sessions": "Sessions",
+    "team": "Team",
+    "title": "Session lengths"
+  },
+  "quiet": {
+    "about": "A violin plot whose groups have no finite value renders the empty state in the plot's place, at the plot's ratio.",
+    "caption": "Response times of the shop's API this hour.",
+    "empty": "No requests this hour.",
+    "title": "Empty"
+  },
+  "replay": {
+    "about": "animate grows each violin from the axis when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the violins at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "requests": "Requests",
+  "smooth": {
+    "about": "bandwidth sets one Gaussian kernel for every group in place of Silverman's bandwidth per group. A kernel wider than the gap between two peaks merges them, so the bandwidth decides what a violin shows.",
+    "caption": "At a 60ms kernel, Search's two peaks blur into one at 29ms.",
+    "title": "Wide kernel"
+  },
+  "title": "Violin plot"
+}

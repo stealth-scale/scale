@@ -5,10 +5,74 @@ import { describe, expect, it, vi } from "vitest";
 import { hookContext, withScratchWorkspace } from "@stealthscale/testing";
 
 import { APP, WORKSPACE } from "#find.fixtures.ts";
-import { configured, loading, updated, watched } from "#plugin.fixtures.ts";
-import { ID } from "#plugin.ts";
+import { apiOf, configured, loading, sending, updated, watched } from "#plugin.fixtures.ts";
+import { cataloguesOf, EVENT, ID } from "#plugin.ts";
 
 describe("i18n", () => {
+  it("offers the namespace of every catalogue it found through its api", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const catalogues = apiOf(scratch)?.catalogues() ?? [];
+
+      expect([...new Set(catalogues.map(({ namespace }) => namespace))].toSorted()).toStrictEqual([
+        "controls",
+        "controls.demo",
+        "hooks",
+        "overlays",
+        "site",
+      ]);
+    });
+  });
+
+  it("offers through its api only the namespaces the namespaces option accepts", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const catalogues =
+        apiOf(scratch, {
+          namespaces: (namespace) => namespace !== "controls.demo",
+        })?.catalogues() ?? [];
+
+      expect(catalogues.some(({ namespace }) => namespace === "controls.demo")).toBe(false);
+    });
+  });
+
+  it.each([
+    { options: {}, want: "en" },
+    { options: { fallback: "nl" }, want: "nl" },
+  ])("offers $want as its api's fallback when the options state $options", ({ options, want }) => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      expect(apiOf(scratch, options)?.fallback).toBe(want);
+    });
+  });
+
+  it("merges every file of a pair through its api's words", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      expect(apiOf(scratch)?.words("en", "overlays")).toStrictEqual({
+        commands: "Actions",
+        menu: "Menu",
+        nested: { close: "Close {{what}}" },
+      });
+    });
+  });
+
+  it("returns no words through its api for a pair no catalogue names", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      expect(apiOf(scratch)?.words("de", "site")).toStrictEqual({});
+    });
+  });
+
+  it("returns no api where the plugins contain no catalogue plugin", () => {
+    expect(cataloguesOf([{ name: "stealth:other" }])).toBeUndefined();
+  });
+
   it("resolves the catalogues identifier with a prefix", () => {
     expect.hasAssertions();
 
@@ -36,7 +100,7 @@ describe("i18n", () => {
     });
   });
 
-  it("lists the stamp and the inlined language's files as files the catalogues module watches", () => {
+  it("watches the stamp when it loads the catalogues module", () => {
     expect.hasAssertions();
 
     withScratchWorkspace(WORKSPACE, (scratch) => {
@@ -45,6 +109,17 @@ describe("i18n", () => {
       loading(configured(scratch), `\0${ID}`, context);
 
       expect(context.watched[0]?.endsWith("/topology")).toBe(true);
+    });
+  });
+
+  it("watches the inlined language's files when it loads the catalogues module", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const context = hookContext();
+
+      loading(configured(scratch), `\0${ID}`, context);
+
       expect(context.watched.some((file) => file.endsWith(`/${APP}/locales/en/site.json`))).toBe(
         true,
       );
@@ -52,7 +127,7 @@ describe("i18n", () => {
     });
   });
 
-  it("lists every language's files as files the catalogues module watches when eager", () => {
+  it("watches every language's files when eager is true", () => {
     expect.hasAssertions();
 
     withScratchWorkspace(WORKSPACE, (scratch) => {
@@ -64,7 +139,7 @@ describe("i18n", () => {
     });
   });
 
-  it("lists a pair's files as files the pair module watches", () => {
+  it("watches a pair's files when it loads the pair module", () => {
     expect.hasAssertions();
 
     withScratchWorkspace(WORKSPACE, (scratch) => {
@@ -122,6 +197,24 @@ describe("i18n", () => {
 
       expect(watching.some((path) => path.endsWith("/@house/overlays/locales"))).toBe(true);
       expect(watching.some((path) => path.endsWith(`/${APP}/locales`))).toBe(true);
+    });
+  });
+
+  it("adds the locales directory of a catalogue in a namespace directory to the watcher", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const watching: string[] = [];
+
+      configured(scratch).configureServer({
+        watcher: {
+          add: (paths) => {
+            watching.push(...paths);
+          },
+        },
+      });
+
+      expect(watching.filter((path) => !path.endsWith("/locales"))).toStrictEqual([]);
     });
   });
 
@@ -248,7 +341,7 @@ describe("i18n", () => {
     });
   });
 
-  it("leaves a catalogue change to the hot update under a server that serves a module per file", () => {
+  it("leaves a catalogue change to hotUpdate under a server that serves a module per file", () => {
     expect.hasAssertions();
 
     withScratchWorkspace(WORKSPACE, (scratch) => {
@@ -269,7 +362,11 @@ describe("i18n", () => {
       const plugin = configured(scratch);
 
       scratch.write({ [`${APP}/locales/en/site.json`]: '{"welcome":"Hello {{name}}"}' });
-      watched(plugin, join(scratch.root, APP, "locales/en/site.json"));
+      watched(
+        plugin,
+        join(scratch.root, APP, "locales/en/site.json"),
+        hookContext([], "serve", true),
+      );
 
       expect(scratch.read(`${APP}/src/i18n.gen.d.ts`)).toContain('"welcome": "Hello {{name}}"');
     });
@@ -311,6 +408,143 @@ describe("i18n", () => {
       watched(plugin, join(scratch.root, APP, "locales/en/site.json"));
 
       expect(readFileSync(stamp, "utf8")).toBe(before);
+    });
+  });
+
+  it("rewrites the stamp when a file joins a namespace under a server that bundles", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const plugin = configured(scratch);
+      const context = hookContext();
+
+      loading(plugin, `\0${ID}`, context);
+
+      const stamp = context.watched[0] ?? "";
+      const before = readFileSync(stamp, "utf8");
+
+      scratch.write({ [`${APP}/locales/en/site/more.json`]: '{"more":"More"}' });
+      watched(plugin, join(scratch.root, APP, "locales/en/site/more.json"), sending(), "create");
+
+      expect(readFileSync(stamp, "utf8")).not.toBe(before);
+    });
+  });
+
+  it("sends the merged pair when a catalogue changes under a server that bundles", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const plugin = configured(scratch);
+      const context = sending();
+
+      scratch.write({ [`${APP}/locales/en/site.json`]: '{"welcome":"Hello {{name}}"}' });
+      watched(plugin, join(scratch.root, APP, "locales/en/site.json"), context, "update");
+
+      expect(context.sent).toStrictEqual([
+        [
+          EVENT,
+          {
+            language: "en",
+            namespace: "site",
+            words: { legal: { terms: "Terms of use" }, welcome: "Hello {{name}}" },
+          },
+        ],
+      ]);
+    });
+  });
+
+  it("sends a change once when both watchers report it", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const plugin = configured(scratch);
+      const context = sending();
+      const file = join(scratch.root, APP, "locales/en/site.json");
+
+      scratch.write({ [`${APP}/locales/en/site.json`]: '{"welcome":"Hello {{name}}"}' });
+      watched(plugin, file, context, "update");
+      watched(plugin, file, context, "update");
+
+      expect(context.sent).toHaveLength(1);
+    });
+  });
+
+  it("sends a pair again when its words change after a send", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const plugin = configured(scratch);
+      const context = sending();
+      const file = join(scratch.root, APP, "locales/en/site.json");
+
+      scratch.write({ [`${APP}/locales/en/site.json`]: '{"welcome":"Hello {{name}}"}' });
+      watched(plugin, file, context, "update");
+      scratch.write({ [`${APP}/locales/en/site.json`]: '{"welcome":"Hi {{name}}"}' });
+      watched(plugin, file, context, "update");
+
+      expect(context.sent).toHaveLength(2);
+    });
+  });
+
+  it("warns when a changed catalogue is invalid under a server that bundles", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const plugin = configured(scratch);
+      const warn = vi.spyOn(globalThis.console, "warn").mockImplementation(() => {});
+
+      scratch.write({ [`${APP}/locales/nl/site.json`]: '{"welcome":"Welkom"}' });
+      watched(plugin, join(scratch.root, APP, "locales/nl/site.json"), sending(), "update");
+
+      const warned = warn.mock.calls.flat();
+
+      warn.mockRestore();
+
+      expect(
+        warned.some((line) => String(line).includes("leaves out the placeholder {{name}}")),
+      ).toBe(true);
+    });
+  });
+
+  it("reloads the page when a language appears under a server that bundles", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const plugin = configured(scratch);
+      const context = sending();
+
+      scratch.write({ [`${APP}/locales/de/site.json`]: '{"welcome":"Willkommen {{name}}"}' });
+      watched(plugin, join(scratch.root, APP, "locales/de/site.json"), context, "create");
+
+      expect(context.sent).toStrictEqual([[{ path: "*", type: "full-reload" }]]);
+    });
+  });
+
+  it("sends nothing for a file directly under locales under a server that bundles", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const plugin = configured(scratch);
+      const context = sending();
+
+      scratch.write({ [`${APP}/locales/stray.json`]: '{"x":"y"}' });
+      watched(plugin, join(scratch.root, APP, "locales/stray.json"), context, "create");
+
+      expect(context.sent).toStrictEqual([]);
+    });
+  });
+
+  it("sends nothing during a watching build", () => {
+    expect.hasAssertions();
+
+    withScratchWorkspace(WORKSPACE, (scratch) => {
+      const plugin = configured(scratch, "build");
+      const context = sending("build");
+
+      scratch.write({ [`${APP}/locales/en/site.json`]: '{"welcome":"Hello {{name}}"}' });
+      watched(plugin, join(scratch.root, APP, "locales/en/site.json"), context, "update");
+
+      expect(context.sent).toStrictEqual([]);
     });
   });
 });

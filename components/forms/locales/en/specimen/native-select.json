@@ -1,0 +1,53 @@
+{
+  "about": "The browser's own select in the box of a text field. What opens is the platform's picker, which a phone shows full screen, so reach for it where a list is long or a page works without JavaScript.",
+  "account": "Account",
+  "americas": "Americas",
+  "amsterdam": "Amsterdam",
+  "asia": "Asia",
+  "bridge": "Bridge Ledger",
+  "currency": "Currency",
+  "currencyError": "Choose a currency for the payout.",
+  "currencyHelp": "Payouts are sent in this currency.",
+  "disabled": "Disabled",
+  "dublin": "Dublin",
+  "eur": "Euro (EUR)",
+  "europe": "Europe",
+  "frankfurt": "Frankfurt",
+  "gbp": "Pound sterling (GBP)",
+  "grouped": {
+    "about": "Options go into `optgroup` elements, which the platform's picker renders as labelled groups.",
+    "title": "Options in groups"
+  },
+  "halden": "Halden & Co",
+  "invalid": "Invalid",
+  "perrin": "Perrin Freight",
+  "pick": "Pick an account",
+  "pickCurrency": "Pick a currency",
+  "region": "Region",
+  "saoPaulo": "São Paulo",
+  "singapore": "Singapore",
+  "size": {
+    "about": "The height is a control height, so a select and an input of one size line up in a form: 32, 36, 40, 44 and 48px. The indicator is one icon size smaller than the control.",
+    "title": "Sizes"
+  },
+  "stated": {
+    "about": "A disabled select dims and its indicator with it. An invalid select takes the error edge, and its indicator the error ink.",
+    "title": "Disabled and invalid"
+  },
+  "status": {
+    "about": "The status sets the edge and the focus ring from its palette, the same as a text field's.",
+    "title": "Statuses"
+  },
+  "title": "Native select",
+  "tokyo": "Tokyo",
+  "usd": "US dollar (USD)",
+  "variant": {
+    "about": "The three field looks of the theme, the same as a text field's.",
+    "title": "Looks"
+  },
+  "virginia": "Virginia",
+  "wired": {
+    "about": "Inside a `Field` the select takes the field's ID, which the label points at, the helper and the error text as its description, and the required and invalid states. The placeholder option has an empty value, which a required select does not accept.",
+    "title": "In a field"
+  }
+}

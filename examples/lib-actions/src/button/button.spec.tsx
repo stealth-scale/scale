@@ -16,7 +16,7 @@ describe("Button", () => {
     expect(violations(Button, { children: true, element: "BUTTON" })).toStrictEqual([]);
   });
 
-  it("draws the recipe's class and the classes of the default variants", () => {
+  it("applies the recipe class with the default variant classes", () => {
     const { container } = render(<Button>Go</Button>);
 
     expect(recipeClasses(container, "button")).toStrictEqual([
@@ -26,7 +26,7 @@ describe("Button", () => {
     ]);
   });
 
-  it("draws the class of the look a caller picks", () => {
+  it("applies the class of the look passed as variant", () => {
     const { container } = render(<Button variant="ghost">Go</Button>);
 
     expect(recipeClasses(container, "button")).toContain(
@@ -34,13 +34,15 @@ describe("Button", () => {
     );
   });
 
-  it("draws the class of the status a caller picks", () => {
-    const { container } = render(<Button status="error">Go</Button>);
+  it("applies the class of the palette passed as palette", () => {
+    const { container } = render(<Button palette="error">Go</Button>);
 
-    expect(recipeClasses(container, "button")).toContain(variantClass("button", "status", "error"));
+    expect(recipeClasses(container, "button")).toContain(
+      variantClass("button", "palette", "error"),
+    );
   });
 
-  it("draws the hero compound's class on a large solid button and on no other", () => {
+  it("applies the hero compound class only to a large solid button", () => {
     const hero = render(<Button size="lg">Go</Button>);
     const plain = render(
       <Button size="lg" variant="ghost">
@@ -52,7 +54,7 @@ describe("Button", () => {
     expect(recipeClasses(plain.container, "button")).not.toContain(compoundClass("button", "hero"));
   });
 
-  it("renders the button element the recipe is bound to", () => {
+  it("renders a BUTTON element bound to the recipe", () => {
     const { container } = render(<Button>Go</Button>);
 
     expect(recipeElement(container, "button").tagName).toBe("BUTTON");

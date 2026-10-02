@@ -3,71 +3,52 @@ import { type ReactElement } from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import {
-  type BranchOptions,
-  BranchProvider,
-  splitBranchProps,
-  useBranch,
-  useBranchMachine,
-} from "#nav-list/state.ts";
+import { DefaultsContext, ListProvider, useDefaults, useList } from "#nav-list/state.ts";
 
 /**
- * Runs the machine and reports what it answers, so a case can read its state off the screen.
- *
- * @param props - The settings the machine is started with.
- * @returns The state, drawn as text.
+ * Renders whether the list around it is iconic.
  */
-function Running(props: BranchOptions): ReactElement {
-  const api = useBranchMachine(props);
+function Row(): ReactElement {
+  const { iconic } = useList();
 
-  return (
-    <BranchProvider value={api}>
-      <Reader />
-    </BranchProvider>
-  );
+  return <span data-testid="iconic">{String(iconic)}</span>;
 }
 
 /**
- * Reads the running machine through the hook a part reads it through.
- *
- * @returns Whether the list is open.
+ * Renders the size the defaults set, or `none`.
  */
-function Reader(): ReactElement {
-  const api = useBranch();
-
-  return <span data-testid="state">{api.open ? "open" : "closed"}</span>;
+function Sized(): ReactElement {
+  return <span data-testid="size">{useDefaults().size ?? "none"}</span>;
 }
 
-describe("splitBranchProps", () => {
-  it("takes the machine's settings out of what the branch was handed", () => {
-    const [options] = splitBranchProps({ defaultOpen: true, disabled: true });
+describe("state", () => {
+  it("returns the state the list provides from useList", () => {
+    render(
+      <ListProvider value={{ iconic: true }}>
+        <Row />
+      </ListProvider>,
+    );
 
-    expect(options).toStrictEqual({ defaultOpen: true, disabled: true });
+    expect(screen.getByTestId("iconic").textContent).toBe("true");
   });
 
-  it("leaves everything the element takes behind", () => {
-    const [, rest] = splitBranchProps({ className: "mine", defaultOpen: true });
-
-    expect(rest).toStrictEqual({ className: "mine" });
-  });
-});
-
-describe("useBranchMachine", () => {
-  it("answers a running machine a part can read", () => {
-    render(<Running defaultOpen />);
-
-    expect(screen.getByTestId("state").textContent).toBe("open");
+  it("throws from useList outside a list", () => {
+    expect(() => render(<Row />)).toThrow(/NavList/u);
   });
 
-  it("starts closed where a caller says nothing", () => {
-    render(<Running />);
+  it("returns the defaults a provider sets from useDefaults", () => {
+    render(
+      <DefaultsContext value={{ size: "sm" }}>
+        <Sized />
+      </DefaultsContext>,
+    );
 
-    expect(screen.getByTestId("state").textContent).toBe("closed");
+    expect(screen.getByTestId("size").textContent).toBe("sm");
   });
-});
 
-describe("useBranch", () => {
-  it("throws where no branch stands above the reader", () => {
-    expect(() => render(<Reader />)).toThrow(/NavList\.Branch/u);
+  it("returns no defaults outside a provider", () => {
+    render(<Sized />);
+
+    expect(screen.getByTestId("size").textContent).toBe("none");
   });
 });

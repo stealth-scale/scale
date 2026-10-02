@@ -26,7 +26,7 @@ describe("sanitise", () => {
     expect(sanitise("w-calc(1px)!")).toBe("w-calc-1px!");
   });
 
-  it("drops a run at the start of a value and keeps a leading minus", () => {
+  it("drops a leading run of the characters a stylesheet would escape", () => {
     expect(sanitise("{sizes.32}")).toBe("sizes-32");
     expect(sanitise("_x")).toBe("x");
     expect(sanitise("-4")).toBe("-4");
@@ -36,11 +36,11 @@ describe("sanitise", () => {
     expect(sanitise("ff-Inter_Tight")).toBe("ff-Inter-Tight");
   });
 
-  it("replaces a single underscore beside the slot separator", () => {
+  it("replaces a single underscore while keeping the two-underscore slot separator", () => {
     expect(sanitise("card__content_body")).toBe("card__content-body");
   });
 
-  it("writes a camel-case name in kebab-case", () => {
+  it("rewrites a camel-case name as kebab-case", () => {
     expect(kebab("focusVisible")).toBe("focus-visible");
     expect(kebab("smDown")).toBe("sm-down");
     expect(kebab("2xl")).toBe("2xl");

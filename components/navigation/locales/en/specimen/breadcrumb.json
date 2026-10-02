@@ -1,11 +1,22 @@
 {
-  "about": "Draws the path from the front of a site to the page a person is on.",
+  "about": "An ordered list of links from the site root to the current page.",
   "april": "April",
+  "collapsed": {
+    "about": "A trail with the crumbs between the first crumb and the current page replaced by an ellipsis. The ellipsis takes an aria-label with the number of crumbs it replaces, so a screen reader announces the full depth.",
+    "title": "Collapsed"
+  },
+  "dropped": "{{count}} more steps",
   "home": "Home",
   "invoices": "Invoices",
-  "looks": {
-    "about": "Both looks at every size. The last crumb is not a link and is the one at full strength.",
-    "title": "Looks and sizes"
+  "label": "Breadcrumb",
+  "shortened": "Collapsed breadcrumb",
+  "size": {
+    "about": "Every size, one trail per row. The size sets the text style and the gap between crumbs.",
+    "title": "Sizes"
   },
-  "title": "Breadcrumb"
+  "title": "Breadcrumb",
+  "variant": {
+    "about": "Both looks. The current page is a span in the default ink, and the links above it are muted.",
+    "title": "Looks"
+  }
 }

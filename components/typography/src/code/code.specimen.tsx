@@ -1,74 +1,50 @@
 /**
- * Shows the code snippet: every look at both sizes, and every status in every look.
+ * Catalogue page for inline code.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. The snippets are code rather than words, so they are written here and not
- *   translated. The scene words are keys under `code` in the catalogue's namespace, kept beside
- *   this file in `locales/en/specimen/code.json`.
+ *   `scenesOf` generates the look scene, crossed with the size axis, and the palette scene, crossed
+ *   with the look axis. A hand-written scene renders a command inside a line of body text. Every
+ *   scene renders a component from `examples/` and shows that file as its source. Code is literal
+ *   and the other words are keys under `code` in `locales/en/specimen/code.json`.
  */
 
-import { type ReactElement } from "react";
+import { type Scene, scenesOf, specimen } from "@stealthscale/specimen";
 
-import { Matrix, type Scene, specimen, valuesOf } from "@stealthscale/specimen";
-
-import { Code } from "#code/code.ts";
+import * as failure from "#code/examples/failure.example.tsx";
+import * as install from "#code/examples/install.example.tsx";
+import * as sentence from "#code/examples/sentence.example.tsx";
 import { recipe } from "#code/recipe.ts";
 
 /**
- * Every look the recipe draws.
+ * Hand-written scene for a command inside a line of body text.
  */
-const LOOKS = valuesOf(recipe, "variant");
-
-/**
- * Draws a command in every look at both sizes.
- */
-function Looks(): ReactElement {
-  return (
-    <Matrix across={{ knob: "size", of: valuesOf(recipe, "size") }} knob="variant" of={LOOKS}>
-      {(variant, size) => (
-        <Code size={size} variant={variant}>
-          pnpm add
-        </Code>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws an error code in every status in every look.
- */
-function Statuses(): ReactElement {
-  return (
-    <Matrix across={{ knob: "variant", of: LOOKS }} knob="status" of={valuesOf(recipe, "status")}>
-      {(status, variant) => (
-        <Code status={status} variant={variant}>
-          ENOENT
-        </Code>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Every look at both sizes.
- */
-export const looks: Scene = { about: "code.looks.about", draw: Looks, title: "code.looks.title" };
-
-/**
- * Every status in every look.
- */
-export const statuses: Scene = {
-  about: "code.statuses.about",
-  draw: Statuses,
-  title: "code.statuses.title",
+export const inline: Scene = {
+  about: "code.sentence.about",
+  draw: sentence.Sentence,
+  example: sentence,
+  title: "code.sentence.title",
 };
 
 export default specimen({
   about: "code.about",
-  group: "Typography",
-  id: "typography/code",
+  id: "components/typography/code",
   imports: 'import { Code } from "@stealthscale/component-typography";',
-  scenes: [looks, statuses],
+  scenes: [
+    ...scenesOf<Parameters<typeof install.Install>[0]>(recipe, {
+      axes: {
+        palette: {
+          across: "variant",
+          draw: (props) => <failure.Failure {...props} />,
+          example: failure,
+        },
+        variant: { across: "size" },
+      },
+      draw: (props) => <install.Install {...props} />,
+      example: install,
+      namespace: "code",
+      order: ["variant", "palette"],
+    }),
+    inline,
+  ],
   title: "code.title",
 });

@@ -1,13 +1,11 @@
 /**
- * Draws the mark inside the box, for one of the two states that carry one.
+ * Renders a mark inside the box, for the checked or the partly-on state.
  *
  * @remarks
- *   A checkbox reports three states and two of them carry a mark, so the two marks are two
- *   indicators and each states which state it belongs to. A checkbox with one indicator and no
- *   `indeterminate` draws the tick and nothing else, which is correct for a box that never goes
- *   partly on.
- *   The mark says nothing a screen reader needs. The input inside the root already reports whether
- *   the box is checked, so a caller hands over a glyph without naming it.
+ *   A checkbox has three states and two of them show a mark, so each indicator states which one it
+ *   belongs to. An indicator without `indeterminate` shows while the box is checked, and one with
+ *   it shows while the box is partly on. A box that never goes partly on needs one indicator. The
+ *   mark is decorative: the root's `input` reports the state.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -18,25 +16,26 @@ import { withContext } from "#checkbox/context.ts";
 import { useCheckbox } from "#checkbox/machine.ts";
 
 /**
- * Draws the mark inside the box the root states.
+ * Renders the `span` with the checkbox's indicator class.
  */
 const Marked = withContext("span", "indicator");
 
 /**
- * Describes what an indicator takes.
+ * Describes the props of an indicator: the state it belongs to and the props of a `span`.
  */
 export interface IndicatorProps extends Omit<ComponentProps<typeof Marked>, "hidden"> {
   /**
-   * Whether this mark belongs to the partly-on state rather than the on state.
+   * Whether the mark shows for the partly-on state instead of the checked state. Defaults to
+   * false.
    */
   readonly indeterminate?: boolean | undefined;
 }
 
 /**
- * Shows the mark while the checkbox is in the state the mark belongs to.
+ * Renders the mark while the box is in the indicator's state, and hides it otherwise.
  *
- * @param props - Whether the mark is the partly-on one, and everything a styled span takes.
- * @returns The mark, drawn for its own state and hidden for the rest.
+ * @param props - The state the mark belongs to, and attributes and children of the `span`.
+ * @returns The `span` element, hidden outside its state.
  */
 export function Indicator({ indeterminate = false, ...rest }: IndicatorProps): ReactElement {
   const api = useCheckbox();

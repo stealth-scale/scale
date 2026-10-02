@@ -1,41 +1,59 @@
 /**
- * Draws the bar that slides under the control in force.
+ * Renders the indicator of the selected tab.
  *
  * @remarks
- *   The machine measures the selected control and writes its place as custom properties, so the
- *   recipe states the bar's thickness and its colour and never its position. It is hidden until
- *   there is something to measure, which is what keeps it from appearing at the start of the strip
- *   on the first render. It states `aria-hidden` once it has something to measure. The bar sits
- *   among the controls in the strip, and a `tablist` owns tabs, so an element carrying no role and
- *   no words is one more thing for a reader to step past. Which control is in force is
- *   `aria-selected` on the control itself.
+ *   The machine measures the selected tab into custom properties and sets `hidden` until it has a
+ *   tab to measure, so the indicator does not flash at the list's start on the first render. The
+ *   indicator sets `aria-hidden`, because the selected tab reports `aria-selected` and an element
+ *   without a role inside a `tablist` is one more stop for a screen reader. It measures the
+ *   selected tab again whenever an element enters or leaves its list, so a tab that closes or opens
+ *   before the selected one leaves the indicator under the selected tab.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
 
 import { mergeProps } from "@zag-js/react";
 
+import { useCallbackRef, useSafeLayoutEffect } from "@stealthscale/hooks";
+
 import { withContext } from "#tabs/context.ts";
-import { useTabs } from "#tabs/machine.ts";
+import { useTabs, useTabsActions } from "#tabs/machine.ts";
 
 /**
- * Draws the bar at the thickness the look states.
+ * Renders the `div` with the tabs' indicator class.
  */
 const Bar = withContext("div", "indicator");
 
 /**
- * Describes what the bar takes.
+ * Describes the props of the indicator: the props of a `div`.
  */
 export type IndicatorProps = ComponentProps<typeof Bar>;
 
 /**
- * Moves to whichever control is in force.
+ * Renders the indicator, hidden from assistive technology, with the machine's indicator props.
  *
- * @param props - Everything a styled div takes.
- * @returns The bar, positioned by the machine.
+ * @param props - The props of a `div`.
+ * @returns The `div` element.
  */
 export function Indicator(props: IndicatorProps): ReactElement {
   const api = useTabs();
+  const measure = useCallbackRef(useTabsActions().measure);
+  const machine = api.getIndicatorProps();
+  const id = String(machine["id"]);
 
-  return <Bar {...mergeProps({ "aria-hidden": true }, api.getIndicatorProps(), props)} />;
+  useSafeLayoutEffect(() => {
+    // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the indicator renders before its layout effects run
+    const list = (document.querySelector(`[id="${id}"]`) as Element).closest("[role=tablist]");
+    const observer = new MutationObserver(() => {
+      measure();
+    });
+
+    if (list) observer.observe(list, { childList: true, subtree: true });
+
+    return (): void => {
+      observer.disconnect();
+    };
+  }, [id, measure]);
+
+  return <Bar {...mergeProps({ "aria-hidden": true }, machine, props)} />;
 }

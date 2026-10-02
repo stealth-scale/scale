@@ -8,23 +8,23 @@ import { Heading } from "#heading/heading.ts";
 import { recipe } from "#heading/recipe.ts";
 
 describe("Heading", () => {
-  it("conforms as a second-level heading element", () => {
+  it("passes the component conformance checks as an h2 element", () => {
     expect(violations(Heading, { as: true, children: true, element: "H2" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule", async () => {
+  it("returns no accessibility violation", async () => {
     await expect(
       accessibilityViolations(Heading, { props: { children: "Title" } }),
     ).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(recipe, (props) => render(<Heading {...props}>Title</Heading>).container),
     ).toStrictEqual([]);
   });
 
-  it("draws the level as names", () => {
+  it("renders an h1 when as is h1", () => {
     const { container } = render(<Heading as="h1">Title</Heading>);
 
     expect(recipeElement(container, "heading").tagName).toBe("H1");

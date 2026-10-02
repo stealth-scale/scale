@@ -1,5 +1,5 @@
 /**
- * Renders the configuration the stylesheet is compiled from, out of what an assembly loaded.
+ * Renders the compiler configuration the stylesheet is built from, out of what an assembly loaded.
  */
 
 import { basePreset } from "#compiler.ts";
@@ -11,21 +11,21 @@ import { type Application, type Theme } from "#statement.ts";
 import { completed, stated } from "#theme/variant.ts";
 
 /**
- * Carries what the configuration is rendered from.
+ * The inputs the configuration is rendered from.
  */
 export interface Rendering {
   /**
-   * The application's statement.
+   * The application's theme statement.
    */
   application: Application;
 
   /**
-   * The foundation the system package publishes.
+   * The foundation preset the system package publishes.
    */
   foundation: Preset;
 
   /**
-   * Globs the compiler scans, relative to the application.
+   * The globs the compiler scans, relative to the application.
    */
   include: readonly string[];
 
@@ -36,27 +36,31 @@ export interface Rendering {
   published: readonly object[];
 
   /**
-   * The options with every default filled in.
+   * The plugin options with every default filled in.
    */
   resolved: Resolved;
 }
 
 /**
- * Turns what the application asked to compile outright into the compiler's rule.
+ * Translates the application's `static` setting into the compiler's `staticCss` rule.
+ *
+ * @remarks
+ *   The shorthand `*` means every recipe, which the compiler spells `{ recipes: "*" }`. Any other
+ *   setting is already in the compiler's form and passes through.
  */
 function staticCssOf(application: Application): Exclude<Application["static"], "*"> {
   return application.static === "*" ? { recipes: "*" } : application.static;
 }
 
 /**
- * Builds the presets that install the first theme unscoped, which is what draws that theme while
- * no attribute is set: its values, then its own preset where it has one.
+ * Builds the presets that install the first theme unscoped, so it is the theme in force while no
+ * attribute is set: its values first, then its own preset if it has one.
  *
  * @remarks
- *   The values are installed beside the theme's own preset rather than merged into it, because
- *   that preset nests the presets the theme derives from, and a merge here would restate how the
- *   compiler merges them. An application that states no theme installs nothing here and draws the
- *   foundation alone.
+ *   The values are installed alongside the theme's preset rather than merged into it, because that
+ *   preset nests the presets the theme derives from, and merging here would mean reimplementing
+ *   the compiler's own merge. An application that declares no theme installs nothing and compiles
+ *   the foundation alone.
  */
 function defaultPresets(first: Theme | undefined): readonly object[] {
   if (first === undefined) return [];
@@ -71,13 +75,12 @@ function defaultPresets(first: Theme | undefined): readonly object[] {
  * Renders the configuration the stylesheet is compiled from.
  *
  * @remarks
- *   The presets the application states are installed after every package's preset and before the
- *   themes, so a theme extends a recipe the application wrote as it extends one a package
- *   published. The first theme's values and preset are installed unscoped, which is what makes it
- *   the theme that applies while no attribute is set, and every theme's preset is installed scoped,
- *   the first included. Every theme's variant is completed with the foundation's value for each
- *   token another theme states before it is installed, so a subtree switched to a theme is drawn
- *   from that theme alone rather than from the theme around it.
+ *   Preset order carries the meaning here. The application's own presets go after every package's
+ *   and before the themes, so a theme can extend a recipe the application wrote. The first theme
+ *   is installed unscoped, making it the theme in force while no attribute is set. Every theme's
+ *   variant is then completed with the foundation's value for each token any other theme declares,
+ *   so a subtree switched to a theme takes all its values from that theme and never inherits a
+ *   token from the theme above it.
  */
 export function renderedConfig(rendering: Rendering): string {
   const { application, foundation, include, published, resolved } = rendering;

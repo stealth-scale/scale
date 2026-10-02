@@ -1,44 +1,45 @@
 /**
- * Calls a plugin's hooks the way a bundler would, so a specification runs a plugin without a
- * build.
+ * Calls one Vite plugin hook at a time, so a specification needs neither a build nor a server.
  *
  * @remarks
- *   A plugin is mostly hooks, and a hook reads `this` for the context the bundler binds. Each
- *   driver here binds the part of that context the house plugins read and returns what the hook
- *   produced, so a specification asserts on the stylesheet a plugin served or the file it asked to
- *   watch rather than on the shape of the plugin object. Every driver throws when the plugin has no
- *   such hook.
+ *   A hook reads the bundler's context off `this`, and a plugin may declare it as a function or as
+ *   an object with a `handler`. Every driver here unwraps that object form, binds a context, and
+ *   throws when the plugin declares no hook under the name.
  */
 
 import { type Plugin } from "vite";
 
 /**
- * Fixes the signature every hook has once its object form is unwrapped.
+ * The loosest signature every unwrapped hook satisfies.
+ *
+ * @remarks
+ *   A driver passes the arguments the bundler would pass and inspects the result afterwards, so
+ *   narrowing either side here would only make each driver cast.
  */
 type Handler = (...args: readonly unknown[]) => unknown;
 
 /**
- * A module as a module graph hands one back, cut down to the field a plugin reads.
+ * A module graph entry reduced to the one field a plugin reads off it.
  */
 export interface Graphed {
   /**
-   * The id the module was requested under, which is what a plugin invalidates it by.
+   * The resolved id the module was requested under, and the id a plugin invalidates it by.
    */
   id: string;
 }
 
 /**
- * The kinds of change a bundler reports about a file.
+ * The kinds of change a bundler reports for a file.
  */
 export type Change = "create" | "delete" | "update";
 
 /**
- * The commands a bundler runs under, which a plugin reads off its environment.
+ * The commands a bundler runs under.
  */
 export type Command = "build" | "serve";
 
 /**
- * Carries what a hook reads off `this`, and records what the hook asked the bundler for.
+ * The `this` a hook reads, recording every call the plugin makes back through it.
  */
 export interface HookContext {
   /**
@@ -51,8 +52,7 @@ export interface HookContext {
    */
   environment: {
     /**
-     * The part of the environment's configuration a plugin reads to tell a build from a server,
-     * and a server that bundles from one that serves a module per file.
+     * The two resolved configuration fields that tell a plugin which environment it runs in.
      */
     config: {
       /**
@@ -61,18 +61,18 @@ export interface HookContext {
       command: Command;
 
       /**
-       * Whether the environment produces a bundled output, which a build does and a dev server
-       * that bundles does.
+       * Whether the environment produces a bundled output, which a build and a dev server in full
+       * bundle mode both do.
        */
       isBundled: boolean;
     };
 
     /**
-     * The graph, answering for the ids the context was built with and for nothing else.
+     * The module graph, limited to the ids the context was built with.
      */
     moduleGraph: {
       /**
-       * Returns the module under an id the graph holds, and undefined for any other id.
+       * Returns the module for an id the graph was built with, and undefined for any other id.
        */
       getModuleById: (id: string) => Graphed | undefined;
 
@@ -84,7 +84,7 @@ export interface HookContext {
   };
 
   /**
-   * Every module id the plugin asked to have invalidated, in order.
+   * Every module id the plugin asked to have invalidated, in call order.
    */
   invalidated: string[];
 
@@ -94,26 +94,26 @@ export interface HookContext {
   warn: (message: string) => void;
 
   /**
-   * Every message the plugin reported, in order.
+   * Every message the plugin reported, in call order.
    */
   warned: string[];
 
   /**
-   * Every file the plugin asked to have watched, in order.
+   * Every file the plugin asked to have watched, in call order.
    */
   watched: string[];
 }
 
 /**
- * The fields a resolved configuration carries to a plugin driven here.
+ * The resolved configuration a driven plugin is given.
  *
  * @remarks
- *   The root is the one field every house plugin reads. Any further field the plugin under test
- *   reads is handed to the hook as given.
+ *   Every plugin in this repository reads `root`, so it is required. Any further field is passed
+ *   to the hook unchanged.
  */
 export interface Configured {
   /**
-   * Any further field of a resolved configuration, handed to the hook as given.
+   * Any further resolved configuration field, passed to the hook unchanged.
    */
   [field: string]: unknown;
 
@@ -127,13 +127,13 @@ export interface Configured {
  * Builds the context a hook reads `this` from.
  *
  * @remarks
- *   The module graph answers for the ids in `graphed` and for nothing else, which is what a real
- *   graph answers for a file nothing has requested yet. The command is `serve` unless a
- *   specification states `build`, and the environment bundles under a build unless a
- *   specification says otherwise, as Vite's own does.
- * @param graphed - The module ids the graph holds.
+ *   The module graph returns a module for the ids in `graphed` and undefined for every other id,
+ *   which is what a real graph returns for a file nothing has requested yet. Vite reports
+ *   `isBundled` true under a build, so `bundled` defaults to whether the command is `build`.
+ * @param graphed - The module ids the graph returns a module for.
  * @param command - The command the context is built for.
- * @param bundled - Whether the environment produces a bundled output.
+ * @param bundled - Whether the environment produces a bundled output. Pass it to build a serving
+ *   context in full bundle mode.
  */
 export function hookContext(
   graphed: readonly string[] = [],
@@ -161,17 +161,18 @@ export function hookContext(
 }
 
 /**
- * Reports whether a value can be called.
+ * Narrows a value to a hook function when it can be called.
  */
 function callable(value: unknown): value is Handler {
   return typeof value === "function";
 }
 
 /**
- * Finds the function behind a hook, whether the plugin wrote it as a function or as an object with
- * a `handler`.
+ * Returns the function behind a hook, declared either as a function or as an object with a
+ * `handler`.
  *
- * @throws {@link Error} When the plugin has no such hook.
+ * @throws {@link Error} When the plugin declares no hook under the name, or declares one that
+ *   cannot be called.
  */
 function handlerOf(plugin: Plugin, name: keyof Plugin): Handler {
   const hook: unknown = plugin[name];
@@ -187,9 +188,10 @@ function handlerOf(plugin: Plugin, name: keyof Plugin): Handler {
  * Reads the text a hook returned, either as the whole result or as one field of an object.
  *
  * @remarks
- *   A resolve hook may return an id or an object carrying one, and a load or transform hook may
- *   return code or an object carrying it, so both spellings read the same.
- * @returns The text, or undefined when the hook returned nothing usable.
+ *   `resolveId` returns an id or an object carrying one, and `load` and `transform` return code or
+ *   an object carrying it. Both forms are read the same way here.
+ * @returns The text, or undefined when the hook returned neither a string nor an object with a
+ *   string under that field.
  */
 function textOf(result: unknown, field: string): string | undefined {
   if (typeof result === "string") return result;
@@ -201,30 +203,31 @@ function textOf(result: unknown, field: string): string | undefined {
 }
 
 /**
- * Tells the plugin what the bundler resolved, the way `configResolved` would.
+ * Calls the plugin's `configResolved` hook with a resolved configuration and no bound context.
  *
- * @throws {@link Error} When the plugin has no `configResolved` hook.
+ * @throws {@link Error} When the plugin declares no `configResolved` hook.
  */
 export async function configured(plugin: Plugin, config: Configured): Promise<void> {
   await Reflect.apply(handlerOf(plugin, "configResolved"), undefined, [config]);
 }
 
 /**
- * Starts the plugin, the way a build or a dev server would at `buildStart`.
+ * Calls the plugin's `buildStart` hook with the context bound as `this` and empty options.
  *
- * @throws {@link Error} When the plugin has no `buildStart` hook.
+ * @throws {@link Error} When the plugin declares no `buildStart` hook.
  */
 export async function started(plugin: Plugin, context: HookContext): Promise<void> {
   await Reflect.apply(handlerOf(plugin, "buildStart"), context, [{}]);
 }
 
 /**
- * Asks the plugin to resolve a specifier, the way a bundler would at `resolveId`.
+ * Calls the plugin's `resolveId` hook with a specifier and its importer, and no bound context.
  *
  * @remarks
- *   The importer is the file that wrote the import, and is absent for an entry.
+ *   The importer is the file containing the import. An entry has none, so it defaults to
+ *   undefined.
  * @returns The id the plugin resolved the specifier to, or undefined where it declined.
- * @throws {@link Error} When the plugin has no `resolveId` hook.
+ * @throws {@link Error} When the plugin declares no `resolveId` hook.
  */
 export async function resolved(
   plugin: Plugin,
@@ -241,15 +244,15 @@ export async function resolved(
 }
 
 /**
- * Asks the plugin to load a module, the way a bundler would at `load`.
+ * Calls the plugin's `load` hook for one module id, with the context bound as `this`.
  *
  * @param plugin - The plugin under test.
  * @param id - The resolved identifier of the module.
- * @param context - The context the hook reads `this` from, for a plugin that watches a file
- *   while loading. A fresh serving context is bound where none is given, so a plugin that lists
- *   a file to watch loads under a specification that asks nothing about the watching.
+ * @param context - The context bound as `this`. A fresh serving context is bound where none is
+ *   given, so a plugin that calls `addWatchFile` loads under a specification that asserts nothing
+ *   about the watching.
  * @returns The module's code, or undefined where the plugin declined.
- * @throws {@link Error} When the plugin has no `load` hook.
+ * @throws {@link Error} When the plugin declares no `load` hook.
  */
 export async function loaded(
   plugin: Plugin,
@@ -262,12 +265,11 @@ export async function loaded(
 }
 
 /**
- * Hands the plugin a module to transform, the way a bundler would at `transform`.
+ * Calls the plugin's `transform` hook with a module's code and its id, and the context bound as
+ * `this`.
  *
- * @remarks
- *   The code is the module's content before the plugin sees it.
- * @returns The code the plugin wrote back, or undefined where it passed on the module.
- * @throws {@link Error} When the plugin has no `transform` hook.
+ * @returns The transformed code, or undefined where the plugin returned nothing.
+ * @throws {@link Error} When the plugin declares no `transform` hook.
  */
 export async function transformed(
   plugin: Plugin,
@@ -285,24 +287,25 @@ export async function transformed(
 }
 
 /**
- * The part of a hot update that differs between a file that changed, appeared or is gone.
+ * The two fields of a hot update that differ by the kind of change.
  */
 interface Update {
   /**
-   * Reads the file back the way the server would, or rejects where there is no file to read.
+   * Resolves to the file's content, or rejects where there is no file to read.
    */
   readonly read: () => Promise<string>;
 
   /**
-   * The kind of change the server reports.
+   * The kind of change the dev server reports.
    */
   readonly type: Change;
 }
 
 /**
- * Calls `hotUpdate` with one update, the way a dev server would.
+ * Calls the plugin's `hotUpdate` hook with an update built around the file, with no modules
+ * already resolved and the current time as its timestamp.
  *
- * @throws {@link Error} When the plugin has no `hotUpdate` hook.
+ * @throws {@link Error} When the plugin declares no `hotUpdate` hook.
  */
 async function hotUpdated(
   plugin: Plugin,
@@ -316,12 +319,12 @@ async function hotUpdated(
 }
 
 /**
- * Tells the plugin a file changed, the way a dev server would at `hotUpdate`.
+ * Calls the plugin's `hotUpdate` hook with an update of type `update`, reporting an edited file.
  *
  * @remarks
- *   The update's `read` resolves to `content`, which stands for the text the server reads back from
- *   the file.
- * @throws {@link Error} When the plugin has no `hotUpdate` hook.
+ *   The update's `read` resolves to `content`, which defaults to the empty string for a plugin
+ *   that never reads it.
+ * @throws {@link Error} When the plugin declares no `hotUpdate` hook.
  */
 export async function updated(
   plugin: Plugin,
@@ -336,12 +339,12 @@ export async function updated(
 }
 
 /**
- * Tells the plugin a file appeared, the way a dev server would at `hotUpdate`.
+ * Calls the plugin's `hotUpdate` hook with an update of type `create`, reporting a new file.
  *
  * @remarks
- *   The update's `read` resolves to `content`, which stands for the text the server reads back from
- *   the new file.
- * @throws {@link Error} When the plugin has no `hotUpdate` hook.
+ *   The update's `read` resolves to `content`, which defaults to the empty string for a plugin
+ *   that never reads it.
+ * @throws {@link Error} When the plugin declares no `hotUpdate` hook.
  */
 export async function created(
   plugin: Plugin,
@@ -356,12 +359,12 @@ export async function created(
 }
 
 /**
- * Tells the plugin a file is gone, the way a dev server would at `hotUpdate`.
+ * Calls the plugin's `hotUpdate` hook with an update of type `delete`, reporting a removed file.
  *
  * @remarks
- *   The update's `read` rejects, because the server reads the file from disk and there is no file
- *   left to read. A plugin that reads a deleted file fails here the way it would under the server.
- * @throws {@link Error} When the plugin has no `hotUpdate` hook.
+ *   The update's `read` rejects with ENOENT, as the dev server's does for a file that is gone, so
+ *   a plugin that reads a deleted file fails here the way it would in production.
+ * @throws {@link Error} When the plugin declares no `hotUpdate` hook.
  */
 export async function removed(plugin: Plugin, context: HookContext, file: string): Promise<void> {
   await hotUpdated(plugin, context, file, {
@@ -372,12 +375,13 @@ export async function removed(plugin: Plugin, context: HookContext, file: string
 }
 
 /**
- * Tells the plugin a watched file changed, the way a bundler would at `watchChange`.
+ * Calls the plugin's `watchChange` hook with a file and the event reported for it, with the
+ * context bound as `this`.
  *
  * @remarks
- *   The plugin reads the context as `this`, and reads the command off its environment to tell a
- *   build from a server.
- * @throws {@link Error} When the plugin has no `watchChange` hook.
+ *   A plugin reads the command off `context.environment.config` to distinguish a build from a dev
+ *   server, so build the context with the command the case is about.
+ * @throws {@link Error} When the plugin declares no `watchChange` hook.
  */
 export async function changed(
   plugin: Plugin,
@@ -389,12 +393,14 @@ export async function changed(
 }
 
 /**
- * Hands the plugin a finished build, the way a bundler would at `generateBundle`.
+ * Calls the plugin's `generateBundle` hook with `bundling` bound as `this`, empty options, an
+ * empty bundle, and `isWrite` false.
  *
  * @remarks
- *   The plugin reads `bundling` as `this`, so a specification hands in a stand-in for the bundler's
- *   own context that carries the members the plugin under test calls.
- * @throws {@link Error} When the plugin has no `generateBundle` hook.
+ *   The context is the caller's own object rather than a {@link HookContext}, because a plugin
+ *   emitting files reads members no other driver needs. Only the members the plugin under test
+ *   calls need to be on it.
+ * @throws {@link Error} When the plugin declares no `generateBundle` hook.
  */
 export async function generated(plugin: Plugin, bundling: object): Promise<void> {
   await Reflect.apply(handlerOf(plugin, "generateBundle"), bundling, [{}, {}, false]);

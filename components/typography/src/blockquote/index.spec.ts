@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#blockquote/index.ts";
 
 describe("index", () => {
-  it("names every part under its short name and nothing beside them", () => {
+  it("limits its runtime exports to the four parts", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual(["Caption", "Content", "Icon", "Root"]);
   });
 
-  it("publishes neither the recipe nor the binding", () => {
+  it("exports no recipe binding or props provider", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {

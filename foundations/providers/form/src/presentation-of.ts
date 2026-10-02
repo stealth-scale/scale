@@ -1,22 +1,24 @@
 /**
- * Reads how a form is drawn out of a schema's own keywords, merges what a caller states beside
+ * Reads how a form is rendered out of a schema's own keywords, merges what a caller states beside
  * it, checks every member against the paths the schema can produce, and reads the members and
  * steps back out of a presentation.
  */
 
 import {
   type Field,
+  type FieldWidth,
   type Group,
   isGroup,
   type Member,
   type Presentation,
   type Step,
+  WIDTHS,
 } from "#presentation.ts";
 import { type Schema } from "#schema.ts";
 import { isSchema, walk } from "#walk.ts";
 
 /**
- * The keyword at the root that holds the form's identifier, members and steps.
+ * The keyword at the root that contains the form's identifier, members and steps.
  */
 export const FORM = "x-form";
 
@@ -31,6 +33,7 @@ export const KEYWORDS = {
   options: "x-options",
   placeholder: "x-placeholder",
   span: "x-span",
+  width: "x-width",
 } as const;
 
 /**
@@ -46,6 +49,13 @@ export const UNNAMED = "form";
 type Layout<Values> = Pick<Presentation<Values>, "of" | "steps">;
 
 /**
+ * Reports whether a keyword's value names one of the widths a control takes.
+ */
+function isWidth(value: unknown): value is FieldWidth {
+  return WIDTHS.some((width) => width === value);
+}
+
+/**
  * Reads the settings of one field out of a property's keywords.
  *
  * @returns The field, or nothing where the property writes none of the keywords.
@@ -58,6 +68,7 @@ function fieldOf(node: Schema): Field | undefined {
   const options = node[KEYWORDS.options];
   const placeholder = node[KEYWORDS.placeholder];
   const span = node[KEYWORDS.span];
+  const width = node[KEYWORDS.width];
   const field: Field = {
     ...(typeof autocomplete === "string" && { autocomplete }),
     ...(typeof control === "string" && { control }),
@@ -66,6 +77,7 @@ function fieldOf(node: Schema): Field | undefined {
     ...(isSchema(options) && { options }),
     ...(typeof placeholder === "string" && { placeholder }),
     ...(typeof span === "number" && { span }),
+    ...(isWidth(width) && { width }),
   };
 
   return Object.keys(field).length === 0 ? undefined : field;
@@ -135,8 +147,8 @@ function layoutOf<Values>(
 }
 
 /**
- * Reads how a form is drawn: the schema's own keywords, with whatever the caller states beside it
- * taking precedence per field.
+ * Reads how a form is rendered: the schema's own keywords, with whatever the caller states beside
+ * it taking precedence per field.
  *
  * @remarks
  *   A field stated at the call site replaces the schema's settings for that field as a whole. The
@@ -181,7 +193,7 @@ export function members<Values>(presentation: Presentation<Values>): readonly st
 }
 
 /**
- * Keys a member for React: a path by itself, and a group by its name or by what it holds.
+ * Keys a member for React: a path by itself, and a group by its name or by the members it contains.
  *
  * @typeParam Values - The form's values, or `unknown` for a form without a type.
  */
@@ -226,9 +238,9 @@ function repeats<Values>(run: ReadonlyArray<Member<Values> | Step<Values>>): rea
  * the schema has.
  *
  * @remarks
- *   A member the schema cannot produce is a typo, and a typo that drew nothing in silence would be
- *   the mistake the data design refuses in `rowsAt`. A member absent from the resolved schema and
- *   present in the full one is a field this branch does not ask for, which `Fields` skips and
+ *   A member the schema cannot produce is a typo, and a typo that rendered nothing in silence would
+ *   be the mistake the data design refuses in `rowsAt`. A member absent from the resolved schema
+ *   and present in the full one is a field this branch does not ask for, which `Fields` skips and
  *   this never sees. The paths are those of every property any branch can produce, from the
  *   engine.
  * @throws {@link Error} When `of` and `steps` are both present, or when a member, a field
@@ -262,30 +274,30 @@ export function validatePresentation<Values>(
 }
 
 /**
- * Reports whether a path is a field rather than an object or an array holding fields.
+ * Reports whether a path is a field rather than an object or an array of fields.
  */
 function isLeaf(path: string, paths: readonly string[]): boolean {
   return !paths.some((other) => other.startsWith(`${path}.`) || other.startsWith(`${path}[]`));
 }
 
 /**
- * Lists the paths a form draws where its presentation states no members: every field outside an
+ * Lists the paths a form renders where its presentation states no members: every field outside an
  * array, in schema order.
  *
  * @remarks
- *   An array's items are left out, because they are drawn by a repeat group and a presentation
- *   states one.
+ *   An array's items are left out, because a repeat group renders them and a presentation states
+ *   one.
  */
 export function leafPaths(paths: readonly string[]): readonly string[] {
   return paths.filter((path) => !path.includes("[]") && isLeaf(path, paths));
 }
 
 /**
- * Lists the fields the schema states and no member draws, which a form leaves out on purpose or
+ * Lists the fields the schema states and no member names, which a form leaves out on purpose or
  * by accident.
  *
  * @remarks
- *   An empty list where the presentation states no members, because then every field is drawn.
+ *   An empty list where the presentation states no members, because then every field renders.
  *   The paths are those of every property any branch can produce, from the engine.
  */
 export function unplaced<Values>(
@@ -294,7 +306,7 @@ export function unplaced<Values>(
 ): readonly string[] {
   if (presentation.of === undefined && presentation.steps === undefined) return [];
 
-  const drawn = new Set(members(presentation));
+  const placed = new Set(members(presentation));
 
-  return paths.filter((path) => isLeaf(path, paths) && !drawn.has(path));
+  return paths.filter((path) => isLeaf(path, paths) && !placed.has(path));
 }

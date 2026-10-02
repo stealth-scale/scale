@@ -1,10 +1,9 @@
 /**
- * Draws the panel on the start side, which is where an application keeps its navigation.
+ * Renders the panel on the start side, for the application's navigation.
  *
  * @remarks
- *   The element carries no landmark. What the panel holds says what it is: a sidebar's blocks of
- *   destinations each name their own navigation, so a reader jumping by landmark hears `Workspace`
- *   and `Account` rather than one nameless region around them.
+ *   The element is a `div` with no landmark role. A sidebar inside it renders the navigation
+ *   landmarks, one per nav block, each named by its label.
  */
 
 import { type ReactElement } from "react";
@@ -12,15 +11,15 @@ import { type ReactElement } from "react";
 import { Panel, type PanelProps } from "#app-shell/panel.tsx";
 
 /**
- * Describes what the start panel takes.
+ * Describes the props of `Navbar`: a panel's props without `side`.
  */
 export type NavbarProps = Omit<PanelProps, "side">;
 
 /**
- * Draws a panel on the start side, as wide as the recipe says and folding as the panel says.
+ * Renders a panel on the start side.
  *
- * @param props - How it folds and closes, and what it holds.
- * @returns The panel, on the start side.
+ * @param props - How the panel folds and closes, and its content.
+ * @returns The panel.
  */
 export function Navbar(props: NavbarProps): ReactElement {
   return <Panel side="start" {...props} />;

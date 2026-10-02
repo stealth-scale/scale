@@ -1,19 +1,29 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
+import page from "#clipboard/clipboard.specimen.tsx";
 import { recipe } from "#clipboard/recipe.ts";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("covers every variant axis in the scenes of its specimen page", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("has no scene that writes a value the recipe no longer offers", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Clipboard"] })).toStrictEqual([]);
   });
 
-  it("names its class clipboard", () => {
+  it("sets className to clipboard", () => {
     expect(recipe.className).toBe("clipboard");
   });
 
-  it("draws the seven parts a clipboard is composed of", () => {
+  it("declares seven slots", () => {
     expect([...recipe.slots].toSorted()).toStrictEqual([
       "control",
       "indicator",
@@ -25,19 +35,19 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers the one axis a clipboard takes", () => {
+  it("declares size as its only variant axis", () => {
     expect(axesOf(recipe)).toStrictEqual(["size"]);
   });
 
-  it("draws the middle size by default", () => {
+  it("defaults size to md", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md" });
   });
 
-  it("offers the three sizes a label and a control row are set at", () => {
+  it("declares three size values from sm to lg", () => {
     expect(valuesOf(recipe, "size")).toStrictEqual(["lg", "md", "sm"]);
   });
 
-  it("sets the label's role and the gaps together at each size", () => {
+  it("gives the root a smaller gap than the control at the md size", () => {
     expect(recipe.variants?.["size"]?.["md"]).toStrictEqual({
       control: { gap: "calc({spacing.gap.md} * var(--density, 1))" },
       label: { textStyle: "label.md" },
@@ -45,7 +55,7 @@ describe("recipe", () => {
     });
   });
 
-  it("stacks the label over the control row without stretching a trigger on its own", () => {
+  it("lays out the root as a column aligned at the start", () => {
     expect(recipe.base?.["root"]).toStrictEqual({
       alignItems: "start",
       display: "flex",
@@ -53,15 +63,15 @@ describe("recipe", () => {
     });
   });
 
-  it("stretches the control row across the root", () => {
+  it("sets alignSelf to stretch on the control slot", () => {
     expect(recipe.base?.["control"]).toMatchObject({ alignSelf: "stretch" });
   });
 
-  it("draws no control look on the trigger because the caller draws it as a button", () => {
+  it("declares no base styles for the trigger slot", () => {
     expect(recipe.base?.["trigger"]).toBeUndefined();
   });
 
-  it("tracks the tag named Clipboard and every part under it", () => {
+  it("matches the Clipboard tag and its dotted parts", () => {
     expect(recipe.jsx).toStrictEqual([/^Clipboard(\.\w+)?$/u]);
   });
 });

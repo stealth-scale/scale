@@ -3,13 +3,13 @@ import { describe, expect, it } from "vitest";
 import { base, web } from "#build/preset.ts";
 
 describe("preset", () => {
-  it("emits hidden maps in every tier", () => {
+  it("includes build.sourcemaps in every group", () => {
     for (const tier of [base(), web()]) {
       expect(tier.map((one) => one.name)).toContain("build.sourcemaps");
     }
   });
 
-  it("configures no page in the tier that is agnostic about where it runs", () => {
+  it("omits every layer that assumes a browser target from the base group", () => {
     const held = base()
       .map((one) => one.name)
       .join();
@@ -19,7 +19,7 @@ describe("preset", () => {
     expect(held).not.toContain("chunks");
   });
 
-  it("writes a manifest and drops the polyfill where there is a page", () => {
+  it("includes every layer that assumes a browser target in the web group", () => {
     const held = web().map((one) => one.name);
 
     expect(held).toContain("build.manifest");
@@ -27,7 +27,7 @@ describe("preset", () => {
     expect(held).toContain("build.chunks");
   });
 
-  it("records who to credit for what the bundle is made of", () => {
+  it("includes build.licences in the web group", () => {
     expect(web().map((one) => one.name)).toContain("build.licences");
   });
 });

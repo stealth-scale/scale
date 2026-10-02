@@ -44,15 +44,19 @@
     "prepublishOnly": "vp pack",
     "test": "vp test"
   },
+  "dependencies": {
+    "@zag-js/highlight-word": "catalog:",
+    "@zag-js/presence": "catalog:",
+    "@zag-js/react": "catalog:"
+  },
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
-    "@rolldown/plugin-babel": "catalog:",
     "@stealthscale/vite-config": "workspace:^",
     "@stealthscale/vite-config-react": "workspace:^",
     "@stealthscale/vite-config-typescript": "workspace:^",
     "@testing-library/react": "catalog:",
     "@types/react": "catalog:",
-    "babel-plugin-react-compiler": "catalog:",
+    "@types/react-dom": "catalog:",
     "happy-dom": "catalog:",
     "oxc-transform-react": "catalog:",
     "publint": "catalog:",

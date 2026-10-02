@@ -5,10 +5,13 @@ import * as barrel from "#index.ts";
 describe("index", () => {
   it("names every component the package publishes and nothing beside them", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
+      "ActionBar",
       "AppShell",
+      "FloatingPanel",
       "Page",
       "Section",
       "Sidebar",
+      "Splitter",
       "Switcher",
       "Toolbar",
     ]);
@@ -24,8 +27,12 @@ describe("index", () => {
       "Header",
       "Main",
       "Navbar",
+      "Rail",
       "Root",
+      "Section",
+      "Status",
       "Trigger",
+      "WINDOW_HEIGHT",
       "useAppShellPanel",
       "useNearestPanel",
       "useOverlaid",
@@ -37,6 +44,7 @@ describe("index", () => {
       "Header",
       "Nav",
       "NavAction",
+      "NavHeading",
       "NavLabel",
       "Root",
       "Search",

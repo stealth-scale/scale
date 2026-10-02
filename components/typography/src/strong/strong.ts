@@ -1,10 +1,9 @@
 /**
- * Binds the strong element to its recipe.
+ * Renders a strong run through the strong recipe.
  *
  * @remarks
- *   `strong` marks importance rather than weight. A screen reader announces it, and a reader who
- *   sees no heavier face still receives the meaning. Set `as="b"` for a run drawn heavy for another
- *   reason, such as a keyword in a definition. That element states no importance.
+ *   `strong` marks importance and exposes the `strong` role, so the meaning does not depend on the
+ *   weight. `as="b"` renders a bold run with no importance, such as a keyword in a definition.
  */
 
 import { type ComponentProps } from "react";
@@ -12,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#strong/context.ts";
 
 /**
- * Marks a run of words as more important than the words around it.
+ * Renders a `strong` element with the classes of the strong recipe.
  */
 export const Strong = withContext("strong");
 
 /**
- * Describes the props a strong element takes.
+ * Describes the props of Strong: the recipe's variants and the props of a `strong` element.
  */
 export type StrongProps = ComponentProps<typeof Strong>;

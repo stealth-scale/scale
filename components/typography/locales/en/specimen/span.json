@@ -1,20 +1,19 @@
 {
-  "about": "Draws a run of words inside a line without starting a block, and without meaning of its own.",
-  "after": " is due on Friday.",
-  "before": "The total of",
-  "inks": {
-    "about": "Every ink at every weight, inside a line of ordinary words.",
-    "title": "Inks and weights"
-  },
+  "about": "Renders a run of text inside a line. A span has no semantics and inherits the font of its line.",
+  "due": "Due",
   "motion": {
-    "about": "How the run enters the line.",
+    "about": "The animation a span enters with. Each one runs once when the span mounts.",
     "title": "Motion"
   },
   "path": "/var/log/nginx/sites/invoices.example.com/access.log.2026-09-19.gz",
   "title": "Span",
-  "total": "1,024.00",
+  "tone": {
+    "about": "Every text ink at every weight, inside a line of body text. The inverted ink is for a dark surface, so its row renders on `bg.inverted`.",
+    "title": "Inks and weights"
+  },
+  "total": "€1,024.00",
   "truncate": {
-    "about": "A path cut to the line beside one left to overflow it. The run takes no size and keeps the line's.",
+    "about": "A log path that wraps in a 320px room, and the same path cut to one line with an ellipsis.",
     "title": "Truncate"
   }
 }

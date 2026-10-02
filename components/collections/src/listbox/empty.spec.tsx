@@ -12,17 +12,17 @@ import { Root } from "#listbox/root.tsx";
 import { NOTHING } from "#listbox/rows.fixtures.ts";
 
 /**
- * Draws a part inside a list that holds no rows at all.
+ * Renders the children inside a root over the empty collection.
  *
  * @param children - The part under test.
- * @returns The root, holding it.
+ * @returns The root with the children inside it.
  */
 function emptied(children: ReactNode): ReactElement {
   return <Root collection={NOTHING}>{children}</Root>;
 }
 
 describe("Empty", () => {
-  it("draws a span inside the root it needs above it", () => {
+  it("renders a span", () => {
     const { container } = render(emptied(<Empty>Nothing here.</Empty>));
 
     expect(slotElement(container, "listbox", "empty").tagName).toBe("SPAN");
@@ -40,19 +40,19 @@ describe("Empty", () => {
     ).toStrictEqual([]);
   });
 
-  it("says the list holds nothing where it holds nothing", () => {
+  it("renders its text while the collection is empty", () => {
     const { container } = render(emptied(<Empty>Nothing here.</Empty>));
 
     expect(container.textContent).toBe("Nothing here.");
   });
 
-  it("leaves nothing in the document where the list has rows", () => {
+  it("renders nothing while the collection has rows", () => {
     const { container } = render(offered(<Empty>Nothing here.</Empty>));
 
     expect(container.textContent).toBe("");
   });
 
-  it("takes the size the root states", () => {
+  it("applies the root's size class", () => {
     const { container } = render(
       <Root collection={NOTHING} size="lg">
         <Empty>Nothing here.</Empty>

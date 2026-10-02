@@ -9,13 +9,13 @@ import { type ScrollerProps } from "#table/scroller.tsx";
 import { composed, rowed } from "#table/table.fixtures.tsx";
 
 describe("ColumnHeader", () => {
-  it("draws a th inside the table it needs above it", () => {
+  it("renders a th", () => {
     const { container } = render(rowed(<ColumnHeader>Client</ColumnHeader>));
 
     expect(slotElement(container, "table", "columnHeader").tagName).toBe("TH");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(recipe, (props: ScrollerProps) => render(composed(props)).container, {
         slot: "columnHeader",
@@ -23,19 +23,19 @@ describe("ColumnHeader", () => {
     ).toStrictEqual([]);
   });
 
-  it("names the cells under it rather than leaving a screen reader to guess", () => {
+  it("sets scope to col", () => {
     const { container } = render(rowed(<ColumnHeader>Client</ColumnHeader>));
 
     expect(slotElement(container, "table", "columnHeader").getAttribute("scope")).toBe("col");
   });
 
-  it("is read as a column header", () => {
+  it("renders the element with the columnheader role", () => {
     render(rowed(<ColumnHeader>Client</ColumnHeader>));
 
     expect(screen.getByRole("columnheader", { name: "Client" })).toBeDefined();
   });
 
-  it("says which way a column a reader sorted by runs", () => {
+  it("passes aria-sort to the element", () => {
     render(rowed(<ColumnHeader aria-sort="ascending">Total</ColumnHeader>));
 
     expect(screen.getByRole("columnheader", { name: "Total" }).getAttribute("aria-sort")).toBe(

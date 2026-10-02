@@ -12,13 +12,13 @@ import {
 } from "#switch/machine.ts";
 
 /**
- * Runs the machine and reports what it answers, so a case can read its state off the screen.
+ * Runs the machine with the options the case sets and renders its state through a part's hook.
  *
- * @param props - The settings the machine is started with.
- * @returns The state, drawn as text.
+ * @param props - The machine options.
+ * @returns The provider around the reader.
  */
 function Running(props: SwitchOptions): ReactElement {
-  const api = useSwitchMachine(props);
+  const { api } = useSwitchMachine(props);
 
   return (
     <ApiProvider value={api}>
@@ -28,9 +28,9 @@ function Running(props: SwitchOptions): ReactElement {
 }
 
 /**
- * Reads the running machine through the hook a part reads it through.
+ * Renders `on` or `off` from the api a part reads.
  *
- * @returns Whether the switch is on.
+ * @returns A `span` with the state.
  */
 function Reader(): ReactElement {
   const api = useSwitch();
@@ -39,19 +39,19 @@ function Reader(): ReactElement {
 }
 
 describe("splitSwitchProps", () => {
-  it("takes the machine's settings out of what the root was handed", () => {
+  it("returns the machine's options first", () => {
     const [options] = splitSwitchProps({ defaultChecked: true, name: "theme" });
 
     expect(options).toStrictEqual({ defaultChecked: true, name: "theme" });
   });
 
-  it("leaves everything the element takes behind", () => {
+  it("returns the element's props second", () => {
     const [, rest] = splitSwitchProps({ defaultChecked: true, size: "lg" });
 
     expect(rest).toStrictEqual({ size: "lg" });
   });
 
-  it("reads the list off the machine rather than one this package keeps", () => {
+  it("splits readOnly from className by the machine's own key list", () => {
     const [options, rest] = splitSwitchProps({ className: "mine", readOnly: true });
 
     expect(options).toStrictEqual({ readOnly: true });
@@ -60,13 +60,13 @@ describe("splitSwitchProps", () => {
 });
 
 describe("useSwitchMachine", () => {
-  it("answers a running machine a part can read", () => {
+  it("returns an api that reports defaultChecked", () => {
     render(<Running defaultChecked />);
 
     expect(screen.getByTestId("state").textContent).toBe("on");
   });
 
-  it("starts off where a caller says nothing", () => {
+  it("returns an api that reports off by default", () => {
     render(<Running />);
 
     expect(screen.getByTestId("state").textContent).toBe("off");

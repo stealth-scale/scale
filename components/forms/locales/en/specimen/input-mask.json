@@ -1,0 +1,59 @@
+{
+  "about": "Formats what a person types to a pattern while they type. The pattern's own characters appear between the typed ones, a character the pattern refuses is dropped, and the caret keeps its place among the typed characters. `9` reads a digit, `a` a letter, `A` a letter written in capitals and `*` either. `number` formats a number in a locale instead.",
+  "addPayee": "Add payee",
+  "amount": "Amount",
+  "applied": "Voucher applied. The discount shows at checkout.",
+  "apply": "Apply",
+  "brand": {
+    "about": "The function passed as `mask` returns `9999 999999 99999` for an American Express number, which starts with 34 or 37, and four groups of four digits for every other card.",
+    "title": "A pattern per card brand"
+  },
+  "card": "Card number",
+  "eager": {
+    "about": "`eager` writes the pattern's next characters once the digits before them are typed, so `12` shows as `12/`. `onValueComplete` checks the month when the fourth digit is typed, and the field shows its error for a month over 12.",
+    "title": "Eager"
+  },
+  "expiry": "Expiry date",
+  "expiryHelp": "Month and year, as printed on the card.",
+  "form": {
+    "about": "The field requires a complete Dutch IBAN. Submitting a shorter one shows the error text. `A` writes the country and bank codes in capitals whatever case the reader types.",
+    "title": "Required in a form"
+  },
+  "grouped": "Type the digits alone. The field groups them as the card prints them.",
+  "iban": "IBAN",
+  "ibanHelp": "18 characters, such as NL91 ABNA 0417 1643 00.",
+  "ibanShort": "Enter all 18 characters of the IBAN.",
+  "lengths": {
+    "about": "`mask` takes an array of patterns. The input uses the shortest pattern that fits every typed digit, so five digits show as a ZIP code and a sixth adds the hyphen of ZIP+4.",
+    "title": "A pattern per length"
+  },
+  "looks": {
+    "about": "The input group's three looks, on a phone number masked as `(999) 999-9999`.",
+    "title": "Looks"
+  },
+  "month": "Enter a month from 01 to 12.",
+  "noAmount": "Enter an amount to see what the payee receives.",
+  "number": {
+    "about": "`number` formats the value with the grouping and decimal separators of `nl-NL` while the reader types. `onValueChange` reports the number itself as `unmasked`, such as `1250.00`, and the helper text derives what the payee receives.",
+    "title": "Number"
+  },
+  "phone": "Phone number",
+  "receives": "The payee receives {{received}} after the {{fee}} fee.",
+  "sizes": {
+    "about": "Every size of the input group. The pattern is the same at each size.",
+    "title": "Sizes"
+  },
+  "states": {
+    "about": "An invalid input, a read-only input and a disabled one. The root takes each state, or the field around it passes it.",
+    "title": "States"
+  },
+  "title": "Input mask",
+  "tokens": {
+    "about": "`tokens` adds `X`, a letter or a digit written in capitals. `onValueChange` reports whether the code fills the pattern, and Apply is disabled until it does.",
+    "title": "A token of your own"
+  },
+  "voucher": "Voucher code",
+  "voucherHelp": "Twelve letters or digits, printed on the back of the card.",
+  "zip": "ZIP code",
+  "zipHelp": "Five digits, or nine with the ZIP+4 code."
+}

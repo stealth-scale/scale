@@ -1,9 +1,8 @@
 /**
- * Draws one entry in a list.
+ * Renders one item of a list.
  *
  * @remarks
- *   The element is `li`, so the browser counts it and marks it. The entry draws its slot in the
- *   variants the root was given, and adds nothing of its own.
+ *   The element is `li`. The root's variants set its marker, its alignment and its motion.
  */
 
 import { type ComponentProps } from "react";
@@ -11,11 +10,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#list/context.ts";
 
 /**
- * Draws one entry, marked by the browser or by an indicator the caller draws beside it.
+ * Renders an `li` element with the item slot's classes.
  */
 export const Item = withContext("li", "item");
 
 /**
- * Describes what an entry takes: everything a styled list item element takes.
+ * Describes the props of List.Item: the props of an `li` element.
  */
 export type ItemProps = ComponentProps<typeof Item>;

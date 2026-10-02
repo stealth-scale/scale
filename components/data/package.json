@@ -51,9 +51,20 @@
     "prepublishOnly": "vp pack",
     "test": "vp test"
   },
+  "dependencies": {
+    "@stealthscale/component-actions": "workspace:^",
+    "@zag-js/i18n-utils": "catalog:",
+    "@zag-js/qr-code": "catalog:",
+    "@zag-js/react": "catalog:",
+    "@zag-js/timer": "catalog:",
+    "@zag-js/types": "catalog:"
+  },
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
-    "@rolldown/plugin-babel": "catalog:",
+    "@stealthscale/component-collections": "workspace:^",
+    "@stealthscale/component-layout": "workspace:^",
+    "@stealthscale/hooks": "workspace:^",
+    "@stealthscale/provider-locale": "workspace:^",
     "@stealthscale/theme": "workspace:^",
     "@stealthscale/vite-config": "workspace:^",
     "@stealthscale/vite-config-i18n": "workspace:^",
@@ -64,8 +75,8 @@
     "@testing-library/react": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "babel-plugin-react-compiler": "catalog:",
     "happy-dom": "catalog:",
+    "lucide-react": "catalog:",
     "oxc-transform-react": "catalog:",
     "publint": "catalog:",
     "react": "catalog:",
@@ -74,6 +85,8 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
+    "@stealthscale/hooks": "workspace:^",
+    "@stealthscale/provider-locale": "workspace:^",
     "@stealthscale/theme": "workspace:^",
     "react": "catalog:"
   },

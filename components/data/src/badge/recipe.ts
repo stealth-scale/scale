@@ -1,36 +1,40 @@
 /**
- * States what a badge is: a short label set off from what it labels, drawn in a look, a size, a
- * corner and the palette of its status.
+ * Declares the badge recipe for a short label or a count set off from what it labels.
  *
  * @remarks
- *   Every value is a flat layer style, a semantic tag height, a semantic corner or a palette, so a
- *   theme moves all of them. The looks are flat rather than filled: a badge is read rather than
- *   pressed, and one drawn in a fill repaints whenever a pointer crosses it, which reads as a
- *   control a reader can press and then cannot. A badge inside a row that hovers is under the
- *   pointer whenever the row is, so the difference shows up wherever badges are most used.
- *   The numbers are tabular, because a badge nearly always holds a count and a column of counts
- *   that shifts width as it changes is hard to read down. Nothing wraps, and the badge does not
- *   shrink, so a long label pushes the line rather than folding to two and doubling the row's
- *   height. The `status` axis offers `neutral` beside the four statuses, for a label that states a
- *   fact rather than a state, such as the group a page is filed under, and it is listed under
- *   `staticCss` beside them so a page that sets it from data reaches a rule.
+ *   The looks are the flat layer styles, so a badge does not repaint on hover, including inside a
+ *   hoverable row. Numerals are tabular, so a column of changing counts keeps its width. The text
+ *   does not wrap and the badge does not shrink in a flex row. The sizes come from `chipSize`,
+ *   shared with the tag. An `svg` child is 1em square and does not shrink, so an icon matches the
+ *   text at every size. At `md` a lucide icon's ink starts 8.6px from the edge, against the 8px
+ *   inline padding at the text end. `staticCss` lists every palette, because `BadgePropsProvider`
+ *   and data can set the value at run time.
  */
 
 import {
   cornerVariants,
   defineRecipe,
   flatVariants,
-  statusEmitted,
-  statusVariants,
-  tagSizes,
+  PALETTES,
+  paletteVariants,
+  sizeVariants,
 } from "@stealthscale/theme/authoring";
 
+import { CHIP_SIZES, chipSize } from "#chip.ts";
+
 /**
- * Draws a badge on the primary palette in the subtle look at the middle size until a caller says
- * otherwise, set inline so it sits in a line of words.
+ * Badge recipe, the subtle look at the md size with the l2 corner in the primary palette by
+ * default.
  */
 export const recipe = defineRecipe({
   base: {
+    _highContrast: {
+      outlineColor: "CanvasText",
+      outlineOffset: "calc({borderWidths.hairline} * -1)",
+      outlineStyle: "solid",
+      outlineWidth: "hairline",
+    },
+    "& > svg": { blockSize: "1em", flexShrink: "0", inlineSize: "1em" },
     alignItems: "center",
     colorPalette: "primary",
     display: "inline-flex",
@@ -45,11 +49,25 @@ export const recipe = defineRecipe({
   className: "badge",
   defaultVariants: { radius: "l2", size: "md", variant: "subtle" },
   jsx: [/Badge$/u],
-  staticCss: [statusEmitted(), { status: ["neutral"] }],
+  staticCss: [{ palette: [...PALETTES] }],
   variants: {
+    /**
+     * The halo around the badge, in the palette's solid at half opacity.
+     *
+     * @remarks
+     *   `pulse` animates the halo and stops under reduced motion.
+     */
+    effect: {
+      glow: { layerStyle: "glow.sm" },
+      pulse: { animationStyle: "pulse-glow", boxShadowColor: "colorPalette.solid/50" },
+    },
+    palette: paletteVariants(),
     radius: cornerVariants(),
-    size: tagSizes(),
-    status: { ...statusVariants(), neutral: { colorPalette: "neutral" } },
+
+    /**
+     * The height, padding, gap and text style from `chipSize`, shared with the tag.
+     */
+    size: sizeVariants(chipSize, CHIP_SIZES),
     variant: flatVariants(),
   },
 });

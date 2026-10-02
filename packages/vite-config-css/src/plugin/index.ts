@@ -1,6 +1,6 @@
 /**
- * Marks the boundary of the plugin directory, so a module elsewhere reaches
- * the check through one specifier.
+ * Re-exports the check, so a module outside this directory imports it through
+ * one specifier.
  */
 
 export { check, type Checked } from "#plugin/check.ts";

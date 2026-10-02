@@ -1,70 +1,57 @@
 /**
- * Shows the paragraph placeholder: one, three and six lines, and every motion.
+ * Catalogue page for the skeleton text.
  *
  * @remarks
- *   The motion is read off the skeleton's recipe, which the bars are drawn with. The count of
- *   lines is a prop rather than an axis, so three counts are written here. The cells run down the
- *   page, because the bars fill the width they are given. The words are keys under
- *   `skeleton-text` in the catalogue's namespace, kept beside this file in
- *   `locales/en/specimen/skeleton-text.json`.
+ *   Both scenes are hand-written, because the recipe has no axes. The line scene varies the
+ *   `lines` prop, and the motion scene varies the skeleton recipe's `motion` axis, which the bars
+ *   take. Each scene renders the example from `examples/` once per value and shows it as its
+ *   source with the first value. The cells run in one column, because the bars fill the width they
+ *   get. The words are keys under `skeleton-text` in `locales/en/specimen/skeleton-text.json`.
  */
-
-import { type ReactElement } from "react";
 
 import { Matrix, type Scene, specimen, valuesOf } from "@stealthscale/specimen";
 
-import { SkeletonText } from "#skeleton-text/skeleton-text.tsx";
+import * as paragraph from "#skeleton-text/examples/paragraph.example.tsx";
 import { recipe } from "#skeleton/recipe.ts";
 
 /**
- * Three counts of lines: a heading's worth, a paragraph's, and a long one.
+ * Line counts of the line scene.
  */
 const COUNTS = [1, 3, 6] as const;
 
 /**
- * Draws the placeholder at each count of lines.
- */
-function Lines(): ReactElement {
-  return (
-    <Matrix direction="column" knob="lines" of={COUNTS}>
-      {(lines) => <SkeletonText lines={lines} />}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the placeholder with every motion.
- */
-function Motion(): ReactElement {
-  return (
-    <Matrix direction="column" knob="motion" of={valuesOf(recipe, "motion")}>
-      {(motion) => <SkeletonText motion={motion} />}
-    </Matrix>
-  );
-}
-
-/**
- * Three counts of lines.
+ * Hand-written scene for one, three and six lines.
  */
 export const lines: Scene = {
   about: "skeleton-text.lines.about",
-  draw: Lines,
+  draw: () => (
+    <Matrix direction="column" knob="lines" of={COUNTS}>
+      {(count) => <paragraph.Paragraph lines={count} />}
+    </Matrix>
+  ),
+  example: paragraph,
+  props: { lines: 1 },
   title: "skeleton-text.lines.title",
 };
 
 /**
- * Every motion.
+ * Hand-written scene for every motion of the skeleton recipe.
  */
 export const motion: Scene = {
   about: "skeleton-text.motion.about",
-  draw: Motion,
+  draw: () => (
+    <Matrix direction="column" knob="motion" of={valuesOf(recipe, "motion")}>
+      {(value) => <paragraph.Paragraph motion={value} />}
+    </Matrix>
+  ),
+  example: paragraph,
+  props: { motion: "none" },
   title: "skeleton-text.motion.title",
 };
 
 export default specimen({
   about: "skeleton-text.about",
-  group: "Feedback",
-  id: "feedback/skeleton-text",
+  id: "components/feedback/skeleton-text",
   imports: 'import { SkeletonText } from "@stealthscale/component-feedback";',
   scenes: [lines, motion],
   title: "skeleton-text.title",

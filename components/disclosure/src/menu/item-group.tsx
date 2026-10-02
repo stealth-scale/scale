@@ -1,11 +1,9 @@
 /**
- * Draws a set of rows that belong together.
+ * Renders a group of rows.
  *
  * @remarks
- *   The machine gives it the group role and points it at the label above it, so a screen reader
- *   announces what the rows have in common as the reader enters the set. A group takes no part in
- *   the keyboard: the arrows move through every row of the menu in order, and a group is a heading
- *   over them rather than a stop of its own.
+ *   The machine sets `role="group"` and `aria-labelledby` to the group's label. The arrows move
+ *   through every row of the menu in order, so a group is not a stop of its own.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -16,25 +14,25 @@ import { withContext } from "#menu/context.ts";
 import { useMenu } from "#menu/machine.ts";
 
 /**
- * Draws the set at the size the root states.
+ * Renders the `div` with the menu's item group class.
  */
 const Grouped = withContext("div", "itemGroup");
 
 /**
- * Describes what a set takes.
+ * Describes the props of a group: its value and the props of a `div`.
  */
 export interface ItemGroupProps extends ComponentProps<typeof Grouped> {
   /**
-   * Ties the set to the label that names it.
+   * Value the group and its label share.
    */
   readonly value: string;
 }
 
 /**
- * Groups the rows that belong together.
+ * Renders the group with the machine's item group props merged over the caller's.
  *
- * @param props - The name the label shares, beside everything a styled div takes.
- * @returns The set, carrying what the machine writes onto it.
+ * @param props - The group's value and the props of a `div`.
+ * @returns The `div` element.
  */
 export function ItemGroup({ value, ...rest }: ItemGroupProps): ReactElement {
   const { api } = useMenu();

@@ -1,0 +1,34 @@
+{
+  "about": "Saves a file built in the page, such as an export of the records on screen. The trigger is the library's `Button`, so it takes every button axis. The contents of the file come from the page itself.",
+  "built": {
+    "about": "`data` is a function the trigger calls on each press. This one compresses 20,000 rows with gzip and returns a promise of the file. While the promise is pending, a spinning `Icon` named Compressing replaces the download icon. The trigger is `aria-disabled` in that state, so it keeps focus, and its `onClick` cancels a second press with `preventDefault`.",
+    "title": "Built on press"
+  },
+  "compressing": "Compressing",
+  "download": "Download",
+  "export": "Export",
+  "exports": "Exports for September",
+  "file": "File",
+  "formats": {
+    "csv": "Spreadsheet (CSV)",
+    "json": "Data (JSON)",
+    "markdown": "Table (Markdown)"
+  },
+  "kinds": {
+    "about": "A CSV ledger, JSON totals and an SVG mark, each saved under its own name and `mimeType`. An icon-only trigger takes `aria-label` and `shape=\"square\"`. The size column reads the byte length of each file.",
+    "title": "Kinds of file"
+  },
+  "ledger": "Download the ledger",
+  "lone": {
+    "about": "A trigger with visible text saves the ledger as a CSV file. `data` is text in the page, and `mimeType` gives it a type.",
+    "title": "Download button"
+  },
+  "menu": {
+    "about": "A menu row is not a button, so the menu's `onSelect` calls `download` with the chosen format. `download` takes the trigger's options and returns a promise.",
+    "title": "From a menu"
+  },
+  "payouts": "Download all payouts",
+  "save": "Download {{file}}",
+  "size": "Size",
+  "title": "Download trigger"
+}

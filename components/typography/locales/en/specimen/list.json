@@ -1,28 +1,34 @@
 {
-  "about": "Draws a list, as a root holding items, each with an indicator where the caller draws the mark.",
-  "alignment": {
-    "about": "Where a plain entry's mark sits against words that run to more than one line.",
+  "about": "Renders a list of items with the browser's markers, or with a mark in each item's `List.Indicator`.",
+  "align": {
+    "about": "The three alignments of the indicator against an item that wraps, in a 320px room.",
     "title": "Alignment"
   },
-  "bread": "Bread",
-  "butter": "Butter",
-  "gaps": {
-    "about": "Every gap between the entries.",
+  "features": {
+    "currencies": "Payouts in 34 currencies",
+    "invoices": "Unlimited invoices",
+    "sso": "Single sign-on with SAML and SCIM provisioning for every workspace"
+  },
+  "gap": {
+    "about": "Every gap token between the items.",
     "title": "Gaps"
   },
-  "looks": {
-    "about": "The browser's marker beside a plain list, whose entries draw their own mark in the indicator.",
-    "title": "Looks"
-  },
-  "markers": {
-    "about": "Every marker the browser can draw, the numbered ones on an ordered list.",
+  "marker": {
+    "about": "Every marker type. A counting marker renders on an `ol`.",
     "title": "Markers"
   },
-  "milk": "Milk",
   "motion": {
-    "about": "How the entries enter the page.",
+    "about": "The animation each item enters with. Each one runs once when the item mounts.",
     "title": "Motion"
   },
-  "note": "A longer entry, with enough words to run on to a second line inside a narrow column and show where the mark sits",
-  "title": "List"
+  "steps": {
+    "connect": "Connect a bank account",
+    "invite": "Invite your team",
+    "verify": "Verify your email address"
+  },
+  "title": "List",
+  "variant": {
+    "about": "`plain` removes the browser's markers, and each item renders its mark in `List.Indicator`. Every other scene renders the default `marker` look.",
+    "title": "Plain"
+  }
 }

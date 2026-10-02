@@ -1,15 +1,17 @@
 {
-  "about": "Holds a page to one measure and centres it in whatever holds it, with a gutter down each side.",
-  "gutter": {
-    "about": "The gutter down each side, and a flush container that takes it away. The outer tile stands for the page, so the gutter is the room between it and the content.",
+  "about": "Limits content to a maximum inline size, centres it in its parent and pads each side with a gutter.",
+  "flush": {
+    "about": "A `sm` container in a 384px room. Without `flush` the gutter starts the card 20px from the room's edge. With `flush` the card starts at the edge.",
     "title": "Gutter"
   },
-  "measures": {
-    "about": "Every measure, from the narrowest to the whole of the room, the measure a column of text is read at among them. A measure wider than the room fills it.",
-    "title": "Measures"
+  "payouts": "Payouts reach your bank account two business days after a charge settles. Weekends and bank holidays add one day.",
+  "settings": {
+    "description": "Notifications, security and billing",
+    "title": "Settings"
   },
-  "page": "Page",
-  "prose": "Running text at the measure it is read at.",
-  "settings": "Settings",
+  "size": {
+    "about": "Every size from `xs` to `8xl`, then `full` and `prose`. A size wider than the scene fills it.",
+    "title": "Sizes"
+  },
   "title": "Container"
 }

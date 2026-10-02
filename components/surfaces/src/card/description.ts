@@ -1,10 +1,9 @@
 /**
- * Draws the line that supports a card's title.
+ * Renders the line under a card's title.
  *
  * @remarks
- *   The element is `p`. The description reads in the muted ink at the small body style, which the
- *   contrast gate holds to the text ratio, so it sits under the title without dropping below what
- *   a reader can read.
+ *   The element is a `p` in `fg.muted` at `body.sm`, in the header grid's second column. The
+ *   theme's contrast gate requires at least 4.5:1 for `fg.muted` on the panel.
  */
 
 import { type ComponentProps } from "react";
@@ -12,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#card/context.ts";
 
 /**
- * Says what the card is about, under its title.
+ * Renders the description slot under the title.
  */
 export const Description = withContext("p", "description");
 
 /**
- * Describes what the description takes: everything a styled p takes.
+ * Describes the props of `Description`: the props of a `p`.
  */
 export type DescriptionProps = ComponentProps<typeof Description>;

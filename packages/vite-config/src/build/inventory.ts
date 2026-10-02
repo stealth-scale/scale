@@ -1,5 +1,5 @@
 /**
- * Records what a deployed application is made of, as a CycloneDX document.
+ * Writes a CycloneDX bill of materials for a deployed application.
  */
 
 import { contribute, type Contribution } from "@stealthscale/vite-config-core";
@@ -9,28 +9,25 @@ import { HOUSE } from "#sbom/supplier.ts";
 import { type Supplier } from "#sbom/types.ts";
 
 /**
- * Locates the copy a scanner can fetch from a running deployment without being told where to look.
+ * The well-known path a scanner fetches the document from over HTTP.
  */
 const SERVED = ".well-known/sbom";
 
 /**
- * Locates the copy a release pipeline picks up out of the build output.
+ * The path in the build output a release pipeline reads the document from.
  */
 const BESIDE = "cyclonedx/bom.json";
 
 /**
- * Writes the bill of materials for an application, to both the served path and the output tree.
+ * Contributes the plugin that writes a CycloneDX bill of materials to both paths.
  *
  * @remarks
- *   The document is typed as an application, where its counterpart in `pack` types a library and
- *   writes one copy. Two copies are written because the two readers differ: a scanner reaches the
- *   deployment over HTTP, and a release pipeline only ever sees the directory. A serial number and
- *   a timestamp differ between two builds of the same source, so both are written only in
- *   production and a development build stays reproducible. The plugin package is loaded when the
- *   plugin is constructed and not when the layer is stated, so reading the configuration for its
- *   metadata loads no plugin.
- * @param supplier - The organisation attributed as publisher of every component. The house
- *   identity is used unless a repository states its own.
+ *   The document is typed as an application and written twice, where the `pack` inventory types a
+ *   library and writes one copy. Two consumers read it: a scanner fetches it from a running
+ *   deployment over HTTP, and a release pipeline reads it out of the output directory. A serial
+ *   number and a timestamp differ between two builds of the same source, so both are written under
+ *   production alone.
+ * @param supplier - The organisation recorded as the publisher of every component in the document.
  */
 export function inventory(supplier: Supplier = HOUSE): Contribution {
   return contribute({

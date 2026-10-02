@@ -1,0 +1,90 @@
+{
+  "about": "Each category of a cycle as a wedge of the same angle, whose area follows its value. A rose suits categories that wrap, such as hours, months or compass points. A bar chart compares values on their own.",
+  "bare": {
+    "about": "names false leaves the names off, for a rose read from its legend, and the wedges fill the whole circle.",
+    "title": "No names"
+  },
+  "capacity": {
+    "about": "max fixes the full radius at the API's capacity of 2,000 requests a minute, so the rose keeps its size from one day to the next, and noon's wedge extends to 77% of the radius.",
+    "caption": "Noon's 1,180 requests a minute use 59% of the 2,000 the API is sized for.",
+    "title": "Against a capacity"
+  },
+  "hidden": {
+    "about": "A wedge the legend hides keeps its place with no radius, so no hour turns into the next. defaultHiddenKeys hides noon, and 15:00 becomes the largest value shown.",
+    "caption": "With noon hidden, 15:00 is the busiest bucket shown at 1,020 requests a minute.",
+    "title": "Hidden wedge"
+  },
+  "hours": {
+    "00": "00:00",
+    "03": "03:00",
+    "06": "06:00",
+    "09": "09:00",
+    "12": "12:00",
+    "15": "15:00",
+    "18": "18:00",
+    "21": "21:00"
+  },
+  "months": {
+    "apr": "Apr",
+    "aug": "Aug",
+    "dec": "Dec",
+    "feb": "Feb",
+    "jan": "Jan",
+    "jul": "Jul",
+    "jun": "Jun",
+    "mar": "Mar",
+    "may": "May",
+    "nov": "Nov",
+    "oct": "Oct",
+    "sep": "Sep"
+  },
+  "narrow": {
+    "about": "The day's requests in a room 20rem wide, the column of a phone.",
+    "title": "Narrow room"
+  },
+  "noon": {
+    "about": "defaultIndex opens the tooltip at a wedge when the chart first renders. Its row writes the wedge's name and value. The arrows walk the wedges clockwise from 12 o'clock.",
+    "caption": "Noon is the day's peak at 1,180 requests a minute.",
+    "title": "Tooltip"
+  },
+  "points": {
+    "e": "E",
+    "n": "N",
+    "ne": "NE",
+    "nw": "NW",
+    "s": "S",
+    "se": "SE",
+    "sw": "SW",
+    "w": "W"
+  },
+  "quiet": {
+    "about": "A polar area chart without slices renders the empty state in the plot's place, at the plot's ratio.",
+    "caption": "Requests to the API today.",
+    "empty": "No requests recorded yet.",
+    "title": "Empty"
+  },
+  "rainfall": {
+    "about": "Twelve months as a clock face, January at 12 o'clock. valueOptions writes each value in millimetres in the legend and the tooltip.",
+    "caption": "October is the wettest month at 87mm, and April the driest at 42mm.",
+    "label": "Rainfall by month",
+    "title": "A year"
+  },
+  "replay": {
+    "about": "animate sweeps the wedges in from 12 o'clock when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the wedges at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "requests": {
+    "about": "A day of requests in three-hour buckets, midnight at 12 o'clock. Each wedge's area follows its value, so noon's 1,180 covers about ten times the area of midnight's 120 and extends about 3.1 times as far.",
+    "caption": "The load builds from 06:00, peaks at noon and falls by 21:00.",
+    "label": "Requests a minute by hour",
+    "title": "Requests by hour"
+  },
+  "title": "Polar area chart",
+  "wind": {
+    "about": "The hours a month's wind blew from each compass point, north at 12 o'clock. color takes the teal palette for every wedge, and each fill rises with its value.",
+    "caption": "The wind blew from the south-west for 212 of the month's 720 hours.",
+    "label": "Wind by direction",
+    "title": "Colors"
+  }
+}

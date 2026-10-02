@@ -1,0 +1,65 @@
+{
+  "about": "Rows a person puts in another order by dragging a handle, in one list or between the lists of a board, over dnd-kit. A handle is a button named after its row: Space or Enter picks the row up, the arrow keys move it, Space or Enter drops it and Escape puts it back, and a screen reader hears each step with the row's position.",
+  "board": {
+    "about": "A board is lists in one drag: a card moves into another list as the drag passes it, and an empty list takes a drop. In progress takes at most three cards, and a card cannot move from To do straight to Done. A list that refuses the card dims while the card is over it, and a release there puts the card back.",
+    "cards": {
+      "api": "Build the export API",
+      "copy": "Write the empty state copy",
+      "icons": "Design the status icons",
+      "spec": "Write the migration spec",
+      "tests": "Cover the importer with tests"
+    },
+    "doing": "In progress",
+    "done": "Done",
+    "empty": "No cards yet.",
+    "limit": "{{count}} of {{limit}}",
+    "none": "No move saved yet.",
+    "saved": "Saved the move to {{list}}, position {{position}}.",
+    "title": "Board",
+    "todo": "To do"
+  },
+  "issues": {
+    "about": "A row's content part takes the rest of the row, so the issue's key and title fill it and the priority is at the end. The handle is named after the key and the title.",
+    "high": "High",
+    "label": "Sprint backlog",
+    "low": "Low",
+    "medium": "Medium",
+    "title": "Rows with content",
+    "titles": {
+      "SCL-118": "Paginate the invoice ledger",
+      "SCL-124": "Retry failed webhooks",
+      "SCL-131": "Rename the billing roles",
+      "SCL-137": "Export the audit trail"
+    }
+  },
+  "moves": {
+    "about": "Each row's menu moves it without a drag, for a person who cannot drag (WCAG 2.5.7). The root's render function hands the menu the kit's move, which follows the rules of a drag and is announced in the same words.",
+    "audit": "Prepare the audit",
+    "down": "Move down",
+    "first": "Move to top",
+    "invoices": "Send the invoices",
+    "label": "Month-end tasks",
+    "last": "Move to bottom",
+    "more": "More actions for {{name}}",
+    "payroll": "Run payroll",
+    "taxes": "File the taxes",
+    "title": "Moving without dragging",
+    "up": "Move up"
+  },
+  "plain": {
+    "about": "`variant=\"plain\"` renders the rows without a fill or a visible edge, touching each other, for a list inside a panel such as a column manager's popover. The row a person drags lifts on the panel's fill, and its place is the same dashed slot.",
+    "label": "Review stages",
+    "title": "Plain rows"
+  },
+  "stages": {
+    "about": "One list is an array. Drag a stage by its handle, or focus the handle and press Space, the arrow keys and Space again. Archive is always last: its row is disabled and keeps the handle's room empty.",
+    "archive": "Archive",
+    "draft": "Draft the notes",
+    "label": "Release stages",
+    "legal": "Legal review",
+    "publish": "Publish",
+    "review": "Peer review",
+    "title": "One list"
+  },
+  "title": "Sortable"
+}

@@ -14,7 +14,7 @@ function panelled(children: ReactNode): ReactElement {
 }
 
 describe("Description", () => {
-  it("conforms as a paragraph inside the panel it needs above it", () => {
+  it("conforms as a p element inside the root", () => {
     expect(
       violations(Description, {
         as: true,
@@ -26,7 +26,7 @@ describe("Description", () => {
     ).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule", async () => {
+  it("returns no accessibility violation when it holds a sentence", async () => {
     await expect(
       accessibilityViolations(Description, {
         props: { children: "Add one to get started." },
@@ -35,7 +35,7 @@ describe("Description", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("draws the element as names", () => {
+  it("renders the element passed as as", () => {
     const { container } = render(panelled(<Description as="span">Add one.</Description>));
 
     expect(slotElement(container, "empty-state", "description").tagName).toBe("SPAN");

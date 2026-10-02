@@ -7,7 +7,7 @@ import { Footer } from "#section/footer.ts";
 import { blocked } from "#section/section.fixtures.tsx";
 
 describe("Footer", () => {
-  it("draws a footer inside the block it needs above it", () => {
+  it("renders a footer", () => {
     const { container } = render(blocked(<Footer>Billed monthly</Footer>));
 
     expect(slotElement(container, "section", "footer").tagName).toBe("FOOTER");

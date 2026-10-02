@@ -1,12 +1,12 @@
 /**
- * Measures a theme and reports the numbers rather than a verdict: how much room each class of
- * pair has above its ratio, how far apart the steps are, and how far apart the statuses are for
- * every reader.
+ * Measures a theme and reports the numbers instead of a verdict: how much room each class of pair
+ * has above its ratio, how far apart the steps are, and how far apart the statuses are under
+ * typical vision and under each dichromacy.
  *
  * @remarks
- *   The gate says whether a theme is broken. The report says how good it is. A theme that passes
- *   every pair at 4.51 is one rounding away from failing, and a reader sees that in the tightest
- *   pairs before a check does.
+ *   The gate reports whether a theme breaks the contract. The report measures how much margin it
+ *   has. A theme that passes every pair at 4.51 is one rounding away from failing, and the
+ *   tightest pairs show that before any check does.
  */
 
 import { type Mode, MODES, type Theme } from "@stealthscale/theme/authoring";
@@ -27,78 +27,78 @@ import { type ThemeChecks } from "#violations.ts";
 import { DEFICIENCIES, type Deficiency, distanceFor } from "#vision.ts";
 
 /**
- * Fixes how many of the tightest pairs a report lists per class.
+ * How many of the tightest pairs a report lists per class.
  */
 const TIGHTEST = 10;
 
 /**
- * Describes one class of pairs as measured: the least room, the middle, and the pairs with the
- * least room in the order they have it.
+ * One class of pairs as measured: the least room, the middle, and the pairs with the least room in
+ * the order they have it.
  */
 export interface Margin {
   /**
-   * The middle ratio of the class.
+   * Middle ratio of the class, or `NaN` where no pair in it could be measured.
    */
   median: number;
 
   /**
-   * The lowest ratio of the class, or `NaN` where a pair could not be measured.
+   * Lowest ratio of the class, or `NaN` where any one pair could not be measured.
    */
   minimum: number;
 
   /**
-   * The pairs with the least room, lowest first.
+   * Pairs with the least room, lowest first, with any pair that could not be measured ahead of
+   * them.
    */
   tightest: readonly Measured[];
 }
 
 /**
- * Describes how far each step is from the next, per mode, for the surfaces, the inks and the
- * lines.
+ * The lightness between consecutive steps of the surfaces, the inks and the lines, in one mode.
  */
 export interface Steps {
   /**
-   * The lightness between `fg`, `fg.muted` and `fg.subtle`.
+   * Lightness between `fg`, `fg.muted` and `fg.subtle`.
    */
   inks: readonly number[];
 
   /**
-   * The lightness between `border.subtle`, `border.muted`, `border` and `border.emphasized`.
+   * Lightness between `border.subtle`, `border.muted`, `border` and `border.emphasized`.
    */
   lines: readonly number[];
 
   /**
-   * The lightness between `bg`, `bg.subtle`, `bg.muted` and `bg.emphasized`.
+   * Lightness between `bg`, `bg.subtle`, `bg.muted` and `bg.emphasized`.
    */
   surfaces: readonly number[];
 }
 
 /**
- * Describes one pair of statuses as every reader sees it.
+ * One pair of statuses, measured under typical vision and under each dichromacy.
  */
 export interface StatusApart {
   /**
-   * The distance for a reader with typical vision.
+   * Distance under typical vision.
    */
   normal: number;
 
   /**
-   * The pair, as `success.solid and error.solid`.
+   * Pair, written as `success.solid and error.solid`.
    */
   pair: string;
 
   /**
-   * The distance for a reader with each dichromacy.
+   * Distance for a reader with each dichromacy.
    */
   simulated: Readonly<Record<Deficiency, number>>;
 }
 
 /**
- * Describes a theme by its numbers.
+ * Everything a report measures about one theme.
  */
 export interface ThemeReport {
   /**
-   * The room each class of pair has, at the thresholds the report was asked for.
+   * Room each class of pair has, at the thresholds the report was asked for.
    */
   margins: Readonly<Record<"boundary" | "focus" | "text", Margin>>;
 
@@ -108,7 +108,7 @@ export interface ThemeReport {
   name: string;
 
   /**
-   * The steps of the theme's own ramps that sit outside sRGB, as `blue step 500`.
+   * Steps of the theme's own ramps that sit outside sRGB, as `blue step 500`.
    */
   outside: readonly string[];
 
@@ -124,7 +124,7 @@ export interface ThemeReport {
 }
 
 /**
- * Lists the sequences a report measures the steps of.
+ * The sequences a report measures the steps of, each in the order its steps run.
  */
 const SEQUENCES: Readonly<Record<keyof Steps, readonly string[]>> = {
   inks: ["fg", "fg.muted", "fg.subtle"],
@@ -148,7 +148,7 @@ function tighter(one: Measured, other: Measured): number {
 }
 
 /**
- * Summarises one class of measured pairs.
+ * Reduces one class of measured pairs to its lowest ratio, its median, and its tightest pairs.
  */
 function margin(pairs: readonly Measured[]): Margin {
   const ratios = pairs.map(({ ratio }) => ratio);
@@ -165,7 +165,7 @@ function margin(pairs: readonly Measured[]): Margin {
 }
 
 /**
- * Measures the lightness between each consecutive pair of a sequence in one mode.
+ * Measures the lightness between each consecutive pair of one sequence, in one mode.
  */
 function deltas(
   theme: Theme,
@@ -208,7 +208,7 @@ function statusesIn(theme: Theme, mode: Mode, options: Resolving): readonly Stat
 }
 
 /**
- * Measures one thing in each mode.
+ * Runs one measurement in each mode, keyed by mode.
  */
 function perMode<Value>(measure: (mode: Mode) => Value): Record<Mode, Value> {
   return { _dark: measure("_dark"), base: measure("base") };
@@ -250,14 +250,14 @@ function cell(value: number): string {
 }
 
 /**
- * Writes a list of numbers as one cell.
+ * Writes a list of numbers into one cell, comma separated.
  */
 function cells(values: readonly number[]): string {
   return values.map((value) => cell(value)).join(", ");
 }
 
 /**
- * Writes the rows of the margins table: one per class of pair.
+ * Writes the rows of the margins table, one per class of pair, each naming its tightest pair.
  */
 function marginRows(margins: ThemeReport["margins"]): readonly string[] {
   return Object.entries(margins).map(([name, { median, minimum, tightest }]) => {
@@ -269,7 +269,7 @@ function marginRows(margins: ThemeReport["margins"]): readonly string[] {
 }
 
 /**
- * Writes the rows of the steps table: one per mode.
+ * Writes the rows of the steps table, one per mode.
  */
 function stepRows(steps: ThemeReport["steps"]): readonly string[] {
   return MODES.map((mode) => {
@@ -280,7 +280,7 @@ function stepRows(steps: ThemeReport["steps"]): readonly string[] {
 }
 
 /**
- * Writes the rows of the statuses table: one per pair per mode.
+ * Writes the rows of the statuses table, one per pair per mode.
  */
 function statusRows(statuses: ThemeReport["statuses"]): readonly string[] {
   return MODES.flatMap((mode) =>

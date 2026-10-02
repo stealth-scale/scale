@@ -1,0 +1,63 @@
+{
+  "about": "The parts of one whole as a ring, largest first from 12 o'clock, with a figure such as the total in the hole. Everything the pie chart does applies.",
+  "incidents": {
+    "about": "maxSlices={4} gathers the three smallest causes into one slice named by otherLabel, and the hole counts every incident.",
+    "capacity": "Capacity",
+    "caption": "Deploys caused 14 of the 35 incidents this quarter, 40%.",
+    "center": "incidents",
+    "certificate": "Certificate",
+    "dependency": "Dependency",
+    "deploy": "Deploy",
+    "dns": "DNS",
+    "label": "Incidents per cause this quarter",
+    "legend": "Causes",
+    "network": "Network",
+    "other": "Other causes",
+    "title": "Long tail"
+  },
+  "largest": {
+    "about": "defaultIndex opens the tooltip at the largest slice when the chart first renders. The pointer or the arrow keys move it from slice to slice.",
+    "caption": "Video's 118 GB are 60% of the storage in use.",
+    "title": "Tooltip"
+  },
+  "narrow": {
+    "about": "The storage in a room 20rem wide, the column of a phone. The ring scales down with the room, and the total is written in the hole.",
+    "title": "Narrow room"
+  },
+  "replay": {
+    "about": "animate grows the ring from 12 o'clock when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the ring at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "share": {
+    "about": "The hole shows the largest share in place of a total. The chart does not compute the figure, so the caller states what it is.",
+    "caption": "Starter has 47% of the 1,300 customers.",
+    "center": "47%",
+    "centerLabel": "on Starter",
+    "growth": "Growth",
+    "label": "Customers per plan",
+    "legend": "Plans",
+    "scale": "Scale",
+    "starter": "Starter",
+    "title": "Largest share in the hole"
+  },
+  "title": "Donut chart",
+  "unused": {
+    "about": "A chart without slices renders the empty state in the plot's place, and no legend or figure in the middle.",
+    "caption": "Storage per kind of file.",
+    "empty": "No files stored yet.",
+    "title": "Empty"
+  },
+  "usage": {
+    "about": "Storage per kind of file with the total in the hole, which the example sums and writes in the page's language.",
+    "archives": "Archives",
+    "caption": "Video takes 60% of the 195.5 GB in use.",
+    "center": "in use",
+    "documents": "Documents",
+    "images": "Images",
+    "label": "Storage per kind of file",
+    "legend": "Kinds of file",
+    "title": "Total in the hole",
+    "video": "Video"
+  }
+}

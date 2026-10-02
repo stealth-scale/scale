@@ -1,26 +1,29 @@
 /**
- * Reads the document a page of the catalogue, or one scene of it, draws: an outline of what is
- * on it, and, where asked, the tree of elements, the styles an element is drawn with, the rules
- * that reach it, the accessibility tree, an accessibility audit, the boxes, and the tokens the
- * theme has in force.
+ * Reads the DOM of a catalogue page or one scene of it: an outline by default, and on request the
+ * element tree, computed styles, matched rules, the accessibility tree, an axe audit, boxes,
+ * measurements and theme tokens.
  *
  * @remarks
- *   Run against a catalogue that is already serving. The outline says what a reader or a screen
- *   reader meets: the headings, the landmarks, the controls with their accessible names, how many
- *   elements each recipe drew, any word left as the key it was looked up by, and what the console
- *   reported. Everything else is a reading of one thing at a time, named by a selector, and every
- *   reading comes out as text or, with `--json`, as JSON for a diff between two builds, two
- *   themes or two ports.
- *   Usage: node scripts/catalogue/dom.ts --page actions/button [--scene looks] [--tree]
- *   [--classes all] [--css "[data-recipe=button]"] [--rules "[data-recipe=button]"] [--aria]
- *   [--axe] [--box "[data-recipe=button]"] [--tokens] [--json]
+ *   Run against a catalogue that is already serving. The outline lists headings, landmarks,
+ *   controls with their accessible names, the element count per recipe, untranslated keys and
+ *   console errors. Every other reading targets the elements a selector matches, and `--json`
+ *   prints any reading as JSON for a diff between builds, themes or ports.
+ *   Usage: `node scripts/catalogue/dom.ts --page components/actions/button`, plus the options
+ *   `--help` lists.
  */
 
-import { type Locator, type Page } from "playwright";
-
-import { eachOpened, rooted, scenesOn, staged, STATES, type Target } from "./browse.ts";
+import {
+  eachOpened,
+  type Opened,
+  rooted,
+  scenesOn,
+  staged,
+  STATES,
+  type Target,
+} from "./browse.ts";
 import {
   flagAt,
+  listed,
   named,
   parsed,
   resolved,
@@ -31,6 +34,7 @@ import {
 } from "./options.ts";
 import { audited } from "./read/audit.ts";
 import { boxed } from "./read/boxes.ts";
+import { type Measure, measured, MEASURES } from "./read/measure.ts";
 import { outlined } from "./read/outline.ts";
 import { printed, type Reading } from "./read/print.ts";
 import { ruled, styled } from "./read/styles.ts";
@@ -38,7 +42,7 @@ import { tokened } from "./read/tokens.ts";
 import { treed } from "./read/tree.ts";
 
 /**
- * The command's own options.
+ * Options this command adds to the shared ones.
  */
 const OWN = {
   aria: { default: false, type: "boolean" },
@@ -49,6 +53,7 @@ const OWN = {
   "css-all": { default: false, type: "boolean" },
   depth: { default: "8", short: "d", type: "string" },
   json: { default: false, short: "j", type: "boolean" },
+  measure: { default: "", type: "string" },
   outline: { default: false, type: "boolean" },
   rules: { default: "", type: "string" },
   select: { default: "", type: "string" },
@@ -58,124 +63,140 @@ const OWN = {
 } as const;
 
 /**
- * The help this command prints.
+ * Help text the command prints for `--help`.
  */
 const HELP = [
-  "Reads the document a page of the catalogue, or one scene of it, draws.",
+  "Reads the DOM of a catalogue page or one scene of it.",
   "",
   "Usage: node scripts/catalogue/dom.ts --page <path> [options]",
   "",
   ...SHARED_HELP,
-  "      --select <css>    read the elements a selector finds rather than the page or the scene",
-  "      --outline         print the whole outline beside another reading; alone, it is printed anyway",
-  "      --tree            print the tree of elements",
-  "  -d, --depth <n>       how deep the tree goes, 8 by default",
-  "      --classes <which> recipe classes alone in the tree, or all of them: recipe or all",
-  "      --css <css>       the computed style of each element the selector finds in the region",
-  "      --css-all         every computed property rather than the visual ones",
-  "      --rules <css>     the rules that reach the first element the selector finds; chromium only",
-  `      --state <state>   put the element read by --css or --rules in a state: ${STATES.join(", ")}`,
-  "      --aria            the accessibility tree of the region",
-  "      --axe             an accessibility audit of the region",
-  "      --box <css>       the box of each element the selector finds in the region",
-  "      --tokens          the custom properties in force on the root, for the theme and the mode",
-  "  -j, --json            print JSON rather than text",
+  "      --select <css>    read the elements a selector matches instead of the page or the scene",
+  "      --outline         print the whole outline beside another reading",
+  "      --tree            print the element tree",
+  "  -d, --depth <n>       tree depth, 8 by default",
+  "      --classes <which> recipe or all: the classes the tree prints",
+  "      --css <css>       computed style of each element the selector matches in the region",
+  "      --css-all         every computed property instead of the layout and paint subset",
+  "      --rules <css>     rules matching the first element the selector matches; chromium only",
+  `      --state <state>   state of the element --css or --rules reads: ${STATES.join(", ")}`,
+  "      --aria            accessibility tree of the region",
+  "      --axe             axe audit of the region",
+  "      --box <css>       box of each element the selector matches in the region",
+  `      --measure <kinds> ${MEASURES.join(", ")}, commas for several; measures the --select elements`,
+  "      --tokens          custom properties on the root, for the theme and the mode",
+  "  -j, --json            print JSON instead of text",
   "",
   "The region is the page, the scene named with --scene, or the elements named with --select.",
   "",
   "Examples:",
-  "  node scripts/catalogue/dom.ts -p actions/button",
-  "  node scripts/catalogue/dom.ts -p layout/grid -s spans --tree --depth 4",
-  '  node scripts/catalogue/dom.ts -p actions/button --css "[data-recipe=button]" --state hover -b chromium',
-  '  node scripts/catalogue/dom.ts -p actions/button --rules "[data-recipe=button]" -b chromium',
-  "  node scripts/catalogue/dom.ts -p actions/button --tokens -t asphalt -m dark --json > asphalt.json",
+  "  node scripts/catalogue/dom.ts -p components/actions/button",
+  "  node scripts/catalogue/dom.ts -p components/layout/grid -s spans --tree --depth 4",
+  '  node scripts/catalogue/dom.ts -p components/actions/button --css "[data-recipe=button]" --state hover -b chromium',
+  '  node scripts/catalogue/dom.ts -p components/actions/button --rules "[data-recipe=button]" -b chromium',
+  '  node scripts/catalogue/dom.ts -p components/data/badge -s marks --select ".badge" --measure ink,glyph',
+  "  node scripts/catalogue/dom.ts -p components/actions/button --tokens -t asphalt -m dark --json",
 ];
 
 /**
- * Describes what the command was asked to read, beyond the targets.
+ * Readings requested on the command line, beyond the targets.
  */
 interface Asked {
   /**
-   * Whether the accessibility tree is read.
+   * Prints the accessibility tree.
    */
   readonly aria: boolean;
 
   /**
-   * Whether the audit runs.
+   * Runs axe.
    */
   readonly axe: boolean;
 
   /**
-   * Which elements' boxes are read, or nothing.
+   * Selector whose boxes are printed, or an empty string.
    */
   readonly box: string;
 
   /**
-   * Which elements' computed styles are read, or nothing.
+   * Selector whose computed styles are printed, or an empty string.
    */
   readonly css: string;
 
   /**
-   * Whether every computed property is read.
+   * Prints every computed property.
    */
   readonly cssAll: boolean;
 
   /**
-   * How deep the tree goes.
+   * Tree depth.
    */
   readonly depth: number;
 
   /**
-   * Whether every class is kept in the tree.
+   * Keeps every class in the tree.
    */
   readonly every: boolean;
 
   /**
-   * Whether the reading is printed as JSON.
+   * Prints JSON.
    */
   readonly json: boolean;
 
   /**
-   * Whether the whole outline is printed beside another reading.
+   * Measurements taken of the `select` elements.
+   */
+  readonly measures: readonly Measure[];
+
+  /**
+   * Prints the whole outline beside another reading.
    */
   readonly outline: boolean;
 
   /**
-   * Which element's rules are read, or nothing.
+   * Selector whose matched rules are printed, or an empty string.
    */
   readonly rules: string;
 
   /**
-   * Which elements are read rather than the page or the scene, or nothing.
+   * Selector that replaces the page or the scene as the region, or an empty string.
    */
   readonly select: string;
 
   /**
-   * The state the element read by `css` or `rules` is put in.
+   * State the `css` or `rules` element is put in.
    */
   readonly state: (typeof STATES)[number];
 
   /**
-   * Whether the tokens are read.
+   * Prints the theme tokens.
    */
   readonly tokens: boolean;
 
   /**
-   * Whether the tree is read.
+   * Prints the element tree.
    */
   readonly tree: boolean;
 }
 
 /**
- * Reads what was asked off the values parsed.
+ * Parses the requested readings from the command-line values.
  *
- * @throws {@link Error} When the depth is not a whole number above zero.
+ * @throws {@link Error} When the depth is not a whole number above zero, or `--measure` is given
+ *   without `--select`.
  */
 function askedOf(values: Values): Asked {
   const depth = Number(stringAt(values, "depth"));
+  const select = stringAt(values, "select");
+  const measures = listed(stringAt(values, "measure")).map((one) =>
+    named("measure", one, MEASURES),
+  );
 
   if (!Number.isInteger(depth) || depth < 1) {
     throw new Error("--depth takes a whole number above zero");
+  }
+
+  if (measures.length > 0 && select === "") {
+    throw new Error("--measure needs --select, the elements to measure");
   }
 
   return {
@@ -187,9 +208,10 @@ function askedOf(values: Values): Asked {
     depth,
     every: named("classes", stringAt(values, "classes") || "recipe", ["recipe", "all"]) === "all",
     json: flagAt(values, "json"),
+    measures,
     outline: flagAt(values, "outline"),
     rules: stringAt(values, "rules"),
-    select: stringAt(values, "select"),
+    select,
     state: named("state", stringAt(values, "state") || "rest", STATES),
     tokens: flagAt(values, "tokens"),
     tree: flagAt(values, "tree"),
@@ -197,39 +219,42 @@ function askedOf(values: Values): Asked {
 }
 
 /**
- * Describes one page to read: the page, how it was opened, and what to read on it.
+ * One page to read: the open page, how it was opened, and the readings requested.
  */
 interface Job {
   /**
-   * The readings asked for.
+   * Readings requested.
    */
   readonly asked: Asked;
 
   /**
-   * The errors the console reported while the page loaded.
+   * Console errors the page logged while loading.
    */
   readonly errors: readonly string[];
 
   /**
-   * The open page.
+   * Open page.
    */
-  readonly page: Page;
+  readonly page: Opened["page"];
 
   /**
-   * The scene named, or undefined for the whole page.
+   * Scene named, or undefined for the whole page.
    */
   readonly scene: string | undefined;
 
   /**
-   * How the page was opened.
+   * Target the page was opened with.
    */
   readonly target: Target;
 }
 
 /**
- * Reads the parts of a page that a selector or a flag asked for, beyond the outline.
+ * Takes every reading requested beyond the outline.
  */
-async function extras(job: Job, root: Locator): Promise<Omit<Reading, "outline" | "target">> {
+async function extras(
+  job: Job,
+  root: Awaited<ReturnType<typeof rooted>>,
+): Promise<Omit<Reading, "outline" | "target">> {
   const { asked, page } = job;
 
   return {
@@ -237,6 +262,7 @@ async function extras(job: Job, root: Locator): Promise<Omit<Reading, "outline" 
     ...(asked.axe ? { axe: await audited(page, root) } : {}),
     ...(asked.box === "" ? {} : { boxes: await boxed(root, asked.box) }),
     ...(asked.css === "" ? {} : { css: await styled(root, asked.css, asked.cssAll) }),
+    ...(asked.measures.length === 0 ? {} : { measures: await measured(root, asked.measures) }),
     ...(asked.rules === "" ? {} : { rules: await ruled(page, root, asked.rules) }),
     ...(asked.tokens ? { tokens: await tokened(page) } : {}),
     ...(asked.tree ? { tree: await treed(root, asked.depth, asked.every) } : {}),
@@ -244,9 +270,10 @@ async function extras(job: Job, root: Locator): Promise<Omit<Reading, "outline" 
 }
 
 /**
- * Reads one open page, with the element the styles are read from put in its state first.
+ * Reads one open page, with the `css` or `rules` element put in the requested state first and
+ * returned to rest after.
  *
- * @param job - The page and the readings asked for.
+ * @param job - Page and readings.
  * @returns The reading.
  */
 async function read(job: Job): Promise<Reading> {

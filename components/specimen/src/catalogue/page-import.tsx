@@ -4,7 +4,6 @@
 
 import { type ReactElement } from "react";
 
-import { VisuallyHidden } from "@stealthscale/component-a11y";
 import { Section } from "@stealthscale/component-screen";
 
 import { Code } from "#catalogue/code.tsx";
@@ -31,9 +30,12 @@ export interface ImportProps {
  *
  * @remarks
  *   A section, so the scenes after it are parted from it the way they are parted from each other,
- *   and named for a screen reader by a title the eye does not see: the statement is its own
- *   heading on the page. Nothing is drawn where the index knows no package for the page, or the
- *   page declares no statement.
+ *   and named for a screen reader rather than headed for the eye: the statement is its own heading
+ *   on the page. The name is stated on the section rather than written as a title nobody sees,
+ *   because a section parts its header from its body by a gap and an empty header spends that gap
+ *   on nothing. A named section is a region, which is what a screen reader lists it as.
+ *   Nothing is drawn where the index knows no package for the page, or the page declares no
+ *   statement.
  * @returns The section, or nothing.
  */
 export function Import({ imports, package: from }: ImportProps): null | ReactElement {
@@ -42,12 +44,7 @@ export function Import({ imports, package: from }: ImportProps): null | ReactEle
   if (from === "" || imports === undefined || imports === "") return null;
 
   return (
-    <Section.Root>
-      <Section.Header>
-        <Section.Title>
-          <VisuallyHidden>{t("code.import")}</VisuallyHidden>
-        </Section.Title>
-      </Section.Header>
+    <Section.Root aria-label={t("code.import")}>
       <Section.Body>
         <Code code={imports} title={from} />
       </Section.Body>

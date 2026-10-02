@@ -6,7 +6,6 @@
     "clean": "Nothing found, against {{count}} rule",
     "clean_other": "Nothing found, against {{count}} rules",
     "rule": "Read the {{rule}} rule",
-    "running": "Auditing",
     "unrated": "unrated"
   },
   "code": {
@@ -24,10 +23,11 @@
     "size": "{{width}} × {{height}}"
   },
   "index": {
-    "title": "Components"
+    "about": "Every page the build found, under the section and the group its address files it in.",
+    "title": "Catalogue"
   },
   "page": {
-    "back": "Components",
+    "back": "Catalogue",
     "failed": "This page could not be loaded: {{reason}}",
     "reload": "Reload the page"
   },
@@ -41,12 +41,102 @@
     "none": "Nothing was read for this page.",
     "says": "What it does"
   },
+  "groups": {
+    "a11y": {
+      "about": "The parts a reader never sees until they need them: a way past the navigation, a name for a screen reader, and one focus moving through a set.",
+      "title": "Accessibility"
+    },
+    "actions": {
+      "about": "What a reader presses, and what answers when they do.",
+      "title": "Actions"
+    },
+    "charts": {
+      "about": "Plots a reader compares values on, with the legend, the tooltip and the caption around them.",
+      "title": "Charts"
+    },
+    "collections": {
+      "about": "Rows and options a reader reads down, picks from, or moves between.",
+      "title": "Collections"
+    },
+    "content": { "about": "The blocks a document is written out of.", "title": "Content" },
+    "data": { "about": "The small marks that count, label and qualify.", "title": "Data" },
+    "disclosure": {
+      "about": "The parts that keep something out of sight until a reader asks for it.",
+      "title": "Disclosure"
+    },
+    "feedback": {
+      "about": "What the screen says back: a notice, a wait, and the state where there is nothing to show.",
+      "title": "Feedback"
+    },
+    "forms": {
+      "about": "What a reader fills in, chooses and submits, each with the label and the message it needs.",
+      "title": "Forms"
+    },
+    "graphs": {
+      "about": "Nodes and the connections between them, laid out by rank or by force, which a reader follows or edits.",
+      "title": "Graphs"
+    },
+    "layout": {
+      "about": "The boxes that place everything else, and the space between them.",
+      "title": "Layout"
+    },
+    "media": {
+      "about": "The pictures, clips, sounds and embedded documents a page shows.",
+      "title": "Media"
+    },
+    "messaging": {
+      "about": "The turns of a conversation, the transcript around them, and the box a reader writes the next message in.",
+      "title": "Messaging"
+    },
+    "modals": {
+      "about": "The surfaces that take the screen until a reader is done with them.",
+      "title": "Modals"
+    },
+    "navigation": {
+      "about": "How a reader knows where they are and reaches somewhere else.",
+      "title": "Navigation"
+    },
+    "primitives": {
+      "about": "The parts with no look of their own, which other parts are built out of.",
+      "title": "Primitives"
+    },
+    "router": {
+      "about": "The parts that resolve an address and move a reader to it.",
+      "title": "Router"
+    },
+    "screen": {
+      "about": "The bands a whole screen is assembled from: the shell, the column beside it, and the page between.",
+      "title": "Screen"
+    },
+    "surfaces": {
+      "about": "The raised and bordered boxes that group what sits on them.",
+      "title": "Surfaces"
+    },
+    "tables": {
+      "about": "Tables of records a reader sorts, filters, pages, pins and resizes.",
+      "title": "Tables"
+    },
+    "typography": {
+      "about": "The words themselves: the scale they are set at, and every mark that changes how one is read.",
+      "title": "Typography"
+    }
+  },
   "rail": {
     "clear": "Clear the filter",
     "empty": "No pages match",
     "filter": "Filter pages",
-    "label": "Components",
+    "label": "Catalogue",
     "ungrouped": "Other"
+  },
+  "sections": {
+    "components": {
+      "about": "Every control and surface the library draws, each on a page of its own, grouped by what it is for.",
+      "title": "Components"
+    },
+    "foundations": {
+      "about": "What the components are built on: the theme, the providers a screen runs inside, and the hooks they share.",
+      "title": "Foundations"
+    }
   },
   "tabs": {
     "examples": "Examples",

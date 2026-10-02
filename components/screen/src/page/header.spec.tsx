@@ -7,19 +7,19 @@ import { Header } from "#page/header.tsx";
 import { paged } from "#page/page.fixtures.tsx";
 
 describe("Header", () => {
-  it("draws a header inside the column it needs above it", () => {
+  it("renders a header", () => {
     const { container } = render(paged(<Header>April</Header>));
 
     expect(slotElement(container, "page", "header").tagName).toBe("HEADER");
   });
 
-  it("stays put where a caller asks", () => {
+  it("sets data-sticky when sticky", () => {
     const { container } = render(paged(<Header sticky>April</Header>));
 
     expect(slotElement(container, "page", "header").dataset["sticky"]).toBe("");
   });
 
-  it("moves with the page where no caller asks", () => {
+  it("sets no data-sticky by default", () => {
     const { container } = render(paged(<Header>April</Header>));
 
     expect(slotElement(container, "page", "header").dataset["sticky"]).toBeUndefined();

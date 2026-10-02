@@ -1,0 +1,36 @@
+{
+  "about": "A dashed trend line across a scatter: the least-squares line through the points, over the range of x the points cover. linearRegression returns the line's r², which the page states and reads to decide whether the line belongs on the chart.",
+  "channels": {
+    "about": "Each series takes a RegressionOverlay with series set to its key. Each line takes its series' color, hides while the legend hides the series, and fades while the legend points at the other series.",
+    "caption": "Online, each euro on the price costs about {{online}} units a week. In store, it costs about {{store}}.",
+    "label": "Weekly units by price and channel",
+    "online": "Online",
+    "price": "Price",
+    "store": "In store",
+    "title": "Trend line per series",
+    "units": "Units a week"
+  },
+  "fit": {
+    "about": "A RegressionOverlay child of a ScatterPlot fits the fourteen products. The line runs from the cheapest product to the dearest and no further, dashed in the neutral palette's chart color.",
+    "caption": "Each euro on the price costs about {{units}} units a week, with an r² of {{r2}}.",
+    "label": "Weekly units by price",
+    "price": "Price",
+    "products": "Products",
+    "title": "Trend line",
+    "units": "Units a week"
+  },
+  "narrow": {
+    "about": "The fitted products in a room 20rem wide, the column of a phone.",
+    "title": "Narrow room"
+  },
+  "title": "Regression overlay",
+  "weak": {
+    "about": "The page reads r² from linearRegression and renders the overlay only at 0.5 or more. A straight line through a cloud like this one would picture a relationship the data does not show.",
+    "caption": "Team size accounts for {{share}} of the variance in weekly deploys, so the page shows no trend line.",
+    "deploys": "Deploys a week",
+    "label": "Weekly deploys by team size",
+    "people": "People",
+    "teams": "Teams",
+    "title": "Weak fit"
+  }
+}

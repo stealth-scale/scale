@@ -1,0 +1,47 @@
+{
+  "about": "Two or more distributions on one set of bins chosen from every series' values together, with each series' bar beside the others in every bin. normalize compares series of different sizes as shares.",
+  "busiest": {
+    "about": "defaultIndex opens the tooltip at a bin when the chart first renders. The heading is the bin's range, and each row is a series' count.",
+    "caption": "22 North deliveries and 2 South deliveries took 2 to 2.5 days.",
+    "title": "Tooltip"
+  },
+  "hidden": {
+    "about": "defaultHiddenKeys hides South when the chart first renders, and North's bars take each bin's whole width. A press on South in the legend shows it again.",
+    "caption": "Most of North's deliveries arrive within 3 days.",
+    "title": "Hidden series"
+  },
+  "narrow": {
+    "about": "The two regions in a room 20rem wide, the column of a phone.",
+    "title": "Narrow room"
+  },
+  "quiet": {
+    "about": "A distribution chart whose series have no finite value renders the empty state in the plot's place, at the plot's ratio.",
+    "caption": "Delivery times this week.",
+    "empty": "No deliveries this week.",
+    "title": "Empty"
+  },
+  "regions": {
+    "about": "Delivery times in two regions, counted together into half-day bins, so the bars of North and South start at the same edges. The legend hides and shows a region.",
+    "caption": "58 of 90 North deliveries arrive within 3 days, against 8 of 70 in South.",
+    "label": "Delivery times by region",
+    "north": "North",
+    "regions": "Regions",
+    "south": "South",
+    "title": "Two regions"
+  },
+  "replay": {
+    "about": "animate grows each bar from the axis when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the bars at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "sessions": {
+    "about": "normalize counts each bin as a share of its own plan's sessions, so 120 free sessions and 30 paid ones compare, and the value axis reads in percent.",
+    "caption": "Three in four Free sessions end within 10 minutes, against one in ten Pro sessions.",
+    "free": "Free",
+    "label": "Session lengths by plan",
+    "plans": "Plans",
+    "pro": "Pro",
+    "title": "Shares of each series"
+  },
+  "title": "Distribution chart"
+}

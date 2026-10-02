@@ -8,7 +8,7 @@ import { ItemDescription } from "#listbox/item-description.ts";
 import { offered } from "#listbox/listbox.fixtures.tsx";
 
 describe("ItemDescription", () => {
-  it("draws a span inside the root it needs above it", () => {
+  it("renders a span", () => {
     const { container } = render(offered(<ItemDescription>Settles nightly</ItemDescription>));
 
     expect(slotElement(container, "listbox", "itemDescription").tagName).toBe("SPAN");
@@ -26,7 +26,7 @@ describe("ItemDescription", () => {
     ).toStrictEqual([]);
   });
 
-  it("takes the size the root states", () => {
+  it("applies the root's size class", () => {
     const { container } = render(
       offered(<ItemDescription>Settles nightly</ItemDescription>, { size: "lg" }),
     );
@@ -34,11 +34,17 @@ describe("ItemDescription", () => {
     expect(slotElement(container, "listbox", "itemDescription").className).toContain("lg");
   });
 
-  it("names nothing of its own, because the row's words name the row", () => {
+  it("sets no role", () => {
     const { container } = render(offered(<ItemDescription>Settles nightly</ItemDescription>));
-    const drawn = slotElement(container, "listbox", "itemDescription");
 
-    expect(drawn.getAttribute("role")).toBeNull();
-    expect(drawn.getAttribute("aria-label")).toBeNull();
+    expect(slotElement(container, "listbox", "itemDescription").getAttribute("role")).toBeNull();
+  });
+
+  it("sets no aria-label", () => {
+    const { container } = render(offered(<ItemDescription>Settles nightly</ItemDescription>));
+
+    expect(
+      slotElement(container, "listbox", "itemDescription").getAttribute("aria-label"),
+    ).toBeNull();
   });
 });

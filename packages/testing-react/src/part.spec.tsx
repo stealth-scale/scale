@@ -32,7 +32,7 @@ describe("part", () => {
     expect(() => part(container, "trigger")).toThrow('[data-part="trigger"]');
   });
 
-  it("returns the first when a component drew the part more than once", () => {
+  it("returns the first when a component rendered the part more than once", () => {
     const { container } = render(
       <div>
         <span data-part="item" id="one" />
@@ -62,7 +62,7 @@ describe("parts", () => {
     expect(Array.isArray(parts(container, "item"))).toBe(true);
   });
 
-  it("returns an empty array when the component drew none", () => {
+  it("returns an empty array when the component rendered none", () => {
     const { container } = render(<div data-part="root" />);
 
     expect(parts(container, "item")).toStrictEqual([]);
@@ -82,7 +82,7 @@ describe("only", () => {
     expect(() => only(container)).toThrow("no element");
   });
 
-  it("returns the SVG mark a component drew", () => {
+  it("returns the SVG mark a component rendered", () => {
     const container = document.createElement("div");
 
     container.append(document.createElementNS("http://www.w3.org/2000/svg", "svg"));

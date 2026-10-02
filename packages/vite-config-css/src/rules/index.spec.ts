@@ -1,6 +1,6 @@
 /**
- * Holds the boundary between what this package declares and what the shared
- * guide already covers.
+ * Covers the boundary between the rules this package declares and the rules
+ * the installed shared guide declares.
  */
 
 import { describe, expect, it } from "vitest";
@@ -8,12 +8,12 @@ import { describe, expect, it } from "vitest";
 import { all, ANIMATION, CASCADE, ORDER, SELECTOR } from "#rules/index.ts";
 
 /**
- * Names rules this package deliberately leaves to the shared guide.
+ * The rules this package deliberately leaves to the shared guide.
  *
  * @remarks
- *   A name dropped from the shared guide upstream is a rule nobody enforces
- *   any more, which a test reading the guide catches and a test reading only
- *   this package's sets never would.
+ *   A rule dropped from the shared guide upstream is a rule nobody enforces.
+ *   The specification reads the installed guide, so the drop fails a test
+ *   here.
  */
 const SHARED = [
   "selector-class-pattern",
@@ -27,9 +27,9 @@ const SHARED = [
  * Loads the rules the installed copy of the shared guide turns on.
  *
  * @remarks
- *   The guide is read from the version this repository has installed rather
- *   than from a list written down here, so an upgrade that moves a rule shows
- *   up as a failing test.
+ *   Imported rather than restated, so an upgrade that moves a rule fails a test
+ *   here.
+ * @returns The guide's rule map, keyed by rule name.
  */
 async function standard(): Promise<Record<string, unknown>> {
   const held = await import("stylelint-config-standard");
@@ -38,7 +38,7 @@ async function standard(): Promise<Record<string, unknown>> {
 }
 
 describe("vite-config-css", () => {
-  it("gathers every rule domain beside it", () => {
+  it("returns exactly the rule names the four sets declare", () => {
     expect(Object.keys(all()).toSorted()).toStrictEqual(
       [
         ...Object.keys(SELECTOR),
@@ -57,7 +57,7 @@ describe("vite-config-css", () => {
     }
   });
 
-  it("defers to the shared set for the rest of the guide", async () => {
+  it("finds every rule it leaves to the shared set still declared there", async () => {
     const held = await standard();
 
     for (const name of SHARED) {

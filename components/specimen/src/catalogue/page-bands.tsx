@@ -1,6 +1,6 @@
 /**
- * Draws a page as two bands under the strip that switches between them: the examples, and what the
- * page's parts accept.
+ * Renders a catalogue page as two bands under a tab list: its examples, and the props its parts
+ * accept.
  */
 
 import { type ReactElement, useState } from "react";
@@ -17,62 +17,51 @@ import { type Indexed } from "#catalogue/types.ts";
 import { useAnatomy } from "#catalogue/use-anatomy.ts";
 
 /**
- * Runs the strip's machine over the page itself, so every band stays a child of the page's grid.
+ * Aliases the tabs root, which renders as the page element so every band stays a child of the page
+ * grid.
  */
 const Banded = Tabs.Root;
 
 /**
- * Describes what the bands take.
+ * Describes the props {@link Bands} accepts.
  */
 export interface BandsProps {
   /**
-   * The head of the page, drawn above the strip.
+   * Gives the page header, rendered above the tab list.
    */
   readonly children: ReactElement;
 
   /**
-   * The entry the index holds for the page.
+   * Gives the index entry for the page.
    */
   readonly entry: Indexed;
 
   /**
-   * The path the application serves the framed page at, or nothing where it serves none.
+   * Gives the path the application serves the framed page at, and stays undefined where it serves
+   * none.
    */
   readonly framed?: string | undefined;
 
   /**
-   * The statement the page opens with, or nothing where it declares none.
+   * Gives the import statement the page declares, and stays undefined where it declares none.
    */
   readonly imports?: string | undefined;
 
   /**
-   * The scenes, in the order they are on the page.
+   * Lists the scenes in the order they appear on the page.
    */
   readonly scenes: readonly Listed[];
 }
 
 /**
- * Draws the page, its strip, and whichever band the strip has open.
+ * Renders the page, its tab list, and whichever band the tab list has open.
  *
  * @remarks
- *   The strip's frame is the page itself, through `as`. A page is a grid of named areas and every
- *   band takes one, so a frame drawn round them as an element of its own leaves each band with no
- *   area to sit in: the rail that lists the scenes fell to the foot of the page under the body it
- *   belongs beside.
- *   Each panel is drawn as the page's body for the same reason, so it carries the tabpanel role
- *   and the body's grid area together.
- *   The band draws the line under the strip and the strip draws none, so the head and the body are
- *   parted once across the whole page rather than twice under two different widths.
- *   The rail lists whichever band is open: the scenes of one, the parts of the other. It is the one
- *   way through a band that runs to a dozen sections either way, and a band without it is a band a
- *   reader scrolls.
- *   The props are loaded while their band is open and not before. The index keeps them behind a
- *   loader because one page's run to tens of kilobytes, and a rail listing a hundred pages would
- *   otherwise carry all of it. Their panel is drawn empty until then, rather than drawn saying it
- *   is still reading: a hidden panel that says so is a line every reading of the page carries and
- *   nobody ever sees.
- * @param props - The head of the page, the entry, the import line, and the scenes.
- * @returns The page, its strip, and the open band.
+ *   A page is a grid of named areas, so the tabs root renders as the page itself through `as`: a
+ *   wrapper element around the bands leaves each band without an area, and the rail listing the
+ *   scenes drops to the foot of the page. Each panel renders as the page body for the same reason,
+ *   taking the tabpanel role and the body grid area together. The props load only while the props
+ *   band is open, because one page's props run to tens of kilobytes.
  */
 export function Bands({ children, entry, framed, imports, scenes }: BandsProps): ReactElement {
   const [band, setBand] = useState<Band>(BANDS.examples);

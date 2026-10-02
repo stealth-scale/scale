@@ -8,7 +8,7 @@ import { slotClass, slotClasses, variantClass } from "@stealthscale/testing-them
 import { withContext, withProvider } from "#section/context.ts";
 
 describe("context", () => {
-  it("draws the slot's class on an element it binds", () => {
+  it("applies the slot class to a bound element", () => {
     const Block = withProvider("section", "root");
     const Band = withContext("header", "header");
     const { container } = render(createElement(Block, null, createElement(Band)));
@@ -16,7 +16,7 @@ describe("context", () => {
     expect(slotClasses(container, "section", "header")).toContain(slotClass("section", "header"));
   });
 
-  it("hands the block's variants to a band below it", () => {
+  it("passes the root's variants to a part below it", () => {
     const Block = withProvider("section", "root");
     const Named = withContext("h2", "title");
     const { container } = render(createElement(Block, { size: "lg" }, createElement(Named)));

@@ -1,223 +1,245 @@
 /**
- * Shows the code block: a file with a copy control, every size, three languages, and plain text.
+ * Catalogue page for the code block.
  *
  * @remarks
- *   The copy control is `CodeBlock.Copy`, which reads the code off the root and wires the
- *   clipboard itself. The page hands it the two marks and the words, because the library ships no
- *   icon set and this package ships no words. The marks come from Lucide, which this package takes
- *   for its specimens alone: a published component still takes its glyph from whoever draws it.
- *   The words are keys under `code-block` in the catalogue's namespace, kept beside this file in
- *   `locales/en/specimen/code-block.json`.
+ *   Every scene renders a component from `examples/` and shows that file as its source: a file with
+ *   a copy control, three languages, a plain-text log, two terminal outputs, the three colour
+ *   modes, and six diffs: a pull request with folds, a side-by-side view, changed words, a
+ *   rewrite, a whole text and a diff without changes. `scenesOf` generates the size scene from the
+ *   file example and the wrap scene from the test run. The test run's lines overflow the wrap
+ *   scene's 448px room. Each other block renders in a room of a documentation column's width,
+ *   672px, each mode in a 448px room, and the side-by-side diff in a 896px room. The words are keys
+ *   under `code-block` in `locales/en/specimen/code-block.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { CheckIcon, CopyIcon } from "lucide-react";
+import { Matrix, Room, type Scene, scenesOf, specimen } from "@stealthscale/specimen";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
-
-import * as CodeBlock from "#code-block/index.ts";
+import * as examples from "#code-block/examples/index.ts";
+import type * as CodeBlock from "#code-block/index.ts";
 import { recipe } from "#code-block/recipe.ts";
 
 /**
- * A component file, the passage the first two scenes set.
- */
-const FILE = `import { Button } from "@stealthscale/component-actions";
-
-/**
- * Sends the invoice once a person confirms it.
- */
-export function Send({ onSend }: SendProps) {
-  const [sent, setSent] = useState(false);
-
-  return (
-    <Button disabled={sent} onClick={() => { onSend(); setSent(true); }} variant="solid">
-      {sent ? "Sent" : "Send the invoice"}
-    </Button>
-  );
-}`;
-
-/**
- * One passage per language the third scene sets.
- */
-const PASSAGES = {
-  json: `{
-  "name": "@stealthscale/component-content",
-  "version": "0.1.0",
-  "sideEffects": false
-}`,
-  shell: `pnpm add @stealthscale/component-content
-# then list the preset under ./theme with the compiler
-vp dev --port 5179`,
-  yaml: `catalog:
-  "@tanstack/highlight": 0.1.0
-  "@zag-js/clipboard": 1.44.0`,
-} as const;
-
-/**
- * The languages the third scene sets, in the order they are shown.
- */
-const LANGUAGES = ["json", "shell", "yaml"] as const;
-
-/**
- * The three modes the root offers, in the order they are shown.
+ * Lists the colour modes the modes scene renders, in cell order.
  */
 const MODES = ["dark", "light", "inherit"] as const;
 
 /**
- * Draws the control that copies the passage, named in the catalogue's words.
- */
-function CopyControl(): ReactElement {
-  const { t } = useWords("code-block");
-
-  return (
-    <CodeBlock.Copy
-      copied={<CheckIcon size="1em" />}
-      translations={{ triggerLabel: (copied) => t(copied ? "copied" : "copy") }}
-    >
-      <CopyIcon size="1em" />
-    </CodeBlock.Copy>
-  );
-}
-
-/**
- * Draws a file with its name and a copy control.
- */
-function File(): ReactElement {
-  return (
-    <CodeBlock.Root code={FILE} language="tsx">
-      <CodeBlock.Header>
-        <CodeBlock.Title>send.tsx</CodeBlock.Title>
-        <CodeBlock.Control>
-          <CopyControl />
-        </CodeBlock.Control>
-      </CodeBlock.Header>
-      <CodeBlock.Content>
-        <CodeBlock.Code />
-      </CodeBlock.Content>
-    </CodeBlock.Root>
-  );
-}
-
-/**
- * Draws the same file at every size.
- */
-function Sizes(): ReactElement {
-  return (
-    <Matrix knob="size" of={valuesOf(recipe, "size")}>
-      {(size) => (
-        <CodeBlock.Root code={FILE} language="tsx" size={size}>
-          <CodeBlock.Header>
-            <CodeBlock.Title>send.tsx</CodeBlock.Title>
-          </CodeBlock.Header>
-          <CodeBlock.Content>
-            <CodeBlock.Code />
-          </CodeBlock.Content>
-        </CodeBlock.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws a passage in each of three languages.
- */
-function Languages(): ReactElement {
-  return (
-    <Matrix knob="language" of={LANGUAGES}>
-      {(language) => (
-        <CodeBlock.Root code={PASSAGES[language]} language={language}>
-          <CodeBlock.Content>
-            <CodeBlock.Code />
-          </CodeBlock.Content>
-        </CodeBlock.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws a passage with no language named.
- */
-function Plain(): ReactElement {
-  return (
-    <CodeBlock.Root code={PASSAGES.shell}>
-      <CodeBlock.Content>
-        <CodeBlock.Code />
-      </CodeBlock.Content>
-    </CodeBlock.Root>
-  );
-}
-
-/**
- * Draws the same passage in each mode the root offers.
+ * Renders the manifest once per colour mode, in one column of 448px rooms.
  */
 function Modes(): ReactElement {
   return (
-    <Matrix knob="mode" of={MODES}>
+    <Matrix direction="column" knob="mode" of={MODES}>
       {(mode) => (
-        <CodeBlock.Root code={PASSAGES.json} language="json" mode={mode}>
-          <CodeBlock.Content>
-            <CodeBlock.Code />
-          </CodeBlock.Content>
-        </CodeBlock.Root>
+        <Room size="md">
+          <examples.manifest.Manifest mode={mode} />
+        </Room>
       )}
     </Matrix>
   );
 }
 
 /**
- * A file with a copy control.
+ * Hand-written scene for the full block with a copy control, flush with the card's edges.
  */
 export const file: Scene = {
   about: "code-block.file.about",
-  draw: File,
+  draw: () => <examples.send.Send />,
+  example: examples.send,
   frame: "bleed",
   title: "code-block.file.title",
 };
 
 /**
- * Every size.
- */
-export const sizes: Scene = {
-  about: "code-block.sizes.about",
-  draw: Sizes,
-  title: "code-block.sizes.title",
-};
-
-/**
- * Three languages.
+ * Hand-written scene for three languages.
  */
 export const languages: Scene = {
   about: "code-block.languages.about",
-  draw: Languages,
+  draw: () => (
+    <Room size="2xl">
+      <examples.manifests.Manifests />
+    </Room>
+  ),
+  example: examples.manifests,
   title: "code-block.languages.title",
 };
 
 /**
- * Plain text.
+ * Hand-written scene for a block without a language.
  */
 export const plain: Scene = {
   about: "code-block.plain.about",
-  draw: Plain,
-  frame: "bleed",
+  draw: () => (
+    <Room size="2xl">
+      <examples.log.Log />
+    </Room>
+  ),
+  example: examples.log,
   title: "code-block.plain.title",
 };
 
 /**
- * Every mode.
+ * Hand-written scene for a failing test run's terminal output with a copy control.
+ */
+export const terminal: Scene = {
+  about: "code-block.terminal.about",
+  draw: () => (
+    <Room size="2xl">
+      <examples.testRun.TestRun />
+    </Room>
+  ),
+  example: examples.testRun,
+  title: "code-block.terminal.title",
+};
+
+/**
+ * Hand-written scene for a directory listing in six terminal colours.
+ */
+export const colours: Scene = {
+  about: "code-block.colours.about",
+  draw: () => (
+    <Room size="2xl">
+      <examples.deploy.Deploy />
+    </Room>
+  ),
+  example: examples.deploy,
+  title: "code-block.colours.title",
+};
+
+/**
+ * Hand-written scene for the three colour modes, with the first cell's mode in the source.
  */
 export const modes: Scene = {
   about: "code-block.modes.about",
   draw: Modes,
+  example: examples.manifest,
+  props: { mode: "dark" },
   title: "code-block.modes.title",
+};
+
+/**
+ * Hand-written scene for a pull request's diff with folds and counts.
+ */
+export const review: Scene = {
+  about: "code-block.review.about",
+  draw: () => (
+    <Room size="2xl">
+      <examples.pullRequest.PullRequest />
+    </Room>
+  ),
+  example: examples.pullRequest,
+  title: "code-block.review.title",
+};
+
+/**
+ * Hand-written scene for a diff side by side.
+ */
+export const split: Scene = {
+  about: "code-block.split.about",
+  draw: () => (
+    <Room size="4xl">
+      <examples.sideBySide.SideBySide />
+    </Room>
+  ),
+  example: examples.sideBySide,
+  title: "code-block.split.title",
+};
+
+/**
+ * Hand-written scene for the words a line gained and lost.
+ */
+export const words: Scene = {
+  about: "code-block.words.about",
+  draw: () => (
+    <Room size="2xl">
+      <examples.payout.Payout />
+    </Room>
+  ),
+  example: examples.payout,
+  title: "code-block.words.title",
+};
+
+/**
+ * Hand-written scene for lines replaced by unrelated ones.
+ */
+export const rewrite: Scene = {
+  about: "code-block.rewrite.about",
+  draw: () => (
+    <Room size="2xl">
+      <examples.rewrite.Rewrite />
+    </Room>
+  ),
+  example: examples.rewrite,
+  title: "code-block.rewrite.title",
+};
+
+/**
+ * Hand-written scene for a whole text without a language, in the page's colour mode.
+ */
+export const policy: Scene = {
+  about: "code-block.policy.about",
+  draw: () => (
+    <Room size="2xl">
+      <examples.policy.Policy />
+    </Room>
+  ),
+  example: examples.policy,
+  title: "code-block.policy.title",
+};
+
+/**
+ * Hand-written scene for two versions that are the same.
+ */
+export const unchanged: Scene = {
+  about: "code-block.unchanged.about",
+  draw: () => (
+    <Room size="2xl">
+      <examples.unchanged.Unchanged />
+    </Room>
+  ),
+  example: examples.unchanged,
+  title: "code-block.unchanged.title",
 };
 
 export default specimen({
   about: "code-block.about",
-  group: "Content",
-  id: "content/code-block",
+  id: "components/content/code-block",
   imports: 'import { CodeBlock } from "@stealthscale/component-content";',
-  scenes: [file, sizes, languages, plain, modes],
+  scenes: [
+    file,
+    ...scenesOf<Partial<CodeBlock.RootProps>>(recipe, {
+      axes: {
+        size: { direction: "column" },
+        wrap: {
+          direction: "column",
+          draw: (props) => (
+            <Room size="md">
+              <examples.testRun.TestRun {...props} />
+            </Room>
+          ),
+          example: examples.testRun,
+        },
+      },
+      draw: (props) => (
+        <Room size="2xl">
+          <examples.send.Send {...props} />
+        </Room>
+      ),
+      example: examples.send,
+      namespace: "code-block",
+    }),
+    languages,
+    plain,
+    terminal,
+    colours,
+    modes,
+    review,
+    split,
+    words,
+    rewrite,
+    policy,
+    unchanged,
+  ],
   title: "code-block.title",
 });

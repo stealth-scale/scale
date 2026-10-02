@@ -1,15 +1,19 @@
 {
-  "about": "Draws words a person follows to somewhere else, in the ink and the underline the theme decides.",
+  "about": "An anchor in the theme's link ink, underlined at rest or on hover.",
   "after": " before the end of the month.",
   "before": "Read the",
   "inherit": {
-    "about": "A link in its own ink beside one taking the ink of the words around it, for a title or a brand where the surface already says it is pressed.",
+    "about": "A link in the link ink and a link that inherits the text color, both in muted text. Use inherit for a card title or a brand name, where the context already marks the text as a link.",
     "title": "Inherit"
   },
-  "looks": {
-    "about": "Both looks, inside a line of ordinary words. Both underline under a pointer; the axis decides whether the underline is there at rest as well.",
-    "title": "Looks"
+  "palette": {
+    "about": "The eight semantic palettes. Each palette sets the ink from its fg role and the focus ring from its focusRing role.",
+    "title": "Palettes"
   },
   "terms": "terms of service",
-  "title": "Link"
+  "title": "Link",
+  "variant": {
+    "about": "Both looks inside a sentence. Both underline on hover. The underline look also underlines at rest.",
+    "title": "Looks"
+  }
 }

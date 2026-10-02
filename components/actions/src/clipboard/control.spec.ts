@@ -9,7 +9,7 @@ import { Control } from "#clipboard/control.tsx";
 import { recipe } from "#clipboard/recipe.ts";
 
 describe("Control", () => {
-  it("conforms as a div inside the root it needs above it", () => {
+  it("returns no conformance violation for its DIV slot inside a root", () => {
     expect(
       violations(Control, {
         as: true,
@@ -21,13 +21,13 @@ describe("Control", () => {
     ).toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("emits a control-slot class for every variant value the recipe declares", () => {
     expect(
       boundViolations(recipe, (props) => render(composed(props)).container, { slot: "control" }),
     ).toStrictEqual([]);
   });
 
-  it("carries the copied state after a press", async () => {
+  it("sets data-copied on the row once the trigger is clicked", async () => {
     const { container } = render(composed());
     await pressed(screen.getByRole("button"));
 

@@ -8,7 +8,7 @@ import { slotClass, slotClasses, variantClass } from "@stealthscale/testing-them
 import { withContext, withProvider } from "#switch/context.ts";
 
 describe("context", () => {
-  it("draws the slot's class on an element it binds", () => {
+  it("applies the slot class to an element it binds", () => {
     const Row = withProvider("label", "root");
     const Tracked = withContext("span", "control");
     const { container } = render(createElement(Row, null, createElement(Tracked)));
@@ -16,7 +16,7 @@ describe("context", () => {
     expect(slotClasses(container, "switch", "control")).toContain(slotClass("switch", "control"));
   });
 
-  it("hands the root's variants to the track below it", () => {
+  it("applies the root's variant class to a part inside it", () => {
     const Row = withProvider("label", "root");
     const Tracked = withContext("span", "control");
     const { container } = render(createElement(Row, { radius: "l1" }, createElement(Tracked)));

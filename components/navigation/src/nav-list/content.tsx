@@ -1,13 +1,12 @@
 /**
- * Draws the list beneath a branch's row.
+ * Renders the nested list of a branch.
  *
  * @remarks
- *   The element is `ul`, and the machine names it with the identifier the trigger points at. The
- *   machine measures it and writes its height as a custom property, which is what the motion runs
- *   to, and hides it from a screen reader and from the tab order once it has closed, so a
- *   destination inside a closed branch is not something a keyboard reaches.
- *   The rows inside it are the same `Item` and `Link` the list above uses. The content mutes the
- *   ink and they inherit it, so a nested row is quieter without a part of its own.
+ *   The element is `ul`. The machine sets its id, which the trigger's `aria-controls` references,
+ *   and writes its measured height to a custom property for the collapse animation. Once the list
+ *   is closed, the machine sets `hidden`, which removes the nested links from the tab order and the
+ *   accessibility tree. Nested rows use the same `Item` and `Link` parts as the top level. The
+ *   content sets `fg.muted`, and the nested rows inherit it.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,23 +14,20 @@ import { type ComponentProps, type ReactElement } from "react";
 import { mergeProps } from "@zag-js/react";
 
 import { withContext } from "#nav-list/context.ts";
-import { useBranch } from "#nav-list/state.ts";
+import { useBranch } from "#nav-list/machine.ts";
 
 /**
- * Draws the nested list at the size the list above states.
+ * Renders the nested `ul` with the list's variants.
  */
 const Shown = withContext("ul", "content");
 
 /**
- * Describes what the content takes.
+ * Describes the props of `Content`, less the `hidden` and `id` attributes the machine sets.
  */
 export type ContentProps = Omit<ComponentProps<typeof Shown>, "hidden" | "id">;
 
 /**
- * Appears and goes as the trigger above it is pressed.
- *
- * @param props - Everything a styled list takes, less what the machine states.
- * @returns The nested list, measured and named by the machine.
+ * Renders the nested list with the machine's content props merged under the caller's.
  */
 export function Content(props: ContentProps): ReactElement {
   const api = useBranch();

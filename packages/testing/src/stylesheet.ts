@@ -2,11 +2,9 @@
  * Reads a declaration out of a compiled stylesheet.
  *
  * @remarks
- *   A specification that drives a style compiler gets one string back, and what it wants to know
- *   is what a named selector declares a property as. Parsing the whole sheet to answer that would
- *   put a CSS parser in the test tier, so this matches the rule the selector opens and reads the
- *   property out of it. A compiler writes a selector list where several selectors share a rule, so
- *   a selector is found wherever it sits in the list.
+ *   A regular expression matches the rule the selector opens, because parsing the whole sheet
+ *   would put a CSS parser in the test tier. A compiler writes a selector list where several
+ *   selectors share a rule, so the match accepts the selector at any position in that list.
  */
 
 /**
@@ -15,14 +13,14 @@
 const SYNTAX = /[$()*+.?[\\\]^{|}]/gu;
 
 /**
- * Writes a selector as a pattern that matches it literally.
+ * Escapes a selector so a regular expression matches it literally.
  */
 function literal(selector: string): string {
   return selector.replaceAll(SYNTAX, String.raw`\$&`);
 }
 
 /**
- * Reads what one selector declares a property as, or nothing where it declares it nowhere.
+ * Returns the value one selector declares for a property, or undefined when it declares none.
  *
  * @param css - The compiled stylesheet.
  * @param selector - The selector, as the compiler wrote it, including its spacing.

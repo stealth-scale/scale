@@ -10,8 +10,9 @@
   "frame": {
     "bar": "Docs",
     "brand": "Stealth Scale",
-    "components": "Components",
+    "catalogue": "Catalogue",
     "navigation": "Toggle navigation",
+    "sections": "Sections",
     "skip": "Skip to content"
   }
 }

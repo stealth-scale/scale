@@ -1,20 +1,17 @@
 /**
- * Draws two lists and the pair of controls that move rows between them.
+ * Renders two lists and the controls that move checked rows between them.
  *
  * @remarks
- *   For a set a person builds out of a longer one: the accounts a report covers, the ports a route
- *   calls at, the people a folder is shared with. It is worth reaching for where a reader has to
- *   see what they have chosen as a list of its own. Where they only have to tick what they want,
- *   one listbox of several says the same thing in half the room.
- *   The set is the caller's. This holds which rows a reader has picked on each side, because that
- *   is a state nobody outside cares about, and reports the set that has crossed over.
- *   The controls go off while nothing on their side is picked, so neither ever does nothing. A
- *   control that stayed on and did nothing is one a reader presses twice before believing it.
- *   The controls come from this package rather than from the button package, which keeps the
- *   collections off every other component package. They are the one element a transfer adds.
+ *   The set of moved rows is the caller's, controlled with `value` or uncontrolled with
+ *   `defaultValue`. The checked rows on each side are the transfer's own state. A control is
+ *   disabled while no row on its side is checked. The controls are this recipe's own buttons, so
+ *   the package depends on no other component package. `size` and `palette` go on the root, which
+ *   provides the variants.
  */
 
-import { type ReactElement, type ReactNode } from "react";
+import { type ComponentProps, type ReactElement, type ReactNode } from "react";
+
+import { omitUndefined } from "@stealthscale/hooks";
 
 import { withContext, withProvider } from "#transfer/context.ts";
 import { Control } from "#transfer/control.tsx";
@@ -22,103 +19,113 @@ import { useCrossing } from "#transfer/crossing.ts";
 import { Side } from "#transfer/side.tsx";
 
 /**
- * Draws the frame the two sides and the controls sit in.
+ * Renders the root `div` that lays out the two sides and the controls, and provides the variants.
  */
 const Framed = withProvider("div", "root");
 
 /**
- * Draws the column of controls between the two sides.
+ * Renders the `div` of the controls between the two sides.
  */
 const Between = withContext("div", "controls");
 
 /**
- * Describes what a transfer takes.
+ * Describes the props of a transfer.
  *
- * @typeParam Row - What one row holds.
+ * @typeParam Row - Type of one row.
  */
 export interface TransferProps<Row> {
   /**
-   * The rows that have crossed over before a caller drives the set.
+   * Values of the moved rows on first render, when `value` is not set.
    */
   readonly defaultValue?: readonly string[] | undefined;
 
   /**
-   * Drawn under a row's name, for a name that does not say enough on its own.
+   * Returns a row's second line.
    */
   readonly description?: ((row: Row) => ReactNode) | undefined;
 
   /**
-   * Reads out as the name of the control that sends rows back.
+   * Accessible name of the control that moves checked rows back.
    */
   readonly giveBackLabel: string;
 
   /**
-   * Drawn inside the control that sends rows back.
+   * Content of the control that moves checked rows back.
    */
   readonly giveBackMark: ReactNode;
 
   /**
-   * Reads the words a row is drawn and announced by.
+   * Returns a row's text.
    */
   readonly itemToString: (row: Row) => string;
 
   /**
-   * Reads the value a row is chosen by.
+   * Returns a row's value.
    */
   readonly itemToValue: (row: Row) => string;
 
   /**
-   * The mark a picked row carries in its box.
+   * Mark of a checked row's checkbox.
    */
   readonly mark?: ReactNode | undefined;
 
   /**
-   * Said by whichever side holds nothing at all.
+   * Content rendered on a side with no rows.
    */
   readonly nothing?: ReactNode | undefined;
 
   /**
-   * The words the side a reader takes rows from is named by.
+   * Label of the list rows are moved from.
    */
   readonly offeredTitle: ReactNode;
 
   /**
-   * Hears the set that has crossed over, each time it changes.
+   * Called with the values of the moved rows after each move.
    */
   readonly onValueChange?: ((taken: readonly string[]) => void) | undefined;
 
   /**
-   * Every row, on whichever side it sits.
+   * Palette the checkboxes and fills of both lists read.
+   */
+  readonly palette?: ComponentProps<typeof Framed>["palette"];
+
+  /**
+   * Every row, on either side.
    */
   readonly rows: readonly Row[];
 
   /**
-   * Reads out as the name of the control that takes rows across.
+   * Size of the gap between the parts and of the controls.
+   */
+  readonly size?: ComponentProps<typeof Framed>["size"];
+
+  /**
+   * Accessible name of the control that moves checked rows across.
    */
   readonly takeLabel: string;
 
   /**
-   * Drawn inside the control that takes rows across.
+   * Content of the control that moves checked rows across.
    */
   readonly takeMark: ReactNode;
 
   /**
-   * The words the side a reader takes rows to is named by.
+   * Label of the list rows are moved to.
    */
   readonly takenTitle: ReactNode;
 
   /**
-   * The rows that have crossed over, where a caller drives the set.
+   * Values of the moved rows, when the caller controls them.
    */
   readonly value?: readonly string[] | undefined;
 }
 
 /**
- * Moves rows between two lists.
+ * Renders two lists and the controls that move checked rows between them.
  *
- * @typeParam Row - What one row holds.
- * @param props - Every row, which of them have crossed over, and what names the sides and controls.
- * @returns The two lists and the controls between them.
+ * @typeParam Row - Type of one row.
+ * @param props - The rows, the moved values, the labels, the marks and the variants.
+ * @returns The root `div` with both sides and the controls.
  */
 export function Transfer<Row>({
   description,
@@ -127,7 +134,9 @@ export function Transfer<Row>({
   mark,
   nothing,
   offeredTitle,
+  palette,
   rows,
+  size,
   takeLabel,
   takeMark,
   takenTitle,
@@ -143,7 +152,7 @@ export function Transfer<Row>({
   };
 
   return (
-    <Framed>
+    <Framed {...omitUndefined({ palette, size })}>
       <Side
         {...shared}
         collection={crossing.offered}

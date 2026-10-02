@@ -9,13 +9,13 @@ import { recipe } from "#fieldset/recipe.ts";
 import { type RootProps } from "#fieldset/root.tsx";
 
 describe("Legend", () => {
-  it("draws a legend inside the group it needs above it", () => {
+  it("renders a legend inside the root", () => {
     const { container } = render(grouped(<Legend>Delivery</Legend>));
 
     expect(slotElement(container, "fieldset", "legend").tagName).toBe("LEGEND");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "legend",
@@ -23,13 +23,13 @@ describe("Legend", () => {
     ).toStrictEqual([]);
   });
 
-  it("names the group for every control inside it", () => {
+  it("gives the group its accessible name", () => {
     render(composed());
 
     expect(screen.getByRole("group", { name: "Delivery" })).toBeDefined();
   });
 
-  it("carries the identifier the group keys its texts by", () => {
+  it("carries the group's label identifier", () => {
     const { container } = render(composed({ id: "delivery" }));
 
     expect(slotElement(container, "fieldset", "legend").getAttribute("id")).toBe("delivery-label");

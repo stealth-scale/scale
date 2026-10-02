@@ -1,5 +1,6 @@
 /**
- * Checks where the MDX plugin lands, what it compiles, and that the published declarations agree.
+ * Checks where the MDX plugin lands in the plugin list, the compiler options it sets, and the
+ * declaration file the package publishes.
  */
 
 import { readFileSync } from "node:fs";
@@ -11,8 +12,8 @@ import { mdx, options } from "#plugin/mdx.ts";
 import { FACTORY } from "#plugin/refresh.ts";
 
 /**
- * Whether the compiler package is to be found, which a case flips to stand for a checkout without
- * the optional peer.
+ * Controls whether the mocked `located` resolves, so a case can stand in for a checkout without
+ * the optional peer installed.
  */
 const absent = vi.hoisted(() => ({ value: false }));
 
@@ -48,7 +49,7 @@ interface Named {
 }
 
 /**
- * Reads the plugin name and phase off whatever the layer put into a plugin list, once settled.
+ * Returns the name and phase of whatever the layer put into a plugin list, once resolved.
  */
 async function named(value: unknown): Promise<Named> {
   const held: unknown = await value;
@@ -61,7 +62,7 @@ async function named(value: unknown): Promise<Named> {
 }
 
 /**
- * Takes the override out of the pair the layer returns.
+ * Returns the override of the two layers `mdx()` produces.
  */
 function compiled(): Override {
   const [held] = mdx();
@@ -72,7 +73,7 @@ function compiled(): Override {
 }
 
 /**
- * Takes the packer's contribution out of the pair the layer returns.
+ * Returns the packer contribution of the two layers `mdx()` produces.
  */
 function packed(): Contribution {
   const [, held] = mdx();
@@ -83,32 +84,40 @@ function packed(): Contribution {
 }
 
 describe("mdx", () => {
-  it("names both layers for the call a consumer wrote", () => {
+  it("names both layers for the call that produced them", () => {
     expect(mdx().map((one) => one.name)).toStrictEqual([
       "react.plugin.mdx",
       "react.plugin.mdx(pack)",
     ]);
   });
 
-  it("puts the plugin ahead of whatever plugins the tree built and in the pre phase", async () => {
+  it("sets the pre phase on the plugin it puts first", async () => {
     vi.stubEnv("VP_RESOLVING_CONFIG_METADATA", "0");
 
     const refined = compiled().refine(CONTEXT, { plugins: [{ name: "other" }] });
-    const [first, second] = await Promise.all((refined.plugins ?? []).map((one) => named(one)));
+    const [first] = await Promise.all((refined.plugins ?? []).map((one) => named(one)));
 
     expect(first).toStrictEqual(
       expect.objectContaining({ enforce: "pre", name: "@mdx-js/rollup" }),
     );
+  });
+
+  it("keeps the plugins the list already declared after it", async () => {
+    vi.stubEnv("VP_RESOLVING_CONFIG_METADATA", "0");
+
+    const refined = compiled().refine(CONTEXT, { plugins: [{ name: "other" }] });
+    const [, second] = await Promise.all((refined.plugins ?? []).map((one) => named(one)));
+
     expect(second?.name).toBe("other");
   });
 
-  it("puts the plugin first when the tree built none", () => {
+  it("adds the plugin when the config declares no plugins", () => {
     vi.stubEnv("VP_RESOLVING_CONFIG_METADATA", "0");
 
     expect(compiled().refine(CONTEXT, {}).plugins).toHaveLength(1);
   });
 
-  it("constructs nothing while the toolchain reads the configuration for its metadata", () => {
+  it("returns the config unchanged while the toolchain resolves for metadata alone", () => {
     vi.stubEnv("VP_RESOLVING_CONFIG_METADATA", "1");
 
     const config = { plugins: [{ name: "other" }] };
@@ -116,7 +125,7 @@ describe("mdx", () => {
     expect(compiled().refine(CONTEXT, config)).toBe(config);
   });
 
-  it("appends to the packer's plugins rather than replacing them", async () => {
+  it("contributes the plugin at pack.plugins", async () => {
     expect(packed().at).toBe("pack.plugins");
     expect(packed().item).toBeUndefined();
     await expect(named(packed().itemOf?.(CONTEXT))).resolves.toMatchObject({
@@ -124,7 +133,7 @@ describe("mdx", () => {
     });
   });
 
-  it("says which package to install where the compiler is not installed", async () => {
+  it("names the package to install when the compiler is not installed", async () => {
     absent.value = true;
 
     try {
@@ -136,12 +145,15 @@ describe("mdx", () => {
     }
   });
 
-  it("compiles .mdx and leaves markdown alone", () => {
+  it("sets the format to mdx", () => {
     expect(options({}).format).toBe("mdx");
   });
 
-  it("imports the factory from React unless the repository renders through something else", () => {
+  it("imports the JSX factory from React by default", () => {
     expect(options({}).jsxImportSource).toBe(FACTORY);
+  });
+
+  it("imports the JSX factory from the package the caller names", () => {
     expect(options({ from: "@emotion/react" }).jsxImportSource).toBe("@emotion/react");
   });
 

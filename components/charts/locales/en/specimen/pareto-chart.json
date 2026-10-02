@@ -1,0 +1,43 @@
+{
+  "about": "Categories as bars sorted largest first, and the running share of the total as a line on an end axis from 0 to 100%. A dashed line marks the share that matters, 80% unless stated.",
+  "cumulative": "Cumulative share",
+  "defects": {
+    "about": "threshold moves the dashed line to 90%, and thresholdLabel writes its name on it. paretoCutoff counts the causes that add up to the threshold, and the caption states the count.",
+    "caption_one": "{{count}} of {{total}} causes accounts for 90% of defects.",
+    "caption_other": "{{count}} of {{total}} causes account for 90% of defects.",
+    "defects": "Defects",
+    "label": "Defects per cause",
+    "threshold": "90% of defects",
+    "title": "Threshold"
+  },
+  "largest": {
+    "about": "defaultIndex opens the tooltip at the second bar when the chart first renders. The tooltip writes the bar's count and the running share after it.",
+    "caption": "Login and billing account for 70% of support tickets.",
+    "title": "Tooltip"
+  },
+  "narrow": {
+    "about": "The tickets chart in a room 20rem wide, the column of a phone. The category axis names the bars it has room for.",
+    "title": "Narrow room"
+  },
+  "quiet": {
+    "about": "A range without rows renders the empty state in the plot's place, at the plot's ratio.",
+    "caption": "Support tickets per reason this month.",
+    "empty": "No tickets this month.",
+    "title": "Empty"
+  },
+  "replay": {
+    "about": "animate grows each bar from its base and reveals the running share from the start of the axis when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the marks at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "series": "Series",
+  "tickets": {
+    "about": "Support tickets per reason, passed in no order and sorted by the chart. paretoRows and paretoCutoff return the numbers the chart plots, so the caption states the count the chart shows.",
+    "caption_one": "{{count}} of {{total}} reasons accounts for 80% of support tickets.",
+    "caption_other": "{{count}} of {{total}} reasons account for 80% of support tickets.",
+    "label": "Support tickets per reason",
+    "tickets": "Tickets",
+    "title": "Tickets"
+  },
+  "title": "Pareto chart"
+}

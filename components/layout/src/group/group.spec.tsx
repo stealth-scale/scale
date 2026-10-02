@@ -8,11 +8,11 @@ import { Group } from "#group/group.ts";
 import { recipe } from "#group/recipe.ts";
 
 describe("Group", () => {
-  it("conforms as a div element", () => {
+  it("passes the component conformance checks as a div element", () => {
     expect(violations(Group, { as: true, children: true, element: "DIV" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule holding two buttons", async () => {
+  it("returns no accessibility violation with two buttons", async () => {
     await expect(
       accessibilityViolations(Group, {
         props: {
@@ -29,13 +29,13 @@ describe("Group", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(recipe, (props) => render(<Group {...props}>One</Group>).container),
     ).toStrictEqual([]);
   });
 
-  it("draws the element as names", () => {
+  it("renders a fieldset when as is fieldset", () => {
     const { container } = render(<Group as="fieldset">One</Group>);
 
     expect(recipeElement(container, "group").tagName).toBe("FIELDSET");

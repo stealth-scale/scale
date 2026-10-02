@@ -10,7 +10,7 @@ import { Sorter } from "#table/sorter.ts";
 import { composed, rowed } from "#table/table.fixtures.tsx";
 
 describe("Sorter", () => {
-  it("draws a button inside the header it sorts", () => {
+  it("renders a button", () => {
     const { container } = render(
       rowed(
         <ColumnHeader>
@@ -22,7 +22,7 @@ describe("Sorter", () => {
     expect(slotElement(container, "table", "sorter").tagName).toBe("BUTTON");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(recipe, (props: ScrollerProps) => render(composed(props)).container, {
         slot: "sorter",
@@ -30,13 +30,13 @@ describe("Sorter", () => {
     ).toStrictEqual([]);
   });
 
-  it("is reachable and named by its own words", () => {
+  it("names the button from its text", () => {
     render(composed());
 
     expect(screen.getByRole("button", { name: "Total" })).toBeDefined();
   });
 
-  it("reports the press, leaving the sort to the page", () => {
+  it("calls onClick on a press", () => {
     const heard = vi.fn<() => void>();
 
     render(
@@ -51,7 +51,7 @@ describe("Sorter", () => {
     expect(heard).toHaveBeenCalledOnce();
   });
 
-  it("draws a button rather than a submit", () => {
+  it("sets type button", () => {
     const { container } = render(
       rowed(
         <ColumnHeader>

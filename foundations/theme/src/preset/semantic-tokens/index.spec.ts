@@ -18,9 +18,9 @@ describe("semanticTokens", () => {
     ]);
   });
 
-  it("fills the four families and every intent and every hue palette", () => {
+  it("fills the five families and every intent and every hue palette", () => {
     expect(Object.keys(semanticTokens.colors).toSorted()).toStrictEqual(
-      ["bg", "border", "code", "fg", ...HUES, ...PALETTES].toSorted(),
+      ["bg", "border", "code", "fg", "series", ...HUES, ...PALETTES].toSorted(),
     );
   });
 });

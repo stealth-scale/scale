@@ -1,12 +1,12 @@
 /**
- * Reads the vocabulary a recipe is checked against: which category each property takes its value
- * from, which conditions exist, and which token paths each category defines.
+ * The vocabulary a recipe is checked against: the category each property draws its values from, the
+ * conditions that exist, and the token paths each category defines.
  *
  * @remarks
- *   The categories are read from the compiler's base preset rather than copied, and the tokens
- *   and conditions from the preset the recipe is written against, which is the foundation unless
- *   a specification names another. The three compositions and the virtual palette are the
- *   compiler's own, which no utility declares, so those four are named here.
+ *   Categories come from the compiler's base preset at run time; tokens and conditions come from
+ *   the preset the recipe is written against, which is the foundation unless a specification names
+ *   another. Four properties have to be listed by hand, because the compiler resolves the three
+ *   compositions and the virtual palette itself and no utility declares them.
  */
 
 import base from "@pandacss/preset-base";
@@ -17,12 +17,12 @@ import foundation from "@stealthscale/theme/theme";
 import { leaves } from "#tokens.ts";
 
 /**
- * Lists the three kinds of composition a theme states, each of which a recipe reads by name alone.
+ * The three kinds of composition a theme declares. A recipe references any of them by name alone.
  */
 export const COMPOSITIONS = ["animationStyles", "layerStyles", "textStyles"] as const;
 
 /**
- * Maps the properties the compiler resolves itself, which no utility declares, to the categories
+ * The four properties the compiler resolves itself and no utility declares, against the categories
  * they read: the three compositions and the virtual palette.
  */
 const RESOLVED: Readonly<Record<string, string>> = {
@@ -33,12 +33,13 @@ const RESOLVED: Readonly<Record<string, string>> = {
 };
 
 /**
- * Fixes the key a group's own value is written under, which a recipe leaves out of the path.
+ * The key a token group's own value is written under. A recipe leaves it off the path.
  */
 const ITSELF = ".DEFAULT";
 
 /**
- * Describes the one thing read off a utility: the category its values come from.
+ * The part of a base-preset utility this module reads: its other names, and where its values come
+ * from.
  */
 interface Utility {
   /**
@@ -47,30 +48,31 @@ interface Utility {
   shorthand?: string | string[] | undefined;
 
   /**
-   * The category, as a name or as a function that asks the theme for one.
+   * The category, either named outright or behind a function that asks the theme for one.
    */
   values?: unknown;
 }
 
 /**
- * Describes a utility's values written as a function that asks the theme for a category.
+ * A utility's values written as a function that asks the theme for one or more categories.
  */
 type Asking = (theme: (category: string) => Record<string, string>) => unknown;
 
 /**
- * Reports whether a utility's values are a function that asks the theme.
+ * Narrows a utility's values to the function form.
  */
 function isAsking(values: unknown): values is Asking {
   return typeof values === "function";
 }
 
 /**
- * Lists the categories one utility takes its values from.
+ * Works out which categories one utility takes its values from.
  *
  * @remarks
- *   A utility names its category outright, or asks the theme for it inside a function that adds
- *   values of its own. The function is called with a theme that records what it was asked for and
- *   returns nothing, which is every category the utility reads.
+ *   A utility either names its category outright or asks the theme for it inside a function that
+ *   adds further values. To handle the second form the function is called with a stub theme that
+ *   records each category asked for and returns an empty record, so the recorded asks are the
+ *   categories the utility reads.
  */
 function categoriesOf(utility: Utility): readonly string[] {
   if (typeof utility.values === "string") return [utility.values];
@@ -88,7 +90,7 @@ function categoriesOf(utility: Utility): readonly string[] {
 }
 
 /**
- * Carries what the compiler's base preset says about properties.
+ * The two lookups built from the compiler's base preset, one narrower than the other.
  */
 interface Vocabulary {
   /**
@@ -103,7 +105,7 @@ interface Vocabulary {
 }
 
 /**
- * Lists a utility's names: the property and every shorthand it answers to.
+ * Every name a utility answers to: the property itself and each shorthand for it.
  */
 function namesOf(property: string, utility: Utility): readonly string[] {
   const shorthand = utility.shorthand ?? [];
@@ -112,7 +114,7 @@ function namesOf(property: string, utility: Utility): readonly string[] {
 }
 
 /**
- * Reads the base preset's utilities into the two lookups.
+ * Walks the base preset's utilities once and builds both lookups, seeded with the resolved four.
  */
 function read(): Vocabulary {
   const categories = new Map<string, string>(Object.entries(RESOLVED));
@@ -133,16 +135,16 @@ function read(): Vocabulary {
 }
 
 /**
- * Caches the two lookups, once something has asked for them.
+ * The lookups, once something has asked for them.
  */
 let vocabulary: undefined | Vocabulary;
 
 /**
- * Reads the vocabulary, building it on the first ask.
+ * Returns the vocabulary, building it on the first call.
  *
  * @remarks
- *   Built on the first ask rather than on import, because a specification that reads only the
- *   classes a recipe emits pays for the whole utility map otherwise.
+ *   Built lazily rather than at import, so a specification that only reads the classes a recipe
+ *   emits does not pay for walking the whole utility map.
  */
 function known(): Vocabulary {
   vocabulary ??= read();
@@ -151,28 +153,29 @@ function known(): Vocabulary {
 }
 
 /**
- * Reads the category a property takes its value from, or undefined for a property that reads no
- * token.
+ * The category a property draws its values from, or undefined where the property reads no token.
  */
 export function categoryOf(property: string): string | undefined {
   return known().categories.get(property);
 }
 
 /**
- * Reports whether a key names a property the compiler resolves, rather than a condition, a
- * selector, a slot or a breakpoint.
+ * True where a key is a property the compiler resolves, and false for a condition, a selector, a
+ * slot or a breakpoint.
  *
  * @remarks
- *   The compiler derives a condition from each breakpoint, `smDown` and `smToLg` beside `sm`, so a
- *   list of breakpoint names written here would go stale the moment a theme states one more. What
- *   the compiler resolves as a property is the list that cannot.
+ *   The test runs positively, against the property set, rather than negatively against a list of
+ *   condition names. The compiler derives a condition from every breakpoint, `smDown` and `smToLg`
+ *   alongside `sm`, so any such list would go stale the moment a theme declares one more
+ *   breakpoint. The property set does not.
  */
 export function isProperty(key: string): boolean {
   return known().properties.has(key);
 }
 
 /**
- * Lists every condition a recipe can nest under: the base preset's and the preset's own.
+ * Every condition a recipe can nest under: the base preset's, plus the ones the given preset
+ * extends them with.
  *
  * @param preset - The preset the recipe is written against, the foundation unless named.
  */
@@ -181,13 +184,13 @@ export function conditionNames(preset: Preset = foundation): ReadonlySet<string>
 }
 
 /**
- * Caches the token paths of each category, per preset.
+ * The token paths of each category, per preset, once something has asked for them.
  */
 const PATHS = new WeakMap<Preset, Map<string, ReadonlySet<string>>>();
 
 /**
- * Lists every path one block of tokens defines, with a group's own value reachable without its
- * `DEFAULT` suffix.
+ * Every path one block of tokens defines. A group's own value gets a second path without the
+ * `DEFAULT` suffix, which is how a recipe writes it.
  */
 function pathsIn(block: unknown): readonly string[] {
   return leaves(block).flatMap(({ path }) =>
@@ -196,7 +199,7 @@ function pathsIn(block: unknown): readonly string[] {
 }
 
 /**
- * Reads the cache of one preset, creating it on the first read.
+ * The cache for one preset, created on the first read.
  */
 function cacheOf(preset: Preset): Map<string, ReadonlySet<string>> {
   const found = PATHS.get(preset);
@@ -211,11 +214,12 @@ function cacheOf(preset: Preset): Map<string, ReadonlySet<string>> {
 }
 
 /**
- * Lists every token path a preset defines in a category: the reference tokens, the semantic
- * tokens and the compositions under that name.
+ * Every token path a preset defines in one category, taking the reference tokens, the semantic
+ * tokens and any composition sharing the category name.
  *
  * @remarks
- *   The preset is the one the recipe is written against, which is the foundation unless named.
+ *   The three sources are unioned because a recipe naming a path does not say which of them it came
+ *   from.
  */
 export function tokenPaths(category: string, preset: Preset = foundation): ReadonlySet<string> {
   const cache = cacheOf(preset);
@@ -236,13 +240,13 @@ export function tokenPaths(category: string, preset: Preset = foundation): Reado
 }
 
 /**
- * Fixes the key the semantic colors are cached under, beside the categories.
+ * The key the semantic colors are cached under, sharing the per-preset cache with the categories.
  */
 const SEMANTIC_COLORS = "semanticTokens.colors";
 
 /**
- * Lists every semantic color path a preset defines, which is every color a recipe may name: a
- * family member, a palette role, and nothing from the ramps.
+ * Every semantic color path a preset defines, which is the whole set a recipe may name: family
+ * members and palette roles, and nothing from the ramps.
  *
  * @param preset - The preset the recipe is written against, the foundation unless named.
  */

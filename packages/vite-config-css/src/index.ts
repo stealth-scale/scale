@@ -1,6 +1,6 @@
 /**
- * Publishes the stylesheet check a package adds beside the tier it extends,
- * which appends to Vite's plugin array and sets no other key.
+ * Publishes the Stylelint check a package adds to the tier its Vite
+ * configuration extends.
  *
  * @packageDocumentation
  */

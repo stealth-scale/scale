@@ -43,7 +43,7 @@ describe("files", () => {
     ]);
   });
 
-  it("passes over a specification and a recipe file that exports no recipe", () => {
+  it("skips a specification and a recipe file that exports no recipe", () => {
     const found = withScratchWorkspace(
       {
         "src/button.recipe.spec.ts": RECIPE,
@@ -56,7 +56,7 @@ describe("files", () => {
     expect(found.map((file) => file.file)).toStrictEqual(["button.recipe.ts"]);
   });
 
-  it("lists a recipe whose export carries a type or sits on the next line", () => {
+  it("lists a recipe whose export declares a type or sits on the next line", () => {
     const found = withScratchWorkspace(
       {
         "src/annotated.recipe.ts":
@@ -72,7 +72,7 @@ describe("files", () => {
     ]);
   });
 
-  it("lists nothing under a directory that is absent", () => {
+  it("returns an empty array when the directory is absent", () => {
     expect(recipeFiles("/nowhere/at/all")).toStrictEqual([]);
   });
 

@@ -1,88 +1,34 @@
 /**
- * Shows the important run: every weight in every ink, and every motion, each inside a line of
- * ordinary words.
+ * Catalogue page for the strong element.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. The run sits in a paragraph, because importance is read against the words
- *   around it. The words are keys under `strong` in the catalogue's namespace, kept beside this
- *   file in `locales/en/specimen/strong.json`.
+ *   `scenesOf` generates one scene per recipe axis. The example renders the strong run inside a
+ *   `Text` line, because importance is relative to the surrounding text. The tone scene crosses the
+ *   weight axis and renders the inverted ink on `bg.inverted` through `grounded`. Every scene
+ *   renders the example and shows it as its source. The words are keys under `strong` in
+ *   `locales/en/specimen/strong.json`.
  */
 
-import { type ReactElement } from "react";
+import { grounded, scenesOf, specimen } from "@stealthscale/specimen";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
-
+import * as warning from "#strong/examples/warning.example.tsx";
 import { recipe } from "#strong/recipe.ts";
-import { Strong } from "#strong/strong.ts";
-import { Text } from "#text/text.ts";
-
-/**
- * Draws the run at every weight in every ink.
- */
-function Weights(): ReactElement {
-  const { t } = useWords("strong");
-
-  return (
-    <Matrix
-      across={{ knob: "weight", of: valuesOf(recipe, "weight") }}
-      knob="tone"
-      of={valuesOf(recipe, "tone")}
-    >
-      {(tone, weight) => (
-        <Text>
-          {t("before")}{" "}
-          <Strong tone={tone} weight={weight}>
-            {t("cannot")}
-          </Strong>
-          {t("after")}
-        </Text>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the run entering with every motion.
- */
-function Motion(): ReactElement {
-  const { t } = useWords("strong");
-
-  return (
-    <Matrix knob="motion" of={valuesOf(recipe, "motion")}>
-      {(motion) => (
-        <Text>
-          {t("before")} <Strong motion={motion}>{t("cannot")}</Strong>
-          {t("after")}
-        </Text>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Every weight in every ink.
- */
-export const weights: Scene = {
-  about: "strong.weights.about",
-  draw: Weights,
-  title: "strong.weights.title",
-};
-
-/**
- * Every motion.
- */
-export const motion: Scene = {
-  about: "strong.motion.about",
-  draw: Motion,
-  title: "strong.motion.title",
-};
 
 export default specimen({
   about: "strong.about",
-  group: "Typography",
-  id: "typography/strong",
+  id: "components/typography/strong",
   imports: 'import { Strong, Text } from "@stealthscale/component-typography";',
-  scenes: [weights, motion],
+  scenes: scenesOf<Parameters<typeof warning.Warning>[0]>(recipe, {
+    axes: {
+      tone: {
+        across: "weight",
+        draw: (props) => grounded(props.tone, <warning.Warning {...props} />),
+      },
+    },
+    draw: (props) => <warning.Warning {...props} />,
+    example: warning,
+    namespace: "strong",
+    order: ["tone", "motion"],
+  }),
   title: "strong.title",
 });

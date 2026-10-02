@@ -1,12 +1,10 @@
 /**
- * Splits a set of rows between the two sides of a transfer and moves them across.
+ * Splits the rows between the two sides of a transfer and moves checked rows across.
  *
  * @remarks
- *   The set that has crossed over is the caller's, driven or not. What a reader has picked on each
- *   side is held here, because a page that had to track it would be tracking a state it never reads
- *   and would clear it at the wrong moments.
- *   Picking is cleared on the side a row leaves. A row that crossed over while still counted as
- *   picked would be taken straight back by the next press of the other control.
+ *   The set of moved rows is controlled with `value` or uncontrolled with `defaultValue`. The
+ *   checked rows on each side are local state. A move clears the checked rows on the side it moves
+ *   them from, so the next press of the other control does not move them straight back.
  */
 
 import { useCallback, useMemo, useState } from "react";
@@ -16,95 +14,95 @@ import { type ListCollection } from "@zag-js/collection";
 import { useListCollection } from "#collection/collection.ts";
 
 /**
- * Describes what splitting a set between two sides is given.
+ * Describes the options of {@link useCrossing}.
  *
- * @typeParam Row - What one row holds.
+ * @typeParam Row - Type of one row.
  */
 export interface CrossingOptions<Row> {
   /**
-   * The rows that have crossed over before a caller drives the set.
+   * Values of the moved rows on first render, when `value` is not set.
    */
   defaultValue?: readonly string[] | undefined;
 
   /**
-   * Reads the words a row is drawn and announced by.
+   * Returns a row's text.
    */
   itemToString: (row: Row) => string;
 
   /**
-   * Reads the value a row is chosen by.
+   * Returns a row's value.
    */
   itemToValue: (row: Row) => string;
 
   /**
-   * Hears the set that has crossed over, each time it changes.
+   * Called with the values of the moved rows after each move.
    */
   onValueChange?: ((taken: readonly string[]) => void) | undefined;
 
   /**
-   * Every row, on whichever side it sits.
+   * Every row, on either side.
    */
   rows: readonly Row[];
 
   /**
-   * The rows that have crossed over, where a caller drives the set.
+   * Values of the moved rows, when the caller controls them.
    */
   value?: readonly string[] | undefined;
 }
 
 /**
- * Describes what the two sides hold and what moves between them.
+ * Describes the two sides, the checked rows on each and the two moves.
  *
- * @typeParam Row - What one row holds.
+ * @typeParam Row - Type of one row.
  */
 export interface Crossing<Row> {
   /**
-   * Sends the rows picked on the far side back.
+   * Moves the checked rows of the second side back to the first.
    */
   giveBack: () => void;
 
   /**
-   * The rows that have not crossed over.
+   * Rows that have not moved.
    */
   offered: ListCollection<Row>;
 
   /**
-   * The rows a reader has picked on the near side.
+   * Values of the checked rows on the first side.
    */
   pickedOffered: readonly string[];
 
   /**
-   * The rows a reader has picked on the far side.
+   * Values of the checked rows on the second side.
    */
   pickedTaken: readonly string[];
 
   /**
-   * Takes which of the near side's rows a reader has picked.
+   * Sets the checked rows on the first side.
    */
   pickOffered: (picked: readonly string[]) => void;
 
   /**
-   * Takes which of the far side's rows a reader has picked.
+   * Sets the checked rows on the second side.
    */
   pickTaken: (picked: readonly string[]) => void;
 
   /**
-   * Sends the rows picked on the near side over.
+   * Moves the checked rows of the first side to the second.
    */
   take: () => void;
 
   /**
-   * The rows that have crossed over.
+   * Rows that have moved.
    */
   taken: ListCollection<Row>;
 }
 
 /**
- * Splits the rows between the two sides and answers what moves them.
+ * Returns the two sides, the checked rows on each and the two moves.
  *
- * @typeParam Row - What one row holds.
- * @param options - Every row, which of them have crossed over, and how to read one.
- * @returns The two sides, what is picked on each, and the two moves.
+ * @typeParam Row - Type of one row.
+ * @param options - The rows, the moved values and the row readers.
+ * @returns The two collections, the checked values, their setters and the moves.
  */
 export function useCrossing<Row>(options: CrossingOptions<Row>): Crossing<Row> {
   const { defaultValue = [], itemToString, itemToValue, onValueChange, rows, value } = options;

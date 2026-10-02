@@ -1,11 +1,11 @@
 /**
- * Starts the host: recovery first, then registration, then the page.
+ * Starts the host: stale chunk recovery first, then remote registration, then the first render.
  *
  * @remarks
- *   The order is the whole of this file. Recovery is subscribed before anything else, because the
- *   remote is deployed on its own schedule and the chunks this page was told about can already be
- *   gone. Registration is awaited before the first render, because a module imported from a remote
- *   that has not been registered fails at that import rather than here.
+ *   The order is the point of this file. Recovery subscribes before anything else, because the
+ *   remote deploys independently and the chunks this document names can already be gone.
+ *   Registration is awaited before the first render, because a module imported from an
+ *   unregistered remote fails at that import.
  */
 
 import { Suspense } from "react";
@@ -17,12 +17,12 @@ import { Shell } from "#shell.tsx";
 import { watching } from "#stale.ts";
 
 /**
- * Locates the file the deployment serves to say where the remotes are, beside the documents.
+ * The path the remotes file is fetched from, derived from the base the bundler was given.
  */
 const WHERE = where(import.meta.env.BASE_URL);
 
 /**
- * Looks up the element the host mounts its shell in, or null on a page without one.
+ * The element the host mounts the shell in, or null in a document without `#root`.
  */
 const root = document.querySelector("#root");
 

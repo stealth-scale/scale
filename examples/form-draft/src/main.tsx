@@ -1,9 +1,14 @@
 /**
  * Starts the application once the browser has loaded the page.
+ *
+ * @remarks
+ *   The theme's stylesheet is imported before the application, so the page has the compiled rules
+ *   before the first paint. The page's own stylesheet sets the measure the form reads at.
  */
 
 import { createRoot } from "react-dom/client";
 
+import "@stealthscale/theme/styles.css";
 import "#styles.css";
 
 import { App } from "#app.tsx";

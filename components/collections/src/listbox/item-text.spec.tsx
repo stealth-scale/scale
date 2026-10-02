@@ -8,13 +8,13 @@ import { offered } from "#listbox/listbox.fixtures.tsx";
 import { ROWS } from "#listbox/rows.fixtures.ts";
 
 describe("ItemText", () => {
-  it("draws a span inside the root it needs above it", () => {
+  it("renders a span", () => {
     const { container } = render(offered(<ItemText item={ROWS[0]}>Invoices</ItemText>));
 
     expect(slotElement(container, "listbox", "itemText").tagName).toBe("SPAN");
   });
 
-  it("gives a row the words a screen reader announces it by", () => {
+  it("renders the row's text", () => {
     render(offered(<ItemText item={ROWS[0]}>Invoices</ItemText>));
 
     expect(screen.getByText("Invoices")).toBeTruthy();

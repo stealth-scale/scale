@@ -11,25 +11,25 @@ function plugged(stated: Hosted): Contribution {
 }
 
 describe("host", () => {
-  it("appends to the plugin list rather than replacing whatever else is there", () => {
+  it("targets plugins", () => {
     expect(plugged({ name: "one", remotes: [] }).at).toBe("plugins");
   });
 
-  it("adds the plugins the bundler resolves the remotes through", async () => {
+  it("resolves itemOf to a plugin when a remote is named", async () => {
     await expect(
       plugged({ name: "one", remotes: ["two"] }).itemOf?.(told()),
     ).resolves.toBeDefined();
   });
 
-  it("gives a reason naming the other deployment", () => {
+  it("sets because to a reason naming the other deployment", () => {
     expect(plugged({ name: "one", remotes: [] }).because).toContain("another deployment");
   });
 
-  it("names the host", () => {
+  it("names the contribution federation.host with the host name", () => {
     expect(plugged({ name: "shell", remotes: [] }).name).toBe("federation.host(shell)");
   });
 
-  it("takes a shared list", async () => {
+  it("resolves itemOf to a plugin when shared is given", async () => {
     await expect(
       plugged({ name: "one", remotes: ["two"], shared: { react: { singleton: true } } }).itemOf?.(
         told(),
@@ -37,15 +37,15 @@ describe("host", () => {
     ).resolves.toBeDefined();
   });
 
-  it("takes no remotes at all", async () => {
+  it("resolves itemOf to a plugin when remotes is absent", async () => {
     await expect(plugged({ name: "one" }).itemOf?.(told())).resolves.toBeDefined();
   });
 
-  it("configures nothing for the runner when a repository named no stand-ins", () => {
+  it("returns one layer when stubs is absent", () => {
     expect(host({ name: "one", remotes: [] })).toHaveLength(1);
   });
 
-  it("points the runner at a stand-in for each name imported from a remote", () => {
+  it("sets test.alias to the stubs it was given", () => {
     const [, held] = host({ name: "one", stubs: { "remote/Thing": "/abs/thing.tsx" } });
 
     expect(((held as Preset).config as UserConfig).test?.alias).toStrictEqual({
@@ -53,7 +53,7 @@ describe("host", () => {
     });
   });
 
-  it("names the stand-in layer separately", () => {
+  it("names the stub preset federation.host(name).stubs", () => {
     const [, held] = host({ name: "one", stubs: { "remote/Thing": "/abs/thing.tsx" } });
 
     expect(held?.name).toBe("federation.host(one).stubs");

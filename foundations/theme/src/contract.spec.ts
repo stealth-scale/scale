@@ -16,8 +16,9 @@ import {
 } from "#contract.ts";
 
 describe("contract", () => {
-  it("lists ten roles with the dotted ones nested under their group", () => {
-    expect(ROLES).toHaveLength(10);
+  it("lists eleven roles with the dotted ones nested under their group", () => {
+    expect(ROLES).toHaveLength(11);
+    expect(ROLES).toContain("chart");
     expect(ROLES).toContain("border.hover");
     expect(ROLES).not.toContain("bg");
     expect(ROLES).not.toContain("fg.muted");

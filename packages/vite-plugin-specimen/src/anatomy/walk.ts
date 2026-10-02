@@ -25,17 +25,26 @@ import { type Member } from "#contract.ts";
  *
  * @remarks
  *   The last rather than the first, because a package manager nests them: pnpm keeps its store at
- *   `node_modules/.pnpm/<package>/node_modules/<package>`, so reading the first answers `.pnpm` for
+ *   `node_modules/.pnpm/<package>/node_modules/<package>`, so reading the first returns `.pnpm` for
  *   everything and every type of one name collides into it.
  */
 const INSTALLED = /node_modules\/(?<named>(?:@[^/]+\/)?[^/]+)(?!.*node_modules)/u;
+
+/**
+ * The prefix of the name the compiler gives a class's ES private member, as in `__#30@#secret`.
+ *
+ * @remarks
+ *   A caller cannot reach a private member, and the number in the name is a counter that changes
+ *   with the order the compiler binds files in.
+ */
+const PRIVATE = "__#";
 
 /**
  * Describes the compiler enumerations the walk reads, which exist only once it has loaded.
  */
 export interface Enumerated {
   /**
-   * The flag a symbol carries where it stands for another, the way a re-export does.
+   * The flag of a symbol that is an alias of another, as a re-export is.
    */
   alias: number;
 
@@ -45,18 +54,18 @@ export interface Enumerated {
   call: number;
 
   /**
-   * The flag a property carries where a caller may leave it out.
+   * The flag of a property a caller may leave out.
    */
   optional: number;
 
   /**
-   * The flags a symbol carries where it is a value rather than a type alone.
+   * The flags of a symbol that is a value rather than a type alone.
    */
   value: number;
 }
 
 /**
- * Describes what one walk through a page's types carries.
+ * Describes the state of one walk through a page's types.
  */
 export interface Walk {
   /**
@@ -85,7 +94,7 @@ export interface Walk {
   program: Program;
 
   /**
-   * The reading, with every default filled in.
+   * The reading the walk follows, with every default filled in.
    */
   stated: Settled;
 }
@@ -93,7 +102,7 @@ export interface Walk {
 /**
  * Returns the package a declaration belongs to, which keeps two types of one name apart.
  *
- * @returns The installed package's name without its scope, and `kit` for a file the workspace owns.
+ * @returns The installed package's name without its scope, and `kit` for a file in the workspace.
  */
 export function declaringPackage(file: string): string {
   const named = INSTALLED.exec(file)?.groups?.["named"];
@@ -117,23 +126,24 @@ export function opening(said: string): string {
 }
 
 /**
- * Returns a type as a table prints it, with the optional half left to the prop that carries it.
+ * Returns a type as a table prints it, without the `undefined` of an optional prop, which the
+ * prop's `required` flag shows.
  */
 export function printed(checker: Checker, type: Type): string {
   return checker.typeToString(type).replaceAll(" | undefined", "");
 }
 
 /**
- * Insists on an answer the compiler's API types as optional and, in practice, always gives.
+ * Returns a value the compiler's API types as optional and, in practice, always returns.
  *
  * @remarks
  *   Every property has a type and every union has a non-nullable form. Read through this, a missing
  *   one fails the read naming what was missing, rather than being papered over with an empty table.
  *   `what` names the thing asked for and opens the error.
- * @throws {@link Error} When the compiler answered nothing.
+ * @throws {@link Error} When the compiler returned nothing.
  */
 export function sure<Answer>(answer: Answer | undefined, what: string): Answer {
-  if (answer === undefined) throw new Error(`specimen: the compiler answered nothing for ${what}`);
+  if (answer === undefined) throw new Error(`specimen: the compiler returned nothing for ${what}`);
 
   return answer;
 }
@@ -142,9 +152,9 @@ export function sure<Answer>(answer: Answer | undefined, what: string): Answer {
  * Returns the key a collected type is gathered under.
  *
  * @remarks
- *   A type the compiler declares itself is passed over. `ReadonlyArray` sits behind every
- *   `readonly Entry[]` and tells a reader nothing, and the compiler reports its own declarations
- *   rather than leaving them to be matched against a path.
+ *   A type declared in one of the compiler's default libraries gets no key. `ReadonlyArray` is
+ *   behind every `readonly Entry[]` and tells a reader nothing. The program reports whether a file
+ *   is a default library, so no path is matched.
  * @returns The package and the name, or undefined where the type is anonymous or the compiler's.
  */
 export function keyOf(walk: Walk, type: Type): string | undefined {
@@ -178,7 +188,8 @@ function memberOf(member: Named, walk: Walk, depth: number): Member {
  *
  * @remarks
  *   `Scale` is recorded as its eight steps, so the name in a table opens on what may be passed. An
- *   option carries no type of its own, which is what tells a drawer to list rather than tabulate.
+ *   option has no type of its own, which tells the catalogue to list the options rather than
+ *   tabulate them.
  */
 function optionsOf(type: UnionType, walk: Walk): void {
   const key = keyOf(walk, type);
@@ -214,8 +225,15 @@ function unionIn(type: UnionType, walk: Walk, depth: number): void {
 
 /**
  * Walks what a handler is called with, its shape being in its parameter rather than in itself.
+ *
+ * @remarks
+ *   A literal and an intrinsic type have no call signature, so the walk asks the compiler about
+ *   neither. The walk visits every option of every union, and each question is a round trip to the
+ *   compiler's process.
  */
 function parametersIn(type: Type, walk: Walk, depth: number): void {
+  if (type.isLiteralType() || type.isIntrinsicType()) return;
+
   for (const signature of walk.checker.getSignaturesOfType(type, walk.enumerated.call)) {
     for (const parameter of signature.getParameters()) {
       const held = sure(walk.checker.getTypeOfSymbol(parameter), `the type of ${parameter.name}`);
@@ -242,7 +260,8 @@ function argumentsIn(type: Type, walk: Walk, depth: number): void {
  *
  * @remarks
  *   `depth` counts how far the walk has gone, because a type can refer to itself. A type is
- *   claimed in the collection before its members are read, for the same reason.
+ *   claimed in the collection before its members are read, for the same reason. A class's private
+ *   members are left out of its shape.
  */
 export function shapesIn(type: Type, walk: Walk, depth: number): void {
   if (depth > walk.stated.depth) return;
@@ -272,7 +291,9 @@ export function shapesIn(type: Type, walk: Walk, depth: number): void {
 
   walk.found.add(key);
 
-  const members = walk.checker.getPropertiesOfType(type);
+  const members = walk.checker
+    .getPropertiesOfType(type)
+    .filter((member) => !member.name.startsWith(PRIVATE));
 
   if (!worthListing(members.length, walk.stated.members)) return;
 

@@ -1,23 +1,24 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { pressed } from "@stealthscale/testing-react";
+import { createFilterScope, FilterContext } from "@stealthscale/hooks";
+import { drawn, pressed } from "@stealthscale/testing-react";
 import { slotElement } from "@stealthscale/testing-theme";
 
 import { Branch } from "#nav-list/branch.tsx";
 import { Content } from "#nav-list/content.tsx";
 import { branched } from "#nav-list/nav-list.fixtures.tsx";
-import { Root } from "#nav-list/root.ts";
+import { Root } from "#nav-list/root.tsx";
 import { Trigger } from "#nav-list/trigger.tsx";
 
 describe("Branch", () => {
-  it("draws a list item inside the list it needs above it", () => {
+  it("renders an LI element inside a list", () => {
     const { container } = render(branched(<Trigger>Settings</Trigger>));
 
     expect(slotElement(container, "nav-list", "branch").tagName).toBe("LI");
   });
 
-  it("keeps its list closed where a caller says nothing", () => {
+  it("starts closed when defaultOpen is absent", () => {
     render(
       branched(
         <>
@@ -30,7 +31,7 @@ describe("Branch", () => {
     expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("false");
   });
 
-  it("opens its list where a caller asks it to start open", () => {
+  it("starts open when defaultOpen is true", () => {
     render(
       branched(
         <>
@@ -44,7 +45,7 @@ describe("Branch", () => {
     expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("true");
   });
 
-  it("opens its list when the trigger is pressed", async () => {
+  it("opens when the trigger is pressed", async () => {
     render(
       branched(
         <>
@@ -58,7 +59,7 @@ describe("Branch", () => {
     expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("true");
   });
 
-  it("reports the state it moved to", async () => {
+  it("calls onOpenChange with the new open state", async () => {
     const heard = vi.fn<(details: { readonly open: boolean }) => void>();
 
     render(
@@ -75,7 +76,7 @@ describe("Branch", () => {
     expect(heard).toHaveBeenLastCalledWith(expect.objectContaining({ open: true }));
   });
 
-  it("stays where a caller holding the state puts it", async () => {
+  it("keeps the branch closed on a press when open is false", async () => {
     render(
       <Root>
         <Branch open={false}>
@@ -89,7 +90,7 @@ describe("Branch", () => {
     expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("false");
   });
 
-  it("builds the reference between the row and its list from the id a caller names", () => {
+  it("builds aria-controls from the id the caller passes", () => {
     render(
       branched(
         <>
@@ -106,7 +107,7 @@ describe("Branch", () => {
     expect(screen.getAllByRole("list").map((list) => list.id)).toContain(named);
   });
 
-  it("generates an id where a caller names none", () => {
+  it("sets aria-controls when the caller passes no id", () => {
     render(
       branched(
         <>
@@ -117,5 +118,119 @@ describe("Branch", () => {
     );
 
     expect(screen.getByRole("button").getAttribute("aria-controls")).toBeTruthy();
+  });
+
+  it("opens while the query of its scope is active", async () => {
+    const scope = createFilterScope();
+
+    await drawn(
+      <FilterContext value={scope}>
+        {branched(
+          <>
+            <Trigger>Settings</Trigger>
+            <Content>Team</Content>
+          </>,
+        )}
+      </FilterContext>,
+    );
+    await act(async () => {
+      scope.setQuery("team");
+      await Promise.resolve();
+    });
+
+    expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("stays open when the query clears on a branch that started open", async () => {
+    const scope = createFilterScope();
+
+    await drawn(
+      <FilterContext value={scope}>
+        {branched(
+          <>
+            <Trigger>Settings</Trigger>
+            <Content>Team</Content>
+          </>,
+          { defaultOpen: true },
+        )}
+      </FilterContext>,
+    );
+    await act(async () => {
+      scope.setQuery("team");
+      await Promise.resolve();
+    });
+    await act(async () => {
+      scope.setQuery("");
+      await Promise.resolve();
+    });
+
+    expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("closes when the query clears on a branch that started closed", async () => {
+    const scope = createFilterScope();
+
+    await drawn(
+      <FilterContext value={scope}>
+        {branched(
+          <>
+            <Trigger>Settings</Trigger>
+            <Content>Team</Content>
+          </>,
+        )}
+      </FilterContext>,
+    );
+    await act(async () => {
+      scope.setQuery("team");
+      await Promise.resolve();
+    });
+    await act(async () => {
+      scope.setQuery("");
+      await Promise.resolve();
+    });
+
+    expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("stays open on a press while the query of its scope is active", async () => {
+    const scope = createFilterScope();
+
+    await drawn(
+      <FilterContext value={scope}>
+        {branched(
+          <>
+            <Trigger>Settings</Trigger>
+            <Content>Team</Content>
+          </>,
+        )}
+      </FilterContext>,
+    );
+    await act(async () => {
+      scope.setQuery("team");
+      await Promise.resolve();
+    });
+    await pressed(screen.getByRole("button"));
+
+    expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("hides the branch while the query of its scope is not in its words", async () => {
+    const scope = createFilterScope();
+
+    await drawn(
+      <FilterContext value={scope}>{branched(<Trigger>Settings</Trigger>)}</FilterContext>,
+    );
+    await act(async () => {
+      scope.setQuery("billing");
+      await Promise.resolve();
+    });
+
+    expect(screen.getByRole("listitem", { hidden: true }).hasAttribute("hidden")).toBe(true);
+  });
+
+  it("keeps the hidden attribute a caller sets", () => {
+    render(branched(<Trigger>Settings</Trigger>, { hidden: true }));
+
+    expect(screen.getByRole("listitem", { hidden: true }).hasAttribute("hidden")).toBe(true);
   });
 });

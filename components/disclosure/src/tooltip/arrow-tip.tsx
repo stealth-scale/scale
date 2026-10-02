@@ -1,10 +1,8 @@
 /**
- * Draws the turned square inside the arrow.
+ * Renders the arrow's tip: a square rotated 45 degrees, one corner past the content's edge.
  *
  * @remarks
- *   The shape is a square rotated into a diamond, of which one corner shows past the edge of the
- *   box. It is filled from the same custom property the box states its surface as, so the point and
- *   the box are never two different colours.
+ *   The tip reads `--tooltip-surface`, so it shares the content's fill.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,20 +13,20 @@ import { withContext } from "#tooltip/context.ts";
 import { useTooltip } from "#tooltip/machine.ts";
 
 /**
- * Draws the shape the arrow shows.
+ * Renders the `div` with the tooltip's arrow tip class.
  */
 const Turned = withContext("div", "arrowTip");
 
 /**
- * Describes what the tip takes.
+ * Describes the props of the arrow tip: the props of a `div`.
  */
 export type ArrowTipProps = ComponentProps<typeof Turned>;
 
 /**
- * Shows one corner past the edge of the box.
+ * Renders the arrow tip with the machine's arrow tip props merged over the caller's.
  *
- * @param props - Everything a styled div takes.
- * @returns The tip, turned by the machine.
+ * @param props - The props of a `div`.
+ * @returns The `div` element.
  */
 export function ArrowTip(props: ArrowTipProps): ReactElement {
   const api = useTooltip();

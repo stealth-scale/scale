@@ -1,16 +1,15 @@
 /**
- * Measures whether the four statuses can be told from each other, from the primary and from the
- * neutral as solids, and whether each keeps the hue its name is read from, in both modes.
+ * Measures whether the four statuses can be told apart from each other, from the primary and from
+ * the neutral as solids, and whether each keeps its canonical hue, in both modes.
  *
  * @remarks
- *   A status is read from its color before its word, so information, success, warning and error
+ *   A status is identified by its color before its word, so information, success, warning and error
  *   have to keep a distance from each other and from the brand in OKLab, and each has to sit near
- *   the hue a reader expects of it. The gate holds the solids to both. The inks are measured for
- *   the report alone, because an ink that reads at 7:1 on a dark page is a pale tint whatever its
- *   hue, and four pale tints sit close together however well the theme is drawn. The distance
- *   under a color vision deficiency is reported rather than gated for the same reason: a red and a
- *   green converge for a reader with deuteranopia whatever the theme does, and the recipe pairs
- *   each status with an icon for that reader.
+ *   the canonical hue of its status. The gate holds the solids to both. The inks are measured for
+ *   the report alone, because an ink that reaches 7:1 on a dark page is a pale tint whatever its
+ *   hue and four pale tints sit close together. The distance under a color vision deficiency is
+ *   reported and not gated for the same reason: a red and a green converge under deuteranopia
+ *   whatever the theme does, and the recipe pairs each status with an icon.
  */
 
 import {
@@ -27,36 +26,36 @@ import { colorAt, type Resolving } from "#theme.ts";
 import { distance } from "#vision.ts";
 
 /**
- * Lists the roles a status is read from: its fill and its ink.
+ * The roles a status is read from: its fill and its ink.
  */
 const READ_FROM = ["solid", "fg"];
 
 /**
- * Fixes the role the gate holds the statuses apart on.
+ * The one role of {@link READ_FROM} the gate holds the statuses apart on.
  */
 const GATED = "solid";
 
 /**
- * Lists the brand palettes every status has to keep its distance from.
+ * The brand palettes every status has to keep its distance from.
  */
 const BRAND = ["primary", "neutral"];
 
 /**
- * Fixes the chroma below which a color is a grey and carries no hue.
+ * The OKLab chroma below which a color counts as a grey and has no hue to measure.
  */
 const GREY = 0.01;
 
 /**
- * Describes one pair of statuses to measure on one role.
+ * One pair of statuses to measure on one role.
  */
 export interface StatusPair {
   /**
-   * The first status.
+   * The first status of the pair.
    */
   one: string;
 
   /**
-   * The second status.
+   * The second status of the pair.
    */
   other: string;
 
@@ -67,7 +66,9 @@ export interface StatusPair {
 }
 
 /**
- * Lists every pair of statuses on each role, each pair once.
+ * Enumerates every unordered pair of statuses on each role, each pair once.
+ *
+ * @returns One entry per pair and role, so four statuses over two roles give twelve.
  */
 export function statusPairs(): readonly StatusPair[] {
   return READ_FROM.flatMap((role) =>
@@ -78,7 +79,7 @@ export function statusPairs(): readonly StatusPair[] {
 }
 
 /**
- * Measures the distance between two statuses on one role in one mode.
+ * Measures how far apart a pair's two statuses sit on one role in one mode.
  *
  * @returns The OKLab distance, or `NaN` where either color cannot be resolved.
  */
@@ -95,8 +96,11 @@ export function statusDistance(
 }
 
 /**
- * Reports each pair of statuses, and each status and brand palette, closer than the status
- * distance on their solids, in either mode, or one that could not be measured.
+ * Reports each pair of statuses, and each status and brand palette, whose solids sit closer than
+ * the status threshold in either mode, and each pair that could not be measured.
+ *
+ * @returns One line per failing pair and mode, naming the distance and the threshold. Empty when
+ *   every pair clears it.
  */
 export function distinct(
   theme: Theme,
@@ -124,7 +128,10 @@ export function distinct(
 }
 
 /**
- * Reads the hue of a color in degrees, or nothing for a grey or a color that cannot be read.
+ * Returns a color's OKLab hue angle in degrees, from 0 to 360.
+ *
+ * @returns The angle, or undefined for a color that cannot be read or whose chroma is below
+ *   {@link GREY}.
  */
 function hueOf(color: string): number | undefined {
   const lab = oklab(color);
@@ -135,7 +142,9 @@ function hueOf(color: string): number | undefined {
 }
 
 /**
- * Measures how many degrees apart two hues are, the short way round the wheel.
+ * Measures how many degrees apart two hue angles are, the short way round the wheel.
+ *
+ * @returns A value from 0 to 180.
  */
 function drift(hue: number, canonical: number): number {
   const apart = Math.abs(hue - canonical) % 360;
@@ -144,8 +153,11 @@ function drift(hue: number, canonical: number): number {
 }
 
 /**
- * Reports each status whose solid sits further from the canonical hue of its status than the
- * identity threshold, in either mode, and one whose solid is a grey or cannot be measured.
+ * Reports each status whose solid drifts further from its canonical hue than the identity
+ * threshold allows, in either mode, and each whose solid is a grey or cannot be measured.
+ *
+ * @returns One line per failing status and mode, naming the drift and the threshold. Empty when
+ *   every status clears it.
  */
 export function identity(
   theme: Theme,

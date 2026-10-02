@@ -1,5 +1,5 @@
 /**
- * Gives a package that renders one call to add beside its tier.
+ * Assembles the configuration layers a rendering package adds to its tier.
  */
 
 import { type Layer } from "@stealthscale/vite-config";
@@ -8,24 +8,26 @@ import * as plugin from "#plugin/index.ts";
 import * as test from "#test/index.ts";
 
 /**
- * Says what a package renders beyond its components.
+ * Formats a package renders beyond its components.
  */
 export interface Rendering {
   /**
-   * Whether the React Compiler memoises what the package renders, and what to write the memo cache
-   * against. It runs against the installed React unless this states a target, `build` runs it
-   * under a build alone for a faster dev loop, and `false` drops it.
+   * React Compiler settings, including the React version its memo cache is written for.
+   *
+   * @remarks
+   *   With nothing stated, the compiler targets the installed React. `build` runs the compiler
+   *   under a build alone, for a faster dev loop. `false` drops both compiler layers.
    */
   compiler?: "build" | boolean | plugin.Compiled;
 
   /**
-   * Whether the package writes documents in MDX, which adds the plugin that compiles them.
+   * Whether to add the plugin that compiles an MDX document into a component.
    */
   mdx?: boolean;
 }
 
 /**
- * Reads the compiler's own layers out of what a caller stated about it.
+ * Builds the compiler's layers from what the caller stated.
  */
 function compiling(stated: Rendering["compiler"]): readonly Layer[] {
   if (stated === false) return [];
@@ -35,13 +37,13 @@ function compiling(stated: Rendering["compiler"]): readonly Layer[] {
 }
 
 /**
- * Composes the JSX transform, the icon import rewrite, the document its tests render into, and
- * the MDX compiler where a package asks for one.
+ * Composes the JSX transform, the icon import rewrite, the document tests render into, and the MDX
+ * compiler where a package asks for one.
  *
  * @remarks
- *   No rule and no format appears here. A linter and a formatter read the root configuration only,
- *   so a package repeating them lints nothing extra and slows its own build down.
- * @param stated - The document formats the package renders beside its components. Omitting it
+ *   No lint rule and no formatter setting appears here. Both read the root configuration only, so a
+ *   package repeating them lints nothing extra and slows its own build down.
+ * @param stated - Document formats the package renders in addition to its components. Omitting it
  *   compiles JSX alone.
  * @returns Each layer under the name of the call that produced it, so a consumer can drop one by
  *   name and keep the rest.

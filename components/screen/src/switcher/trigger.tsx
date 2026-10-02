@@ -1,14 +1,13 @@
 /**
- * Draws the control naming what a screen is showing, which opens the list of what else it could
- * show.
+ * Renders the control that shows the current workspace and opens the menu.
  *
  * @remarks
- *   What is switched is drawn as words out of sight at the start of the control, so a reader hears
- *   `Workspace Acme` rather than `Acme` and is told what pressing it changes. It is content rather
- *   than an `aria-label`, because a label would replace the name a reader can see and a control
- *   whose spoken name is not its visible one is one a speech user cannot ask for.
- *   Nothing here draws artwork. The mark beside the current thing is the caller's, and a switcher
- *   without one is a name over a detail, which is the common case.
+ *   The trigger renders `label` as visually hidden text at its start, so a screen reader announces
+ *   `Workspace Acme` and the reader knows what the control switches. The label is text content and
+ *   not an `aria-label`, because an `aria-label` replaces the visible name and speech input matches
+ *   the visible name (WCAG 2.5.3). The trigger writes `data-iconic` in a sidebar closed to a rail
+ *   and `data-narrow` in a narrow toolbar, which the recipe reads to hide the words visually. The
+ *   mark is the caller's, and a switcher without one shows the name over the detail.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -17,32 +16,35 @@ import { VisuallyHidden } from "@stealthscale/component-a11y";
 import { Menu } from "@stealthscale/component-disclosure";
 
 import { withContext } from "#switcher/context.ts";
+import { useSwitcher } from "#switcher/state.ts";
 
 /**
- * Draws the control at the size the switcher states.
+ * Renders the menu's trigger with the root slot's class.
  */
 const Pressed = withContext(Menu.Trigger, "root");
 
 /**
- * Describes what the control takes.
+ * Describes the props of `Trigger`.
  */
 export interface TriggerProps extends ComponentProps<typeof Pressed> {
   /**
-   * The kind of thing being switched: `Workspace`, `Project`, `Environment`. A screen reader hears
-   * it before the current thing's name.
+   * Kind of thing the control switches: `Workspace`, `Project`, `Environment`. A screen reader
+   * announces it before the current name.
    */
   readonly label: string;
 }
 
 /**
- * Labels what is showing, and opens what else could show.
+ * Renders the control with its label before its children.
  *
- * @param props - The kind of thing switched, and everything a trigger takes.
- * @returns The control, named by what it switches and by what it is switched to.
+ * @param props - `label` and the menu trigger's props.
+ * @returns The menu's trigger with the hidden label before the children.
  */
 export function Trigger({ children, label, ...rest }: TriggerProps): ReactElement {
+  const { iconic, narrow } = useSwitcher();
+
   return (
-    <Pressed {...rest}>
+    <Pressed {...rest} data-iconic={iconic ? "" : undefined} data-narrow={narrow ? "" : undefined}>
       <VisuallyHidden>{label}</VisuallyHidden>
       {children}
     </Pressed>

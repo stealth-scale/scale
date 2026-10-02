@@ -1,0 +1,14 @@
+{
+  "about": "A color mode toggle switches the page between light and dark. It reads the mode the page is drawn in, so while the choice follows the operating system it shows the mode the system chose, and a press stores the other mode. It keeps one name and reports dark as pressed. Every toggle on this page switches the catalogue itself.",
+  "header": {
+    "about": "The toggle at the end of an application's header, ghost and neutral as a control in a bar is.",
+    "product": "Ledger",
+    "title": "In a header"
+  },
+  "label": "Dark mode",
+  "looks": {
+    "about": "Every button prop passes through, so a toolbar sets the look it uses for its other controls.",
+    "title": "Looks"
+  },
+  "title": "Color mode toggle"
+}

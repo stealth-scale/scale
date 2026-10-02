@@ -1,10 +1,9 @@
 /**
- * Binds the table's recipe to the elements that draw its parts.
+ * Binds the table recipe to React.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. A recipe file that also bound one would put the runtime behind
- *   every compiler configuration that reads it.
+ *   The binding is a separate module because an application's compiler reads `recipe.ts` at build
+ *   time and the binding needs the runtime.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";
@@ -12,6 +11,6 @@ import { createSlotRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#table/recipe.ts";
 
 /**
- * Binds the recipe once. The scroller provides the variants and every other part reads them.
+ * Binds the recipe once. The scroller receives the variants and every other part reads them.
  */
 export const { withContext, withProvider } = createSlotRecipeContext(recipe);

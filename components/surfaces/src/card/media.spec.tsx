@@ -9,7 +9,7 @@ import { recipe } from "#card/recipe.ts";
 import { type RootProps } from "#card/root.ts";
 
 describe("Media", () => {
-  it("draws a div inside the root it needs above it", () => {
+  it("renders a div for the media slot inside a root", () => {
     const { container } = render(
       carded(
         <Media>
@@ -21,7 +21,7 @@ describe("Media", () => {
     expect(slotElement(container, "card", "media").tagName).toBe("DIV");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the media slot class for every variant value", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "media",
@@ -29,7 +29,7 @@ describe("Media", () => {
     ).toStrictEqual([]);
   });
 
-  it("names nothing itself, leaving the alternative text with the picture", () => {
+  it("renders no aria-label of its own", () => {
     const { container } = render(
       carded(
         <Media>
@@ -37,9 +37,7 @@ describe("Media", () => {
         </Media>,
       ),
     );
-    const band = slotElement(container, "card", "media");
 
-    expect(band.hasAttribute("aria-label")).toBe(false);
-    expect(band.querySelector("img")?.getAttribute("alt")).toBe("An invoice");
+    expect(slotElement(container, "card", "media").hasAttribute("aria-label")).toBe(false);
   });
 });

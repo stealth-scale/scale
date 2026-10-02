@@ -1,9 +1,8 @@
 /**
- * Draws the words explaining what the page is for.
+ * Renders the text that explains the page.
  *
  * @remarks
- *   The element is `p`, and the line stops at the reading measure the theme states in characters,
- *   so it holds its count at every type size.
+ *   The element is `p`. The line stops at the reading measure, which the theme sets in characters.
  */
 
 import { type ComponentProps } from "react";
@@ -11,11 +10,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#page/context.ts";
 
 /**
- * Draws the words under the title, held to the reading measure.
+ * Renders the `p` with the recipe's description class.
  */
 export const Description = withContext("p", "description");
 
 /**
- * Describes what the description takes.
+ * Describes the props of the description: the props of a `p`.
  */
 export type DescriptionProps = ComponentProps<typeof Description>;

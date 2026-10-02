@@ -9,8 +9,9 @@ import { CheckIcon, ChevronsUpDownIcon } from "lucide-react";
 
 import { Menu } from "@stealthscale/component-disclosure";
 import { Switcher } from "@stealthscale/component-screen";
+import { Text } from "@stealthscale/component-typography";
 
-import { Caption } from "#caption.tsx";
+import { CAPTION, captioned } from "#caption.tsx";
 import { Picker as Row } from "#device/parts.ts";
 
 /**
@@ -57,7 +58,7 @@ export interface PickerProps {
 export function Picker({ knob, names, onPick, picked }: PickerProps): ReactElement {
   return (
     <Row>
-      <Caption>{knob}</Caption>
+      <Text {...CAPTION}>{captioned(knob)}</Text>
       <Switcher.Root placement="toolbar" size="sm" variant="outline">
         <Switcher.Trigger label={knob}>
           <Switcher.Label>

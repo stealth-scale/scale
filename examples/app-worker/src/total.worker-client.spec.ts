@@ -2,8 +2,8 @@
  * Checks the client against a stand-in worker, with no worker runtime present.
  *
  * @remarks
- *   A real worker would make each assertion wait on a thread and a module graph for arithmetic
- *   these tests are not measuring. The stand-in answers in the same turn, which is also the timing
+ *   A real worker would put a thread and a module graph behind every assertion, for arithmetic
+ *   these cases do not measure. The stand-in replies in the same turn as `postMessage`, the timing
  *   most likely to lose a reply.
  */
 
@@ -14,44 +14,43 @@ import { type Amount } from "@stealthscale/example-lib-core";
 import { type Reply, type Request, totalled, type Totaller } from "#total.worker-client.ts";
 
 /**
- * What a stand-in worker records and lets a case drive.
+ * Records what a stand-in worker received, and exposes the controls a case drives it with.
  */
 interface Standing {
   /**
-   * Fails the worker, as a thrown error inside it would.
+   * Dispatches an error event, as a throw inside the worker would.
    */
   readonly fail: (message: string) => void;
 
   /**
-   * The listeners on at this moment, by event.
+   * Counts the listeners registered at this moment, by event.
    */
   readonly listening: () => Record<string, number>;
 
   /**
-   * Answers one request by its number.
+   * Dispatches a reply for one request id.
    */
   readonly reply: (id: number, total: Amount | undefined) => void;
 
   /**
-   * Every request the worker received.
+   * Every request `postMessage` received, in order.
    */
   readonly sent: Request[];
 
   /**
-   * The stand-in itself.
+   * The stand-in worker a case passes to `totalled`.
    */
   readonly worker: Totaller;
 }
 
 /**
- * Builds a worker that records what it was sent and replies the way a case tells it to.
+ * Returns a stand-in worker that records every request and replies as the case directs.
  *
  * @remarks
- *   With an answer given, the reply is delivered from inside postMessage, before it returns, and
- *   carries the request's own number. A client that registered its listener after sending would
- *   miss it, so this timing is what makes the ordering in the client observable. Without an
- *   answer the worker stays quiet until the case replies or fails it.
- * @param answer - The total to reply with at once. Leaving it out keeps the worker quiet.
+ *   Given an answer, `postMessage` dispatches the reply under the request's id before it returns,
+ *   so a client that registered its listener after posting would miss it. Without an answer the
+ *   worker stays silent until the case replies or fails it.
+ * @param answer - The total to reply with immediately. Absent, the worker stays silent.
  */
 function standing(answer?: { total: Amount | undefined }): Standing {
   const sent: Request[] = [];
@@ -89,7 +88,7 @@ function standing(answer?: { total: Amount | undefined }): Standing {
 }
 
 describe("total.worker-client", () => {
-  it("answers with what the worker replied", async () => {
+  it("resolves with the total the worker replied", async () => {
     const held = standing({ total: { cents: 425, currency: "EUR" } });
 
     await expect(totalled(held.worker, [{ cents: 425, currency: "EUR" }])).resolves.toStrictEqual({
@@ -98,7 +97,7 @@ describe("total.worker-client", () => {
     });
   });
 
-  it("sends the worker exactly what it was given under a number of its own", async () => {
+  it("posts the amounts of each run under a distinct id", async () => {
     const held = standing({ total: undefined });
 
     await totalled(held.worker, [{ cents: 1, currency: "EUR" }]);
@@ -111,13 +110,13 @@ describe("total.worker-client", () => {
     expect(held.sent[0]?.id).not.toBe(held.sent[1]?.id);
   });
 
-  it("answers nothing where the worker had nothing to total", async () => {
+  it("resolves with undefined when the worker replies with no total", async () => {
     const held = standing({ total: undefined });
 
     await expect(totalled(held.worker, [])).resolves.toBeUndefined();
   });
 
-  it("settles each of two runs in flight with its own total", async () => {
+  it("resolves each request in flight with the reply naming its id", async () => {
     const held = standing();
     const first = totalled(held.worker, [{ cents: 1, currency: "EUR" }]);
     const second = totalled(held.worker, [{ cents: 2, currency: "EUR" }]);
@@ -130,7 +129,7 @@ describe("total.worker-client", () => {
     await expect(second).resolves.toStrictEqual({ cents: 2, currency: "EUR" });
   });
 
-  it("takes its listeners off once the total is in", async () => {
+  it("removes both listeners once the promise resolves", async () => {
     const held = standing({ total: undefined });
 
     await totalled(held.worker, []);
@@ -138,7 +137,7 @@ describe("total.worker-client", () => {
     expect(held.listening()).toStrictEqual({ error: 0, message: 0 });
   });
 
-  it("rejects with what the worker reported when it fails", async () => {
+  it("rejects with the message the error event reported", async () => {
     const held = standing();
     const answer = totalled(held.worker, [{ cents: 1, currency: "EUR" }]);
 
@@ -148,7 +147,7 @@ describe("total.worker-client", () => {
     expect(held.listening()).toStrictEqual({ error: 0, message: 0 });
   });
 
-  it("rejects when the worker answers nothing within the patience", async () => {
+  it("rejects when the worker sends no reply before the timeout", async () => {
     const held = standing();
 
     await expect(totalled(held.worker, [{ cents: 1, currency: "EUR" }], 1)).rejects.toThrow(

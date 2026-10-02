@@ -11,12 +11,13 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  CI: "true"
+
 jobs:
-  ci:
+  check:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    env:
-      CI: "true"
     steps:
       - uses: actions/checkout@v7
         with:
@@ -25,4 +26,66 @@ jobs:
         with:
           runtime: node@26
           cache: true
-      - run: pnpm run ready
+      - run: pnpm run bootstrap
+      - run: pnpm exec vp run -r build
+      - run: pnpm exec vp check
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: pnpm/setup@v2
+        with:
+          runtime: node@26
+          cache: true
+      - run: pnpm run bootstrap
+      - run: pnpm exec vp run -r build
+      - run: >-
+          pnpm exec vp test --run --shard=${{ matrix.shard }}/4 --reporter=blob
+          --coverage.thresholds.branches=0 --coverage.thresholds.functions=0
+          --coverage.thresholds.lines=0 --coverage.thresholds.statements=0
+      - uses: actions/upload-artifact@v7
+        with:
+          name: blob-${{ matrix.shard }}
+          path: .vitest/blob
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+
+  coverage:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: pnpm/setup@v2
+        with:
+          runtime: node@26
+          cache: true
+      - run: pnpm run bootstrap
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: blob-*
+          path: .vitest/blob
+          merge-multiple: true
+      - run: pnpm exec vp test --merge-reports
+
+  ci:
+    if: always()
+    needs: [check, coverage]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - env:
+          CHECK: ${{ needs.check.result }}
+          COVERAGE: ${{ needs.coverage.result }}
+        run: test "$CHECK" = success && test "$COVERAGE" = success

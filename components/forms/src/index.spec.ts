@@ -3,34 +3,58 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#index.ts";
 
 describe("index", () => {
-  it("names every component the package publishes and nothing beside them", () => {
+  it("exports exactly the components of the package", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
+      "AngleSlider",
       "Checkbox",
+      "CheckboxCard",
+      "ColorPicker",
+      "Combobox",
+      "DateInput",
+      "DatePicker",
+      "Editable",
       "Field",
       "Fieldset",
+      "FileUpload",
       "Input",
       "InputGroup",
+      "InputMask",
       "InputPropsProvider",
+      "NativeSelect",
+      "NumberInput",
+      "PasswordInput",
+      "PhoneInput",
+      "PinInput",
+      "RadioCard",
+      "RadioGroup",
+      "RatingGroup",
       "SearchInput",
+      "SegmentGroup",
+      "Select",
+      "SignaturePad",
+      "Slider",
       "Switch",
+      "TagsInput",
       "Textarea",
     ]);
   });
 
-  it("publishes a component with parts as a namespace of its short names", () => {
+  it("exports a component with parts as a namespace of the part names", () => {
     expect(Object.keys(barrel.Field).toSorted()).toStrictEqual([
       "Control",
       "Counter",
       "ErrorText",
       "HelperText",
       "Label",
+      "OptionalIndicator",
       "RequiredIndicator",
       "Root",
+      "Textarea",
       "useField",
     ]);
   });
 
-  it("publishes neither a recipe nor a binding", () => {
+  it("exports no recipe binding or hook at the top level", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {

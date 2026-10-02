@@ -1,23 +1,23 @@
 /**
- * Writes the classes of a recipe in the scheme: the slot, the variant and the compound.
+ * Builds the class names a recipe applies for a slot, a variant and a compound.
  *
  * @remarks
- *   The compiler writes a variant as the class, two hyphens, the axis, the separator and the
- *   value. The scheme drops the axis for a string value, writes the axis alone for `true`, and
- *   writes nothing for `false`, so an element carries `button--lg` and `button--loading` and
- *   nothing marks the absence of a state. The values of one recipe are therefore unique across its
- *   axes, and a compound carries a name of its own that no axis and no value equals. The gate
- *   holds both, and this module trusts them.
+ *   The compiler writes a variant class as the recipe class, two hyphens, the axis, the separator
+ *   and then the value. This scheme drops the axis for a string value, keeps the axis alone for
+ *   `true`, and emits nothing for `false`: an element carries `button--lg` and `button--loading`,
+ *   and a state that is off leaves no class behind. Dropping the axis is only unambiguous because
+ *   the gate already rejects a recipe whose values repeat across axes, or whose compound name
+ *   collides with an axis or a value. This module assumes both hold.
  */
 
 import { kebab, sanitise } from "#sanitise.ts";
 
 /**
- * Describes a recipe as far as the scheme reads it: its class, its axes and its slots.
+ * The parts of a recipe the naming scheme reads.
  */
 export interface Recipe {
   /**
-   * The axes the recipe's variants are declared under.
+   * The axes the recipe declares its variants under.
    */
   axes: readonly string[];
   /**
@@ -31,12 +31,12 @@ export interface Recipe {
 }
 
 /**
- * Lists the separators the compiler accepts between an axis and its value.
+ * The separators the compiler accepts between an axis and its value.
  */
 export type Separator = "_" | "-" | "=";
 
 /**
- * Describes what the scheme reads of the compiler's configuration to recognise a class it wrote.
+ * The parts of the compiler's config the scheme needs to recognise a compiled class.
  */
 export interface CompilerConfig {
   /**
@@ -50,11 +50,11 @@ export interface CompilerConfig {
 }
 
 /**
- * Writes the class a recipe's variant is applied under, or nothing for a boolean axis at `false`.
+ * Writes the class a variant is applied under, or nothing for a boolean axis at `false`.
  *
  * @remarks
- *   A boolean value arrives as a boolean from a recipe function and as the strings `true` and
- *   `false` from a stylesheet, so both spellings are read.
+ *   The value arrives as a real boolean from a recipe function and as the string `true` or `false`
+ *   from a stylesheet, so both spellings are handled.
  * @returns `<class>--<value>` for a string or a number, `<class>--<axis>` for `true`, and an empty
  *   string for `false`.
  */
@@ -72,14 +72,14 @@ export function variantClass(
 }
 
 /**
- * Writes the class a slot recipe applies to one slot.
+ * Writes the class a slot recipe applies to one of its slots.
  */
 export function slotClass(className: string, slot: string): string {
   return `${className}__${kebab(slot)}`;
 }
 
 /**
- * Writes the class a compound is applied under, from the name its author gave it.
+ * Writes the class a compound is applied under, from the name the recipe gave it.
  */
 export function compoundClass(className: string, name: string): string {
   return `${className}--${sanitise(kebab(name))}`;

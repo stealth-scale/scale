@@ -1,26 +1,14 @@
 /**
- * States what a sample is: one drawing of a component, captioned with the value it was drawn for
- * and held in a box the specimen chooses the look of.
+ * Defines the sample: a caption above a body that renders one component.
  *
  * @remarks
- *   The caption sits above the box rather than inside it, so a look drawn round the drawing frames
- *   the component and not the words that name it. A matrix and a board both draw their cells as
- *   samples, so one page that uses each reads the same in both.
- *   The looks are written here from semantic tokens rather than read off the theme's flat layer
- *   styles. Every flat look states an ink, and a sample holds whatever a specimen puts in it, so a
- *   look that moved the ink would move the ink of the component being shown.
- *   The place axis says how wide the box is and where the drawing sits in it. It fits the drawing
- *   until a caller asks for more, because a box is there to frame a component and a box wider than
- *   the component frames the room beside it instead: a toolbar of three controls in a box that
- *   filled a grid column read as a control adrift in a panel. The other four fill the cell, which
- *   is what a column of boxes the same width asks for, and place the drawing in it.
- *   Fitting is also what keeps a matrix of a control at every size on one card. A control that
- *   fills whatever it is given asks its column for the width it would take stretched, so eight
- *   fields drawn at `start` asked for more than the card holds and the last three fell off the
- *   edge. A scene whose component should reach the far side of its column states `place="start"`
- *   itself.
- *   The span is for a sample laid out on a board, which is the library's grid. A sample outside a
- *   grid is unaffected by it.
+ *   The caption is outside the body, so a look styles the box around the component and not the
+ *   caption. A matrix and a board render every cell as a sample. Each look reads semantic tokens.
+ *   Every look except `inverted` sets no text colour, so the component keeps the page's ink. The
+ *   body fills the cell at every `place` value, and `place` aligns the component inside it. No
+ *   value sizes the body to its content, because a component that queries its container needs a
+ *   container wider than itself. `span` applies only to a sample that is a child of a board's
+ *   grid.
  */
 
 import {
@@ -32,16 +20,16 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * Writes the edge a drawn look carries.
+ * Border of every look that renders an edge: a hairline in the `border` colour.
  */
 const EDGE = { borderColor: "border", borderStyle: "solid", borderWidth: "hairline" };
 
 /**
- * Writes the room a look that draws a box leaves round the component inside it.
+ * Radius and padding of every look that renders a box.
  *
  * @remarks
- *   A look that draws nothing leaves no room either, so a plain sample takes exactly the width and
- *   the height of what it holds and a page of plain samples is spaced by the board alone.
+ *   The `plain` look sets neither, so a plain sample is exactly the size of its content and the
+ *   board's gap is the only space between two plain samples.
  */
 const ROOM: SystemStyleObject = {
   borderRadius: "l2",
@@ -49,7 +37,8 @@ const ROOM: SystemStyleObject = {
 };
 
 /**
- * Draws a sample with nothing round it, at the start of its box, until a caller says otherwise.
+ * Styles the root, caption and body of a sample. Defaults to the plain look at the start of the
+ * cell.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -69,28 +58,33 @@ export const recipe = defineSlotRecipe({
     },
   },
   className: "sample",
-  defaultVariants: { place: "fit", variant: "plain" },
+  defaultVariants: { place: "start", variant: "plain" },
   jsx: [/^Sample$/u],
   slots: ["root", "caption", "body"],
   variants: {
     /**
-     * How wide the box is, and where the drawing sits in it.
+     * Alignment of the component inside the body.
      */
     place: {
       center: { body: { inlineSize: "full", justifyContent: "center" } },
       end: { body: { inlineSize: "full", justifyContent: "flex-end" } },
-      fit: { body: { inlineSize: "fit-content" } },
       start: { body: { inlineSize: "full", justifyContent: "flex-start" } },
       stretch: { body: { alignItems: "stretch", flexDirection: "column", inlineSize: "full" } },
     },
 
     /**
-     * How many of a board's columns the sample reaches across.
+     * Number of board columns the sample spans. `full` spans every column.
      */
     span: { ...onSlot("root", spanCounts()), full: { root: { gridColumn: "1 / -1" } } },
 
     /**
-     * How the box round the drawing is drawn.
+     * Fill, edge and padding of the body.
+     *
+     * @remarks
+     *   `inverted` fills the body with `bg.inverted`, the page colour of the opposite mode, and
+     *   sets the inherited ink to `fg.inverted`, the ink of that mode. Text in the `fg.inverted`
+     *   ink meets the text contrast ratio only on that fill. Its padding is the `xs` inset, 8px, so
+     *   a short line fits a 158px matrix column on one line.
      */
     variant: {
       subtle: { body: { ...ROOM, background: "bg.subtle" } },
@@ -98,6 +92,15 @@ export const recipe = defineSlotRecipe({
       surface: { body: { ...ROOM, ...EDGE, background: "bg.subtle" } },
 
       outline: { body: { ...ROOM, ...EDGE } },
+
+      inverted: {
+        body: {
+          ...ROOM,
+          background: "bg.inverted",
+          color: "fg.inverted",
+          padding: dense("{spacing.inset.xs}"),
+        },
+      },
 
       plain: { body: { background: "transparent", borderWidth: "0", padding: "0" } },
     },

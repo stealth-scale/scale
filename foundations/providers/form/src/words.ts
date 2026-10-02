@@ -11,14 +11,14 @@ import { type Described, useDescribed } from "#registry.ts";
 import { type Translate, worded } from "#translate.ts";
 
 /**
- * Stands in for the form where there is none in scope, so the description is read the same way on
- * every render and reads as nothing.
+ * Takes the form's place where none is in scope, so the description is read the same way on every
+ * render and is absent.
  */
 const NOWHERE: Described = { baseStore: {} };
 
 /**
- * Describes an error a schema or a validator answered with a keyword: the engine's issue, or an
- * object a validator of the caller's own returned.
+ * Describes an error with a keyword: the engine's issue, or an object a validator of the caller's
+ * own returned.
  */
 interface Keyworded {
   /**
@@ -38,7 +38,7 @@ interface Keyworded {
 }
 
 /**
- * Reports whether an error carries a keyword.
+ * Reports whether an error has a keyword.
  */
 function isKeyworded(error: unknown): error is Keyworded {
   return (
@@ -54,9 +54,14 @@ function isKeyworded(error: unknown): error is Keyworded {
  */
 export interface Words {
   /**
-   * Resolves the words on an action the form offers, with the English given as the default.
+   * Resolves the words on an action the form offers, with the English given as the default and the
+   * values the words read, such as the number of the item a remove button removes.
    */
-  readonly action: (name: string, fallback: string) => string;
+  readonly action: (
+    name: string,
+    fallback: string,
+    values?: Readonly<Record<string, unknown>>,
+  ) => string;
 
   /**
    * Resolves a field's help text, with the fallback given or an empty string as the default. An
@@ -82,9 +87,21 @@ export interface Words {
   readonly legend: (name: string) => string;
 
   /**
+   * Resolves a mark beside a field's label, such as the one an optional field shows: under the
+   * form's own identifier, then the shared one, with the English given as the default.
+   */
+  readonly mark: (name: string, fallback: string) => string;
+
+  /**
    * Resolves one choice of an enum, with the value as the default.
    */
   readonly option: (path: string, value: string) => string;
+
+  /**
+   * Resolves the words under one choice of an enum, or an empty string where the catalogue has
+   * none.
+   */
+  readonly optionDescription: (path: string, value: string) => string;
 
   /**
    * Resolves a field's placeholder, or an empty string where the catalogue has none. An
@@ -113,7 +130,8 @@ export function wordsOf(translate: Translate, id: string): Words {
   const ids = identifiers(id);
 
   return {
-    action: (name, fallback) => translate(ids.action(name), { defaultValue: fallback }),
+    action: (name, fallback, values) =>
+      translate(ids.action(name), { ...values, defaultValue: fallback }),
     description: (path, fallback = "", identifier) =>
       translate(keys(ids.description(path), identifier), { defaultValue: fallback }),
     error: (path, error) => {
@@ -133,7 +151,10 @@ export function wordsOf(translate: Translate, id: string): Words {
     label: (path, fallback = worded(path), identifier) =>
       translate(keys(ids.label(path), identifier), { defaultValue: fallback }),
     legend: (name) => translate(ids.legend(name), { defaultValue: worded(name) }),
+    mark: (name, fallback) => translate([...ids.mark(name)], { defaultValue: fallback }),
     option: (path, value) => translate(ids.option(path, value), { defaultValue: value }),
+    optionDescription: (path, value) =>
+      translate(ids.optionDescription(path, value), { defaultValue: "" }),
     placeholder: (path, identifier) =>
       translate(keys(ids.placeholder(path), identifier), { defaultValue: "" }),
     step: (name) => translate(ids.step(name), { defaultValue: worded(name) }),
@@ -141,7 +162,7 @@ export function wordsOf(translate: Translate, id: string): Words {
 }
 
 /**
- * Reads the words of the form being drawn.
+ * Reads the words of the form being rendered.
  *
  * @remarks
  *   A form built from a schema reads its own identifier and translator. Any other form, and a

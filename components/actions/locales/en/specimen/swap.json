@@ -1,0 +1,30 @@
+{
+  "about": "A swap puts two marks in one place and shows one of them. When the control around it changes state, one mark leaves while the other enters. Both marks keep their room, so the swap is as large as the larger mark and nothing beside it moves. The swap has no role of its own: the button around it names the state.",
+  "follow": {
+    "about": "Words swap as well as icons. The button is as wide as Unfollow in both states, and its name is the action a press takes, so it sets no aria-pressed.",
+    "follow": "Follow",
+    "person": "Ada Lovelace",
+    "title": "Words",
+    "unfollow": "Unfollow"
+  },
+  "motion": {
+    "about": "Motion sets how one mark replaces the other: scaled, faded, rolled up, or at once. Press a button to watch it. Under reduced motion every swap changes at once.",
+    "title": "Motions"
+  },
+  "mute": {
+    "about": "A toggle button keeps one name, Mute, and reports its state as pressed. The swap shows the speaker with sound or crossed out.",
+    "label": "Mute",
+    "title": "Toggle button"
+  },
+  "playback": {
+    "about": "The button's name is the action a press takes, Play or Pause, and the mark follows it.",
+    "pause": "Pause",
+    "play": "Play",
+    "title": "Named by the action"
+  },
+  "states": {
+    "about": "The off mark shows while swap is false and the on mark while it is true.",
+    "title": "States"
+  },
+  "title": "Swap"
+}

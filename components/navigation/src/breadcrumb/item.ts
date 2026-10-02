@@ -1,5 +1,5 @@
 /**
- * Draws one crumb of the trail.
+ * Renders one crumb of the trail.
  */
 
 import { type ComponentProps } from "react";
@@ -7,12 +7,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#breadcrumb/context.ts";
 
 /**
- * Draws one row of the trail, carrying either a link to somewhere above or the name of the page
- * itself.
+ * Renders a list item that holds a `Breadcrumb.Link` or the `Breadcrumb.CurrentLink`.
  */
 export const Item = withContext("li", "item");
 
 /**
- * Describes what a crumb takes.
+ * Describes the props of Breadcrumb.Item: the props of a list item element.
  */
 export type ItemProps = ComponentProps<typeof Item>;

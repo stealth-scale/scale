@@ -9,13 +9,29 @@ import { recipe } from "#menu/recipe.ts";
 import { type RootProps } from "#menu/root.tsx";
 
 describe("Root", () => {
-  it("breaks no accessibility rule holding a control and its rows", async () => {
+  it("passes the parent's direction to a submenu", async () => {
+    const { container } = await drawn(
+      nested({ defaultOpen: true, dir: "rtl" }, { lazyMount: false }),
+    );
+    const panels = [...container.querySelectorAll<HTMLElement>(".menu__content")];
+
+    expect(panels.map((panel) => panel.getAttribute("dir"))).toStrictEqual(["rtl", "rtl"]);
+  });
+
+  it("sets no direction when no menu in the nest sets one", async () => {
+    const { container } = await drawn(nested({ defaultOpen: true }, { lazyMount: false }));
+    const panels = [...container.querySelectorAll<HTMLElement>(".menu__content")];
+
+    expect(panels.map((panel) => panel.getAttribute("dir"))).toStrictEqual([null, null]);
+  });
+
+  it("passes axe with a trigger and its rows", async () => {
     await expect(
       accessibilityViolations(() => composed({ defaultOpen: true })),
     ).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", async () => {
+  it("applies the class of every variant value", async () => {
     await expect(
       boundMachineViolations(
         recipe,
@@ -25,13 +41,13 @@ describe("Root", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("keeps the rows shut until the control is pressed", async () => {
+  it("renders no menu until the trigger is pressed", async () => {
     await drawn(composed());
 
     expect(screen.queryByRole("menu")).toBeNull();
   });
 
-  it("opens the rows when the control is pressed", async () => {
+  it("opens the menu when the trigger is pressed", async () => {
     await drawn(composed());
     fireEvent.click(screen.getByRole("button", { name: /Actions/u }));
     await settled();
@@ -39,13 +55,13 @@ describe("Root", () => {
     expect(screen.getByRole("menu")).toBeDefined();
   });
 
-  it("opens the rows where a caller says it starts open", async () => {
+  it("opens the menu with defaultOpen", async () => {
     await drawn(composed({ defaultOpen: true }));
 
     expect(screen.getByRole("menu")).toBeDefined();
   });
 
-  it("tells a caller which row the reader chose", async () => {
+  it("calls onSelect with the chosen row's value", async () => {
     const told = vi.fn<(details: { readonly value: string }) => void>();
 
     await drawn(composed({ defaultOpen: true, onSelect: told }));
@@ -54,7 +70,7 @@ describe("Root", () => {
     expect(told).toHaveBeenLastCalledWith(expect.objectContaining({ value: "rename" }));
   });
 
-  it("tells a caller each time the rows open and shut", async () => {
+  it("calls onOpenChange when the menu opens", async () => {
     const told = vi.fn<(details: { readonly open: boolean }) => void>();
 
     await drawn(composed({ onOpenChange: told }));
@@ -64,25 +80,25 @@ describe("Root", () => {
     expect(told).toHaveBeenLastCalledWith(expect.objectContaining({ open: true }));
   });
 
-  it("follows a caller that drives it", async () => {
+  it("opens the menu with a controlled open", async () => {
     await drawn(composed({ open: true }));
 
     expect(screen.getByRole("menu")).toBeDefined();
   });
 
-  it("takes part in no layout of its own", async () => {
+  it("renders a div", async () => {
     const { container } = await drawn(composed());
 
     expect(slotElement(container, "menu", "root").tagName).toBe("DIV");
   });
 
-  it("draws a submenu's control as a row of the menu above it", async () => {
+  it("renders a submenu's trigger as a row of its parent", async () => {
     await drawn(nested({ defaultOpen: true }));
 
     expect(screen.getByRole("menuitem", { name: "Share" })).toBeDefined();
   });
 
-  it("opens a submenu when the arrow towards it is pressed", async () => {
+  it("opens a submenu on ArrowRight", async () => {
     await drawn(nested({ defaultOpen: true }));
 
     const panel = screen.getByRole("menu");
@@ -97,17 +113,21 @@ describe("Root", () => {
     expect(screen.getByRole("menuitem", { name: "Email" })).toBeDefined();
   });
 
-  it("draws a submenu in the variants the menu above it was given", async () => {
-    const { container } = await drawn(nested({ defaultOpen: true, size: "sm" }));
-    const panels = [...container.querySelectorAll("[data-part=content]")];
+  it("passes the parent's variants to a submenu", async () => {
+    const { container } = await drawn(
+      nested({ defaultOpen: true, size: "sm" }, { lazyMount: false }),
+    );
+    const panels = [...container.querySelectorAll(".menu__content")];
 
     expect(panels).toHaveLength(2);
     expect(panels.every((panel) => panel.className.includes("menu__content--sm"))).toBe(true);
   });
 
-  it("draws a submenu in its own variants where it picks them", async () => {
-    const { container } = await drawn(nested({ defaultOpen: true, size: "sm" }));
-    const panels = [...container.querySelectorAll("[data-part=content]")];
+  it("applies no default size to a submenu of a small menu", async () => {
+    const { container } = await drawn(
+      nested({ defaultOpen: true, size: "sm" }, { lazyMount: false }),
+    );
+    const panels = [...container.querySelectorAll(".menu__content")];
 
     expect(panels.every((panel) => !panel.className.includes("menu__content--md"))).toBe(true);
   });

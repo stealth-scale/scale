@@ -4,7 +4,14 @@
 
 import { createElement, type FunctionComponent } from "react";
 
-import { type Evaluate, type LayoutProps, type RouteDeclaration } from "#declaration.ts";
+import {
+  type EnteredLocation,
+  type Evaluate,
+  type LayoutProps,
+  type RouteDeclaration,
+  type RouteLoader,
+} from "#declaration.ts";
+import { type AnyParams } from "#reference.ts";
 import {
   type AnyRoute,
   createRoute,
@@ -17,18 +24,19 @@ import {
 /**
  * Describes what one compilation needs beyond the declarations themselves.
  */
-export interface CompileOptions<Condition = unknown> {
+export interface CompileOptions<Condition = unknown, Context = unknown> {
   /**
-   * Draws a page whose own component threw or failed to load, named per declaration.
+   * Builds the error component of each declaration's route, which renders when the page throws or
+   * fails to load.
    */
   readonly errorComponent?:
     | ((declaration: RouteDeclaration<Condition>) => ErrorRouteComponent)
     | undefined;
 
   /**
-   * Reports whether a route's condition holds. Required where any declaration states one.
+   * Returns whether a route's condition is true. Required where any declaration states one.
    */
-  readonly evaluate?: Evaluate<Condition> | undefined;
+  readonly evaluate?: Evaluate<Condition, Context> | undefined;
 
   /**
    * The layouts a declaration may name.
@@ -42,9 +50,9 @@ export interface CompileOptions<Condition = unknown> {
 }
 
 /**
- * Carries the state one compilation builds up.
+ * Describes the state one compilation builds up.
  */
-interface Building<Condition> {
+interface Building<Condition, Context> {
   /**
    * The layout names in force at each route built here, so a declaration cannot repeat one.
    */
@@ -66,14 +74,14 @@ interface Building<Condition> {
   readonly compiled: Map<string, AnyRoute>;
 
   /**
-   * The pathless layout routes built under each route, against the layouts they draw.
+   * The pathless layout routes built under each route, against the layouts they render.
    */
   readonly frames: Map<AnyRoute, Map<string, AnyRoute>>;
 
   /**
    * The options this compilation was asked for.
    */
-  readonly options: CompileOptions<Condition>;
+  readonly options: CompileOptions<Condition, Context>;
 
   /**
    * The ids already used under each route, so a second frame does not collide with the first.
@@ -87,33 +95,108 @@ interface Building<Condition> {
 }
 
 /**
- * Reads the page a declaration draws with, loading it on first navigation where it is lazy.
+ * Describes the part of what the library passes a route's `beforeLoad` that the gate reads.
+ *
+ * @remarks
+ *   The context is typed `unknown` here, because the library infers the route's own context type
+ *   from this parameter, and a compiled route is outside the tree that types it.
+ */
+interface Entering {
+  /**
+   * The route's context, which contains the router's.
+   */
+  readonly context: unknown;
+
+  /**
+   * The address the navigation enters.
+   */
+  readonly location: EnteredLocation;
+}
+
+/**
+ * Describes the part of what the library passes a route's loader that a declared loader reads.
+ */
+interface Loading {
+  /**
+   * The controller whose signal aborts when a later navigation supersedes this one.
+   */
+  readonly abortController: AbortController;
+
+  /**
+   * The route's context, which contains the router's.
+   */
+  readonly context: unknown;
+
+  /**
+   * The dependencies `loaderDeps` returned, which contain the route's search.
+   */
+  readonly deps: Searched;
+
+  /**
+   * The parameters the route's path names.
+   */
+  readonly params: AnyParams;
+
+  /**
+   * True where the router loads the route ahead of a navigation.
+   */
+  readonly preload: boolean;
+}
+
+/**
+ * Describes the dependencies of a declared loader, which are the route's search alone.
+ */
+interface Searched {
+  /**
+   * The route's search, as its validator returned it.
+   */
+  readonly search: unknown;
+}
+
+/**
+ * Describes the loader options a declaration with a loader compiles to.
+ */
+interface Loaded {
+  /**
+   * Runs the declared loader with the search from the dependencies.
+   */
+  readonly loader: (options: Loading) => Promise<void> | void;
+
+  /**
+   * Returns the route's search as the loader's dependencies.
+   */
+  readonly loaderDeps: (options: Searched) => Searched;
+}
+
+/**
+ * Returns the component of a declaration's page, which loads on the first navigation where the page
+ * is lazy.
  *
  * @param component - The page, or the importer that resolves to one.
- * @returns The component the route draws.
+ * @returns The component the route renders.
  */
 function pageOf(component: RouteDeclaration["component"]): FunctionComponent {
   return "load" in component ? lazyRouteComponent(component.load, component.export) : component;
 }
 
 /**
- * Draws a layout around whatever the route below it draws.
+ * Returns a component that renders a layout around the route below it.
  *
- * @param drawn - The layout component the caller registered.
+ * @param layout - The layout component the caller registered.
  * @param options - The options the declaration stated for this layout.
- * @returns A component the pathless route draws.
+ * @returns A component the pathless route renders.
  */
 function framed(
-  drawn: FunctionComponent<LayoutProps>,
+  layout: FunctionComponent<LayoutProps>,
   options: RouteDeclaration["layoutOptions"],
 ): FunctionComponent {
   /**
-   * Draws the layout around the route below it.
+   * Renders the layout around the route below it.
    *
-   * @returns The frame, holding the outlet.
+   * @returns The layout, with the outlet inside it.
    */
   return function Layout() {
-    return createElement(drawn, { options }, createElement(Outlet));
+    return createElement(layout, { options }, createElement(Outlet));
   };
 }
 
@@ -124,7 +207,11 @@ function framed(
  * @param under - The route it hangs under.
  * @param route - The route being placed.
  */
-function place<Condition>(building: Building<Condition>, under: AnyRoute, route: AnyRoute): void {
+function place<Condition, Context>(
+  building: Building<Condition, Context>,
+  under: AnyRoute,
+  route: AnyRoute,
+): void {
   if (under === building.options.parent) {
     building.top.push(route);
 
@@ -145,7 +232,11 @@ function place<Condition>(building: Building<Condition>, under: AnyRoute, route:
  * @param name - The layout's name, which the id is derived from.
  * @returns The id, suffixed where the plain one is already used.
  */
-function freeId<Condition>(building: Building<Condition>, under: AnyRoute, name: string): string {
+function freeId<Condition, Context>(
+  building: Building<Condition, Context>,
+  under: AnyRoute,
+  name: string,
+): string {
   const used = building.taken.get(under) ?? new Set<string>();
 
   building.taken.set(under, used);
@@ -175,10 +266,10 @@ function freeId<Condition>(building: Building<Condition>, under: AnyRoute, name:
  * @param under - The route the outermost layout hangs under.
  * @returns The route the declaration's own route hangs under.
  * @throws {@link Error} Where a layout nothing provides is named, or where one a route above
- *   already draws is named again.
+ *   already renders is named again.
  */
-function framing<Condition>(
-  building: Building<Condition>,
+function framing<Condition, Context>(
+  building: Building<Condition, Context>,
   declaration: RouteDeclaration<Condition>,
   under: AnyRoute,
 ): AnyRoute {
@@ -186,15 +277,15 @@ function framing<Condition>(
   let current = under;
 
   for (const name of declaration.layout ?? []) {
-    const drawn = building.options.layouts?.[name];
+    const layout = building.options.layouts?.[name];
 
-    if (drawn === undefined) {
+    if (layout === undefined) {
       throw new Error(`The route ${declaration.id} names the layout ${name}, which is absent.`);
     }
 
     if (names.includes(name)) {
       throw new Error(
-        `The route ${declaration.id} names the layout ${name}, which a route above it already draws.`,
+        `The route ${declaration.id} names the layout ${name}, which a route above it already renders.`,
       );
     }
 
@@ -210,7 +301,7 @@ function framing<Condition>(
 
     if (existing === undefined) {
       const frame = createRoute({
-        component: framed(drawn, declaration.layoutOptions),
+        component: framed(layout, declaration.layoutOptions),
         getParentRoute: () => above,
         id: freeId(building, above, name),
       });
@@ -229,20 +320,37 @@ function framing<Condition>(
 }
 
 /**
+ * Builds the loader options of a route whose declaration states a loader.
+ *
+ * @remarks
+ *   The search is the loader's dependencies, so the router runs the loader again when the search
+ *   changes, and keeps one result per search.
+ * @param loader - The loader the declaration stated.
+ * @returns The options to spread into the route.
+ */
+function loading(loader: RouteLoader): Loaded {
+  return {
+    loader: ({ abortController, context, deps, params, preload }) =>
+      loader({ context, params, preload, search: deps.search, signal: abortController.signal }),
+    loaderDeps: ({ search }) => ({ search }),
+  };
+}
+
+/**
  * Builds the route one declaration compiles to.
  *
  * @param building - The state this compilation has built up.
  * @param declaration - The route being compiled.
  * @param under - The route it hangs under, frames included.
- * @returns The route, drawing the declaration's page under the frames it named.
+ * @returns The route, which renders the declaration's page inside the frames it named.
  */
-function routeOf<Condition>(
-  building: Building<Condition>,
+function routeOf<Condition, Context>(
+  building: Building<Condition, Context>,
   declaration: RouteDeclaration<Condition>,
   under: AnyRoute,
 ): AnyRoute {
   const { errorComponent } = building.options;
-  const { id, navigation, when } = declaration;
+  const { id, loader, navigation, when } = declaration;
 
   return createRoute({
     component: pageOf(declaration.component),
@@ -252,6 +360,7 @@ function routeOf<Condition>(
     ...(errorComponent === undefined ? {} : { errorComponent: errorComponent(declaration) }),
     ...(declaration.search === undefined ? {} : { validateSearch: declaration.search }),
     ...(when === undefined ? {} : { beforeLoad: gate(building, declaration, when) }),
+    ...(loader === undefined ? {} : loading(loader)),
   });
 }
 
@@ -259,29 +368,31 @@ function routeOf<Condition>(
  * Builds the check a route runs before it is entered.
  *
  * @remarks
- *   The evaluator is read once here rather than inside the check, so a declaration stating a
- *   condition with no evaluator is refused while the tree is built rather than on a navigation.
+ *   The evaluator is read once, when the route is built, so the compiler refuses a declaration that
+ *   states a condition without an evaluator before any navigation.
  * @param building - The state this compilation has built up.
  * @param declaration - The route being compiled.
  * @param when - The condition the declaration stated.
- * @returns The check, which the route runs before it loads.
+ * @returns The check, which the route runs with its context before it loads.
  * @throws {@link Error} Where no evaluator was given.
  */
-function gate<Condition>(
-  building: Building<Condition>,
+function gate<Condition, Context>(
+  building: Building<Condition, Context>,
   declaration: RouteDeclaration<Condition>,
   when: Condition,
-): () => void {
+): (entering: Entering) => void {
   const { evaluate } = building.options;
 
   if (evaluate === undefined) {
     throw new Error(`The route ${declaration.id} states a condition and no evaluator was given.`);
   }
 
-  return () => {
-    // The library's own refusal, which is a value rather than an Error subclass.
-    // eslint-disable-next-line typescript/only-throw-error -- see above
-    if (!evaluate(when)) throw notFound();
+  return ({ context, location }) => {
+    // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the caller typed the router's context as `Context`, which the library cannot see for a compiled route
+    const allowed = evaluate(when, context as Context, location);
+
+    // eslint-disable-next-line typescript/only-throw-error -- the library's refusal is a value, not an Error subclass
+    if (!allowed) throw notFound();
   };
 }
 
@@ -294,8 +405,8 @@ function gate<Condition>(
  * @returns The route the declaration compiled to.
  * @throws {@link Error} Where a parent is absent or the parents form a cycle.
  */
-function compiledFor<Condition>(
-  building: Building<Condition>,
+function compiledFor<Condition, Context>(
+  building: Building<Condition, Context>,
   declaration: RouteDeclaration<Condition>,
   seen: ReadonlySet<string>,
 ): AnyRoute {
@@ -334,9 +445,9 @@ function compiledFor<Condition>(
  * Refuses a declaration this package cannot honour, before any of them is compiled.
  *
  * @remarks
- *   A screen maps to a route and a route decides the whole screen, so a page drawn beside another
- *   as a pane has no route to be. The library agrees: `Outlet` takes no name, one route matches per
- *   level, and two outlets in one component draw the same child twice.
+ *   A matched route renders the whole screen, so a page rendered beside another as a pane has no
+ *   route of its own. The library has no named outlet: `Outlet` takes no name, one route matches
+ *   per level, and two outlets in one component render the same child twice.
  * @param declarations - The routes to compile.
  * @throws {@link Error} Where one states an outlet.
  */
@@ -344,7 +455,7 @@ function refuse<Condition>(declarations: ReadonlyArray<RouteDeclaration<Conditio
   for (const declaration of declarations) {
     if (declaration.outlet !== undefined) {
       throw new Error(
-        `The route ${declaration.id} states the outlet ${declaration.outlet}. A screen is whatever its route draws, so there is no pane to draw a second page in.`,
+        `The route ${declaration.id} states the outlet ${declaration.outlet}. A route renders the whole screen, so no pane exists to render a second page in.`,
       );
     }
   }
@@ -377,25 +488,26 @@ function indexed<Condition>(
  * Compiles declarations into routes under the parent a caller states.
  *
  * @remarks
- *   Pure with respect to the caller. It creates routes and never mutates the parent, so a second
- *   call returns a second set of routes sharing no object with the first. That is what keeps two
- *   routers in one process from reading each other's tree through the library's process-wide cache.
- *   Compile every contributor's declarations in one call. Two calls under one parent cannot see
- *   each other's paths, and `routeMap` reports the collision once the tree is assembled.
+ *   The compiler creates routes and never mutates the parent, so a second call returns a second set
+ *   of routes that shares no object with the first. Two routers in one process therefore never read
+ *   each other's tree through the library's process-wide cache. Compile every contributor's
+ *   declarations in one call: two calls under one parent cannot see each other's paths, and
+ *   `routeMap` reports the collision once the tree is assembled.
  * @param declarations - The routes to compile, in any order.
  * @param options - The parent, and what the declarations may name.
  * @returns The routes to place in the parent's own `addChildren` call.
  * @throws {@link Error} Where two declarations share an id, where one names a parent or a layout
- *   nothing provides, where one names a layout a route above it already draws, where parents form a
- *   cycle, where one states a condition and no evaluator was given, or where one states an outlet.
+ *   nothing provides, where one names a layout a route above it already renders, where parents form
+ *   a cycle, where one states a condition and no evaluator was given, or where one states an
+ *   outlet.
  */
-export function compileRoutes<Condition = unknown>(
+export function compileRoutes<Condition = unknown, Context = unknown>(
   declarations: ReadonlyArray<RouteDeclaration<Condition>>,
-  options: CompileOptions<Condition>,
+  options: CompileOptions<Condition, Context>,
 ): readonly AnyRoute[] {
   refuse(declarations);
 
-  const building: Building<Condition> = {
+  const building: Building<Condition, Context> = {
     applied: new Map(),
     byId: indexed(declarations),
     children: new Map(),

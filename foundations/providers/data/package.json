@@ -1,0 +1,97 @@
+{
+  "name": "@stealthscale/provider-data",
+  "version": "0.1.0",
+  "description": "Reads and changes an application's data through the operations its gateway publishes: the transport, the query client, invalidation by record, route loaders and server rendering.",
+  "keywords": [
+    "data",
+    "query",
+    "react"
+  ],
+  "homepage": "https://github.com/stealth-scale/config/tree/main/foundations/providers/data#readme",
+  "bugs": "https://github.com/stealth-scale/config/issues",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stealth-scale/config.git",
+    "directory": "foundations/providers/data"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#*": "./src/*"
+  },
+  "exports": {
+    ".": {
+      "stealth-source": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./router": {
+      "stealth-source": "./src/router.ts",
+      "default": "./dist/router.js"
+    },
+    "./testing": {
+      "stealth-source": "./src/testing.ts",
+      "default": "./dist/testing.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.js",
+      "./router": "./dist/router.js",
+      "./testing": "./dist/testing.js",
+      "./package.json": "./package.json"
+    },
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "check": "vp check",
+    "prepublishOnly": "vp pack",
+    "test": "vp test"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/core": "catalog:",
+    "@stealthscale/provider-router": "workspace:^",
+    "@stealthscale/testing-config": "workspace:^",
+    "@stealthscale/vite-config": "workspace:^",
+    "@stealthscale/vite-config-react": "workspace:^",
+    "@stealthscale/vite-config-typescript": "workspace:^",
+    "@tanstack/react-query": "catalog:",
+    "@tanstack/react-router": "catalog:",
+    "@tanstack/react-router-ssr-query": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "happy-dom": "catalog:",
+    "oxc-transform-react": "catalog:",
+    "publint": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "@stealthscale/provider-router": "workspace:^",
+    "@tanstack/react-query": "catalog:",
+    "@tanstack/react-router-ssr-query": "catalog:",
+    "react": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "@stealthscale/provider-router": {
+      "optional": true
+    },
+    "@tanstack/react-router-ssr-query": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=26.0.0"
+  }
+}

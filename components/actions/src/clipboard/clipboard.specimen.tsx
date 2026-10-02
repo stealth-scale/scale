@@ -1,257 +1,107 @@
 /**
- * Shows the clipboard: a button that copies a link, the same beside a field, the value itself as
- * the control, a control of the page's own, every size, and two timeouts.
+ * Catalogue page for the clipboard.
  *
  * @remarks
- *   The trigger draws no look of its own, so every scene draws it as the library's button through
- *   `as`, with the button's variants set through its provider because `as` retypes nothing. The
- *   marks are a copy glyph and a check, both decorative, so the indicator hides them and the
- *   machine names the trigger. The words are keys under `clipboard` in the catalogue's namespace,
- *   kept beside this file in `locales/en/specimen/clipboard.json`.
+ *   Every scene is hand-written and renders a component from `examples/`. The size scene renders
+ *   the three sizes itself, because the field and the button take the size through their own
+ *   providers. The duration scene renders the `alone` example with each `timeout`. The trigger has
+ *   no styles of its own, so every example renders it as `Button` or `IconButton` through `as`. The
+ *   words are keys under `clipboard` in the `specimen` namespace, stored in
+ *   `locales/en/specimen/clipboard.json`.
  */
 
-import { type ReactElement } from "react";
+import { Matrix, Room, type Scene, specimen } from "@stealthscale/specimen";
 
-import { Input, InputPropsProvider } from "@stealthscale/component-forms";
-import { Icon } from "@stealthscale/component-typography";
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
-
-import { Button, ButtonPropsProvider, IconButton } from "#button/index.ts";
-import * as Clipboard from "#clipboard/index.ts";
-import { recipe } from "#clipboard/recipe.ts";
+import * as alone from "#clipboard/examples/alone.example.tsx";
+import * as beside from "#clipboard/examples/beside.example.tsx";
+import * as own from "#clipboard/examples/own.example.tsx";
+import * as sizes from "#clipboard/examples/sizes.example.tsx";
+import * as valued from "#clipboard/examples/value.example.tsx";
 
 /**
- * The link every scene copies.
- */
-const LINK = "https://stealthscale.io/payouts/4109";
-
-/**
- * The path of the check mark, in a 24 unit box.
- */
-const CHECK = "M20 6 9 17l-5-5";
-
-/**
- * The path of the sheet behind the copy glyph's front square, in a 24 unit box.
- */
-const SHEET = "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2";
-
-/**
- * The two timeouts the last scene compares, in milliseconds.
+ * Copied-state durations the duration scene compares, in milliseconds.
  */
 const TIMEOUTS = [250, 3000] as const;
 
 /**
- * Draws the mark that swaps from two squares to a check while the copy is fresh.
+ * Hand-written scene for a copy button with visible text.
  */
-function Mark(): ReactElement {
-  return (
-    <Clipboard.Indicator
-      copied={
-        <Icon viewBox="0 0 24 24">
-          <path d={CHECK} fill="none" stroke="currentColor" strokeWidth="2" />
-        </Icon>
-      }
-    >
-      <Icon viewBox="0 0 24 24">
-        <rect
-          fill="none"
-          height="14"
-          rx="2"
-          stroke="currentColor"
-          strokeWidth="2"
-          width="14"
-          x="8"
-          y="8"
-        />
-        <path d={SHEET} fill="none" stroke="currentColor" strokeWidth="2" />
-      </Icon>
-    </Clipboard.Indicator>
-  );
-}
-
-/**
- * Draws the button on its own.
- */
-function Alone(): ReactElement {
-  const { t } = useWords("clipboard");
-
-  return (
-    <Clipboard.Root value={LINK}>
-      <ButtonPropsProvider value={{ size: "sm", variant: "outline" }}>
-        <Clipboard.Trigger as={Button}>
-          <Mark />
-          {t("copy")}
-        </Clipboard.Trigger>
-      </ButtonPropsProvider>
-    </Clipboard.Root>
-  );
-}
-
-/**
- * Draws the button beside the field that shows what it copies.
- */
-function Beside(): ReactElement {
-  const { t } = useWords("clipboard");
-
-  return (
-    <Clipboard.Root value={LINK}>
-      <Clipboard.Label>{t("label")}</Clipboard.Label>
-      <Clipboard.Control>
-        <InputPropsProvider value={{ size: "sm" }}>
-          <Clipboard.Input as={Input} />
-        </InputPropsProvider>
-        <ButtonPropsProvider value={{ size: "sm", variant: "ghost" }}>
-          <Clipboard.Trigger as={IconButton}>
-            <Mark />
-          </Clipboard.Trigger>
-        </ButtonPropsProvider>
-      </Clipboard.Control>
-    </Clipboard.Root>
-  );
-}
-
-/**
- * Draws the value as the thing pressed.
- */
-function Value(): ReactElement {
-  return (
-    <Clipboard.Root value={LINK}>
-      <ButtonPropsProvider value={{ size: "sm", variant: "ghost" }}>
-        <Clipboard.Trigger as={Button}>
-          <Clipboard.ValueText />
-          <Mark />
-        </Clipboard.Trigger>
-      </ButtonPropsProvider>
-    </Clipboard.Root>
-  );
-}
-
-/**
- * Draws a control of the page's own from the machine's state.
- */
-function Own(): ReactElement {
-  const { t } = useWords("clipboard");
-
-  return (
-    <Clipboard.Root value={LINK}>
-      <Clipboard.Consumer>
-        {(api) => (
-          <Button onClick={api.copy} size="sm" status={api.copied ? "success" : "neutral"}>
-            {api.copied ? t("copied") : t("copy")}
-          </Button>
-        )}
-      </Clipboard.Consumer>
-    </Clipboard.Root>
-  );
-}
-
-/**
- * Draws the labelled row at every size.
- */
-function Sizes(): ReactElement {
-  const { t } = useWords("clipboard");
-
-  return (
-    <Matrix knob="size" of={valuesOf(recipe, "size")}>
-      {(size) => (
-        <Clipboard.Root size={size} value={LINK}>
-          <Clipboard.Label>{t("label")}</Clipboard.Label>
-          <Clipboard.Control>
-            <InputPropsProvider value={{ size }}>
-              <Clipboard.Input as={Input} />
-            </InputPropsProvider>
-            <ButtonPropsProvider value={{ size, variant: "outline" }}>
-              <Clipboard.Trigger as={IconButton}>
-                <Mark />
-              </Clipboard.Trigger>
-            </ButtonPropsProvider>
-          </Clipboard.Control>
-        </Clipboard.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws two buttons whose marks stay for different lengths of time.
- */
-function Held(): ReactElement {
-  return (
-    <Matrix knob="timeout" of={TIMEOUTS}>
-      {(timeout) => (
-        <Clipboard.Root timeout={timeout} value={LINK}>
-          <ButtonPropsProvider value={{ size: "sm", variant: "outline" }}>
-            <Clipboard.Trigger as={Button}>
-              <Mark />
-              {timeout}ms
-            </Clipboard.Trigger>
-          </ButtonPropsProvider>
-        </Clipboard.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * The button on its own.
- */
-export const alone: Scene = {
+export const lone: Scene = {
   about: "clipboard.alone.about",
-  draw: Alone,
+  draw: () => <alone.Alone />,
+  example: alone,
   title: "clipboard.alone.title",
 };
 
 /**
- * Beside a field.
+ * Hand-written scene for an icon button next to a read-only field.
  */
-export const beside: Scene = {
+export const besides: Scene = {
   about: "clipboard.beside.about",
-  draw: Beside,
+  draw: () => (
+    <Room size="sm">
+      <beside.Beside />
+    </Room>
+  ),
+  example: beside,
   title: "clipboard.beside.title",
 };
 
 /**
- * The value itself.
+ * Hand-written scene for the value as the trigger text.
  */
 export const value: Scene = {
   about: "clipboard.value.about",
-  draw: Value,
+  draw: valued.Value,
+  example: valued,
   title: "clipboard.value.title",
 };
 
 /**
- * A control of the page's own.
+ * Hand-written scene for a control built with `Clipboard.Consumer`.
  */
-export const own: Scene = {
+export const custom: Scene = {
   about: "clipboard.own.about",
-  draw: Own,
+  draw: own.Own,
+  example: own,
   title: "clipboard.own.title",
 };
 
 /**
- * Every size.
+ * Hand-written scene for the `size` axis.
  */
-export const sizes: Scene = {
-  about: "clipboard.sizes.about",
-  draw: Sizes,
-  title: "clipboard.sizes.title",
+export const size: Scene = {
+  about: "clipboard.size.about",
+  axes: ["size"],
+  draw: () => (
+    <Room size="sm">
+      <sizes.Sizes />
+    </Room>
+  ),
+  example: sizes,
+  title: "clipboard.size.title",
 };
 
 /**
- * Two timeouts.
+ * Hand-written scene for two copied-state durations.
  */
 export const held: Scene = {
   about: "clipboard.held.about",
-  draw: Held,
+  draw: () => (
+    <Matrix knob="timeout" of={TIMEOUTS}>
+      {(timeout) => <alone.Alone timeout={timeout} />}
+    </Matrix>
+  ),
+  example: alone,
+  props: { timeout: 250 },
   title: "clipboard.held.title",
 };
 
 export default specimen({
   about: "clipboard.about",
-  group: "Actions",
-  id: "actions/clipboard",
+  id: "components/actions/clipboard",
   imports:
     'import { Button, ButtonPropsProvider, Clipboard, IconButton } from "@stealthscale/component-actions";',
-  scenes: [alone, beside, value, own, sizes, held],
+  scenes: [lone, besides, value, custom, size, held],
   title: "clipboard.title",
 });

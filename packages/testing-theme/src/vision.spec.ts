@@ -18,7 +18,7 @@ describe("vision", () => {
     expect(seen?.blue).toBeCloseTo(1, 2);
   });
 
-  it("moves a red towards the green under protanopia", () => {
+  it("lowers the red channel and raises the green channel for a red under protanopia", () => {
     const seen = simulated(RED, "protanopia");
 
     expect(seen?.red).toBeCloseTo(0.152, 3);
@@ -29,7 +29,7 @@ describe("vision", () => {
     expect(simulated("nope", "deuteranopia")).toBeUndefined();
   });
 
-  it("writes a linear color as CSS reads it", () => {
+  it("returns a linear color as an rgb() string", () => {
     expect(written({ blue: 0, green: 0, red: 1 })).toBe("rgb(255 0 0)");
     expect(written({ blue: 0.5, green: 0.2159, red: 0 })).toBe("rgb(0 128 188)");
   });
@@ -38,28 +38,28 @@ describe("vision", () => {
     expect(written({ blue: 1.5, green: -0.2, red: 1 })).toBe("rgb(255 0 255)");
   });
 
-  it("measures no distance between a color and itself", () => {
+  it("returns 0 for a color measured against itself", () => {
     expect(distance(RED, RED)).toBe(0);
   });
 
-  it("measures the whole lightness axis between black and white", () => {
+  it("returns 1 between black and white", () => {
     expect(distance("#000000", "#ffffff")).toBeCloseTo(1, 3);
   });
 
-  it("measures NaN where either color cannot be read", () => {
+  it("returns NaN when either color cannot be read", () => {
     expect(distance("nope", RED)).toBeNaN();
     expect(distance(RED, "nope")).toBeNaN();
   });
 
-  it("brings a red and a green closer for a reader with deuteranopia", () => {
+  it("returns less than half the typical distance between a red and a green under deuteranopia", () => {
     expect(distanceFor(RED, GREEN, "deuteranopia")).toBeLessThan(distance(RED, GREEN) / 2);
   });
 
-  it("keeps a blue and a yellow apart for a reader with deuteranopia", () => {
+  it("returns more than 0.5 between a blue and a yellow under deuteranopia", () => {
     expect(distanceFor("#0000ff", "#ffff00", "deuteranopia")).toBeGreaterThan(0.5);
   });
 
-  it("measures NaN under a dichromacy where either color cannot be read", () => {
+  it("returns NaN under a dichromacy when either color cannot be read", () => {
     expect(distanceFor("nope", RED, "tritanopia")).toBeNaN();
     expect(distanceFor(RED, "nope", "tritanopia")).toBeNaN();
   });

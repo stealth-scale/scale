@@ -9,23 +9,23 @@ import { recipe } from "#grid/recipe.ts";
 import { Root } from "#grid/root.ts";
 
 describe("Root", () => {
-  it("conforms as a div element", () => {
+  it("passes the component conformance checks as a div element", () => {
     expect(violations(Root, { as: true, children: true, element: "DIV" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule holding an entry", async () => {
+  it("returns no accessibility violation with an item", async () => {
     await expect(
       accessibilityViolations(Root, { props: { children: <Item>One</Item> } }),
     ).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value to the root slot", () => {
     expect(
       boundViolations(recipe, (props) => render(<Root {...props} />).container, { slot: "root" }),
     ).toStrictEqual([]);
   });
 
-  it("draws the element as names", () => {
+  it("renders a ul when as is ul", () => {
     const { container } = render(<Root as="ul" />);
 
     expect(slotElement(container, "grid", "root").tagName).toBe("UL");

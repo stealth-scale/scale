@@ -1,282 +1,162 @@
 /**
- * Shows the checkbox: every look at every size, every status in every look, every corner, the
- * states, the alignment against a long label, a settings row, and the motions.
+ * Catalogue page for the checkbox.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every box carries both marks, the tick and the dash, so the partly-on
- *   state has one to draw. The words are keys under `checkbox` in the catalogue's namespace, kept
- *   beside this file in `locales/en/specimen/checkbox.json`.
+ *   `scenesOf` generates the looks by sizes, palettes and statuses by looks, corners, alignment,
+ *   spread and motion scenes, each from an example, with the box checked so the fill shows. The
+ *   alignment scene renders in a room of a sidebar's width, so the label wraps. The states scene is
+ *   hand-written, because off, on, partly on and disabled are props of the root and not recipe
+ *   axes. The group scenes show a parent box over a group's channels, a limit, a horizontal group
+ *   and a group checked on submit, and the group recipe's size scene draws the parent's group at
+ *   each size. The field scene shows a checkbox described by a field's texts. Every scene renders a
+ *   component from `examples/` and shows that file as its source. The words are keys under
+ *   `checkbox` in `locales/en/specimen/checkbox.json`.
  */
 
-import { type ReactElement } from "react";
+import { Matrix, Room, type Scene, scenesOf, specimen, valuesOf } from "@stealthscale/specimen";
 
-import { Icon } from "@stealthscale/component-typography";
-import { Matrix, Room, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
-
-import * as Checkbox from "#checkbox/index.ts";
-import { type CheckedState } from "#checkbox/machine.ts";
+import { recipe as group } from "#checkbox/checkbox-group.recipe.ts";
+import * as examples from "#checkbox/examples/index.ts";
+import type * as Checkbox from "#checkbox/index.ts";
 import { recipe } from "#checkbox/recipe.ts";
 
 /**
- * The two answers to a boolean prop.
- */
-const EITHER = [false, true] as const;
-
-/**
- * The states a box can be in: off, on, partly on, and out of reach.
+ * States of the states scene, in reading order.
  */
 const STATES = ["off", "on", "mixed", "disabled"] as const;
 
 /**
- * What each state sets on the root.
+ * Maps each state to the root props that put the box in it.
  */
-const CHECKED: Record<(typeof STATES)[number], CheckedState> = {
-  disabled: true,
-  mixed: "indeterminate",
-  off: false,
-  on: true,
+const STATED: Readonly<Record<(typeof STATES)[number], Checkbox.RootProps>> = {
+  disabled: { defaultChecked: true, disabled: true },
+  mixed: { defaultChecked: "indeterminate" },
+  off: { defaultChecked: false },
+  on: { defaultChecked: true },
 };
 
 /**
- * Every look the recipe draws.
+ * Looks the states scene crosses the states with.
  */
 const LOOKS = valuesOf(recipe, "variant");
 
 /**
- * The path of a tick, in a 24 unit box.
- */
-const TICK = "M20 6 9 17l-5-5";
-
-/**
- * The path of a dash, in a 24 unit box.
- */
-const DASH = "M5 12h14";
-
-/**
- * Draws the box with both its marks.
- */
-function Marks(): ReactElement {
-  return (
-    <Checkbox.Control>
-      <Checkbox.Indicator>
-        <Icon viewBox="0 0 24 24">
-          <path d={TICK} fill="none" stroke="currentColor" strokeWidth="3" />
-        </Icon>
-      </Checkbox.Indicator>
-      <Checkbox.Indicator indeterminate>
-        <Icon viewBox="0 0 24 24">
-          <path d={DASH} fill="none" stroke="currentColor" strokeWidth="3" />
-        </Icon>
-      </Checkbox.Indicator>
-    </Checkbox.Control>
-  );
-}
-
-/**
- * Draws the box turned on in every look at every size.
- */
-function Looks(): ReactElement {
-  const { t } = useWords("checkbox");
-
-  return (
-    <Matrix across={{ knob: "size", of: valuesOf(recipe, "size") }} knob="variant" of={LOOKS}>
-      {(variant, size) => (
-        <Checkbox.Root defaultChecked size={size} variant={variant}>
-          <Marks />
-          <Checkbox.Label>{t("terms")}</Checkbox.Label>
-        </Checkbox.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the box turned on in every status in every look.
- */
-function Statuses(): ReactElement {
-  const { t } = useWords("checkbox");
-
-  return (
-    <Matrix across={{ knob: "variant", of: LOOKS }} knob="status" of={valuesOf(recipe, "status")}>
-      {(status, variant) => (
-        <Checkbox.Root defaultChecked status={status} variant={variant}>
-          <Marks />
-          <Checkbox.Label>{t("terms")}</Checkbox.Label>
-        </Checkbox.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the box turned on at every corner.
- */
-function Corners(): ReactElement {
-  const { t } = useWords("checkbox");
-
-  return (
-    <Matrix knob="radius" of={valuesOf(recipe, "radius")}>
-      {(radius) => (
-        <Checkbox.Root defaultChecked radius={radius}>
-          <Marks />
-          <Checkbox.Label>{t("terms")}</Checkbox.Label>
-        </Checkbox.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the box in every state in every look.
- */
-function States(): ReactElement {
-  const { t } = useWords("checkbox");
-
-  return (
-    <Matrix across={{ knob: "variant", of: LOOKS }} knob="state" of={STATES}>
-      {(state, variant) => (
-        <Checkbox.Root
-          defaultChecked={CHECKED[state]}
-          disabled={state === "disabled"}
-          variant={variant}
-        >
-          <Marks />
-          <Checkbox.Label>{t("weekly")}</Checkbox.Label>
-        </Checkbox.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the box against a long label at both places.
- *
- * @remarks
- *   Each row stands in a room at the smallest measure, which is what makes the label run to a
- *   second line: given a cell of the catalogue it sat on one, and the two places read the same.
- */
-function Alignment(): ReactElement {
-  const { t } = useWords("checkbox");
-
-  return (
-    <Matrix knob="align" of={valuesOf(recipe, "align")}>
-      {(align) => (
-        <Room size="xs">
-          <Checkbox.Root align={align}>
-            <Marks />
-            <Checkbox.Label>{t("long")}</Checkbox.Label>
-          </Checkbox.Root>
-        </Room>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws a row that takes what it needs beside a settings row.
- */
-function Spread(): ReactElement {
-  const { t } = useWords("checkbox");
-
-  return (
-    <Matrix direction="column" knob="spread" of={EITHER}>
-      {(spread) => (
-        <Checkbox.Root spread={spread}>
-          <Checkbox.Label>{t("weekly")}</Checkbox.Label>
-          <Marks />
-        </Checkbox.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the row entering with every motion.
- */
-function Motion(): ReactElement {
-  const { t } = useWords("checkbox");
-
-  return (
-    <Matrix knob="motion" of={valuesOf(recipe, "motion")}>
-      {(motion) => (
-        <Checkbox.Root defaultChecked motion={motion}>
-          <Marks />
-          <Checkbox.Label>{t("terms")}</Checkbox.Label>
-        </Checkbox.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Every look at every size.
- */
-export const looks: Scene = {
-  about: "checkbox.looks.about",
-  draw: Looks,
-  title: "checkbox.looks.title",
-};
-
-/**
- * Every status in every look.
- */
-export const statuses: Scene = {
-  about: "checkbox.statuses.about",
-  draw: Statuses,
-  title: "checkbox.statuses.title",
-};
-
-/**
- * Every corner.
- */
-export const corners: Scene = {
-  about: "checkbox.corners.about",
-  draw: Corners,
-  title: "checkbox.corners.title",
-};
-
-/**
- * Every state in every look.
+ * Hand-written scene for off, on, partly on and disabled in every look.
  */
 export const states: Scene = {
   about: "checkbox.states.about",
-  draw: States,
+  draw: () => (
+    <Matrix across={{ knob: "variant", of: LOOKS }} knob="state" of={STATES}>
+      {(state, variant) => <examples.terms.Terms {...STATED[state]} variant={variant} />}
+    </Matrix>
+  ),
+  example: examples.terms,
+  props: { defaultChecked: false, variant: "outline" },
   title: "checkbox.states.title",
 };
 
 /**
- * Both places against a long label.
+ * Hand-written scene for a group's parent box over three channels.
  */
-export const alignment: Scene = {
-  about: "checkbox.alignment.about",
-  draw: Alignment,
-  title: "checkbox.alignment.title",
+export const everything: Scene = {
+  about: "checkbox.everything.about",
+  draw: () => <examples.notifications.Notifications />,
+  example: examples.notifications,
+  title: "checkbox.everything.title",
 };
 
 /**
- * A row beside a settings row.
+ * Hand-written scene for a group that holds at most three values.
  */
-export const spread: Scene = {
-  about: "checkbox.spread.about",
-  draw: Spread,
-  title: "checkbox.spread.title",
+export const limited: Scene = {
+  about: "checkbox.limited.about",
+  draw: () => (
+    <Room size="sm">
+      <examples.pinned.Pinned />
+    </Room>
+  ),
+  example: examples.pinned,
+  title: "checkbox.limited.title",
 };
 
 /**
- * Every motion.
+ * Hand-written scene for a horizontal group of weekdays.
  */
-export const motion: Scene = {
-  about: "checkbox.motion.about",
-  draw: Motion,
-  title: "checkbox.motion.title",
+export const inline: Scene = {
+  about: "checkbox.inline.about",
+  draw: examples.days.Days,
+  example: examples.days,
+  title: "checkbox.inline.title",
+};
+
+/**
+ * Hand-written scene for a group a form checks on submit.
+ */
+export const required: Scene = {
+  about: "checkbox.required.about",
+  draw: () => (
+    <Room size="sm">
+      <examples.formats.Formats />
+    </Room>
+  ),
+  example: examples.formats,
+  title: "checkbox.required.title",
+};
+
+/**
+ * Hand-written scene for a checkbox inside a field.
+ */
+export const consent: Scene = {
+  about: "checkbox.consent.about",
+  draw: () => (
+    <Room size="sm">
+      <examples.consent.Consent />
+    </Room>
+  ),
+  example: examples.consent,
+  title: "checkbox.consent.title",
 };
 
 export default specimen({
   about: "checkbox.about",
-  group: "Forms",
-  id: "forms/checkbox",
+  id: "components/forms/checkbox",
   imports: 'import { Checkbox } from "@stealthscale/component-forms";',
-  scenes: [looks, statuses, corners, states, alignment, spread, motion],
+  scenes: [
+    ...scenesOf<Checkbox.RootProps>(recipe, {
+      axes: {
+        align: {
+          draw: (props) => (
+            <Room size="xs">
+              <examples.summary.Summary {...props} />
+            </Room>
+          ),
+          example: examples.summary,
+        },
+        palette: { across: "variant" },
+        spread: {
+          direction: "column",
+          draw: (props) => <examples.setting.Setting {...props} />,
+          example: examples.setting,
+        },
+        status: { across: "variant" },
+        variant: { across: "size" },
+      },
+      draw: (props) => <examples.terms.Terms {...props} />,
+      example: examples.terms,
+      namespace: "checkbox",
+      order: ["variant", "palette", "status", "radius", "align", "spread", "motion"],
+    }),
+    states,
+    everything,
+    ...scenesOf<Checkbox.GroupProps>(group, {
+      draw: (props) => <examples.notifications.Notifications {...props} />,
+      example: examples.notifications,
+      namespace: "checkbox.group",
+    }),
+    limited,
+    inline,
+    required,
+    consent,
+  ],
   title: "checkbox.title",
 });

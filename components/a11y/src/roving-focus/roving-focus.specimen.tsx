@@ -1,139 +1,100 @@
 /**
- * Shows the roving focus: a toolbar of three controls in every orientation, and one whose ends
- * join.
+ * Catalogue page for the roving focus group.
  *
  * @remarks
- *   The orientations are read off the recipe, so an orientation added to the theme reaches the
- *   page without this file changing. The ends are written out on a board instead, because a
- *   boolean prop is not an axis of the recipe and a board says where each of the two sits.
- *   The controls sit in an attached `Group`, so three of them read as one toolbar rather than as
- *   three buttons that happen to be near each other. The group is drawn inside the root rather
- *   than as it: the root carries the role, the label and the arrows, and both of them state a
- *   direction, so one element bound to both recipes would take two rules for the same property.
- *   An item finds its place in the set through the root's context and not through the document,
- *   so the group between them changes nothing a keyboard does.
- *   What the set does is only seen from the keyboard, so each scene says what to press. The words
- *   are keys under `roving-focus` in the catalogue's namespace, kept beside this file in
- *   `locales/en/specimen/roving-focus.json`.
+ *   Three hand-written scenes render the `orientation` axis, because each orientation needs its own
+ *   layout and an example cannot read `props.orientation`. The toolbar scene renders the group at
+ *   rest and inside `Focused`, which renders the focus ring on the item with the tab stop without
+ *   taking focus. The arrow keys and `wrap` only act under a keyboard, so each scene names the
+ *   keys. Every scene renders a component from `examples/` and shows that file as its source. The
+ *   words are keys under `roving-focus` in `locales/en/specimen/roving-focus.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
-import { Group } from "@stealthscale/component-layout";
-import {
-  Board,
-  Matrix,
-  Sample,
-  type Scene,
-  specimen,
-  useWords,
-  valuesOf,
-} from "@stealthscale/specimen";
+import { Board, Focused, Room, Sample, type Scene, specimen } from "@stealthscale/specimen";
 
-import { Item, type Orientation, Root, type RootProps } from "#roving-focus/index.ts";
-import { recipe } from "#roving-focus/recipe.ts";
+import * as filters from "#roving-focus/examples/filters.example.tsx";
+import * as formatting from "#roving-focus/examples/formatting.example.tsx";
+import * as tools from "#roving-focus/examples/tools.example.tsx";
 
 /**
- * The look every control of the toolbar takes, set once above them.
+ * Renders the formatting toolbar at rest and in the keyboard-focus state.
  */
-const LOOK = { variant: "outline" } as const;
-
-/**
- * Says which way the attached group runs for a set the arrows move through.
- *
- * @remarks
- *   A group runs one way or the other, and the arrows run on one axis or both. A set the arrows
- *   move through on both axes still reads along a row, because three controls reach no second
- *   line.
- */
-function running(orientation: Orientation): "horizontal" | "vertical" {
-  return orientation === "vertical" ? "vertical" : "horizontal";
-}
-
-/**
- * Draws the three controls of an editing toolbar.
- */
-function Controls(): ReactElement {
-  const { t } = useWords("roving-focus");
-
-  return (
-    <ButtonPropsProvider value={LOOK}>
-      <Item as={Button}>{t("cut")}</Item>
-      <Item as={Button}>{t("copy")}</Item>
-      <Item as={Button}>{t("paste")}</Item>
-    </ButtonPropsProvider>
-  );
-}
-
-/**
- * Draws one toolbar, named by whatever the page is showing.
- */
-function Toolbar({
-  orientation = "horizontal",
-  wrap = false,
-}: Pick<RootProps, "orientation" | "wrap">): ReactElement {
-  const { t } = useWords("roving-focus");
-
-  return (
-    <Root aria-label={t("editing")} orientation={orientation} role="toolbar" wrap={wrap}>
-      <Group attached orientation={running(orientation)}>
-        <Controls />
-      </Group>
-    </Root>
-  );
-}
-
-/**
- * Draws the toolbar in every orientation.
- */
-function Orientations(): ReactElement {
-  return (
-    <Matrix knob="orientation" of={valuesOf(recipe, "orientation")}>
-      {(orientation) => <Toolbar orientation={orientation} />}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the toolbar with its ends apart beside one whose ends join.
- */
-function Wrap(): ReactElement {
+function Toolbar(): ReactElement {
   return (
     <Board>
-      <Sample knob="wrap" of="false">
-        <Toolbar />
+      <Sample knob="state" of="rest">
+        <formatting.Formatting />
       </Sample>
-      <Sample knob="wrap" of="true">
-        <Toolbar wrap />
+      <Sample knob="state" of="focus">
+        <Focused>
+          <formatting.Formatting />
+        </Focused>
       </Sample>
     </Board>
   );
 }
 
 /**
- * Every orientation.
+ * Renders the vertical toolbar at its own width in a sample.
  */
-export const orientations: Scene = {
-  about: "roving-focus.orientations.about",
-  draw: Orientations,
-  title: "roving-focus.orientations.title",
+function Vertical(): ReactElement {
+  return (
+    <Sample>
+      <tools.Tools />
+    </Sample>
+  );
+}
+
+/**
+ * Renders the filters in a 320px room, where they wrap onto three lines.
+ */
+function Both(): ReactElement {
+  return (
+    <Room size="xs">
+      <filters.Filters />
+    </Room>
+  );
+}
+
+/**
+ * Hand-written scene for a horizontal group that wraps at its ends.
+ */
+export const toolbar: Scene = {
+  about: "roving-focus.toolbar.about",
+  axes: ["orientation"],
+  draw: Toolbar,
+  example: formatting,
+  title: "roving-focus.toolbar.title",
 };
 
 /**
- * The ends apart beside the ends joined.
+ * Hand-written scene for a vertical group.
  */
-export const wrap: Scene = {
-  about: "roving-focus.wrap.about",
-  draw: Wrap,
-  title: "roving-focus.wrap.title",
+export const vertical: Scene = {
+  about: "roving-focus.vertical.about",
+  axes: ["orientation"],
+  draw: Vertical,
+  example: tools,
+  title: "roving-focus.vertical.title",
+};
+
+/**
+ * Hand-written scene for a group that responds to both arrow axes.
+ */
+export const both: Scene = {
+  about: "roving-focus.both.about",
+  axes: ["orientation"],
+  draw: Both,
+  example: filters,
+  title: "roving-focus.both.title",
 };
 
 export default specimen({
   about: "roving-focus.about",
-  group: "Accessibility",
-  id: "a11y/roving-focus",
+  id: "components/a11y/roving-focus",
   imports: 'import { RovingFocus } from "@stealthscale/component-a11y";',
-  scenes: [orientations, wrap],
+  scenes: [toolbar, vertical, both],
   title: "roving-focus.title",
 });

@@ -1,7 +1,7 @@
 {
   "name": "@stealthscale/component-actions",
   "version": "0.1.0",
-  "description": "Draws what a person presses: a button, a toggle, and the triggers that carry an action.",
+  "description": "Renders what a person presses: a button, a toggle group, a swap, a color mode toggle, a clipboard and a download trigger.",
   "keywords": [
     "actions",
     "button",
@@ -52,15 +52,19 @@
     "test": "vp test"
   },
   "dependencies": {
+    "@stealthscale/component-layout": "workspace:^",
     "@zag-js/clipboard": "catalog:",
+    "@zag-js/file-utils": "catalog:",
     "@zag-js/react": "catalog:",
+    "@zag-js/toggle-group": "catalog:",
     "@zag-js/types": "catalog:",
     "@zag-js/utils": "catalog:"
   },
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
-    "@rolldown/plugin-babel": "catalog:",
     "@stealthscale/hooks": "workspace:^",
+    "@stealthscale/provider-color-mode": "workspace:^",
+    "@stealthscale/settings": "workspace:^",
     "@stealthscale/theme": "workspace:^",
     "@stealthscale/vite-config": "workspace:^",
     "@stealthscale/vite-config-i18n": "workspace:^",
@@ -71,7 +75,6 @@
     "@testing-library/react": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "babel-plugin-react-compiler": "catalog:",
     "happy-dom": "catalog:",
     "lucide-react": "catalog:",
     "oxc-transform-react": "catalog:",
@@ -83,6 +86,7 @@
   },
   "peerDependencies": {
     "@stealthscale/hooks": "workspace:^",
+    "@stealthscale/provider-color-mode": "workspace:^",
     "@stealthscale/theme": "workspace:^",
     "react": "catalog:"
   },

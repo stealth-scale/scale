@@ -1,29 +1,41 @@
 /**
- * States what an empty state is: the panel a page draws where there is nothing to show, holding a
- * mark, a heading and a line saying what would be here.
+ * Declares the empty state slot recipe for the panel a surface renders when it has no content.
  *
  * @remarks
- *   Five parts, because each is styled and a caller composes them in whatever order a page wants.
- *   The root is the panel, the content centres what is inside it, the indicator draws the mark, and
- *   the title and the description carry the words.
- *   One axis moves all of them together. The room inside the panel, the gap in the content, the box
- *   of the mark and the size of the title each read the scale of the same name, so a small empty
- *   state in a side panel and a large one filling a page are one name apart. The description holds
- *   its size, because a line of explanation is read at the size the rest of the page is read at
- *   however big the panel is.
+ *   `size` sets the panel's inset, the column's gap, the mark's box and the title's text style
+ *   together. The mark is 32, 40 and 50px at `sm`, `md` and `lg`, above a 16, 18 and 20px title, so
+ *   the mark is always larger than the title's line. The mark has twice the column's gap below it,
+ *   so the title and the description read as one group. The description stays at `body.sm` at every
+ *   size. The recipe has no `palette` axis, because the panel is muted, and no `effect` axis,
+ *   because it has no fill or border.
  */
 
 import {
+  below,
   defineSlotRecipe,
-  gapSizes,
-  iconSizes,
-  insetSizes,
+  dense,
   onSlots,
-  textSizes,
+  sizeVariants,
 } from "@stealthscale/theme/authoring";
 
 /**
- * Draws a centred panel at the middle size until a caller says otherwise.
+ * Sizes the recipe offers.
+ */
+const SIZES = ["sm", "md", "lg"] as const;
+
+/**
+ * Maps each size to the gap step one size larger: 8, 12 and 16px.
+ */
+const GAPS = { lg: "xl", md: "lg", sm: "md" };
+
+/**
+ * Maps each size to the icon and inset step of the mark and the panel: 32, 40 and 50px marks in
+ * 24, 32 and 40px of inset.
+ */
+const MARKS = { lg: "3xl", md: "2xl", sm: "xl" };
+
+/**
+ * Empty state slot recipe, at the md size by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -56,13 +68,20 @@ export const recipe = defineSlotRecipe({
   slots: ["root", "content", "indicator", "title", "description"],
   variants: {
     /**
-     * How much room the panel takes, which every part steps with.
+     * The inset of the panel, the gap in the column, the box of the mark and the title's text
+     * style.
      */
     size: onSlots({
-      content: gapSizes(),
-      indicator: iconSizes(),
-      root: insetSizes(),
-      title: textSizes("heading"),
+      content: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${GAPS[size]}}`) }), SIZES),
+      indicator: sizeVariants(
+        (size) => ({
+          boxSize: dense(`{sizes.icon.${MARKS[size]}}`),
+          marginBlockEnd: dense(`{spacing.gap.${GAPS[size]}}`),
+        }),
+        SIZES,
+      ),
+      root: sizeVariants((size) => ({ padding: dense(`{spacing.inset.${MARKS[size]}}`) }), SIZES),
+      title: sizeVariants((size) => ({ textStyle: `heading.${below(size)}` }), SIZES),
     }),
   },
 });

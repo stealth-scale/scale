@@ -1,13 +1,13 @@
 /**
- * States what a key is: a key a reader is asked to press, drawn as a keycap in a look and a size,
- * in the palette of its status.
+ * Styles a keycap's look, size and palette.
  *
  * @remarks
- *   Every value is a label role, a semantic control height, a semantic inset, a layer style or a
- *   palette, so a theme moves all of them. The raised look is written from tokens by hand, because
- *   no layer style draws a keycap: a fill edged at the control's width with a foot at the
- *   indicator's is what reads as a key rather than as a word. The other looks come from the
- *   foundation's layer styles.
+ *   A keycap sits in a line of text, so its height reads the tag scale: 19.2, 21.6 and 24px at
+ *   `sm`, `md` and `lg` at the foundation's metrics, against 24px lines of body text. Its minimum
+ *   width equals its height and its text is centred, so a one-character key is square. The face is
+ *   the body face, because the theme's monospace stack renders `⌘` from a fallback font shorter
+ *   than the letters beside it. `staticCss` lists every palette, because `Kbd.Group` and data can
+ *   set the value at run time.
  */
 
 import {
@@ -15,14 +15,42 @@ import {
   defineRecipe,
   dense,
   flatVariants,
+  PALETTES,
+  paletteVariants,
   sizeVariants,
-  statusEmitted,
-  statusVariants,
+  type SystemStyleObject,
 } from "@stealthscale/theme/authoring";
 
 /**
- * Draws a keycap on the neutral palette, raised and in the middle size until a caller says
- * otherwise, set in the mono face so a key reads as what it is.
+ * Size of a keycap.
+ */
+type KeySize = "lg" | "md" | "sm";
+
+/**
+ * Maps each size to the gap token of the inline padding: 4, 4 and 6px at the foundation's metrics.
+ */
+const PAD: Readonly<Record<KeySize, string>> = { lg: "sm", md: "xs", sm: "xs" };
+
+/**
+ * Returns the height, minimum width, inline padding and text style of a keycap at one size.
+ *
+ * @remarks
+ *   The height is the tag one size smaller and the label one size smaller, so a keycap is a mark
+ *   in a line of text and not a control.
+ */
+function keySize(size: KeySize): SystemStyleObject {
+  const height = dense(`{sizes.tag.${below(size)}}`);
+
+  return {
+    height,
+    minInlineSize: height,
+    paddingInline: dense(`{spacing.gap.${PAD[size]}}`),
+    textStyle: `label.${below(size)}`,
+  };
+}
+
+/**
+ * Defaults to the raised look at `md` in the neutral palette.
  */
 export const recipe = defineRecipe({
   base: {
@@ -30,42 +58,54 @@ export const recipe = defineRecipe({
     borderRadius: "l1",
     colorPalette: "neutral",
     display: "inline-flex",
-    fontFamily: "mono",
+    flexShrink: "0",
+    fontFamily: "body",
     fontWeight: "medium",
+    justifyContent: "center",
     userSelect: "none",
     whiteSpace: "nowrap",
   },
   className: "kbd",
   defaultVariants: { size: "md", variant: "raised" },
-  jsx: [/Kbd$/u],
-  staticCss: [statusEmitted()],
+  jsx: [/^Kbd\.(?:Root|Group)$/u],
+  staticCss: [{ palette: [...PALETTES] }],
   variants: {
     /**
-     * How large the keycap is, a step under the control it stands for.
+     * Semantic palette of the fill, the edge and the text.
+     */
+    palette: paletteVariants(),
+
+    /**
+     * Height, minimum width, inline padding and text style.
+     */
+    size: sizeVariants(keySize, ["sm", "md", "lg"]),
+
+    /**
+     * Look of the keycap.
      *
      * @remarks
-     *   The height and the label come from the step below, because a keycap in a line of words is
-     *   a mark on the words rather than a control of its own. The room on either side comes from
-     *   two steps below, which keeps a one-character cap close to square at every size.
+     *   `raised` is a keycap: the subtle fill, a hairline edge in `colorPalette.muted` and a 2px
+     *   bottom edge in `colorPalette.emphasized`. The other looks read the `flat` layer styles.
+     *   `subtle` has no edge, so it draws a `CanvasText` hairline in forced colours.
      */
-    size: sizeVariants(
-      (size) => ({
-        height: dense(`{sizes.control.${below(size)}}`),
-        paddingInline: dense(`{spacing.inset.${below(below(size))}}`),
-        textStyle: `label.${below(size)}`,
-      }),
-      ["sm", "md", "lg"],
-    ),
-
-    status: statusVariants(),
     variant: {
-      ...flatVariants(["outline", "subtle", "plain"]),
+      ...flatVariants(["outline", "plain"]),
       raised: {
         background: "colorPalette.subtle",
+        borderBlockEndColor: "colorPalette.emphasized",
         borderBlockEndWidth: "indicator",
         borderColor: "colorPalette.muted",
         borderWidth: "control",
         color: "colorPalette.fg",
+      },
+      subtle: {
+        _highContrast: {
+          outlineColor: "CanvasText",
+          outlineOffset: "calc({borderWidths.hairline} * -1)",
+          outlineStyle: "solid",
+          outlineWidth: "hairline",
+        },
+        layerStyle: "flat.subtle",
       },
     },
   },

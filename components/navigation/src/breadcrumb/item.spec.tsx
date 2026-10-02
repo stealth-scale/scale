@@ -8,7 +8,7 @@ import { trailed } from "#breadcrumb/breadcrumb.fixtures.tsx";
 import { Item } from "#breadcrumb/item.ts";
 
 describe("Item", () => {
-  it("conforms as a list row inside the landmark it needs above it", () => {
+  it("conforms as a list item inside the root", () => {
     expect(
       violations(Item, {
         as: true,
@@ -20,7 +20,7 @@ describe("Item", () => {
     ).toStrictEqual([]);
   });
 
-  it("draws the element as names", () => {
+  it("renders the element passed as as", () => {
     const { container } = render(trailed(<Item as="span">Invoices</Item>));
 
     expect(slotElement(container, "breadcrumb", "item").tagName).toBe("SPAN");

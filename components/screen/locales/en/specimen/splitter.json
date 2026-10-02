@@ -1,0 +1,93 @@
+{
+  "about": "A splitter lays panels out in a row or a column, with a resize trigger between each two. Drag a trigger, or focus it and move it with the arrow keys, Home and End. Enter collapses a collapsible panel before the trigger and restores its size. The panels keep their shares of the splitter as the window resizes.",
+  "basic": {
+    "detail": "Detail",
+    "empty": "Nothing selected.",
+    "offers": "Offers",
+    "resize": "Resize the offers",
+    "waiting": "Four waiting for a reply."
+  },
+  "controlled": {
+    "about": "The application holds the sizes: it passes them as size and takes each resize from onResize, so the text above the button reports them. Reset and a double click on the trigger restore the first sizes.",
+    "chart": "Chart",
+    "hint": "Double-click the trigger to restore the first sizes.",
+    "reset": "Reset",
+    "resize": "Resize the chart",
+    "sizes": "Chart {{chart}}%, table {{table}}%",
+    "table": "Table",
+    "title": "Controlled sizes"
+  },
+  "locked": {
+    "about": "The trigger is disabled until the switch turns editing on. A disabled trigger keeps its line, hides its pill and leaves the tab order.",
+    "activity": "Activity",
+    "activityText": "Twelve invoices were paid this week.",
+    "edit": "Edit layout",
+    "resize": "Resize the revenue",
+    "revenue": "Revenue",
+    "title": "Disabled trigger"
+  },
+  "mail": {
+    "about": "Three panels with a trigger between each two. The folders are 160px wide, between 112px and 280px, and keep that width as the window resizes. The messages and the message share the rest.",
+    "body": "The invoice is due on Friday. Reply to ask for more time.",
+    "folder": "Folders",
+    "folders": {
+      "archive": "Archive",
+      "inbox": "Inbox",
+      "sent": "Sent"
+    },
+    "inbox": "Inbox",
+    "messages": {
+      "invoice": "Invoice 1042 is due",
+      "offsite": "Agenda for the offsite",
+      "standup": "Notes from the standup"
+    },
+    "resizeFolders": "Resize the folders",
+    "resizeMessages": "Resize the messages",
+    "subject": "Invoice 1042 is due",
+    "title": "Three panels"
+  },
+  "nested": {
+    "about": "A splitter in a column inside a panel of a splitter in a row. Each trigger resizes the two panels beside it.",
+    "editor": "Editor",
+    "editorText": "The file open for editing.",
+    "output": "Output",
+    "outputText": "The build finished in four seconds.",
+    "project": "Project",
+    "projectText": "Eleven files in three folders.",
+    "resizeOutput": "Resize the output",
+    "resizeProject": "Resize the project",
+    "title": "Nested splitters"
+  },
+  "notes": {
+    "about": "The list of notes collapses and expands from the button beside the note's title, and from Enter on the trigger, which restores the list to its width before it collapsed. The list is between a fifth and a half of the splitter wide.",
+    "body": "The launch moves to the first week of November. Marketing needs the final screenshots by the end of October.",
+    "list": "Notes list",
+    "resize": "Resize the notes list",
+    "title": "Collapsible panel",
+    "titles": {
+      "budget": "Budget",
+      "hiring": "Hiring",
+      "launch": "Launch plan",
+      "offsite": "Offsite"
+    }
+  },
+  "palette": {
+    "about": "Palette colours the line and the pill while the pointer is over the trigger, while it has focus and while it drags, and colours the focus ring. Each trigger here has focus.",
+    "title": "Palettes"
+  },
+  "query": {
+    "about": "The panels sit in a column. The arrow keys move the trigger five percent at a time, and Enter collapses the query to give the results the whole height.",
+    "editor": "Query",
+    "resize": "Resize the query",
+    "results": "Results",
+    "rows": {
+      "ada": "Ada Lovelace",
+      "grace": "Grace Hopper",
+      "katherine": "Katherine Johnson",
+      "margaret": "Margaret Hamilton"
+    },
+    "statement": "select name from pioneers order by name",
+    "title": "Vertical"
+  },
+  "title": "Splitter"
+}

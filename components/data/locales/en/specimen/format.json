@@ -1,0 +1,33 @@
+{
+  "about": "Format writes a figure or a size the way a locale writes it: the separators, the symbol and where the symbol sits. Nothing on this page states any of them. They come from the catalogue's locale, so switch the locale in the bar and every figure is written again. Each figure is a data element whose value is the number a machine reads.",
+  "invoice": {
+    "about": "Amounts in euros and a rate as a percentage, each written by Format.Number with the options of Intl.NumberFormat.",
+    "rate": "VAT rate",
+    "subtotal": "Subtotal",
+    "title": "Invoice",
+    "total": "Total"
+  },
+  "locales": {
+    "about": "One price in four locales, each passed as locale. Without it a figure takes the locale in scope.",
+    "title": "Locales"
+  },
+  "metrics": {
+    "about": "A compact count, a change with its sign, and a duration in days, as stats show them.",
+    "growth": "Growth",
+    "readers": "Readers",
+    "title": "Metrics",
+    "trial": "Trial"
+  },
+  "storage": {
+    "about": "Format.Byte writes a size in the largest unit it reaches, and a size under a kilobyte with the unit's full name. Memory counts in steps of 1024 with unitSystem binary, and the link's speed counts bits.",
+    "files": {
+      "archive": "Archive",
+      "notes": "Notes",
+      "report": "Report"
+    },
+    "link": "Link speed",
+    "memory": "Memory",
+    "title": "File sizes"
+  },
+  "title": "Format"
+}

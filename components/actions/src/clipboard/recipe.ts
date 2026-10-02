@@ -1,16 +1,13 @@
 /**
- * States what a clipboard is: a value, the control that copies it, and the mark that says it did.
+ * Declares the slot recipe of the clipboard: layout and spacing for its seven parts.
  *
  * @remarks
- *   Seven parts. The root stacks a label over the control row, the control lays the field and the
- *   trigger side by side, the input shows the value read-only, the trigger is what a person
- *   presses, the indicator swaps its mark while the copy is fresh, and the value text writes the
- *   value in a run of text. The trigger draws no control look of its own. A caller draws it as a
- *   button of the library through `as`, so a theme that moves the button moves the trigger with
- *   it, and the recipe here states only how the parts are placed. The root aligns its parts at
- *   the start, so a trigger drawn on its own keeps a button's width rather than stretching across
- *   whatever holds the root, and the control row stretches back to the root's width so a field
- *   in it fills the row.
+ *   The trigger has no control styles. A caller renders it as the library's `Button` or
+ *   `IconButton` through `as`, so it matches every other button in a theme. The clipboard has no
+ *   colour or surface of its own, so it offers no `palette` or `effect` axis. The button it renders
+ *   through `as` carries both. The root aligns its children at the start, so a trigger on its own
+ *   keeps its button width. The control row stretches to the width of the root, so a field inside
+ *   it fills the row.
  */
 
 import {
@@ -22,12 +19,12 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * The steps a label and a control row are set at.
+ * Sizes the label text and the gaps step through.
  */
 const STEPS = ["sm", "md", "lg"] as const;
 
 /**
- * Draws a labelled row at the middle size until a caller says otherwise.
+ * Slot styles and the size axis. Defaults to `md`.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -47,7 +44,11 @@ export const recipe = defineSlotRecipe({
   slots: ["root", "label", "control", "input", "trigger", "indicator", "valueText"],
   variants: {
     /**
-     * How much room the parts take, which the label and the gaps step together.
+     * The label text style and the two gaps.
+     *
+     * @remarks
+     *   The gap between the label and the row is one size smaller than the gap between the field
+     *   and the trigger. The field and the trigger take their own size through their providers.
      */
     size: onSlots({
       control: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), STEPS),

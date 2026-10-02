@@ -1,14 +1,12 @@
 /**
- * Moves one tab stop through a set of controls, so a reader reaches the set with Tab and moves
- * inside it with the arrows.
+ * Implements a roving tabindex: Tab enters the group once, and the arrow keys move focus inside it.
  *
  * @remarks
- *   A toolbar, a row of tabs and a menu bar are all one stop in the tab order, and the arrows move
- *   which control that stop is on. The items register themselves rather than being counted by the
- *   root, because a root cannot see through whatever composes its children. Registration order is
- *   the order the effects ran, which is source order until something is conditional, so the list
- *   is sorted by where the items sit in the document: what the arrows follow is what the reader
- *   sees.
+ *   A toolbar, a tab list and a menu bar each take one stop in the page's tab order. Items register
+ *   themselves, because the root cannot see through the components its children are composed
+ *   from. Registration follows effect order, which differs from source order once an item renders
+ *   conditionally, so the registry sorts by document position and the arrows follow the order on
+ *   screen.
  */
 
 import {
@@ -23,22 +21,22 @@ import {
 import { useCallbackRef, useControllableState } from "@stealthscale/hooks";
 
 /**
- * Selects which arrows move focus through the group.
+ * Axis or axes whose arrow keys move focus inside a group.
  */
 export type Orientation = "both" | "horizontal" | "vertical";
 
 /**
- * Selects what a key asks for: an edge of the group, or a step through it.
+ * Movement a key requests: one end of the group, or a signed step from the current item.
  */
 type Intent = "end" | "start" | number | undefined;
 
 /**
- * Maps the arrows that run down the page to the step each takes.
+ * Maps each block-axis arrow key to its step.
  */
 const DOWN_THE_PAGE: Readonly<Record<string, number | undefined>> = { ArrowDown: 1, ArrowUp: -1 };
 
 /**
- * Maps the arrows that run along a line to the step each takes.
+ * Maps each inline-axis arrow key to its step in a left-to-right group.
  */
 const ALONG_THE_LINE: Readonly<Record<string, number | undefined>> = {
   ArrowLeft: -1,
@@ -46,52 +44,51 @@ const ALONG_THE_LINE: Readonly<Record<string, number | undefined>> = {
 };
 
 /**
- * Describes one item of the group, as the group holds it.
+ * Describes one item as the group records it.
  */
 export interface Registration {
   /**
-   * The element focus moves to.
+   * Element that receives focus.
    */
   element: HTMLElement;
 
   /**
-   * The id the item answers to.
+   * Identifier the group tracks the item under.
    */
   id: string;
 }
 
 /**
- * Describes what an item reads off the group it is in.
+ * Describes the group state an item reads from context.
  */
 export interface Group {
   /**
-   * Which item holds the tab stop, or nothing before the first registers.
+   * Identifier of the item with the tab stop, or undefined until the first item registers.
    */
   activeId: string | undefined;
 
   /**
-   * Hears that focus reached an item, which moves the stop to it.
+   * Moves the tab stop to an item that received focus.
    */
   onFocus: (id: string) => void;
 
   /**
-   * Takes an item in, and hands back how to take it out again.
+   * Adds an item to the group and returns the function that removes it.
    *
    * @remarks
-   *   The teardown is optional because the callback is held in a ref, which reports itself as
-   *   callable before the render that fills it. React takes nothing as readily as it takes a
-   *   teardown.
+   *   The return type allows undefined, because the implementation is in a ref that is callable
+   *   during the render that fills it. React accepts undefined where it expects a cleanup.
    */
   register: (registration: Registration) => (() => void) | undefined;
 }
 
 /**
- * Carries the group down to its items.
+ * Context that a root publishes its group on and every item below it reads.
  */
 export const RovingFocusContext = createContext<Group | undefined>(undefined);
 
 /**
- * Orders two items by where they sit in the document.
+ * Compares two registrations by document position, for sorting in on-screen order.
  */
 function byDocumentPosition(first: Registration, second: Registration): number {
   const relation = first.element.compareDocumentPosition(second.element);
@@ -100,12 +97,13 @@ function byDocumentPosition(first: Registration, second: Registration): number {
 }
 
 /**
- * Reads what a key asks for, given the arrows the group binds and which way the line runs.
+ * Translates a key press into the movement it requests.
  *
- * @param key - The key pressed.
- * @param orientation - Which arrows the group moves on.
- * @param forward - One where the line runs left to right, minus one where it runs the other way.
- * @returns The step or the edge to move to, or nothing where the group does not claim the key.
+ * @param key - The `key` value of the keyboard event.
+ * @param orientation - The axes the group responds to.
+ * @param forward - 1 in a left-to-right group and -1 in a right-to-left one, applied to the
+ *   inline arrows only.
+ * @returns The requested step or end, or undefined when the group does not handle the key.
  */
 function intentOf(key: string, orientation: Orientation, forward: number): Intent {
   if (key === "Home") return "start";
@@ -123,17 +121,17 @@ function intentOf(key: string, orientation: Orientation, forward: number): Inten
 }
 
 /**
- * Marks out the one item the group moves to, as a slice of the list it is in.
+ * Returns the destination item as the bounds of a one-item slice of the registration list.
  *
  * @remarks
- *   A slice rather than an index, because the list is read at an index that is always inside it
- *   and a lookup would still be typed as possibly absent. A slice of one is the item, and a slice
- *   of an empty list is empty, so the caller writes no test for a case that cannot arise.
- * @param list - The items, in the order the reader sees them.
- * @param intent - The edge or the step the key asked for.
- * @param from - The item that holds the tab stop.
- * @param wrap - Whether the ends join up.
- * @returns The first and last index of the slice holding the item to move to.
+ *   Slice bounds keep the caller free of a branch. An index is typed as possibly undefined even
+ *   when it is in range, and slicing an empty list returns an empty list, so a group with no items
+ *   needs no special case.
+ * @param list - The registrations in document order.
+ * @param intent - The step or end the key requested.
+ * @param from - The identifier of the item with the tab stop.
+ * @param wrap - Whether a step past one end continues at the other.
+ * @returns The start and end bounds of a slice that contains the destination item.
  */
 function spanOf(
   list: readonly Registration[],
@@ -157,76 +155,77 @@ function spanOf(
 }
 
 /**
- * Describes what the group keeps: its items, in the order the reader sees them.
+ * Describes the store of a group's registered items.
  */
 interface Registry {
   /**
-   * Takes an item in.
+   * Records a registration.
    */
   add: (registration: Registration) => void;
 
   /**
-   * Returns true when the node lies inside a registered item, which decides whose key an event is.
+   * Returns true when a registered element contains the node, which decides whether a key event
+   * belongs to the group.
    */
-  holds: (node: Node) => boolean;
+  contains: (node: Node) => boolean;
 
   /**
-   * The items in document order, which is what the arrows follow.
+   * Returns the registrations in document order, the order the arrows step through.
    */
   ordered: () => Registration[];
 
   /**
-   * Takes an item out again.
+   * Removes the registration with an identifier.
    */
   remove: (id: string) => void;
 }
 
 /**
- * Keeps the items in a ref rather than in state.
+ * Creates a registry backed by a ref.
  *
  * @remarks
- *   Nothing drawn depends on the list, only on which item holds the stop, so putting it in state
- *   would draw the whole group again every time one item mounted, for a change nobody could see.
+ *   Rendering depends on the active identifier and not on the list, so a list in state would
+ *   re-render the whole group each time an item mounted, with no visible change.
  */
 function useRegistry(): Registry {
   const items = useRef<Registration[]>([]);
 
   return useMemo(() => {
     /**
-     * Takes an item in.
+     * Appends a registration to the list.
      */
     const add = (registration: Registration): void => {
       items.current = [...items.current, registration];
     };
 
     /**
-     * Returns true when the node lies inside a registered item.
+     * Returns true when a registered element contains the node.
      */
-    const holds = (node: Node): boolean =>
+    const contains = (node: Node): boolean =>
       items.current.some((item) => item.element.contains(node));
 
     /**
-     * Returns the items in document order.
+     * Returns a copy of the registrations in document order.
      */
     const ordered = (): Registration[] => items.current.toSorted(byDocumentPosition);
 
     /**
-     * Takes an item out again.
+     * Removes the registration with an identifier.
      */
     const remove = (id: string): void => {
       items.current = items.current.filter((item) => item.id !== id);
     };
 
-    return { add, holds, ordered, remove };
+    return { add, contains, ordered, remove };
   }, []);
 }
 
 /**
- * Describes what the tab stop holds: which item has it, and how to move it.
+ * Describes the tab stop and the two ways to read and move it.
  */
 interface TabStop {
   /**
-   * Which item holds the stop.
+   * Identifier of the item with the stop.
    */
   activeId: string | undefined;
 
@@ -236,13 +235,14 @@ interface TabStop {
   claim: (next: string | undefined) => void;
 
   /**
-   * Which item holds the stop, readable inside a callback that was made before the render.
+   * Identifier of the item with the stop, in a ref, for a callback created before the current
+   * render.
    */
   stop: RefObject<string | undefined>;
 }
 
 /**
- * Keeps which item holds the tab stop, driven from above where a caller drives it.
+ * Tracks which item has the tab stop, and defers to the caller when the group is controlled.
  */
 function useTabStop(props: RovingFocusProps): TabStop {
   const { activeId: driven, defaultActiveId, onActiveIdChange } = props;
@@ -266,62 +266,63 @@ function useTabStop(props: RovingFocusProps): TabStop {
 }
 
 /**
- * Describes what the hook is given.
+ * Describes the options of useRovingFocus.
  */
 export interface RovingFocusProps {
   /**
-   * Which item holds the tab stop, where something above decides it.
+   * Item with the tab stop when the caller controls the group.
    */
   activeId?: string | undefined;
 
   /**
-   * Which item Tab first enters, where the group decides for itself.
+   * Item that Tab enters first when the group controls itself.
    */
   defaultActiveId?: string | undefined;
 
   /**
-   * Hears that the tab stop moved.
+   * Called after the tab stop moves to another item.
    */
   onActiveIdChange?: ((activeId: string | undefined) => void) | undefined;
 
   /**
-   * Which arrows move focus.
+   * Axes whose arrows move focus.
    */
   orientation: Orientation;
 
   /**
-   * Whether the ends join up.
+   * Whether a step past one end continues at the other.
    */
   wrap: boolean;
 }
 
 /**
- * Describes what the hook hands back.
+ * Describes the result of useRovingFocus.
  */
 export interface RovingFocus {
   /**
-   * The group the items read.
+   * Context value to publish to the items.
    */
   group: Group;
 
   /**
-   * The handler the root binds, which claims only the keys the group moves on.
+   * Key handler for the root element. It ignores every key the orientation does not claim, so the
+   * page still receives those keys.
    */
   onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
 }
 
 /**
- * Moves one tab stop through the items that register with it.
+ * Moves one tab stop across the items that register with the group.
  *
  * @remarks
- *   The first item to register takes the stop, so a group is reachable by Tab from its first
- *   render. An item that leaves while it holds the stop hands it to whatever is first, so the
- *   group never drops out of the tab order.
- * @returns The group the items read, and the handler the root binds.
+ *   The first item to register takes the stop, so Tab reaches the group from its first render.
+ *   When the item with the stop unmounts, the stop passes to the first remaining item in document
+ *   order, so the group stays in the tab order.
+ * @returns The context value for the items and the key handler for the root.
  */
 export function useRovingFocus(props: RovingFocusProps): RovingFocus {
   const { orientation, wrap } = props;
-  const { add, holds, ordered, remove } = useRegistry();
+  const { add, contains, ordered, remove } = useRegistry();
   const { activeId, claim, stop } = useTabStop(props);
 
   const register = useCallbackRef((registration: Registration) => {
@@ -341,7 +342,7 @@ export function useRovingFocus(props: RovingFocusProps): RovingFocus {
 
     const { target } = event;
 
-    if (!(target instanceof Node) || !holds(target)) return;
+    if (!(target instanceof Node) || !contains(target)) return;
 
     const rightToLeft = globalThis.getComputedStyle(event.currentTarget).direction === "rtl";
     const intent = intentOf(event.key, orientation, rightToLeft ? -1 : 1);

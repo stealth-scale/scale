@@ -1,9 +1,9 @@
 /**
- * Derives the path a router mounts its routes under from where the application is served.
+ * Derives the path a router mounts its routes under from where the documents are served.
  */
 
 /**
- * The path a router mounts under when the application is served at the root of its origin.
+ * Path a router mounts under when the application is served at the root of its origin.
  */
 const ROOT = "/";
 
@@ -11,16 +11,16 @@ const ROOT = "/";
  * Derives the router's base path from the base the bundler was given.
  *
  * @remarks
- *   The bundler's base says where the assets are served from, which is a path under the
- *   application's origin for an ordinary deployment and a whole URL for one whose assets live on
- *   another host. The router's base path says where the application's documents are, which is a
- *   path on the application's origin and never a host. A path-only base names both, so its path is
- *   the router's, without the trailing slash the bundler writes. A base naming a host says nothing
- *   about where the documents are, so the router mounts at the root unless told otherwise.
- * @param base - The base the bundler was given, which is `import.meta.env.BASE_URL` in a page.
- * @param documents - Where the documents are served, for a deployment whose assets live elsewhere.
- *   The root where absent.
- * @returns The path the router mounts under, opening with a slash and closing without one.
+ *   The bundler's base locates the assets: a path under the application's origin for an ordinary
+ *   deployment, an absolute URL for one whose assets are served from another host. The router's
+ *   base path locates the documents, which is always a path on the application's origin. A
+ *   path-only base locates both, so its path becomes the router's without the trailing slash the
+ *   bundler writes. A base naming a host says nothing about the documents, so the router mounts at
+ *   the root.
+ * @param base - Base the bundler was given, which is `import.meta.env.BASE_URL` in a page.
+ * @param documents - Path the documents are served under, for a deployment whose assets are served
+ *   from another host. Omitted, the base decides.
+ * @returns The path the router mounts under, with a leading slash and no trailing slash.
  */
 export function basepathOf(base: string, documents?: string): string {
   const path = documents ?? (base.startsWith("/") ? base : ROOT);

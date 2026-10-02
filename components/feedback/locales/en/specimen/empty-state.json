@@ -1,9 +1,9 @@
 {
-  "about": "Draws the panel a page shows where there is nothing to show: a mark, a heading and a line saying what would be here.",
+  "about": "The panel a surface renders when it has no content: a mark, a heading and a sentence about what to do next.",
   "description": "Send your first one to get started.",
   "none": "No invoices yet",
-  "sizes": {
-    "about": "Every size. One size moves the room inside the panel, the gap in the content, the box of the mark and the size of the title, and the description holds its size at every step.",
+  "size": {
+    "about": "Every size. The size sets the panel's inset, the gap, the mark and the title. The description stays at the small body size.",
     "title": "Sizes"
   },
   "title": "Empty state"

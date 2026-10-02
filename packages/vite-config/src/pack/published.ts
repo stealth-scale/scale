@@ -1,5 +1,5 @@
 /**
- * Derives what the packer builds from what the manifest says the package publishes.
+ * Derives what the packer builds from the export map the manifest declares.
  *
  * @remarks
  *   The manifest is the one statement of a package's public surface, because it is the file a
@@ -12,32 +12,30 @@ import { type Context, type Preset, preset } from "@stealthscale/vite-config-cor
 import { SOURCE } from "#resolve/condition.ts";
 
 /**
- * Stands in for the root subpath, which is spelled with a character no file can be named after.
+ * Entry key the root subpath maps to.
  */
 const ROOT = "index";
 
 /**
- * Drops the leading marker a manifest spells a relative path with.
+ * Returns the path without the leading `./` a manifest spells a relative path with.
  *
  * @remarks
- *   A manifest writes `./src/index.ts` and the packer's entry map wants `src/index.ts`. A path
- *   already written without the marker is returned unchanged, so a manifest may use either.
+ *   A manifest writes `./src/index.ts` and the packer's entry map takes `src/index.ts`. A path
+ *   already written without the prefix is returned unchanged, so a manifest may use either.
  */
 function within(path: string): string {
   return path.startsWith("./") ? path.slice(2) : path;
 }
 
 /**
- * Hands back the export map to build from, or nothing at all for a workspace root.
+ * Returns the export map to build from, or undefined for a workspace root.
  *
  * @remarks
- *   The root of a workspace is told apart by the workspace globs its manifest declares: that
- *   configuration is extended by every package under it, and the root itself publishes nothing.
- *   A package that is its own root, standing alone in a repository of its own, declares no globs
- *   and publishes what its export map says, so it is built like a package below a root.
- *   Separating the workspace root from a missing export map is what lets the missing one be an
- *   error.
- * @throws {@link Error} When a package declares no exports.
+ *   A workspace root is recognised by the `workspaces` globs its manifest declares: every package
+ *   under it extends the root configuration, and the root itself publishes nothing. A package
+ *   standing alone in a repository declares no globs and is built from its export map. Telling the
+ *   two apart is what lets a missing export map be an error.
+ * @throws {@link Error} When a package that is not a workspace root declares no exports.
  */
 function exported(context: Context): Readonly<Record<string, unknown>> | undefined {
   if (context.manifest.workspaces !== undefined) return undefined;
@@ -56,14 +54,14 @@ function exported(context: Context): Readonly<Record<string, unknown>> | undefin
 }
 
 /**
- * Builds one entry per subpath whose conditions name the source file behind it.
+ * Returns a preset with one packer entry per subpath whose conditions name a source file.
  *
  * @remarks
- *   A subpath pointing straight at a shipped file, such as a hand-written declaration or a
- *   stylesheet, has no source to build and is passed over. The `pack.carry` layer is what puts
- *   those back into the published export map afterwards.
- * @throws {@link Error} When the manifest declares no exports, or declares not one subpath naming
- *   a source file.
+ *   A subpath pointing at a shipped file, such as a hand-written declaration or a stylesheet, has
+ *   no source to build and is skipped. The `pack.carry` layer puts those back into the published
+ *   export map.
+ * @throws {@link Error} When the manifest declares no exports, or declares no subpath naming a
+ *   source file.
  */
 export function published(): Preset {
   return preset({

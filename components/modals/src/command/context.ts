@@ -1,10 +1,10 @@
 /**
- * Binds the command palette's recipe to the elements that draw its parts.
+ * Binds the command recipe to its parts.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. Apart from the state, because the recipe decides how a part is
- *   drawn and the state decides what is left to draw.
+ *   The binding is apart from the recipe, because a compiler reads the recipe at build time and the
+ *   binding imports the runtime. It is apart from `state.ts`, because the recipe styles the parts
+ *   and the state filters the actions.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";

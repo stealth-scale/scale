@@ -1,10 +1,9 @@
 /**
- * Publishes the parts a table is built from, so a composed component names one module rather than
- * a dozen.
+ * Exports the parts a table is composed from.
  *
  * @remarks
- *   `Table.Simple` is not here. It is built from these parts, and a module it could import would be
- *   a module that imports it back.
+ *   `Table.Simple` is composed from these parts and imports this module, so it is exported from
+ *   `index.ts` instead.
  */
 
 export { Body, type BodyProps } from "#table/body.ts";

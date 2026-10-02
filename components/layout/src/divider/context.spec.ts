@@ -8,14 +8,14 @@ import { recipeClasses, variantClass } from "@stealthscale/testing-theme";
 import { PropsProvider, withContext } from "#divider/context.ts";
 
 describe("context", () => {
-  it("draws the recipe's class on an element it binds", () => {
+  it("applies the divider class to a bound element", () => {
     const Probe = withContext("div");
     const { container } = render(createElement(Probe));
 
     expect(recipeClasses(container, "divider")).toContain("divider");
   });
 
-  it("hands a provider's direction to an element below it", () => {
+  it("applies the orientation set by PropsProvider to a bound element below it", () => {
     const Probe = withContext("div");
     const { container } = render(
       createElement(PropsProvider, { value: { orientation: "vertical" } }, createElement(Probe)),

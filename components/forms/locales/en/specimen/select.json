@@ -1,0 +1,119 @@
+{
+  "about": "A field that opens a list of rows a person picks from. The trigger is a combobox named by its label, and the panel is a listbox that the arrow keys, Home, End and typed letters move through. Escape and a press outside close the panel and return focus to the trigger. A row the collection disables keeps its place, and the arrow keys step past it. A hidden select submits the value with a form.",
+  "accounts": {
+    "bridge": "Bridge Ledger",
+    "halden": "Halden & Co",
+    "label": "Account",
+    "perrin": "Perrin Freight",
+    "placeholder": "Pick an account",
+    "voss": "Voss Holdings (frozen)"
+  },
+  "currency": {
+    "EUR": "Euro",
+    "GBP": "Pound sterling",
+    "JPY": "Japanese yen",
+    "USD": "US dollar",
+    "label": "Currency",
+    "total": "Total: {{amount}}"
+  },
+  "described": {
+    "about": "A row takes an icon and a second line under its text, and the check keeps its column at the end. The trigger shows the name alone.",
+    "title": "Rows with a description"
+  },
+  "grouped": {
+    "about": "Rows go into groups, each named by its label, and a screen reader announces the group as the highlight enters it.",
+    "title": "Rows in groups"
+  },
+  "highlight": {
+    "about": "The row the highlight is on takes a tint, a fill or a bar at its start, as a menu marks it. Open a select and move over its rows.",
+    "title": "Highlights"
+  },
+  "kept": {
+    "about": "The caller keeps the value with value and onValueChange, and formats an amount in the chosen currency.",
+    "title": "A value the caller keeps"
+  },
+  "multiple": {
+    "about": "With multiple a press toggles a row and leaves the panel open. A function child of the value text shows a count. The clear trigger empties the value and returns focus to the trigger.",
+    "title": "Several choices"
+  },
+  "plans": {
+    "business": {
+      "name": "Business",
+      "price": "€24 per seat a month"
+    },
+    "label": "Plan",
+    "placeholder": "Pick a plan",
+    "starter": {
+      "name": "Starter",
+      "price": "Free for up to three seats"
+    },
+    "team": {
+      "name": "Team",
+      "price": "€12 per seat a month"
+    }
+  },
+  "required": {
+    "about": "Inside a field the select takes the field's label, its helper and error texts, and its required and invalid states. Send the invitation without a role to see the error.",
+    "title": "In a required field"
+  },
+  "role": {
+    "admin": "Admin",
+    "editor": "Editor",
+    "help": "The role sets what the person can change.",
+    "label": "Role",
+    "placeholder": "Pick a role",
+    "required": "Choose a role for the invitation.",
+    "submit": "Send invitation",
+    "viewer": "Viewer"
+  },
+  "size": {
+    "about": "The sizes a field passes down. The trigger is a control of the same size, so a select and an input of one size line up in a form, and the rows read the body role one size smaller.",
+    "title": "Sizes"
+  },
+  "stated": {
+    "about": "A disabled select dims and takes no focus. A read-only select takes focus and opens nothing. An invalid select takes the error edge, and its indicator the error ink.",
+    "title": "Disabled, read-only and invalid"
+  },
+  "states": {
+    "disabled": "Disabled",
+    "invalid": "Invalid",
+    "readOnly": "Read-only"
+  },
+  "status": {
+    "about": "The status sets the edge and the focus ring from its palette, the same as a text field's.",
+    "title": "Statuses"
+  },
+  "teams": {
+    "clear": "Clear teams",
+    "count_one": "{{count}} team",
+    "count_other": "{{count}} teams",
+    "design": "Design",
+    "engineering": "Engineering",
+    "finance": "Finance",
+    "label": "Teams",
+    "legal": "Legal",
+    "placeholder": "Pick teams",
+    "sales": "Sales",
+    "support": "Support"
+  },
+  "title": "Select",
+  "variant": {
+    "about": "The three field looks of the theme, the same as a text field's and a native select's.",
+    "title": "Looks"
+  },
+  "zones": {
+    "amsterdam": "Amsterdam (UTC+1)",
+    "americas": "Americas",
+    "asia": "Asia",
+    "chicago": "Chicago (UTC−6)",
+    "europe": "Europe",
+    "label": "Time zone",
+    "lisbon": "Lisbon (UTC+0)",
+    "london": "London (UTC+0)",
+    "new-york": "New York (UTC−5)",
+    "placeholder": "Pick a time zone",
+    "sao-paulo": "São Paulo (UTC−3)",
+    "singapore": "Singapore (UTC+8)",
+    "tokyo": "Tokyo (UTC+9)"
+  }
+}

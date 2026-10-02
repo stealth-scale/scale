@@ -1,6 +1,5 @@
 /**
- * Publishes the clipboard's parts, which a caller composes as `Clipboard.Root` holding a value
- * and the trigger that copies it.
+ * Exports the parts of the clipboard, which a caller nests under `Clipboard.Root`.
  */
 
 export { Consumer, type ConsumerProps } from "#clipboard/consumer.ts";

@@ -12,7 +12,14 @@ import { type UserConfig } from "vite";
 import { type Layer, preset } from "@stealthscale/vite-config-core";
 
 import { GENERATED } from "#ignore/generated.ts";
-import { barrelled, composed, defaultExported, specified, undocumented } from "#lint/departure.ts";
+import {
+  barrelled,
+  composed,
+  defaultExported,
+  registered,
+  specified,
+  undocumented,
+} from "#lint/departure.ts";
 import * as rules from "#lint/rules/index.ts";
 
 /**
@@ -25,8 +32,8 @@ type LintBlock = NonNullable<UserConfig["lint"]>;
  *
  * @remarks
  *   A plugin rule is named `plugin/rule`, and the linter publishes no union
- *   covering those names. Every rule group has to pass through here before it
- *   can sit in the block.
+ *   covering those names. Every rule group passes through here before the
+ *   block contains it.
  */
 function asRules(held: rules.PluginRules): NonNullable<LintBlock["rules"]> {
   // eslint-disable-next-line typescript/no-unsafe-type-assertion -- a plugin's rule name is in no map the linter publishes
@@ -70,6 +77,11 @@ const BARRELLED = ["**/index.ts"];
 const COMPOSED = ["**/*.fixtures.ts", "**/*.fixtures.tsx"];
 
 /**
+ * The globs of the presets excused from the dependency cap in every tier.
+ */
+const REGISTERED = ["**/src/theme.ts"];
+
+/**
  * The block every tier starts from, before it adds its own rules.
  *
  * @remarks
@@ -104,6 +116,7 @@ export function base(): readonly Layer[] {
     specified(SPECIFIED),
     barrelled(BARRELLED),
     composed(COMPOSED),
+    registered(REGISTERED),
   ];
 }
 
@@ -126,6 +139,7 @@ export function node(): readonly Layer[] {
     specified(SPECIFIED),
     barrelled(BARRELLED),
     composed(COMPOSED),
+    registered(REGISTERED),
   ];
 }
 
@@ -148,5 +162,6 @@ export function web(): readonly Layer[] {
     specified([...SPECIFIED, ...SPECIFIED_RENDERED]),
     barrelled(BARRELLED),
     composed(COMPOSED),
+    registered(REGISTERED),
   ];
 }

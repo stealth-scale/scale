@@ -1,54 +1,51 @@
 /**
- * Draws the control a person fills in.
+ * Renders the field's control.
  *
  * @remarks
- *   Binds the text field, so a field holding one needs no `as`. Another control goes in its place
- *   with `as`, and the factory draws it under both recipes.
- *   The control takes its identifier, its state and the text describing it from the field, so a
- *   caller states each of them once on the root. `aria-invalid` is the attribute the field's own
- *   styling reads and the one a screen reader reads, which is one attribute rather than two things
- *   able to disagree.
- *   It is described by both texts whether or not either is drawn. An identifier naming no element
- *   is passed over, so listing both saves the field from watching the document to find out which
- *   exists.
+ *   The element is an `input` with the input recipe. `as` renders another element, such as a
+ *   `select`, under both recipes. `Field.Textarea` renders the package's `Textarea` with its own
+ *   props typed. The control takes its identifier, state, size and `maxLength` from the field, and
+ *   a prop the caller states overrides each. `aria-invalid` carries the invalid state, which the
+ *   field's styles and assistive technology both read. `aria-describedby` lists the helper text,
+ *   the error text and the counter. The control keeps the field's tally at its value's length.
  */
 
-import { type ComponentProps, type ReactElement } from "react";
+import { type ChangeEvent, type ComponentProps, type ReactElement } from "react";
+
+import { omitUndefined } from "@stealthscale/hooks";
 
 import { withContext } from "#field/context.ts";
-import { describedBy } from "#field/ids.ts";
-import { useField } from "#field/state.ts";
+import { useWired } from "#field/wired.ts";
 import { Input } from "#input/input.ts";
 
 /**
- * Draws the control in the slot the field states.
+ * Renders the input with the field's control class.
  */
 const Filled = withContext(Input, "control");
 
 /**
- * Describes what the control takes: the text field's variants, and everything a styled input
- * takes.
+ * Describes the props of the control: the input's variants and the props of an `input`.
  */
 export type ControlProps = ComponentProps<typeof Filled>;
 
 /**
- * Draws what a person fills in, wired to the field around it.
+ * Renders the control, wired to the field around it.
  *
- * @param props - The control's own props, which win over the field's where they meet.
- * @returns The control, named and described by the field's parts.
+ * @param props - The control's own props, which override the field's.
+ * @returns The `input` element, named and described by the field's parts.
  */
-export function Control(props: ControlProps): ReactElement {
-  const { disabled, ids, invalid, readOnly, required } = useField();
+export function Control({ defaultValue, onChange, value, ...props }: ControlProps): ReactElement {
+  const wired = useWired(defaultValue, value);
 
   return (
     <Filled
-      aria-describedby={describedBy(ids)}
-      aria-invalid={invalid || undefined}
-      disabled={disabled}
-      id={ids.control}
-      readOnly={readOnly}
-      required={required}
+      {...wired.props}
+      {...omitUndefined({ defaultValue, value })}
       {...props}
+      onChange={(event: ChangeEvent<HTMLInputElement>) => {
+        wired.typed(event.target.value.length);
+        onChange?.(event);
+      }}
     />
   );
 }

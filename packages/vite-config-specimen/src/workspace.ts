@@ -1,28 +1,27 @@
 /**
- * Relaxes the rules a specimen file is held to, and stops counting one, from the workspace root.
+ * Lint and coverage layers the workspace root declares for specimen and example files.
  *
  * @remarks
- *   Stated at the root rather than in the application that shows the catalogue, because the linter
- *   runs from the root and reads the root's configuration and no other. A relaxation stated
- *   elsewhere would compose, merge, and never be read, leaving a rule its author believes is off.
+ *   The layers belong in the root config, not in the catalogue application. The linter reads only
+ *   the root config, so a relaxation declared elsewhere is merged but never applied.
  */
 
 import { lint } from "@stealthscale/vite-config";
 import { type Layer, named } from "@stealthscale/vite-config-core";
 
+import { uncapped, undescribed, unmeasured } from "#examples.ts";
 import { SPECIMENS } from "#specimens.ts";
 import { uncounted } from "#uncounted.ts";
 
 /**
- * Returns the layers a workspace root states for the specimens below it.
+ * Returns the layers the workspace root declares for specimen and example files.
  *
  * @remarks
- *   Every layer covers the same file. A specimen is read through its default export and is built
- *   from the small components that arrange one picture, which three rules written for ordinary
- *   modules each reject for a different reason. The omission is stated here as well as in the
- *   package holding the specimen, because the root run counts every package's files and reads the
- *   root's configuration for what to leave out.
- * @param files - Which files are specimens. Defaults to any `*.specimen.tsx` in the workspace.
+ *   The coverage exclusions duplicate the per-package ones, because the root run counts the files
+ *   of every package. Specimen files are exempt from `no-default-export`, the doc comment rules,
+ *   `react/only-export-components` and `react/no-multi-comp`. Example files are exempt from the doc
+ *   comment rules and the dependency cap. Each layer records its reason in `because`.
+ * @param files - Specimen globs. Defaults to every `*.specimen.tsx` file in the workspace.
  */
 export function workspace(files: readonly string[] = SPECIMENS): readonly Layer[] {
   return [
@@ -53,5 +52,9 @@ export function workspace(files: readonly string[] = SPECIMENS): readonly Layer[
         rules: { "react/no-multi-comp": "off" },
       }),
     ),
+
+    ...unmeasured(),
+    undescribed(),
+    uncapped(),
   ];
 }

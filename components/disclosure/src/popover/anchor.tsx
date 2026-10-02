@@ -1,9 +1,9 @@
 /**
- * Marks what the panel is positioned against, where that is not the control.
+ * Renders the element the popover is positioned against, in place of the trigger.
  *
  * @remarks
- *   A caller who wants the panel beside a whole row rather than beside the control that opens it
- *   draws this around the row. The machine measures whichever of the two is present.
+ *   The machine measures the anchor when one is rendered, and the trigger otherwise. Wrap a row in
+ *   the anchor to open the popover beside the whole row.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -14,20 +14,20 @@ import { withContext } from "#popover/context.ts";
 import { usePopover } from "#popover/machine.ts";
 
 /**
- * Draws the part at the size the root states.
+ * Renders the `div` with the popover's anchor class.
  */
 const Drawn = withContext("div", "anchor");
 
 /**
- * Describes what the part takes.
+ * Describes the props of the anchor: the props of a `div`.
  */
 export type AnchorProps = ComponentProps<typeof Drawn>;
 
 /**
- * Marks what the panel is positioned against, where that is not the control.
+ * Renders the anchor with the machine's anchor props merged over the caller's.
  *
- * @param props - Everything a styled div takes.
- * @returns The part, carrying what the machine writes onto it.
+ * @param props - The props of a `div`.
+ * @returns The `div` element.
  */
 export function Anchor(props: AnchorProps): ReactElement {
   const api = usePopover();

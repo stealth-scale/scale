@@ -1,12 +1,10 @@
 /**
- * Draws what sits against the end of an alert.
+ * Renders the trailing region of the alert for controls such as a retry button or a link.
  *
  * @remarks
- *   The element is `div` and holds what a reader does about the alert: a control that dismisses
- *   it, a link to what went wrong, a retry.
- *   A control here is named by the caller, and the name says what it acts on. `Dismiss` alone is
- *   read out of context by a screen reader moving control to control, where `Dismiss this warning`
- *   is not.
+ *   Label each control with its target, such as `Retry the payment`, because a screen reader user
+ *   moving between controls hears the name without the alert's text. Use `Alert.CloseTrigger` for
+ *   the dismiss control.
  */
 
 import { type ComponentProps } from "react";
@@ -14,11 +12,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#alert/context.ts";
 
 /**
- * Sets whatever a reader does about the alert against its end.
+ * Renders a flex div at the inline end, sized to its content.
  */
 export const Aside = withContext("div", "aside");
 
 /**
- * Describes what the band takes: everything a styled div takes.
+ * Describes the props of Alert.Aside: the props of a div element.
  */
 export type AsideProps = ComponentProps<typeof Aside>;

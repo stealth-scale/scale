@@ -1,18 +1,30 @@
 {
-  "about": "Labels something with one short word or a count, set off from what it labels.",
-  "corners": {
-    "about": "Every corner at every size, on a count. Numbers are tabular, so a column of counts holds its width as the counts change.",
+  "about": "A short label or a count, set off from what it labels.",
+  "draft": "Draft",
+  "due": "Due soon",
+  "effect": {
+    "about": "A halo in the palette's solid at half opacity. glow is static and pulse animates. Both stop under reduced motion.",
+    "title": "Effects"
+  },
+  "failed": "{{count}} failed",
+  "marks": {
+    "about": "Badges that lead with an icon. The icon is 1em square, so it matches the text at every size, and the text states the status in words.",
+    "title": "Marks"
+  },
+  "overdue": "Overdue",
+  "paid": "Paid",
+  "palette": {
+    "about": "Every palette in every look. The palette sets the fill, the edge and the ink.",
+    "title": "Palettes"
+  },
+  "radius": {
+    "about": "Every corner at every size, on a count. Numerals are tabular, so a column of changing counts keeps its width.",
     "title": "Corners and sizes"
   },
-  "draft": "Draft",
-  "live": "Live",
-  "looks": {
-    "about": "Every look at every size. The look is flat, so a badge does not repaint under a pointer.",
+  "sent": "Sent",
+  "title": "Badge",
+  "variant": {
+    "about": "Every look at every size. The looks are flat, so a badge does not repaint on hover.",
     "title": "Looks and sizes"
-  },
-  "statuses": {
-    "about": "Every status in every look. A badge whose meaning is in its colour needs that meaning in words.",
-    "title": "Statuses"
-  },
-  "title": "Badge"
+  }
 }

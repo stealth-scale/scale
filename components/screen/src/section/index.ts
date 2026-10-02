@@ -1,13 +1,12 @@
 /**
- * Publishes the section's seven parts, which a caller composes as `Section.Root` holding a header,
- * a body and a footer.
+ * Exports the section's eight parts. A caller composes `Section.Root` around a header, a body and a
+ * footer.
  */
 
 export { Action, type ActionProps } from "#section/action.tsx";
-export { Actions, type ActionsProps } from "#section/actions.ts";
-export { Body, type BodyProps } from "#section/body.ts";
+export { Actions, type ActionsProps } from "#section/actions.tsx";
+export { Body, type BodyProps } from "#section/body.tsx";
 export { Description, type DescriptionProps } from "#section/description.ts";
-export { Folded, type FoldedProps } from "#section/folded.ts";
 export { Footer, type FooterProps } from "#section/footer.ts";
 export { Header, type HeaderProps } from "#section/header.ts";
 export { Root, type RootProps } from "#section/root.tsx";

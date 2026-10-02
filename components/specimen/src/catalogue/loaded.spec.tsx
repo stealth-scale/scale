@@ -52,7 +52,7 @@ describe("useDeclared", () => {
     expect(container.textContent).toBe("Sizes");
   });
 
-  it("reports why a module failed to load rather than holding an empty page", async () => {
+  it("returns the failure when the module rejects", async () => {
     const { container } = await drawn(
       <Declaring of={entry(() => Promise.reject(new Error("gone")))} />,
     );
@@ -60,7 +60,7 @@ describe("useDeclared", () => {
     expect(container.textContent).toBe("failed: gone");
   });
 
-  it("reports a failure that is no error by what it said", async () => {
+  it("converts a rejection that is no Error into an Error with the value as its message", async () => {
     const { container } = await drawn(
       // eslint-disable-next-line typescript/prefer-promise-reject-errors -- an import that fails with something other than an error is what the case covers
       <Declaring of={entry(() => Promise.reject("chunk 404"))} />,
@@ -69,7 +69,7 @@ describe("useDeclared", () => {
     expect(container.textContent).toBe("failed: chunk 404");
   });
 
-  it("keeps quiet when the module arrives after the page has left the screen", async () => {
+  it("sets no state when the module resolves after unmount", async () => {
     const settle: Array<() => void> = [];
     const held = entry(
       () =>
@@ -91,7 +91,7 @@ describe("useDeclared", () => {
     expect(document.body.textContent).toBe("");
   });
 
-  it("keeps quiet when a module that fails arrives after the page has left the screen", async () => {
+  it("sets no state when the module rejects after unmount", async () => {
     const settle: Array<() => void> = [];
     const held = entry(
       () =>
@@ -113,7 +113,7 @@ describe("useDeclared", () => {
     expect(document.body.textContent).toBe("");
   });
 
-  it("replaces the page with what a hot update carries", async () => {
+  it("replaces the page with the module a hot update supplies", async () => {
     const { container } = await drawn(
       <Declaring
         of={entry(() => Promise.resolve({ default: { id: "data/badge", scenes: [] } }))}
@@ -125,7 +125,7 @@ describe("useDeclared", () => {
     expect(container.textContent).toBe("Sizes");
   });
 
-  it("clears a failure with the page a hot update carries", async () => {
+  it("clears the failure when a hot update supplies a module", async () => {
     const { container } = await drawn(
       <Declaring of={entry(() => Promise.reject(new Error("gone")))} />,
     );
@@ -135,7 +135,7 @@ describe("useDeclared", () => {
     expect(container.textContent).toBe("Sizes");
   });
 
-  it("leaves the page alone for an update carrying no module", async () => {
+  it("keeps the page when an update supplies no module", async () => {
     const { container } = await drawn(
       <Declaring
         of={entry(() => Promise.resolve({ default: { id: "data/badge", scenes: [SIZES] } }))}
@@ -147,13 +147,13 @@ describe("useDeclared", () => {
     expect(container.textContent).toBe("Sizes");
   });
 
-  it("holds nothing while no entry is named", () => {
+  it("returns no page when the entry is undefined", () => {
     const { container } = render(<Declaring of={undefined} />);
 
     expect(container.textContent).toBe("no page");
   });
 
-  it("shows nothing rather than the page before it once the entry moves on", async () => {
+  it("returns no page while the module for a new entry is pending", async () => {
     const first = entry(() => Promise.resolve({ default: { id: "data/badge", scenes: [SIZES] } }));
     const { container, rerender } = await drawn(<Declaring of={first} />);
 

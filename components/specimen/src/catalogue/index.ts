@@ -2,6 +2,7 @@
  * Publishes the catalogue: the rail, the index, one page, and what the pages resolve to.
  */
 
+export { type Marked, useCatalogueMark } from "#catalogue/current.ts";
 export { declared } from "#catalogue/declared.ts";
 export { type Entry, entryOf } from "#catalogue/entry.ts";
 export { type Group, grouped, type Listed } from "#catalogue/grouped.ts";

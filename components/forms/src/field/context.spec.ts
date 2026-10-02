@@ -8,7 +8,7 @@ import { slotClass, slotClasses, variantClass } from "@stealthscale/testing-them
 import { withContext, withProvider } from "#field/context.ts";
 
 describe("context", () => {
-  it("draws the slot's class on an element it binds", () => {
+  it("applies the slot class to an element it binds", () => {
     const Box = withProvider("div", "root");
     const Words = withContext("p", "helperText");
     const { container } = render(createElement(Box, null, createElement(Words, null, "A format")));
@@ -18,11 +18,11 @@ describe("context", () => {
     );
   });
 
-  it("writes a slot's name in kebab case", () => {
+  it("writes a slot's name in kebab case in its class", () => {
     expect(slotClass("field", "helperText")).toBe("field__helper-text");
   });
 
-  it("hands the root's variants to a part below it", () => {
+  it("applies the root's variant to a part inside it", () => {
     const Box = withProvider("div", "root");
     const Words = withContext("p", "helperText");
     const { container } = render(

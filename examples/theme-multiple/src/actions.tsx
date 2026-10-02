@@ -1,12 +1,12 @@
 /**
- * Draws the actions package's components: a button in every look, every size and every status,
- * the hero buttons, a glowing one, a disabled one, two icon buttons, and a pair under a provider.
+ * Renders the actions package's components: a button in every look, size and status palette, the
+ * hero buttons, a glowing button, a disabled button, two icon buttons, and a pair under a provider.
  *
  * @remarks
- *   Every variant is written as a literal, which is what the compiler extracts the rules for.
- *   Each button is named for an action rather than for its look, so no two buttons on the page
- *   share a name. Each icon button is named in words, because its glyph names nothing, and the
- *   provider sets the size and the look of the pair below it.
+ *   Every variant is written as a literal, because the compiler emits rules only for values it
+ *   extracts from source. Each button is labelled with an action, so no two buttons on the page
+ *   share an accessible name. Each icon button has an `aria-label`, because an icon provides no
+ *   name. The provider sets the size and the look of the pair below it.
  */
 
 import { type ReactElement } from "react";
@@ -18,17 +18,17 @@ import { css } from "@stealthscale/theme";
 import { Heroes } from "#heroes.tsx";
 
 /**
- * Lays the section out as a column.
+ * The class that lays the section out as a column.
  */
 const section = css({ display: "flex", flexDirection: "column", gap: "gap.md" });
 
 /**
- * Lays a row of controls out, wrapping where the row is too narrow.
+ * The class that lays a row of controls out and wraps it when the row is too narrow.
  */
 const row = css({ alignItems: "center", display: "flex", flexWrap: "wrap", gap: "gap.sm" });
 
 /**
- * Draws the actions.
+ * Renders the actions section.
  */
 export function Actions(): ReactElement {
   return (
@@ -62,10 +62,10 @@ export function Actions(): ReactElement {
       </p>
       <Heroes />
       <p className={row}>
-        <Button status="info">Info</Button>
-        <Button status="success">Success</Button>
-        <Button status="warning">Warning</Button>
-        <Button status="error">Error</Button>
+        <Button palette="info">Info</Button>
+        <Button palette="success">Success</Button>
+        <Button palette="warning">Warning</Button>
+        <Button palette="error">Error</Button>
       </p>
       <p className={row}>
         <Button effect="glow">Glow</Button>

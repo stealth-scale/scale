@@ -5,11 +5,18 @@ import * as barrel from "#index.ts";
 describe("index", () => {
   it("names every component the package publishes and nothing beside them", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
+      "Accordion",
       "Collapsible",
+      "Details",
+      "HoverCard",
       "Menu",
+      "Menubar",
       "Popover",
+      "Steps",
       "Tabs",
+      "ToggleTip",
       "Tooltip",
+      "Truncate",
     ]);
   });
 

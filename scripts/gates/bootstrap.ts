@@ -1,15 +1,12 @@
 /**
- * Proves that a checkout with no built output builds whole from the bootstrap and the task graph,
- * and that a second run of the graph does nothing.
+ * Proves a checkout with nothing built comes up from the bootstrap and the task graph, and that a
+ * second run of the graph hits the cache on every task.
  *
  * @remarks
- *   The gate removes every built output outside `node_modules` and the task cache, runs the
- *   bootstrap, runs the graph, and reads what the graph reports. It then runs the graph again and
- *   requires every task to hit the cache. The theme runtime and one packed inventory are read off
- *   the disk, because a graph that reported success while generating neither was the defect this
- *   gate exists for.
- *   Usage: `pnpm gate:bootstrap`, from a checkout whose dependencies are installed. The gate
- *   takes minutes and rewrites every output, so it is a gate for a boundary, not for a save.
+ *   The theme runtime and one packed inventory are checked on disk, because the defect this gate
+ *   was written for was a graph reporting success having generated neither. Run
+ *   `pnpm gate:bootstrap` from a checkout with its dependencies installed. It rewrites every output
+ *   and takes minutes, so it belongs at a boundary rather than on a save.
  */
 
 import { execFileSync } from "node:child_process";
@@ -22,7 +19,7 @@ import { join } from "node:path";
 const ROOT = join(import.meta.dirname, "..", "..");
 
 /**
- * The outputs a cold checkout has none of.
+ * The built outputs a cold checkout does not have.
  */
 const OUTPUTS = [
   "{apps,components,examples,foundations,foundations/providers,packages,themes}/*/dist",
@@ -31,7 +28,7 @@ const OUTPUTS = [
 ];
 
 /**
- * Runs a command at the root and hands back what it wrote.
+ * Runs a command at the workspace root and hands back what it printed.
  *
  * @throws {@link Error} When the command fails.
  */
@@ -40,7 +37,7 @@ function ran(command: string, args: readonly string[]): string {
 }
 
 /**
- * Reads the cache line the graph prints last, as hits over tasks.
+ * Reads the cache hits and the task count off the last cache line the graph printed.
  */
 function hits(report: string): readonly [number, number] {
   const found = /(\d+)\/(\d+) cache hit/u.exec(report);
@@ -49,7 +46,7 @@ function hits(report: string): readonly [number, number] {
 }
 
 /**
- * Ends the gate with a message.
+ * Fails the gate, with the message attributed to the gate by name.
  *
  * @throws {@link Error} Always.
  */
@@ -58,7 +55,7 @@ function failed(message: string): never {
 }
 
 /**
- * Removes every built output, so the run starts from what a fresh clone has.
+ * Deletes every built output, so the run starts where a fresh clone would.
  */
 function cleared(): void {
   for (const pattern of OUTPUTS) {
@@ -69,10 +66,10 @@ function cleared(): void {
 }
 
 /**
- * Runs the gate and prints what it measured.
+ * Runs the gate end to end and prints what it measured.
  *
  * @throws {@link Error} When the cold graph runs no task, generates no theme runtime or packs no
- *   inventory, or the warm graph misses a task.
+ *   inventory, or when the warm graph misses a task.
  */
 function proven(): void {
   cleared();

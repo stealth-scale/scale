@@ -1,0 +1,44 @@
+{
+  "about": "The declared series stacked into one total over a category or time axis. With percent, every point sums to 100% and the chart shows shares.",
+  "launch": {
+    "about": "defaultIndex opens the tooltip at Thursday when the chart first renders, with a row per source. The pointer or the arrow keys move it from there.",
+    "caption": "Referrals brought 2.6K of Thursday's 11K sessions.",
+    "title": "Tooltip"
+  },
+  "narrow": {
+    "about": "The sessions in a room 20rem wide, the column of a phone. All seven day ticks fit, and the legend keeps its three sources on one line.",
+    "title": "Narrow room"
+  },
+  "replay": {
+    "about": "animate reveals the bands from the start of the axis to its end when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the bands at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "series": "Sources",
+  "share": {
+    "about": "Requests per client as shares of each month's total. The value axis reads in percent, and the tooltip writes each client's own count.",
+    "android": "Android",
+    "api": "API",
+    "caption": "The API's share of requests grew from 12% in April to 26% in September.",
+    "ios": "iOS",
+    "label": "Requests per client per month",
+    "title": "Shares",
+    "web": "Web"
+  },
+  "title": "Stacked area chart",
+  "traffic": {
+    "about": "Sessions per source stacked into each day's total, in compact numbers.",
+    "caption": "Referrals rose to 2.6K on Thursday. Sessions fell from 11K on Friday to 5.6K on Sunday.",
+    "direct": "Direct",
+    "label": "Sessions per source per day",
+    "referral": "Referral",
+    "search": "Search",
+    "title": "Totals"
+  },
+  "untracked": {
+    "about": "A week without sessions renders the empty state in the plot's place, and no legend.",
+    "caption": "Sessions per source this week.",
+    "empty": "No sessions tracked this week.",
+    "title": "Empty"
+  }
+}

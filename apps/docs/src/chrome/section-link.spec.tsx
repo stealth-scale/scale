@@ -6,37 +6,48 @@ import { variantClass } from "@stealthscale/testing-theme";
 import { opened } from "#app.fixtures.tsx";
 
 /**
- * Finds the link in the bar, apart from the page's trail of the same name.
+ * Returns the catalogue link in the toolbar, excluding the breadcrumb link of the same name.
  */
 function linked(result: RenderResult): HTMLElement {
-  return within(result.getByRole("toolbar")).getByRole("link", { name: "Components" });
+  return within(result.getByRole("toolbar")).getByRole("link", { name: "Catalogue" });
 }
 
 describe("SectionLink", () => {
-  it("leads to the index", async () => {
+  it("links to the index", async () => {
     const result = await opened("/components/actions/button");
 
-    expect(linked(result).getAttribute("href")).toBe("/components");
+    expect(linked(result).getAttribute("href")).toBe("/");
   });
 
-  it("says it is the current page on the index", async () => {
-    const result = await opened("/components");
+  it("sets aria-current to page on the index", async () => {
+    const result = await opened("/");
 
     expect(linked(result).getAttribute("aria-current")).toBe("page");
   });
 
-  it("says it is the current page on a page under the index", async () => {
+  it("sets aria-current to page on a page under the index", async () => {
     const result = await opened("/components/actions/button");
 
     expect(linked(result).getAttribute("aria-current")).toBe("page");
   });
 
-  it("draws an anchor in the ghost look on the neutral palette", async () => {
+  it("renders an anchor with the ghost look class", async () => {
     const result = await opened("/components/actions/button");
     const link = linked(result);
 
     expect(link.tagName).toBe("A");
     expect(link.classList).toContain(variantClass("button", "variant", "ghost"));
-    expect(link.classList).toContain(variantClass("button", "status", "neutral"));
+  });
+
+  it("applies the neutral palette class", async () => {
+    const result = await opened("/components/actions/button");
+
+    expect(linked(result).classList).toContain(variantClass("button", "palette", "neutral"));
+  });
+
+  it("applies the small size class", async () => {
+    const result = await opened("/components/actions/button");
+
+    expect(linked(result).classList).toContain(variantClass("button", "size", "sm"));
   });
 });

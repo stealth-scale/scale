@@ -1,62 +1,63 @@
 /**
- * Draws the control that copies the code the block holds.
+ * Renders the control that copies the code of a code block.
  *
  * @remarks
- *   The part reads the code off the root rather than taking it, because the root already holds it
- *   for every other part and a caller that passed it again could pass something else. It is the
- *   one part of the block that is a control, so it is also the one that reaches into another
- *   package: the clipboard machine and the icon button are the library's, and a block that wired
- *   its own would be a second answer to a question the library has answered.
- *   The marks are the caller's. The library ships no icon set, so every control in it takes its
- *   glyph from the page, and this one takes two: the children at rest and `copied` for the while
- *   after a press. The words are the caller's for the same reason: this package ships none, and a
- *   control that names itself in one language names itself wrongly in every other.
- *   The control's own size, status and look are set above the trigger rather than on it, because
- *   a trigger drawn `as` another component hands that component the machine's props and not the
- *   ones written beside them.
+ *   The control reads the code from the root, so the copied text is the rendered text. Terminal
+ *   output is copied without its escapes, as a person reads it. It renders `Clipboard` with an
+ *   `IconButton` trigger from `component-actions`. The caller passes both icons and may pass
+ *   `label` and `copiedLabel`, which default to English. The button's size, palette and variant
+ *   come from `ButtonPropsProvider`, because a trigger rendered through `as` forwards only the
+ *   machine's props.
  */
 
 import { type ComponentProps, type ReactElement, type ReactNode } from "react";
 
 import { ButtonPropsProvider, Clipboard, IconButton } from "@stealthscale/component-actions";
 
+import { ANSI, stripAnsi } from "#code-block/ansi.ts";
 import { useCode } from "#code-block/state.ts";
 
 /**
- * Fixes the control the copy is drawn as: the quietest icon button there is, so the mark reads as
- * part of the header rather than as a second thing to press.
+ * Button variants of the trigger: an extra-small ghost button in the neutral palette.
  */
-const CONTROL = { size: "xs", status: "neutral", variant: "ghost" } as const;
+const CONTROL = { palette: "neutral", size: "xs", variant: "ghost" } as const;
 
 /**
- * Describes what the copy takes: the marks, and everything the clipboard's root takes but the
- * value, which the block holds already.
+ * Describes the props of `Copy`: the two icons, the two accessible names, and the clipboard root's
+ * props except `value`, which the block supplies.
  */
 export interface CopyProps extends Omit<ComponentProps<typeof Clipboard.Root>, "value"> {
   /**
-   * The mark shown at rest.
+   * Icon in the idle state.
    */
   readonly children?: ReactNode;
 
   /**
-   * The mark shown while the copy is fresh.
+   * Icon in the copied state, for the machine's timeout.
    */
   readonly copied?: ReactNode;
+
+  /**
+   * Accessible name in the copied state. Defaults to "Copied to clipboard".
+   */
+  readonly copiedLabel?: string | undefined;
+
+  /**
+   * Accessible name in the idle state. Defaults to "Copy to clipboard".
+   */
+  readonly label?: string | undefined;
 }
 
 /**
- * Copies the block's code when it is pressed, and says so for a while.
- *
- * @param props - The two marks, and the clipboard's own options.
- * @returns The control, wired to the code the root holds.
+ * Renders the copy control, which shows the copied icon after a successful copy.
  */
-export function Copy({ children, copied, ...rest }: CopyProps): ReactElement {
-  const { code } = useCode();
+export function Copy({ children, copied, copiedLabel, label, ...rest }: CopyProps): ReactElement {
+  const { code, language } = useCode();
 
   return (
-    <Clipboard.Root {...rest} value={code}>
+    <Clipboard.Root {...rest} value={language === ANSI ? stripAnsi(code) : code}>
       <ButtonPropsProvider value={CONTROL}>
-        <Clipboard.Trigger as={IconButton}>
+        <Clipboard.Trigger as={IconButton} copiedLabel={copiedLabel} label={label}>
           <Clipboard.Indicator copied={copied}>{children}</Clipboard.Indicator>
         </Clipboard.Trigger>
       </ButtonPropsProvider>

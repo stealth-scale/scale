@@ -1,37 +1,44 @@
 /**
- * Draws how much of a field's allowance is used.
+ * Renders the length of the field's value against its limit.
  *
  * @remarks
- *   The element is `p`, drawn against the end of the row the helper text sits in. It states
- *   `aria-live="polite"`, so a reader hears the count when they pause rather than after every
- *   keystroke.
- *   The count stays out of `aria-describedby`. A description is read when the control takes focus,
- *   and a number that changes as a person types would be read stale.
- *   The component draws the count a caller passes and measures nothing. What counts as a character
- *   differs by field: an emoji is two UTF-16 units and one grapheme, and a server that truncates
- *   at 140 may mean either.
+ *   The element is a `p` that renders `12 / 200`: the length of the control's value in UTF-16
+ *   code units, then the root's `maxLength`. Without a `maxLength` it renders the length alone.
+ *   Children replace the text, for a caller that counts another way, such as graphemes. The
+ *   counter is part of the control's `aria-describedby`, so assistive technology reads it with the
+ *   control. It sets no `aria-live`, because a live region would announce every keystroke.
  */
 
-import { type ComponentProps, type ReactElement } from "react";
+import { type ComponentProps, type ReactElement, useSyncExternalStore } from "react";
 
 import { withContext } from "#field/context.ts";
+import { useField } from "#field/state.ts";
 
 /**
- * Draws the count at the size the root states.
+ * Renders the counter `p` with the field's counter class.
  */
-const Counted = withContext("p", "counter", { defaultProps: { "aria-live": "polite" } });
+const Counted = withContext("p", "counter");
 
 /**
- * Describes what the count takes: everything a styled p takes.
+ * Describes the props of the counter: the props of a `p`.
  */
 export type CounterProps = ComponentProps<typeof Counted>;
 
 /**
- * Reports how much of the allowance a person has used.
+ * Renders the length of the value, against the limit where the field sets one.
  *
- * @param props - Everything a styled p takes.
- * @returns The count, announced when the reader pauses.
+ * @param props - Attributes of the `p` element. Children replace the count.
+ * @returns The `p` element holding the count.
  */
-export function Counter(props: CounterProps): ReactElement {
-  return <Counted {...props} />;
+export function Counter({ children, ...props }: CounterProps): ReactElement {
+  const { ids, maxLength, tally } = useField();
+  const length = useSyncExternalStore(tally.subscribe, tally.get, tally.get);
+  const count =
+    maxLength === undefined ? String(length) : `${String(length)} / ${String(maxLength)}`;
+
+  return (
+    <Counted id={ids.counter} {...props}>
+      {children ?? count}
+    </Counted>
+  );
 }

@@ -2,9 +2,9 @@
  * Builds and tests this package under the plain configuration.
  *
  * @remarks
- *   The configuration tiers are themselves built on the plugin packages, so a
- *   plugin that extended a tier would pack itself with a version of itself. The
- *   plain configuration writes those settings out instead.
+ *   The configuration tiers are built on the plugin packages themselves, so a plugin extending a
+ *   tier would pack itself with a copy of itself. The plain configuration states the same settings
+ *   directly.
  */
 
 import { defineConfig } from "vite";

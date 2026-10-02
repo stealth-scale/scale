@@ -1,9 +1,9 @@
 /**
- * Draws the line under the name: a plan, an environment, a role.
+ * Renders the line under the name: a plan, an environment or a role.
  *
  * @remarks
- *   This is what tells two things of the same name apart, so it is read out rather than hidden.
- *   Leave it out where the name stands on its own.
+ *   The detail tells two things with the same name apart, so it is part of the control's accessible
+ *   name. Leave it out when the name is unique. The toolbar placement hides it.
  */
 
 import { type ComponentProps } from "react";
@@ -11,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#switcher/context.ts";
 
 /**
- * Draws the line under the name.
+ * Renders the detail `span` at the switcher's size.
  */
 export const Detail = withContext("span", "detail");
 
 /**
- * Describes what the detail takes.
+ * Describes the props of `Detail`.
  */
 export type DetailProps = ComponentProps<typeof Detail>;

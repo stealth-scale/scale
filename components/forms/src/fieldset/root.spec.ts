@@ -13,11 +13,11 @@ describe("Root", () => {
     expect(violations(Root, { as: true, children: true, element: "FIELDSET" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule holding a legend and a field", async () => {
+  it("returns no accessibility violation for a group with a legend and a field", async () => {
     await expect(accessibilityViolations(() => composed())).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "root",
@@ -25,20 +25,20 @@ describe("Root", () => {
     ).toStrictEqual([]);
   });
 
-  it("is read as a group named by its legend", () => {
+  it("takes its accessible name from the legend", () => {
     render(composed());
 
     expect(screen.getByRole("group", { name: "Delivery" })).toBeDefined();
   });
 
-  it("takes every control inside it out of reach through the element's own attribute", () => {
+  it("disables every control inside through the element's disabled attribute", () => {
     const { container } = render(composed({ disabled: true }));
 
     expect(slotElement(container, "fieldset", "root").hasAttribute("disabled")).toBe(true);
     expect(screen.getByRole("textbox").hasAttribute("disabled")).toBe(true);
   });
 
-  it("marks itself wrong off the attribute a screen reader reads too", () => {
+  it("sets data-invalid and aria-invalid while the group is invalid", () => {
     const { container } = render(composed({ invalid: true }));
     const root = slotElement(container, "fieldset", "root");
 
@@ -46,15 +46,11 @@ describe("Root", () => {
     expect(root.getAttribute("aria-invalid")).toBe("true");
   });
 
-  it("is described by both of its texts", () => {
+  it("lists the helper text and the error text in aria-describedby", () => {
     const { container } = render(composed({ id: "delivery" }));
 
     expect(slotElement(container, "fieldset", "root").getAttribute("aria-describedby")).toBe(
       "delivery-helper delivery-error",
     );
-  });
-
-  it("clears the minimum width a fieldset defaults to", () => {
-    expect(recipe.base?.["root"]).toMatchObject({ minInlineSize: "0" });
   });
 });

@@ -37,6 +37,12 @@ export interface Polar {
 const GREY = 0.0001;
 
 /**
+ * Fixes the chroma below which a color reads as a grey rather than as a hue: a tinted neutral's
+ * chroma is below it, and a quiet hue's is above it.
+ */
+export const GREY_CHROMA = 0.03;
+
+/**
  * Fixes how far outside 0 to 1 a linear channel may sit before the color is outside sRGB, which
  * absorbs the rounding a color is written at.
  */

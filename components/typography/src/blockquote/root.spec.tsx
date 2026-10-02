@@ -10,11 +10,11 @@ import { recipe } from "#blockquote/recipe.ts";
 import { Root } from "#blockquote/root.ts";
 
 describe("Root", () => {
-  it("conforms as a figure element", () => {
+  it("passes the component conformance checks as a figure element", () => {
     expect(violations(Root, { as: true, children: true, element: "FIGURE" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule holding a quotation and a caption", async () => {
+  it("returns no accessibility violation with content and a caption", async () => {
     await expect(
       accessibilityViolations(Root, {
         props: {
@@ -29,13 +29,13 @@ describe("Root", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value to the root slot", () => {
     expect(
       boundViolations(recipe, (props) => render(<Root {...props} />).container, { slot: "root" }),
     ).toStrictEqual([]);
   });
 
-  it("draws the element as names", () => {
+  it("renders an aside when as is aside", () => {
     const { container } = render(<Root as="aside" />);
 
     expect(slotElement(container, "blockquote", "root").tagName).toBe("ASIDE");

@@ -12,10 +12,10 @@ import {
 } from "#collapsible/machine.ts";
 
 /**
- * Runs the machine and reports what it answers, so a case can read its state off the screen.
+ * Runs the machine and renders its state through a part that reads the context.
  *
- * @param props - The settings the machine is started with.
- * @returns The state, drawn as text.
+ * @param props - The machine's options.
+ * @returns The state as text.
  */
 function Running(props: CollapsibleOptions): ReactElement {
   const api = useCollapsibleMachine(props);
@@ -28,9 +28,9 @@ function Running(props: CollapsibleOptions): ReactElement {
 }
 
 /**
- * Reads the running machine through the hook a part reads it through.
+ * Renders the open state the context reports.
  *
- * @returns Whether the block is open.
+ * @returns A `span` with `open` or `closed`.
  */
 function Reader(): ReactElement {
   const api = useCollapsible();
@@ -39,19 +39,19 @@ function Reader(): ReactElement {
 }
 
 describe("splitCollapsibleProps", () => {
-  it("takes the machine's settings out of what the root was handed", () => {
+  it("returns the machine's options first", () => {
     const [options] = splitCollapsibleProps({ defaultOpen: true, disabled: true });
 
     expect(options).toStrictEqual({ defaultOpen: true, disabled: true });
   });
 
-  it("leaves everything the element takes behind", () => {
+  it("returns the element's props second", () => {
     const [, rest] = splitCollapsibleProps({ defaultOpen: true, size: "lg" });
 
     expect(rest).toStrictEqual({ size: "lg" });
   });
 
-  it("reads the list off the machine rather than one this package keeps", () => {
+  it("splits by the machine's own key list", () => {
     const [options, rest] = splitCollapsibleProps({ className: "mine", collapsedHeight: 24 });
 
     expect(options).toStrictEqual({ collapsedHeight: 24 });
@@ -60,13 +60,13 @@ describe("splitCollapsibleProps", () => {
 });
 
 describe("useCollapsibleMachine", () => {
-  it("answers a running machine a part can read", () => {
+  it("provides a running machine to a part", () => {
     render(<Running defaultOpen />);
 
     expect(screen.getByTestId("state").textContent).toBe("open");
   });
 
-  it("starts closed where a caller says nothing", () => {
+  it("starts closed", () => {
     render(<Running />);
 
     expect(screen.getByTestId("state").textContent).toBe("closed");

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { base, node, web } from "#pack/preset.ts";
 
 describe("preset", () => {
-  it("declares no platform in the tier that is agnostic about it", () => {
+  it("states no platform layer in the base group", () => {
     expect(
       base()
         .map((one) => one.name)
@@ -11,14 +11,14 @@ describe("preset", () => {
     ).not.toContain("platform");
   });
 
-  it("states the platform of a console package rather than leaving it to the packer", () => {
+  it("appends pack.platform(node) to the base group", () => {
     expect(node().map((one) => one.name)).toStrictEqual([
       ...base().map((one) => one.name),
       "pack.platform(node)",
     ]);
   });
 
-  it("builds a library for no runtime in particular and refuses the built-ins there", () => {
+  it("appends pack.platform(neutral) and pack.builtins to the base group", () => {
     expect(web().map((one) => one.name)).toStrictEqual([
       ...base().map((one) => one.name),
       "pack.platform(neutral)",
@@ -26,7 +26,7 @@ describe("preset", () => {
     ]);
   });
 
-  it("ships types and checks the manifest in every tier", () => {
+  it("includes the base layers in every tier", () => {
     for (const tier of [base(), node(), web()]) {
       const held = tier.map((one) => one.name);
 

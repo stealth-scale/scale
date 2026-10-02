@@ -1,51 +1,88 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations } from "@stealthscale/testing-theme";
 
-import { recipe } from "#transfer/recipe.ts";
+import { recipe as listbox } from "#listbox/recipe.ts";
+import { LISTBOX, recipe, ROWS } from "#transfer/recipe.ts";
+import page from "#transfer/transfer.specimen.tsx";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("covers every axis in the scenes of its specimen", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("leaves no scene naming a value the recipe lacks", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("references a token on every value a theme has to be able to change", () => {
     expect(
       recipeViolations(recipe, {
         names: ["Transfer"],
-        // A transfer runs no machine and stamps no parts. Every slot is this recipe's own.
+        // The transfer does not run a machine, so every slot is the recipe's own.
         parts: ["root", "side", "controls", "control"],
       }),
     ).toStrictEqual([]);
   });
 
-  it("names its class transfer", () => {
+  it("sets className to transfer", () => {
     expect(recipe.className).toBe("transfer");
   });
 
-  it("styles the four parts a transfer draws", () => {
+  it("declares four slots", () => {
     expect(recipe.slots).toHaveLength(4);
   });
 
-  it("offers the one axis a transfer takes", () => {
-    expect(axesOf(recipe)).toStrictEqual(["size"]);
+  it("declares the palette and size axes", () => {
+    expect(axesOf(recipe)).toStrictEqual(["palette", "size"]);
   });
 
-  it("draws at the middle size when nothing is asked for", () => {
+  it("sets the palette on the root", () => {
+    expect(recipe.variants?.["palette"]?.["info"]).toStrictEqual({
+      root: { colorPalette: "info" },
+    });
+  });
+
+  it("emits every palette", () => {
+    expect(recipe.staticCss).toContainEqual({
+      palette: ["primary", "secondary", "accent", "neutral", "info", "success", "warning", "error"],
+    });
+  });
+
+  it("defaults size to md", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md" });
   });
 
-  it("gives both sides the same share of the width", () => {
+  it("gives both sides an equal share of the width", () => {
     expect(recipe.base?.["side"]).toMatchObject({ flex: "1", minInlineSize: "0" });
   });
 
-  it("stands the controls against the middle of the pair rather than its first row", () => {
+  it("sizes a side's list from the row height and --transfer-rows", () => {
+    expect(recipe.base?.["side"]).toMatchObject({
+      "& .listbox__content": { minBlockSize: `calc(var(--listbox-row) * var(${ROWS}))` },
+    });
+  });
+
+  it("selects the listbox by its recipe's class name", () => {
+    expect(LISTBOX).toBe(listbox.className);
+  });
+
+  it("stretches a side's list frame", () => {
+    expect(recipe.base?.["side"]).toMatchObject({ "& .listbox__frame": { flex: "1" } });
+  });
+
+  it("centres the controls on the pair's height", () => {
     expect(recipe.base?.["controls"]).toMatchObject({ alignSelf: "center" });
   });
 
-  it("draws a control a step below the size the lists take", () => {
+  it("sizes a control one control size below the transfer's", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["control"]).toMatchObject({
       boxSize: "calc({sizes.control.sm} * var(--density, 1))",
     });
   });
 
-  it("tracks every tag under the Transfer namespace", () => {
+  it("matches every Transfer tag", () => {
     expect(recipe.jsx).toStrictEqual([/^Transfer(\.\w+)?$/u]);
   });
 });

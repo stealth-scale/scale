@@ -1,6 +1,7 @@
 /**
- * Supplies what a package that renders adds on top of a tier from `@stealthscale/vite-config`,
- * through {@link layers} in a package and {@link workspace} at the repository root.
+ * Entry point for the layers a package that renders adds to a tier from
+ * `@stealthscale/vite-config`. A package calls {@link layers} and the repository root calls
+ * {@link workspace}.
  *
  * @packageDocumentation
  */

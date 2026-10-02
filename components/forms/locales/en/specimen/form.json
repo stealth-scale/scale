@@ -1,0 +1,683 @@
+{
+  "about": "Renders a form from a JSON Schema, or from fields written by hand, with the library's controls. The schema picks each field's control, the presentation lays the fields out, and every word comes from the catalogue under the form's identifier.",
+  "account": {
+    "errors": {
+      "website": {
+        "format": "Enter a web address like https://example.com."
+      }
+    },
+    "fields": {
+      "bio": {
+        "label": "About you"
+      },
+      "channels": {
+        "label": "Reach me by",
+        "options": {
+          "chat": "Chat",
+          "email": "Email",
+          "sms": "Text message"
+        }
+      },
+      "country": {
+        "label": "Country",
+        "options": {
+          "be": "Belgium",
+          "de": "Germany",
+          "fr": "France",
+          "gb": "United Kingdom",
+          "nl": "Netherlands",
+          "us": "United States"
+        },
+        "placeholder": "Choose a country"
+      },
+      "email": {
+        "label": "Email address"
+      },
+      "name": {
+        "label": "Full name"
+      },
+      "password": {
+        "label": "Password"
+      },
+      "plan": {
+        "label": "Plan",
+        "options": {
+          "business": "Business",
+          "starter": "Starter",
+          "team": "Team"
+        }
+      },
+      "seats": {
+        "label": "Seats"
+      },
+      "start": {
+        "label": "Start date"
+      },
+      "sync": {
+        "label": "Sync settings across devices"
+      },
+      "updates": {
+        "label": "Send me product news"
+      },
+      "website": {
+        "label": "Website"
+      }
+    }
+  },
+  "billing": {
+    "actions": {
+      "submit": "Save billing details"
+    },
+    "errors": {
+      "company": {
+        "minLength": "Enter the company's name."
+      },
+      "email": {
+        "minLength": "Enter your email address."
+      },
+      "invoices": {
+        "minLength": "Enter the address invoices go to."
+      },
+      "name": {
+        "minLength": "Enter your name."
+      },
+      "vat": {
+        "pattern": "Enter a VAT number like NL123456789B01."
+      }
+    },
+    "fields": {
+      "company": {
+        "label": "Company name"
+      },
+      "elsewhere": {
+        "label": "Send invoices to another email address"
+      },
+      "email": {
+        "label": "Email address"
+      },
+      "invoices": {
+        "label": "Invoice email address"
+      },
+      "kind": {
+        "label": "Account type",
+        "options": {
+          "business": "Business",
+          "personal": "Personal"
+        }
+      },
+      "name": {
+        "label": "Full name"
+      },
+      "vat": {
+        "description": "Two letters for the country, then the number.",
+        "label": "VAT number"
+      }
+    }
+  },
+  "checkout": {
+    "actions": {
+      "submit": "Continue to payment"
+    },
+    "errors": {
+      "city": {
+        "minLength": "Enter the city."
+      },
+      "email": {
+        "minLength": "Enter your email address."
+      },
+      "first": {
+        "minLength": "Enter your first name."
+      },
+      "last": {
+        "minLength": "Enter your last name."
+      },
+      "postcode": {
+        "minLength": "Enter the postcode."
+      },
+      "street": {
+        "minLength": "Enter the street and number."
+      }
+    },
+    "fields": {
+      "city": {
+        "label": "City"
+      },
+      "email": {
+        "description": "We send the receipt here.",
+        "label": "Email address"
+      },
+      "first": {
+        "label": "First name"
+      },
+      "last": {
+        "label": "Last name"
+      },
+      "note": {
+        "description": "Printed on a card in the box.",
+        "label": "Gift note"
+      },
+      "phone": {
+        "label": "Phone number"
+      },
+      "postcode": {
+        "label": "Postcode"
+      },
+      "street": {
+        "label": "Street and number"
+      }
+    },
+    "groups": {
+      "address": {
+        "legend": "Delivery address"
+      },
+      "contact": {
+        "legend": "Contact"
+      },
+      "gift": {
+        "legend": "Add a gift note"
+      }
+    }
+  },
+  "conditional": {
+    "about": "Fields the schema declares under a condition, through `if` and `then` in `allOf`. The company and its VAT number appear for a business account, and the invoice address appears once the box is ticked.",
+    "title": "Conditional fields"
+  },
+  "confirmation": {
+    "about": "A new password typed twice. The confirmation states `\"x-matches\": \"password\"`, a keyword the form's engine registers through `createEngine`, so the schema refuses a confirmation that differs, together with every other rule. The schema runs on submit and, after a refused submit, on every change, so the error goes as soon as the two match. Each box has a button that shows the password.",
+    "title": "Password confirmation"
+  },
+  "contact": {
+    "actions": {
+      "submit": "Send message"
+    },
+    "errors": {
+      "company": {
+        "minLength": "Enter your company's name."
+      },
+      "email": {
+        "minLength": "Enter your work email address."
+      },
+      "name": {
+        "minLength": "Enter your name."
+      },
+      "size": {
+        "enum": "Choose the size of your company."
+      }
+    },
+    "fields": {
+      "company": {
+        "label": "Company"
+      },
+      "email": {
+        "label": "Work email address"
+      },
+      "message": {
+        "label": "How can we help?"
+      },
+      "name": {
+        "label": "Full name"
+      },
+      "size": {
+        "label": "Company size",
+        "options": {
+          "1-10": "1 to 10 people",
+          "1001-5000": "1,001 to 5,000 people",
+          "11-50": "11 to 50 people",
+          "201-1000": "201 to 1,000 people",
+          "5001+": "More than 5,000 people",
+          "51-200": "51 to 200 people"
+        },
+        "placeholder": "Choose a size"
+      }
+    }
+  },
+  "controls": {
+    "about": "Each control a schema picks. A string renders a text box whose kind follows `format`, `format: \"password\"` a password box with a button that shows it, a number a number input, `format: \"date\"` a date input, an `enum` of up to five choices a radio group, up to ten a select and more a combobox, an array of choices a group of checkboxes, and a boolean a checkbox. The presentation names the textarea and the switch.",
+    "title": "Controls"
+  },
+  "errors": {
+    "const": "Tick the box to continue.",
+    "enum": "Choose one of the options.",
+    "format": "Enter an address like name@example.com.",
+    "maxItems": "Choose at most {{maxItems}}.",
+    "maxLength": "Keep it under {{maxLength}} characters.",
+    "maximum": "Enter {{maximum}} or less.",
+    "minItems": "Choose at least {{minItems}}.",
+    "minLength": "Enter at least {{minLength}} characters.",
+    "minimum": "Enter {{minimum}} or more."
+  },
+  "floating": {
+    "about": "Labels that rest inside each empty text box and rise above it once the box takes focus or a value, through `orientation=\"floating\"` on the form. The label keeps its row, so nothing under the field moves. The select keeps its label above it, because its trigger shows the choice or the placeholder.",
+    "title": "Floating labels"
+  },
+  "freelancer": {
+    "actions": {
+      "submit": "Save profile"
+    },
+    "errors": {
+      "country": {
+        "enum": "Choose where you work from."
+      },
+      "phone": {
+        "format": "Enter a whole phone number.",
+        "minLength": "Enter a phone number."
+      },
+      "skills": {
+        "maxItems": "List at most {{maxItems}} skills."
+      }
+    },
+    "fields": {
+      "country": {
+        "label": "Country",
+        "options": {
+          "at": "Austria",
+          "be": "Belgium",
+          "ch": "Switzerland",
+          "cz": "Czechia",
+          "de": "Germany",
+          "dk": "Denmark",
+          "es": "Spain",
+          "fi": "Finland",
+          "fr": "France",
+          "gb": "United Kingdom",
+          "ie": "Ireland",
+          "it": "Italy",
+          "nl": "Netherlands",
+          "no": "Norway",
+          "pl": "Poland",
+          "pt": "Portugal",
+          "se": "Sweden"
+        },
+        "placeholder": "Type to search"
+      },
+      "phone": {
+        "label": "Phone number"
+      },
+      "postcode": {
+        "label": "Postcode"
+      },
+      "skills": {
+        "description": "Press Enter after each skill.",
+        "label": "Skills"
+      }
+    }
+  },
+  "glyphs": {
+    "about": "The same form with lucide glyphs and with none. The form passes its glyphs to every field that renders a mark. Without them, a select has no chevron, a checked box shows its fill alone, a number input has no steppers, and a closed group has no chevron.",
+    "title": "Glyphs"
+  },
+  "invoice": {
+    "amount": "Amount",
+    "customer": {
+      "label": "Customer",
+      "missing": "Enter who the invoice is for."
+    },
+    "due": "Due date",
+    "email": "Customer's email address",
+    "reminder": "Remind the customer a week before the due date",
+    "send": "Send invoice"
+  },
+  "layout": {
+    "about": "A fieldset per group, named by its legend and opened by a hairline, with twice the gap of the fields around it. The contact group lays its fields out in a row, the address group in two columns with the street across both, and the gift note starts closed. Two columns fold to one where the fields do not fit. Most fields are required, so the form marks the optional ones, and the postcode box is short.",
+    "title": "Groups and columns"
+  },
+  "marks": {
+    "optional": "(optional)"
+  },
+  "onboarding": {
+    "actions": {
+      "submit": "Create workspace"
+    },
+    "errors": {
+      "email": {
+        "minLength": "Enter your work email address."
+      },
+      "name": {
+        "minLength": "Enter your name."
+      },
+      "plan": {
+        "enum": "Choose a plan."
+      },
+      "size": {
+        "enum": "Choose the size of your team."
+      },
+      "terms": {
+        "const": "Accept the terms to continue."
+      },
+      "workspace": {
+        "minLength": "Use at least {{minLength}} characters."
+      }
+    },
+    "fields": {
+      "email": {
+        "label": "Work email address"
+      },
+      "name": {
+        "label": "Your name"
+      },
+      "plan": {
+        "label": "Plan",
+        "options": {
+          "business": "Business",
+          "starter": "Starter",
+          "team": "Team"
+        }
+      },
+      "size": {
+        "label": "Team size",
+        "options": {
+          "1": "Just me",
+          "11-50": "11 to 50",
+          "2-10": "2 to 10",
+          "51-200": "51 to 200"
+        }
+      },
+      "terms": {
+        "label": "I accept the terms of service"
+      },
+      "workspace": {
+        "description": "Everyone you invite sees this name.",
+        "label": "Workspace name"
+      }
+    },
+    "steps": {
+      "plan": {
+        "label": "Plan"
+      },
+      "team": {
+        "label": "Team"
+      },
+      "you": {
+        "label": "You"
+      }
+    }
+  },
+  "password": {
+    "actions": {
+      "submit": "Change password"
+    },
+    "errors": {
+      "confirm": {
+        "minLength": "Type the new password again.",
+        "x-matches": "The two new passwords differ."
+      },
+      "current": {
+        "minLength": "Enter your current password."
+      },
+      "password": {
+        "minLength": "Use at least {{minLength}} characters."
+      }
+    },
+    "fields": {
+      "confirm": {
+        "label": "Confirm the new password"
+      },
+      "current": {
+        "label": "Current password"
+      },
+      "password": {
+        "description": "At least 12 characters.",
+        "label": "New password"
+      }
+    }
+  },
+  "payout": {
+    "actions": {
+      "add": "Add an account",
+      "remove": "Remove",
+      "removeItem": "Remove account {{number}}",
+      "submit": "Save payout accounts"
+    },
+    "errors": {
+      "accounts[]": {
+        "holder": {
+          "minLength": "Enter the account holder."
+        },
+        "iban": {
+          "format": "Check the IBAN: its check digits do not match.",
+          "minLength": "Enter the IBAN."
+        },
+        "share": {
+          "maximum": "Enter {{maximum}} percent or less.",
+          "minimum": "Enter {{minimum}} percent or more."
+        }
+      }
+    },
+    "fields": {
+      "accounts[]": {
+        "holder": {
+          "label": "Account holder"
+        },
+        "iban": {
+          "label": "IBAN"
+        },
+        "share": {
+          "description": "Percent of every payout.",
+          "label": "Share"
+        }
+      }
+    },
+    "groups": {
+      "accounts": {
+        "legend": "Payout accounts"
+      }
+    }
+  },
+  "preferences": {
+    "actions": {
+      "submit": "Save preferences"
+    },
+    "errors": {
+      "name": {
+        "minLength": "Enter a display name."
+      }
+    },
+    "fields": {
+      "channels": {
+        "label": "Notify me by",
+        "options": {
+          "email": "Email",
+          "push": "Push notification",
+          "sms": "Text message"
+        }
+      },
+      "digest": {
+        "description": "One email with everything from the day.",
+        "label": "Daily digest"
+      },
+      "hour": {
+        "description": "From 0 to 23, in your time zone.",
+        "label": "Digest hour"
+      },
+      "language": {
+        "label": "Language",
+        "options": {
+          "de": "Deutsch",
+          "en": "English",
+          "es": "Español",
+          "fr": "Français",
+          "it": "Italiano",
+          "nl": "Nederlands"
+        }
+      },
+      "name": {
+        "label": "Display name"
+      }
+    },
+    "steps": {
+      "notifications": {
+        "label": "Notifications"
+      },
+      "profile": {
+        "label": "Profile"
+      }
+    }
+  },
+  "presented": {
+    "about": "Controls a presentation picks through `control`: cards with the words the catalogue gives under each choice, segments for a short choice, a slider for a bounded number, a date picker with a calendar, and checkbox cards for several choices.",
+    "title": "Controls a presentation picks"
+  },
+  "register": {
+    "actions": {
+      "submit": "Create account"
+    },
+    "errors": {
+      "email": {
+        "minLength": "Enter your email address."
+      },
+      "password": {
+        "minLength": "Use at least {{minLength}} characters."
+      }
+    },
+    "fields": {
+      "confirm": {
+        "label": "Repeat the password"
+      },
+      "email": {
+        "label": "Email address"
+      },
+      "password": {
+        "label": "Password"
+      }
+    },
+    "mismatch": "The two passwords differ.",
+    "taken": "An account with this email address exists. Sign in instead."
+  },
+  "repeat": {
+    "about": "A group rendered once per item of an array, from the `minItems` to the `maxItems` the schema states. Each remove button is named by its item's number, and focus moves into an item after an add or a remove.",
+    "title": "Repeat group"
+  },
+  "signin": {
+    "actions": {
+      "submit": "Sign in"
+    },
+    "errors": {
+      "email": {
+        "minLength": "Enter your email address."
+      },
+      "password": {
+        "minLength": "Use at least {{minLength}} characters."
+      }
+    },
+    "fields": {
+      "email": {
+        "label": "Email address"
+      },
+      "password": {
+        "description": "At least 8 characters.",
+        "label": "Password"
+      },
+      "remember": {
+        "label": "Keep me signed in on this device"
+      }
+    }
+  },
+  "size": {
+    "about": "Every size. The size sets the gap between the fields, and every field of the form takes it.",
+    "title": "Sizes"
+  },
+  "subscription": {
+    "actions": {
+      "submit": "Start subscription"
+    },
+    "errors": {
+      "plan": {
+        "enum": "Choose a plan."
+      },
+      "start": {
+        "minLength": "Choose the day the subscription starts."
+      }
+    },
+    "fields": {
+      "extras": {
+        "descriptions": {
+          "audit": "Every change to the workspace, kept for a year.",
+          "sso": "Sign in through your identity provider.",
+          "support": "A reply within four working hours."
+        },
+        "label": "Add-ons",
+        "options": {
+          "audit": "Audit log",
+          "sso": "Single sign-on",
+          "support": "Priority support"
+        }
+      },
+      "period": {
+        "label": "Billing",
+        "options": {
+          "month": "Monthly",
+          "year": "Yearly"
+        }
+      },
+      "plan": {
+        "descriptions": {
+          "business": "Unlimited projects, with roles and single sign-on.",
+          "starter": "One project, for trying things out.",
+          "team": "Ten projects and shared billing."
+        },
+        "label": "Plan",
+        "options": {
+          "business": "Business",
+          "starter": "Starter",
+          "team": "Team"
+        }
+      },
+      "seats": {
+        "label": "Seats"
+      },
+      "start": {
+        "label": "Start date"
+      }
+    }
+  },
+  "summary": {
+    "about": "A form validator refuses the whole value. The form's own error shows in the region above the fields, which takes focus, and a rule across two fields shows its error on the second. The address ada@example.com is taken.",
+    "title": "Form errors"
+  },
+  "tabs": {
+    "about": "The steps as tabs. A person moves between them in any order, focus remains on the tab, and the submit button follows the panels.",
+    "title": "Tabs"
+  },
+  "team": {
+    "fields": {
+      "country": {
+        "label": "Billing country",
+        "options": {
+          "be": "Belgium",
+          "de": "Germany",
+          "fr": "France",
+          "gb": "United Kingdom",
+          "nl": "Netherlands",
+          "us": "United States"
+        }
+      },
+      "invoices": {
+        "label": "Email every invoice"
+      },
+      "order": {
+        "label": "Purchase order number"
+      },
+      "seats": {
+        "label": "Seats"
+      }
+    },
+    "groups": {
+      "more": {
+        "legend": "More options"
+      }
+    }
+  },
+  "title": "Form",
+  "typed": {
+    "about": "Values a person types into a shape. More than ten countries render a combobox that narrows as a person types. The phone number takes the binding's `phone` format, and the form stores it in E.164. The postcode is masked as `9999 AA` through `control: \"mask\"`, and the skills are tags.",
+    "title": "Masks, phone numbers and tags"
+  },
+  "wizard": {
+    "about": "One step at a time. Next validates the step and moves focus to the next step's heading, Back validates nothing, and the last step shows the submit button.",
+    "title": "Wizard"
+  },
+  "written": {
+    "about": "A form built from the library's own options, with each field written in `form.AppField` and its words passed as props. The customer's validator runs on blur and on submit.",
+    "title": "Written by hand"
+  }
+}

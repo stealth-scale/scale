@@ -1,12 +1,11 @@
 /**
- * Draws the mark that opens a card's header.
+ * Renders the mark at the start of a card's header.
  *
  * @remarks
- *   The element is `div` and holds a glyph, an avatar or a status dot. It takes the first column
- *   of the header's grid and spans both of its lines, so a mark sits against the title and the
- *   description together rather than against one of them.
- *   A mark that carries meaning is labelled by the caller. A decorative one states `aria-hidden`,
- *   which keeps a screen reader from reading a glyph before every card.
+ *   The element is a `div` in the header grid's first column, spanning the title and description
+ *   rows. The recipe sizes an `img` placed directly inside it as a round avatar of 32 to 56px and
+ *   an `svg` to the card size's icon size. Label a meaningful mark. Give a decorative
+ *   icon `aria-hidden` and a decorative image `alt=""`.
  */
 
 import { type ComponentProps } from "react";
@@ -14,11 +13,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#card/context.ts";
 
 /**
- * Marks the card, beside what it is called.
+ * Renders the indicator slot at the start of the header.
  */
 export const Indicator = withContext("div", "indicator");
 
 /**
- * Describes what the mark takes: everything a styled div takes.
+ * Describes the props of `Indicator`: the props of a `div`.
  */
 export type IndicatorProps = ComponentProps<typeof Indicator>;

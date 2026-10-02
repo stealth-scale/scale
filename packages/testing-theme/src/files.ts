@@ -1,10 +1,9 @@
 /**
- * Lists the recipe files and the extension files under a package's source, read as text.
+ * Finds the recipe files and the extension files under a package's source by reading them as text.
  *
  * @remarks
- *   A file is read for the line that exports its recipe or its extension rather than imported, so
- *   a specification about a preset never evaluates a recipe, and a file that exports neither is
- *   passed over.
+ *   A file is matched on the line that exports its recipe or its extension, so a specification
+ *   about a preset never evaluates a recipe. A file that exports neither is skipped.
  */
 
 import { readdirSync, readFileSync } from "node:fs";
@@ -17,18 +16,18 @@ import { camelCased } from "#tokens.ts";
  */
 export interface RecipeFile {
   /**
-   * The file, relative to the directory searched.
+   * Gives the path of the file, relative to the directory searched.
    */
   file: string;
 
   /**
-   * The key the preset lists the recipe under: the file's name in camel case, or the directory's
-   * where the file is named `recipe.ts`.
+   * Gives the key the preset lists the recipe under: the file's name in camel case, or the
+   * directory's where the file is named `recipe.ts`.
    */
   key: string;
 
   /**
-   * Whether the file defines a slot recipe.
+   * Reports whether the file defines a slot recipe rather than a plain one.
    */
   slotted: boolean;
 }
@@ -38,12 +37,12 @@ export interface RecipeFile {
  */
 export interface ExtensionFile {
   /**
-   * The file, relative to the directory searched.
+   * Gives the path of the file, relative to the directory searched.
    */
   file: string;
 
   /**
-   * The key the theme lists the extension under, which is the file name in camel case.
+   * Gives the key the theme lists the extension under, the file name in camel case.
    */
   key: string;
 }
@@ -52,14 +51,14 @@ export interface ExtensionFile {
  * Matches the line a recipe file exports its recipe on.
  *
  * @remarks
- *   The name alone, because the definition may carry a type and may be written on the next line.
- *   Matching the definition as well left such a file unread, and the preset check then reported
- *   the registered key as backed by no file and passed over a second recipe file.
+ *   The pattern stops at the name, because the export can declare a type and put the definition on
+ *   the next line. A pattern reaching the definition would leave such a file unread, and the preset
+ *   check would then report the registered key as backed by no file and skip a second recipe file.
  */
 const RECIPE = /^export const recipe\b/mu;
 
 /**
- * Matches the call a slot recipe is defined by, wherever the file writes it.
+ * Matches the `defineSlotRecipe` call, wherever in the file it sits.
  */
 const SLOTTED = /\bdefineSlotRecipe\s*\(/u;
 
@@ -69,12 +68,12 @@ const SLOTTED = /\bdefineSlotRecipe\s*\(/u;
 const EXTENSION = /^export const extension\b/mu;
 
 /**
- * Fixes the suffix a recipe file carries where it is named for its recipe.
+ * Gives the suffix of a recipe file named after its own recipe.
  */
 const RECIPE_SUFFIX = ".recipe.ts";
 
 /**
- * Fixes the name a recipe file carries where its directory is named for its recipe.
+ * Gives the name of a recipe file whose directory is named after the recipe.
  */
 const RECIPE_FILE = "recipe.ts";
 
@@ -84,7 +83,8 @@ const RECIPE_FILE = "recipe.ts";
 const EXTENSION_DIRECTORIES = ["recipes", "slot-recipes"];
 
 /**
- * Lists every source file under a directory, relative to it, specifications left out.
+ * Lists every `.ts` file under a directory in sorted order, relative to it, leaving out the
+ * specifications, and returns nothing for a directory that cannot be read.
  */
 function sourcesUnder(at: string): readonly string[] {
   try {
@@ -100,15 +100,15 @@ function sourcesUnder(at: string): readonly string[] {
 }
 
 /**
- * Reports whether a file is named as a recipe file, by its suffix or by its bare name.
+ * Returns true when a file is named `*.recipe.ts` or `recipe.ts`.
  */
 function isRecipeFile(file: string): boolean {
   return file.endsWith(RECIPE_SUFFIX) || basename(file) === RECIPE_FILE;
 }
 
 /**
- * Writes the key a recipe file registers under: its own name, or its directory's where the file
- * is named `recipe.ts`.
+ * Returns the camel-cased key a recipe file registers under, taken from its directory where the
+ * file is named `recipe.ts`.
  */
 function keyOf(file: string): string {
   const name = basename(file);
@@ -117,8 +117,8 @@ function keyOf(file: string): string {
 }
 
 /**
- * Lists every recipe file under a directory: a file named `*.recipe.ts` or `recipe.ts` that
- * exports `recipe`.
+ * Lists every file under a directory named `*.recipe.ts` or `recipe.ts` that exports `recipe`,
+ * with the key it registers under and whether it defines slots.
  */
 export function recipeFiles(at: string): readonly RecipeFile[] {
   return sourcesUnder(at)
@@ -133,8 +133,8 @@ export function recipeFiles(at: string): readonly RecipeFile[] {
 }
 
 /**
- * Lists every extension file under a theme's source: a file under `recipes/` or `slot-recipes/`
- * that exports `extension`.
+ * Lists every file under a theme's `recipes/` and `slot-recipes/` that exports `extension`, with
+ * the key it registers under.
  */
 export function extensionFiles(at: string): readonly ExtensionFile[] {
   return EXTENSION_DIRECTORIES.flatMap((directory) =>

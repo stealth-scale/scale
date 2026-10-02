@@ -1,10 +1,10 @@
 /**
- * Binds the table of contents' recipe to the elements that draw its parts.
+ * Binds the table of contents slot recipe to React.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. Apart from the machine, because the recipe decides how a part
- *   is drawn and the machine decides what it does.
+ *   The binding is a separate module from the recipe, because an application's compiler imports the
+ *   recipe at build time and the binding needs the React runtime. It is separate from the machine,
+ *   because the recipe sets the styles and the machine sets the state.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";
@@ -12,6 +12,6 @@ import { createSlotRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#toc/recipe.ts";
 
 /**
- * Binds the recipe once. The root provides the variants and every other part reads them.
+ * Factories for the parts. The root resolves the variants once and the other parts read them.
  */
 export const { withContext, withProvider } = createSlotRecipeContext(recipe);

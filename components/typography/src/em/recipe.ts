@@ -1,25 +1,31 @@
 /**
- * Defines the styles an em element is drawn with.
+ * Styles a stressed run's italic face, text ink and entrance motion.
  *
  * @remarks
- *   The base declares `fontStyle` rather than relying on the browser's default for the element.
- *   A theme can extend only a declaration the recipe makes, and a font family that ships no italic
- *   face needs an explicit substitute. The ink and the entrance are axes because a stressed run
- *   carries a status as often as a paragraph does, and a run revealed as a page loads is the same
- *   motion every other component reads.
+ *   The base declares `font-style: italic` instead of relying on the browser default, so a theme
+ *   whose font family has no italic face can extend the declaration. The recipe has no `palette`
+ *   axis, because a text ink is not a colour of its own, and no `effect` axis, because a stressed
+ *   run renders no box.
  */
 
 import { defineRecipe, motionVariants, toneVariants } from "@stealthscale/theme/authoring";
 
 /**
- * Applies the italic style, in the ink the line is written in until a caller picks another.
+ * Sets the italic face and inherits the ink of the line.
  */
 export const recipe = defineRecipe({
   base: { fontStyle: "italic" },
   className: "em",
   jsx: [/Em$/u],
   variants: {
+    /**
+     * Entrance animation. Each value reads the theme's animation style of the same name.
+     */
     motion: motionVariants(["fade", "rise", "reveal"]),
+
+    /**
+     * Foreground token of the text.
+     */
     tone: toneVariants(),
   },
 });

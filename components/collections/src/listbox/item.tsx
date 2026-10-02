@@ -1,10 +1,10 @@
 /**
- * Draws one row a person picks.
+ * Renders one row of the list.
  *
  * @remarks
- *   The element is `div` carrying `role="option"`, and it takes the row it stands for so the
- *   machine can name it, mark it and say whether it is chosen. A row carries no tab stop: focus
- *   rests on the list and the highlight moves.
+ *   The element is a `div` with `role="option"`. It takes the collection item it renders, so the
+ *   machine sets its identifier, its selected state and its highlight. A row has no tab stop,
+ *   because focus stays on the list.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,25 +15,25 @@ import { withContext } from "#listbox/context.ts";
 import { type ListboxItem, useListbox } from "#listbox/machine.ts";
 
 /**
- * Draws the row at the size the root states.
+ * Renders the `div` with the listbox's item class.
  */
 const Offered = withContext("div", "item");
 
 /**
- * Describes what a row takes.
+ * Describes the props of a row: its collection item and the props of a `div`.
  */
 export interface ItemProps extends ComponentProps<typeof Offered> {
   /**
-   * The row of the collection this element stands for.
+   * Collection item the row renders.
    */
   readonly item: ListboxItem;
 }
 
 /**
- * Offers one row, marked where it is chosen and highlighted where a reader is on it.
+ * Renders a row with the machine's item props.
  *
- * @param props - The row it stands for, and everything a styled list item takes.
- * @returns The row, carrying its role and its state.
+ * @param props - The collection item, and the attributes and children of the `div` element.
+ * @returns The `div` element with `role="option"`.
  */
 export function Item({ item, ...rest }: ItemProps): ReactElement {
   const api = useListbox();

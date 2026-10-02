@@ -7,13 +7,13 @@ import { Mark } from "#switcher/mark.ts";
 import { held } from "#switcher/parts.fixtures.tsx";
 
 describe("Mark", () => {
-  it("draws a span inside the control it needs above it", () => {
+  it("renders a span inside the trigger", () => {
     const { container } = render(held(<Mark>A</Mark>));
 
     expect(slotElement(container, "switcher", "mark").tagName).toBe("SPAN");
   });
 
-  it("keeps the mark out of the accessibility tree", () => {
+  it("defaults aria-hidden to true", () => {
     const { container } = render(held(<Mark>A</Mark>));
 
     expect(slotElement(container, "switcher", "mark").getAttribute("aria-hidden")).toBe("true");

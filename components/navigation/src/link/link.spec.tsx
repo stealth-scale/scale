@@ -12,25 +12,25 @@ describe("Link", () => {
     expect(violations(Link, { as: true, children: true, element: "A" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule", async () => {
+  it("returns no accessibility violation", async () => {
     await expect(
       accessibilityViolations(Link, { props: { children: "Read on", href: "#read" } }),
     ).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(recipe, (props) => render(<Link {...props}>Read on</Link>).container),
     ).toStrictEqual([]);
   });
 
-  it("keeps the address a caller states", () => {
+  it("forwards href to the anchor", () => {
     const { container } = render(<Link href="/invoices">Invoices</Link>);
 
     expect(recipeElement(container, "link").getAttribute("href")).toBe("/invoices");
   });
 
-  it("draws the element as names so a router's own link keeps its routing", () => {
+  it("renders the element passed as as", () => {
     const { container } = render(<Link as="button">Read on</Link>);
 
     expect(recipeElement(container, "link").tagName).toBe("BUTTON");

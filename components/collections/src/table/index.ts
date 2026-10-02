@@ -1,11 +1,9 @@
 /**
- * Publishes the table's parts, which a caller composes as `Table.Scroller` holding `Table.Root`
- * and the bands a table is built from.
+ * Exports the table's parts, `Table.Simple` and the column types.
  *
  * @remarks
- *   `Table.Simple` draws a whole table from one list of columns and is what most callers want. It
- *   is built from the parts published beside it, which a table that wants something else composes
- *   itself.
+ *   `Table.Simple` renders a whole table from a list of columns and a list of rows. A table with
+ *   another structure composes the parts inside `Table.Scroller`.
  */
 
 export { type Branch, type Column as ColumnOf, type Leaf, type Named } from "#table/columns.ts";

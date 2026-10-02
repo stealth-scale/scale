@@ -42,6 +42,9 @@ export interface RatedProps {
  *   The row is a stack and states no alignment. A stack running across centres its children
  *   already, and `baseline` set over that stood the mark a mark's height above the words: an inline
  *   drawing takes its bottom edge as its baseline.
+ *   The line states no margin of its own. It is drawn beside the control that ran the audit, and
+ *   what holds the two together at the start of the footer is the end margin the source control
+ *   states.
  * @param props - The audit to report.
  * @returns The line, or nothing until an audit has run.
  */
@@ -53,13 +56,7 @@ export function Rated({ audit }: RatedProps): null | ReactElement {
   const clean = audit.findings.length === 0;
 
   return (
-    <Text
-      aria-live="polite"
-      marginInlineEnd="auto"
-      size="sm"
-      tone={clean ? "success" : "error"}
-      weight="medium"
-    >
+    <Text aria-live="polite" size="sm" tone={clean ? "success" : "error"} weight="medium">
       <Stack as="span" direction="row" gap="xs">
         {clean ? (
           <CircleCheckIcon aria-hidden size="1em" />

@@ -1,41 +1,43 @@
 /**
- * States what a popover is: a panel that opens beside a control and holds more than a few words.
+ * Recipe for the popover: a panel beside its trigger, with a heading, a description, a close
+ * button and an arrow.
  *
  * @remarks
- *   The machine names no root, because a popover is a control and a panel that floats beside it
- *   rather than a thing that frames the two. This recipe adds one anyway, drawn with
- *   `display: contents` so it takes part in no layout, because the control and the panel are
- *   siblings and a slot recipe hands its variants down from an element above them both.
- *   The positioner is placed by the machine, which measures the control and writes the panel's
- *   position as inline styles, so this recipe states nothing about where the panel goes. It grows
- *   from whichever corner the machine placed it against, which is a custom property the machine
- *   sets.
- *   The panel is never narrower than the control that opened it. The machine measures that control
- *   already and writes the width as a custom property, and a panel narrower than its trigger reads
- *   as belonging to something else on the page. It is a minimum, so a panel whose contents need
- *   more room still takes it.
- *   A popover is louder than a tooltip. It holds a heading, a paragraph and often a control, so it
- *   reads at body text and takes the room a panel needs.
- *   The control takes the cursor, the focus ring and the disabled look every control in the library
- *   takes, and no fill, no edge and no room of its own. Drawn with none of them it fell back to the
- *   browser's own ring, a hairline in the browser's ink rather than the three the theme draws in
- *   the palette's focus colour, and to the arrow cursor. What it looks like past that is the
- *   caller's: a caller who wants a button draws one through `as`, and the library's own button is
- *   then what a theme moves.
+ *   The machine has no root part. The recipe adds a root with `display: contents`, because the
+ *   trigger and the positioner are siblings and a slot recipe passes its variants from an element
+ *   above both. The machine writes the positioner's position inline, so the recipe sets no
+ *   position. The panel scales from the machine's `--transform-origin` and is at least as wide as
+ *   the trigger, `--reference-width`. The title and the description read the body role at the
+ *   panel's size, the title in the semibold weight, because a panel beside a control does not
+ *   start a section of the page. The weight is a compound over every size, because the size's
+ *   text style states the role's weight in the variants layer, which applies over the base.
+ *   The trigger takes a control's cursor, focus ring and disabled look, and no fill, edge or
+ *   padding, so a caller passes a button through `as`. The recipe has no `palette` axis, because
+ *   every look uses a neutral surface, and no `effect` axis, because a panel is not a control.
  */
 
 import {
+  below,
   defineSlotRecipe,
   dense,
-  insetSizes,
   interactive,
   motion,
   onSlots,
+  sizeVariants,
   textSizes,
 } from "@stealthscale/theme/authoring";
 
 /**
- * Draws a surfaced popover at the middle size until a caller says otherwise.
+ * Custom property the size axis sets to the room the title leaves for the close trigger.
+ *
+ * @remarks
+ *   The close trigger is positioned absolutely, so a long title ran under it. The size axis sets
+ *   the room once, and the title reads it as its inline-end padding.
+ */
+const CLOSED = "--popover-closed";
+
+/**
+ * Defines the popover recipe: the surface look at size `md` by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -72,7 +74,7 @@ export const recipe = defineSlotRecipe({
     },
     positioner: { position: "relative" },
     root: { display: "contents" },
-    title: { fontWeight: "semibold" },
+    title: { paddingInlineEnd: `var(${CLOSED})` },
     trigger: {
       ...interactive(),
       alignItems: "center",
@@ -81,6 +83,13 @@ export const recipe = defineSlotRecipe({
     },
   },
   className: "popover",
+  compoundVariants: [
+    {
+      css: { title: { fontWeight: "semibold" } },
+      name: "titled",
+      size: ["xs", "sm", "md", "lg", "xl"],
+    },
+  ],
   defaultVariants: { size: "md", variant: "surface" },
   jsx: [/^Popover(\.\w+)?$/u],
   slots: [
@@ -98,16 +107,34 @@ export const recipe = defineSlotRecipe({
   ],
   variants: {
     /**
-     * How much room the panel takes, and how loud its heading is.
+     * Padding of the panel, text of the title and the description, and size of the close trigger.
      */
     size: onSlots({
-      content: insetSizes(),
+      /**
+       * Close trigger: a square two sizes smaller on the control scale, with a mark one size
+       * smaller on the icon scale, inset from the panel's corner by the panel's padding.
+       */
+      closeTrigger: sizeVariants((size) => ({
+        "& > svg": { boxSize: dense(`{sizes.icon.${below(size)}}`) },
+        boxSize: dense(`{sizes.control.${below(below(size))}}`),
+        insetBlockStart: dense(`{spacing.inset.${size}}`),
+        insetInlineEnd: dense(`{spacing.inset.${size}}`),
+      })),
+      content: sizeVariants((size) => ({
+        [CLOSED]: `calc(${dense(`{sizes.control.${below(below(size))}}`)} + ${dense(`{spacing.gap.${size}}`)})`,
+        padding: dense(`{spacing.inset.${size}}`),
+      })),
       description: textSizes("body"),
-      title: textSizes("heading"),
+      title: textSizes("body"),
     }),
 
     /**
-     * How the panel is set off from the page behind it.
+     * Surface of the panel: the popover surface inside a hairline edge, the panel surface with a
+     * large shadow, or the glass layer style.
+     *
+     * @remarks
+     *   The elevated panel has a transparent hairline edge, which forced colors paint in
+     *   `CanvasText`, so the panel keeps its outline where the shadow is not drawn.
      */
     variant: {
       elevated: {
@@ -115,7 +142,10 @@ export const recipe = defineSlotRecipe({
         content: {
           "--popover-surface": "colors.bg.panel",
           background: "var(--popover-surface)",
+          borderColor: "transparent",
           borderRadius: "l3",
+          borderStyle: "solid",
+          borderWidth: "hairline",
           boxShadow: "xl",
         },
       },

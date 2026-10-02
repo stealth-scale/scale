@@ -13,16 +13,19 @@ describe("scratchDir", () => {
     ).toBe(true);
   });
 
-  it("answers the same directory for the same root and another for another root", () => {
+  it("returns the same path for the same root", () => {
     expect(scratchDir("stealth-probe", "/repository/packages/one")).toBe(
       scratchDir("stealth-probe", "/repository/packages/one"),
     );
+  });
+
+  it("returns a different path for a different root", () => {
     expect(scratchDir("stealth-probe", "/repository/packages/one")).not.toBe(
       scratchDir("stealth-probe", "/repository/packages/two"),
     );
   });
 
-  it("names the root by a digest rather than by its path", () => {
+  it("omits the root's path from the directory name", () => {
     expect(scratchDir("stealth-probe", "/repository/packages/one")).not.toContain("repository");
   });
 });

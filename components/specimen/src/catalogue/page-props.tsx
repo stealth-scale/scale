@@ -1,6 +1,6 @@
 /**
- * Draws what every part of a page accepts, as one section per part, and says once what the reader
- * resolved and no table draws.
+ * Renders one section per part of a page, and the counts of what the reader resolved and no table
+ * lists.
  */
 
 import { type ReactElement } from "react";
@@ -16,22 +16,23 @@ import { type Dropped } from "#catalogue/types.ts";
 import { useWords } from "#words.ts";
 
 /**
- * Describes what the props take.
+ * Describes the props {@link PropsBody} accepts.
  */
 export interface PropsBodyProps {
   /**
-   * Why the parts could not be read, or nothing where they were or are still loading.
+   * The error the props loader rejected with. Undefined while the loader is pending and after it
+   * resolves.
    */
   readonly failure?: Error | undefined;
 
   /**
-   * Every part of the page, or nothing until they have loaded.
+   * Every part of the page. Undefined until the loader resolves.
    */
   readonly parts: readonly Part[] | undefined;
 }
 
 /**
- * Counts what the reader resolved and no table draws, across every part.
+ * Sums the conditions and the foreign properties every part dropped.
  */
 function dropped(parts: readonly Part[]): Dropped {
   return parts.reduce(
@@ -44,21 +45,16 @@ function dropped(parts: readonly Part[]): Dropped {
 }
 
 /**
- * Draws a section per part, or one line while there is nothing to draw.
+ * Renders a section per part, or one line of text when there are no parts to render.
  *
  * @remarks
- *   A page whose components the reader found nothing for says so rather than drawing an empty
- *   panel. The cases read differently: nothing loaded yet is a wait, nothing found is an answer,
- *   and a load that failed is a failure, said with its reason and the one thing a reader can do.
- *   The parts are held apart by the room a table already leaves inside itself, and no more. Each
- *   one is a panel with an edge of its own, so the edge is what parts them and a wider gap only
- *   pushes the next heading off the screen.
- *   What the reader dropped is counted once at the foot of the band rather than under every part.
- *   One root resolves to over a thousand properties of which a handful are its own, so a reader who
- *   cannot see that number reads a short table as the whole truth. Written per part it was a line
- *   between every pair of tables saying much the same thing.
- * @param props - The parts to draw, or the failure to say.
- * @returns The sections, or the line that stands in for them.
+ *   Undefined parts, an empty array and a failure are three different results: a pending load, a
+ *   page the reader found nothing for, and a load that failed. The dropped counts are summed once
+ *   at the foot of the band and not under every part, because a root component resolves to over a
+ *   thousand properties of which a handful are its own and a short table reads as the whole list
+ *   without that number.
+ * @param props - The parts to render, or the error that stopped them loading.
+ * @returns The sections, or the single line of text that stands in for them.
  */
 export function PropsBody({ failure, parts }: PropsBodyProps): ReactElement {
   const { t } = useWords();

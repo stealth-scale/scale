@@ -1,9 +1,10 @@
 /**
- * Publishes what decides what is drawn and where, and draws nothing itself. No component here
- * renders an element of its own, so the package carries no recipe and no preset, and it reaches an
- * application's bundle through here alone.
+ * Publishes the primitives every other component package builds on: the portal, which decides
+ * where content renders, and the scroll area, which scrolls a region with the theme's bars. An
+ * application's compiler reads the scroll area's recipe from the preset under `./theme`.
  *
  * @packageDocumentation
  */
 
 export * from "#portal/index.ts";
+export * as ScrollArea from "#scroll-area/index.ts";

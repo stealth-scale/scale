@@ -1,0 +1,16 @@
+{
+  "about": "Links to a route by the ID a manifest declares. RouteLink resolves the ID through the route map at render time, so a link keeps working when the route's path changes.",
+  "after": "to see every axis it offers.",
+  "before": "Open",
+  "inline": {
+    "about": "A link inside a sentence. useRouteHref resolves the route ID to its path, and createLink(Link) links to the path with the navigation package's link ink and underline.",
+    "title": "In a sentence"
+  },
+  "named": "the button's page",
+  "opens": "Open the page",
+  "resolving": {
+    "about": "One link per route ID, each resolved through the router's route map. Following a link opens the page at its current path.",
+    "title": "Resolving an ID"
+  },
+  "title": "Route link"
+}

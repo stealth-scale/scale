@@ -8,7 +8,7 @@ import { slotClass, slotClasses, variantClass } from "@stealthscale/testing-them
 import { withContext, withProvider } from "#command/context.ts";
 
 describe("context", () => {
-  it("draws the slot's class on an element it binds", () => {
+  it("applies the control slot class to the element withContext wraps", () => {
     const Panelled = withProvider("div", "root");
     const Banded = withContext("div", "control");
     const { container } = render(createElement(Panelled, null, createElement(Banded)));
@@ -16,7 +16,7 @@ describe("context", () => {
     expect(slotClasses(container, "command", "control")).toContain(slotClass("command", "control"));
   });
 
-  it("hands the panel's variants to a band below it", () => {
+  it("applies the root's size variant to a slot nested below it", () => {
     const Panelled = withProvider("div", "root");
     const Banded = withContext("div", "control");
     const { container } = render(createElement(Panelled, { size: "lg" }, createElement(Banded)));

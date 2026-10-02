@@ -1,17 +1,93 @@
 {
-  "about": "Draws a field with a mark at one end or both: a currency symbol, a unit, a glyph, or a control.",
-  "alignment": {
-    "about": "The marks on the middle of the field, and at its start, for a control that runs to several lines.",
+  "about": "Renders one field box that contains fields, marks and addons in one row or in several rows. Every item takes its own width, so a mark of any width never covers the text.",
+  "addons": {
+    "about": "An addon is `filled` by default, with the surface one step darker than the box. A `plain` addon has no fill and keeps its divider.",
+    "title": "Addon looks"
+  },
+  "align": {
+    "about": "The marks on the middle of the box, and on the first line of a field that runs to several lines.",
     "title": "Alignment"
   },
   "amount": "Amount",
-  "marks": {
-    "about": "A mark at the start, at the end, and at both. The field reserves room where a mark is, so the typing never runs underneath.",
-    "title": "Marks"
+  "apply": "Apply",
+  "code": "Security code",
+  "country": "Country code",
+  "coupon": "Coupon code",
+  "domain": "Domain",
+  "hourly": "per hour",
+  "month": "Expiry month",
+  "note": "Leave the parcel at the side door. The front bell is broken.",
+  "notes": "Delivery notes",
+  "number": "Card number",
+  "password": "Password",
+  "phone": "Phone number",
+  "plan": "Team plan, set by your organisation",
+  "price": "Price",
+  "rate": "Hourly rate",
+  "reference": "Reference",
+  "reveal": "Show the password",
+  "scenes": {
+    "card": {
+      "about": "Four fields in one row: the number, the expiry month and year, and the security code. A divider separates two adjacent fields, and the slash mark between month and year replaces one. Each field has its own name. A field with a `size` attribute keeps that width.",
+      "title": "Card details"
+    },
+    "cardNumber": {
+      "about": "The example formats the number in groups of four as the reader types, with no mask library. Any component that renders an input and forwards its ref works as a field.",
+      "title": "Card number"
+    },
+    "counter": {
+      "about": "A mark after the field counts the characters against `maxLength`. The count describes the field.",
+      "title": "Counter"
+    },
+    "coupon": {
+      "about": "A button in a mark applies the code. A press on the button keeps its own behaviour.",
+      "title": "Button"
+    },
+    "locked": {
+      "about": "A disabled `Fieldset.Root` disables every field inside it, and the box takes the disabled look. The marks dim with the box, because they are part of the inactive group.",
+      "title": "Disabled"
+    },
+    "password": {
+      "about": "A button in a mark shows and hides the password and reports its state with `aria-pressed`. A press on the lock mark focuses the field.",
+      "title": "Password"
+    },
+    "payment": {
+      "about": "The same four fields in two rows: the number on the first row, and the expiry and security code on the second. A divider separates the rows. Every item of the group sits inside a row.",
+      "title": "Card details in rows"
+    },
+    "phone": {
+      "about": "A select in a start addon picks the country code. A press on the chevron opens the list where the browser supports it.",
+      "title": "Country code"
+    },
+    "search": {
+      "about": "A search mark before the field and a keyboard hint after it. Both marks are decorative and hidden from assistive technology.",
+      "title": "Search"
+    },
+    "website": {
+      "about": "An addon at each end: the protocol as text and the domain as a select. Each addon reaches the box's edge and takes its corners.",
+      "title": "Addons"
+    }
   },
-  "sizes": {
-    "about": "Every size, with both marks.",
+  "search": "Search",
+  "searching": "Search invoices",
+  "site": "Website",
+  "size": {
+    "about": "Every size. The height reads the control scale and the inset is one size smaller, the same as the input's.",
     "title": "Sizes"
   },
-  "title": "Input group"
+  "states": {
+    "about": "Rest, keyboard focus, read-only and invalid. The box takes its state from the field inside it: a ring on focus, a dashed edge when read-only, and the error edge when invalid.",
+    "title": "States"
+  },
+  "status": {
+    "about": "Every status in every look. A status sets the box's edge and focus ring from its palette.",
+    "title": "Statuses"
+  },
+  "title": "Input group",
+  "typed": "INV-2041 for the March retainer",
+  "variant": {
+    "about": "The three looks of the box, the same as the input's. The flushed look draws the block-end edge alone and keeps the smallest inset.",
+    "title": "Looks"
+  },
+  "year": "Expiry year"
 }

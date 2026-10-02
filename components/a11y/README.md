@@ -1,9 +1,8 @@
 # @stealthscale/component-a11y
 
-Draws what a keyboard and a screen reader need: words read out and drawn nowhere, a way past the
-navigation, and one tab stop over a set of controls. Every component binds a recipe and draws
-nothing of its own, so a theme restyles all of them by extending the recipe. The preset under
-`./theme` registers the recipes with an application's compiler.
+Components for keyboard and screen reader users: hidden text, a skip link and its target, and a
+roving focus group. Each component binds a recipe, and a theme restyles it by extending the recipe.
+A component with parts is a namespace, such as `SkipNav.Link` and `RovingFocus.Item`.
 
 ## Install
 
@@ -11,25 +10,30 @@ nothing of its own, so a theme restyles all of them by extending the recipe. The
 pnpm add @stealthscale/component-a11y
 ```
 
-The package peers on `react`, `@stealthscale/hooks` and `@stealthscale/theme`. An application lists
-the preset under `./theme` among the presets its compiler installs.
+The package peers on `react`, `@stealthscale/hooks` and `@stealthscale/theme`. Add the preset under
+`./theme` to the presets of the application's compiler.
 
 ## VisuallyHidden
 
-Exposes its words to a screen reader and draws them nowhere. The words stay in the accessibility
-tree, which `display: none` and `visibility: hidden` both take them out of. A control a keyboard can
-reach is `focusable`, so it comes into view while focus is on it and a sighted reader tabbing
-through the page keeps their place.
+`VisuallyHidden` renders content that a screen reader announces and the browser does not paint. It
+renders a `span` clipped to 1px, which keeps the content in the accessibility tree. `display: none`
+and `visibility: hidden` remove it from the tree.
 
 ```tsx
+import { XIcon } from "lucide-react";
+
+import { Button } from "@stealthscale/component-actions";
 import { VisuallyHidden } from "@stealthscale/component-a11y";
 
-<button type="button">
-  <Icon viewBox="0 0 24 24">…</Icon>
+<Button shape="square" variant="outline">
+  <XIcon aria-hidden size="1em" />
   <VisuallyHidden>Close</VisuallyHidden>
-</button>;
-<VisuallyHidden as="h2">Sections</VisuallyHidden>;
+</Button>;
+<VisuallyHidden as="h2">Filters</VisuallyHidden>;
 ```
+
+`focusable` reveals the element under keyboard focus and fixes it to the window's start corner on
+the `fill.surface` layer style, so a keyboard user sees the control that has focus.
 
 | Axis        | Values | Default |
 | ----------- | ------ | ------- |
@@ -37,10 +41,9 @@ import { VisuallyHidden } from "@stealthscale/component-a11y";
 
 ## SkipNav
 
-Carries a keyboard past the navigation, composed as `SkipNav.Link` at the top of the document and
-`SkipNav.Target` where the content starts. The link is hidden until focus reaches it, so a reader
-who tabs meets it first and a reader who never tabs never sees it. The target takes a tab index of
-minus one, because a browser moves focus to a fragment only where the target can hold focus.
+`SkipNav.Link` moves keyboard focus past a repeated block of content, such as the navigation.
+`SkipNav.Target` receives focus when the link is followed. Place the link first in the document, so
+it is the first element Tab focuses.
 
 ```tsx
 import { SkipNav } from "@stealthscale/component-a11y";
@@ -49,41 +52,54 @@ import { SkipNav } from "@stealthscale/component-a11y";
 <SkipNav.Target as="main">…</SkipNav.Target>;
 ```
 
-The link points at `#content` and the target carries that id, so neither states the other. A page
-with more than one landing place names its own: `<SkipNav.Link href="#search">` beside
-`<SkipNav.Target id="search">`.
+The link is clipped until keyboard focus, and then fixed to the window's start corner. Its `href`
+defaults to `#content` and the target's `id` to `content`, exported as `SKIP_NAV_TARGET`. The target
+has `tabIndex` -1, because a browser moves focus only to a focusable fragment target. A page with
+another landing place sets both: `<SkipNav.Link href="#results">` and
+`<SkipNav.Target id="results">`.
 
 ## RovingFocus
 
-Holds one tab stop for a set of controls, composed as `RovingFocus.Root` holding `RovingFocus.Item`.
-A reader reaches the set with Tab and moves inside it with the arrows, which is what the toolbar,
-tablist and menubar patterns ask for. Home and End go to the ends, a disabled item is passed over,
-and the arrows run the other way where the line runs right to left.
+`RovingFocus.Root` keeps one tab stop for the `RovingFocus.Item` elements below it. Tab reaches the
+group, and the arrow keys move focus inside it, as the toolbar, tab list and menu bar patterns
+require. Home and End move to the ends, a disabled item is skipped, and the inline arrows reverse in
+a right-to-left group.
 
 ```tsx
+import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
 import { RovingFocus } from "@stealthscale/component-a11y";
-import { Button } from "@stealthscale/component-actions";
 
-<RovingFocus.Root role="toolbar">
-  <RovingFocus.Item as={Button} variant="ghost">
-    Cut
-  </RovingFocus.Item>
-  <RovingFocus.Item as={Button} variant="ghost">
-    Copy
-  </RovingFocus.Item>
+<RovingFocus.Root aria-label="Formatting" role="toolbar" wrap>
+  <ButtonPropsProvider value={{ variant: "outline" }}>
+    <RovingFocus.Item as={Button}>Bold</RovingFocus.Item>
+    <RovingFocus.Item as={Button}>Italic</RovingFocus.Item>
+  </ButtonPropsProvider>
 </RovingFocus.Root>;
 ```
 
-The root carries no role of its own, because naming a set of controls is the caller's decision. It
-reports the orientation to a screen reader only where the caller gave it a role, since
-`aria-orientation` means nothing on a plain element.
+The root has no role. The caller sets it, and the root writes `aria-orientation` only with a role,
+because the attribute has no meaning on a generic element. Render a control as the item with `as`. A
+control nested inside an item adds a second tab stop.
 
 | Axis          | Values                           | Default      |
 | ------------- | -------------------------------- | ------------ |
 | `orientation` | `horizontal`, `vertical`, `both` | `horizontal` |
 
-`wrap` joins the ends together. `activeId` sets which item holds the stop from outside, and
-`onActiveIdChange` reports the stop moving.
+`wrap` continues a step past one end at the other. `defaultActiveId` sets the item Tab enters first.
+`activeId` and `onActiveIdChange` control the tab stop from outside.
+
+## Types
+
+| Type                    | Props of                                                          |
+| ----------------------- | ----------------------------------------------------------------- |
+| `VisuallyHiddenProps`   | `VisuallyHidden`: the recipe's variants and a `span`'s props      |
+| `SkipNav.LinkProps`     | `SkipNav.Link`: an `a` element's props                            |
+| `SkipNav.TargetProps`   | `SkipNav.Target`: a `div` element's props                         |
+| `RovingFocus.RootProps` | `RovingFocus.Root`: the focus options and a `div` element's props |
+| `RovingFocus.ItemProps` | `RovingFocus.Item`: `disabled`, `id`, `ref` and a `div`'s props   |
+
+`RovingFocus.Orientation` is the union of the three orientations. `VisuallyHiddenPropsProvider` sets
+`focusable` on every `VisuallyHidden` below it.
 
 ## Licence
 

@@ -9,9 +9,7 @@ import { slotElement, variantClass } from "@stealthscale/testing-theme";
 import { SearchInput } from "#search-input/search-input.tsx";
 
 /**
- * Draws a search field a caller drives, so a case can read what a driven one does.
- *
- * @returns The field, holding whatever the last change reported.
+ * Renders a search field whose value the caller holds.
  */
 function Driven(): ReactElement {
   const [held, setHeld] = useState("");
@@ -20,61 +18,90 @@ function Driven(): ReactElement {
 }
 
 describe("SearchInput", () => {
-  it("breaks no accessibility rule where a caller names it", async () => {
+  it("returns no accessibility violation when named with aria-label", async () => {
     await expect(
-      accessibilityViolations(SearchInput, { props: { "aria-label": "Search invoices" } }),
+      accessibilityViolations(SearchInput, {
+        props: {
+          "aria-label": "Search invoices",
+          clearIndicator: "x",
+          defaultValue: "unpaid",
+          searchIndicator: "?",
+        },
+      }),
     ).resolves.toStrictEqual([]);
   });
 
-  it("draws a field of type search", () => {
+  it("renders an input of type search", () => {
     render(<SearchInput aria-label="Search" />);
 
     expect(screen.getByRole("searchbox").getAttribute("type")).toBe("search");
   });
 
-  it("reserves room at the end of the field for the control alone", () => {
-    const { container } = render(<SearchInput aria-label="Search" />);
+  it("sets enterKeyHint to search", () => {
+    render(<SearchInput aria-label="Search" />);
 
-    expect([...slotElement(container, "input-group", "root").classList]).toContain(
-      variantClass("input-group__root", "marks", "end"),
-    );
+    expect(screen.getByRole("searchbox").getAttribute("enterkeyhint")).toBe("search");
   });
 
-  it("hands the size a caller states to the field and to the control alike", () => {
-    const { container } = render(
-      <SearchInput aria-label="Search" clearIndicator="x" defaultValue="invoices" size="lg" />,
-    );
+  it("passes size to the input group", () => {
+    const { container } = render(<SearchInput aria-label="Search" size="lg" />);
 
-    expect([...screen.getByRole("searchbox").classList]).toContain(
-      variantClass("input", "size", "lg"),
-    );
     expect([...slotElement(container, "input-group", "root").classList]).toContain(
       variantClass("input-group__root", "size", "lg"),
     );
+  });
+
+  it("passes variant to the input group", () => {
+    const { container } = render(<SearchInput aria-label="Search" variant="subtle" />);
+
+    expect([...slotElement(container, "input-group", "root").classList]).toContain(
+      variantClass("input-group__root", "variant", "subtle"),
+    );
+  });
+
+  it("passes size to the clear control", () => {
+    render(
+      <SearchInput aria-label="Search" clearIndicator="x" defaultValue="invoices" size="lg" />,
+    );
+
     expect([...screen.getByRole("button", { name: "Clear search" }).classList]).toContain(
       variantClass("search-input", "size", "lg"),
     );
   });
 
-  it("draws no control where it holds nothing", () => {
+  it("renders searchIndicator in a hidden mark before the field", () => {
+    const { container } = render(<SearchInput aria-label="Search" searchIndicator="?" />);
+    const mark = slotElement(container, "input-group", "mark");
+
+    expect(mark.getAttribute("aria-hidden")).toBe("true");
+    expect(mark.nextElementSibling).toBe(screen.getByRole("searchbox"));
+  });
+
+  it("renders no mark when searchIndicator is absent", () => {
+    const { container } = render(<SearchInput aria-label="Search" />);
+
+    expect(container.querySelector("[class*=input-group__mark]")).toBeNull();
+  });
+
+  it("renders no clear control when the value is empty", () => {
     render(<SearchInput aria-label="Search" clearIndicator="x" />);
 
     expect(screen.queryByRole("button")).toBeNull();
   });
 
-  it("draws no control where a caller hands over nothing to draw in one", () => {
+  it("renders no clear control when clearIndicator is absent", () => {
     render(<SearchInput aria-label="Search" defaultValue="invoices" />);
 
     expect(screen.queryByRole("button")).toBeNull();
   });
 
-  it("draws the control once it holds something", () => {
+  it("renders the clear control when the value is not empty", () => {
     render(<SearchInput aria-label="Search" clearIndicator="x" defaultValue="invoices" />);
 
     expect(screen.getByRole("button", { name: "Clear search" })).toBeDefined();
   });
 
-  it("names the control as a caller asks", () => {
+  it("names the clear control with clearLabel", () => {
     render(
       <SearchInput
         aria-label="Search"
@@ -87,7 +114,23 @@ describe("SearchInput", () => {
     expect(screen.getByRole("button", { name: "Empty the search" })).toBeDefined();
   });
 
-  it("tells a caller what it holds as a person types", () => {
+  it("takes the clear control out of the tab order", () => {
+    render(<SearchInput aria-label="Search" clearIndicator="x" defaultValue="invoices" />);
+
+    expect(screen.getByRole("button", { name: "Clear search" }).getAttribute("tabindex")).toBe(
+      "-1",
+    );
+  });
+
+  it("sets type button on the clear control", () => {
+    render(<SearchInput aria-label="Search" clearIndicator="x" defaultValue="invoices" />);
+
+    expect(screen.getByRole("button", { name: "Clear search" }).getAttribute("type")).toBe(
+      "button",
+    );
+  });
+
+  it("calls onValueChange with the new value on every change", () => {
     const told = vi.fn<(value: string) => void>();
 
     render(<SearchInput aria-label="Search" onValueChange={told} />);
@@ -96,28 +139,81 @@ describe("SearchInput", () => {
     expect(told).toHaveBeenLastCalledWith("ab");
   });
 
-  it("empties itself and returns focus to the field when the control is pressed", () => {
+  it("empties the field when the clear control is pressed", () => {
     render(<SearchInput aria-label="Search" clearIndicator="x" defaultValue="invoices" />);
     fireEvent.click(screen.getByRole("button", { name: "Clear search" }));
 
-    const field = screen.getByRole("searchbox");
-
-    expect(field).toHaveProperty("value", "");
-    expect(document.activeElement).toBe(field);
+    expect(screen.getByRole("searchbox")).toHaveProperty("value", "");
   });
 
-  it("follows a caller that drives it", () => {
+  it("moves focus to the field when the clear control is pressed", () => {
+    render(<SearchInput aria-label="Search" clearIndicator="x" defaultValue="invoices" />);
+    fireEvent.click(screen.getByRole("button", { name: "Clear search" }));
+
+    expect(document.activeElement).toBe(screen.getByRole("searchbox"));
+  });
+
+  it("empties a non-empty field on Escape", () => {
+    render(<SearchInput aria-label="Search" defaultValue="invoices" />);
+    fireEvent.keyDown(screen.getByRole("searchbox"), { key: "Escape" });
+
+    expect(screen.getByRole("searchbox")).toHaveProperty("value", "");
+  });
+
+  it("stops Escape from reaching its ancestors when it clears the field", () => {
+    const heard = vi.fn<() => void>();
+
+    render(
+      <div onKeyDown={heard} role="presentation">
+        <SearchInput aria-label="Search" defaultValue="invoices" />
+      </div>,
+    );
+    fireEvent.keyDown(screen.getByRole("searchbox"), { key: "Escape" });
+
+    expect(heard).not.toHaveBeenCalled();
+  });
+
+  it("passes Escape on when the field is empty", () => {
+    const heard = vi.fn<() => void>();
+
+    render(
+      <div onKeyDown={heard} role="presentation">
+        <SearchInput aria-label="Search" />
+      </div>,
+    );
+    fireEvent.keyDown(screen.getByRole("searchbox"), { key: "Escape" });
+
+    expect(heard).toHaveBeenCalledOnce();
+  });
+
+  it("keeps the value when onKeyDown prevents the default on Escape", () => {
+    render(
+      <SearchInput
+        aria-label="Search"
+        defaultValue="invoices"
+        onKeyDown={(event) => {
+          event.preventDefault();
+        }}
+      />,
+    );
+    fireEvent.keyDown(screen.getByRole("searchbox"), { key: "Escape" });
+
+    expect(screen.getByRole("searchbox")).toHaveProperty("value", "invoices");
+  });
+
+  it("calls onSubmit with the value on Enter", () => {
+    const submitted = vi.fn<(value: string) => void>();
+
+    render(<SearchInput aria-label="Search" defaultValue="invoices" onSubmit={submitted} />);
+    fireEvent.keyDown(screen.getByRole("searchbox"), { key: "Enter" });
+
+    expect(submitted).toHaveBeenCalledWith("invoices");
+  });
+
+  it("renders the value its caller holds", () => {
     render(<Driven />);
     fireEvent.change(screen.getByRole("searchbox"), { target: { value: "abc" } });
 
     expect(screen.getByRole("searchbox")).toHaveProperty("value", "abc");
-  });
-
-  it("draws the control that empties it as a button rather than a submit", () => {
-    render(<SearchInput aria-label="Search" clearIndicator="x" defaultValue="invoices" />);
-
-    expect(screen.getByRole("button", { name: "Clear search" }).getAttribute("type")).toBe(
-      "button",
-    );
   });
 });

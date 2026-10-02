@@ -104,7 +104,7 @@ describe("SceneSection", () => {
     const keyed = { about: "rail.ungrouped", draw: marked, title: "rail.label" };
     const { getByRole, getByText } = await drawn(sectioned(keyed, "specimen"));
 
-    expect(getByRole("heading", { level: 2 }).textContent).toBe("Components");
+    expect(getByRole("heading", { level: 2 }).textContent).toBe("Catalogue");
     expect(getByText("Other")).toBeDefined();
   });
 

@@ -5,7 +5,7 @@ import { rootedViolations } from "@stealthscale/testing-react";
 import * as barrel from "#popover/index.ts";
 
 describe("index", () => {
-  it("names every part and nothing beside it", () => {
+  it("exports the eleven parts alone", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Anchor",
       "Arrow",
@@ -21,7 +21,7 @@ describe("index", () => {
     ]);
   });
 
-  it("publishes neither the recipe nor the binding nor the machine", () => {
+  it("exports no recipe binding or machine", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {
@@ -29,8 +29,8 @@ describe("index", () => {
     }
   });
 
-  it("refuses every part drawn outside the root that holds it together", () => {
-    // The root is the one part that runs without another above it.
+  it("throws for every part rendered outside a root", () => {
+    // The root is the one part that renders without a root above it.
     const { Root: _root, ...parts } = barrel;
 
     expect(

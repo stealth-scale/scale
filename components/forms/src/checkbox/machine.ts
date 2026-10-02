@@ -1,69 +1,80 @@
 /**
- * Runs the checkbox's machine and carries what it answers down to the parts.
+ * Runs the checkbox machine and provides its api to the parts.
  *
  * @remarks
- *   The machine is connected once, at the root, so every part reads one api from one running
- *   machine. A part drawn outside the root throws where it was written rather than drawing wrongly
- *   and saying nothing.
- *   The id is the machine's and never an element's. It builds the reference from the root's label
- *   to the hidden input from it, so a caller naming their own passes it here and the reference
- *   follows.
+ *   The root starts one machine and every part reads the api from context, so the box, the marks
+ *   and the text report one state. The machine derives the input's identifier from `id`, and the
+ *   root's `label` points at that input. The hook counts presses, so the root renders again after a
+ *   press the owner of a controlled box refuses, and its input takes the state back.
  */
 
-import { useId } from "react";
+import { useId, useReducer } from "react";
 
 import * as checkbox from "@zag-js/checkbox";
 import { normalizeProps, useMachine } from "@zag-js/react";
 
-import { createRequiredContext, splitEnumerable } from "@stealthscale/hooks";
+import { createRequiredContext, omitUndefined, splitEnumerable } from "@stealthscale/hooks";
 
-import { stated } from "#stated.ts";
+import { counted, type Toggle, useInputState } from "#toggled.ts";
 
 /**
- * Describes what the machine answers: a prop getter per part, beside its state and its methods.
+ * Describes the api `checkbox.connect` returns: a prop getter per part, and the machine's state
+ * and methods.
  *
  * @remarks
- *   Inferred off `connect` rather than named, so the parts take exactly what the machine hands
- *   them. The inferred type reaches `@zag-js/types`, which this package declares for that reason
- *   alone: a declaration file naming a type from a package nobody declared is not portable.
+ *   The type is the return type of `connect`, so it follows the installed machine. It references
+ *   `@zag-js/types`, so the package declares that dependency, or a consumer's declarations would
+ *   not resolve.
  */
 export type CheckboxApi = ReturnType<typeof checkbox.connect>;
 
 /**
- * Describes what a caller sets on the machine, less the id it is given.
+ * Describes the machine options the root takes, every one optional.
  */
 export type CheckboxOptions = Partial<checkbox.Props>;
 
 /**
- * Selects one of the three states a checkbox reports: on, off, or partly on.
+ * Describes the three states of a checkbox: `true`, `false` and `"indeterminate"`.
  */
 export type CheckedState = checkbox.CheckedState;
 
 /**
- * Hands the running machine to every part, and reads it back.
+ * Provides the connected api to the parts, and reads it back.
+ *
+ * @remarks
+ *   `useCheckbox` throws for a part rendered outside `Checkbox.Root`.
  */
 export const [ApiProvider, useCheckbox] = createRequiredContext<CheckboxApi>("Checkbox");
 
 /**
- * Starts the machine and connects it.
+ * Starts the checkbox machine and returns its connected api and the ref its input takes.
  *
- * @param options - The settings the caller handed the root, less the id where it named none.
- * @returns The api every part reads.
+ * @param options - The machine options split from the root's props. React generates `id` when the
+ *   caller states none.
+ * @returns The connected api, and the ref the root's input takes.
  */
-export function useCheckboxMachine(options: CheckboxOptions): CheckboxApi {
+export function useCheckboxMachine(options: CheckboxOptions): Toggle<CheckboxApi> {
   const generated = useId();
-
-  return checkbox.connect(
-    useMachine(checkbox.machine, { ...stated(options), id: options.id ?? generated }),
+  const [presses, press] = useReducer(counted, 0);
+  const api = checkbox.connect(
+    useMachine(checkbox.machine, {
+      ...omitUndefined(options),
+      id: options.id ?? generated,
+      onCheckedChange: (details) => {
+        options.onCheckedChange?.(details);
+        press();
+      },
+    }),
     normalizeProps,
   );
+
+  return { api, input: useInputState(api.checked, api.indeterminate, presses) };
 }
 
 /**
- * Splits what the machine reads from what the element does.
+ * Splits the root's props into the machine's options and the element's props.
  *
  * @remarks
- *   The machine states which props are its own, so the root never lists them and never drifts from
- *   the version it is built against.
+ *   The key list comes from the machine's own `splitProps`, so it follows the installed machine.
  */
 export const splitCheckboxProps = splitEnumerable(checkbox.splitProps);

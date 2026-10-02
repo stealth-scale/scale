@@ -1,183 +1,116 @@
 /**
- * Shows the transfer: rows moving between two lists, a pair whose rows carry a line of explanation,
- * and a set a page holds from outside.
+ * Catalogue page for the transfer.
  *
  * @remarks
- *   Every scene holds the same clients, and both sides keep room for all of them, so the pair
- *   stays still as rows cross between them.
- *   The marks are Lucide's, which this package takes for its specimens alone. The words are keys
- *   under `transfer` in the catalogue's namespace, kept beside this file in
+ *   `scenesOf` generates the size and palette scenes from the clients example. The palette scene
+ *   checks the first row after it mounts, so the palette shows in a still image. The described and
+ *   held scenes are hand-written. Every transfer renders in an `lg` room, and every scene shows its
+ *   example file as its source. The words are keys under `transfer` in
  *   `locales/en/specimen/transfer.json`.
  */
 
-import { type ReactElement, useState } from "react";
+import { type ReactElement, type ReactNode, useEffect, useState } from "react";
 
-import { CheckIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { Room, type Scene, scenesOf, specimen } from "@stealthscale/specimen";
 
-import { Stack } from "@stealthscale/component-layout";
-import { Room, type Scene, specimen, useWords } from "@stealthscale/specimen";
-
-import { Transfer, type TransferProps } from "#transfer/transfer.tsx";
-
-/**
- * The keys of the clients every scene moves between its lists.
- */
-const CLIENTS = ["fathom", "lantern", "pebble", "quartz"] as const;
+import * as examples from "#transfer/examples/index.ts";
+import { type TransferProps } from "#transfer/index.ts";
+import { recipe } from "#transfer/recipe.ts";
 
 /**
- * Describes one client of the lists.
+ * Props a generated scene passes to the clients example: the recipe's variants.
  */
-interface Client {
+type Drawn = Pick<TransferProps<unknown>, "palette" | "size">;
+
+/**
+ * Describes the transfer a picked scene stages.
+ */
+interface PickedProps {
   /**
-   * The key the client's name and its line of explanation are read under.
+   * The transfer to stage.
    */
-  readonly id: string;
-
-  /**
-   * The client's name, in the reader's language.
-   */
-  readonly name: string;
+  readonly children: ReactNode;
 }
 
 /**
- * Describes the words every scene hands the pair.
+ * Renders a transfer and checks its first row after it mounts.
+ *
+ * @remarks
+ *   The staging clicks the row only while it is unchecked, so a second run of the effect leaves it
+ *   checked. The staging never appears in an example.
  */
-type Names = Pick<
-  TransferProps<Client>,
-  "giveBackLabel" | "nothing" | "offeredTitle" | "takeLabel" | "takenTitle"
->;
+function Picked({ children }: PickedProps): ReactElement {
+  const [box, setBox] = useState<HTMLDivElement | null>(null);
 
-/**
- * Reads the words the two controls and the two sides are named by.
- */
-function useNames(): Names {
-  const { t } = useWords("transfer");
+  useEffect(() => {
+    const first = box?.querySelector<HTMLElement>("[role=option]");
 
-  return {
-    giveBackLabel: t("giveBack"),
-    nothing: t("nothingHere"),
-    offeredTitle: t("available"),
-    takeLabel: t("take"),
-    takenTitle: t("chosen"),
-  };
+    if (first !== undefined && first !== null && first.getAttribute("aria-selected") !== "true") {
+      first.click();
+    }
+  }, [box]);
+
+  return <div ref={setBox}>{children}</div>;
 }
 
 /**
- * Lists the clients in the reader's language.
+ * Hand-written scene for rows with a second line.
  */
-function useClients(): readonly Client[] {
-  const { t } = useWords("transfer");
-
-  return CLIENTS.map((id) => ({ id, name: t(id) }));
-}
-
-/**
- * Draws two lists and the pair of controls that move rows between them.
- */
-function Moving(): ReactElement {
-  const rows = useClients();
-  const names = useNames();
-
-  return (
+export const described: Scene = {
+  about: "transfer.described.about",
+  draw: () => (
     <Room size="lg">
-      <Transfer<Client>
-        {...names}
-        giveBackMark={<ChevronLeftIcon size="100%" />}
-        itemToString={(client) => client.name}
-        itemToValue={(client) => client.id}
-        mark={<CheckIcon size="100%" />}
-        rows={rows}
-        takeMark={<ChevronRightIcon size="100%" />}
-      />
+      <examples.described.Described />
     </Room>
-  );
-}
-
-/**
- * Draws a transfer whose rows carry a line under the name.
- */
-function Explained(): ReactElement {
-  const { t } = useWords("transfer");
-  const rows = useClients();
-  const names = useNames();
-
-  return (
-    <Room size="lg">
-      <Transfer<Client>
-        {...names}
-        description={(client) => t(`${client.id}Of`)}
-        giveBackMark={<ChevronLeftIcon size="100%" />}
-        itemToString={(client) => client.name}
-        itemToValue={(client) => client.id}
-        mark={<CheckIcon size="100%" />}
-        rows={rows}
-        takeMark={<ChevronRightIcon size="100%" />}
-      />
-    </Room>
-  );
-}
-
-/**
- * Draws a transfer whose set is held outside it, with the set written under the pair.
- */
-function Held(): ReactElement {
-  const { t } = useWords("transfer");
-  const rows = useClients();
-  const names = useNames();
-  const [taken, setTaken] = useState<readonly string[]>(["fathom"]);
-
-  return (
-    <Room size="lg">
-      <Stack gap="md">
-        <Transfer<Client>
-          {...names}
-          giveBackMark={<ChevronLeftIcon size="100%" />}
-          itemToString={(client) => client.name}
-          itemToValue={(client) => client.id}
-          mark={<CheckIcon size="100%" />}
-          onValueChange={setTaken}
-          rows={rows}
-          takeMark={<ChevronRightIcon size="100%" />}
-          value={taken}
-        />
-        <span>{taken.length === 0 ? t("nothing") : taken.map((id) => t(id)).join(", ")}</span>
-      </Stack>
-    </Room>
-  );
-}
-
-/**
- * Rows moving between two lists.
- */
-export const moving: Scene = {
-  about: "transfer.moving.about",
-  draw: Moving,
-  title: "transfer.moving.title",
+  ),
+  example: examples.described,
+  title: "transfer.described.title",
 };
 
 /**
- * Rows carrying a line under the name.
- */
-export const explained: Scene = {
-  about: "transfer.explained.about",
-  draw: Explained,
-  title: "transfer.explained.title",
-};
-
-/**
- * The set held outside the pair.
+ * Hand-written scene for a set the page controls.
  */
 export const held: Scene = {
   about: "transfer.held.about",
-  draw: Held,
+  draw: () => (
+    <Room size="lg">
+      <examples.held.Held />
+    </Room>
+  ),
+  example: examples.held,
   title: "transfer.held.title",
 };
 
 export default specimen({
   about: "transfer.about",
-  group: "Collections",
-  id: "collections/transfer",
+  id: "components/collections/transfer",
   imports: 'import { Transfer } from "@stealthscale/component-collections";',
-  scenes: [moving, explained, held],
+  scenes: [
+    ...scenesOf<Drawn>(recipe, {
+      axes: {
+        palette: {
+          draw: (props) => (
+            <Room size="lg">
+              <Picked>
+                <examples.clients.Clients {...props} />
+              </Picked>
+            </Room>
+          ),
+          example: examples.clients,
+        },
+        size: { direction: "column" },
+      },
+      draw: (props) => (
+        <Room size="lg">
+          <examples.clients.Clients {...props} />
+        </Room>
+      ),
+      example: examples.clients,
+      namespace: "transfer",
+      order: ["size", "palette"],
+    }),
+    described,
+    held,
+  ],
   title: "transfer.title",
 });

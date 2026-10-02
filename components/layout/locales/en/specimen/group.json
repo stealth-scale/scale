@@ -1,34 +1,36 @@
 {
-  "about": "Lays controls along one direction, a semantic gap apart or attached into one control with several parts.",
-  "alignment": {
-    "about": "Where controls of different heights sit across the flow.",
+  "about": "Lays controls out in one direction, a gap token apart or attached into one control.",
+  "align": {
+    "about": "Cross-axis alignment of three buttons of different heights.",
     "title": "Alignment"
   },
+  "attending": "Will you attend?",
   "day": "Day",
   "dim": {
-    "about": "Rest a pointer on one control: the others blur and quieten.",
+    "about": "Yes is pressed. With `dim` the other answers blur and fade while an answer is pressed, hovered or focused from the keyboard.",
     "title": "Dim"
   },
   "discard": "Discard",
-  "distribution": {
-    "about": "How the room left over along the flow is shared, in a group stretched to the width of a column.",
-    "title": "Distribution"
-  },
-  "gaps": {
-    "about": "Every gap a group offers, which an attached group ignores.",
+  "gap": {
+    "about": "Every gap token from `xs` to `xl`. An attached group ignores the gap.",
     "title": "Gaps"
   },
   "grow": {
-    "about": "Children that share the room evenly rather than taking what each needs.",
+    "about": "Three answers in a 320px room. With `grow` every child takes an equal share of the width.",
     "title": "Grow"
+  },
+  "justify": {
+    "about": "How a 320px group shares the space left over along the main axis.",
+    "title": "Distribution"
   },
   "maybe": "Maybe",
   "month": "Month",
   "no": "No",
   "orientation": {
-    "about": "Both directions, apart and attached. The corners between attached neighbours are squared and the border between them is drawn once, so three buttons read as one control with three parts.",
+    "about": "Both orientations, apart and attached. An attached group squares the corners between neighbours and renders the border between them once.",
     "title": "Orientation"
   },
+  "period": "Period",
   "save": "Save",
   "title": "Group",
   "week": "Week",

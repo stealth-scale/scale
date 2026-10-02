@@ -1,10 +1,9 @@
 /**
- * Publishes the status matrix: one set drawn against another, a mark at every crossing.
+ * Exports `StatusMatrix` and its types.
  *
  * @remarks
- *   One component rather than a namespace of parts. What a matrix draws is fixed — a grid of marks
- *   over a legend — and a caller who wants something else composes the table's own parts, which is
- *   what this is built from.
+ *   The matrix is one component, not a namespace of parts. A grid with another structure composes
+ *   the table's parts, which the matrix is built from.
  */
 
 export {

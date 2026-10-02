@@ -1,9 +1,10 @@
 import { type ReactElement } from "react";
 
-import { fireEvent, render, type RenderResult, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { FormProvider } from "@stealthscale/provider-form";
+import { drawn, settled } from "@stealthscale/testing-react";
 
 import { engine } from "#engine.ts";
 import { type Signup } from "#schema.ts";
@@ -13,7 +14,7 @@ import { words } from "#words.ts";
 const done = vi.fn<(value: Signup) => void>();
 
 /**
- * Draws the form under the page's engine and its words.
+ * Renders the form under the page's engine and its words.
  */
 function Page(): ReactElement {
   return (
@@ -24,108 +25,129 @@ function Page(): ReactElement {
 }
 
 /**
+ * Returns the box a label names, with or without the required mark after the label's words.
+ */
+function box(label: string): HTMLInputElement {
+  return screen.getByLabelText<HTMLInputElement>(new RegExp(`^${label}\\*?$`, "u"));
+}
+
+/**
+ * Types a value into the box a label names.
+ */
+function typed(label: string, value: string): void {
+  fireEvent.change(box(label), { target: { value } });
+}
+
+/**
  * Fills the form as an individual with values every rule accepts.
  */
-function fill({ getByLabelText }: RenderResult): void {
-  fireEvent.change(getByLabelText("Account"), { target: { value: "individual" } });
-  fireEvent.change(getByLabelText("Username"), { target: { value: "ann" } });
-  fireEvent.change(getByLabelText("Password"), { target: { value: "hunter22hunter" } });
-  fireEvent.change(getByLabelText("Password again"), { target: { value: "hunter22hunter" } });
+async function filled(): Promise<void> {
+  fireEvent.click(screen.getByRole("radio", { name: "An individual" }));
+  typed("Username", "ann");
+  typed("Password", "hunter22hunter");
+  typed("Password again", "hunter22hunter");
+  await settled();
 }
 
 /**
  * Submits the form.
  */
-function submit({ getByRole }: RenderResult): void {
-  fireEvent.click(getByRole("button", { name: "Sign up" }));
+async function submitted(): Promise<void> {
+  fireEvent.click(screen.getByRole("button", { name: "Sign up" }));
+  await settled();
+}
+
+/**
+ * Returns the words of every refusal on the page.
+ */
+function refusals(): ReadonlyArray<null | string> {
+  return screen.getAllByRole("alert").map((alert) => alert.textContent);
 }
 
 describe("SignupForm", () => {
-  it("reads the choices and the kinds of box from the schema", () => {
-    const { getAllByRole, getByLabelText } = render(<Page />);
+  it("reads the account kinds from the schema's choices", async () => {
+    await drawn(<Page />);
 
-    expect(getAllByRole("option").map((option) => option.textContent)).toStrictEqual([
-      "Choose",
-      "A business",
-      "An individual",
+    expect(screen.getAllByRole("radio").map((radio) => radio.getAttribute("value"))).toStrictEqual([
+      "business",
+      "individual",
     ]);
-    expect(getByLabelText("Password").getAttribute("type")).toBe("password");
-    expect(getByLabelText("Password again").getAttribute("type")).toBe("password");
   });
 
-  it("draws the VAT field for a business alone", () => {
-    const page = render(<Page />);
+  it("renders both passwords in password boxes", async () => {
+    await drawn(<Page />);
 
-    expect(page.queryByLabelText("VAT number")).toBeNull();
+    expect([box("Password").type, box("Password again").type]).toStrictEqual([
+      "password",
+      "password",
+    ]);
+  });
 
-    fireEvent.change(page.getByLabelText("Account"), { target: { value: "business" } });
+  it("renders no VAT field before a business is chosen", async () => {
+    await drawn(<Page />);
 
-    expect(page.getByLabelText("VAT number").getAttribute("name")).toBe("vat");
-    expect(page.getByLabelText("VAT number").getAttribute("aria-required")).toBe("true");
+    expect(screen.queryByLabelText(/^VAT number/u)).toBeNull();
+  });
+
+  it("renders a required VAT field once the account is a business", async () => {
+    await drawn(<Page />);
+    fireEvent.click(screen.getByRole("radio", { name: "A business" }));
+    await settled();
+
+    expect([box("VAT number").name, box("VAT number").required]).toStrictEqual(["vat", true]);
   });
 
   it("refuses a VAT number the registered format does not accept", async () => {
-    const page = render(<Page />);
-
-    fill(page);
-    fireEvent.change(page.getByLabelText("Account"), { target: { value: "business" } });
-    fireEvent.change(page.getByLabelText("VAT number"), { target: { value: "nl" } });
-    submit(page);
+    await drawn(<Page />);
+    await filled();
+    fireEvent.click(screen.getByRole("radio", { name: "A business" }));
+    await settled();
+    typed("VAT number", "nl");
+    await submitted();
 
     await waitFor(() => {
-      expect(page.getAllByRole("alert").map((alert) => alert.textContent)).toContain(
-        "Enter a VAT number like NL123456789B01",
-      );
+      expect(refusals()).toContain("Enter a VAT number like NL123456789B01");
     });
   });
 
   it("refuses a confirmation that differs under the registered keyword", async () => {
-    const page = render(<Page />);
-
-    fill(page);
-    fireEvent.change(page.getByLabelText("Password again"), { target: { value: "other" } });
-    submit(page);
+    await drawn(<Page />);
+    await filled();
+    typed("Password again", "other");
+    await submitted();
 
     await waitFor(() => {
-      expect(page.getAllByRole("alert").map((alert) => alert.textContent)).toContain(
-        "The passwords differ",
-      );
+      expect(refusals()).toContain("The passwords differ");
     });
   });
 
-  it("asks the accounts service on blur and shows a taken name", async () => {
-    const page = render(<Page />);
-
-    fireEvent.change(page.getByLabelText("Username"), { target: { value: "roy" } });
-    fireEvent.blur(page.getByLabelText("Username"));
+  it("refuses a taken name on blur", async () => {
+    await drawn(<Page />);
+    typed("Username", "roy");
+    fireEvent.blur(box("Username"));
+    await settled();
 
     await waitFor(() => {
-      expect(page.getAllByRole("alert").map((alert) => alert.textContent)).toContain(
-        "That name is taken",
-      );
+      expect(refusals()).toContain("That name is taken");
     });
   });
 
-  it("refuses a password holding the username through the form validator", async () => {
-    const page = render(<Page />);
-
-    fill(page);
-    fireEvent.change(page.getByLabelText("Password"), { target: { value: "ann12345678" } });
-    fireEvent.change(page.getByLabelText("Password again"), { target: { value: "ann12345678" } });
-    submit(page);
+  it("refuses a password containing the username through the form validator", async () => {
+    await drawn(<Page />);
+    await filled();
+    typed("Password", "ann12345678");
+    typed("Password again", "ann12345678");
+    await submitted();
 
     await waitFor(() => {
-      expect(page.getAllByRole("alert").map((alert) => alert.textContent)).toContain(
-        "Do not put your name in your password",
-      );
+      expect(refusals()).toContain("Do not put your name in your password");
     });
   });
 
   it("hands the values over once every rule passes", async () => {
-    const page = render(<Page />);
-
-    fill(page);
-    submit(page);
+    await drawn(<Page />);
+    await filled();
+    await submitted();
 
     await waitFor(() => {
       expect(done).toHaveBeenCalledWith({

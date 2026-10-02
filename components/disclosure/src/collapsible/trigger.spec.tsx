@@ -7,25 +7,25 @@ import { disclosed, pressed } from "#collapsible/collapsible.fixtures.tsx";
 import { Trigger } from "#collapsible/trigger.tsx";
 
 describe("Trigger", () => {
-  it("draws a button inside the root it needs above it", () => {
+  it("renders a button", () => {
     const { container } = render(disclosed(<Trigger>Details</Trigger>));
 
     expect(slotElement(container, "collapsible", "trigger").tagName).toBe("BUTTON");
   });
 
-  it("says whether the block is expanded", () => {
+  it("sets aria-expanded", () => {
     render(disclosed(<Trigger>Details</Trigger>));
 
     expect(screen.getByRole("button").getAttribute("aria-expanded")).toBe("false");
   });
 
-  it("names the block it controls", () => {
+  it("sets aria-controls", () => {
     render(disclosed(<Trigger>Details</Trigger>));
 
     expect(screen.getByRole("button").getAttribute("aria-controls")).toBeTruthy();
   });
 
-  it("keeps a handler a caller hands it beside the machine's own", async () => {
+  it("calls a caller's onClick beside the machine's handler", async () => {
     const heard = vi.fn<() => void>();
 
     render(disclosed(<Trigger onClick={heard}>Details</Trigger>));

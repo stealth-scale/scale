@@ -1,6 +1,5 @@
 /**
- * Publishes the two contributions a repository with a design system extends its tiers with: the
- * runtime generator for the system package, and the stylesheet compiler for an application.
+ * Publishes the layers a repository with a design system extends its tiers with.
  *
  * @packageDocumentation
  */

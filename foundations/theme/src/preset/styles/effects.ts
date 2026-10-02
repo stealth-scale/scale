@@ -1,60 +1,54 @@
 /**
- * Defines the effects a page is dressed with, which no component reads: the backdrops, the blurs,
- * the masks, the glows, the dimming of siblings, the moving border and the gradient texts.
+ * Defines the effect layer styles: backdrops, blurs, masks, glows, sibling dimming, the moving
+ * border and gradient text.
  *
  * @remarks
- *   The moving border and the shine are drawn here and moved by the `sweep` and `shimmer`
- *   animation styles, which a recipe names beside them. A backdrop is a background image, so a
- *   recipe that pairs one with a fill writes `backgroundColor`, because the `background` shorthand
- *   resets the image. A textured backdrop is drawn in the line color and the emphasized surface,
- *   which the contrast checks hold apart from every surface in both modes. The subtle line and
- *   the subtle surface meet on a light page, and a texture drawn in them was there in dark mode
- *   alone. The star field is the one backdrop drawn in `currentcolor`, because it is laid over a
- *   surface a recipe inverts, and the ink of that surface is the only color that follows it. A
- *   line a backdrop draws on the diagonal is a whole pixel wide, because half a pixel across a
- *   diagonal samples to a dashed line; an upright one holds at half.
+ *   The `sweep` and `shimmer` animation styles animate the moving border and the shine. A backdrop
+ *   is a background image, so a recipe that pairs one with a fill sets `backgroundColor`, because
+ *   the `background` shorthand resets the image. Textured backdrops use the `border` color and the
+ *   `bg.emphasized` surface, which the contrast checks keep distinct from every surface in both
+ *   modes. The star field uses `currentcolor`, because recipes lay it over surfaces they invert. A
+ *   diagonal stripe is 1px wide, because a 0.5px diagonal line renders as a dashed line.
  */
 
 import { type LayerStyles } from "#pandacss.ts";
 import { type Look } from "#preset/styles/look.ts";
 
 /**
- * Fixes the palette's solid as a custom property, for a gradient that reads the palette.
+ * Custom property of the palette's `solid` role, for gradients that read the palette.
  */
 const SOLID = "var(--colors-color-palette-solid)";
 
 /**
- * Fixes the palette's ink as a custom property, for a gradient that reads the palette.
+ * Custom property of the palette's `fg` role, for gradients that read the palette.
  */
 const INK = "var(--colors-color-palette-fg)";
 
 /**
- * Fixes the palette's emphasized fill as a custom property, for a band that reads on the ink in
- * light mode, where the solid is as dark as the ink.
+ * Custom property of the palette's `emphasized` role.
+ *
+ * @remarks
+ *   The light-mode shine uses it, because the solid is as dark as the ink in light mode.
  */
 const EMPHASIZED = "var(--colors-color-palette-emphasized)";
 
 /**
- * Fixes a tile of fractal noise as an inline image, for a backdrop with grain.
+ * Inline SVG image of fractal noise, for the grain backdrop.
  *
  * @remarks
- *   A data URI rather than a file, so a theme package ships no asset and a stylesheet carries the
- *   grain itself. The rect is drawn at forty percent so the grain is laid over a surface rather
- *   than in place of it.
+ *   A data URI keeps the grain in the stylesheet, so a theme package ships no asset file. The rect
+ *   is at 40% opacity, so the grain tints the surface under it.
  */
 const NOISE =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E\")";
 
 /**
- * Places the stars of a field, each as a share of the tile the field repeats in, against how wide
- * it is drawn.
+ * Lists the position and width of each star, as percentages of the tile.
  *
  * @remarks
- *   The places are irregular, because a star field on a grid reads as a grid. Two widths give the
- *   field depth without a second image. The tile the field repeats in is twice as wide as it is
- *   tall, because a sky is wider than it is tall: a square tile repeats often enough across a wide
- *   one to read as a rhythm, and the lower half of it falls outside a short one, taking its stars
- *   with it.
+ *   The positions are irregular, because stars on a lattice read as a lattice. The field uses two
+ *   widths. The tile is 384 by 192px, because a square tile repeats visibly across a wide panel
+ *   and a short panel clips its lower half.
  */
 const STARS: ReadonlyArray<readonly [x: string, y: string, width: string]> = [
   ["8%", "14%", "{borderWidths.md}"],
@@ -69,8 +63,11 @@ const STARS: ReadonlyArray<readonly [x: string, y: string, width: string]> = [
 ];
 
 /**
- * Draws every star as a dot of the ink the surface is written in, held to its own edge, because a
- * dot a pixel across that fades from its center is a smudge.
+ * Radial gradients for the star field, one hard-edged `currentcolor` dot per star.
+ *
+ * @remarks
+ *   Each dot ends at 99% of its radius, because a 1px dot that fades from its centre renders as a
+ *   smudge.
  */
 const STARFIELD = STARS.map(
   ([x, y, width]) =>
@@ -78,14 +75,19 @@ const STARFIELD = STARS.map(
 ).join(", ");
 
 /**
- * Writes a blur of one strength.
+ * Selects a child that is hovered, focused from the keyboard or pressed.
+ */
+const ACTIVE = ":hover, :focus-visible, [aria-pressed=true]";
+
+/**
+ * Returns a layer style that blurs by one step of the blur scale.
  */
 function blurred(strength: string): Look {
   return { value: { filter: `blur(${strength})` } };
 }
 
 /**
- * Writes a glow: a shadow of one blur in the palette's solid at half strength.
+ * Returns a glow layer style: a box shadow in the palette's solid at 50% opacity.
  */
 function glow(blur: string): Look {
   return {
@@ -97,7 +99,7 @@ function glow(blur: string): Look {
 }
 
 /**
- * Writes text drawn in a gradient rather than an ink, clipped to the glyphs.
+ * Returns a layer style that paints text with a linear gradient clipped to the glyphs.
  */
 function gradientText(stops: string): Look {
   return {
@@ -110,7 +112,7 @@ function gradientText(stops: string): Look {
 }
 
 /**
- * Lists the effects.
+ * Lists the effect layer styles by group.
  */
 export const effects: LayerStyles = {
   backdrop: {
@@ -175,12 +177,23 @@ export const effects: LayerStyles = {
     },
   },
   dim: {
+    /**
+     * Blurs and fades every child except a hovered, keyboard-focused or pressed one, while the
+     * container has such a child.
+     *
+     * @remarks
+     *   A pressed child keeps the others dimmed at rest, so a set of toggle buttons shows its
+     *   choice without a pointer.
+     */
     others: {
       value: {
-        "&:has(> :hover) > :not(:hover)": { filter: "blur({blurs.xs})", opacity: "muted" },
         "& > *": {
           transition:
             "filter {durations.fast} {easings.out}, opacity {durations.fast} {easings.out}",
+        },
+        [`&:has(> :is(${ACTIVE})) > :not(${ACTIVE})`]: {
+          filter: "blur({blurs.xs})",
+          opacity: "muted",
         },
       },
     },

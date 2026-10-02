@@ -7,19 +7,19 @@ import { Arrow } from "#menu/arrow.tsx";
 import { composed, listed } from "#menu/menu.fixtures.tsx";
 
 describe("Arrow", () => {
-  it("draws a div inside the root it needs above it", async () => {
+  it("renders a div", async () => {
     const { container } = await drawn(listed(<Arrow />));
 
     expect(slotElement(container, "menu", "arrow").tagName).toBe("DIV");
   });
 
-  it("is placed by the machine rather than by the recipe", async () => {
+  it("takes the machine's absolute position", async () => {
     const { container } = await drawn(composed({ defaultOpen: true }));
 
     expect(slotElement(container, "menu", "arrow").style.position).toBe("absolute");
   });
 
-  it("draws the element as names", async () => {
+  it("renders the element as names", async () => {
     const { container } = await drawn(listed(<Arrow as="span" />));
 
     expect(slotElement(container, "menu", "arrow").tagName).toBe("SPAN");

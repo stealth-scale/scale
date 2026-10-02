@@ -1,25 +1,22 @@
 /**
- * Defines the styles a toolbar is drawn with.
+ * Recipe for a toolbar: a row of controls with a start, a centre and an end band, and a search.
  *
  * @remarks
- *   Five parts. The root is the row, the start, centre and end are the bands inside it, the
- *   separator parts one set of controls from the next, and the search covers the row where it is
- *   opened on a narrow one.
- *   A band left out takes no room. The centre takes what the other two leave and cuts a long title
- *   short rather than wrapping the row, because a toolbar that grows to two lines moves everything
- *   under it.
- *   The gap is stated once on the root as a property every band reads, so one value moves all of
- *   them and a band drawn by a caller reads the same number. It is the gap two steps below the
- *   toolbar's own size, because the controls in a bar sit close: a bar of icon buttons at the
- *   gap of a form reads as a row of separate things rather than as one bar.
- *   Neither a group of controls nor a rule between them is a part here. The layout package draws a
- *   `Group`, which joins controls into one and knows how to square the corners between them, and
- *   this restyles only the rule, which has to stretch to the row's height rather than sit at a
- *   length of its own.
+ *   A band left out takes no room. The centre takes the room the other bands leave and truncates a
+ *   long title, because a toolbar on two lines moves everything under it. The root sets the gap as
+ *   `--toolbar-gap`, which every band reads: the gap token of the toolbar's size, 8px at `md`. The
+ *   layout package's `Group` joins controls, and the separator is the layout divider stretched to
+ *   the row's height. The search is 15rem wide and does not grow, because the centre takes the free
+ *   room. As a child of the row it shrinks down to zero before a band's controls do. A field's
+ *   percentage width gives a band no content width, so the search states an inline size. An opened
+ *   search covers the whole row, the padding and the edge of an outline or surface row included,
+ *   and the root hides its other children while it is open, so the row needs no fill of its own on
+ *   any surface. The recipe has no `palette`
+ *   axis, because the controls in the row set their own palettes, and no `effect` axis, because the
+ *   row is not a control.
  */
 
 import {
-  below,
   cornerVariants,
   defineSlotRecipe,
   dense,
@@ -30,20 +27,41 @@ import {
   truncate,
 } from "@stealthscale/theme/authoring";
 
-import { FOLDED, FOLDING } from "#folding/index.ts";
+import { FOLDING } from "#folding/folding.ts";
 
 /**
- * The property the root states the gap between controls in, which every band reads.
+ * Custom property the root sets to the gap between controls, which every band reads.
  */
 export const GAP = "--toolbar-gap";
 
 /**
- * Writes what every band shares: a row of controls, centred on their middle.
+ * Custom property the root sets to its own padding in the outline and surface looks.
+ */
+export const INSET = "--toolbar-inset";
+
+/**
+ * Custom property the outline and surface looks set to the root's edge width, which an opened
+ * search covers.
+ */
+export const EDGE = "--toolbar-edge";
+
+/**
+ * Styles every band: a row of controls, centred on the cross axis.
  */
 const BAND = { alignItems: "center", display: "flex", gap: `var(${GAP})`, minInlineSize: "0" };
 
 /**
- * Draws a plain toolbar at the middle size.
+ * Class name of the recipe, which a selector across parts reads.
+ */
+const CLASS = "toolbar";
+
+/**
+ * Selects a root while its search is open.
+ */
+const SEARCHING = `&:has(.${CLASS}__search[data-opened])`;
+
+/**
+ * Defines the toolbar recipe: a plain row at size `md` with `l2` corners by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -55,48 +73,76 @@ export const recipe = defineSlotRecipe({
       flex: "1",
       justifyContent: "center",
     },
-    end: { ...BAND, marginInlineStart: "auto" },
-    folded: { ...FOLDED, alignItems: "center", flexShrink: "0", justifyContent: "center" },
-    root: { ...BAND, inlineSize: "100%", position: "relative" },
+    end: { ...BAND, flexShrink: "0", marginInlineStart: "auto" },
+    group: { flexShrink: "0" },
+    root: {
+      ...BAND,
+      inlineSize: "100%",
+      position: "relative",
+      [SEARCHING]: { [`& > :not(.${CLASS}__search)`]: { visibility: "hidden" } },
+    },
     search: {
       "&[data-opened]": {
-        "& > *": { inlineSize: "100%" },
-        alignItems: "center",
-        background: "bg",
+        "& > :first-child": { flex: "1" },
+        alignItems: "stretch",
         display: "flex",
-        inset: "0",
+        inlineSize: "auto",
+        inset: `calc(var(${EDGE}, 0px) * -1)`,
         position: "absolute",
         zIndex: "1",
       },
+      "& > *": { minInlineSize: "0" },
+      flex: "0 1 auto",
+      inlineSize: "60",
       minInlineSize: "0",
     },
     separator: { alignSelf: "stretch", blockSize: "auto" },
-    start: BAND,
+    start: { ...BAND, flexShrink: "0" },
   },
-  className: "toolbar",
+  className: CLASS,
   defaultVariants: { radius: "l2", size: "md", variant: "plain" },
   jsx: [/^Toolbar(\.\w+)?$/u],
-  slots: ["root", "start", "center", "end", "action", "folded", "separator", "search"],
+  slots: ["root", "start", "center", "end", "action", "group", "separator", "search"],
   variants: {
+    /**
+     * Corner radius of an outlined or surface row.
+     */
     radius: onSlot("root", cornerVariants(["l1", "l2", "l3"])),
 
+    /**
+     * Size of the gap and of the separator's block margin.
+     */
     size: onSlots({
-      root: sizeVariants((size) => ({ [GAP]: `{spacing.gap.${below(below(size))}}` })),
+      root: sizeVariants((size) => ({ [GAP]: `{spacing.gap.${size}}` })),
       separator: sizeVariants((size) => ({ marginBlock: dense(`{spacing.gap.${size}}`) })),
     }),
 
     /**
-     * Whether the row is raised on a surface of its own or drawn against what holds it.
+     * Look of the row.
      *
      * @remarks
-     *   A row with an edge is inset by its own gap, so the controls stand off the edge. Without
-     *   it a filled control sat against the edge and a field at the end drew its border over the
-     *   row's. The plain row has no edge and keeps its controls flush with what holds it.
+     *   `outline` and `surface` pad the row by its gap, so the controls start inside the row's
+     *   edge. `plain` has no edge and no padding.
      */
     variant: {
-      surface: { root: { ...surface(), padding: `var(${GAP})` } },
+      surface: {
+        root: {
+          ...surface(),
+          [EDGE]: "{borderWidths.hairline}",
+          [INSET]: `var(${GAP})`,
+          padding: `var(${INSET})`,
+        },
+      },
 
-      outline: { root: { borderColor: "border", borderWidth: "hairline", padding: `var(${GAP})` } },
+      outline: {
+        root: {
+          borderColor: "border",
+          borderWidth: "hairline",
+          [EDGE]: "{borderWidths.hairline}",
+          [INSET]: `var(${GAP})`,
+          padding: `var(${INSET})`,
+        },
+      },
 
       plain: { root: { background: "transparent" } },
     },

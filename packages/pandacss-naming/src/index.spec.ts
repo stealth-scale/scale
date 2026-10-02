@@ -15,7 +15,7 @@ const SURFACE = [
 ];
 
 describe("pandacss-naming", () => {
-  it("publishes the scheme and the rewrite", () => {
+  it("exports exactly the names of the public surface", () => {
     expect(Object.keys(published).toSorted()).toStrictEqual(SURFACE.toSorted());
   });
 });

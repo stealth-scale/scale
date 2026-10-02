@@ -1,30 +1,30 @@
 /**
- * Puts everything the catalogue reads in scope, and routes the pages under them.
+ * Renders the catalogue application: the shell providers and the router.
  */
 
-import { type ReactElement, useState } from "react";
+import { type ReactElement, useEffect, useState } from "react";
 
 import { catalogues } from "virtual:i18n";
 
 import { RouterProvider } from "@stealthscale/provider-router";
 import { Shell } from "@stealthscale/provider-shell";
 
-import { routed } from "#routes.tsx";
+import { rerouted, routed } from "#routes.tsx";
 import { THEMES } from "#themes.ts";
 
 /**
- * The application every setting a reader makes is remembered under, so another application on this
- * origin keeps its own.
+ * The application name the user's settings are stored under, so another application on this
+ * origin stores its own.
  */
 const APP = "docs";
 
 /**
- * The locales the catalogue offers, the first being the one every key is defined in.
+ * The locales the catalogue offers. The first is the one every key is defined in.
  *
  * @remarks
- *   Every word is written in English, and a locale with no catalogue of its own reads the English
- *   one. What the others switch is everything a locale decides beside the words: the direction the
- *   page runs in, which Arabic turns round, and how a number, a date and a list are written.
+ *   Every catalogue is in English, and a locale without a catalogue of its own falls back to it.
+ *   The other locales change the text direction (right to left for Arabic) and how numbers, dates
+ *   and lists are formatted.
  */
 const LOCALES: readonly [string, ...string[]] = [
   "en",
@@ -39,19 +39,24 @@ const LOCALES: readonly [string, ...string[]] = [
 ];
 
 /**
- * Draws the catalogue with the colour mode, theme, locale, viewport and shortcuts in scope.
+ * Renders the router inside the shell, which provides the colour mode, theme, locale, viewport and
+ * shortcuts.
  *
  * @remarks
- *   One provider rather than seven, because the order they nest in is knowledge the shell already
- *   holds. The chrome reads all of it: the theme switcher moves `Themed` and the colour-mode
- *   switcher moves `ColorModeProvider`, neither of which this file states again.
- *   The router is made once, when the tree mounts, and kept for its life. Held as state rather
- *   than as a module constant, because a hot update in development runs the module again, and a
- *   second router on a second history is one the provider waits on for ever, which reads as a
- *   blank page. A page the index gains while the server runs is reached after a reload.
+ *   `Shell` nests the seven providers in the order they need. The theme and colour-mode switchers
+ *   in the chrome read those providers directly.
+ *   The router is created once, when the tree mounts, and kept for its life. It is state rather
+ *   than a module constant, because a hot update runs the module again, and a second router on a
+ *   second history left the provider waiting and the page blank. Fast Refresh runs the effect again
+ *   on a hot update, whatever its dependencies, so `rerouted` gives the same router the new route
+ *   tree when the page index has changed.
  */
 export function App(): ReactElement {
   const [router] = useState(routed);
+
+  useEffect(() => {
+    rerouted(router);
+  }, [router]);
 
   return (
     <Shell app={APP} catalogues={catalogues} locales={LOCALES} themes={THEMES}>

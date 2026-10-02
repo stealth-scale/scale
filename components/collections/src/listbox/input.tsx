@@ -1,19 +1,14 @@
 /**
- * Draws the field a person narrows the list from, and the control that empties it.
+ * Renders the field that filters the list, and the control that clears it.
  *
  * @remarks
- *   The field keeps focus while the highlight moves over the rows, and the machine points
- *   `aria-activedescendant` from here at the row a reader is on. That is what lets a person type
- *   and walk the rows without leaving the field, which a list that took focus itself cannot do.
- *   Narrowing is the caller's. The field reports what was typed and the caller hands back a
- *   collection holding what is left, so the machine never filters and never holds two lists.
- *   The control that empties the field belongs to this recipe rather than coming from a search
- *   field elsewhere. A field from another package brings its own box, and the box and this band
- *   both want to own the width the rule under it reaches, so the rule stopped short at both ends.
- *   It is drawn only where there is something to clear and only where a caller gives it a mark to
- *   draw. A control that is always there and does nothing half the time is one a reader learns to
- *   pass over, and clearing puts focus back in the field, because a person who has just emptied a
- *   filter is about to type another one.
+ *   The field keeps focus while the highlight moves, and the machine points its
+ *   `aria-activedescendant` at the highlighted row, so a person types and moves through the rows
+ *   without leaving the field. Filtering is the caller's: the field reports the text and the caller
+ *   passes a filtered collection. With `autoHighlight`, the machine highlights the first row of
+ *   each filtered collection, so Enter chooses the best match. The clear control renders while the
+ *   field has text and the caller gives it an icon. A press clears the field and moves focus back
+ *   to it.
  */
 
 import { type ComponentProps, type ReactElement, type ReactNode, useCallback, useRef } from "react";
@@ -26,57 +21,64 @@ import { withContext } from "#listbox/context.ts";
 import { useListbox } from "#listbox/machine.ts";
 
 /**
- * Draws the band the field and its control sit in.
+ * Renders the `div` with the listbox's control class, which contains the field and the clear
+ * control.
  */
 const Band = withContext("div", "control");
 
 /**
- * Draws the field at the size the root states.
+ * Renders the `input` with the listbox's input class.
  */
 const Typed = withContext("input", "input");
 
 /**
- * Draws the control that empties the field.
+ * Renders the clear `button` with the listbox's clear trigger class.
  */
 const Clear = withContext("button", "clearTrigger", { defaultProps: { type: "button" } });
 
 /**
- * Describes what the field takes.
+ * Describes the props of the field: its value, the clear control and the props of an `input`.
  */
 export interface InputProps extends Omit<ComponentProps<typeof Typed>, "defaultValue" | "value"> {
   /**
-   * Drawn inside the control that empties the field, which is drawn only where one is given.
+   * Whether the first row of the filtered list is highlighted while the field has text.
+   */
+  readonly autoHighlight?: boolean | undefined;
+
+  /**
+   * Icon of the clear control. The control renders only when an icon is given.
    */
   readonly clearIndicator?: ReactNode | undefined;
 
   /**
-   * Reads out as the name of the control that empties the field.
+   * Accessible name of the clear control.
    */
   readonly clearLabel?: string | undefined;
 
   /**
-   * Fills the field before a caller drives it.
+   * Initial text of an uncontrolled field.
    */
   readonly defaultValue?: string | undefined;
 
   /**
-   * Hears the field's contents each time they change.
+   * Called with the field's text on every change.
    */
   readonly onValueChange?: ((value: string) => void) | undefined;
 
   /**
-   * Fills the field, where a caller drives it.
+   * Text of a controlled field.
    */
   readonly value?: string | undefined;
 }
 
 /**
- * Takes what a person types, and walks the rows without giving up focus.
+ * Renders the field with the machine's input props, and the clear control while it has text.
  *
- * @param props - The field's contents, the name of its control, and an input's own props.
- * @returns The band, holding the field and the control that empties it.
+ * @param props - The value, the clear control's icon and name, and the props of an `input`.
+ * @returns The control `div` that contains the field and the clear control.
  */
 export function Input({
+  autoHighlight = false,
   clearIndicator,
   clearLabel,
   defaultValue = "",
@@ -101,7 +103,7 @@ export function Input({
   return (
     <Band>
       <Typed
-        {...mergeProps(api.getInputProps(), rest)}
+        {...mergeProps(api.getInputProps({ autoHighlight }), rest)}
         onChange={(event) => {
           setHeld(event.target.value);
           onChange?.(event);

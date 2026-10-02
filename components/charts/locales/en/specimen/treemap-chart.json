@@ -1,0 +1,107 @@
+{
+  "about": "A hierarchy of parts as nested tiles whose areas follow their sizes, such as spend by team and then by service. Each top-level part is a family of tiles in one color, largest first from the top left, and the legend lists each family with its total. The arrow keys walk the tiles, a family before its parts. A treemap shows where the mass of many parts is, and a bar chart is the better chart for comparing values.",
+  "credit": {
+    "about": "The bill with a reserved-capacity credit of −€6,200 posted to the platform team. An area cannot be negative, so the chart gives a part below zero no tile, and the platform team's total counts only the parts with a tile. hierarchyLeaves returns every leaf with its value as given, and the caption lists the leaves below zero.",
+    "caption_one": "{{names}} is below zero and has no tile. An area cannot be negative.",
+    "caption_other": "{{names}} are below zero and have no tiles. An area cannot be negative.",
+    "title": "A part below zero"
+  },
+  "folders": "Folders",
+  "hidden": {
+    "about": "defaultHiddenKeys hides the platform team when the chart first renders. The other teams fill the plot, and every share on the tiles and in the tooltip is of the teams shown. A press on the legend shows the team again.",
+    "caption": "With the platform team hidden, the data team is 65% of the rest.",
+    "title": "A hidden team"
+  },
+  "largest": {
+    "about": "defaultIndex opens the tooltip at the seventh tile of the walk, Kubernetes, when the chart first renders. The walk runs depth first and largest first: the data team, its four services, then the platform team and Kubernetes. The tooltip writes the service's spend and its share of the bill to two significant digits.",
+    "caption": "Kubernetes is the largest service at 23% of the bill.",
+    "title": "Tooltip"
+  },
+  "names": {
+    "archive": "Archive",
+    "audio": "Audio",
+    "backups": "Backups",
+    "balancers": "Load balancers",
+    "builds": "Builds",
+    "cdn": "CDN",
+    "credit": "Reserved credit",
+    "cron": "Cron",
+    "data": "Data",
+    "design": "Design",
+    "dns": "DNS",
+    "documents": "Documents",
+    "firewall": "Web firewall",
+    "flags": "Feature flags",
+    "functions": "Functions",
+    "gateway": "API gateway",
+    "kafka": "Kafka",
+    "kubernetes": "Kubernetes",
+    "logs": "Log ingest",
+    "mailer": "Mailer",
+    "metrics": "Metrics",
+    "nat": "NAT gateways",
+    "objects": "Object storage",
+    "photos": "Photos",
+    "platform": "Platform",
+    "postgres": "Postgres",
+    "product": "Product",
+    "proxy": "Auth proxy",
+    "queue": "Queue",
+    "redis": "Redis",
+    "registry": "Registry",
+    "scanner": "Scanner",
+    "search": "Search cluster",
+    "secrets": "Secrets",
+    "snapshots": "Snapshots",
+    "status": "Status page",
+    "tracing": "Tracing",
+    "video": "Video",
+    "webhooks": "Webhooks"
+  },
+  "narrow": {
+    "about": "The bill in a room 20rem wide, the column of a phone. A tile too narrow for its name writes none, and the walk and the tooltip still name it.",
+    "title": "Narrow room"
+  },
+  "palette": {
+    "about": "Each team states its palette: the data team teal, the platform team purple, the product team orange. A team's services mix its palette's chart color over the panel. values false leaves only the names on the tiles and in the legend.",
+    "caption": "The platform team's services cost nearly as much as the data team's.",
+    "title": "Palettes"
+  },
+  "quiet": {
+    "about": "A treemap without nodes renders the empty state in the plot's place, at the plot's ratio, and no legend.",
+    "caption": "Cloud spend this month.",
+    "empty": "No spend in this period.",
+    "title": "Empty"
+  },
+  "replay": {
+    "about": "animate slides each tile in from the left when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the tiles at once.",
+    "caption": "Cloud spend for September.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "share": "Of the bill",
+  "spend": {
+    "about": "September's cloud bill of €95,400 by team and then by service. Each team is a family of tiles in one color, its largest service the strongest. Each tile that fits writes its service's name, spend and share of the bill, and the legend writes each team's total. hierarchyLeaves returns every service with its share, and the caption states the two largest.",
+    "caption": "{{first}} and {{second}} are {{share}}% of the bill.",
+    "label": "Cloud spend for September by team and service",
+    "title": "Spend by team and service"
+  },
+  "storage": {
+    "about": "A file server's folders in one level. Each folder is its own family, so each takes the next series color. valueOptions writes the sizes in gigabytes.",
+    "caption": "Design and video files fill 58% of the file server.",
+    "label": "Storage on the file server by folder",
+    "share": "Of the server",
+    "title": "One level",
+    "value": "Size"
+  },
+  "tail": {
+    "about": "The platform team's spend: Kubernetes and fourteen small services. A tile too small for its name writes none, because a clipped word reads as another word. The tooltip writes each one's name, and the arrow keys walk to each.",
+    "caption": "Kubernetes is 86% of the platform team's spend. Fourteen small services share the rest.",
+    "label": "Platform team spend for September by service",
+    "share": "Of the team",
+    "title": "A long tail"
+  },
+  "teams": "Teams",
+  "title": "Treemap chart",
+  "value": "Spend"
+}

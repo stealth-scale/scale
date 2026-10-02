@@ -1,10 +1,9 @@
 /**
- * Binds the divider's recipe to the element that draws it.
+ * Binds the divider recipe to React.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. A recipe file that also bound one would put the runtime behind
- *   every compiler configuration that reads it.
+ *   The binding is a separate module from the recipe, because the theme compiler imports the recipe
+ *   at build time and must not load the React runtime.
  */
 
 import { createRecipeContext } from "@stealthscale/theme";
@@ -12,6 +11,10 @@ import { createRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#divider/recipe.ts";
 
 /**
- * Binds the recipe once, for the divider and for whatever stands it up from above.
+ * Creates the divider recipe's `withContext` binding, its `PropsProvider` and `usePropsContext`.
+ *
+ * @remarks
+ *   `PropsProvider` sets variants on every element bound below it. The package exports it as
+ *   `DividerPropsProvider`. `Divider` reads `usePropsContext` for the provided orientation.
  */
-export const { PropsProvider, withContext } = createRecipeContext(recipe);
+export const { PropsProvider, usePropsContext, withContext } = createRecipeContext(recipe);

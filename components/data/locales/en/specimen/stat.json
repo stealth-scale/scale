@@ -1,0 +1,48 @@
+{
+  "about": "A figure with the label that names it and a line of help text, such as a change or a comparison. The component formats nothing, so any number formatter can render the figure.",
+  "duration": {
+    "hours": "hr",
+    "label": "Time to settle",
+    "minutes": "min"
+  },
+  "meaning": {
+    "about": "Both figures rose. Revenue rising is good and open tickets rising is bad, so each stat sets the palette of its meaning. The component does not decide which direction is good.",
+    "title": "Direction and meaning"
+  },
+  "palette": {
+    "about": "The indicator in each semantic palette's text ink. The label, the figure and the help text keep their colors.",
+    "title": "Palettes"
+  },
+  "revenue": {
+    "help": "+12% from last month",
+    "label": "Revenue",
+    "value": "£48,200"
+  },
+  "row": {
+    "about": "Three stats in equal columns. The labels share a line and the figures share a line, whether or not a stat has help text.",
+    "help": "−4 since yesterday",
+    "held": "Held",
+    "raised": "Raised",
+    "settled": "Settled",
+    "title": "In a row"
+  },
+  "settled": {
+    "help": "against £14,200 last week",
+    "label": "Settled this week",
+    "value": "£17,500.40"
+  },
+  "size": {
+    "about": "Each size sets the figure's heading text style. The label and the help text keep their size.",
+    "title": "Sizes"
+  },
+  "tickets": {
+    "help": "+9% from last month",
+    "label": "Open tickets",
+    "value": "132"
+  },
+  "title": "Stat",
+  "units": {
+    "about": "A duration with two units. Each unit follows its number on the figure's baseline, in the muted ink.",
+    "title": "With units"
+  }
+}

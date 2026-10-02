@@ -1,0 +1,135 @@
+{
+  "commands": {
+    "failed": "Could not run \"{{label}}\"."
+  },
+  "failed": {
+    "description": "Reload the page to start it again.",
+    "reload": "Reload",
+    "title": "{{product}} could not be shown"
+  },
+  "flags": {
+    "killSwitch": "Turns the whole plugin off"
+  },
+  "notFound": {
+    "off": {
+      "action": "Turn on {{plugin}}",
+      "description": "Turn {{plugin}} on to open this page.",
+      "title": "{{plugin}} is turned off"
+    },
+    "plain": {
+      "description": "Check the address, or go back to the page you came from.",
+      "title": "Page not found"
+    },
+    "quarantined": {
+      "action": "Try again",
+      "description": "It failed too many times in a row.",
+      "title": "This page stopped working"
+    },
+    "unavailable": {
+      "description": "{{plugin}} is unavailable for now. Try again later.",
+      "title": "{{plugin}} is unavailable"
+    }
+  },
+  "page": {
+    "failed": {
+      "description": "Reload the page, or try again later.",
+      "title": "This page could not be shown"
+    }
+  },
+  "palette": {
+    "commands": "Commands",
+    "count_one": "{{count}} result",
+    "count_other": "{{count}} results",
+    "goTo": "Go to",
+    "label": "Command palette",
+    "none": "No command matches.",
+    "search": "Search commands"
+  },
+  "plugins": {
+    "about": "Turn a plugin off to remove its pages, menus and settings for you alone.",
+    "always": "Always on",
+    "confirm": {
+      "action": "Turn off",
+      "description_one": "{{plugins}} needs it and turns off with it.",
+      "description_other": "{{plugins}} need it and turn off with it.",
+      "keep": "Keep on",
+      "title": "Turn off {{plugin}}?"
+    },
+    "reason": {
+      "condition": "Not available here",
+      "requirement": "Off while a plugin it needs is off",
+      "unavailable": "Unavailable for now"
+    },
+    "title": "Installed plugins"
+  },
+  "settings": {
+    "account": "Account",
+    "empty": "Nothing to set on this page",
+    "failed": {
+      "description": "Reload the page, or try again later.",
+      "title": "This section could not be shown"
+    },
+    "menu": "Settings pages",
+    "plugins": "Plugins",
+    "save": "Save",
+    "saved": "Settings saved",
+    "title": "Settings"
+  },
+  "standalone": {
+    "page": "{{plugin}} is installed from its contract alone, so this page is a placeholder. Its slots render with their sample props.",
+    "panel": {
+      "access": {
+        "allow": "Allow",
+        "deny": "Deny",
+        "pending": "Pending",
+        "title": "Checks on one resource"
+      },
+      "data": {
+        "modes": {
+          "conflict": "Refuse as a conflict",
+          "delayed": "Sample after 2 seconds",
+          "forbidden": "Refuse as forbidden",
+          "invalid": "Refuse as invalid",
+          "network": "Fail on the network",
+          "not-found": "Refuse as not found",
+          "sample": "Sample",
+          "server": "Fail on the server",
+          "unauthenticated": "Refuse as signed out"
+        },
+        "title": "Operations"
+      },
+      "flags": {
+        "title": "Feature flags"
+      },
+      "page": {
+        "route": "Page",
+        "title": "Page"
+      },
+      "plugin": {
+        "kill": "Allowed by its kill switch",
+        "switch": "Switched on",
+        "title": "Plugin"
+      },
+      "session": {
+        "entitlements": "Entitlements",
+        "permissions": "Permissions",
+        "signedIn": "Signed in",
+        "title": "Session"
+      },
+      "shell": {
+        "colorMode": "Color mode",
+        "dark": "Dark",
+        "language": "Language",
+        "light": "Light",
+        "system": "System",
+        "theme": "Theme",
+        "title": "Display"
+      },
+      "title": "Development panel"
+    },
+    "section": "{{plugin}} is installed from its contract alone, so this section is a placeholder."
+  },
+  "toasts": {
+    "label": "Notifications"
+  }
+}

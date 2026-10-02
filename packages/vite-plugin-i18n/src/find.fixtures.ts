@@ -1,23 +1,23 @@
 /**
- * A workspace to find catalogues in.
+ * A scratch workspace the catalogue search runs over.
  *
  * @remarks
- *   An application depending on two packages of the house, one of which depends on a third, and on
- *   a package outside the house whose catalogue must not be found. The application overrides one
- *   word of the overlays, translates one, and has words of its own, and its manifest is private, as
- *   an application's is. Every package is installed under the application's `node_modules`, the
- *   way a consumer has them, so the search resolves them as an import would.
+ *   The application depends on two house packages, one of which depends on a third, and on a
+ *   package outside the house whose catalogue the search must skip. The application overrides one
+ *   overlays word, translates another, ships words of its own, and declares `private`. Every
+ *   package is installed under the application's `node_modules`, so the search resolves each one as
+ *   an import would.
  */
 
 import { manifest, packageFiles, type ScratchFiles } from "@stealthscale/testing";
 
 /**
- * Where the application lives inside the scratch workspace.
+ * The application's path inside the scratch workspace.
  */
 export const APP = "apps/site";
 
 /**
- * The files the scratch workspace is built from.
+ * The files `withScratchWorkspace` writes into the scratch directory.
  */
 export const WORKSPACE: ScratchFiles = {
   ...packageFiles(APP, {

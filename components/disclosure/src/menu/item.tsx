@@ -1,12 +1,10 @@
 /**
- * Draws one row of the menu.
+ * Renders one row of the menu.
  *
  * @remarks
- *   A row names itself with `value`, which is the one thing the machine cannot work out for itself.
- *   Everything else is the machine's: the menu item role, whether the highlight is on it, whether a
- *   reader can choose it, and the words typeahead matches it on.
- *   The row hands its name down to the label and the mark inside it, so a caller writes the value
- *   once rather than on all three.
+ *   The row takes a `value`. The machine sets `role="menuitem"`, the highlight, the disabled state
+ *   and the typeahead text. The row provides its state to the text and the indicator inside it, so
+ *   a caller sets `value` once.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -18,45 +16,45 @@ import { ItemProvider, useMenu } from "#menu/machine.ts";
 import { type Tone } from "#menu/tone.ts";
 
 /**
- * Draws the row at the size the root states.
+ * Renders the `div` with the menu's item class.
  */
 const Chosen = withContext("div", "item");
 
 /**
- * Describes what a row takes.
+ * Describes the props of a row: its value, its options, its tone and the props of a `div`.
  */
 export interface ItemProps extends Omit<ComponentProps<typeof Chosen>, "onSelect"> {
   /**
-   * Whether choosing the row closes the menu, which it does unless the row says otherwise.
+   * Whether choosing the row closes the menu. Defaults to true.
    */
   readonly closeOnSelect?: boolean | undefined;
 
   /**
-   * Whether a reader can choose the row at all.
+   * Whether the row is disabled.
    */
   readonly disabled?: boolean | undefined;
 
   /**
-   * The purpose of the row, which decides the ink it is drawn in.
+   * Tone of the row, which sets its palette.
    */
   readonly tone?: Tone | undefined;
 
   /**
-   * The value the machine identifies the row by and reports when the reader chooses it.
+   * Value the machine identifies the row by and reports when it is chosen.
    */
   readonly value: string;
 
   /**
-   * The words typeahead matches the row on, where they differ from what it shows.
+   * Text typeahead matches, when it differs from the rendered text.
    */
   readonly valueText?: string | undefined;
 }
 
 /**
- * Offers one thing a reader can choose.
+ * Renders the row with the machine's item props and `data-tone`, and provides its state.
  *
- * @param props - The row's name and purpose, beside everything a styled div takes.
- * @returns The row, carrying what the machine writes onto it.
+ * @param props - The row's value, options, tone and the props of a `div`.
+ * @returns The `div` element inside the item provider.
  */
 export function Item({
   closeOnSelect,

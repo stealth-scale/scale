@@ -9,13 +9,13 @@ import { recipe } from "#card/recipe.ts";
 import { type RootProps } from "#card/root.ts";
 
 describe("Header", () => {
-  it("draws a div inside the root it needs above it", () => {
+  it("renders a div for the header slot inside a root", () => {
     const { container } = render(carded(<Header>Invoice</Header>));
 
     expect(slotElement(container, "card", "header").tagName).toBe("DIV");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the header slot class for every variant value", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "header",
@@ -23,7 +23,7 @@ describe("Header", () => {
     ).toStrictEqual([]);
   });
 
-  it("carries no role because the title inside it states the heading", () => {
+  it("renders no role attribute", () => {
     const { container } = render(carded(<Header>Invoice</Header>));
 
     expect(slotElement(container, "card", "header").hasAttribute("role")).toBe(false);

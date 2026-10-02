@@ -1,15 +1,11 @@
 /**
- * Draws the mark on the control that says whether the menu is open.
+ * Renders the mark at the end of a trigger or a trigger row.
  *
  * @remarks
- *   The machine writes the open state onto it and the recipe turns it half a revolution, so a
- *   caller draws whatever artwork they like inside and the turn follows the menu.
- *   It states `aria-hidden`, because it sits inside the control and everything inside a control is
- *   read as part of that control's name. A chevron drawn here would otherwise be announced after
- *   the words the control was named with, and the control already carries `aria-expanded`. A caller
- *   whose mark says something the name does not can state `aria-hidden={false}`.
- *   The element is `span`, because it sits inside the control and a button holds phrasing content
- *   alone.
+ *   The element is a `span`, because a button accepts phrasing content alone. The indicator sets
+ *   `aria-hidden`, because the trigger reports its state with `aria-expanded` and a mark inside a
+ *   button joins the button's name. A caller whose mark adds information sets
+ *   `aria-hidden={false}`.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -20,20 +16,20 @@ import { withContext } from "#menu/context.ts";
 import { useMenu } from "#menu/machine.ts";
 
 /**
- * Draws the mark at the size the root states.
+ * Renders the `span` with the menu's indicator class.
  */
 const Marked = withContext("span", "indicator");
 
 /**
- * Describes what the mark takes.
+ * Describes the props of the indicator: the props of a `span`.
  */
 export type IndicatorProps = ComponentProps<typeof Marked>;
 
 /**
- * Says whether the menu is open.
+ * Renders the indicator, hidden from assistive technology, with the machine's indicator props.
  *
- * @param props - Everything a styled span takes.
- * @returns The mark, carrying the open state.
+ * @param props - The props of a `span`.
+ * @returns The `span` element.
  */
 export function Indicator(props: IndicatorProps): ReactElement {
   const { api } = useMenu();

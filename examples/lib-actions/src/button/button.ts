@@ -1,10 +1,10 @@
 /**
- * Draws a button through its recipe.
+ * Renders a button bound to its recipe.
  *
  * @remarks
- *   The binding stamps the recipe's name on the element and writes the class of each variant a
- *   caller picks. The component adds no color, no size and no margin. All of that is the recipe's,
- *   so a theme moves every button by extending it.
+ *   The binding sets `data-recipe` on the element and applies the class of each variant the caller
+ *   passes. The component sets no color, size or margin of its own. The recipe owns them, so a
+ *   theme restyles every button by extending the recipe.
  */
 
 import { type ComponentProps } from "react";
@@ -14,17 +14,16 @@ import { createRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#button/button.recipe.ts";
 
 /**
- * Binds the recipe to the elements that draw it.
+ * Binds the recipe to the elements that render it.
  */
 const { withContext } = createRecipeContext(recipe);
 
 /**
- * Draws a button in a look, a size and the palette of its status.
+ * Renders a `button` with a look, a size and a palette.
  */
 export const Button = withContext("button");
 
 /**
- * Describes what a button takes: the variants its recipe offers, and everything a styled button
- * element takes.
+ * Describes the props of `Button`: the recipe's variants and the props of a `button` element.
  */
 export type ButtonProps = ComponentProps<typeof Button>;

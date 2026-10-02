@@ -1,9 +1,17 @@
 {
-  "about": "Exposes its words to a screen reader and draws them nowhere.",
+  "about": "Renders content that a screen reader announces and the browser does not paint.",
   "close": "Close",
+  "create": "New invoice",
   "focusable": {
-    "about": "Hidden words beside a control that is hidden until focus reaches it. Both buttons carry the word a screen reader hears; press Tab into the panel and the second draws its words.",
+    "about": "A page section whose first control, Keyboard shortcuts, is hidden until keyboard focus. Press Tab into the scene: `focusable` fixes the control to the start corner of the section.",
     "title": "Focusable"
   },
+  "invoices": "Invoices",
+  "name": {
+    "about": "An icon-only close button. The icon has `aria-hidden`, and the hidden text Close is the button's accessible name.",
+    "title": "Accessible name"
+  },
+  "shortcuts": "Keyboard shortcuts",
+  "summary": "24 invoices, 3 of them overdue.",
   "title": "Visually hidden"
 }

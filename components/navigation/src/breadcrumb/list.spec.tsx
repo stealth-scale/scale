@@ -9,7 +9,7 @@ import { Item } from "#breadcrumb/item.ts";
 import { List } from "#breadcrumb/list.ts";
 
 describe("List", () => {
-  it("conforms as an ordered list inside the landmark it needs above it", () => {
+  it("conforms as an ordered list inside the root", () => {
     expect(
       violations(List, {
         as: true,
@@ -21,7 +21,7 @@ describe("List", () => {
     ).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule holding a crumb", async () => {
+  it("returns no accessibility violation when it holds an item", async () => {
     await expect(
       accessibilityViolations(List, {
         props: { children: <Item>Invoices</Item> },
@@ -30,7 +30,7 @@ describe("List", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("states its list role because a list with no marker loses it in Safari", () => {
+  it("sets role to list", () => {
     const { container } = render(trailed(<List />));
 
     expect(slotElement(container, "breadcrumb", "list").getAttribute("role")).toBe("list");

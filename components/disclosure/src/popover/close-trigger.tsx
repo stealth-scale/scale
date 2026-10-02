@@ -1,9 +1,9 @@
 /**
- * Draws the control that shuts the panel.
+ * Renders the button that closes the popover.
  *
  * @remarks
- *   Escape shuts the panel too, so this is for a pointer. It is named by the machine, so a caller
- *   drawing a glyph in it needs no label of their own.
+ *   The machine names the button "close". Pass `aria-label` to name it in the page's language.
+ *   Escape closes the popover as well.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -14,20 +14,20 @@ import { withContext } from "#popover/context.ts";
 import { usePopover } from "#popover/machine.ts";
 
 /**
- * Draws the part at the size the root states.
+ * Renders the `button` with the popover's close trigger class.
  */
 const Drawn = withContext("button", "closeTrigger");
 
 /**
- * Describes what the part takes.
+ * Describes the props of the close trigger: the props of a `button`.
  */
 export type CloseTriggerProps = ComponentProps<typeof Drawn>;
 
 /**
- * Draws the control that shuts the panel.
+ * Renders the close trigger with the machine's close trigger props merged over the caller's.
  *
- * @param props - Everything a styled button takes.
- * @returns The part, carrying what the machine writes onto it.
+ * @param props - The props of a `button`.
+ * @returns The `button` element.
  */
 export function CloseTrigger(props: CloseTriggerProps): ReactElement {
   const api = usePopover();

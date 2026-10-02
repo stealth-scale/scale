@@ -9,13 +9,13 @@ import { recipe } from "#alert/recipe.ts";
 import { type RootProps } from "#alert/root.tsx";
 
 describe("Indicator", () => {
-  it("draws a div inside the root it needs above it", () => {
+  it("renders a div", () => {
     const { container } = render(alerted(<Indicator>!</Indicator>));
 
     expect(slotElement(container, "alert", "indicator").tagName).toBe("DIV");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value set on the root", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "indicator",
@@ -23,13 +23,13 @@ describe("Indicator", () => {
     ).toStrictEqual([]);
   });
 
-  it("keeps the mark out of what a screen reader reads", () => {
+  it("sets aria-hidden to true by default", () => {
     const { container } = render(alerted(<Indicator>!</Indicator>));
 
     expect(slotElement(container, "alert", "indicator").getAttribute("aria-hidden")).toBe("true");
   });
 
-  it("reads the mark out where a caller says it carries something the words do not", () => {
+  it("keeps aria-hidden false when the caller passes false", () => {
     const { container } = render(alerted(<Indicator aria-hidden={false}>!</Indicator>));
 
     expect(slotElement(container, "alert", "indicator").getAttribute("aria-hidden")).toBe("false");

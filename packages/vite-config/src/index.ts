@@ -1,9 +1,8 @@
 /**
  * Assembles the layers and the tiers every package in this repository
- * configures Vite with. A tier is chosen by what a package is rather than by
- * what it contains, every tier carries the house layers underneath, and the
- * keys a repository states for itself are merged over whatever those layers
- * contributed.
+ * configures Vite with. A package picks a tier by what it is rather than by
+ * what it contains. Each tier carries the house layers beneath it, and the keys
+ * a repository declares for itself merge over what those layers contributed.
  *
  * @packageDocumentation
  */

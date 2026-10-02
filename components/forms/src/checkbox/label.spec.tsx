@@ -7,13 +7,13 @@ import { boxed, composed } from "#checkbox/checkbox.fixtures.tsx";
 import { Label } from "#checkbox/label.tsx";
 
 describe("Label", () => {
-  it("draws a span inside the root it needs above it", () => {
+  it("renders a span inside the root", () => {
     const { container } = render(boxed(<Label>Accept the terms</Label>));
 
     expect(slotElement(container, "checkbox", "label").tagName).toBe("SPAN");
   });
 
-  it("names the checkbox the root draws", () => {
+  it("labels the input through aria-labelledby", () => {
     const { container } = render(composed());
 
     expect(screen.getByRole("checkbox").getAttribute("aria-labelledby")).toBe(
@@ -21,7 +21,7 @@ describe("Label", () => {
     );
   });
 
-  it("reports the state the machine is in", () => {
+  it("sets data-state to checked on a checked box", () => {
     const { container } = render(composed({ defaultChecked: true }));
 
     expect(slotElement(container, "checkbox", "label").dataset["state"]).toBe("checked");

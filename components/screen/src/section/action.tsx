@@ -1,40 +1,102 @@
 /**
- * Draws one control in the header, and says how far it survives as the section narrows.
+ * Renders one action in the header: the library's button, which folds as the section narrows.
  *
  * @remarks
- *   A section folds on its own width rather than the page's, so a section in a narrow column drops
- *   its tertiary controls while the same section beside a wide one keeps them.
- *   The priority is an attribute rather than an axis of the recipe. A slot recipe's variants are
- *   set on the root and read by every part, so an axis would fold every control in the row the same
- *   way, and each one has to say for itself.
+ *   The action renders the library's button, `outline`, or `solid` when `primary`, one size smaller
+ *   than the section. On a narrow section an action with an icon shows the icon alone, a primary
+ *   action without one keeps its words, and any other action renders nothing and runs from the
+ *   menu `Section.Actions` renders. `priority` overrides that choice. `as` renders another control
+ *   in the action's place, such as a menu's trigger, and the caller sets its look.
  */
 
-import { type ComponentProps, type ReactElement } from "react";
+import { type ComponentProps, type MouseEvent, type ReactElement, type ReactNode } from "react";
 
-import { PRIORITY, type Priority } from "#folding/index.ts";
+import { Button } from "@stealthscale/component-actions";
+
+import { NARROW, PRIORITY, type Priority, priorityOf, useFoldable } from "#folding/index.ts";
 import { withContext } from "#section/context.ts";
+import { buttonSizeOf, useSection } from "#section/state.ts";
 
 /**
- * Draws the control at the room the block states.
+ * Renders the library's button with the recipe's action class.
  */
-const Acted = withContext("button", "action", { defaultProps: { type: "button" } });
+const Acted = withContext(Button, "action");
 
 /**
- * Describes what an action takes.
+ * Describes the props of an action: its icon, whether it is primary, its priority and the props of
+ * the library's button.
  */
-export interface ActionProps extends ComponentProps<typeof Acted> {
+export interface ActionProps extends Omit<ComponentProps<typeof Acted>, "onClick"> {
   /**
-   * How much the control matters, which decides what a narrow section does with it.
+   * Icon before the words, which a narrow section shows alone.
+   */
+  readonly icon?: ReactNode | undefined;
+
+  /**
+   * Handler the button or the menu row calls when a reader presses it.
+   */
+  readonly onClick?: ((event: MouseEvent<HTMLElement>) => void) | undefined;
+
+  /**
+   * Whether the action is the section's primary action, which renders solid and keeps its words.
+   */
+  readonly primary?: boolean | undefined;
+
+  /**
+   * Priority that decides how a narrow section folds the action, in place of the one `icon` and
+   * `primary` imply.
    */
   readonly priority?: Priority | undefined;
 }
 
 /**
- * Acts on the section, and gives way in the order its priority states.
+ * Renders the action, or nothing while the section folds it into the menu.
  *
- * @param props - How much it matters, and everything a styled button takes.
- * @returns The control, carrying how far it survives.
+ * @param props - The icon, the primary flag, the priority and the props of the library's button.
+ * @returns The `button` element, or nothing on a narrow section that folds it.
  */
-export function Action({ priority = "primary", ...rest }: ActionProps): ReactElement {
-  return <Acted {...rest} {...{ [PRIORITY]: priority }} />;
+export function Action({
+  as,
+  children,
+  disabled,
+  icon,
+  onClick,
+  primary = false,
+  priority,
+  ...rest
+}: ActionProps): null | ReactElement {
+  const section = useSection();
+  const ranked = priorityOf(priority, icon !== undefined, primary);
+  const folded = section.narrow && ranked === "tertiary";
+  const look =
+    as === undefined
+      ? ({ size: buttonSizeOf(section.size), variant: primary ? "solid" : "outline" } as const)
+      : {};
+
+  useFoldable(folded, {
+    disabled,
+    label: (
+      <>
+        {icon}
+        {children}
+      </>
+    ),
+    onClick,
+  });
+
+  if (folded) return null;
+
+  return (
+    <Acted
+      as={as}
+      disabled={disabled}
+      onClick={onClick}
+      {...look}
+      {...rest}
+      {...{ [NARROW]: section.narrow ? "" : undefined, [PRIORITY]: ranked }}
+    >
+      {icon}
+      {icon === undefined ? children : <span>{children}</span>}
+    </Acted>
+  );
 }

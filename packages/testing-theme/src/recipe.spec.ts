@@ -14,7 +14,7 @@ describe("recipe", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual(["ghost", "solid"]);
   });
 
-  it("throws naming the recipe and the variant it could not find", () => {
+  it("throws naming the recipe and the axis when the recipe offers no such variant", () => {
     expect(() => valuesOf(defineRecipe({ className: "button" }), "tone")).toThrow(/button.*tone/u);
   });
 
@@ -28,7 +28,7 @@ describe("recipe", () => {
     expect(axesOf(defineRecipe({ className: "button" }))).toStrictEqual([]);
   });
 
-  it("reads what a recipe draws when nothing is asked for", () => {
+  it("returns the default variant values and an empty object when a recipe declares none", () => {
     const recipe = defineRecipe({
       className: "button",
       defaultVariants: { variant: "solid" },
@@ -45,7 +45,7 @@ describe("recipe", () => {
     expect(slotsOf(recipe)).toStrictEqual(["content", "title"]);
   });
 
-  it("reads one property across a variant's values in the order asked for", () => {
+  it("reads one property across a variant's values in the order given", () => {
     const recipe = {
       className: "b",
       variants: { size: { lg: { height: "11" }, md: { height: "10" }, sm: { height: "8" } } },
@@ -54,7 +54,7 @@ describe("recipe", () => {
     expect(scaleOf(recipe, "size", "height", ["sm", "md", "lg"])).toStrictEqual(["8", "10", "11"]);
   });
 
-  it("reads undefined for a value that leaves the property alone", () => {
+  it("returns undefined for a value that sets no such property", () => {
     const recipe = { className: "b", variants: { size: { sm: { paddingInline: "3" } } } };
 
     expect(scaleOf(recipe, "size", "height", ["sm"])).toStrictEqual([undefined]);
@@ -70,7 +70,7 @@ describe("recipe", () => {
     expect(() => scaleOf(recipe, "size", "height", ["xl"])).toThrow("offers no value xl");
   });
 
-  it("orders steps numerically", () => {
+  it("sorts the steps of a scale numerically", () => {
     expect(["10", "2.5", "8"].toSorted(byStep)).toStrictEqual(["2.5", "8", "10"]);
   });
 });

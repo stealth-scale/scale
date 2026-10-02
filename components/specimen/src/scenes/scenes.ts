@@ -1,14 +1,11 @@
 /**
- * Builds one scene per axis a recipe offers, from one drawing of the component.
+ * Generates one catalogue scene per recipe axis from a single draw function.
  *
  * @remarks
- *   Every axis gets a scene unless the page states a reason it gets none. That default is the
- *   point: an axis added to a recipe reaches its page without anybody remembering to write a
- *   scene, which is the failure this replaces. Measured on 2026-09-21, eleven of the library's two
- *   hundred and ten axes were drawn by nothing.
- *   The page hands over one drawing of the component and the generator turns each axis through it.
- *   The drawing cannot come from the recipe: a recipe names its axes and their values and knows
- *   nothing of the children a card holds or the rows a table needs.
+ *   Every axis gets a scene unless the page lists it in `skip` with a reason, so a new axis appears
+ *   in the catalogue without a specimen edit. On 2026-09-21, 11 of the library's 210 axes had no
+ *   scene. The page supplies the draw function, because a recipe declares axes and values but not
+ *   the children a component needs.
  */
 
 import { createElement, type ReactElement, type ReactNode } from "react";
@@ -16,130 +13,143 @@ import { createElement, type ReactElement, type ReactNode } from "react";
 import { valuesOf } from "#matrix/values.ts";
 import { type Scene } from "#page.ts";
 import { Drawn } from "#scenes/drawn.tsx";
-import { type Snippet, written } from "#scenes/written.ts";
+import { sampled, type Snippet, written } from "#scenes/written.ts";
 
 /**
- * The two answers a boolean axis takes, which a recipe states as the one key `true`.
+ * Values of a boolean axis. A recipe declares a boolean axis as the single key `true`.
  */
 const EITHER = [false, true] as const;
 
 /**
- * Marks the one key a recipe states a boolean axis under.
+ * Key a recipe declares a boolean axis under.
  */
 const BOOLEAN = "true";
 
 /**
- * Describes one axis of a page: how it is crossed, drawn and held.
- *
- * @typeParam Props - The props the component takes.
+ * Settings the source of a scene is written from.
  */
-export interface AxisScene<Props> {
+interface Sourced {
   /**
-   * A second axis to run across each row, for a pair that reads better crossed than apart.
+   * Example module whose source is written with the props of the first cell. Takes precedence
+   * over `sample`.
    *
    * @remarks
-   *   Crossing is editorial and cannot be read off a recipe. A size against a corner is a grid
-   *   worth reading, and a size against a motion is a screen of cells that differ in nothing a
-   *   still image holds.
+   *   The example component takes one parameter named `props` and spreads it on every element it
+   *   styles. See `propped` for the rewrite.
+   */
+  readonly example?: object | undefined;
+
+  /**
+   * Snippet the source is written from when there is no example.
+   */
+  readonly sample?: Snippet | undefined;
+}
+
+/**
+ * Per-axis settings of a generated scene.
+ *
+ * @typeParam Props - Props of the component.
+ */
+export interface AxisScene<Props> extends Sourced {
+  /**
+   * Second axis rendered across each row.
+   *
+   * @remarks
+   *   Crossing is an editorial choice the recipe cannot express. Size against radius is a useful
+   *   grid. Size against motion produces cells that look identical in a still image.
    */
   readonly across?: string | undefined;
 
   /**
-   * Which way the cells run. Across the room by default, on as many columns as it holds.
+   * Cell flow. Defaults to `row`, with as many columns as fit.
    *
    * @remarks
-   *   A column is one cell per row, which is what an axis of two wide cells wants: drawn across,
-   *   a pair of cards each half the room reads as a comparison of their widths rather than of the
-   *   thing the axis turns.
+   *   `column` puts one cell in each row. Two wide cells side by side invite a comparison of their
+   *   widths instead of the axis values.
    */
   readonly direction?: "column" | "row" | undefined;
 
   /**
-   * A drawing for this axis alone, where the page's own drawing does not show it.
+   * Draw function for this axis, for an axis the page's draw function does not show.
    *
    * @remarks
-   *   A truncation needs words longer than its box and a blur needs a picture, neither of which
-   *   the drawing that shows a look has any reason to hold.
+   *   Truncation needs text wider than its container and a blur needs an image. The default
+   *   drawing of a page has no reason to include either.
    */
   readonly draw?: ((props: Props) => ReactNode) | undefined;
 
   /**
-   * The component as a consumer writes it for this axis alone, where the page's own sample does
-   * not stand for it.
+   * Whether the cells fill the window. Defaults to the page setting.
    */
-  readonly sample?: Snippet | undefined;
+  readonly viewport?: boolean | undefined;
 
   /**
-   * The props held fixed while this axis turns, for an axis invisible without them.
+   * Props fixed on every cell, for an axis that is invisible without them.
    *
    * @remarks
-   *   An alert's edge is drawn in the palette's own colour, so a bar on a page that states no
-   *   status is the neutral one and reads as no bar at all.
+   *   An alert renders its edge in the palette colour, so without a status the edge renders
+   *   neutral and is indistinguishable from no edge.
    */
   readonly with?: Props | undefined;
 }
 
 /**
- * Describes everything a page states to have its scenes built.
+ * Settings `scenesOf` generates the scenes of a page from.
  *
- * @typeParam Props - The props the component takes.
+ * @typeParam Props - Props of the component.
  */
-export interface ScenesOptions<Props> {
+export interface ScenesOptions<Props> extends Sourced {
   /**
-   * The axes that state something of their own, keyed by the axis. An axis named nowhere here
-   * still gets a scene.
+   * Per-axis settings, keyed by axis. An axis without settings still gets a scene.
    */
   readonly axes?: Readonly<Record<string, AxisScene<Props>>> | undefined;
 
   /**
-   * Draws the component for a value of whichever axis the scene turns.
+   * Draw function for a cell, called with the props of the cell.
    */
   readonly draw: (props: Props) => ReactNode;
 
   /**
-   * The words a scene's title and sentence are looked up under, `card` for a card.
+   * Translation key prefix of the scene titles and introductions, such as `card`.
    */
   readonly namespace: string;
 
   /**
-   * The order the scenes are drawn in, axis by axis. An axis left out follows the ones named, in
-   * the order the recipe states them.
+   * Axis order of the scenes. Unlisted axes follow in recipe order.
    *
    * @remarks
-   *   A page reads as an argument rather than as a list: what the component looks like, then how
-   *   large, then the rest. A recipe states its axes in the order a sorting rule put them, which
-   *   is nobody's argument.
+   *   A page leads with appearance and then size. A recipe lists its axes in sorted order, which
+   *   does not follow how a reader learns the component.
    */
   readonly order?: readonly string[] | undefined;
 
   /**
-   * The component as a consumer writes it, which every scene shows as its source.
-   *
-   * @remarks
-   *   Stated rather than read off the drawing. The drawing is a function returning a tree, and the
-   *   line a reader copies is the component's own tag round its own children, which that tree may
-   *   hold at any depth under a wrapper the page wrote for staging.
-   */
-  readonly sample?: Snippet | undefined;
-
-  /**
-   * The axes that get no scene, each against the reason.
+   * Axes that get no scene, each mapped to the reason.
    */
   readonly skip?: Readonly<Record<string, string>> | undefined;
+
+  /**
+   * Whether every scene fills the window.
+   *
+   * @remarks
+   *   An application shell is as tall as its window, so padding would push it past the bottom of
+   *   the window. An axis can set the flag for itself instead.
+   */
+  readonly viewport?: boolean | undefined;
 }
 
 /**
- * Describes the part of a recipe this reads: its axes, each holding its values.
+ * Recipe fields the generator reads.
  */
 interface Axed {
   /**
-   * The axes the recipe offers, keyed by name.
+   * Axes keyed by name.
    */
   readonly variants?: Readonly<Record<string, unknown>> | undefined;
 }
 
 /**
- * Returns the values an axis turns, reading a boolean axis as the two answers it takes.
+ * Returns the values of an axis, with a boolean axis expanded to false and true.
  */
 function turning(recipe: Axed, axis: string): readonly unknown[] {
   const values = valuesOf(recipe, axis);
@@ -148,13 +158,11 @@ function turning(recipe: Axed, axis: string): readonly unknown[] {
 }
 
 /**
- * Writes the props one cell is drawn from: what the axis states, the value it turns to, and the
- * value of whatever crosses it.
+ * Returns the props of one cell: the fixed props, the axis value and the crossing axis value.
  *
  * @remarks
- *   The props are built from names the recipe holds rather than written out, so the object cannot
- *   be typed as the component's own props without asserting it. The assertion is here, at the one
- *   place a name becomes a prop, rather than at each of the three callers.
+ *   The props are built from recipe names, so the object needs a type assertion to become the
+ *   component's props. The assertion is made here once instead of in each of the three callers.
  */
 function propsOf<Props>(
   turned: Readonly<Record<string, unknown>>,
@@ -167,12 +175,12 @@ function propsOf<Props>(
 }
 
 /**
- * Writes the props the first cell of a scene is drawn with: what the scene holds fixed, the axis
- * it turns at its first value, and the axis crossing it at its own first.
+ * Returns the props of the first cell of a scene.
  *
  * @remarks
- *   The first cell rather than a cell of the page's choosing, because it is the one a reader's eye
- *   lands on and the one the snippet is read against.
+ *   The props are the fixed props, the first value of the axis and the first value of the crossing
+ *   axis. The source is written for the first cell, because a reader sees it first and compares
+ *   the source against it.
  */
 function firstOf<Props>(
   recipe: Axed,
@@ -189,7 +197,48 @@ function firstOf<Props>(
 }
 
 /**
- * Puts the axes in the order the page states, and the rest after them as the recipe states them.
+ * Writes a source from an example if the settings have one, otherwise from a snippet.
+ */
+function sourced(
+  settings: Sourced | undefined,
+  props: Readonly<Record<string, unknown>>,
+): string | undefined {
+  return sampled(settings?.example, props) ?? written(settings?.sample, props);
+}
+
+/**
+ * Returns the scene of one axis.
+ *
+ * @remarks
+ *   Axis settings take precedence over page settings. Unset members are omitted instead of set to
+ *   undefined, because a consumer checks whether a member is present.
+ */
+function sceneOf<Props>(
+  recipe: Axed,
+  options: ScenesOptions<Props>,
+  axis: string,
+  draw: () => ReactElement,
+): Scene {
+  const stated = options.axes?.[axis];
+  const across = stated?.across;
+  const first = firstOf(recipe, axis, stated);
+  const source = sourced(stated, first) ?? sourced(options, first);
+  const viewport = stated?.viewport ?? options.viewport;
+  const scene: Scene = {
+    about: `${options.namespace}.${axis}.about`,
+    axes: across === undefined ? [axis] : [axis, across],
+    draw,
+    title: `${options.namespace}.${axis}.title`,
+  };
+
+  if (source !== undefined) scene.source = source;
+  if (viewport !== undefined) scene.viewport = viewport;
+
+  return scene;
+}
+
+/**
+ * Returns the axes in the page's order, followed by the other axes in recipe order.
  */
 function ordered(offered: readonly string[], order: readonly string[]): readonly string[] {
   const named = order.filter((axis) => offered.includes(axis));
@@ -198,22 +247,19 @@ function ordered(offered: readonly string[], order: readonly string[]): readonly
 }
 
 /**
- * Returns one scene per axis the recipe offers, less the ones the page states a reason to skip.
+ * Returns one scene per recipe axis, without the skipped axes.
  *
  * @remarks
- *   A scene states the axis it draws, so the coverage check reads what a page shows rather than
- *   guessing it from the file's text.
- *   The words are looked up by convention, `<namespace>.<axis>.title` and `.about`, so a new axis
- *   fails on a missing key until somebody writes the sentence that says what it is for. That is
- *   the point rather than the cost: describing an axis is the price of adding one.
- *   An axis another scene crosses gets no scene of its own, unless the page states something for
- *   it. It is already drawn once per value against every value of the axis crossing it, so a
- *   second scene turning it alone draws the same cells in one row. A page that states the axis
- *   wants it both ways: the button's looks are crossed by six other axes and are still the one
- *   scene a reader opens that page for.
- * @param recipe - The recipe the page is written for.
- * @param options - The drawing, the words, and whatever each axis states.
- * @returns One scene per axis, in the order the page states.
+ *   Each scene declares its axes, so the coverage check reads the rendered axes instead of parsing
+ *   source text. Titles and introductions are keyed `<namespace>.<axis>.title` and `.about`, so a
+ *   new axis fails on a missing key until its description is written. An axis that another scene
+ *   crosses gets no scene of its own unless the page sets something for it. The crossed scene
+ *   already renders each of its values against each value of the crossing axis. The button page
+ *   sets its looks both ways, because six axes cross them and the looks are still the scene most
+ *   readers open the page for.
+ * @param recipe - Recipe of the page.
+ * @param options - Draw function, translation prefix and per-axis settings.
+ * @returns One scene per axis, in the page's order.
  */
 export function scenesOf<Props extends object>(
   recipe: Axed,
@@ -236,8 +282,7 @@ export function scenesOf<Props extends object>(
     const draw = stated?.draw ?? options.draw;
 
     /**
-     * Draws this axis, declared as a named component so the catalogue reads a name rather than an
-     * anonymous function in its tree.
+     * Renders the scene of this axis as a named component, so the React tree shows a name.
      */
     function Turned(): ReactElement {
       return createElement(Drawn, {
@@ -255,16 +300,6 @@ export function scenesOf<Props extends object>(
       });
     }
 
-    const source = written(stated?.sample ?? options.sample, firstOf(recipe, axis, stated));
-    const scene: Scene = {
-      about: `${options.namespace}.${axis}.about`,
-      axes: across === undefined ? [axis] : [axis, across],
-      draw: Turned,
-      title: `${options.namespace}.${axis}.title`,
-    };
-
-    if (source !== undefined) scene.source = source;
-
-    return scene;
+    return sceneOf(recipe, options, axis, Turned);
   });
 }

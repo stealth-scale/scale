@@ -1,25 +1,83 @@
 /**
- * Carries the identifier a block of destinations names itself by down to its heading.
+ * Provides the sidebar's state to its parts, and a nav block's label identifier to its `NavLabel`.
  *
  * @remarks
- *   The block derives the identifier and the heading carries it, so a caller writes neither and the
- *   two cannot drift apart. A heading drawn outside a block throws where it was written rather than
- *   naming nothing and saying so nowhere.
+ *   The root provides whether the sidebar is a rail and how to open the panel it is in, which the
+ *   search reads to open the panel before it takes focus. A block creates its label identifier and
+ *   the label reads it, so the two always match without an identifier from the caller. A
+ *   `NavLabel` outside a block throws.
  */
 
 import { createRequiredContext } from "@stealthscale/hooks";
 
 /**
- * Describes what the parts of a block read.
+ * Describes the state the sidebar's root provides.
+ */
+export interface SidebarState {
+  /**
+   * Opens the app shell panel the sidebar is in, and does nothing outside one.
+   */
+  readonly expand: () => void;
+
+  /**
+   * Whether the sidebar is in an app shell panel that `expand` opens.
+   */
+  readonly expandable: boolean;
+
+  /**
+   * Whether the sidebar is a rail of icons.
+   */
+  readonly iconic: boolean;
+
+  /**
+   * Whether the app shell panel the sidebar is in is open, and `true` outside a panel.
+   */
+  readonly open: boolean;
+
+  /**
+   * Size of the sidebar, which its search field renders one size smaller than, down to `sm`.
+   */
+  readonly size: SidebarSize;
+}
+
+/**
+ * Size of a sidebar.
+ */
+export type SidebarSize = "lg" | "md" | "sm";
+
+/**
+ * Size of the search field and the rail's search button per sidebar size.
+ */
+const FIELDS: Readonly<Record<SidebarSize, "md" | "sm">> = { lg: "md", md: "sm", sm: "sm" };
+
+/**
+ * Returns the size of a sidebar's search field and of the rail's search button.
+ *
+ * @param size - The sidebar's size.
+ * @returns The field's size, one smaller than the sidebar, down to `sm`.
+ */
+export function fieldSizeOf(size: SidebarSize): "md" | "sm" {
+  return FIELDS[size];
+}
+
+/**
+ * Provides the sidebar's state and reads it, throwing outside `Sidebar.Root` or returning
+ * `undefined` there.
+ */
+export const [SidebarProvider, useSidebar, useEnclosingSidebar] =
+  createRequiredContext<SidebarState>("Sidebar.Root");
+
+/**
+ * Describes the state a nav block provides.
  */
 export interface NavState {
   /**
-   * The identifier the heading carries and the block names itself by.
+   * Identifier of the label, which the block's `aria-labelledby` points at.
    */
   labelId: string;
 }
 
 /**
- * Hands the block's identifier to its heading, and reads it back.
+ * Provides the block's state and reads it, throwing outside a `Sidebar.Nav`.
  */
 export const [NavProvider, useNav] = createRequiredContext<NavState>("Sidebar.Nav");

@@ -1,16 +1,12 @@
 /**
- * Renames every class selector of a compiled stylesheet into the scheme, and removes the rules
- * nothing can reach.
+ * Renames the class selectors in a compiled stylesheet to the scheme, and drops the rules left
+ * unmatchable.
  *
  * @remarks
- *   The stylesheet is parsed once per compile, each class in each selector is renamed, and the
- *   parser escapes the new name as it writes it back. A class for a boolean axis at `false` is one
- *   no element carries, so a selector that needs it is removed and reported, a block the removal
- *   leaves empty goes with it, and `:not()` of it is kept as written, since the negation matches
- *   everything at its own specificity. Two classes that rename to one name are a collision and are
- *   reported as an error, since the rules of one would apply to the other. A class under a raw
- *   selector or at-rule condition is reported as a warning, because the scheme keeps it as written
- *   and a named condition in the preset would read better.
+ *   The stylesheet is parsed once per compile, and postcss escapes each new name as it writes the
+ *   selector back. A boolean axis at `false` emits no class at all, so a selector that requires one
+ *   is dead and goes. Two classes that rename to the same name are an error rather than a warning:
+ *   one set of rules would start applying to the other, silently.
  */
 
 import { type AtRule, type Container, type Node, parse, type Rule } from "postcss";
@@ -21,83 +17,81 @@ import { type CompilerConfig, conditionsOf, rename } from "@stealthscale/pandacs
 import { type Diagnostic } from "#pandacss.ts";
 
 /**
- * Describes a renamed stylesheet with what the rename found.
+ * A renamed stylesheet and everything the rename had to report about it.
  */
 export interface Renamed {
   /**
-   * The stylesheet with every class selector in the scheme.
+   * The stylesheet, with every class selector in the scheme.
    */
   css: string;
   /**
-   * Each collision as an error, then the classes whose rules were removed and the classes kept
-   * under a raw condition as one warning each.
+   * An error per collision, then one warning for the classes whose rules were removed and one for
+   * the classes kept under a raw condition.
    */
   diagnostics: readonly Diagnostic[];
 }
 
 /**
- * Records which classes the compiler wrote were renamed to each name.
+ * The compiler classes behind each new name, keyed by the new name.
  */
 type Sources = Map<string, Set<string>>;
 
 /**
- * Describes what one call reads and records while it renames.
+ * The state one rename threads through its walk of the stylesheet.
  */
 interface Pass {
   /**
-   * The classes kept under a raw condition.
+   * The compiler classes kept under a raw condition.
    */
   raw: Set<string>;
   /**
-   * The class of the scheme for each class the compiler wrote. A class appears in many selectors,
-   * so each is renamed once per call.
+   * The new name for each compiler class. A class turns up in many selectors, and this keeps it to
+   * one rename per call.
    */
   renamed: Map<string, string>;
   /**
-   * The classes the compiler wrote, by the name each was renamed to.
+   * The compiler classes behind each new name, for reporting collisions at the end.
    */
   sources: Sources;
   /**
-   * The classes no element carries, whose rules were removed.
+   * The compiler classes no element can carry, whose rules were removed.
    */
   unreachable: Set<string>;
 }
 
 /**
- * Matches the name of an at-rule whose inner rules are keyframe steps rather than selectors.
+ * The at-rules whose child rules are keyframe steps rather than selectors.
  */
 const KEYFRAMES = /keyframes$/u;
 
 /**
- * Opens a raw selector or at-rule condition in a class the compiler wrote.
+ * The character that opens a raw selector or at-rule condition inside a compiler class.
  */
 const RAW = "[";
 
 /**
- * Marks a selector that names a class at all.
+ * The character that opens a class in a selector.
  */
 const CLASS = ".";
 
 /**
- * The pseudo-class that matches everything once its argument matches nothing.
+ * The pseudo-class that matches every element when its argument matches none.
  */
 const NOT = ":not";
 
 /**
- * Matches a class an author named inside a raw selector condition, such as `.childBox` in
- * `[&_.childBox]:c_red`.
+ * An author's own class inside a raw condition, such as `.childBox` in `[&_.childBox]:c_red`.
  */
 const NAMED = /\.[\w-]+/gu;
 
 /**
- * Lists the classes an author named inside the raw conditions of the compiler's classes in one
- * selector.
+ * Collects the author's own class names out of the raw conditions in one selector.
  *
  * @remarks
- *   A declaration nested under a selector, such as `css({ "& .childBox": { color: "red" } })`,
- *   compiles to a rule whose subject is the compiler's class and whose descendant is the author's,
- *   and the author's class also appears inside the raw condition of the compiler's. The markup
- *   carries the author's class as written, so the rename leaves it alone.
+ *   A nested declaration such as `css({ "& .childBox": { color: "red" } })` compiles to a rule
+ *   whose subject is the compiler's class and whose descendant is the author's, with the author's
+ *   class repeated inside the raw condition. Those names stay as written: the author types them
+ *   into the markup, so renaming them would break the match.
  */
 function authoredIn(root: selectorParser.Root): ReadonlySet<string> {
   const found = new Set<string>();
@@ -114,21 +108,21 @@ function authoredIn(root: selectorParser.Root): ReadonlySet<string> {
 }
 
 /**
- * Tells whether a node is an at-rule.
+ * Narrows a node to an at-rule.
  */
 function isAtRule(node: Node | undefined): node is AtRule {
   return node?.type === "atrule";
 }
 
 /**
- * Tells whether a rule's selectors are keyframe steps, which name no class.
+ * Reports whether a rule sits in a keyframes block, where the selectors are steps and not classes.
  */
 function inKeyframes(rule: Rule): boolean {
   return isAtRule(rule.parent) && KEYFRAMES.test(rule.parent.name);
 }
 
 /**
- * Records that one class the compiler wrote was renamed to a name.
+ * Notes that a compiler class produced one of the new names.
  */
 function record(sources: Sources, renamed: string, pandaClass: string): void {
   const from = sources.get(renamed) ?? new Set<string>();
@@ -138,14 +132,14 @@ function record(sources: Sources, renamed: string, pandaClass: string): void {
 }
 
 /**
- * Tells whether a class sits under a raw selector or at-rule condition, at any depth.
+ * Reports whether a compiler class carries a raw selector or at-rule condition, at any depth.
  */
 function isRaw(pandaClass: string): boolean {
   return conditionsOf(pandaClass).some((condition) => condition.startsWith(RAW));
 }
 
 /**
- * Renames one class the compiler wrote, once per call, and records what it saw of it.
+ * Renames one compiler class, caching the result and its bookkeeping for the rest of the pass.
  */
 function renamedOf(pandaClass: string, config: CompilerConfig, pass: Pass): string {
   const known = pass.renamed.get(pandaClass);
@@ -165,25 +159,20 @@ function renamedOf(pandaClass: string, config: CompilerConfig, pass: Pass): stri
 }
 
 /**
- * Clears the space a selector opens with once it leads a list, which the parser keeps on the
- * selector's first node.
+ * Strips the leading space the parser left on a selector that has just become first in its list.
  */
 function trimStart(selector: selectorParser.Selector): void {
   selector.first.spaces.before = "";
 }
 
 /**
- * Removes the selector around a node that never matches, and what its absence implies for the
- * selector around that.
+ * Removes the selector holding an unmatchable node, and the pseudo-class around it when that
+ * empties its list.
  *
  * @remarks
- *   The node is a class no element carries, or a pseudo-class whose argument was removed. At the
- *   top level its selector goes. Inside `:not()` nothing changes, because the negation of a class
- *   nothing carries matches everything, and it does so at the specificity of the class, which a
- *   rewrite to `*` would lose. Inside `:is()`, `:where()` or `:has()` the selector goes and the
- *   list stands, unless it was the last one, in which case the list never matches and the
- *   pseudo-class is removed the same way. A selector an earlier removal took away is left as it
- *   is.
+ *   Nothing is removed inside `:not()`. Negating a class no element carries matches every element,
+ *   at that class's specificity, and rewriting it to `*` would throw the specificity away. Nodes an
+ *   earlier removal already detached are left alone.
  */
 function drop(node: selectorParser.Node): void {
   // eslint-disable-next-line typescript/no-unsafe-type-assertion -- a class and a pseudo-class with an argument sit inside a selector
@@ -207,13 +196,13 @@ function drop(node: selectorParser.Node): void {
 }
 
 /**
- * Builds the selector transform for one call: it renames each class the compiler wrote, then
- * removes each selector that needs a class no element carries.
+ * Builds the selector transform for one pass: rename every compiler class, then drop the selectors
+ * left unmatchable.
  *
  * @remarks
- *   The removals run after the walk, so the walk never visits a node its own callback removed. A
- *   class an author named inside a raw condition is passed over, because the markup carries it as
- *   written.
+ *   Removals are held back until the walk finishes, so the walk never steps into a node its own
+ *   callback detached. Classes the author named inside a raw condition are skipped, since the
+ *   author writes those in the markup.
  */
 function transformer(config: CompilerConfig, pass: Pass): (selector: string) => string {
   const processor = selectorParser((root) => {
@@ -235,10 +224,10 @@ function transformer(config: CompilerConfig, pass: Pass): (selector: string) => 
 }
 
 /**
- * Removes every rule and at-rule block the rename left empty, innermost first.
+ * Removes the rules and at-rule blocks the rename emptied, innermost first.
  *
  * @remarks
- *   An at-rule without a block, such as a layer order statement, has no nodes and is kept.
+ *   An at-rule with no block at all, such as a layer order statement, has no nodes and is kept.
  */
 function prune(container: Container): void {
   container.each((node) => {
@@ -251,7 +240,7 @@ function prune(container: Container): void {
 }
 
 /**
- * Lists each name two or more classes were renamed to.
+ * Reports every new name that two or more compiler classes landed on.
  */
 function collisions(sources: Sources): Diagnostic[] {
   return [...sources]
@@ -264,8 +253,7 @@ function collisions(sources: Sources): Diagnostic[] {
 }
 
 /**
- * Reports a set of classes as one warning that opens with their count, or nothing where the set
- * is empty.
+ * Wraps a set of classes in a single warning headed by its count, or nothing when the set is empty.
  */
 function warning(code: string, classes: ReadonlySet<string>, rest: string): Diagnostic[] {
   if (classes.size === 0) return [];
@@ -278,12 +266,12 @@ function warning(code: string, classes: ReadonlySet<string>, rest: string): Diag
 }
 
 /**
- * Renames every class selector of a stylesheet into the scheme.
+ * Renames every class selector in a stylesheet to the scheme.
  *
  * @remarks
- *   A rule inside a keyframes block and a rule that names no class are left as they are.
- * @returns The stylesheet renamed, with a diagnostic for each collision, one for the classes whose
- *   rules were removed, and one for the classes kept under a raw condition.
+ *   Rules inside a keyframes block and rules that name no class are passed through untouched.
+ * @returns The renamed stylesheet, with a diagnostic per collision, one for the classes whose rules
+ *   were removed, and one for the classes kept under a raw condition.
  */
 export function renameSelectors(css: string, config: CompilerConfig): Renamed {
   const root = parse(css);

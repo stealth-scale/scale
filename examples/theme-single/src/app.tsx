@@ -1,12 +1,12 @@
 /**
- * Draws the page: a control that switches the color mode of the document, and a row of buttons
- * in every look.
+ * Renders the page: a button that switches the document's color mode, and a row of buttons in
+ * every look.
  *
  * @remarks
- *   The application installs one theme, which is the default, so the page hands the provider no
- *   theme and the attribute stays off the document. The color mode is the one thing it switches,
- *   and the provider writes it on the document root, so the whole page switches at once. The
- *   page's own layout is written with `css`, reading the same semantic tokens a recipe reads.
+ *   The application installs one theme, the default, so the page passes the provider no theme and
+ *   the theme attribute is not set on the document. The provider writes the color mode on the
+ *   document root, so the whole page switches at once. The page layout uses `css` with the same
+ *   semantic tokens a recipe uses.
  */
 
 import { type ReactElement, useState } from "react";
@@ -25,12 +25,12 @@ const page = css({ display: "flex", flexDirection: "column", gap: "gap.lg", padd
 const title = css({ textStyle: "heading.lg" });
 
 /**
- * Lays a row of controls out, wrapping where the row is too narrow.
+ * Lays out a row of controls that wraps when it is too narrow.
  */
 const row = css({ alignItems: "center", display: "flex", flexWrap: "wrap", gap: "gap.sm" });
 
 /**
- * Draws the page and switches the document to the color mode a reader picks.
+ * Renders the page and switches the document to the color mode the user selects.
  */
 export function App(): ReactElement {
   const [mode, setMode] = useState<ColorMode>("light");
@@ -54,7 +54,7 @@ export function App(): ReactElement {
           <Button variant="subtle">Subtle</Button>
           <Button variant="outline">Outline</Button>
           <Button variant="ghost">Ghost</Button>
-          <Button status="error">Delete</Button>
+          <Button palette="error">Delete</Button>
           <Button size="lg">Large</Button>
         </p>
       </main>

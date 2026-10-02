@@ -8,7 +8,7 @@ import { trailed } from "#breadcrumb/breadcrumb.fixtures.tsx";
 import { CurrentLink } from "#breadcrumb/current-link.ts";
 
 describe("CurrentLink", () => {
-  it("conforms as a span inside the landmark it needs above it", () => {
+  it("conforms as a span inside the root", () => {
     expect(
       violations(CurrentLink, {
         as: true,
@@ -20,7 +20,7 @@ describe("CurrentLink", () => {
     ).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule", async () => {
+  it("returns no accessibility violation", async () => {
     await expect(
       accessibilityViolations(CurrentLink, {
         props: { children: "This invoice" },
@@ -29,7 +29,7 @@ describe("CurrentLink", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("tells a screen reader which crumb of the trail is the page a person is on", () => {
+  it("sets aria-current to page", () => {
     const { container } = render(trailed(<CurrentLink>This invoice</CurrentLink>));
 
     expect(slotElement(container, "breadcrumb", "currentLink").getAttribute("aria-current")).toBe(
@@ -37,7 +37,7 @@ describe("CurrentLink", () => {
     );
   });
 
-  it("draws no anchor because a link to the page already open does nothing", () => {
+  it("renders a span by default", () => {
     const { container } = render(trailed(<CurrentLink>This invoice</CurrentLink>));
 
     expect(slotElement(container, "breadcrumb", "currentLink").tagName).toBe("SPAN");

@@ -1,19 +1,29 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
+import page from "#popover/popover.specimen.tsx";
 import { recipe } from "#popover/recipe.ts";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("covers every axis in the scenes of its specimen", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("leaves no scene naming a value the recipe lacks", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Popover"] })).toStrictEqual([]);
   });
 
-  it("names its class popover", () => {
+  it("sets className to popover", () => {
     expect(recipe.className).toBe("popover");
   });
 
-  it("draws the eleven parts a popover is composed of", () => {
+  it("declares eleven slots", () => {
     expect([...recipe.slots].toSorted()).toStrictEqual([
       "anchor",
       "arrow",
@@ -29,19 +39,19 @@ describe("recipe", () => {
     ]);
   });
 
-  it("takes part in no layout at the root the machine does not name", () => {
+  it("sets display contents on the root", () => {
     expect(recipe.base?.["root"]).toStrictEqual({ display: "contents" });
   });
 
-  it("offers the two axes a popover takes", () => {
+  it("declares the size and variant axes", () => {
     expect(axesOf(recipe)).toStrictEqual(["size", "variant"]);
   });
 
-  it("draws a surfaced popover at the middle size by default", () => {
+  it("defaults to the surface look at md", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md", variant: "surface" });
   });
 
-  it("offers the eight sizes every component shares", () => {
+  it("declares the eight shared sizes", () => {
     expect(valuesOf(recipe, "size")).toStrictEqual([
       "2xl",
       "3xl",
@@ -54,18 +64,26 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers the three ways the panel is set off from the page", () => {
+  it("declares three looks", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual(["elevated", "glass", "surface"]);
   });
 
-  it("reads the heading role for the title and the body role for the paragraph", () => {
+  it("sets the title and the description on the body role of the panel's size", () => {
     expect(recipe.variants?.["size"]?.["md"]).toMatchObject({
       description: { textStyle: "body.md" },
-      title: { textStyle: "heading.md" },
+      title: { textStyle: "body.md" },
     });
   });
 
-  it("fills the point from the same custom property the panel states its surface as", () => {
+  it("sets the title in the semibold weight at every size", () => {
+    expect(recipe.compoundVariants).toContainEqual({
+      className: "popover__title--titled",
+      css: { title: { fontWeight: "semibold" } },
+      size: ["xs", "sm", "md", "lg", "xl"],
+    });
+  });
+
+  it("fills the arrow from --popover-surface", () => {
     expect(recipe.base?.["arrow"]).toMatchObject({
       "--arrow-background": "var(--popover-surface)",
     });
@@ -74,27 +92,35 @@ describe("recipe", () => {
     });
   });
 
-  it("grows from the corner the machine placed the panel against", () => {
+  it("gives the elevated panel a transparent hairline edge", () => {
+    expect(recipe.variants?.["variant"]?.["elevated"]?.["content"]).toMatchObject({
+      borderColor: "transparent",
+      borderStyle: "solid",
+      borderWidth: "hairline",
+    });
+  });
+
+  it("scales the panel from --transform-origin", () => {
     expect(recipe.base?.["content"]).toMatchObject({
       transformOrigin: "var(--transform-origin)",
     });
   });
 
-  it("states nothing about where the panel goes", () => {
+  it("sets no offset on the positioner", () => {
     expect(recipe.base?.["positioner"]).toStrictEqual({ position: "relative" });
   });
 
-  it("turns the mark half a revolution while the panel is open", () => {
+  it("turns the indicator 180deg while open", () => {
     expect(recipe.base?.["indicator"]).toMatchObject({ _open: { rotate: "180deg" } });
   });
 
-  it("turns the mark without a turn for a reader who asked for no motion", () => {
+  it("removes the indicator's transition under reduced motion", () => {
     expect(recipe.base?.["indicator"]).toMatchObject({
       _motionReduce: { transitionDuration: "0s" },
     });
   });
 
-  it("tracks the tag named Popover and every part under it", () => {
+  it("matches every Popover tag", () => {
     expect(recipe.jsx).toStrictEqual([/^Popover(\.\w+)?$/u]);
   });
 });

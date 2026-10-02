@@ -12,13 +12,13 @@ import {
 } from "#checkbox/machine.ts";
 
 /**
- * Runs the machine and reports what it answers, so a case can read its state off the screen.
+ * Runs the machine with the options the case sets and renders its state.
  *
- * @param props - The settings the machine is started with.
- * @returns The state, drawn as text.
+ * @param props - The machine options.
+ * @returns The state, rendered through a part's hook.
  */
 function Running(props: CheckboxOptions): ReactElement {
-  const api = useCheckboxMachine(props);
+  const { api } = useCheckboxMachine(props);
 
   return (
     <ApiProvider value={api}>
@@ -28,9 +28,9 @@ function Running(props: CheckboxOptions): ReactElement {
 }
 
 /**
- * Reads the running machine through the hook a part reads it through.
+ * Renders the machine's checked state through the hook a part reads it with.
  *
- * @returns Which of the three states the box is in.
+ * @returns The state as text.
  */
 function Reader(): ReactElement {
   const api = useCheckbox();
@@ -39,19 +39,19 @@ function Reader(): ReactElement {
 }
 
 describe("splitCheckboxProps", () => {
-  it("takes the machine's settings out of what the root was handed", () => {
+  it("returns the machine's options first", () => {
     const [options] = splitCheckboxProps({ defaultChecked: true, name: "terms" });
 
     expect(options).toStrictEqual({ defaultChecked: true, name: "terms" });
   });
 
-  it("leaves everything the element takes behind", () => {
+  it("returns the element's props second", () => {
     const [, rest] = splitCheckboxProps({ defaultChecked: true, size: "lg" });
 
     expect(rest).toStrictEqual({ size: "lg" });
   });
 
-  it("reads the list off the machine rather than one this package keeps", () => {
+  it("reads the option names from the machine", () => {
     const [options, rest] = splitCheckboxProps({ className: "mine", readOnly: true });
 
     expect(options).toStrictEqual({ readOnly: true });
@@ -60,19 +60,19 @@ describe("splitCheckboxProps", () => {
 });
 
 describe("useCheckboxMachine", () => {
-  it("answers a running machine a part can read", () => {
+  it("returns an api a part reads through the context", () => {
     render(<Running defaultChecked />);
 
     expect(screen.getByTestId("state").textContent).toBe("true");
   });
 
-  it("starts off where a caller says nothing", () => {
+  it("starts unchecked by default", () => {
     render(<Running />);
 
     expect(screen.getByTestId("state").textContent).toBe("false");
   });
 
-  it("starts partly on where a caller asks for it", () => {
+  it("starts partly on when checked is indeterminate", () => {
     render(<Running checked="indeterminate" />);
 
     expect(screen.getByTestId("state").textContent).toBe("indeterminate");

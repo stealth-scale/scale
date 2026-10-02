@@ -1,10 +1,10 @@
 # @stealthscale/vite-config-css
 
 `@stealthscale/vite-config-css` runs Stylelint over the stylesheets a package imports, as one layer
-the package's Vite configuration extends beside its tier. The guide is `stylelint-config-standard`,
-with seven rules over it covering selector specificity, the cascade, declaration order and the cost
-of an animation. The check runs during a build and behind a development server alike, and a
-violation fails the build unless you demote it.
+the package's Vite configuration extends alongside its tier. The guide is
+`stylelint-config-standard`, with seven rules over it covering selector specificity, the cascade,
+declaration order and the cost of an animation. The check runs during a build and behind a
+development server alike, and a violation fails the build unless you demote it.
 
 ## Install
 
@@ -42,9 +42,9 @@ import { defineConfig } from "@stealthscale/vite-config/preset/workspace";
 export default defineConfig(import.meta.dirname, { extends: [css.workspace()] });
 ```
 
-A stylesheet is checked while the package importing it builds, and a root builds no package. The
-call exists so a root configuration lists every add-on the same way, and dropping it changes nothing
-about what gets checked.
+The check runs while the package importing a stylesheet builds, and a workspace root builds no
+package. The call exists so a root configuration lists every add-on the same way. Dropping it
+changes nothing about what gets checked.
 
 ## Reference
 
@@ -54,14 +54,14 @@ about what gets checked.
 | `warn`      | `(stated: Warned) => readonly Layer[]`   | A removal of `css.check`, then a reporting check |
 | `workspace` | `() => readonly Layer[]`                 | An empty array                                   |
 
-`Checked` states what the check reads and how hard it fails. Every field is optional. `Warned` takes
-the same four and adds a required `because`, which is recorded against the removal and read back
-when somebody looks up what removed the check.
+`Checked` configures which stylesheets the check reads and whether a violation fails the build.
+Every field is optional. `Warned` takes the same four fields and adds a required `because`, which
+the removal carries.
 
 | Field    | Type                                | What it does                              |
 | -------- | ----------------------------------- | ----------------------------------------- |
-| `also`   | `readonly string[]`                 | Names the globs to check                  |
-| `except` | `readonly string[]`                 | Names the globs to leave unchecked        |
+| `also`   | `readonly string[]`                 | Replaces the globs the plugin checks      |
+| `except` | `readonly string[]`                 | Replaces the globs the plugin skips       |
 | `rules`  | `Readonly<Record<string, unknown>>` | Rules layered over the four sets, by name |
 | `warn`   | `boolean`                           | Warns instead of failing the build        |
 
@@ -116,11 +116,11 @@ export default defineConfig(import.meta.dirname, {
 });
 ```
 
-`warn()` takes `css.check` back by name and states a reporting check called `css.warn` in its place.
-Everything `layers()` accepts is accepted here too, so a demoted check keeps the globs and rules a
-repository had already configured.
+`warn()` removes `css.check` by name and adds a reporting check called `css.warn` in its place.
+Everything `layers()` accepts is accepted here too, so the reporting check reads the globs and rules
+the repository had already configured.
 
-Warning: the removal resolves against the layers stated above it. A configuration that lists
+Warning: the removal resolves against the layers listed above it. A configuration that lists
 `css.warn()` before `css.layers()`, or without it, throws while it loads. A removal that matched
 nothing would otherwise pass and leave the failing check in place.
 

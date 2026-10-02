@@ -1,66 +1,67 @@
 /**
- * Shows the breadcrumb: both looks at every size, each a trail of three crumbs.
+ * Catalogue page for the breadcrumb.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. The words are keys under `breadcrumb` in the catalogue's namespace, kept
- *   beside this file in `locales/en/specimen/breadcrumb.json`.
+ *   `scenesOf` generates the size and look scenes, one trail per row. Every scene renders a
+ *   component from `examples/` and shows that file as its source. The words are keys under
+ *   `breadcrumb` in `locales/en/specimen/breadcrumb.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
+import { landmarked, type Scene, scenesOf, specimen, useWords } from "@stealthscale/specimen";
 
-import * as Breadcrumb from "#breadcrumb/index.ts";
+import * as collapsed from "#breadcrumb/examples/collapsed.example.tsx";
+import * as trail from "#breadcrumb/examples/trail.example.tsx";
 import { recipe } from "#breadcrumb/recipe.ts";
 
 /**
- * Draws the trail in both looks at every size.
+ * Renders the trail example with a landmark name that includes the cell's props.
+ *
+ * @remarks
+ *   Every cell renders a `nav`, and the page's eight trails with one name fail axe
+ *   `landmark-unique`. The name is set here, so the example's source keeps its single label.
  */
-function Looks(): ReactElement {
+function Labelled(props: Parameters<typeof trail.Trail>[0]): ReactElement {
   const { t } = useWords("breadcrumb");
 
-  return (
-    <Matrix
-      across={{ knob: "size", of: valuesOf(recipe, "size") }}
-      knob="variant"
-      of={valuesOf(recipe, "variant")}
-    >
-      {(variant, size) => (
-        <Breadcrumb.Root size={size} variant={variant}>
-          <Breadcrumb.List>
-            <Breadcrumb.Item>
-              <Breadcrumb.Link href="#home">{t("home")}</Breadcrumb.Link>
-            </Breadcrumb.Item>
-            <Breadcrumb.Separator>/</Breadcrumb.Separator>
-            <Breadcrumb.Item>
-              <Breadcrumb.Link href="#invoices">{t("invoices")}</Breadcrumb.Link>
-            </Breadcrumb.Item>
-            <Breadcrumb.Separator>/</Breadcrumb.Separator>
-            <Breadcrumb.Item>
-              <Breadcrumb.CurrentLink>{t("april")}</Breadcrumb.CurrentLink>
-            </Breadcrumb.Item>
-          </Breadcrumb.List>
-        </Breadcrumb.Root>
-      )}
-    </Matrix>
-  );
+  return <trail.Trail {...props} aria-label={landmarked(t("label"), props)} />;
 }
 
 /**
- * Both looks at every size.
+ * Renders the collapsed example with a landmark name apart from the catalogue's own breadcrumb.
  */
-export const looks: Scene = {
-  about: "breadcrumb.looks.about",
-  draw: Looks,
-  title: "breadcrumb.looks.title",
+function Shortened(): ReactElement {
+  const { t } = useWords("breadcrumb");
+
+  return <collapsed.Collapsed aria-label={t("shortened")} />;
+}
+
+/**
+ * Hand-written scene for a trail with its middle crumbs replaced by an ellipsis.
+ */
+export const shortened: Scene = {
+  about: "breadcrumb.collapsed.about",
+  draw: Shortened,
+  example: collapsed,
+  title: "breadcrumb.collapsed.title",
 };
 
 export default specimen({
   about: "breadcrumb.about",
-  group: "Navigation",
-  id: "navigation/breadcrumb",
+  id: "components/navigation/breadcrumb",
   imports: 'import { Breadcrumb } from "@stealthscale/component-navigation";',
-  scenes: [looks],
+  scenes: [
+    ...scenesOf<Parameters<typeof trail.Trail>[0]>(recipe, {
+      axes: {
+        size: { direction: "column" },
+        variant: { direction: "column" },
+      },
+      draw: (props) => <Labelled {...props} />,
+      example: trail,
+      namespace: "breadcrumb",
+    }),
+    shortened,
+  ],
   title: "breadcrumb.title",
 });

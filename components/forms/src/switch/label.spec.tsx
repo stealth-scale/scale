@@ -7,13 +7,13 @@ import { Label } from "#switch/label.tsx";
 import { composed, thrown } from "#switch/switch.fixtures.tsx";
 
 describe("Label", () => {
-  it("draws a span inside the root it needs above it", () => {
+  it("renders a span", () => {
     const { container } = render(thrown(<Label>Dark mode</Label>));
 
     expect(slotElement(container, "switch", "label").tagName).toBe("SPAN");
   });
 
-  it("names the control the root draws", () => {
+  it("names the input through aria-labelledby", () => {
     const { container } = render(composed());
 
     expect(screen.getByRole("switch").getAttribute("aria-labelledby")).toBe(
@@ -21,7 +21,7 @@ describe("Label", () => {
     );
   });
 
-  it("reports the state the machine is in", () => {
+  it("sets data-state to checked on a checked switch", () => {
     const { container } = render(composed({ defaultChecked: true }));
 
     expect(slotElement(container, "switch", "label").dataset["state"]).toBe("checked");

@@ -1,12 +1,12 @@
 /**
- * Measures the shape of every ramp a theme draws: whether its steps run one way in lightness,
- * hold one hue, and stay inside the display's gamut.
+ * Checks the shape of a theme's ramps: lightness running one way, one hue throughout, and every
+ * step inside the display's gamut.
  *
  * @remarks
- *   A ramp is a group of tokens under `tokens.colors` whose steps are keyed by number, with a
- *   dark ramp nested under the light one where a theme draws both. A group of fewer than three
- *   numbered steps is a set of constants rather than a ramp, and is passed over. The hue is
- *   measured only where a step has chroma, because a near-grey step has no hue to hold.
+ *   A ramp is a group under `tokens.colors` whose steps are keyed by number, with the dark ramp
+ *   nested inside the light one where a theme declares both. Fewer than three numbered steps means
+ *   a handful of constants rather than a ramp, and the walk skips it. Hue is only measured on steps
+ *   with some chroma, since a near-grey has no hue to speak of.
  */
 
 import { linear, oklab, type Oklab, type Theme } from "@stealthscale/theme/authoring";
@@ -15,46 +15,44 @@ import { type Thresholds } from "#contrast.ts";
 import { isToken } from "#tokens.ts";
 
 /**
- * Describes one ramp: its path under the color tokens and its numbered steps in ascending order,
- * each with the color it is drawn in.
+ * One ramp: where it sits in the color tokens, and the color of each of its numbered steps.
  */
 export interface Ramp {
   /**
-   * The dotted path under `tokens.colors`.
+   * The dotted path to the ramp under `tokens.colors`.
    */
   path: string;
 
   /**
-   * The numbered steps, from the lowest number to the highest.
+   * The numbered steps, lowest number first.
    */
   steps: ReadonlyArray<readonly [step: number, color: string]>;
 }
 
 /**
- * Fixes the number of numbered steps a group needs before it is read as a ramp.
+ * The number of numbered steps a group needs before it is read as a ramp.
  */
 const FEWEST = 3;
 
 /**
- * Fixes the chroma below which a step is a grey with no hue to hold.
+ * The chroma below which a step is grey and has no hue worth measuring.
  */
 const GREY = 0.04;
 
 /**
- * Fixes how far outside 0 to 1 a linear channel may sit before the color is outside sRGB, which
- * absorbs the rounding a theme writes its steps at.
+ * The slack allowed on a linear channel outside 0 to 1 before the color counts as outside sRGB,
+ * enough to absorb the rounding a theme writes its steps at.
  */
 const SLACK = 0.002;
 
 /**
- * Fixes the difference in lightness below which two steps sit at one lightness, which absorbs
- * the rounding of a round trip through sRGB.
+ * The lightness difference below which two steps count as level, enough to absorb the rounding of a
+ * round trip through sRGB.
  */
 const FLAT = 0.0001;
 
 /**
- * Reads a token's value as a string, or undefined where the node is not a token or its value is
- * anything else.
+ * Reads a token's value when it is a string, and undefined for anything else.
  */
 function stringValue(node: unknown): string | undefined {
   const value: unknown = isToken(node) ? Reflect.get(node, "value") : undefined;
@@ -63,7 +61,7 @@ function stringValue(node: unknown): string | undefined {
 }
 
 /**
- * Reports whether a color carries transparency, which every step of an alpha ramp does.
+ * Reports whether a color carries an alpha channel, as every step of an alpha ramp does.
  */
 function transparent(color: string): boolean {
   return (
@@ -72,14 +70,14 @@ function transparent(color: string): boolean {
 }
 
 /**
- * Reads every ramp under a block of color tokens, the nested ones included.
+ * Collects the ramps under a block of color tokens, nested ones included.
  *
  * @remarks
- *   A node that is not a token with a string value is walked as a group. A token whose value is
- *   an object is walked the same way and yields no step, because none of its keys is a number. An
- *   alpha ramp is left out: its steps differ in transparency rather than in lightness, so the
- *   lightness, hue and gamut checks say nothing about it, and what a reader sees through it is
- *   whatever it was painted over.
+ *   Anything that is not a token with a string value is descended into as a group, including a
+ *   token whose value is an object, which contributes no steps because none of its keys is a
+ *   number. Alpha ramps are excluded: their steps vary in transparency rather than lightness, so
+ *   the lightness, hue and gamut checks have nothing to say about them, and what shows through is
+ *   decided by whatever sits underneath.
  */
 function rampsIn(block: unknown, prefix: string): readonly Ramp[] {
   if (typeof block !== "object" || block === null) return [];
@@ -107,7 +105,7 @@ function rampsIn(block: unknown, prefix: string): readonly Ramp[] {
 }
 
 /**
- * Lists every ramp a theme draws under its color tokens.
+ * Lists the ramps a theme declares under its color tokens.
  */
 export function rampsOf(theme: Theme): readonly Ramp[] {
   const tokens: unknown = theme.variant.tokens;
@@ -118,14 +116,14 @@ export function rampsOf(theme: Theme): readonly Ramp[] {
 }
 
 /**
- * Reads the OKLab point of each step, or undefined for a step that cannot be read.
+ * Converts each step to OKLab, leaving undefined the steps whose color will not parse.
  */
 function points(ramp: Ramp): ReadonlyArray<readonly [step: number, point: Oklab | undefined]> {
   return ramp.steps.map(([step, color]) => [step, oklab(color)] as const);
 }
 
 /**
- * Pairs each value of a sequence with the one before it.
+ * Pairs every value in a sequence with the one before it.
  */
 export function consecutive<Value>(
   values: readonly Value[],
@@ -142,10 +140,9 @@ export function consecutive<Value>(
 }
 
 /**
- * Finds the two steps between which a ramp's lightness turns back on itself: the first pair that
- * runs against the way the ramp set out.
+ * Finds the first pair of steps whose lightness runs against the direction the ramp started in.
  *
- * @returns The steps either side of the turn, or undefined where the ramp never turns.
+ * @returns The steps either side of the reversal, or undefined when the ramp never reverses.
  */
 function turn(
   steps: ReadonlyArray<readonly [step: number, lightness: number]>,
@@ -164,8 +161,11 @@ function turn(
 }
 
 /**
- * Reports a ramp whose lightness turns back on itself between two steps, or a step that cannot
- * be read. Two steps at the same lightness are a plateau rather than a turn.
+ * Reports the ramps whose lightness doubles back, and the steps whose color will not parse.
+ *
+ * @remarks
+ *   Two steps at the same lightness are a plateau, not a reversal. A ramp is allowed to hold still;
+ *   it is not allowed to turn around.
  */
 export function monotonic(theme: Theme): readonly string[] {
   return rampsOf(theme).flatMap((ramp) => {
@@ -188,7 +188,7 @@ export function monotonic(theme: Theme): readonly string[] {
 }
 
 /**
- * Measures the hue of an OKLab point in degrees, or undefined for a grey.
+ * Takes the hue of an OKLab point in degrees, or undefined when the point is grey.
  */
 function hueOf(point: Oklab): number | undefined {
   if (Math.hypot(point.a, point.b) < GREY) return undefined;
@@ -199,7 +199,7 @@ function hueOf(point: Oklab): number | undefined {
 }
 
 /**
- * Measures the shortest way round the wheel between two hues.
+ * Measures the shorter arc between two hues on the wheel.
  */
 function around(one: number, other: number): number {
   const difference = Math.abs(one - other) % 360;
@@ -208,7 +208,7 @@ function around(one: number, other: number): number {
 }
 
 /**
- * Reports a step whose hue drifts from the ramp's median hue by more than the hue threshold.
+ * Reports the steps whose hue drifts from their ramp's median by more than the threshold allows.
  */
 export function hue(theme: Theme, thresholds: Thresholds): readonly string[] {
   return rampsOf(theme).flatMap((ramp) => {
@@ -235,11 +235,11 @@ export function hue(theme: Theme, thresholds: Thresholds): readonly string[] {
 }
 
 /**
- * Lists each step outside the sRGB gamut, as `blue step 500`.
+ * Lists the steps outside the sRGB gamut, each as `blue step 500`.
  *
  * @remarks
- *   A display without a wider gamut maps such a step to a color the theme did not write. A step
- *   that cannot be read is left out, because it is reported by the monotonic check.
+ *   A display no wider than sRGB maps such a step to a color the theme never wrote. Steps that will
+ *   not parse are skipped here; the monotonic check already reports those.
  */
 export function outsideGamut(theme: Theme): readonly string[] {
   return rampsOf(theme).flatMap((ramp) =>
@@ -258,12 +258,12 @@ export function outsideGamut(theme: Theme): readonly string[] {
 }
 
 /**
- * Reports each step outside the sRGB gamut.
+ * Reports the steps outside the sRGB gamut, named with their theme.
  *
  * @remarks
- *   Not a gate. The foundation's own ramps and a palette drawn for a wide-gamut display place
- *   steps outside sRGB on purpose, so the report counts them and a theme that wants none runs
- *   this in its own specification.
+ *   The gate does not run this one. The foundation's ramps, and any palette built for a wide-gamut
+ *   display, put steps outside sRGB on purpose, so the report counts them instead of failing on
+ *   them. A theme that wants none calls this from its own spec.
  */
 export function gamut(theme: Theme): readonly string[] {
   return outsideGamut(theme).map((where) => `${theme.name} ${where} is outside sRGB`);

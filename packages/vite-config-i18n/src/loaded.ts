@@ -1,19 +1,18 @@
 /**
- * Loads the catalogue plugin when a plugin is constructed, and not when the configuration is read.
+ * Loads the catalogue plugin package through a dynamic import the bundler cannot resolve.
  *
  * @remarks
- *   Vite bundles a configuration file before it runs it, and the bundler resolves every import it
- *   can read, a dynamic one with a literal specifier included. A plugin package that is not built
- *   yet then fails the resolution, and the configuration cannot be read at all, not even for the
- *   task graph that would build the package. A specifier held in a value is one the bundler cannot
- *   read, so the import is left to Node, which resolves it from this module when the plugin is
- *   constructed, wherever the module runs from.
+ *   Vite bundles a configuration file before running it, and the bundler resolves every static
+ *   import and every dynamic import with a literal specifier. An unbuilt plugin package fails that
+ *   resolution, so the configuration cannot be read at all, not even for the task graph that would
+ *   build the package. A specifier in a variable defers the import to Node, which resolves it from
+ *   this module at call time.
  */
 
 import { located } from "@stealthscale/vite-config-core";
 
 /**
- * The plugin package, named as a value.
+ * The plugin package specifier, in a variable so the bundler cannot resolve the import.
  */
 const PLUGIN = "@stealthscale/vite-plugin-i18n";
 
@@ -23,7 +22,7 @@ const PLUGIN = "@stealthscale/vite-plugin-i18n";
  * @throws {@link Error} When the plugin package is not built yet.
  */
 export function loaded(): Promise<typeof import("@stealthscale/vite-plugin-i18n")> {
-  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- a specifier held in a value is typed by nobody, and the header says why it is held that way
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- a dynamic import of a specifier in a variable resolves to any, and the header gives the reason for the variable
   return import(located(PLUGIN, import.meta.url)) as Promise<
     typeof import("@stealthscale/vite-plugin-i18n")
   >;

@@ -1,6 +1,6 @@
 /**
- * Writes the class names of a Panda CSS design system in one readable scheme, for the stylesheet
- * and for the browser alike.
+ * Rewrites the class names the Panda CSS compiler emits into one naming scheme for the stylesheet
+ * and the runtime.
  *
  * @packageDocumentation
  */

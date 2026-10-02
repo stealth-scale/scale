@@ -1,0 +1,71 @@
+{
+  "about": "Shows a person or a thing as a picture, or as initials while the picture is missing, loading or broken. With a name the avatar is an image named by it, so a screen reader hears the name once.",
+  "ada": "Ada Okafor",
+  "badge": {
+    "palette": {
+      "about": "A badge takes its own palette, apart from the avatar's: the eight semantic palettes on a count.",
+      "title": "Badge palettes"
+    },
+    "placement": {
+      "about": "The four corners, in the direction of the text. The badge centres on the point where the avatar's diagonal crosses its rim, so half of it covers the picture.",
+      "title": "Badge corners"
+    },
+    "variant": {
+      "about": "The solid look fills the badge in the palette's solid. The subtle look fills it in the palette's subtle role, which suits an emoji.",
+      "title": "Badge looks"
+    }
+  },
+  "badges": {
+    "about": "Empty, a badge is a status dot. With a count, an emoji or an icon it grows around its content. Its label joins the avatar's description, so a screen reader hears it after the name.",
+    "title": "Badges"
+  },
+  "bram": "Bram Voss",
+  "byline": {
+    "about": "Beside the same name in words, the avatar is hidden from screen readers with `aria-hidden`, so the name is read once. The root is a `span`, so the avatar is placed in the line of text and centred on it. `2xs` is 24px, one line of body text.",
+    "title": "Beside a name"
+  },
+  "cleo": "Cleo Han",
+  "commented": "commented 2 hours ago",
+  "deployBot": "Deploy bot",
+  "devi": "Devi Rao",
+  "effect": {
+    "about": "A halo around the box, in the palette's solid at half opacity. `pulse` animates it, for a person who is speaking, and stops when the reader prefers reduced motion.",
+    "title": "Effects"
+  },
+  "holiday": "On holiday",
+  "more": "3 more",
+  "northwind": "Northwind",
+  "online": "Online",
+  "palette": {
+    "about": "Every palette in every look. The looks are flat, because an avatar is read and not pressed. The palette and the look color the initials and their box, and a loaded picture covers both.",
+    "title": "Palettes and looks"
+  },
+  "pictures": {
+    "about": "A picture covers the box once it loads. Until then, and after it fails, the initials show, so a slow or broken picture never leaves an empty box.",
+    "title": "Pictures and initials"
+  },
+  "presence": {
+    "about": "The dot is 28% of the avatar's side and never under 8px, so one dot fits a 24px avatar in a list and a 56px one on a profile.",
+    "title": "A status at every size"
+  },
+  "services": {
+    "about": "A service or a company takes a square or rounded box, and an icon in place of initials. The box keeps the name for a screen reader.",
+    "title": "Services and companies"
+  },
+  "shape": {
+    "about": "A circle for a person, and a rounded or square box for a company, a service or a bot.",
+    "title": "Shapes"
+  },
+  "size": {
+    "about": "The side is a control height, so an avatar is as tall as a button of its size: 32, 36, 40, 44, 48 and 56px. `2xs` is 24px, for a byline or a list row. The initials take the label style of the same size.",
+    "title": "Sizes"
+  },
+  "team": {
+    "about": "A group overlaps each avatar with the one before it by a quarter of its side and rings each in the panel's ground. The last avatar counts the people left out and is named for them.",
+    "title": "A team"
+  },
+  "title": "Avatar",
+  "unread": "3 unread messages",
+  "verified": "Verified",
+  "warehouse": "Warehouse service"
+}

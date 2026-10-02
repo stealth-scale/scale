@@ -1,12 +1,32 @@
 {
-  "about": "Draws a key a reader is asked to press, as a keycap in a look, a size and the palette of its status.",
-  "looks": {
-    "about": "Every look at every size.",
+  "about": "Renders keyboard input as keycaps. `Kbd.Group` renders a key combination and sets the size, look and palette of its keycaps.",
+  "commands": {
+    "palette": "Open the command palette",
+    "redo": "Redo",
+    "save": "Save",
+    "undo": "Undo"
+  },
+  "find": "to search.",
+  "keys": {
+    "about": "Modifier and named keys at `md`. A one-character key is square.",
+    "title": "Keys"
+  },
+  "palette": {
+    "about": "Every look in every palette.",
+    "title": "Palettes"
+  },
+  "press": "Press",
+  "sentence": {
+    "about": "A combination at `md` inside a line of body text. The keycap is shorter than the line.",
+    "title": "In a sentence"
+  },
+  "shortcuts": {
+    "about": "Commands with their combinations in a 384px room. Each `Kbd.Group` sets `sm` on its keycaps.",
+    "title": "Shortcuts"
+  },
+  "title": "Kbd",
+  "variant": {
+    "about": "Every look at every size. `raised` is the default.",
     "title": "Looks and sizes"
-  },
-  "statuses": {
-    "about": "Every status in every look.",
-    "title": "Statuses"
-  },
-  "title": "Kbd"
+  }
 }

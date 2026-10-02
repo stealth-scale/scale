@@ -1,18 +1,11 @@
 /**
- * Draws one set against another, a mark at every crossing.
+ * Renders the state of one set of items against another, with a mark at every crossing.
  *
  * @remarks
- *   For the question a table of values cannot answer at a glance: which of these is not well, and
- *   where. Services against regions, controls against environments, models against evaluations. A
- *   reader scans for the marks that are not the calm one, then reads the row and the column that
- *   meet there.
- *   It is a table, drawn from the table's own parts, so every band, rule and scope a table has is
- *   the table's. What a matrix adds is the sparse reading of its cells, the mark a state is drawn
- *   as, the rollup, the legend, and the crosshair that says which pair the pointer is on.
- *   Nothing in the grid is a tab stop until a caller wants to hear cells picked. A matrix of four
- *   hundred crossings is four hundred stops, and a reader tabbing past a grid they only wanted to
- *   read is a reader who leaves the page. Given a handler, every crossing becomes a button, gaps
- *   included: a pair nobody measured is exactly the pair somebody wants to go and measure.
+ *   The matrix is a table built from the table's parts, so it takes the table's variants, rules,
+ *   scopes and scroll container. It adds sparse cells, a mark per state, the rollup column, the
+ *   legend and the crosshair. Without `onSelectCell` the grid has no tab stop. With it every
+ *   crossing is a button, a crossing with no cell included.
  */
 
 import { type ReactElement, type ReactNode, useId } from "react";
@@ -45,120 +38,115 @@ import {
 } from "#table/parts.ts";
 
 /**
- * Stacks the grid over the legend, and states the variants every part reads.
+ * Renders the `div` that stacks the grid over the legend and provides the matrix's variants.
  */
 const Framed = withProvider("div", "root");
 
 /**
- * Draws one column's name, and lights up as the pointer crosses it.
+ * Renders a column header that fills with the crosshair.
  */
 const Heading = withContext(ColumnHeader, "columnHeading");
 
 /**
- * Centres a column's name over the marks under it.
+ * Renders the `span` that centres a column's name over its marks.
  */
 const Centred = withContext("span", "columnLabel");
 
 /**
- * Draws one row's own name, and lights up as the pointer crosses it.
+ * Renders a row header that fills with the crosshair.
  */
 const Naming = withContext(RowHeader, "rowHeading");
 
 /**
- * Draws one crossing, and lights up as the pointer reaches its row or its column.
+ * Renders a crossing's cell, which fills when the crosshair reaches its row or its column.
  */
 const Crossing = withContext(Cell, "cell");
 
 /**
- * Presses one crossing, for a matrix a reader picks from.
+ * Renders the `button` of a crossing in a matrix with `onSelectCell`.
  */
 const Picker = withContext("button", "picker");
 
 /**
- * Describes what a matrix takes beyond everything its scroller takes.
+ * Describes the props of the matrix: the axes, the cells, the vocabulary and the scroller's props.
  *
  * @remarks
- *   The scroller's `columns` is taken off, which is the CSS property that sets text in columns.
- *   The matrix's own columns are the more useful thing to call `columns` on a matrix.
+ *   The scroller's `columns`, the CSS multi-column property, is left out, so `columns` names the
+ *   matrix's columns.
  */
 export interface StatusMatrixProps extends Omit<ScrollerProps, "children" | "columns"> {
   /**
-   * Written under the grid, saying what it holds. It names the grid to a screen reader as well.
+   * Caption rendered under the grid, and the accessible name of the table and the scroller.
    */
   readonly caption?: ReactNode | undefined;
 
   /**
-   * Reads out as the name of one crossing, where the state's own words are not enough. A matrix a
-   * reader picks from wants one, because a column of buttons all called `Healthy` says nothing
-   * about which is which. A matrix nobody picks from does not, because the row and the column are
-   * already the table's own headers.
+   * Returns a crossing's accessible name. Defaults to the state's label. A matrix with
+   * `onSelectCell` needs it, because every button in a column would otherwise share one name.
    */
   readonly cellLabel?:
     | ((state: MatrixState, row: MatrixHeading, column: MatrixHeading) => string)
     | undefined;
 
   /**
-   * Every crossing that was measured. A pair left out reads as unmeasured rather than as passing,
-   * and two entries for one pair is not an error: the later one wins.
+   * Measured crossings. A pair without a cell renders `unmeasured`, and the later of two cells for
+   * one pair applies.
    */
   readonly cells: readonly MatrixCell[];
 
   /**
-   * The second axis, drawn across the top.
+   * Headings across the top.
    */
   readonly columns: readonly MatrixHeading[];
 
   /**
-   * Drawn in the corner, over the row names. It is the one cell that names neither axis on its
-   * own, so it is where the axes are named.
+   * Content of the header cell over the row names.
    */
   readonly corner?: ReactNode | undefined;
 
   /**
-   * Drawn across the grid's width where there are no rows at all.
+   * Content of a full-width row rendered while `rows` is empty.
    */
   readonly empty?: ReactNode | undefined;
 
   /**
-   * Reads out as the name of the legend, which is drawn where this is given. A grid of marks a
-   * reader has not seen before needs one.
+   * Accessible name of the legend. The legend renders only with it.
    */
   readonly legend?: string | undefined;
 
   /**
-   * Hears a crossing picked, and turns every crossing into a button. The cell is missing where
-   * the pair was never measured.
+   * Called with the row, the column and the cell of a pressed crossing. The cell is undefined for
+   * a pair without one. Setting it renders every crossing as a button.
    */
   readonly onSelectCell?:
     | ((row: string, column: string, cell: MatrixCell | undefined) => void)
     | undefined;
 
   /**
-   * The last column, which says what each row comes to. Left off, the column is not drawn.
+   * Header of the last column, which renders each row's worst state. The column renders only with
+   * it.
    */
   readonly rollup?: ReactNode | undefined;
 
   /**
-   * The subject axis, one per row.
+   * Headings down the side, one per row.
    */
   readonly rows: readonly MatrixHeading[];
 
   /**
-   * The caller's own vocabulary, keyed by the names the cells use. Two states sharing a tone need
-   * a mark each, or they draw the same.
+   * Vocabulary of states, keyed by the names the cells use. Two states with one tone need a mark
+   * each, or they render alike.
    */
   readonly states: Readonly<Record<string, MatrixState>>;
 
   /**
-   * Drawn at a crossing nobody measured, and written last in the legend. A gap that drew nothing
-   * would read as a crossing with nothing wrong.
+   * State of a pair without a cell, listed last in the legend.
    */
   readonly unmeasured: MatrixState;
 }
 
 /**
- * Splits what the box a matrix scrolls inside takes from what the matrix itself takes, so nothing
- * the matrix reads reaches the document as an attribute.
+ * Returns the scroller's props without the matrix's own props.
  */
 function scrolled(props: StatusMatrixProps): ScrollerProps {
   const {
@@ -181,7 +169,7 @@ function scrolled(props: StatusMatrixProps): ScrollerProps {
 }
 
 /**
- * Draws one crossing, as a button where a caller hears them picked.
+ * Returns one crossing's cell, with a button inside it when `onSelectCell` is set.
  */
 function marked(
   props: StatusMatrixProps,
@@ -214,12 +202,11 @@ function marked(
 }
 
 /**
- * Works out the name the rollup column is lit by, which is one no column of the caller's holds.
+ * Returns the `data-column` value of the rollup column: `rollup`, extended with hyphens until no
+ * column of the caller's has the same identifier.
  *
  * @remarks
- *   The crosshair lights a column by its name, so the rollup needs one or it is the one column a
- *   pointer crosses without lighting. The name is stretched until it is nobody else's rather than
- *   fixed, because `rollup` is a name a caller is free to give a column of their own.
+ *   The crosshair fills a column by its `data-column`, so the rollup needs a value of its own.
  */
 function rolling(columns: readonly MatrixHeading[]): string {
   let name = "rollup";
@@ -230,11 +217,7 @@ function rolling(columns: readonly MatrixHeading[]): string {
 }
 
 /**
- * Draws what one row comes to, which is the worst thing along it.
- *
- * @remarks
- *   Never a button. A rollup is read off the row rather than measured, so there is nothing at it to
- *   go and look at.
+ * Returns a row's rollup cell, with the worst state along the row. The cell is never a button.
  */
 function summed(props: StatusMatrixProps, index: MatrixIndex, row: MatrixHeading): ReactElement {
   const { columns, states, unmeasured } = props;
@@ -249,7 +232,7 @@ function summed(props: StatusMatrixProps, index: MatrixIndex, row: MatrixHeading
 }
 
 /**
- * Draws one row: its own name, a crossing per column, and what it comes to.
+ * Returns one row: its header, a cell per column and the rollup cell.
  */
 function draws(props: StatusMatrixProps, index: MatrixIndex, row: MatrixHeading): ReactElement {
   const { columns, rollup } = props;
@@ -264,8 +247,7 @@ function draws(props: StatusMatrixProps, index: MatrixIndex, row: MatrixHeading)
 }
 
 /**
- * Gathers the rows under their sections, in the order the sections first appear, or reports that
- * one of them states no section at all.
+ * Returns the rows grouped by `group` in first-seen order, or undefined when a row has no group.
  */
 function gathered(rows: readonly MatrixHeading[]): Map<string, MatrixHeading[]> | undefined {
   const groups = new Map<string, MatrixHeading[]>();
@@ -280,11 +262,8 @@ function gathered(rows: readonly MatrixHeading[]): Map<string, MatrixHeading[]> 
 }
 
 /**
- * Draws the rows, gathered into a section per heading where every row states one.
- *
- * @remarks
- *   Every row or none. A section drawn over some of the rows and not the rest leaves the ungrouped
- *   ones under a heading they do not belong to, which is worse than no sections at all.
+ * Returns the body: the empty row, one `tbody` per group when every row has a group, or one
+ * `tbody` of every row.
  */
 function bodied(props: StatusMatrixProps, index: MatrixIndex, wide: number): ReactNode {
   const { empty, rows } = props;
@@ -318,7 +297,7 @@ function bodied(props: StatusMatrixProps, index: MatrixIndex, wide: number): Rea
 }
 
 /**
- * Draws the band of column names, the corner first and the rollup last.
+ * Returns the header row: the corner, a header per column and the rollup header.
  */
 function headed(props: StatusMatrixProps): ReactElement {
   const { columns, corner, rollup } = props;
@@ -343,11 +322,10 @@ function headed(props: StatusMatrixProps): ReactElement {
 }
 
 /**
- * Draws one set against another, a mark at every crossing.
+ * Renders the state of one set of items against another, with a mark at every crossing.
  *
- * @param props - The two axes, the crossings that were measured, the vocabulary they name, and
- *   everything the scroller takes.
- * @returns The grid, in the box it scrolls inside, over its legend.
+ * @param props - The axes, the cells, the vocabulary and the scroller's props.
+ * @returns The scroller with the table inside it, over the legend.
  */
 export function StatusMatrix(props: StatusMatrixProps): ReactElement {
   const { caption, cells, columns, legend, rollup, size, states, unmeasured } = props;

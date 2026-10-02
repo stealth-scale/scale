@@ -1,10 +1,11 @@
 /**
- * Builds the alert a part's specification needs above it.
+ * Test fixtures for the alert parts, which read the variants from the root.
  */
 
 import { type ReactElement, type ReactNode } from "react";
 
 import { Aside } from "#alert/aside.ts";
+import { CloseTrigger } from "#alert/close-trigger.tsx";
 import { Content } from "#alert/content.ts";
 import { Description } from "#alert/description.ts";
 import { Indicator } from "#alert/indicator.ts";
@@ -12,20 +13,14 @@ import { Root, type RootProps } from "#alert/root.tsx";
 import { Title } from "#alert/title.ts";
 
 /**
- * Draws whatever a case wants measured inside the root that states the variants.
- *
- * @param children - The part under test.
- * @returns The root, holding it.
+ * Renders the part under test inside `Alert.Root`.
  */
 export function alerted(children: ReactNode): ReactElement {
   return <Root>{children}</Root>;
 }
 
 /**
- * Draws a whole alert, so a case can read what every part did.
- *
- * @param props - Whatever the case sets on the root.
- * @returns The six parts composed the way a caller composes them.
+ * Renders every part, with the props passed to the root.
  */
 export function composed(props: RootProps = {}): ReactElement {
   return (
@@ -36,8 +31,9 @@ export function composed(props: RootProps = {}): ReactElement {
         <Description>The card was declined.</Description>
       </Content>
       <Aside>
-        <button type="button">Dismiss this warning</button>
+        <button type="button">Retry the payment</button>
       </Aside>
+      <CloseTrigger label="Dismiss this warning">x</CloseTrigger>
     </Root>
   );
 }

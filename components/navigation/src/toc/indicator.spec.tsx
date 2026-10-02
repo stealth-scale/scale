@@ -8,7 +8,7 @@ import { List } from "#toc/list.tsx";
 import { composed, railed } from "#toc/toc.fixtures.tsx";
 
 describe("Indicator", () => {
-  it("draws a list item inside the root it needs above it", async () => {
+  it("renders a list item inside the root", async () => {
     const { container } = await drawn(
       railed(
         <List>
@@ -20,19 +20,19 @@ describe("Indicator", () => {
     expect(slotElement(container, "toc", "indicator").tagName).toBe("LI");
   });
 
-  it("is hidden until there is a row to measure", async () => {
+  it("sets hidden when no heading is active", async () => {
     const { container } = await drawn(composed());
 
     expect(slotElement(container, "toc", "indicator").hasAttribute("hidden")).toBe(true);
   });
 
-  it("leaves a reader stepping through the list one stop for each heading", async () => {
+  it("sets aria-hidden to true", async () => {
     const { container } = await drawn(composed());
 
     expect(slotElement(container, "toc", "indicator").getAttribute("aria-hidden")).toBe("true");
   });
 
-  it("draws the element as names", async () => {
+  it("renders the element passed as as", async () => {
     const { container } = await drawn(
       railed(
         <List>

@@ -9,13 +9,13 @@ import { recipe } from "#fieldset/recipe.ts";
 import { type RootProps } from "#fieldset/root.tsx";
 
 describe("HelperText", () => {
-  it("draws a p inside the group it needs above it", () => {
+  it("renders a p inside the root", () => {
     const { container } = render(grouped(<HelperText>On weekdays</HelperText>));
 
     expect(slotElement(container, "fieldset", "helperText").tagName).toBe("P");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "helperText",
@@ -23,7 +23,7 @@ describe("HelperText", () => {
     ).toStrictEqual([]);
   });
 
-  it("carries the identifier the group keys its texts by", () => {
+  it("carries the identifier the root's aria-describedby lists", () => {
     const { container } = render(composed({ id: "delivery" }));
 
     expect(slotElement(container, "fieldset", "helperText").getAttribute("id")).toBe(

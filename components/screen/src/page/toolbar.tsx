@@ -1,10 +1,10 @@
 /**
- * Draws the band between the navigation and the body, holding what filters or searches what is
- * shown.
+ * Renders the band between the navigation and the body, with the controls that filter or search
+ * the body.
  *
  * @remarks
- *   A slot of its own rather than the top of the body, so it keeps the page's gutter and measure
- *   and can stay put while the rows scroll under it. Put the toolbar component inside it.
+ *   The band is a part of its own, not the top of the body, so it keeps the page's gutter and
+ *   measure and can stick while the rows scroll under it. Put `Toolbar.Root` in it.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -13,20 +13,20 @@ import { withContext } from "#page/context.ts";
 import { type StickyProps, stuck } from "#page/sticky.ts";
 
 /**
- * Draws the band at the room the column states.
+ * Renders the `div` with the recipe's toolbar class.
  */
 const Banded = withContext("div", "toolbar");
 
 /**
- * Describes what the band takes.
+ * Describes the props of the toolbar band: `sticky` and the props of a `div`.
  */
 export interface ToolbarProps extends ComponentProps<typeof Banded>, StickyProps {}
 
 /**
- * Carries what narrows the body, and stays put where a caller asks.
+ * Renders the toolbar band, with `data-sticky` when it sticks.
  *
- * @param props - Whether it stays put, and everything a styled div takes.
- * @returns The band, carrying whether it sticks.
+ * @param props - Whether it sticks, and the props of a `div`.
+ * @returns The `div` element.
  */
 export function Toolbar({ sticky, ...rest }: ToolbarProps): ReactElement {
   return <Banded {...rest} data-sticky={stuck(sticky)} />;

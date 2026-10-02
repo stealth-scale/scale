@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#sidebar/index.ts";
 
 describe("index", () => {
-  it("names every part a caller composes", () => {
+  it("exports every part", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Content",
       "Empty",
@@ -11,6 +11,7 @@ describe("index", () => {
       "Header",
       "Nav",
       "NavAction",
+      "NavHeading",
       "NavLabel",
       "Root",
       "Search",
@@ -18,7 +19,7 @@ describe("index", () => {
     ]);
   });
 
-  it("publishes neither the recipe nor the binding", () => {
+  it("exports neither the recipe nor the binding", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {

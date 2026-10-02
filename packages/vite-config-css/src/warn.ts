@@ -8,28 +8,28 @@ import { type Layer, named, remove } from "@stealthscale/vite-config-core";
 import { check, type Checked } from "#plugin/check.ts";
 
 /**
- * Records why a repository reports stylesheet violations instead of failing on them.
+ * Configures the reporting check that replaces the failing one.
  *
  * @remarks
- *   Everything the check itself takes is accepted here too, so demoting the
- *   check keeps the globs and rules a repository had already configured.
+ *   The reporting check reads the same globs and rules the failing check was
+ *   configured with.
  */
 export interface Warned extends Checked {
   /**
-   * Why this repository departs from a failing check. It is recorded against
-   * the removal and read back when somebody asks what took the check away.
+   * Records why the repository reports stylesheet violations instead of
+   * failing the build on them. The removal carries this reason.
    */
   because: string;
 }
 
 /**
- * Takes the failing check back by name and states a reporting one in its place.
+ * Removes the failing check by name and adds a reporting check in its place.
  *
  * @remarks
- *   The removal names `css.check`, which composition resolves against the
- *   layers stated above it. A config listing this before `layers()`, or
- *   without it, fails to load rather than quietly reporting nothing.
- * @returns The removal, then the replacement, in the order a config keeps.
+ *   Composition resolves the removal against the layers listed above it. A
+ *   configuration that lists this call before `layers()`, or without it,
+ *   throws while it loads.
+ * @returns The removal of `css.check`, then the reporting check.
  */
 export function warn(stated: Warned): readonly Layer[] {
   const { because, ...checked } = stated;

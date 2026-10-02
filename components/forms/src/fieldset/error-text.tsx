@@ -1,13 +1,13 @@
 /**
- * Draws what went wrong with the group.
+ * Renders what is wrong with the group, or the status it reports.
  *
  * @remarks
- *   The element is `p`. It renders nothing where the group is not wrong, and states `role="alert"`
- *   where it is, so a message raised after a person submits reaches a reader who is not looking at
- *   the group.
- *   Reach for it where the fault is the group's rather than one field's: a set of options none of
- *   which was chosen, or two dates in the wrong order. A fault belonging to one field goes in that
- *   field's own message, where a screen reader reads it as the control takes focus.
+ *   The element is a `p` with the identifier the root's `aria-describedby` lists. It renders while
+ *   the group is invalid or reports a status, and nothing otherwise, the same as a field's error
+ *   text. It sets `role="alert"` only while the group is invalid, so an error raised on submit is
+ *   announced. Use it for a fault of the group, such as no option chosen or two dates in the wrong
+ *   order. A fault of one field goes in that field's error text. A leading `svg` is sized to the
+ *   text and centred on its first line.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -16,25 +16,25 @@ import { withContext } from "#fieldset/context.ts";
 import { useFieldset } from "#fieldset/state.ts";
 
 /**
- * Draws the message at the size the root states.
+ * Renders the `p` with the fieldset's error text class.
  */
 const Worded = withContext("p", "errorText");
 
 /**
- * Describes what the message takes: everything a styled p takes.
+ * Describes the props of the error text: the props of a `p`.
  */
 export type ErrorTextProps = ComponentProps<typeof Worded>;
 
 /**
- * Says what went wrong with the group, where the group is wrong.
+ * Renders the error text while the group is invalid or reports a status.
  *
- * @param props - Everything a styled p takes.
- * @returns The message, or nothing where the group is not wrong.
+ * @param props - Attributes and children of the `p` element.
+ * @returns The `p` element, or nothing.
  */
 export function ErrorText(props: ErrorTextProps): ReactElement | undefined {
-  const { ids, invalid } = useFieldset();
+  const { ids, invalid, status } = useFieldset();
 
-  if (!invalid) return undefined;
+  if (!invalid && status === undefined) return undefined;
 
-  return <Worded id={ids.errorText} role="alert" {...props} />;
+  return <Worded id={ids.errorText} {...(invalid ? { role: "alert" } : {})} {...props} />;
 }

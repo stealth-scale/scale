@@ -1,10 +1,9 @@
 /**
- * The formatting departures a repository states, each carrying its reason.
+ * Layers a repository adds to depart from the house formatting rules.
  *
  * @remarks
- *   Every layer here adds to what a preset already set rather than replacing
- *   it, so a repository skipping one directory keeps the house list of
- *   generated files as well.
+ *   Every layer here appends to the setting a preset already made, rather than replacing it, so a
+ *   repository that skips one directory keeps the house list of generated files.
  */
 
 import { type UserConfig } from "vite";
@@ -19,26 +18,26 @@ import {
 import { GENERATED } from "#ignore/generated.ts";
 
 /**
- * The import-sorting settings a contributed group is folded into.
+ * The object form of `fmt.sortImports`, which is the form a contributed group merges into.
  */
 type Sorted = Exclude<NonNullable<NonNullable<UserConfig["fmt"]>["sortImports"]>, boolean>;
 
 /**
- * The configuration path holding the globs the formatter walks past.
+ * Configuration path of the list of globs the formatter skips.
  */
 const SKIPPED = "fmt.ignorePatterns";
 
 /**
- * The configuration path holding the prefixes counted as an internal import.
+ * Configuration path of the list of prefixes the sorter counts as an internal import.
  */
 const OWN = "fmt.sortImports.internalPattern";
 
 /**
- * A set of files the formatter is told to leave as they were written.
+ * Arguments for {@link skip}: the files the formatter leaves unchanged, and why.
  */
 export interface Skipped {
   /**
-   * Why these files go unformatted, recorded beside the entry it adds.
+   * Why the formatter leaves these files unchanged.
    */
   because: string;
 
@@ -49,47 +48,47 @@ export interface Skipped {
 }
 
 /**
- * A set of package prefixes a repository counts as its own code.
+ * Arguments for {@link own}: the package prefixes a repository counts as its own code, and why.
  */
 export interface Owned {
   /**
-   * Why these prefixes are this repository's rather than somebody else's.
+   * Why these prefixes name this repository's own code.
    */
   because: string;
 
   /**
-   * Prefixes matched against a specifier, not regular expressions.
+   * Prefixes matched against the start of a specifier, never as regular expressions.
    */
   patterns: readonly string[];
 }
 
 /**
- * A band of imports that sorts above every band the house order defines.
+ * Arguments for {@link group}: an import group that sorts above every group already in the order,
+ * and why.
  */
 export interface Grouped {
   /**
-   * Why these imports are worth separating from the rest.
+   * Why the sorter separates these imports from the rest.
    */
   because: string;
 
   /**
-   * The band's name, which also names the layer.
+   * The name the sorter gives the group, which is also the layer name.
    */
   name: string;
 
   /**
-   * Patterns matched against an import specifier.
+   * The patterns the sorter matches against an import specifier.
    */
   patterns: readonly string[];
 }
 
 /**
- * Takes the import order out of the configuration a group is joining.
+ * Returns the import order a group is about to join, out of the configuration built so far.
  *
  * @remarks
- *   Setting `sortImports` to a boolean turns sorting on without stating an
- *   order, and a group has nothing to join in that case. It is refused the same
- *   way an absent setting is.
+ *   A boolean `sortImports` turns sorting on without stating an order, so a group has nothing to
+ *   join. It is refused the same way an absent setting is.
  * @throws {@link Error} When no layer above this one states an import order.
  */
 function sorting(config: UserConfig, name: string): Sorted {
@@ -106,11 +105,11 @@ function sorting(config: UserConfig, name: string): Sorted {
 }
 
 /**
- * Tells the formatter to leave a set of files as they are.
+ * Adds each glob to the list of files the formatter leaves unchanged.
  *
  * @remarks
- *   Each glob becomes a contribution of its own, named for itself, so a
- *   repository dropping one glob never disturbs a glob another layer added.
+ *   Each glob becomes a contribution named after itself rather than one contribution carrying the
+ *   whole list, so removing a glob leaves every glob another layer added in place.
  * @returns One contribution per glob.
  */
 export function skip(stated: Skipped): readonly Contribution[] {
@@ -120,11 +119,12 @@ export function skip(stated: Skipped): readonly Contribution[] {
 }
 
 /**
- * Leaves alone the files a code generator owns.
+ * Adds the house list of generated files to the formatter's skip list.
  *
  * @remarks
- *   A formatted generated file differs from what its generator writes on the
- *   next run, and the difference lands on whoever runs the generator.
+ *   A formatted generated file no longer matches what its generator writes, so the next generator
+ *   run reports a change nobody made.
+ * @returns One contribution per glob in the house list.
  */
 export function generated(): readonly Contribution[] {
   return skip({
@@ -134,11 +134,11 @@ export function generated(): readonly Contribution[] {
 }
 
 /**
- * Counts a further package prefix as an import of this repository's own code.
+ * Adds each prefix to the set the sorter counts as this repository's own code.
  *
  * @remarks
- *   The house scope stays in the list. A repository publishing under a second
- *   scope names that one here rather than restating both.
+ *   The contributions append to the house scope rather than replacing it, so a repository
+ *   publishing under a second scope states only the second one.
  * @returns One contribution per prefix.
  */
 export function own(stated: Owned): readonly Contribution[] {
@@ -148,12 +148,14 @@ export function own(stated: Owned): readonly Contribution[] {
 }
 
 /**
- * Lifts the imports matching a set of patterns into a band of their own.
+ * Returns an override that sorts the imports matching a set of patterns into a group of their own.
  *
  * @remarks
- *   The band goes above every band already in the order, and the order beneath
- *   it is untouched. Two modules each adding a band both keep theirs.
- * @throws {@link Error} When the config it refines states no import order.
+ *   The group is prepended, so it sorts above every group already in the order and the order
+ *   beneath it is unchanged. Two modules each adding a group therefore both keep theirs.
+ * @returns An override that refines `fmt.sortImports` when it is applied.
+ * @throws {@link Error} When the configuration it refines states no import order. The refinement
+ *   runs when the override is applied, not when this returns.
  */
 export function group(stated: Grouped): Override {
   return override({

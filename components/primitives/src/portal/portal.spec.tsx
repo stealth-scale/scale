@@ -8,20 +8,20 @@ import { accessibilityViolations } from "@stealthscale/testing-react";
 import { Portal } from "#portal/portal.ts";
 
 describe("Portal", () => {
-  it("breaks no accessibility rule", async () => {
+  it("returns no accessibility violation for the content it moves", async () => {
     await expect(
       accessibilityViolations(Portal, { props: { children: <p>Elsewhere</p> } }),
     ).resolves.toStrictEqual([]);
   });
 
-  it("draws its content at the document's body where a caller names no container", () => {
+  it("renders its children into document.body when given no container", () => {
     const { container } = render(<Portal>Elsewhere</Portal>);
 
     expect(container.textContent).toBe("");
     expect(document.body.textContent).toContain("Elsewhere");
   });
 
-  it("draws its content at the container a caller names", () => {
+  it("renders its children into the container the caller passes", () => {
     const elsewhere = document.createElement("section");
 
     document.body.append(elsewhere);
@@ -31,13 +31,13 @@ describe("Portal", () => {
     elsewhere.remove();
   });
 
-  it("draws its content where it was written where a caller turns it off", () => {
+  it("renders its children in place when disabled", () => {
     const { container } = render(<Portal disabled>Here</Portal>);
 
     expect(container.textContent).toBe("Here");
   });
 
-  it("takes its content away again when it goes", () => {
+  it("removes its children from the body on unmount", () => {
     const { unmount } = render(<Portal>Elsewhere</Portal>);
 
     unmount();
@@ -45,17 +45,17 @@ describe("Portal", () => {
     expect(document.body.textContent).not.toContain("Elsewhere");
   });
 
-  it("draws nothing where it holds nothing", () => {
+  it("renders nothing when given no children", () => {
     const { container } = render(<Portal />);
 
     expect(container.textContent).toBe("");
   });
 
-  it("draws nothing while a page is rendered to a string", () => {
+  it("renders an empty string on the server", () => {
     expect(renderToString(<Portal>Elsewhere</Portal>)).toBe("");
   });
 
-  it("draws its content while a page is rendered to a string where it is turned off", () => {
+  it("renders its children on the server when disabled", () => {
     expect(renderToString(<Portal disabled>Here</Portal>)).toBe("Here");
   });
 });

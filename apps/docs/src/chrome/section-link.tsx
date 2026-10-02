@@ -1,42 +1,38 @@
 /**
- * Draws the link to the catalogue in the bar, marked while the reader is anywhere in it.
+ * Renders the bar's link to the catalogue, which a narrow bar moves into its menu.
  */
 
-import { type ComponentProps, type ReactElement } from "react";
+import { type ReactElement } from "react";
 
-import { Button } from "@stealthscale/component-actions";
+import { Toolbar } from "@stealthscale/component-screen";
 import { useTranslation } from "@stealthscale/provider-i18n";
-import { createLink, useRouteHref } from "@stealthscale/provider-router";
+import { useLinkProps, useRouteHref } from "@stealthscale/provider-router";
+import { useCatalogueMark } from "@stealthscale/specimen";
 
-import { INDEX } from "#catalogue.ts";
-
-/**
- * Draws the button over the router's link, so it leads to the catalogue without a reload and says
- * it is the current page on the catalogue's index and on every page under it.
- */
-const Section = createLink(Button);
+import { CATALOGUE, INDEX } from "#catalogue.ts";
 
 /**
- * Describes what the link takes: what the bar's row hands a control, and nothing of its own.
- */
-export type SectionLinkProps = Omit<ComponentProps<typeof Section>, "children" | "to">;
-
-/**
- * Draws the link as a quiet button in the bar.
+ * Renders the link to the catalogue's index as a toolbar link in the neutral ghost look.
  *
  * @remarks
- *   The element is an anchor drawn in the ghost look, so it reads as a place to go rather than as
- *   an action, and the recipe fills it while it names the page being read. The toolbar's item
- *   draws this through `as`, so the row's tab stop lands on the anchor.
- * @param props - The row's tab stop and everything else an anchor takes.
- * @returns The anchor, in the button's look.
+ *   The router's link props supply the target and a press handler that navigates without a reload.
+ *   The handler leaves a press with a modifier key to the browser, so the link opens in a new tab.
+ *   The link is marked current on every catalogue page. A narrow bar renders it as a row of the
+ *   bar's menu, and the row calls the same handler.
+ * @returns The `a` element, or nothing while the bar lists the link in its menu.
  */
-export function SectionLink(props: SectionLinkProps): ReactElement {
+export function SectionLink(): null | ReactElement {
   const { t } = useTranslation("docs");
+  const { href = "", onClick } = useLinkProps({ to: useRouteHref(INDEX) });
 
   return (
-    <Section as="a" size="sm" status="neutral" to={useRouteHref(INDEX)} variant="ghost" {...props}>
-      {t("frame.components")}
-    </Section>
+    <Toolbar.Link
+      current={useCatalogueMark(CATALOGUE) === "page"}
+      href={href}
+      onClick={onClick}
+      palette="neutral"
+    >
+      {t("frame.catalogue")}
+    </Toolbar.Link>
   );
 }

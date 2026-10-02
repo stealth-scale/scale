@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import {
   axesOf,
   defaultsOf,
@@ -9,38 +10,50 @@ import {
 } from "@stealthscale/testing-theme";
 
 import { recipe } from "#roving-focus/recipe.ts";
+import page from "#roving-focus/roving-focus.specimen.tsx";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("covers every variant axis in the scenes of its specimen page", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("has no scene that writes a value the recipe does not offer", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("references a token on every value a theme has to be able to change", () => {
     expect(
       recipeViolations(recipe, { names: ["RovingFocus.Root", "RovingFocus.Item"] }),
     ).toStrictEqual([]);
   });
 
-  it("names its class roving-focus", () => {
+  it("sets className to roving-focus", () => {
     expect(recipe.className).toBe("roving-focus");
   });
 
-  it("styles the root and the item", () => {
+  it("declares the item and root slots", () => {
     expect(slotsOf(recipe)).toStrictEqual(["item", "root"]);
   });
 
-  it("offers the one axis a group takes", () => {
+  it("declares one variant axis", () => {
     expect(axesOf(recipe)).toStrictEqual(["orientation"]);
+  });
+
+  it("declares three orientations on the orientation axis", () => {
     expect(valuesOf(recipe, "orientation")).toStrictEqual(["both", "horizontal", "vertical"]);
   });
 
-  it("lays the items out in a row when nothing is asked for", () => {
+  it("defaults orientation to horizontal", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ orientation: "horizontal" });
   });
 
-  it("wraps a group the arrows move through on both axes", () => {
+  it("sets flexWrap on the root when the orientation is both", () => {
     expect(recipe.variants?.["orientation"]).toMatchObject({
       both: { root: { flexWrap: "wrap" } },
     });
   });
 
-  it("tracks the namespace and every tag whose name opens with RovingFocus", () => {
+  it("matches the RovingFocus JSX tags", () => {
     expect(recipe.jsx).toStrictEqual([/^RovingFocus(\.\w+)?$/u]);
   });
 });

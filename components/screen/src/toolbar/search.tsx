@@ -1,53 +1,119 @@
 /**
- * Draws the search, which covers the row while it is open on one too narrow to hold both.
+ * Renders the forms package's search input in the row, and on a narrow row the button it folds to.
  *
  * @remarks
- *   A search field and a row of controls do not fit on a phone, and a field squeezed to nothing is
- *   a field nobody types in. Opened, the field is laid over the row and fills it; closed, it sits
- *   in the band it was written in.
- *   Whether it is open is the caller's, because the control that opens it is the caller's too and
- *   the two would otherwise each hold half the answer.
- *   Opening it puts the reader in the field, and closing it puts them back on the control they
- *   pressed. The control is under the field while the field is open, so a reader who was left on it
- *   would be standing on something out of sight, which is what WCAG calls a focus order that does
- *   not follow meaning.
+ *   The search takes the search input's props and no props of its own. On a narrow row it renders
+ *   a button with the input's `searchIndicator` as its mark and the input's `aria-label` as its
+ *   name, `Search` when absent. The button opens the field over the whole row, the row's padding
+ *   and edge included. Escape on the empty field or focus leaving the empty field closes it, and
+ *   the field's own Escape empties a filled field first. Opening moves focus to the field, and
+ *   closing returns it to the button, because a browser that does not focus a pressed button leaves
+ *   no control to return to. The field is a tab stop of its own and not a roving item, so the arrow
+ *   keys move its caret.
  */
 
-import { type ComponentProps, type ReactElement, useRef } from "react";
+import { type FocusEvent, type KeyboardEvent, type ReactElement, useRef, useState } from "react";
+
+import { Button } from "@stealthscale/component-actions";
+import { SearchInput, type SearchInputProps } from "@stealthscale/component-forms";
 
 import { useFocused } from "#focus/index.ts";
 import { withContext } from "#toolbar/context.ts";
+import { Item } from "#toolbar/item.tsx";
+import { useToolbar } from "#toolbar/state.ts";
 
 /**
- * Selects what the reader is put in when the search opens, which is whatever takes typing.
+ * Selects the element that takes focus when the search opens.
  */
-const FIELD = "input, textarea, [contenteditable=true]";
+const FIELD = "input";
 
 /**
- * Draws the search at the room the row states.
+ * Accessible name of the field and of the folded button when the caller passes no `aria-label`.
+ */
+const NAME = "Search";
+
+/**
+ * Renders the `div` with the recipe's search class.
  */
 const Sought = withContext("div", "search");
 
 /**
- * Describes what the search takes.
+ * Describes the props of the search: the props of the forms package's search input.
  */
-export interface SearchProps extends ComponentProps<typeof Sought> {
-  /**
-   * Whether the field is laid over the row rather than sitting in its band.
-   */
-  readonly opened?: boolean | undefined;
+export type SearchProps = SearchInputProps;
+
+/**
+ * Returns whether the reader left the search with its field empty.
+ */
+function leftEmpty(event: FocusEvent<HTMLDivElement>): boolean {
+  const next = event.relatedTarget;
+
+  if (next instanceof Node && event.currentTarget.contains(next)) return false;
+
+  return event.currentTarget.querySelector("input")?.value === "";
 }
 
 /**
- * Covers the row while it is open, and sits in its band while it is not.
+ * Renders the field, and on a narrow row the button it folds to.
  *
- * @param props - Whether it is open, and everything a styled div takes.
- * @returns The search, carrying whether it covers the row.
+ * @param props - The props of the search input.
+ * @returns The field, the folded button, or both while the search is open.
  */
-export function Search({ opened, ...rest }: SearchProps): ReactElement {
+export function Search({
+  "aria-label": named = NAME,
+  searchIndicator,
+  size,
+  ...rest
+}: SearchProps): ReactElement {
+  const { narrow, size: row } = useToolbar();
+  const [open, setOpen] = useState(false);
   const sought = useRef<HTMLDivElement>(null);
+  const opener = useRef<HTMLButtonElement>(null);
+  const opened = narrow && open;
 
-  useFocused(sought, opened === true, FIELD);
+  useFocused(sought, opened, FIELD, narrow ? opener : undefined);
 
-  return <Sought {...rest} data-opened={opened === true ? "" : undefined} ref={sought} />;
+  const search = (
+    <Sought
+      data-opened={opened ? "" : undefined}
+      onBlur={(event: FocusEvent<HTMLDivElement>) => {
+        if (narrow && leftEmpty(event)) setOpen(false);
+      }}
+      onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
+        if (narrow && event.key === "Escape") setOpen(false);
+      }}
+      ref={sought}
+    >
+      <SearchInput
+        aria-label={named}
+        searchIndicator={searchIndicator}
+        size={size ?? row}
+        {...rest}
+      />
+    </Sought>
+  );
+
+  if (!narrow) return search;
+
+  const content =
+    searchIndicator === undefined
+      ? { children: named }
+      : ({ "aria-label": named, children: searchIndicator, shape: "square" } as const);
+
+  return (
+    <>
+      <Item
+        aria-expanded={opened}
+        as={Button}
+        onClick={() => {
+          setOpen(true);
+        }}
+        ref={opener}
+        size={row}
+        variant="ghost"
+        {...content}
+      />
+      {opened && search}
+    </>
+  );
 }

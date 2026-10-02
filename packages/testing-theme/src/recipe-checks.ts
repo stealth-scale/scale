@@ -7,11 +7,11 @@
  *
  * @remarks
  *   A recipe reads semantic tokens, compositions and scale steps, so a theme can move every value
- *   it draws. A value the foundation does not define reaches the page as raw CSS without a word
- *   from the compiler, so the token check is what catches a name typed wrongly. The runtime
- *   writes a class for every value it is handed, and the compiler emits a rule only for a value
- *   that states styles, so a value with none, a default the axis does not offer and a compound
- *   matched on such a value each put a class on the page that no rule reaches.
+ *   it renders. The compiler emits a value the foundation does not define as raw CSS and reports
+ *   nothing, so the token check is what catches a name typed wrongly. The runtime writes a class
+ *   for every value it is handed, and the compiler emits a rule only for a value that states
+ *   styles, so a value with none, a default the axis does not offer and a compound matched on such
+ *   a value each put a class on the page that no rule selects.
  */
 
 import { slotClass, variantClass } from "@stealthscale/pandacss-naming";
@@ -110,15 +110,21 @@ const LENGTH = /(?:^|[\s(,])-?\d*\.?\d+(?:px|rem|pt)(?![\w-])/u;
 const LITERAL = /^(?:#|(?:oklch|oklab|rgba?|hsla?|lab|lch|color)\()/iu;
 
 /**
- * Matches a step of a ramp, such as `blue.500`.
+ * Matches the shape of a step of a ramp, such as `blue.500`.
+ *
+ * @remarks
+ *   The theme's series colors, `series.1` to `series.8`, take the same shape and are semantic
+ *   tokens, so `rampStep` passes a match the preset defines among its semantic colors.
  */
 const STEP = /^[a-zA-Z]+\.\d+$/u;
 
 /**
- * Matches a value that is not a color: a keyword every property takes, or a custom property a
- * runtime value is written into.
+ * Matches a value that is not a color a theme states: a keyword every property takes, a custom
+ * property a runtime value is written into, or the black or white `contrast-color()` picks against
+ * such a property.
  */
-const PASSES = /^(?:transparent|current|currentColor|inherit|initial|unset|none|var\(--)/u;
+const PASSES =
+  /^(?:transparent|current|currentColor|inherit|initial|unset|none|(?:contrast-color\()?var\(--)/u;
 
 /**
  * Matches a value that names a token: one word, a dotted path, or the compiler's token function
@@ -126,8 +132,8 @@ const PASSES = /^(?:transparent|current|currentColor|inherit|initial|unset|none|
  *
  * @remarks
  *   A dot is not required. Nine of the categories a theme states are keyed by one word, `radii`
- *   and `zIndex` among them, so a value written `l9` or `stiky` reached the page as raw CSS with
- *   the dotted form alone.
+ *   and `zIndex` among them, and a pattern that required a dot would pass a value written `l9` or
+ *   `stiky` as raw CSS.
  */
 const TOKEN = /^[a-zA-Z][\w-]*(?:\.[\w-]+)*$|token\(/u;
 
@@ -175,7 +181,7 @@ const TOKEN_CALL = /token\(([a-zA-Z]+)\.([^,)]+)/u;
 const VIRTUAL = "colorPalette";
 
 /**
- * Strips the opacity modifier a color may carry, such as `fg/50`.
+ * Strips a color's opacity modifier, such as the `/50` of `fg/50`.
  */
 function bare(value: string): string {
   return value.replace(/\/\d+$/u, "");
@@ -210,7 +216,7 @@ function ownersOf(recipe: Declared): readonly string[] {
 }
 
 /**
- * Lists the classes one value writes on: the recipe's own for a recipe that draws one element,
+ * Lists the classes one value writes on: the recipe's own for a recipe that styles one element,
  * and the slot class of each part the value styles for a slot recipe.
  *
  * @remarks
@@ -232,7 +238,7 @@ function stylesOf(recipe: Declared, styles: unknown): readonly string[] {
  * @remarks
  *   The scheme writes a variant's class from the value alone, and a boolean axis at `true` from
  *   the axis, so two axes sharing a value, or a value that is also a boolean axis's name, would
- *   draw two variants under one class.
+ *   style two variants under one class.
  */
 function valueViolations(recipe: Declared): readonly string[] {
   const written = new Map<string, string>();
@@ -300,7 +306,7 @@ function compoundViolations(recipe: Declared): readonly string[] {
 }
 
 /**
- * Reports whether a value is one no theme owns: a keyword every property takes, a custom property
+ * Reports whether a value is one no theme states: a keyword every property takes, a custom property
  * a runtime value is written into, or a color the display chooses for itself.
  */
 function passes(named: string): boolean {
@@ -308,7 +314,15 @@ function passes(named: string): boolean {
 }
 
 /**
- * Says what is wrong with a color value, or nothing where a theme can move it.
+ * Reports whether a value names a step of a ramp, such as `blue.500`, and not a semantic color of
+ * the same shape, such as `series.1`.
+ */
+function rampStep(named: string, preset: Preset): boolean {
+  return STEP.test(named) && !semanticColorPaths(preset).has(named);
+}
+
+/**
+ * Returns what is wrong with a color value, or undefined where a theme can move it.
  */
 function colorFault(value: string, preset: Preset): string | undefined {
   const named = bare(value);
@@ -317,7 +331,7 @@ function colorFault(value: string, preset: Preset): string | undefined {
   if (passes(named)) return undefined;
   if (LITERAL.test(named)) return `writes the color ${value}`;
   if (named.startsWith("{")) return `references ${value}`;
-  if (STEP.test(named)) return `names the ramp step ${value}`;
+  if (rampStep(named, preset)) return `names the ramp step ${value}`;
   if (first === VIRTUAL) {
     return ROLES.some((role) => role === rest.join("."))
       ? undefined
@@ -354,11 +368,11 @@ function colorViolations(
 }
 
 /**
- * Says what is wrong with a token a value names, or nothing where the preset defines it.
+ * Returns what is wrong with a token a value names, or undefined where the preset defines it.
  *
  * @remarks
  *   A word every property takes is passed over, because no theme can move it. Everything else
- *   that reads as a name is held against the paths the preset defines in the category.
+ *   that reads as a name is compared against the paths the preset defines in the category.
  */
 function tokenFault(category: string, value: string, preset: Preset): string | undefined {
   const call = TOKEN_CALL.exec(value);
@@ -520,7 +534,7 @@ const RUNNERS: ReadonlyArray<readonly [RecipeCheck, Runner]> = [
 ];
 
 /**
- * Runs every check the specification leaves standing over a recipe.
+ * Runs each check the specification does not skip, over one recipe.
  *
  * @returns Each violation, opening with the check that reported it, or an empty array for a
  *   recipe a theme can move every value of.

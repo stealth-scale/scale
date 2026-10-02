@@ -1,5 +1,5 @@
 /**
- * Publishes the container: the measure a page is read at, centred in whatever holds it.
+ * Exposes the container component and its props provider to the package barrel.
  */
 
 export { Container, type ContainerProps } from "#container/container.ts";

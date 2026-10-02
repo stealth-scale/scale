@@ -1,24 +1,17 @@
 /**
- * States what a tooltip is: a short label that appears beside what a pointer rests on.
+ * Recipe for the tooltip: a short label beside its trigger, with an arrow.
  *
  * @remarks
- *   The machine names no root, because a tooltip is a control and a box that floats beside it
- *   rather than a thing that frames the two. This recipe adds one anyway, drawn with
- *   `display: contents` so it takes part in no layout, because the control and the box are
- *   siblings and a slot recipe hands its variants down from an element above them both.
- *   The positioner is placed by the machine, which measures the trigger and writes the box's
- *   position as inline styles, so this recipe states nothing about where the box goes. It states
- *   what the box looks like, and it grows from whichever corner the machine placed it against,
- *   which is a custom property the machine sets.
- *   Both looks name their surface once as a custom property, because the arrow has to be filled in
- *   the same colour as the box and reads it from there rather than restating it.
- *   A tooltip is quieter than a popover. It holds a few words, so it reads at a label rather than
- *   at body text, and it is capped narrow so a long hint wraps rather than running the width of the
- *   page.
- *   The control draws no look of its own. A tooltip describes a control that is already on the
- *   page, so the control is the caller's and is drawn through `as`: a button of the library, a
- *   link, or whatever the hint belongs to. A look written here would be a second look fighting the
- *   one the caller passed.
+ *   The machine has no root part. The recipe adds a root with `display: contents`, because the
+ *   trigger and the positioner are siblings and a slot recipe passes its variants from an element
+ *   above both. The machine measures the trigger and writes the positioner's position inline, so
+ *   the recipe sets no position. The content scales from the `--transform-origin` the machine sets.
+ *   The content takes the `tooltip` z-index. The machine writes `z-index: var(--z-index)` inline on
+ *   the positioner from the content's computed value, so a z-index on the positioner has no effect.
+ *   Each look sets `--tooltip-surface` once, and the arrow tip reads it. The content reads the
+ *   label role and wraps at `maxWidth: xs`. The trigger has no styles, because the caller passes
+ *   the control through `as`. The recipe has no `palette` axis, because both looks use neutral
+ *   surfaces, and no `effect` axis, because a tooltip is not a control.
  */
 
 import {
@@ -30,7 +23,7 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * Draws an inverted tooltip at the middle size until a caller says otherwise.
+ * Defines the tooltip recipe: an inverted tooltip at size `md` by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -45,6 +38,7 @@ export const recipe = defineSlotRecipe({
       maxWidth: "xs",
       textWrap: "pretty",
       transformOrigin: "var(--transform-origin)",
+      zIndex: "tooltip",
     },
     positioner: { position: "relative" },
     root: { display: "contents" },
@@ -55,7 +49,7 @@ export const recipe = defineSlotRecipe({
   slots: ["root", "trigger", "positioner", "content", "arrow", "arrowTip"],
   variants: {
     /**
-     * How much room the box takes, and how loud its words are.
+     * Padding of the content on the inset scale and its text on the label role.
      */
     size: onSlot(
       "content",
@@ -66,12 +60,22 @@ export const recipe = defineSlotRecipe({
     ),
 
     /**
-     * How the box is set off from the page behind it.
+     * Surface of the content: the inverted surface, or the popover surface inside a hairline edge.
+     *
+     * @remarks
+     *   The inverted content has a transparent hairline edge, which forced colors paint in
+     *   `CanvasText`, so the content keeps its outline where its fill turns into the page's.
      */
     variant: {
       inverted: {
         arrowTip: { borderColor: "var(--tooltip-surface)" },
-        content: { "--tooltip-surface": "colors.bg.inverted", color: "fg.inverted" },
+        content: {
+          "--tooltip-surface": "colors.bg.inverted",
+          borderColor: "transparent",
+          borderStyle: "solid",
+          borderWidth: "hairline",
+          color: "fg.inverted",
+        },
       },
       surface: {
         arrowTip: { borderColor: "border" },

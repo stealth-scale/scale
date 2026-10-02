@@ -1,0 +1,82 @@
+{
+  "about": "Each series' values across several dimensions, as a polygon on one spoke per dimension. Every spoke reads one scale, and the polygon's shape follows the order of the spokes, so a radar shows a profile while a bar chart compares values.",
+  "coverage": {
+    "about": "scale writes the radius ticks up the spoke at 12 o'clock. valueDomain fixes the scale at 0 to 100, and valueOptions writes each value in percent. The six ticks step a top of 100 by 20.",
+    "caption": "The CLI is the one module under 60% covered.",
+    "covered": "Covered",
+    "label": "Test coverage by module",
+    "title": "Scale"
+  },
+  "current": "This quarter",
+  "dimensions": {
+    "cost": "Cost",
+    "coverage": "Coverage",
+    "latency": "Latency",
+    "reliability": "Reliability",
+    "throughput": "Throughput"
+  },
+  "drop": {
+    "about": "defaultIndex opens the tooltip at a spoke when the chart first renders. The heading names the spoke, and a row per series writes its value.",
+    "caption": "Cost fell from 6 to 4, the one score below last quarter's.",
+    "title": "Tooltip"
+  },
+  "modules": {
+    "api": "API",
+    "cli": "CLI",
+    "jobs": "Jobs",
+    "sdk": "SDK",
+    "web": "Web"
+  },
+  "narrow": {
+    "about": "The scorecard in a room 20rem wide, the column of a phone. The spokes' names fit around the web.",
+    "title": "Narrow room"
+  },
+  "order": {
+    "about": "The scorecard with Cost and Throughput swapped. Every score is the same, and the polygons change shape, so compare radars only with their spokes in one order.",
+    "caption": "The scorecard's scores with two spokes swapped render other shapes.",
+    "title": "Order of spokes"
+  },
+  "previous": "Last quarter",
+  "profile": {
+    "about": "One series, filled in the teal palette's chart color: the profile a radar is for. The legend renders for two series or more.",
+    "caption": "The platform team is strongest on backend work and weakest on design.",
+    "label": "Skills of the platform team out of 10",
+    "team": "Platform team",
+    "title": "One profile"
+  },
+  "quiet": {
+    "about": "A radar chart without rows renders the empty state in the plot's place, at the plot's ratio.",
+    "caption": "Checkout service scores this quarter.",
+    "empty": "No scores for this quarter yet.",
+    "title": "Empty"
+  },
+  "replay": {
+    "about": "animate grows each polygon from the centre when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the polygons at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "scorecard": {
+    "about": "Two quarters of a service's scores out of 10 on five dimensions. valueDomain fixes the scale at 0 to 10 on every spoke, and each polygon fills at 0.25 of its color.",
+    "caption": "Cost is the only score that fell this quarter, from 6 to 4.",
+    "label": "Checkout service scores out of 10",
+    "title": "Scorecard"
+  },
+  "skills": {
+    "backend": "Backend",
+    "data": "Data",
+    "design": "Design",
+    "frontend": "Frontend",
+    "operations": "Operations",
+    "security": "Security"
+  },
+  "teams": {
+    "about": "Three teams as outlines: filled false leaves each polygon unfilled, so the edges of three overlapping shapes can be told apart.",
+    "caption": "Identity leads on reliability and coverage, and search on latency.",
+    "identity": "Identity",
+    "label": "Team scores out of 10",
+    "payments": "Payments",
+    "search": "Search",
+    "title": "Outlines"
+  },
+  "title": "Radar chart"
+}

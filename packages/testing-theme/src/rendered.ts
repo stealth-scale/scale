@@ -1,29 +1,31 @@
 /**
- * Reads what a rendered component did with its recipe.
+ * Reads the classes a rendered component applied from its recipe.
  *
  * @remarks
- *   A bound component marks the element carrying its recipe with `data-recipe`. A part of a
- *   compound component carries its slot class, `card__header`, which the binding writes and the
- *   pruning leaves, and a part an anatomy stamps carries `data-part`, the slot's name written with
- *   hyphens. Those are the handles a specification holds. Every reader throws where the element it
- *   was asked for is absent, naming it, so a failure says which element went missing.
+ *   A bound component marks the element its recipe applies to with `data-recipe`. A part of a
+ *   compound component has the slot class the binding writes and the pruning keeps,
+ *   `card__header`, and a part an anatomy stamps also has `data-part`, the slot's name in hyphens.
+ *   The readers here select on one of those two, the slot class first, because `data-part` does
+ *   not name the component: a scroll area's root inside a sidebar also has `data-part="root"`.
+ *   Each one throws where the element it was asked for is absent, naming it, so a failing
+ *   specification reports which element is missing.
  */
 
 import { slotClass } from "@stealthscale/pandacss-naming";
 
 /**
- * Fixes the attribute a bound component marks the element carrying its recipe with.
+ * Attribute a bound component marks the element its recipe applies to with.
  */
 const RECIPE = "data-recipe";
 
 /**
- * Fixes the attribute an anatomy marks each part of a compound component with.
+ * Attribute an anatomy marks each part of a compound component with.
  */
 const PART = "data-part";
 
 /**
- * Writes a slot's name the way an anatomy writes a part's, so `itemIndicator` finds the part
- * stamped `item-indicator`.
+ * Converts a slot's name to the hyphenated form an anatomy stamps a part with, so `itemIndicator`
+ * selects the part stamped `item-indicator`.
  */
 function partOf(slot: string): string {
   return slot
@@ -34,43 +36,45 @@ function partOf(slot: string): string {
 }
 
 /**
- * Finds one element by a selector.
+ * Returns the first element in the rendered output matching a selector.
  *
  * @throws {@link Error} When nothing in the output matches the selector.
  */
 function one(container: ParentNode, selector: string): HTMLElement {
   const found = container.querySelector<HTMLElement>(selector);
 
-  if (found === null) throw new Error(`Nothing in the rendered output carries ${selector}.`);
+  if (found === null) throw new Error(`Nothing in the rendered output matches ${selector}.`);
 
   return found;
 }
 
 /**
- * Finds the element a recipe was applied to, by the class name the binding stamps as
+ * Returns the element a recipe was applied to, selected by the class name the binding stamps into
  * `data-recipe`.
  *
- * @throws {@link Error} When nothing in the output carries that recipe.
+ * @throws {@link Error} When no element in the output declares that recipe.
  */
 export function recipeElement(container: ParentNode, name: string): HTMLElement {
   return one(container, `[${RECIPE}="${name}"]`);
 }
 
 /**
- * Finds the element one slot of a compound component was applied to, by the part its anatomy
- * stamps or by the slot class its binding writes.
+ * Returns the element one slot of a compound component was applied to, selected by the slot class
+ * its binding writes, or by the part its anatomy stamps where no element has the class.
  *
  * @remarks
- *   The slot class opens with the recipe's class name, so the reader takes that name beside the
- *   slot as the recipe names it and builds `card__header` from the two.
- * @throws {@link Error} When nothing in the output carries that part or that slot class.
+ *   The slot class begins with the recipe's class name, so the caller passes that name and the
+ *   slot as the recipe declares them and the reader builds `card__header` from the two.
+ * @throws {@link Error} When no element in the output has that part or that slot class.
  */
 export function slotElement(container: ParentNode, name: string, slot: string): HTMLElement {
-  return one(container, `[${PART}="${partOf(slot)}"], .${slotClass(name, slot)}`);
+  const classed = container.querySelector<HTMLElement>(`.${slotClass(name, slot)}`);
+
+  return classed ?? one(container, `[${PART}="${partOf(slot)}"], .${slotClass(name, slot)}`);
 }
 
 /**
- * Lists every class an element carries, sorted, so a comparison does not depend on the order the
+ * Returns every class on an element, sorted, so a comparison does not depend on the order the
  * compiler emitted them in.
  */
 export function classesOf(element: Element): readonly string[] {
@@ -78,19 +82,19 @@ export function classesOf(element: Element): readonly string[] {
 }
 
 /**
- * Lists every class the element carrying a recipe was given, sorted.
+ * Returns every class on the element a recipe applies to, sorted.
  *
- * @throws {@link Error} When nothing in the output carries that recipe.
+ * @throws {@link Error} When no element in the output declares that recipe.
  */
 export function recipeClasses(container: ParentNode, name: string): readonly string[] {
   return classesOf(recipeElement(container, name));
 }
 
 /**
- * Lists every class one slot of a compound component was given, sorted, found as `slotElement`
- * finds it.
+ * Returns every class on one slot of a compound component, sorted, with the slot selected as
+ * {@link slotElement} selects it.
  *
- * @throws {@link Error} When nothing in the output carries that part or that slot class.
+ * @throws {@link Error} When no element in the output has that part or that slot class.
  */
 export function slotClasses(container: ParentNode, name: string, slot: string): readonly string[] {
   return classesOf(slotElement(container, name, slot));

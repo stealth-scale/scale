@@ -1,6 +1,6 @@
 /**
- * Publishes the empty state's five parts, which a caller composes as `EmptyState.Root` holding the
- * rest.
+ * Exports the five parts of the empty state, composed as `EmptyState.Root` around an
+ * `EmptyState.Content` column.
  */
 
 export { Content, type ContentProps } from "#empty-state/content.ts";

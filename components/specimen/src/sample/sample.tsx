@@ -5,7 +5,7 @@
 
 import { type ReactElement } from "react";
 
-import { Caption } from "#caption.tsx";
+import { captioned } from "#caption.tsx";
 import { bare } from "#framed/bare.ts";
 import { useFramed } from "#framed/context.ts";
 import { type Display, useDisplay } from "#sample/display.ts";
@@ -74,11 +74,7 @@ export function Sample({
       {...(span === undefined ? {} : { span })}
       {...(shown.variant === undefined ? {} : { variant: shown.variant })}
     >
-      {of === undefined ? null : (
-        <Head>
-          <Caption knob={knob}>{of}</Caption>
-        </Head>
-      )}
+      {of === undefined ? null : <Head>{captioned(of, knob)}</Head>}
       <Body>{children}</Body>
     </Root>
   );

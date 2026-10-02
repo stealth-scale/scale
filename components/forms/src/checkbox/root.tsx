@@ -1,26 +1,31 @@
 /**
- * Draws the label the box and the words sit in, and runs the machine they share.
+ * Renders the checkbox's row and runs the machine its parts share.
  *
  * @remarks
- *   The element is `label` and points at the input this part draws beside the caller's children,
- *   so a press anywhere on the row toggles the box and the whole row is one target. The input is
- *   the checkbox a screen reader reads and the value a form submits. It is drawn here rather than
- *   published as a part, because a checkbox that omits it reports nothing to a form and nothing to
- *   a reader, and a part a caller has to remember is a part a caller forgets.
- *   The box itself is `aria-hidden`. The input carries the state, so a reader is told the checkbox
- *   is checked once rather than twice.
- *   A checkbox inside a field takes that field's state and is described by its texts. The field's
- *   values are read before the caller's, so a checkbox that states its own overrides the field.
- *   The partly-on state is written onto the input on every commit. The machine writes it when the
- *   state changes and not when it mounts, so a checkbox drawn partly on would otherwise be
- *   announced as unchecked. It is a property rather than `aria-checked`, because a native checkbox
- *   takes `aria-checked` only where it already agrees with the element, which axe reports as
+ *   The element is a `label` that points at the `input` the root renders after its children, so a
+ *   press anywhere on the row toggles the box. The input is the checkbox assistive technology
+ *   reads and the value a form submits. The root renders it, so a caller cannot leave it out. The
+ *   box is `aria-hidden`, so the state is announced once.
+ *   Inside a field the checkbox takes the field's disabled, invalid, read-only and required states
+ *   and size, and the input lists the field's texts in `aria-describedby`. Inside a fieldset
+ *   without a field it takes the group's disabled state and size. Inside a `Checkbox.Group` a box
+ *   with a `value` or marked `parent` takes its state from the group's value, and the group's size
+ *   applies before the field's. A prop the caller states overrides each. The caller's handlers on
+ *   the row run before the machine's. The input takes its `checked` and `indeterminate` properties
+ *   from the machine hook after every press and every change of the state, so a box rendered partly
+ *   on reads as partly on and a refused press leaves the input as it was. `indeterminate` is the
+ *   property and not `aria-checked`, which axe reports on a native checkbox as
  *   `aria-conditional-attr`.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
 
+import { mergeProps } from "@zag-js/react";
+
+import { omitUndefined } from "@stealthscale/hooks";
+
 import { withProvider } from "#checkbox/context.ts";
+import { joined, useCheckboxGroup } from "#checkbox/grouping.ts";
 import {
   ApiProvider,
   type CheckboxOptions,
@@ -28,54 +33,61 @@ import {
   useCheckboxMachine,
 } from "#checkbox/machine.ts";
 import { describedBy } from "#field/ids.ts";
+import { inherited, sized } from "#field/inherited.ts";
 import { useOptionalField } from "#field/state.ts";
+import { useFieldset } from "#fieldset/state.ts";
 
 /**
- * Draws the row and sets the variants every part below it reads.
+ * Renders the root `label` with the recipe's variants.
  */
 const Framed = withProvider("label", "root");
 
 /**
- * Describes what the root takes: the machine's options, the recipe's variants, and the element's.
+ * Describes the props of the root: the machine's options, the recipe's variants and the props of
+ * a `label`.
  *
  * @remarks
- *   Every prop the machine owns is taken off the element's, so the two never offer one name under
- *   two types. `htmlFor` goes with them: the machine states it, pointing the label at the input it
- *   draws.
+ *   The label's own props of the same names as the machine's options, and `htmlFor`, which the
+ *   machine sets, are left out, so no prop has two types.
  */
 export interface RootProps
-  extends CheckboxOptions, Omit<ComponentProps<typeof Framed>, "htmlFor" | keyof CheckboxOptions> {}
+  extends CheckboxOptions, Omit<ComponentProps<typeof Framed>, "htmlFor" | keyof CheckboxOptions> {
+  /**
+   * Whether the box checks and clears every value of the group's `allValues`. It is on while all
+   * are checked and partly on while some are.
+   */
+  readonly parent?: boolean | undefined;
+}
 
 /**
- * Toggles a value a person turns on and off.
+ * Renders the checkbox and provides the machine's api to its parts.
  *
- * @param props - The machine's options, the recipe's variants and the element's props together.
- * @returns The row, holding the parts and the input a form reads.
+ * @param props - The machine's options, the recipe's variants and the props of a `label`.
+ * @returns The `label` element, holding the parts and the `input` a form reads.
  */
 export function Root(props: RootProps): ReactElement {
   const field = useOptionalField();
+  const fieldset = useFieldset();
+  const group = useCheckboxGroup();
   const [options, rest] = splitCheckboxProps(props);
-  const { children, ...attributes } = rest;
-  const api = useCheckboxMachine({
-    disabled: field?.disabled,
-    invalid: field?.invalid,
-    readOnly: field?.readOnly,
-    required: field?.required,
-    ...options,
+  const { children, parent, size, ...attributes } = rest;
+  const { api, input } = useCheckboxMachine({
+    ...inherited(field, fieldset),
+    ...joined(group, options, parent),
   });
 
   return (
     <ApiProvider value={api}>
-      <Framed {...attributes} {...api.getRootProps()}>
+      <Framed
+        {...mergeProps(api.getRootProps(), attributes)}
+        {...omitUndefined({ size: sized(size ?? group?.size, field, fieldset) })}
+        data-parent={parent === true ? "" : undefined}
+      >
         {children}
         <input
           aria-describedby={field ? describedBy(field.ids) : undefined}
           {...api.getHiddenInputProps()}
-          ref={(node) => {
-            if (node !== null) {
-              node.indeterminate = api.indeterminate;
-            }
-          }}
+          ref={input}
         />
       </Framed>
     </ApiProvider>

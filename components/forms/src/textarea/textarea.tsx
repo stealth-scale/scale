@@ -1,100 +1,132 @@
 /**
- * Draws a box a person types several lines into.
+ * Renders a multi-line text field that can size itself to its content.
  *
  * @remarks
- *   The box grows with the text when `grows` is set. The component writes the text into an
- *   attribute on the root, and the recipe draws a hidden copy of it in the same grid cell as the
- *   control. The cell takes the height of the taller of the two, which is the copy, so the box is
- *   the right height on the frame the text changes. Nothing is measured and no layout is read.
- *   The value is held here where a caller does not hold it, so one component serves both. A caller
- *   that holds it gets the same growth, because the attribute is written from whichever value is
- *   in force.
- *   The variants sit on the root, since a slot recipe resolves them where a provider states them.
+ *   With `grows` set, the component writes the value into an attribute on the root, and the recipe
+ *   renders a hidden copy of it in the same grid cell as the `textarea`. The cell takes the height
+ *   of the copy, so the field resizes in the same frame as the edit and no layout is measured.
+ *   `maxRows` writes a row limit onto the root, which caps the copy, so the field stops growing at
+ *   that many lines and scrolls. Without `grows` the root has no copy, so the field keeps the
+ *   height of its `rows` and scrolls. The component holds the value when the caller does not, and
+ *   writes the attribute from whichever value is in force, so a controlled field grows the same
+ *   way. A change calls `onChange` and then `onValueChange`, so `Field.Control` counts a textarea
+ *   rendered through `as`.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
 
-import { useControllableState } from "@stealthscale/hooks";
+import { omitUndefined, useControllableState } from "@stealthscale/hooks";
 
-import { stated } from "#stated.ts";
 import { withContext, withProvider } from "#textarea/context.ts";
-import { VALUE } from "#textarea/recipe.ts";
+import { CAPPED, MAX_ROWS, VALUE } from "#textarea/recipe.ts";
 
 /**
- * Draws the box that measures the text.
+ * Renders the root grid cell that sizes the field, with the recipe's variants.
  */
 const Sized = withProvider("div", "root");
 
 /**
- * Draws the control a person types into.
+ * Renders the `textarea` element.
  */
 const Typed = withContext("textarea", "control");
 
 /**
- * Describes the variants the root states, which a caller sets on the component itself.
+ * Lists the recipe variants the root accepts, which a caller sets on `Textarea`.
  *
  * @remarks
- *   Written out rather than read off the root's props. A styled element takes every CSS property as
- *   a prop, so reading its props for an axis picks up whichever style prop shares the name.
+ *   The type is written by hand. The styled root's props include every CSS property, so deriving an
+ *   axis from them would pick up the style prop of the same name. The variants are on the root
+ *   because a slot recipe resolves them where the provider receives them.
  */
 interface Variants {
   /**
-   * Which way a person can drag the box bigger. Default: `vertical`.
+   * Axes the resize handle drags along. Defaults to `vertical`.
    */
   readonly grip?: "both" | "none" | "vertical" | undefined;
 
   /**
-   * Whether the box takes its height from the text rather than from a number of lines.
+   * Whether the field takes its height from its content, with `rows` as the least height.
    */
   readonly grows?: boolean | undefined;
 
   /**
-   * How much room the box leaves round its text. Default: `md`.
+   * Text size and inset. Defaults to `md`.
    */
   readonly size?: "lg" | "md" | "sm" | undefined;
 
   /**
-   * The palette the edge is drawn in where the box reports something.
+   * Status the edge and the focus ring report.
    */
   readonly status?: "error" | "info" | "success" | "warning" | undefined;
 
   /**
-   * How the edge is drawn. Default: `outline`.
+   * Edges and surface of the field. Defaults to `outline`.
    */
   readonly variant?: "flushed" | "outline" | "subtle" | undefined;
 }
 
 /**
- * Describes what a textarea takes.
+ * Describes the props of `Textarea`: the variants, the value, the row limit, and the props of a
+ * styled `textarea`.
  */
 export interface TextareaProps
-  extends Omit<ComponentProps<typeof Typed>, "defaultValue" | "onChange" | "value">, Variants {
+  extends Omit<ComponentProps<typeof Typed>, "defaultValue" | "value">, Variants {
   /**
-   * Fills the box before a caller drives it.
+   * Initial value when the caller does not control the value.
    */
   readonly defaultValue?: string | undefined;
 
   /**
-   * Hears the box's contents each time they change.
+   * Most lines a growing field takes before it scrolls. Held at `rows` or more. A field without
+   * `grows` ignores it.
+   */
+  readonly maxRows?: number | undefined;
+
+  /**
+   * Called with the new value on every change.
    */
   readonly onValueChange?: ((value: string) => void) | undefined;
 
   /**
-   * Fills the box, where a caller drives it.
+   * Controlled value.
    */
   readonly value?: string | undefined;
 }
 
 /**
- * Draws the box, growing with its text where a caller asks.
+ * Returns the attributes the root carries: the copy of the value on a growing field, and the row
+ * limit where one is set.
+ */
+function sizing(
+  held: string,
+  grows: boolean | undefined,
+  rows: number,
+  maxRows: number | undefined,
+): Readonly<Record<string, unknown>> {
+  if (grows !== true) return {};
+
+  if (maxRows === undefined) return { [VALUE]: held };
+
+  const limit: Record<string, string> = { [MAX_ROWS]: String(Math.max(maxRows, rows)) };
+
+  return { [CAPPED]: "", style: limit, [VALUE]: held };
+}
+
+/**
+ * Renders the `textarea` inside the root that sizes it.
  *
- * @param props - The recipe's variants, the value, and everything a styled textarea takes.
- * @returns The box, holding the control and the copy that measures it.
+ * @remarks
+ *   `omitUndefined` removes the variants the caller left unset, because the styled root's props
+ *   reject `undefined` under `exactOptionalPropertyTypes`. `className` goes to the box, so a class
+ *   a parent part writes, such as the field's control class, styles the element it lays out.
  */
 export function Textarea({
+  className,
   defaultValue = "",
   grip,
   grows,
+  maxRows,
+  onChange,
   onValueChange,
   rows = 3,
   size,
@@ -108,13 +140,14 @@ export function Textarea({
     onChange: onValueChange,
     value,
   });
-  const variants = stated({ grip, grows, size, status, variant });
+  const variants = omitUndefined({ grip, grows, size, status, variant });
 
   return (
-    <Sized {...{ [VALUE]: held }} {...variants}>
+    <Sized {...sizing(held, grows, rows, maxRows)} {...omitUndefined({ className })} {...variants}>
       <Typed
         {...rest}
         onChange={(event) => {
+          onChange?.(event);
           setHeld(event.target.value);
         }}
         rows={rows}

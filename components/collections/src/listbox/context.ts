@@ -1,10 +1,9 @@
 /**
- * Binds the listbox's recipe to the elements that draw its parts.
+ * Binds the listbox recipe to React.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. Apart from the machine, because the recipe decides how a part is
- *   drawn and the machine decides what it does.
+ *   The binding is a separate module because an application's compiler reads `recipe.ts` at build
+ *   time and the binding needs the runtime. The behaviour is in `machine.ts`.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";
@@ -12,6 +11,6 @@ import { createSlotRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#listbox/recipe.ts";
 
 /**
- * Binds the recipe once. The root provides the variants and every other part reads them.
+ * Binds the recipe once. The root receives the variants and every other part reads them.
  */
 export const { withContext, withProvider } = createSlotRecipeContext(recipe);

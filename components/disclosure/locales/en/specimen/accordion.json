@@ -1,0 +1,130 @@
+{
+  "about": "Renders a column of headings. Each heading contains a trigger that shows and hides the content under it. One item is open at a time unless `multiple` is set, and the arrow keys move focus between the triggers.",
+  "checkout": {
+    "about": "The caller controls `value` and opens the next section from a button. Each later section is disabled until the reader continues to it, and the arrow keys skip it.",
+    "payment": {
+      "next": "Continue to review",
+      "summary": "Visa ending in 4242, expiring 08/28.",
+      "title": "Payment"
+    },
+    "placed": "Order placed. A receipt is on its way.",
+    "review": {
+      "next": "Place order",
+      "summary": "Two items, €128.00 with delivery.",
+      "title": "Review"
+    },
+    "shipping": {
+      "next": "Continue to payment",
+      "summary": "Ada Okafor, Keizersgracht 12, 1015 CS Amsterdam.",
+      "title": "Shipping address"
+    },
+    "title": "Controlled"
+  },
+  "clauses": {
+    "liability": {
+      "body": "Each party's liability is capped at the fees paid in the 12 months before the claim.",
+      "title": "Liability"
+    },
+    "payment": {
+      "body": "Invoices are due 30 days after the invoice date, by bank transfer to the account on the invoice.",
+      "title": "Payment"
+    },
+    "scope": {
+      "body": "Covers the platform, its API and the support desk in every region the order form lists.",
+      "title": "Scope"
+    }
+  },
+  "disabled": {
+    "about": "With `disabled` on the root, no trigger opens its item or takes focus. `disabled` on an item disables that item alone, as the controlled scene shows.",
+    "title": "Disabled"
+  },
+  "documents": {
+    "about": "A button after the trigger renders at the end of the heading and outside the trigger, so it has a tab stop of its own and a press on it leaves the item as it is.",
+    "contract": {
+      "body": "Signed on 3 March by both parties. It renews each year unless either party gives 60 days' notice.",
+      "title": "Service agreement"
+    },
+    "download": "Download {{file}}",
+    "invoice": {
+      "body": "€4,800.00, paid on 12 March by bank transfer.",
+      "title": "Invoice INV-2041"
+    },
+    "nda": {
+      "body": "Covers the pilot and the two years after it ends.",
+      "title": "Mutual NDA"
+    },
+    "title": "Actions"
+  },
+  "faq": {
+    "abroad": {
+      "answer": "We ship to 34 countries. Duties are paid at checkout, so nothing is due on delivery.",
+      "question": "Do you ship outside the country?"
+    },
+    "delivery": {
+      "answer": "Orders placed before two in the afternoon ship the same day and arrive in one to three working days.",
+      "question": "How long does delivery take?"
+    },
+    "returns": {
+      "answer": "Return any unworn item within 30 days. The label is in the parcel, and the refund is on your card within five working days of the item arriving back.",
+      "question": "Can I return an order?"
+    }
+  },
+  "filters": {
+    "black": "Black",
+    "category": "Category",
+    "coats": "Coats",
+    "colour": "Colour",
+    "knitwear": "Knitwear",
+    "navy": "Navy",
+    "over100": "Over €100",
+    "price": "Price",
+    "sand": "Sand",
+    "shoes": "Shoes",
+    "under100": "€50 to €100",
+    "under50": "Under €50"
+  },
+  "icons": {
+    "about": "An icon before the title renders one size smaller than the indicator, and the indicators line up in one column at the end of every trigger.",
+    "title": "Icons"
+  },
+  "motion": {
+    "about": "Every motion: the content slides, fades or appears at once. Press a trigger to see it.",
+    "title": "Motion"
+  },
+  "multiple": {
+    "about": "With `multiple`, opening an item leaves the others open. A filter panel keeps each group of choices open while the reader compares them.",
+    "title": "Several open"
+  },
+  "palette": {
+    "about": "Every palette in the subtle look, which fills the open item and a trigger under the pointer from the palette.",
+    "title": "Palettes"
+  },
+  "reviewers": {
+    "about": "An avatar and a second line in the trigger show whose item it is before it is opened. The avatar is hidden from assistive technology, because the name follows it in words.",
+    "ada": {
+      "name": "Ada Okafor",
+      "note": "Approved the scope and the payment terms.",
+      "role": "Legal"
+    },
+    "iris": {
+      "name": "Iris Hale",
+      "note": "Approved. The data clause matches the security policy.",
+      "role": "Security"
+    },
+    "title": "Avatars",
+    "tomas": {
+      "name": "Tomas Beck",
+      "note": "Asks for payment 45 days after the invoice date instead of 30.",
+      "role": "Finance"
+    }
+  },
+  "size": {
+    "about": "Every size. The size sets the trigger's height and text, the indicator, and the body's padding and text.",
+    "title": "Sizes"
+  },
+  "title": "Accordion",
+  "variant": {
+    "about": "Every look, with the first question open. Subtle fills the open item from the palette. Surface and outline render a box with a hairline between items. Flushed rules a hairline under each item, and plain renders no line.",
+    "title": "Looks"
+  }
+}

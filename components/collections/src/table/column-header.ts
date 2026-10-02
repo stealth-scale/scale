@@ -1,14 +1,10 @@
 /**
- * Draws the name of a column.
+ * Renders the header of a column.
  *
  * @remarks
- *   The element is `th` and it states `scope="col"`, which is what tells a screen reader that the
- *   cells under it answer to this name. A `th` without a scope is guessed at, and a guess on a
- *   table with both a column header and a row header is wrong about one of them.
- *   A column of figures states `data-numeric`, which right-aligns the name over the numbers it
- *   heads.
- *   A column a reader can sort by states `aria-sort` as `ascending`, `descending` or `none`. The
- *   sorting itself is the page's.
+ *   The element is a `th` with `scope="col"`, so a screen reader reads it with each cell below. A
+ *   header over figures states `data-numeric`, which aligns it to the end. A sortable column's
+ *   header states `aria-sort`. Sorting is the caller's.
  */
 
 import { type ComponentProps } from "react";
@@ -16,13 +12,13 @@ import { type ComponentProps } from "react";
 import { withContext } from "#table/context.ts";
 
 /**
- * Heads a column, so the cells under it answer to this name.
+ * Renders the `th` with the table's column header class and `scope="col"`.
  */
 export const ColumnHeader = withContext("th", "columnHeader", {
   defaultProps: { scope: "col" },
 });
 
 /**
- * Describes what the name takes: everything a styled th takes.
+ * Describes the props of a column header: the props of a `th`.
  */
 export type ColumnHeaderProps = ComponentProps<typeof ColumnHeader>;

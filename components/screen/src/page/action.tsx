@@ -1,43 +1,106 @@
 /**
- * Draws one control in the header, and says how far it survives as the page narrows.
+ * Renders one action in the header: the library's button, which folds as the page narrows.
  *
  * @remarks
- *   A page cannot keep every control at every width. Each one says how much it matters and the
- *   recipe decides what happens to it: a primary control keeps its words, a secondary one keeps its
- *   mark and reads its words to a screen reader alone, and a tertiary one leaves the row.
- *   The priority is an attribute rather than an axis of the recipe. A slot recipe's variants are
- *   set on the root and read by every part, so an axis would fold every control in the row the same
- *   way, and each one has to say for itself.
- *   Whatever a tertiary control does has to be reachable elsewhere on a narrow page. Put it behind
- *   `Page.Folded`, which is drawn only there.
+ *   The action renders the library's button, `outline`, or `solid` when `primary`, at the button
+ *   size the page sets. On a narrow page an action with an icon shows the icon alone, a primary
+ *   action without one keeps its words, and any other action renders nothing and runs from the
+ *   menu `Page.Actions` renders. `priority` overrides that choice. `as` renders another control in
+ *   the action's place, such as a menu's trigger, and the caller sets its look. `when` renders the
+ *   action at one width of the page alone, and a hidden action takes no row in the menu.
  */
 
-import { type ComponentProps, type ReactElement } from "react";
+import { type ComponentProps, type MouseEvent, type ReactElement, type ReactNode } from "react";
 
-import { PRIORITY, type Priority } from "#folding/index.ts";
+import { Button } from "@stealthscale/component-actions";
+
+import { NARROW, PRIORITY, type Priority, priorityOf, useFoldable } from "#folding/index.ts";
 import { withContext } from "#page/context.ts";
+import { buttonSizeOf, usePage, useShown, type WhenProps } from "#page/state.ts";
 
 /**
- * Draws the control at the room the column states.
+ * Renders the library's button with the recipe's action class.
  */
-const Acted = withContext("button", "action", { defaultProps: { type: "button" } });
+const Acted = withContext(Button, "action");
 
 /**
- * Describes what an action takes.
+ * Describes the props of an action: its icon, whether it is primary, its priority, `when` and the
+ * props of the library's button.
  */
-export interface ActionProps extends ComponentProps<typeof Acted> {
+export interface ActionProps extends Omit<ComponentProps<typeof Acted>, "onClick">, WhenProps {
   /**
-   * How much the control matters, which decides what a narrow page does with it.
+   * Icon before the words, which a narrow page shows alone.
+   */
+  readonly icon?: ReactNode | undefined;
+
+  /**
+   * Handler the button or the menu row calls when a reader presses it.
+   */
+  readonly onClick?: ((event: MouseEvent<HTMLElement>) => void) | undefined;
+
+  /**
+   * Whether the action is the page's primary action, which renders solid and keeps its words.
+   */
+  readonly primary?: boolean | undefined;
+
+  /**
+   * Priority that decides how a narrow page folds the action, in place of the one `icon` and
+   * `primary` imply.
    */
   readonly priority?: Priority | undefined;
 }
 
 /**
- * Acts on the page, and gives way in the order its priority states.
+ * Renders the action, or nothing while the page folds it into the menu or `when` hides it.
  *
- * @param props - How much it matters, and everything a styled button takes.
- * @returns The control, carrying how far it survives.
+ * @param props - The icon, the primary flag, the priority, the width and the props of the
+ *   library's button.
+ * @returns The `button` element, or nothing on a narrow page that folds it and at the other width.
  */
-export function Action({ priority = "primary", ...rest }: ActionProps): ReactElement {
-  return <Acted {...rest} {...{ [PRIORITY]: priority }} />;
+export function Action({
+  as,
+  children,
+  disabled,
+  icon,
+  onClick,
+  primary = false,
+  priority,
+  when,
+  ...rest
+}: ActionProps): null | ReactElement {
+  const page = usePage();
+  const visible = useShown(when);
+  const ranked = priorityOf(priority, icon !== undefined, primary);
+  const folded = visible && page.narrow && ranked === "tertiary";
+  const look =
+    as === undefined
+      ? ({ size: buttonSizeOf(page), variant: primary ? "solid" : "outline" } as const)
+      : {};
+
+  useFoldable(folded, {
+    disabled,
+    label: (
+      <>
+        {icon}
+        {children}
+      </>
+    ),
+    onClick,
+  });
+
+  if (!visible || folded) return null;
+
+  return (
+    <Acted
+      as={as}
+      disabled={disabled}
+      onClick={onClick}
+      {...look}
+      {...rest}
+      {...{ [NARROW]: page.narrow ? "" : undefined, [PRIORITY]: ranked }}
+    >
+      {icon}
+      {icon === undefined ? children : <span>{children}</span>}
+    </Acted>
+  );
 }

@@ -1,0 +1,33 @@
+{
+  "about": "A line of steps per declared series: each value is flat from its point until the next, as a replica count or a price tier is.",
+  "idle": {
+    "about": "A range without readings renders the empty state in the plot's place, and no legend.",
+    "caption": "Replicas per service over the last hour.",
+    "empty": "No readings in the last hour.",
+    "title": "Empty"
+  },
+  "narrow": {
+    "about": "The replicas in a room 20rem wide, the column of a phone. recharts shows every second time tick, so no two labels overlap.",
+    "title": "Narrow room"
+  },
+  "replay": {
+    "about": "animate reveals each line of steps from the start of the axis to its end when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the lines at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "replicas": {
+    "about": "Replicas of two services every 10 minutes. The count is constant between readings, so the lines step instead of sloping.",
+    "api": "API",
+    "caption": "The API went from 3 replicas to 8 by 12:30 and was back at 3 by 13:30.",
+    "label": "Replicas per service",
+    "title": "Replicas",
+    "worker": "Worker"
+  },
+  "scale": {
+    "about": "defaultIndex opens the tooltip at the API's first reading of 8 replicas when the chart first renders. The pointer or the arrow keys move it from there.",
+    "caption": "The API ran 8 replicas at 12:30, twice the worker's 4.",
+    "title": "Tooltip"
+  },
+  "series": "Services",
+  "title": "Step line chart"
+}

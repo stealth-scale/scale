@@ -1,5 +1,5 @@
 /**
- * Specifies how the size limits count lines and how they stand to each other.
+ * Specifies what the size limits count and how the file, function and specification caps relate.
  */
 
 import { describe, expect, it } from "vitest";
@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 import { SIZE, SPEC_SIZE } from "#lint/rules/size.ts";
 
 describe("size", () => {
-  it("counts neither blank lines nor comments", () => {
+  it("counts neither blank lines nor comments in a file or in a function", () => {
     for (const rule of ["max-lines", "max-lines-per-function"]) {
       expect(SIZE[rule]).toStrictEqual([
         "error",
@@ -30,14 +30,14 @@ describe("size", () => {
     expect(spec.max).toBe(file.max * 3);
   });
 
-  it("counts a specification's lines the way it counts a source file's", () => {
+  it("skips blank lines and comments in a specification", () => {
     expect(SPEC_SIZE["max-lines"]).toStrictEqual([
       "error",
       expect.objectContaining({ skipBlankLines: true, skipComments: true }),
     ]);
   });
 
-  it("caps no function inside a specification", () => {
+  it("turns the function limit off in a specification", () => {
     expect(SPEC_SIZE["max-lines-per-function"]).toBe("off");
   });
 });

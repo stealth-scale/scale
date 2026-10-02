@@ -1,31 +1,46 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
+import { PALETTES } from "@stealthscale/theme/authoring";
 
+import page from "#code/code.specimen.tsx";
 import { recipe } from "#code/recipe.ts";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("covers every variant axis in the scenes of its specimen page", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("has no scene that writes a value the recipe does not offer", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Code"] })).toStrictEqual([]);
   });
 
-  it("names its class code", () => {
+  it("sets className to code", () => {
     expect(recipe.className).toBe("code");
   });
 
-  it("offers a size axis and a status axis and a look axis", () => {
-    expect(axesOf(recipe)).toStrictEqual(["size", "status", "variant"]);
+  it("declares three variant axes", () => {
+    expect(axesOf(recipe)).toStrictEqual(["palette", "size", "variant"]);
   });
 
-  it("draws a middle subtle snippet when nothing is asked for", () => {
+  it("defaults to the subtle look at md", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md", variant: "subtle" });
   });
 
-  it("offers the two code roles as sizes", () => {
+  it("defaults to the neutral palette", () => {
+    expect(recipe.base).toMatchObject({ colorPalette: "neutral" });
+  });
+
+  it("declares two code sizes on the size axis", () => {
     expect(valuesOf(recipe, "size")).toStrictEqual(["md", "sm"]);
   });
 
-  it("offers five looks", () => {
+  it("declares five looks on the variant axis", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual([
       "outline",
       "plain",
@@ -35,18 +50,31 @@ describe("recipe", () => {
     ]);
   });
 
-  it("gives a plain snippet no room on either side of it", () => {
+  it("sets no inline padding in the plain look", () => {
     expect(recipe.variants?.["variant"]?.["plain"]).toStrictEqual({
       layerStyle: "flat.plain",
       paddingInline: "0",
     });
   });
 
-  it("offers the four statuses", () => {
-    expect(valuesOf(recipe, "status")).toStrictEqual(["error", "info", "success", "warning"]);
+  it.each(["solid", "subtle"] as const)(
+    "draws a CanvasText outline in forced colours in the %s look",
+    (look) => {
+      expect(recipe.variants?.["variant"]?.[look]).toMatchObject({
+        _highContrast: { outlineColor: "CanvasText" },
+      });
+    },
+  );
+
+  it("declares the eight semantic palettes on the palette axis", () => {
+    expect(valuesOf(recipe, "palette")).toStrictEqual([...PALETTES].toSorted());
   });
 
-  it("tracks every tag whose name ends in Code", () => {
+  it("lists every palette under staticCss", () => {
+    expect(recipe.staticCss).toStrictEqual([{ palette: [...PALETTES] }]);
+  });
+
+  it("matches every JSX tag that ends in Code", () => {
     expect(recipe.jsx).toStrictEqual([/Code$/u]);
   });
 });

@@ -1,6 +1,5 @@
 /**
- * Publishes the badge: the short label set off from what it labels, and the provider that sets its
- * variants from above.
+ * Exports the badge and its props provider, renamed so it does not clash with other providers.
  */
 
 export { Badge, type BadgeProps } from "#badge/badge.ts";

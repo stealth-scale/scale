@@ -1,11 +1,10 @@
 /**
- * Draws the knob that crosses the track.
+ * Renders the switch's thumb.
  *
  * @remarks
- *   The machine hides the thumb from the accessibility tree. Its position says what the input
- *   already reports, so a reader is told the switch is on once rather than twice.
- *   The thumb states no size. It fills the track's content box as a square, so the track's padding
- *   is the inset and one scale moves both.
+ *   The element is a `span` that the machine hides from assistive technology, because the root's
+ *   `input` already reports the state. The thumb states no size. It fills the track's content box
+ *   as a square, so the track's size sets both.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -16,20 +15,20 @@ import { withContext } from "#switch/context.ts";
 import { useSwitch } from "#switch/machine.ts";
 
 /**
- * Draws the knob inside the track the root states.
+ * Renders the `span` with the switch's thumb class.
  */
 const Knobbed = withContext("span", "thumb");
 
 /**
- * Describes what the thumb takes.
+ * Describes the props of the thumb: the props of a `span`.
  */
 export type ThumbProps = ComponentProps<typeof Knobbed>;
 
 /**
- * Crosses the track while the switch is on, and rests at its start while it is off.
+ * Renders the thumb with the machine's thumb props.
  *
- * @param props - Everything a styled span takes.
- * @returns The knob, placed for the state the machine is in.
+ * @param props - Attributes and children of the `span` element, merged over the machine's.
+ * @returns The `span` element, at the track's start while off and at its end while checked.
  */
 export function Thumb(props: ThumbProps): ReactElement {
   const api = useSwitch();

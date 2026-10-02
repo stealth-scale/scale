@@ -7,13 +7,13 @@ import { Detail } from "#switcher/detail.ts";
 import { held } from "#switcher/parts.fixtures.tsx";
 
 describe("Detail", () => {
-  it("draws a span inside the control it needs above it", () => {
+  it("renders a span inside the trigger", () => {
     const { container } = render(held(<Detail>Pro plan</Detail>));
 
     expect(slotElement(container, "switcher", "detail").tagName).toBe("SPAN");
   });
 
-  it("is read out, being what tells two things of one name apart", () => {
+  it("is part of the trigger's accessible name", () => {
     render(held(<Detail>Pro plan</Detail>));
 
     expect(screen.getByRole("button", { name: "Workspace Pro plan" })).toBeTruthy();

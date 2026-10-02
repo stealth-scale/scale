@@ -1,37 +1,46 @@
 /**
- * Draws the words naming the section.
+ * Renders the heading that names the section.
  *
  * @remarks
- *   The element is `h2`, which is the level a section of a page sits at under the page's own
- *   heading. A page nesting sections deeper states `as="h3"` and so on: the recipe draws the size,
- *   and the level is the document's outline rather than a look.
- *   It carries the identifier the block names itself by, so writing this part is what makes the
- *   section a landmark. A caller states no identifier and no `aria-labelledby`.
+ *   The element is `h2`, the level of a section under a page's `h1`. Pass `as` for a deeper level:
+ *   the recipe sets the size, and the level follows the document's outline. The title sets the id
+ *   the section's `aria-labelledby` reads, and records itself while it is mounted, so the section
+ *   is a landmark named by its title.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
+
+import { useSafeLayoutEffect } from "@stealthscale/hooks";
 
 import { withContext } from "#section/context.ts";
 import { useSection } from "#section/state.ts";
 
 /**
- * Draws the words at the size the block states.
+ * Renders the `h2` with the recipe's title class.
  */
 const Named = withContext("h2", "title");
 
 /**
- * Describes what the title takes, less the identifier the block gives it.
+ * Describes the props of the title: the props of a heading without `id`, which the section sets.
  */
 export type TitleProps = Omit<ComponentProps<typeof Named>, "id">;
 
 /**
- * Labels the section, and makes it a landmark by doing so.
+ * Renders the heading with the section's title id.
  *
- * @param props - Everything a styled heading takes, less its identifier.
- * @returns The words, carrying the identifier the block points at.
+ * @param props - The props of a heading, without `id`.
+ * @returns The heading element.
  */
 export function Title(props: TitleProps): ReactElement {
-  const section = useSection();
+  const { setTitled, titleId } = useSection();
 
-  return <Named {...props} id={section.titleId} />;
+  useSafeLayoutEffect(() => {
+    setTitled(true);
+
+    return (): void => {
+      setTitled(false);
+    };
+  }, [setTitled]);
+
+  return <Named {...props} id={titleId} />;
 }

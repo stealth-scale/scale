@@ -1,152 +1,120 @@
 /**
- * Shows the field: every size, both orientations, every status on a field that is wrong, and the
- * states a page puts it in.
+ * Catalogue page for the field.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every field carries the same parts: a label with the required mark, the
- *   control, the helper text, the counter and the error text. The words are keys under `field` in
- *   the catalogue's namespace, kept beside this file in `locales/en/specimen/field.json`.
+ *   `scenesOf` generates the sizes scene from the email example, and the orientations scene from an
+ *   empty subscribe field, so the floating label rests inside the control. The statuses
+ *   scene is hand-written, because each status needs its own message and mark: a signup form with
+ *   one field per status. The states scene is hand-written, because required, disabled, read-only
+ *   and invalid are props of the root and not recipe axes. The count scene renders a growing
+ *   `Field.Textarea` with a limit. The optional and pair scenes show a field composed with a badge
+ *   and with a grid. Every scene renders a component from `examples/` and shows that file as its
+ *   source. The page imports the parts' barrel as a type, so the props reader finds the parts. The
+ *   words are keys under `field` in `locales/en/specimen/field.json`.
  */
 
-import { type ReactElement } from "react";
+import { Matrix, type Scene, scenesOf, specimen } from "@stealthscale/specimen";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
-
-import * as Field from "#field/index.ts";
+import * as examples from "#field/examples/index.ts";
+import type * as Field from "#field/index.ts";
 import { recipe } from "#field/recipe.ts";
 
 /**
- * The states a page puts a field in, beside the field as it is.
+ * States of the states scene, in reading order.
  */
 const STATES = ["default", "required", "disabled", "readOnly", "invalid"] as const;
 
 /**
- * Draws every part of an email field.
+ * Maps each state to the root props that put the field in it.
  */
-function Parts(): ReactElement {
-  const { t } = useWords("field");
-
-  return (
-    <>
-      <Field.Label>
-        {t("email")}
-        <Field.RequiredIndicator />
-      </Field.Label>
-      <Field.Control type="email" />
-      <Field.HelperText>{t("helper")}</Field.HelperText>
-      <Field.Counter>{t("used")}</Field.Counter>
-      <Field.ErrorText>{t("unknown")}</Field.ErrorText>
-    </>
-  );
-}
-
-/**
- * Draws the field at every size.
- */
-function Sizes(): ReactElement {
-  return (
-    <Matrix knob="size" of={valuesOf(recipe, "size")}>
-      {(size) => (
-        <Field.Root required size={size}>
-          <Parts />
-        </Field.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the field in both orientations.
- */
-function Orientations(): ReactElement {
-  return (
-    <Matrix direction="column" knob="orientation" of={valuesOf(recipe, "orientation")}>
-      {(orientation) => (
-        <Field.Root orientation={orientation} required>
-          <Parts />
-        </Field.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws a field that is wrong in every status.
- */
-function Statuses(): ReactElement {
-  return (
-    <Matrix knob="status" of={valuesOf(recipe, "status")}>
-      {(status) => (
-        <Field.Root invalid required status={status}>
-          <Parts />
-        </Field.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the field in every state.
- */
-function States(): ReactElement {
-  return (
-    <Matrix knob="state" of={STATES}>
-      {(state) => (
-        <Field.Root
-          disabled={state === "disabled"}
-          invalid={state === "invalid"}
-          readOnly={state === "readOnly"}
-          required={state === "required" || state === "invalid"}
-        >
-          <Parts />
-        </Field.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Every size.
- */
-export const sizes: Scene = {
-  about: "field.sizes.about",
-  draw: Sizes,
-  title: "field.sizes.title",
+const STATED: Readonly<Record<(typeof STATES)[number], Field.RootProps>> = {
+  default: {},
+  disabled: { disabled: true },
+  invalid: { invalid: true, required: true },
+  readOnly: { readOnly: true },
+  required: { required: true },
 };
 
 /**
- * Both orientations.
- */
-export const orientations: Scene = {
-  about: "field.orientations.about",
-  draw: Orientations,
-  title: "field.orientations.title",
-};
-
-/**
- * Every status.
+ * Hand-written scene for the four statuses, one field each.
  */
 export const statuses: Scene = {
-  about: "field.statuses.about",
-  draw: Statuses,
-  title: "field.statuses.title",
+  about: "field.status.about",
+  axes: ["status"],
+  draw: examples.signup.Signup,
+  example: examples.signup,
+  title: "field.status.title",
 };
 
 /**
- * Every state.
+ * Hand-written scene for the required, disabled, read-only and invalid states.
  */
 export const states: Scene = {
   about: "field.states.about",
-  draw: States,
+  draw: () => (
+    <Matrix knob="state" of={STATES}>
+      {(state) => <examples.email.Email {...STATED[state]} />}
+    </Matrix>
+  ),
+  example: examples.email,
+  props: {},
   title: "field.states.title",
+};
+
+/**
+ * Hand-written scene for the counter on a growing textarea.
+ */
+export const count: Scene = {
+  about: "field.count.about",
+  draw: examples.notes.Notes,
+  example: examples.notes,
+  title: "field.count.title",
+};
+
+/**
+ * Hand-written scene for a label that holds a badge.
+ */
+export const optional: Scene = {
+  about: "field.optional.about",
+  draw: examples.optional.Optional,
+  example: examples.optional,
+  title: "field.optional.title",
+};
+
+/**
+ * Hand-written scene for two fields in a grid.
+ */
+export const paired: Scene = {
+  about: "field.paired.about",
+  draw: examples.name.Name,
+  example: examples.name,
+  title: "field.paired.title",
 };
 
 export default specimen({
   about: "field.about",
-  group: "Forms",
-  id: "forms/field",
+  id: "components/forms/field",
   imports: 'import { Field } from "@stealthscale/component-forms";',
-  scenes: [sizes, orientations, statuses, states],
+  scenes: [
+    ...scenesOf<Field.RootProps>(recipe, {
+      axes: {
+        orientation: {
+          direction: "column",
+          draw: (props) => <examples.subscribe.Subscribe {...props} />,
+          example: examples.subscribe,
+        },
+      },
+      draw: (props) => <examples.email.Email {...props} />,
+      example: examples.email,
+      namespace: "field",
+      order: ["size", "orientation"],
+      skip: { status: "rendered by the statuses scene, because each status needs its own message" },
+    }),
+    statuses,
+    states,
+    count,
+    optional,
+    paired,
+  ],
   title: "field.title",
 });

@@ -7,7 +7,7 @@ import { Description } from "#page/description.ts";
 import { paged } from "#page/page.fixtures.tsx";
 
 describe("Description", () => {
-  it("draws a paragraph inside the column it needs above it", () => {
+  it("renders a p", () => {
     const { container } = render(paged(<Description>What this covers.</Description>));
 
     expect(slotElement(container, "page", "description").tagName).toBe("P");

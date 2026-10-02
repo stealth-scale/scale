@@ -1,31 +1,41 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
 import { recipe } from "#search-input/recipe.ts";
+import page from "#search-input/search-input.specimen.tsx";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("covers every axis in the scenes of its specimen", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("leaves no scene naming a value the recipe lacks", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["SearchInput"] })).toStrictEqual([]);
   });
 
-  it("names its class search-input", () => {
+  it("uses the class name search-input", () => {
     expect(recipe.className).toBe("search-input");
   });
 
-  it("draws the control as something a person presses", () => {
+  it("styles the control as an interactive button with an outside focus ring", () => {
     expect(recipe.base).toMatchObject({ cursor: "button", focusVisibleRing: "outside" });
   });
 
-  it("offers the one axis a search field takes", () => {
+  it("declares the size axis only", () => {
     expect(axesOf(recipe)).toStrictEqual(["size"]);
   });
 
-  it("draws the middle size when nothing is asked for", () => {
+  it("defaults to size md", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md" });
   });
 
-  it("offers the eight sizes every component shares", () => {
+  it("offers the eight control sizes", () => {
     expect(valuesOf(recipe, "size")).toStrictEqual([
       "2xl",
       "3xl",
@@ -38,11 +48,17 @@ describe("recipe", () => {
     ]);
   });
 
-  it("fills the mark the group sizes off the control scale", () => {
-    expect(recipe.base).toMatchObject({ blockSize: "full", inlineSize: "full" });
+  it("sizes the md square to the tag height with a 24px floor", () => {
+    expect(recipe.variants?.["size"]?.["md"]).toMatchObject({
+      boxSize: "max({sizes.6}, calc({sizes.tag.md} * var(--density, 1)))",
+    });
   });
 
-  it("tracks the tag named SearchInput", () => {
+  it("leaves the control's place in the row to the input group", () => {
+    expect(recipe.variants?.["size"]?.["md"]).not.toHaveProperty("marginInline");
+  });
+
+  it("tracks JSX named SearchInput", () => {
     expect(recipe.jsx).toStrictEqual([/^SearchInput$/u]);
   });
 });

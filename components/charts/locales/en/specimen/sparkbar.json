@@ -1,0 +1,51 @@
+{
+  "about": "A run of counts, one bar per period, at the size of a word, without axes or a tooltip. A bar is read by its length, so the bars start at zero.",
+  "deploys": {
+    "about": "The week's deploys as a stat with a bar per day beside it. The sparkbar is hidden from assistive technology, because the stat states the figure.",
+    "help": "None on Sunday",
+    "label": "Deploys this week",
+    "title": "Beside a figure",
+    "value": "38"
+  },
+  "incidents": {
+    "about": "label names a run shown without a figure, as an image with that name, here in the error palette. It takes no tab stop.",
+    "label": "Incidents per week over the last 12 weeks, 21 in all",
+    "title": "Without a figure"
+  },
+  "orders": {
+    "about": "baseline={120} renders a dashed line at the daily target, and color takes the teal palette's chart color.",
+    "help": "At or above the 120 target on 4 of 7 days",
+    "label": "Orders per day",
+    "title": "Baseline",
+    "value": "856"
+  },
+  "outage": {
+    "about": "A value that is not a finite number leaves its period empty. A zero leaves it empty too, so the help text names the day without a reading.",
+    "help": "No reading on Thursday",
+    "label": "Sign-ups per day",
+    "title": "Missing reading",
+    "value": "1,373"
+  },
+  "replay": {
+    "about": "animate grows the bars from zero when the sparkbar mounts, and Replay mounts it again. Under reduced motion recharts renders them at once.",
+    "label": "Deploys per day this week",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "seats": {
+    "about": "signed renders a fall in the error palette's chart color, for a change per period: seats gained or lost each day over two weeks.",
+    "help": "Seats lost on 4 of 14 days",
+    "label": "Net seats per day",
+    "title": "Signed",
+    "value": "+36"
+  },
+  "size": {
+    "about": "Three boxes on the grid, four times as wide as they are tall: 64 by 16 pixels at sm, 96 by 24 at md and 128 by 32 at lg.",
+    "title": "Sizes"
+  },
+  "stretch": {
+    "about": "stretch fills the width of the container at the size's height, here a room 24rem wide.",
+    "title": "Stretch"
+  },
+  "title": "Sparkbar"
+}

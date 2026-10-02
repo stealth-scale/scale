@@ -1,49 +1,127 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
+import page from "#code-block/code-block.specimen.tsx";
 import { recipe } from "#code-block/recipe.ts";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("covers every variant axis in the scenes of its specimen page", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("has no scene that writes a value the recipe does not offer", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["CodeBlock"] })).toStrictEqual([]);
   });
 
-  it("names its class code-block", () => {
+  it("sets className to code-block", () => {
     expect(recipe.className).toBe("code-block");
   });
 
-  it("draws the six parts a code block is composed of", () => {
+  it("declares seventeen slots", () => {
     expect([...recipe.slots].toSorted()).toStrictEqual([
+      "change",
       "code",
       "content",
       "control",
+      "diff",
+      "empty",
+      "filler",
+      "fold",
       "header",
+      "line",
+      "mark",
+      "number",
       "root",
+      "stat",
+      "text",
       "title",
+      "viewport",
     ]);
   });
 
-  it("offers the one axis a code block takes", () => {
-    expect(axesOf(recipe)).toStrictEqual(["size"]);
+  it("sets the diff in the code text style at md", () => {
+    expect(recipe.variants?.["size"]?.["md"]).toMatchObject({ diff: { textStyle: "code.md" } });
   });
 
-  it("draws the middle size by default", () => {
+  it.each(["empty", "fold", "stat"] as const)(
+    "sets the %s slot one size smaller than the code at md",
+    (slot) => {
+      expect(recipe.variants?.["size"]?.["md"]?.[slot]).toMatchObject({ textStyle: "label.sm" });
+    },
+  );
+
+  it("colours a token kind on the diff slot from the code family", () => {
+    expect(recipe.base?.["diff"]).toMatchObject({
+      "& [data-token=keyword]": { color: "code.keyword" },
+      "& [data-token=string]": { color: "code.string" },
+    });
+  });
+
+  it("merges the styles of every diff slot into its base", () => {
+    expect(recipe.base?.["line"]).toMatchObject({ display: "flex", whiteSpace: "pre" });
+  });
+
+  it("declares size and wrap as its variants", () => {
+    expect(axesOf(recipe)).toStrictEqual(["size", "wrap"]);
+  });
+
+  it("defaults size to md", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md" });
   });
 
-  it("offers the two sizes the code role is set at", () => {
+  it("wraps the code at the content's edge when wrap is true", () => {
+    expect(recipe.variants?.["wrap"]?.["true"]).toStrictEqual({
+      code: { inlineSize: "full", overflowWrap: "anywhere", whiteSpace: "pre-wrap" },
+    });
+  });
+
+  it.each([
+    { color: "black", ink: "fg.subtle" },
+    { color: "blue", ink: "fg.info" },
+    { color: "cyan", ink: "code.attr" },
+    { color: "green", ink: "code.inserted" },
+    { color: "magenta", ink: "code.keyword" },
+    { color: "red", ink: "code.deleted" },
+    { color: "white", ink: "fg" },
+    { color: "yellow", ink: "code.function" },
+  ])("inks the terminal color $color with $ink", ({ color, ink }) => {
+    expect(recipe.base?.["code"]).toMatchObject({ [`& [data-ansi=${color}]`]: { color: ink } });
+  });
+
+  it("sets a bold run of terminal output in the semibold weight", () => {
+    expect(recipe.base?.["code"]).toMatchObject({ "& [data-bold]": { fontWeight: "semibold" } });
+  });
+
+  it("inks a dim run of terminal output subtle only when it has no color", () => {
+    expect(recipe.base?.["code"]).toMatchObject({
+      "& [data-dim]:not([data-ansi])": { color: "fg.subtle" },
+    });
+  });
+
+  it("underlines an underlined run of terminal output", () => {
+    expect(recipe.base?.["code"]).toMatchObject({
+      "& [data-underline]": { textDecorationLine: "underline" },
+    });
+  });
+
+  it("declares md and sm as the values of size", () => {
     expect(valuesOf(recipe, "size")).toStrictEqual(["md", "sm"]);
   });
 
-  it("sets the code in the code role and the title a step down at each size", () => {
+  it("sets the title one size smaller than the code at md", () => {
     expect(recipe.variants?.["size"]?.["md"]).toMatchObject({
       code: { textStyle: "code.md" },
       title: { textStyle: "label.sm" },
     });
   });
 
-  it("inks each kind of token from the code family the theme states", () => {
+  it("colours a token kind from the matching colour in the code family", () => {
     expect(recipe.base?.["code"]).toMatchObject({
       "& [data-token=keyword]": { color: "code.keyword" },
       "& [data-token=string]": { color: "code.string" },
@@ -51,7 +129,7 @@ describe("recipe", () => {
     });
   });
 
-  it("folds the highlighter's finer kinds into the family's", () => {
+  it("maps a token kind with no colour of its own onto a coarser one", () => {
     expect(recipe.base?.["code"]).toMatchObject({
       "& [data-token=literal]": { color: "code.number" },
       "& [data-token=meta]": { color: "code.comment" },
@@ -60,15 +138,41 @@ describe("recipe", () => {
     });
   });
 
-  it("keeps every space and line break of the passage", () => {
-    expect(recipe.base?.["code"]).toMatchObject({ fontFamily: "mono", whiteSpace: "pre" });
+  it("sets whiteSpace to pre on the code slot", () => {
+    expect(recipe.base?.["code"]).toMatchObject({ whiteSpace: "pre" });
   });
 
-  it("scrolls a long line across the box rather than wrapping it", () => {
-    expect(recipe.base?.["content"]).toMatchObject({ overflowX: "auto" });
+  it("sets fontFamily to mono on the code slot", () => {
+    expect(recipe.base?.["code"]).toMatchObject({ fontFamily: "mono" });
   });
 
-  it("tracks the tag named CodeBlock and every part under it", () => {
+  it("sizes the code slot to its longest line and at least the content width", () => {
+    expect(recipe.base?.["code"]).toMatchObject({
+      inlineSize: "max-content",
+      minInlineSize: "full",
+    });
+  });
+
+  it("leaves the scrolling to the scroll area around the content slot", () => {
+    expect(recipe.base?.["content"]).toStrictEqual({ margin: "0" });
+  });
+
+  it("renders the focus ring on the root while the viewport is focused", () => {
+    expect(recipe.base?.["root"]).toMatchObject({
+      "&:has(.code-block__viewport:focus-visible)": {
+        outlineColor: "colorPalette.focusRing",
+        outlineOffset: "ring",
+        outlineStyle: "solid",
+        outlineWidth: "ring",
+      },
+    });
+  });
+
+  it("hides the scroll area's own focus ring", () => {
+    expect(recipe.base?.["root"]).toMatchObject({ "--scroll-area-ring-style": "none" });
+  });
+
+  it("matches CodeBlock and its dotted parts with its jsx pattern", () => {
     expect(recipe.jsx).toStrictEqual([/^CodeBlock(\.\w+)?$/u]);
   });
 });

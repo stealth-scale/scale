@@ -7,7 +7,7 @@ import { End } from "#toolbar/end.ts";
 import { ranged } from "#toolbar/toolbar.fixtures.tsx";
 
 describe("End", () => {
-  it("draws a div inside the row it needs above it", () => {
+  it("renders a div", () => {
     const { container } = render(ranged(<End>Download</End>));
 
     expect(slotElement(container, "toolbar", "end").tagName).toBe("DIV");

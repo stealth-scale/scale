@@ -1,15 +1,13 @@
 /**
- * States what a collapsible is: a control that shows and hides the block beneath it.
+ * Recipe for the collapsible: a trigger that shows and hides the content beneath it, and an
+ * indicator that turns as it does.
  *
  * @remarks
- *   Four parts. The root frames the pair, the trigger is what a person presses, the content is what
- *   appears, and the indicator is the mark that turns as it does.
- *   The trigger fills the width it is given and pushes its indicator to the end, because a
- *   disclosure is read as a row and a mark floating beside the words reads as part of them. It
- *   reads the control scale, so a collapsible lines up with a button of the same name beside it.
- *   The content animates from the height the machine measures. Both motions are animation styles
- *   the theme owns, so a reader who asked for less motion is answered in the theme rather than
- *   here, and the height the animation runs to is a custom property the machine sets.
+ *   The trigger takes the full width and places the indicator at its end, and reads the control
+ *   scale, so its height matches a button of the same size. The content animates to the height the
+ *   machine measures, with the theme's animation styles, so the theme settles reduced motion. The
+ *   palette axis offers the eight palettes. The recipe has no `effect` axis, because the box holds
+ *   content as well as the trigger, and a glow marks a control.
  */
 
 import {
@@ -18,11 +16,16 @@ import {
   iconSizes,
   insetSizes,
   interactive,
+  onSlot,
   onSlots,
+  PALETTES,
+  paletteVariants,
+  surface,
 } from "@stealthscale/theme/authoring";
 
 /**
- * Draws an unframed collapsible at the middle size, sliding open, until a caller says otherwise.
+ * Defines the collapsible recipe: a plain collapsible at size `md` in the neutral palette, sliding
+ * open, by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -49,12 +52,13 @@ export const recipe = defineSlotRecipe({
     },
   },
   className: "collapsible",
-  defaultVariants: { motion: "slide", size: "md", variant: "plain" },
+  defaultVariants: { motion: "slide", palette: "neutral", size: "md", variant: "plain" },
   jsx: [/^Collapsible(\.\w+)?$/u],
   slots: ["root", "trigger", "content", "indicator"],
+  staticCss: [{ palette: [...PALETTES] }],
   variants: {
     /**
-     * How the block appears and goes.
+     * Animation of the content as it opens and closes.
      */
     motion: {
       fade: {
@@ -70,7 +74,13 @@ export const recipe = defineSlotRecipe({
     },
 
     /**
-     * How much room the pair takes, which the trigger, the block and the mark step together.
+     * Palette the looks read, set on the root.
+     */
+    palette: onSlot("root", paletteVariants()),
+
+    /**
+     * Size of the trigger on the control scale, the indicator on the icon scale and the content's
+     * padding on the inset scale.
      */
     size: onSlots({
       content: insetSizes(),
@@ -79,27 +89,50 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * How the pair is set off from the page around it.
+     * Look of the box around the trigger and the content.
+     *
+     * @remarks
+     *   `surface` uses the theme's `surface()` fragment, with its shadow. Every look reads the
+     *   palette, so the palette tints the fill and the edge. The subtle trigger takes the root's
+     *   radius, so its hover fill follows the root's corners, and its end corners are square while
+     *   the content is open under it. Under forced colors the subtle box, which the browser's fill
+     *   replaces, takes a `CanvasText` hairline outline.
      */
     variant: {
       subtle: {
-        root: { background: "bg.muted", borderRadius: "l2" },
-        trigger: { _hover: { background: "bg.emphasized" } },
+        root: {
+          _highContrast: {
+            outlineColor: "CanvasText",
+            outlineOffset: "calc({borderWidths.hairline} * -1)",
+            outlineStyle: "solid",
+            outlineWidth: "hairline",
+          },
+          background: "colorPalette.subtle",
+          borderRadius: "l2",
+        },
+        trigger: {
+          _hover: { background: "colorPalette.muted" },
+          _open: { borderEndEndRadius: "0", borderEndStartRadius: "0" },
+          borderRadius: "l2",
+        },
       },
 
       surface: {
-        root: {
-          background: "bg.panel",
-          borderColor: "border",
-          borderRadius: "l2",
-          borderWidth: "hairline",
+        root: surface(),
+        trigger: {
+          _open: { borderBlockEndColor: "colorPalette.muted", borderBlockEndWidth: "hairline" },
         },
-        trigger: { _open: { borderBlockEndColor: "border", borderBlockEndWidth: "hairline" } },
       },
 
       outline: {
-        root: { borderColor: "border", borderRadius: "l2", borderWidth: "hairline" },
-        trigger: { _open: { borderBlockEndColor: "border", borderBlockEndWidth: "hairline" } },
+        root: {
+          borderColor: "colorPalette.muted",
+          borderRadius: "l2",
+          borderWidth: "hairline",
+        },
+        trigger: {
+          _open: { borderBlockEndColor: "colorPalette.muted", borderBlockEndWidth: "hairline" },
+        },
       },
 
       plain: { root: { borderWidth: "0" } },

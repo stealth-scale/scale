@@ -1,5 +1,5 @@
 /**
- * Draws the column the mark and the words are centred in.
+ * Renders the centred column of the empty state's mark, title and description.
  */
 
 import { type ComponentProps } from "react";
@@ -7,11 +7,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#empty-state/context.ts";
 
 /**
- * Centres what it holds, in a column, at the gap its size states.
+ * Renders a centred flex column with the gap of the root's size.
  */
 export const Content = withContext("div", "content");
 
 /**
- * Describes what the content takes.
+ * Describes the props of EmptyState.Content: the props of a div element.
  */
 export type ContentProps = ComponentProps<typeof Content>;

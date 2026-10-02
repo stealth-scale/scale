@@ -1,79 +1,71 @@
 /**
- * Shows the hidden words: a button whose name is hidden, beside a hidden control that comes into
- * view under focus.
+ * Catalogue page for the visually hidden component.
  *
  * @remarks
- *   The axis is read off the recipe. A button holding a glyph and hidden words is the common
- *   case, so the first cell is one; the second makes the hidden words the control itself. The
- *   words are keys under `visually-hidden` in the catalogue's namespace, kept beside this file
- *   in `locales/en/specimen/visually-hidden.json`.
+ *   Two hand-written scenes render the component. The name scene hides the name of an icon-only
+ *   button. The focusable scene renders a page section whose first control is hidden until
+ *   keyboard focus, inside `Contained`, so Tab reveals the control at the section's corner and not
+ *   at the window's. At rest the scene shows what a pointer user sees, so a still image shows no
+ *   control. Every scene renders a component from `examples/` and shows that file as its source.
+ *   The words are keys under `visually-hidden` in `locales/en/specimen/visually-hidden.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { Button, ButtonPropsProvider } from "@stealthscale/component-actions";
-import { Icon } from "@stealthscale/component-typography";
-import { Matrix, type Scene, specimen, useWords } from "@stealthscale/specimen";
+import { Contained, Room, Sample, type Scene, specimen } from "@stealthscale/specimen";
 
-import { VisuallyHidden } from "#visually-hidden/visually-hidden.ts";
-
-/**
- * The two answers to a boolean prop.
- */
-const EITHER = [false, true] as const;
+import * as close from "#visually-hidden/examples/close.example.tsx";
+import * as shortcuts from "#visually-hidden/examples/shortcuts.example.tsx";
 
 /**
- * The look every button of the scene takes, set once above them.
+ * Renders the close button at its own width in a sample.
  */
-const OUTLINE = { variant: "outline" } as const;
-
-/**
- * The path of a cross, in a 24 unit box.
- */
-const CROSS = "M6 6l12 12M18 6 6 18";
-
-/**
- * Draws a button whose words are hidden, and hidden words that are a control.
- */
-function Focusable(): ReactElement {
-  const { t } = useWords("visually-hidden");
-
+function Named(): ReactElement {
   return (
-    <ButtonPropsProvider value={OUTLINE}>
-      <Matrix knob="focusable" of={EITHER}>
-        {(focusable) =>
-          focusable ? (
-            <VisuallyHidden as={Button} focusable>
-              {t("close")}
-            </VisuallyHidden>
-          ) : (
-            <Button shape="square">
-              <Icon viewBox="0 0 24 24">
-                <path d={CROSS} fill="none" stroke="currentColor" strokeWidth="2" />
-              </Icon>
-              <VisuallyHidden>{t("close")}</VisuallyHidden>
-            </Button>
-          )
-        }
-      </Matrix>
-    </ButtonPropsProvider>
+    <Sample>
+      <close.Close />
+    </Sample>
   );
 }
 
 /**
- * Hidden words beside a hidden control.
+ * Renders the page section in a 512px room that contains its fixed control.
+ */
+function Focusable(): ReactElement {
+  return (
+    <Room size="lg">
+      <Contained>
+        <shortcuts.Shortcuts />
+      </Contained>
+    </Room>
+  );
+}
+
+/**
+ * Hand-written scene for hidden text that names an icon-only button.
+ */
+export const named: Scene = {
+  about: "visually-hidden.name.about",
+  draw: Named,
+  example: close,
+  title: "visually-hidden.name.title",
+};
+
+/**
+ * Hand-written scene for a hidden control that appears under keyboard focus.
  */
 export const focusable: Scene = {
   about: "visually-hidden.focusable.about",
+  axes: ["focusable"],
   draw: Focusable,
+  example: shortcuts,
   title: "visually-hidden.focusable.title",
 };
 
 export default specimen({
   about: "visually-hidden.about",
-  group: "Accessibility",
-  id: "a11y/visually-hidden",
+  id: "components/a11y/visually-hidden",
   imports: 'import { VisuallyHidden } from "@stealthscale/component-a11y";',
-  scenes: [focusable],
+  scenes: [named, focusable],
   title: "visually-hidden.title",
 });

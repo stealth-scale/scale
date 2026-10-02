@@ -9,25 +9,25 @@ import { type CrossingOptions, useCrossing } from "#transfer/crossing.ts";
 import { type Place, PLACES } from "#transfer/transfer.fixtures.tsx";
 
 /**
- * Describes what the reader is told to pick before it moves anything.
+ * Describes the props of the probe: the options and the values to check on each side.
  */
 interface ReaderProps extends Partial<CrossingOptions<Place>> {
   /**
-   * The rows to count as picked on the near side before taking them across.
+   * Values to check on the first side.
    */
   readonly picking?: readonly string[] | undefined;
 
   /**
-   * The rows to count as picked on the far side before sending them back.
+   * Values to check on the second side.
    */
   readonly returning?: readonly string[] | undefined;
 }
 
 /**
- * Splits the rows, reports both sides off the screen, and offers the two moves.
+ * Renders both sides as text and a button per action of the hook.
  *
- * @param props - Whatever the case drives the split with, and what it picks first.
- * @returns The two sides as text, beside the two controls.
+ * @param props - The options and the values to check.
+ * @returns The two sides as text and the four buttons.
  */
 function Reader({ picking, returning, ...options }: ReaderProps): ReactElement {
   const crossing = useCrossing<Place>({
@@ -71,26 +71,26 @@ function Reader({ picking, returning, ...options }: ReaderProps): ReactElement {
 }
 
 /**
- * Presses one of the reader's controls.
+ * Presses one of the probe's buttons.
  */
 async function press(name: string): Promise<void> {
   await pressed(screen.getByRole("button", { name }));
 }
 
 describe("useCrossing", () => {
-  it("offers every row until one crosses over", () => {
+  it("puts every row on the first side", () => {
     render(<Reader />);
 
     expect(screen.getByTestId("offered").textContent).toBe("invoices,reports,settings");
   });
 
-  it("holds back the rows a caller says have already crossed", () => {
+  it("puts the rows of defaultValue on the second side", () => {
     render(<Reader defaultValue={["reports"]} />);
 
     expect(screen.getByTestId("taken").textContent).toBe("reports");
   });
 
-  it("takes the offered rows a reader has picked across", async () => {
+  it("moves the checked rows to the second side on take", async () => {
     render(<Reader picking={["invoices"]} />);
     await press("pick");
     await press("take");
@@ -98,7 +98,7 @@ describe("useCrossing", () => {
     expect(screen.getByTestId("taken").textContent).toBe("invoices");
   });
 
-  it("drops the rows it took off the side they came from", async () => {
+  it("removes the moved rows from the first side", async () => {
     render(<Reader picking={["invoices"]} />);
     await press("pick");
     await press("take");
@@ -106,7 +106,7 @@ describe("useCrossing", () => {
     expect(screen.getByTestId("offered").textContent).toBe("reports,settings");
   });
 
-  it("clears what was picked on the side a row left", async () => {
+  it("clears the checked rows of the side a move leaves", async () => {
     render(<Reader picking={["invoices"]} />);
     await press("pick");
     await press("take");
@@ -114,7 +114,7 @@ describe("useCrossing", () => {
     expect(screen.getByTestId("picked").textContent).toBe("");
   });
 
-  it("sends the taken rows a reader has picked back", async () => {
+  it("moves the checked rows back on give back", async () => {
     render(<Reader defaultValue={["reports"]} returning={["reports"]} />);
     await press("pick back");
     await press("give back");
@@ -122,7 +122,7 @@ describe("useCrossing", () => {
     expect(screen.getByTestId("taken").textContent).toBe("");
   });
 
-  it("reports the set that has crossed over", async () => {
+  it("calls onValueChange with the moved values", async () => {
     const heard = vi.fn<(taken: readonly string[]) => void>();
 
     render(<Reader onValueChange={heard} picking={["invoices"]} />);
@@ -132,7 +132,7 @@ describe("useCrossing", () => {
     expect(heard).toHaveBeenCalledWith(["invoices"]);
   });
 
-  it("holds none of the set itself where a caller drives it", async () => {
+  it("keeps value when the caller controls it", async () => {
     render(
       <Reader
         onValueChange={vi.fn<(taken: readonly string[]) => void>()}

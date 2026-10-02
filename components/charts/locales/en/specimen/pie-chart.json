@@ -1,0 +1,80 @@
+{
+  "about": "The parts of one whole as slices, largest first from 12 o'clock, each with its share written on it. A pie suits two to five parts.",
+  "browsers": {
+    "about": "maxSlices={4} renders the three largest browsers and gathers the other four into one slice named by otherLabel.",
+    "arc": "Arc",
+    "caption": "Chrome brought 56% of the 10,490 sessions. The four smallest browsers brought 12% between them.",
+    "chrome": "Chrome",
+    "edge": "Edge",
+    "firefox": "Firefox",
+    "label": "Sessions per browser",
+    "legend": "Browsers",
+    "opera": "Opera",
+    "other": "Other browsers",
+    "safari": "Safari",
+    "samsung": "Samsung Internet",
+    "title": "Long tail"
+  },
+  "largest": {
+    "about": "defaultIndex opens the tooltip at the largest slice when the chart first renders. The pointer or the arrow keys move it from slice to slice.",
+    "caption": "Starter's 610 customers are 47% of the 1,300.",
+    "title": "Tooltip"
+  },
+  "narrow": {
+    "about": "The plan mix in a room 20rem wide, the column of a phone. The pie scales down with the room, and each share is written on its slice.",
+    "title": "Narrow room"
+  },
+  "plans": {
+    "about": "Customers per plan, largest first from 12 o'clock, with each plan's share of the 1,300 written on its slice.",
+    "caption": "Starter has 47% of the 1,300 customers, Growth 40% and Scale 13%.",
+    "growth": "Growth",
+    "label": "Customers per plan",
+    "legend": "Plans",
+    "scale": "Scale",
+    "starter": "Starter",
+    "title": "Plan mix"
+  },
+  "quota": {
+    "about": "shares={false} leaves the slices unlabelled, for two parts whose figures the caption states. The tooltip writes each in gigabytes.",
+    "caption": "142 GB of the 200 GB quota is in use.",
+    "free": "Free",
+    "label": "Storage quota in use",
+    "legend": "Storage",
+    "title": "Without shares",
+    "used": "In use"
+  },
+  "regions": {
+    "about": "valueOptions writes the tooltip's values in euros. The shares on the slices are of the whole revenue.",
+    "americas": "North America",
+    "apac": "Asia Pacific",
+    "caption": "Europe brought €48,200, 46% of the €105,500 in revenue.",
+    "europe": "Europe",
+    "label": "Revenue per region",
+    "latam": "Latin America",
+    "legend": "Regions",
+    "title": "Revenue by region"
+  },
+  "replay": {
+    "about": "animate grows the slices from 12 o'clock when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the pie at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "survey": {
+    "about": "defaultHiddenKeys hides No answer on the first render, so the shares are of the 690 people who answered. A press on it in the legend shows it.",
+    "caption": "Of the 690 people who answered, 61% said yes.",
+    "label": "Answers to the renewal survey",
+    "legend": "Answers",
+    "no": "No",
+    "none": "No answer",
+    "title": "Hidden slice",
+    "unsure": "Unsure",
+    "yes": "Yes"
+  },
+  "title": "Pie chart",
+  "unlaunched": {
+    "about": "A chart without slices renders the empty state in the plot's place, and no legend.",
+    "caption": "Customers per plan.",
+    "empty": "No customers yet.",
+    "title": "Empty"
+  }
+}

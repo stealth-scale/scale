@@ -1,12 +1,11 @@
 /**
- * Covers the lock: it is held for the work, waited for, taken over from a dead owner, refused after
- * the wait, and honoured by a second process.
+ * Covers the lock across its lifecycle: taken, released, waited on, reclaimed from a dead owner,
+ * refused after the wait, and honoured by a second process.
  *
  * @remarks
- *   The file system is stood in for on one call alone, moving an abandoned lock aside, and only
- *   where a case asks for a failure: the two failures there are a race with another waiter and a
- *   permission, which no scratch workspace produces on demand. A case sets the failure for the next
- *   call and no other.
+ *   `node:fs` is mocked for `renameSync` alone, and only where a case asks it to fail. The two
+ *   failures are a race with another waiter and a permission error, and no scratch workspace
+ *   produces either on demand. A case arms the failure for the next call and no other.
  */
 
 import { spawn, spawnSync } from "node:child_process";
@@ -20,7 +19,7 @@ import { withScratchWorkspaceAsync } from "@stealthscale/testing";
 import { withLock } from "#lock.ts";
 
 /**
- * The failure the next move aside throws, where a case set one.
+ * Error the next `renameSync` throws, when a case has armed one.
  */
 const failing = vi.hoisted(() => ({ rename: undefined as Error | undefined }));
 
@@ -28,7 +27,7 @@ vi.mock(import("node:fs"), async (importOriginal) => {
   const actual = await importOriginal();
 
   /**
-   * Moves a file, or throws the failure the next case set.
+   * Renames a file, or throws the armed error once and disarms it.
    */
   const renameSync = (from: PathLike, to: PathLike): void => {
     if (failing.rename !== undefined) {
@@ -45,12 +44,12 @@ vi.mock(import("node:fs"), async (importOriginal) => {
 });
 
 /**
- * The lock module, as a child process imports it.
+ * Path to the lock module, as a child process imports it.
  */
 const LOCK = new URL("lock.ts", import.meta.url).pathname;
 
 /**
- * The script a child runs: it takes the lock, logs, waits a moment, logs again and releases.
+ * Script a child process runs. It takes the lock, logs, sleeps 100 ms, logs again, then releases.
  */
 const CHILD = [
   'import { appendFileSync } from "node:fs";',
@@ -83,7 +82,7 @@ function deadPid(): number {
 }
 
 /**
- * Lays a lock down by hand, as a process that took it would have, with the owner given or none.
+ * Creates a lock directory by hand, writing the owner file when an owner is given.
  */
 function laid(at: string, owner?: { pid: number; since: string }): void {
   mkdirSync(at, { recursive: true });
@@ -91,25 +90,36 @@ function laid(at: string, owner?: { pid: number; since: string }): void {
 }
 
 /**
- * Builds an error carrying the code the file system would have put on it.
+ * Builds an error carrying the code the filesystem would set on it.
  */
 function coded(code: string): Error {
   return Object.assign(new Error(code), { code });
 }
 
 describe("withLock", () => {
-  it("holds the lock while the work runs and releases it afterwards", async () => {
-    const held = await withScratchWorkspaceAsync({}, async (workspace) => {
+  it("writes the owner file while the work runs", async () => {
+    const during = await withScratchWorkspaceAsync({}, (workspace) => {
       const at = workspace.path("locks/generation");
-      const during = await withLock(at, () => Promise.resolve(existsSync(join(at, "owner.json"))));
 
-      return { after: existsSync(at), during };
+      return withLock(at, () => Promise.resolve(existsSync(join(at, "owner.json"))));
     });
 
-    expect(held).toStrictEqual({ after: false, during: true });
+    expect(during).toBe(true);
   });
 
-  it("releases the lock when the work throws", async () => {
+  it("removes the lock directory once the work has resolved", async () => {
+    const after = await withScratchWorkspaceAsync({}, async (workspace) => {
+      const at = workspace.path("locks/generation");
+
+      await withLock(at, () => Promise.resolve());
+
+      return existsSync(at);
+    });
+
+    expect(after).toBe(false);
+  });
+
+  it("removes the lock directory when the work rejects", async () => {
     expect.hasAssertions();
 
     const left = await withScratchWorkspaceAsync({}, async (workspace) => {
@@ -124,7 +134,7 @@ describe("withLock", () => {
     expect(left).toBe(false);
   });
 
-  it("runs a second caller once the first has released", async () => {
+  it("runs a second caller only after the first has finished", async () => {
     const order = await withScratchWorkspaceAsync({}, async (workspace) => {
       const at = workspace.path("lock");
       const seen: string[] = [];
@@ -171,7 +181,7 @@ describe("withLock", () => {
     expect(outcome).toBe("ran");
   });
 
-  it("reads an owner file that names no process as no owner", async () => {
+  it("takes over a lock whose owner file records no numeric pid", async () => {
     const outcome = await withScratchWorkspaceAsync({}, (workspace) => {
       const at = workspace.path("lock");
 
@@ -184,7 +194,7 @@ describe("withLock", () => {
     expect(outcome).toBe("ran");
   });
 
-  it("gives up on a lock a living process holds and names the owner", async () => {
+  it("rejects with the owner's pid and start time once the wait runs out", async () => {
     expect.hasAssertions();
 
     await withScratchWorkspaceAsync({}, async (workspace) => {
@@ -198,7 +208,7 @@ describe("withLock", () => {
     });
   });
 
-  it("rethrows a failure to create the lock that is not the lock existing", async () => {
+  it("rethrows a mkdir failure other than EEXIST", async () => {
     expect.hasAssertions();
 
     await withScratchWorkspaceAsync({}, async (workspace) => {
@@ -208,7 +218,7 @@ describe("withLock", () => {
     });
   });
 
-  it("tries again when somebody else moved the abandoned lock aside first", async () => {
+  it("takes the lock when another waiter removed the abandoned one first", async () => {
     const outcome = await withScratchWorkspaceAsync({}, (workspace) => {
       const at = workspace.path("lock");
 
@@ -221,7 +231,7 @@ describe("withLock", () => {
     expect(outcome).toBe("ran");
   });
 
-  it("rethrows a failure to move an abandoned lock aside", async () => {
+  it("rethrows a rename failure while reclaiming an abandoned lock", async () => {
     expect.hasAssertions();
 
     await withScratchWorkspaceAsync({}, async (workspace) => {
@@ -236,7 +246,7 @@ describe("withLock", () => {
     });
   });
 
-  it("serialises two processes", async () => {
+  it("serialises two processes contending for the same lock", async () => {
     const lines = await withScratchWorkspaceAsync({ "child.mjs": CHILD }, async (workspace) => {
       const at = workspace.path("lock");
       const log = workspace.path("log.txt");

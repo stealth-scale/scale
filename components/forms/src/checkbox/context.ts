@@ -1,17 +1,22 @@
 /**
- * Binds the checkbox's recipe to the elements that draw its parts.
+ * Binds the checkbox recipe and the checkbox group's recipe to React.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and the
- *   binding needs the runtime. Apart from the machine, because the recipe decides how a part is
- *   drawn and the machine decides what it does.
+ *   The bindings are a separate module because an application's compiler reads the recipes at build
+ *   time and a binding needs the runtime. The behaviour is in `machine.ts` and `grouping.ts`.
  */
 
-import { createSlotRecipeContext } from "@stealthscale/theme";
+import { createRecipeContext, createSlotRecipeContext } from "@stealthscale/theme";
 
+import { recipe as group } from "#checkbox/checkbox-group.recipe.ts";
 import { recipe } from "#checkbox/recipe.ts";
 
 /**
- * Binds the recipe once. The root provides the variants and every other part reads them.
+ * Binds the recipe once. The root receives the variants and every other part reads them.
  */
 export const { withContext, withProvider } = createSlotRecipeContext(recipe);
+
+/**
+ * Binds the group's element, which takes the group recipe's variants as props.
+ */
+export const { withContext: withGroupContext } = createRecipeContext(group);

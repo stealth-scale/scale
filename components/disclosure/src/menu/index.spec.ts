@@ -5,7 +5,7 @@ import { rootedViolations } from "@stealthscale/testing-react";
 import * as barrel from "#menu/index.ts";
 
 describe("index", () => {
-  it("names every part and nothing beside it", () => {
+  it("exports the twenty parts alone", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual([
       "Arrow",
       "ArrowTip",
@@ -30,7 +30,7 @@ describe("index", () => {
     ]);
   });
 
-  it("publishes neither the recipe nor the binding nor the machine", () => {
+  it("exports no recipe binding or machine", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {
@@ -38,8 +38,8 @@ describe("index", () => {
     }
   });
 
-  it("refuses every part drawn outside the root that holds it together", () => {
-    // The root runs without another above it, and the two parts inside a row need one of those too.
+  it("throws for every part rendered outside a root", () => {
+    // The root renders without a root above it, and the row's text and indicator need a row too.
     const { Item: _item, ItemIndicator: _mark, ItemText: _words, Root: _root, ...parts } = barrel;
 
     expect(
@@ -47,7 +47,7 @@ describe("index", () => {
     ).toStrictEqual([]);
   });
 
-  it("refuses a row drawn outside the root that holds it together", () => {
+  it("throws for a row rendered outside a root", () => {
     expect(
       rootedViolations(
         { Item: barrel.Item },
@@ -56,7 +56,7 @@ describe("index", () => {
     ).toStrictEqual([]);
   });
 
-  it("refuses the parts of a row drawn outside the row that holds them", () => {
+  it("throws for a row's text or indicator rendered outside a row", () => {
     expect(
       rootedViolations(
         { ItemIndicator: barrel.ItemIndicator, ItemText: barrel.ItemText },

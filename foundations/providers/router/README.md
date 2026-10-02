@@ -112,8 +112,8 @@ fail the same way.
 
 ## Linking by id
 
-Pass the reference the plugin SDK returned, not a string. A reference carries the id and, in its
-type alone, the parameters the route's path names.
+Pass the reference the plugin SDK returned, not a string. A reference contains the id. Its type
+names the parameters of the route's path and the search its validator returns.
 
 ```tsx
 import { RouteLink, useRouteHref } from "@stealthscale/provider-router";
@@ -208,8 +208,26 @@ export function Invoice() {
 It checks at run time that the page is the route the reference names before it makes the claim, so a
 reference copied from another page throws rather than mistyping what it returns.
 
-Search parameters have no equivalent. A reference carries no search type, so read them with
-`useSearch({ strict: false })` and validate at the edge.
+## Reading and writing a page's search
+
+A reference also types the search its route's validator returns. Read it with `useRouteSearch`,
+which checks the page the same way `useRouteParams` does, and link with `search` on `RouteLink`.
+
+```tsx
+import { RouteLink, useRouteSearch } from "@stealthscale/provider-router";
+
+export function Requests() {
+  const { status } = useRouteSearch(requests.list);
+}
+
+<RouteLink search={{ status: "open" }} to={requests.list}>
+  Open requests
+</RouteLink>;
+```
+
+A search that the reference does not type fails to compile. `routeHref` and `useRouteHref` return
+the path alone, because the library reads `to` as a path. Pass the search beside the path, as
+`navigate({ search, to })` takes it.
 
 ## A link to a route nobody may reach
 
@@ -221,7 +239,7 @@ The foundation does not do it for you, because which entries a person should see
 your product rather than about routing.
 
 ```ts
-const shown = declarations.filter((one) => one.when === undefined || evaluate(one.when));
+const shown = declarations.filter((one) => one.when === undefined || evaluate(one.when, context));
 ```
 
 ## Inside a declaration
@@ -246,6 +264,28 @@ A condition is whatever language your host writes one in, and the `evaluate` you
 condition that fails makes the route a 404, so a route nobody may reach resolves to nothing. An
 evaluator wanting anything else, such as sending an unauthenticated person to sign in, throws the
 library's `redirect` itself.
+
+The evaluator receives the route's context as its second argument. It reads the state of the router
+that runs it, such as a session a server put in the context for one request, so one tree serves
+every router built from it. Type the context with the second type parameter of `compileRoutes` and
+`Evaluate`.
+
+The evaluator receives the address the navigation enters as its third argument, an `EnteredLocation`
+whose `href` is the path, the search and the hash. The route's gate runs in `beforeLoad`, before the
+navigation commits, so a redirect to a sign-in page can include the address the person asked for. A
+caller that evaluates a condition outside a navigation, such as a menu, passes no location.
+
+- `search` validates the search string before the route loads. It takes a validator from any library
+  that implements Standard Schema, and the page reads the result with `useRouteSearch`.
+- `loader` loads the route's data before its page renders. It receives the route's context, its
+  parameters, its validated search, whether the router is preloading the route, and a signal that
+  aborts when a later navigation supersedes the load.
+- The search is the loader's dependency. A new search runs the loader again, and the library keeps
+  one result per search.
+
+```ts
+{ component: Requests, id: "acme.requests", loader: loadRequests, path: "/requests", search }
+```
 
 `compileRoutes` refuses a declaration stating `outlet`. A screen maps to a route and the route
 decides the whole screen, so a page drawn beside another as a pane has no route of its own.

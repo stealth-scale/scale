@@ -1,10 +1,9 @@
 /**
- * Draws the region a right-click or a long press opens the menu over.
+ * Renders the region a right-click, a long press or Shift+F10 opens the menu over.
  *
  * @remarks
- *   The machine opens the menu at the point the pointer was at rather than beside a control, which
- *   is what a context menu does. It handles the long press itself, so the same region answers a
- *   touch as well as a mouse, and it stops the browser drawing its own menu over ours.
+ *   The machine opens the menu at the pointer's position, handles the long press, and prevents the
+ *   browser's own context menu.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,25 +14,25 @@ import { withContext } from "#menu/context.ts";
 import { useMenu } from "#menu/machine.ts";
 
 /**
- * Draws the region at the size the root states.
+ * Renders the `div` with the menu's context trigger class.
  */
 const Held = withContext("div", "contextTrigger");
 
 /**
- * Describes what the region takes.
+ * Describes the props of the context trigger: its value and the props of a `div`.
  */
 export interface ContextTriggerProps extends ComponentProps<typeof Held> {
   /**
-   * The value that identifies this region, for a menu opened from more than one.
+   * Value that identifies the region, for a menu opened from several.
    */
   readonly value?: string | undefined;
 }
 
 /**
- * Opens the menu where the pointer is.
+ * Renders the region with the machine's context trigger props merged over the caller's.
  *
- * @param props - The name of this region, and everything a styled div takes.
- * @returns The region, carrying what the machine writes onto it.
+ * @param props - The region's value and the props of a `div`.
+ * @returns The `div` element.
  */
 export function ContextTrigger({ value, ...rest }: ContextTriggerProps): ReactElement {
   const { api } = useMenu();

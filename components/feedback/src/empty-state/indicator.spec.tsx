@@ -14,7 +14,7 @@ function panelled(children: ReactNode): ReactElement {
 }
 
 describe("Indicator", () => {
-  it("conforms as a div element inside the panel it needs above it", () => {
+  it("conforms as a div element inside the root", () => {
     expect(
       violations(Indicator, {
         as: true,
@@ -26,16 +26,21 @@ describe("Indicator", () => {
     ).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule where a caller hides the mark", async () => {
+  it("returns no accessibility violation", async () => {
     await expect(
-      accessibilityViolations(Indicator, {
-        props: { "aria-hidden": true, children: "*" },
-        wrapper: panelled,
-      }),
+      accessibilityViolations(Indicator, { props: { children: "*" }, wrapper: panelled }),
     ).resolves.toStrictEqual([]);
   });
 
-  it("draws the element as names", () => {
+  it("sets aria-hidden to true by default", () => {
+    const { container } = render(panelled(<Indicator>*</Indicator>));
+
+    expect(slotElement(container, "empty-state", "indicator").getAttribute("aria-hidden")).toBe(
+      "true",
+    );
+  });
+
+  it("renders the element passed as as", () => {
     const { container } = render(panelled(<Indicator as="span">*</Indicator>));
 
     expect(slotElement(container, "empty-state", "indicator").tagName).toBe("SPAN");

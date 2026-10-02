@@ -2,10 +2,10 @@
 
 `@stealthscale/testing` builds a scratch directory for a specification under the system temporary
 directory, and writes the package manifests that fill it. A second group of exports calls one hook
-of a Vite plugin each, the way a bundler would. The remaining exports read a CSS length and the gap
-between two laid-out elements. A specification owns everything in its workspace, so it may assert an
-exact file count and exact names. Vite and Vitest are peer dependencies, and no export calls into
-either.
+of a Vite plugin each, as a bundler does. The remaining exports read a CSS length and the gap
+between two laid-out elements. One specification is the only writer in its workspace, so it can
+assert an exact file count and exact names. Vite and Vitest are peer dependencies, and no export
+calls into either.
 
 ## Install
 
@@ -57,22 +57,22 @@ system supplies the last part of the directory name, so two calls never collide.
 | Export                      | Signature                                                                                                 | What it does                                                                                                               |
 | --------------------------- | --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `ScratchFiles`              | `Readonly<Record<string, string>>`                                                                        | File contents, keyed by a path relative to the workspace root. A separator in a key creates the directories above the file |
-| `scratchWorkspace`          | `(files?: ScratchFiles) => ScratchWorkspace`                                                              | Makes a directory under the system temporary directory, writes `files` into it, and leaves it on disk                      |
+| `scratchWorkspace`          | `(files?: ScratchFiles) => ScratchWorkspace`                                                              | Creates a directory under the system temporary directory, writes `files` into it, and leaves it on disk                    |
 | `withScratchWorkspace`      | `<Result>(files: ScratchFiles, run: (workspace: ScratchWorkspace) => Result) => Result`                   | Runs `run` against a fresh workspace, deletes the directory, and returns the value `run` produced                          |
 | `withScratchWorkspaceAsync` | `<Result>(files: ScratchFiles, run: (workspace: ScratchWorkspace) => Promise<Result>) => Promise<Result>` | Awaits `run` against a fresh workspace and deletes the directory once its promise settles                                  |
-| `ScratchWorkspace`          | `class`                                                                                                   | Owns one directory for the length of one test, and deletes nothing on its own                                              |
+| `ScratchWorkspace`          | `class`                                                                                                   | Represents one directory for the length of one test. Nothing is deleted automatically                                      |
 
 ### ScratchWorkspace
 
 | Member        | Signature                       | What it does                                                                                                        |
 | ------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `root`        | `readonly string`               | The absolute path of the directory this workspace owns                                                              |
+| `root`        | `readonly string`               | The absolute path of the workspace directory                                                                        |
 | `constructor` | `(root: string)`                | Adopts a directory that already exists, without creating or emptying it                                             |
 | `files`       | `() => string[]`                | Lists every file as a path relative to the root, sorted, separated by `/`. A directory with no file in it is absent |
 | `path`        | `(relative: string) => string`  | Resolves a path against the root and returns it absolute. Throws when the path resolves outside the root            |
 | `read`        | `(relative: string) => string`  | Reads a file in the workspace as UTF-8 text                                                                         |
 | `remove`      | `() => void`                    | Deletes the directory and everything below it. A second call does nothing                                           |
-| `write`       | `(files: ScratchFiles) => void` | Writes each file and creates the directories above it. An existing file is overwritten and no other file is touched |
+| `write`       | `(files: ScratchFiles) => void` | Writes each file and creates the directories above it. An existing file is overwritten and no other file is changed |
 
 ### Manifests
 

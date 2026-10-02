@@ -1,25 +1,39 @@
 {
-  "about": "Groups fields that belong together and names the group.",
+  "about": "Groups fields that belong together under one name. Disabling the group disables every control in it, and the group's size reaches every field that states none.",
   "address": "Address",
+  "card": "Card number",
   "city": "City",
+  "contact": "Contact",
+  "day": "Preferred day",
   "delivery": "Delivery",
+  "friday": "Friday",
   "helper": "We deliver on weekdays.",
   "none": "Fill in both before going on.",
-  "orientations": {
-    "about": "The fields one under another, and side by side.",
+  "orientation": {
+    "about": "The fields one under another, and side by side. Side by side, the fields wrap from a 12rem basis, and the legend and the texts take a row each.",
     "title": "Orientations"
   },
-  "sizes": {
-    "about": "Every size, which the legend, the texts and the fields inside read.",
+  "payment": "Payment",
+  "phone": "Phone number",
+  "postcode": "Postcode",
+  "reported": {
+    "error": "Choose how you want to pay.",
+    "info": "We deliver between 9:00 and 17:00.",
+    "success": "We found this address.",
+    "warning": "We could not reach this number last time."
+  },
+  "size": {
+    "about": "Every size. The legend reads the heading role one font size above the field labels, the texts read the body role one size smaller, and the fields inside take the size.",
     "title": "Sizes"
   },
   "states": {
-    "about": "A group as it is, out of reach, and wrong. Disabling the group takes every field out of reach and leaves the legend alone.",
+    "about": "Rest, disabled and invalid. A disabled group disables every control in it and leaves the legend enabled. An invalid group renders its error text with `role=\"alert\"`.",
     "title": "States"
   },
-  "statuses": {
-    "about": "Every status on a group that is wrong, which the error text reads.",
+  "status": {
+    "about": "One group per status. A status sets the ink of the error text, which leads with a mark so the four read apart without color. Only the error marks the group invalid.",
     "title": "Statuses"
   },
-  "title": "Fieldset"
+  "title": "Fieldset",
+  "window": "Delivery window"
 }

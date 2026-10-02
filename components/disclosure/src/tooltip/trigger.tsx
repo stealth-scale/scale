@@ -1,12 +1,10 @@
 /**
- * Draws the control the box appears beside.
+ * Renders the control the tooltip describes.
  *
  * @remarks
- *   The element is `button`, and a caller drawing something else passes it through `as`. The
- *   machine writes the pointer and focus handlers that open the box, and the reference that ties
- *   the control to it, so a screen reader reads the words as a description of the control.
- *   A tooltip attached to a control that is not focusable is a tooltip a keyboard never sees, which
- *   is why the default element is one a browser focuses.
+ *   The element is a `button`, so a keyboard focuses it, and a caller passes another control
+ *   through `as`. The machine sets the pointer and focus handlers and `aria-describedby`, so a
+ *   screen reader reads the tooltip as the control's description.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -17,20 +15,20 @@ import { withContext } from "#tooltip/context.ts";
 import { useTooltip } from "#tooltip/machine.ts";
 
 /**
- * Draws the control, styled by whatever the caller drew rather than by this recipe.
+ * Renders the `button` with the tooltip's trigger class.
  */
 const Pressed = withContext("button", "trigger");
 
 /**
- * Describes what the control takes.
+ * Describes the props of the trigger: the props of a `button`.
  */
 export type TriggerProps = ComponentProps<typeof Pressed>;
 
 /**
- * Opens the box as a pointer rests on it or focus reaches it.
+ * Renders the trigger with the machine's trigger props merged over the caller's.
  *
- * @param props - Everything a styled button takes.
- * @returns The control, carrying what the machine needs to open the box.
+ * @param props - The props of a `button`.
+ * @returns The `button` element.
  */
 export function Trigger(props: TriggerProps): ReactElement {
   const api = useTooltip();

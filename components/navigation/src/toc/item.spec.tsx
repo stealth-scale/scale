@@ -8,7 +8,7 @@ import { List } from "#toc/list.tsx";
 import { composed, railed } from "#toc/toc.fixtures.tsx";
 
 describe("Item", () => {
-  it("draws a list item inside the root it needs above it", async () => {
+  it("renders a list item inside the root", async () => {
     const { container } = await drawn(
       railed(
         <List>
@@ -20,7 +20,7 @@ describe("Item", () => {
     expect(slotElement(container, "toc", "item").tagName).toBe("LI");
   });
 
-  it("carries the depth of its heading for the recipe to indent by", async () => {
+  it("writes the heading depth to the row", async () => {
     const { container } = await drawn(
       railed(
         <List>
@@ -34,7 +34,7 @@ describe("Item", () => {
     expect(item.style.getPropertyValue("--depth")).toBe("3");
   });
 
-  it("says whether its heading is on screen", async () => {
+  it("sets data-active on the row of an active heading only", async () => {
     const { container } = await drawn(composed({ defaultActiveIds: ["large"] }));
     const items = container.querySelectorAll<HTMLElement>(".toc__item");
 
@@ -45,7 +45,7 @@ describe("Item", () => {
     ]);
   });
 
-  it("draws the element as names", async () => {
+  it("renders the element passed as as", async () => {
     const { container } = await drawn(
       railed(
         <List>

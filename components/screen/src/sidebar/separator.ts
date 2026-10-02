@@ -1,12 +1,11 @@
 /**
- * Draws the rule parting one block of destinations from the next.
+ * Renders the rule between two nav blocks.
  *
  * @remarks
- *   The layout package's divider drawn under a slot of this sidebar's own, so a theme moves the
- *   room on either side of the line with the sidebar's size rather than with the divider's. It
- *   keeps the `separator` role the `hr` element carries, because a rule between two blocks of
- *   destinations is a grouping a reader gets no other way. State `aria-hidden` on one drawn purely
- *   for rhythm.
+ *   The separator is the layout package's divider bound to a slot of the sidebar, so its margin
+ *   follows the sidebar's size. It keeps the `separator` role of the `hr` element, because the rule
+ *   groups the destinations for screen readers too. Pass `aria-hidden` for a rule that is
+ *   decoration only.
  */
 
 import { type ComponentProps } from "react";
@@ -16,11 +15,11 @@ import { Divider } from "@stealthscale/component-layout";
 import { withContext } from "#sidebar/context.ts";
 
 /**
- * Draws the rule at the room the column states.
+ * Renders the divider at the sidebar's size.
  */
 export const Separator = withContext(Divider, "separator");
 
 /**
- * Describes what the rule takes.
+ * Describes the props of `Separator`.
  */
 export type SeparatorProps = ComponentProps<typeof Separator>;

@@ -1,6 +1,6 @@
 /**
- * Publishes the button: the element a person presses, the square that holds one glyph, and the
- * provider that sets their variants from above.
+ * Exports the button's public API. The props provider takes the component's name, so a package
+ * that exports several providers has no name collision.
  */
 
 export { Button, type ButtonProps } from "#button/button.ts";

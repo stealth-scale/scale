@@ -18,31 +18,31 @@ function item(): Promise<unknown> {
 }
 
 describe("catalogued", () => {
-  it("appends to plugins rather than replacing them", () => {
+  it("contributes at the plugins key", () => {
     expect(catalogued().at).toBe("plugins");
   });
 
-  it("names the layer for the call a consumer wrote", () => {
+  it("returns a contribution named i18n.catalogued", () => {
     expect(catalogued().name).toBe("i18n.catalogued");
   });
 
-  it("carries the plugin under its house name", async () => {
+  it("returns a plugin named stealth:i18n", async () => {
     await expect(item()).resolves.toMatchObject({ name: "stealth:i18n" });
   });
 
-  it("constructs the plugin when the configuration is composed and not when the layer is stated", () => {
+  it("leaves item undefined when the layer is stated", () => {
     expect(catalogued().item).toBeUndefined();
   });
 
-  it("builds a plugin instance per call", async () => {
+  it("returns a new plugin instance for each call", async () => {
     await expect(item()).resolves.not.toBe(await item());
   });
 
-  it("passes the options through to the plugin", () => {
+  it("accepts a fallback language in the options", () => {
     expect(() => catalogued({ fallback: "nl" })).not.toThrow();
   });
 
-  it("states why the plugin is there", () => {
+  it("sets because to a reason naming the catalogue", () => {
     expect(catalogued().because).toContain("catalogue");
   });
 });

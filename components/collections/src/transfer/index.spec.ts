@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest";
 import * as barrel from "#transfer/index.ts";
 
 describe("index", () => {
-  it("names the one component a caller draws", () => {
+  it("exports Transfer alone at runtime", () => {
     expect(Object.keys(barrel).toSorted()).toStrictEqual(["Transfer"]);
   });
 
-  it("publishes neither the recipe nor the binding", () => {
+  it("exports no recipe or binding", () => {
     expect.hasAssertions();
 
     for (const name of Object.keys(barrel)) {

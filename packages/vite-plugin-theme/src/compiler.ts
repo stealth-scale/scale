@@ -1,11 +1,11 @@
 /**
- * Starts the compiler on a rendered configuration, generates the runtime with it, and removes what
- * the compiler names itself in.
+ * Drives the Panda compiler for the plugin: starts it on a rendered config, generates the runtime,
+ * and cleans up the stylesheet it produces.
  *
  * @remarks
- *   The compiler's own driver scans the sources, generates the runtime, compiles the stylesheet
- *   and reports what to watch. It is handed a configuration file rather than left to search for
- *   one, because the file the plugin renders is the one it has to read.
+ *   The plugin passes the config path explicitly rather than letting the driver search for one. The
+ *   config the plugin renders lives under the package's scratch directory, which is not where the
+ *   search would look.
  */
 
 import { createNodeDriver, type NodeDriver } from "@pandacss/compiler";
@@ -29,31 +29,27 @@ import {
 import { scratchDir, SEPARATOR, THEME_ATTRIBUTE } from "#options.ts";
 
 /**
- * Marks a path that belongs to an installed package rather than to the workspace.
+ * The path segment that tells an installed file apart from one the workspace owns.
  */
 const VENDOR = `${sep}node_modules${sep}`;
 
 /**
- * Fixes where, under a package's scratch, codegen writes the runtime before it is synced into the
- * generated directory.
+ * The directory under a package's scratch that codegen writes the runtime into before the sync.
  *
  * @remarks
- *   Codegen writes every file whether or not its content changed. Writing into a scratch directory
- *   and syncing from there leaves an unchanged generated file as it was, so a watcher over the
- *   package sees the files a change reached and no others.
+ *   Codegen rewrites every file on every run, changed or not. Going through a scratch directory and
+ *   syncing from it leaves unchanged files with their original mtimes, so a watcher over the
+ *   package only wakes for the files a change actually reached.
  */
 const STAGING = "runtime";
 
 /**
- * Fixes the declaration written beside the recipe runtime, which the compiler emits without one.
+ * The declaration file for the recipe runtime, which the compiler emits untyped.
  *
  * @remarks
- *   The runtime builds a recipe from what the compiler knows about it once its rules are in the
- *   stylesheet: the name, the class name, the slots, the values of each axis, the defaults and the
- *   compound variants. The declaration types that configuration from the generated recipe types,
- *   so the package binding a recipe states the variants it was written with and receives the
- *   runtime function typed the way the compiler's own `cva` and `sva` are. A compound carries the
- *   class its styles are emitted under, which the recipe names and the compiler honours.
+ *   The declaration is written against the recipe types codegen emits alongside it, so a package
+ *   that binds a recipe passes the variants it was written with and gets back a function typed the
+ *   way the compiler types its own `cva` and `sva`.
  */
 const RUNTIME_DECLARATION = [
   "/*",
@@ -73,7 +69,7 @@ const RUNTIME_DECLARATION = [
   'import type { SystemStyleObject } from "../types/system.d.mts";',
   "",
   "/**",
-  " * What the runtime builds a recipe from, once the compiler has its rules in the stylesheet.",
+  " * Describes the configuration the runtime builds a recipe from.",
   " */",
   "export interface RecipeRuntimeConfig<Variants extends RecipeVariantRecord> {",
   "  className?: string;",
@@ -86,7 +82,7 @@ const RUNTIME_DECLARATION = [
   "}",
   "",
   "/**",
-  " * What the runtime builds a slot recipe from: a recipe configuration and the slots it draws.",
+  " * Describes the configuration the runtime builds a slot recipe from, with the slots it styles.",
   " */",
   "export interface SlotRecipeRuntimeConfig<",
   "  Slot extends string,",
@@ -120,43 +116,43 @@ const RUNTIME_DECLARATION = [
 ].join("\n");
 
 /**
- * Matches the attribute the compiler emits a theme's values under, which its native binary fixes.
+ * The attribute selector the compiler hard-codes for a theme's values.
  */
 const ATTRIBUTE = "[data-panda-theme=";
 
 /**
- * Matches the signature the compiler writes on the root element on every compile.
+ * The custom property the compiler stamps on the root element of every stylesheet it writes.
  */
 const SIGNATURE = /\s*--made-with-panda:[^;}]*;?/gu;
 
 /**
- * Carries the running compiler beside the workspace files its configuration was built from.
+ * A started compiler and the workspace files its config was bundled from.
  */
 export interface Compiler {
   /**
-   * Every file the configuration was bundled from that the workspace owns, absolute.
+   * Absolute paths of the workspace files the config was bundled from.
    *
    * @remarks
-   *   Absolute because a watcher reports absolute paths while the compiler reports paths relative
-   *   to the package. The workspace's own, because a configuration that reaches a library pulls in
-   *   every module the library ships, and none of those can be edited.
+   *   Absolute because the watcher these paths are handed to reports absolute paths, while the
+   *   driver reports them relative to the package. Installed files are dropped: a config that
+   *   imports a library drags in every module that library ships, and nobody is going to edit one.
    */
   dependencies: readonly string[];
 
   /**
-   * The compiler's driver.
+   * The driver, already started on the config.
    */
   driver: NodeDriver;
 }
 
 /**
- * Starts the compiler on a configuration file.
+ * Starts a driver on a config file and collects the workspace files the config was bundled from.
  *
  * @remarks
- *   The compiler bundles the configuration before it reads it, beside the nearest `node_modules`
- *   above the file or under the system's temporary directory where there is none, and deletes the
- *   copy afterwards. A configuration rendered under the package's scratch keeps that copy out of
- *   the workspace.
+ *   The driver bundles the config before reading it, writing the bundle to the nearest
+ *   `node_modules` above the file, or to the system temporary directory when there is none, and
+ *   deleting it afterwards. Keeping the rendered config under the package's scratch directory keeps
+ *   that bundle out of the workspace.
  */
 export async function startCompiler(root: string, configPath: string): Promise<Compiler> {
   const driver = await createNodeDriver({ configPath, cwd: root });
@@ -169,15 +165,15 @@ export async function startCompiler(root: string, configPath: string): Promise<C
 }
 
 /**
- * Runs the compiler's codegen, declares what it leaves undeclared, rewrites the class names the
- * runtime writes into the scheme, and syncs the result into the generated directory.
+ * Runs codegen into a scratch directory, adds the missing runtime declaration, rewrites the class
+ * names the runtime emits, and syncs the result into `outdir`.
  *
  * @remarks
- *   Codegen runs into a scratch directory that is emptied first, so the sync sees exactly what
- *   this run wrote: a file the compiler stopped writing is deleted from the generated directory,
- *   and a file whose content did not change is left as it was. The rewrite runs on the scratch
- *   directory, so the generated directory only ever holds a runtime that writes the scheme.
- * @returns The compiler, for the files behind its configuration.
+ *   Emptying the scratch directory first means the sync sees exactly what this run produced: files
+ *   codegen no longer writes are deleted from `outdir`, and files whose content did not change keep
+ *   their mtimes. Rewriting in the scratch directory keeps a runtime that emits the compiler's own
+ *   class names from ever landing in `outdir`.
+ * @returns The started compiler, whose dependencies name the files behind its config.
  */
 export async function generateRuntime(
   root: string,
@@ -198,50 +194,50 @@ export async function generateRuntime(
 }
 
 /**
- * Removes what the compiler names itself in from a compiled stylesheet: the theme attribute
- * becomes `data-theme`, and the signature on the root element goes.
+ * Rewrites the compiler's theme attribute to `data-theme` and drops the property it stamps on the
+ * root element.
  *
  * @remarks
- *   The compiler offers no option for either. Its `cssgen:done` hook receives the stylesheet, and
- *   what the hook returns is not what `cssgen` returns, so the edit is made here on what the plugin
- *   appends.
+ *   The compiler has no option for either. Its `cssgen:done` hook does see the stylesheet, but
+ *   `cssgen` returns the unedited string regardless, so the edit has to happen here, on what the
+ *   plugin appends.
  */
 export function cleaned(css: string): string {
   return css.replaceAll(ATTRIBUTE, `[${THEME_ATTRIBUTE}=`).replaceAll(SIGNATURE, "");
 }
 
 /**
- * Finishes a compiled stylesheet: removes what the compiler names itself in, and renames every
- * class selector into the scheme the generated runtime writes.
+ * Cleans a compiled stylesheet and renames every class selector in it to match what the generated
+ * runtime emits.
  *
  * @remarks
- *   The recipes and the separator the rename reads come from the compiler's own resolved
- *   configuration, so the stylesheet and the runtime are read against the same recipes.
- * @returns The stylesheet, with a diagnostic for each collision, one for the classes whose rules
- *   were removed, and one for the classes kept under a raw condition.
+ *   The recipes and separator the rename works from come out of the driver's resolved config, which
+ *   is the same config codegen ran against, so the stylesheet and the runtime cannot disagree.
+ * @returns The stylesheet, plus a diagnostic per collision, one for classes whose rules were
+ *   dropped, and one for classes kept under a raw condition.
  */
 export function rewritten(compiler: Compiler, css: string): Renamed {
   return renameSelectors(cleaned(css), compilerConfig(compiler.driver.config));
 }
 
 /**
- * Finds the directory the compiler's base preset is installed in beside this package.
+ * Locates the directory `@pandacss/preset-base` is installed in next to this package.
  *
- * @throws {@link Error} When the preset is not installed beside this package.
+ * @throws {@link Error} When the preset is not installed next to this package.
  */
 function installedBase(): string {
   return dirname(createRequire(import.meta.url).resolve("@pandacss/preset-base/package.json"));
 }
 
 /**
- * Resolves the module entry of the compiler's base preset, as an absolute path.
+ * Resolves the module entry of `@pandacss/preset-base` to an absolute path.
  *
  * @remarks
- *   The rendered configuration imports the preset by this path. It is read from a directory under
- *   the application's `node_modules` that resolves only what the application itself depends on,
- *   and the application depends on the plugin rather than on the preset. The directory is a
- *   parameter so a specification can hand in a manifest of its own.
- * @throws {@link Error} When the preset is not installed beside this package or publishes no entry.
+ *   The rendered config imports the preset by this path. Resolution happens against this package,
+ *   not against the application, because the application depends on the plugin and never on the
+ *   preset directly. The directory is a parameter so a spec can point at a manifest of its own.
+ * @throws {@link Error} When the preset is not installed next to this package or publishes no
+ *   entry.
  */
 export function basePreset(at: string = installedBase()): string {
   const entry = exportTarget(manifestAt(at) ?? {}, ".", ["import"]);

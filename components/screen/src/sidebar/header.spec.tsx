@@ -7,13 +7,13 @@ import { Header } from "#sidebar/header.ts";
 import { aside } from "#sidebar/sidebar.fixtures.tsx";
 
 describe("Header", () => {
-  it("draws a band inside the column it needs above it", () => {
+  it("renders a div inside the root", () => {
     const { container } = render(aside(<Header>Acme</Header>));
 
     expect(slotElement(container, "sidebar", "header").tagName).toBe("DIV");
   });
 
-  it("stays where it was drawn while the destinations under it scroll", () => {
+  it("renders as a child of the root outside the content", () => {
     const { container } = render(aside(<Header>Acme</Header>));
 
     expect(slotElement(container, "sidebar", "header").parentElement).toBe(

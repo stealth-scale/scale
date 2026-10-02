@@ -1,27 +1,22 @@
 /**
- * States whether a band stays put as the page scrolls under it.
- *
- * @remarks
- *   Written as a prop on the band rather than as an attribute a caller remembers, so the type
- *   system carries it and a band that is meant to stick cannot be one that silently does not. The
- *   recipe reads the attribute this writes.
+ * Types the `sticky` prop of a band and converts it to the attribute the recipe reads.
  */
 
 /**
- * Describes what any band that can stay put takes beyond its element's own props.
+ * Describes the prop of a band that can stick to the top of the page.
  */
 export interface StickyProps {
   /**
-   * Whether the band stays put as the page scrolls under it.
+   * Whether the band remains at the top while the page scrolls under it.
    */
   readonly sticky?: boolean | undefined;
 }
 
 /**
- * Turns the prop into the attribute the recipe reads.
+ * Converts the `sticky` prop to the `data-sticky` attribute the recipe reads.
  *
- * @param sticky - Whether the band stays put.
- * @returns The attribute where it does, and nothing where it does not.
+ * @param sticky - Whether the band sticks.
+ * @returns An empty string when the band sticks, and `undefined` otherwise.
  */
 export function stuck(sticky?: boolean): "" | undefined {
   return sticky === true ? "" : undefined;

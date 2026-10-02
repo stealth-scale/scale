@@ -8,7 +8,7 @@ import { slotClasses, slotVariantClass } from "@stealthscale/testing-theme";
 import { withContext, withProvider } from "#blockquote/context.ts";
 
 describe("context", () => {
-  it("draws each part's slot class", () => {
+  it("applies the slot class to each bound part", () => {
     const Root = withProvider("div", "root");
     const Content = withContext("p", "content");
     const { container } = render(createElement(Root, null, createElement(Content, null, "Said")));
@@ -17,15 +17,13 @@ describe("context", () => {
     expect(slotClasses(container, "blockquote", "content")).toContain("blockquote__content");
   });
 
-  it("hands the root's variants to a part below it", () => {
+  it("applies the variant set on the root to a part below it", () => {
     const Root = withProvider("div", "root");
-    const Content = withContext("p", "content");
-    const { container } = render(
-      createElement(Root, { size: "lg" }, createElement(Content, null, "Said")),
-    );
+    const Mark = withContext("span", "icon");
+    const { container } = render(createElement(Root, { variant: "surface" }, createElement(Mark)));
 
-    expect(slotClasses(container, "blockquote", "content")).toContain(
-      slotVariantClass("blockquote", "content", "size", "lg"),
+    expect(slotClasses(container, "blockquote", "icon")).toContain(
+      slotVariantClass("blockquote", "icon", "variant", "surface"),
     );
   });
 });

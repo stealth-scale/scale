@@ -1,14 +1,14 @@
 /**
- * How much of a package the suite has to reach, and what is not counted.
+ * Sets how much of a package the suite has to reach, and what is not counted.
  */
 
 import { type Preset, preset } from "@stealthscale/vite-config-core";
 
-import { FOREIGN, worktreesBelow } from "#ignore/foreign.ts";
+import { FOREIGN, IN_COPIES } from "#ignore/foreign.ts";
 import { GENERATED } from "#ignore/generated.ts";
 
 /**
- * The files counted whether or not a test ever loads them.
+ * The files counted whether or not a test ever loads them, so an unreached file counts as zero.
  */
 const COUNTED = ["**/src/**"];
 
@@ -18,7 +18,7 @@ const COUNTED = ["**/src/**"];
  * @remarks
  *   Each entry is either the measurement itself or a file with nothing to
  *   assert about: the entry point that starts a program, a worker body, a type
- *   declaration, or something a tool wrote.
+ *   declaration, something a tool wrote, or a second copy of the repository.
  */
 const UNCOUNTED = [
   "**/*.spec.{ts,tsx}",
@@ -30,10 +30,11 @@ const UNCOUNTED = [
   "**/*.worker.{ts,tsx}",
   ...GENERATED,
   ...FOREIGN,
+  ...IN_COPIES,
 ];
 
 /**
- * The share of each counted file a package has to reach.
+ * The thresholds a package has to clear, measured over the package rather than per file.
  *
  * @remarks
  *   Every number is 100, so measuring the package rather than each file changes
@@ -49,7 +50,7 @@ const ENOUGH = {
 };
 
 /**
- * The directory the reports are written to, which the development server leaves unwatched.
+ * Glob over the directory the reports are written to, which the dev server leaves unwatched.
  *
  * @remarks
  *   The engine's default, stated here because the watcher has to know it: a test run beside a
@@ -58,30 +59,31 @@ const ENOUGH = {
 const REPORTS = "**/coverage/**";
 
 /**
- * Measures coverage on every run and holds the package to all of it.
+ * Returns the preset that measures coverage on every run and fails a package that covers less.
  *
  * @remarks
  *   The counter is the engine's own rather than an instrumented build, so what
  *   a test executes is what would ship. The terminal gets a summary and the
  *   detail goes to a report, because four numbers are what a person reads. The
- *   agent worktrees below the workspace root are left out by an absolute glob,
- *   so a run inside one of them still counts its own files.
+ *   agent worktrees and the scratch below the workspace root are left out by
+ *   globs relative to the root, so a run inside one of them still counts its
+ *   own files.
  */
 export function coverage(): Preset {
   return preset({
-    config: (context) => ({
+    config: {
       server: { watch: { ignored: [REPORTS] } },
       test: {
         coverage: {
           enabled: true,
-          exclude: [...UNCOUNTED, worktreesBelow(context.root)],
+          exclude: UNCOUNTED,
           include: COUNTED,
           provider: "v8",
           reporter: ["text-summary", "html", "lcov"],
           thresholds: ENOUGH,
         },
       },
-    }),
+    },
     name: "test.coverage",
   });
 }

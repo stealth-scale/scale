@@ -85,6 +85,12 @@ function Column({
   );
 }
 
+function Loose(): null {
+  useStickyOffsets(useRef<HTMLDivElement>(null), true, OPTIONS);
+
+  return null;
+}
+
 describe("useStickyOffsets", () => {
   it("sets no offset on the first band", () => {
     const stub = stubObserver();
@@ -142,7 +148,7 @@ describe("useStickyOffsets", () => {
     stub.restore();
   });
 
-  it("sets a total of zero when the column holds no band", () => {
+  it("sets a total of zero when the column contains no band", () => {
     const stub = stubObserver();
     const { getByTestId } = render(<Column heights={[]} measuring />);
 
@@ -162,14 +168,8 @@ describe("useStickyOffsets", () => {
     stub.restore();
   });
 
-  it("observes nothing while the column ref holds nothing", () => {
+  it("observes nothing while the column ref is empty", () => {
     const stub = stubObserver();
-
-    function Loose(): null {
-      useStickyOffsets(useRef<HTMLDivElement>(null), true, OPTIONS);
-
-      return null;
-    }
 
     render(<Loose />);
 

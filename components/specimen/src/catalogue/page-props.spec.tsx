@@ -9,7 +9,7 @@ import { PropsBody } from "#catalogue/page-props.tsx";
 import { type Part } from "#catalogue/parted.ts";
 
 /**
- * Draws the props in the page they belong to.
+ * Renders PropsBody inside the page it belongs to.
  */
 function paged(parts?: readonly Part[], failure?: Error): ReactElement {
   return (
@@ -20,7 +20,7 @@ function paged(parts?: readonly Part[], failure?: Error): ReactElement {
 }
 
 /**
- * Writes one part holding nothing, for a case counting the sections.
+ * Returns one part with no options and no variants, for a case counting the sections.
  */
 function part(name: string): Part {
   return {
@@ -33,28 +33,33 @@ function part(name: string): Part {
 }
 
 describe("PropsBody", () => {
-  it("says it is still reading until the parts arrive", async () => {
+  it("renders the loading text when parts is undefined", async () => {
     const { getByText } = await drawn(paged());
 
     expect(getByText("Reading what the parts accept.")).toBeDefined();
   });
 
-  it("says so where the reader found nothing for the page", async () => {
+  it("renders the empty text when parts is an empty array", async () => {
     const { getByText } = await drawn(paged([]));
 
     expect(getByText("Nothing was read for this page.")).toBeDefined();
   });
 
-  it("says why the parts could not be read and offers a reload", async () => {
+  it("renders the failure message when the props fail to load", async () => {
     const { getByRole } = await drawn(paged(undefined, new Error("chunk gone")));
 
     expect(getByRole("alert").textContent).toBe(
       "What the parts accept could not be read: chunk gone",
     );
+  });
+
+  it("renders a reload button when the props fail to load", async () => {
+    const { getByRole } = await drawn(paged(undefined, new Error("chunk gone")));
+
     expect(getByRole("button", { name: "Reload the page" })).toBeDefined();
   });
 
-  it("says once what the reader resolved and no table draws", async () => {
+  it("renders the dropped counts once below the parts", async () => {
     const { getByText } = await drawn(paged([part("One")]));
 
     expect(
@@ -62,7 +67,7 @@ describe("PropsBody", () => {
     ).toBeDefined();
   });
 
-  it("draws a section per part", async () => {
+  it("renders a section per part", async () => {
     const { getAllByRole } = await drawn(paged([part("One"), part("Two")]));
 
     expect(getAllByRole("heading").map((one) => one.textContent)).toStrictEqual([
@@ -71,7 +76,7 @@ describe("PropsBody", () => {
     ]);
   });
 
-  it("keeps the order the parts arrived in", async () => {
+  it("renders the parts in the order they were given", async () => {
     const { getAllByRole } = await drawn(paged([part("Zebra"), part("Acme")]));
 
     expect(getAllByRole("heading").map((one) => one.textContent)).toStrictEqual([

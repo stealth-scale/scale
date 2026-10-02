@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { foundationTheme, paletteTheme } from "#theme.fixtures.ts";
 
 describe("fixtures", () => {
-  it("wraps the foundation with its tokens and semantic tokens as the variant", () => {
+  it("returns a theme named foundation with tokens and semanticTokens on the variant", () => {
     const theme = foundationTheme();
 
     expect(theme.name).toBe("foundation");
@@ -11,7 +11,7 @@ describe("fixtures", () => {
     expect(theme.variant.semanticTokens).toBeDefined();
   });
 
-  it("draws the palette from the foundation's blue over the foundation's pages", () => {
+  it("derives the palette's solid and its ramp from the foundation's blue", () => {
     const theme = paletteTheme();
 
     expect(theme.variant.semanticTokens?.colors?.["primary"]).toMatchObject({
@@ -20,7 +20,7 @@ describe("fixtures", () => {
     expect(theme.variant.tokens?.colors?.["primary"]).toHaveProperty("500");
   });
 
-  it("builds a palette theme with the roles it was handed put over the drawn ones", () => {
+  it("replaces a derived role with the value passed in over", () => {
     const theme = paletteTheme({ solid: { value: "x" } });
 
     expect(theme.variant.semanticTokens?.colors?.["primary"]).toMatchObject({

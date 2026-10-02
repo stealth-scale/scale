@@ -1,22 +1,41 @@
 /**
- * States how far an action survives as the row around it narrows.
+ * Types the priority that decides how an action folds as its row narrows, and derives it from the
+ * props a caller sets.
  *
  * @remarks
- *   A row of actions cannot keep every control at every width, so each action says how much it
- *   matters and the recipe decides what happens to it. The row measures itself and writes
- *   `data-narrow`, and the action's own recipe reads the pair.
- *   The source this was ported from did it the other way round: an action registered itself into a
- *   menu the row held, from an effect, and the row kept that list in state. React 19 reports state
- *   written from an effect, and the list arrived one render after the row was drawn, so the menu
- *   flickered in. Nothing here writes state and nothing measures an action.
+ *   A narrow row keeps a primary action whole, renders a secondary action as its icon alone, and
+ *   moves a tertiary action into the row's menu.
  */
 
 /**
- * Selects how much an action matters, which decides what a narrow row does with it.
+ * Priority of an action, which decides what a narrow row does with it.
  */
 export type Priority = "primary" | "secondary" | "tertiary";
 
 /**
- * Lists the priorities from the one that always survives to the one that goes first.
+ * Lists the priorities from the one a narrow row keeps to the one it folds away first.
  */
 export const PRIORITIES: readonly Priority[] = ["primary", "secondary", "tertiary"];
+
+/**
+ * Returns an action's priority: the stated one, or the one its icon and `primary` imply.
+ *
+ * @remarks
+ *   An action with an icon folds to the icon, a primary action without one keeps its words, and any
+ *   other action folds into the menu. A control that opens an overlay of its own cannot run from a
+ *   menu row, so it states `primary` or has an icon.
+ * @param stated - The priority the caller set, if any.
+ * @param icon - Whether the action has an icon.
+ * @param primary - Whether the action is the row's primary action.
+ * @returns The priority the row folds the action by.
+ */
+export function priorityOf(
+  stated: Priority | undefined,
+  icon: boolean,
+  primary: boolean,
+): Priority {
+  if (stated !== undefined) return stated;
+  if (icon) return "secondary";
+
+  return primary ? "primary" : "tertiary";
+}

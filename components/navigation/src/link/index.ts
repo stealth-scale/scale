@@ -1,6 +1,5 @@
 /**
- * Publishes the link: the words a person follows to somewhere else, and the provider that sets its
- * variants from above.
+ * Exports the link and the provider that sets its variants for descendants.
  */
 
 export { PropsProvider as LinkPropsProvider } from "#link/context.ts";

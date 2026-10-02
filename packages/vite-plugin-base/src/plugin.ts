@@ -12,7 +12,7 @@ import { type Plugin } from "vite";
 export { type Plugin };
 
 /**
- * The build a bundler binds to `this` while it generates a bundle.
+ * Build a bundler binds to `this` while it generates a bundle.
  *
  * @remarks
  *   The type is taken from Vite's own `generateBundle` signature, so it follows
@@ -24,7 +24,7 @@ export type Bundling = ThisParameterType<
 >;
 
 /**
- * The part of a resolved configuration a plugin stated here reads.
+ * Narrows a resolved configuration to the one field a plugin built here reads.
  *
  * @remarks
  *   Naming the one field keeps the hook assignable across Vite releases, since
@@ -32,17 +32,17 @@ export type Bundling = ThisParameterType<
  */
 interface Resolved {
   /**
-   * The project directory the bundler resolved, absolute.
+   * Project directory the bundler resolved, absolute.
    */
   root: string;
 }
 
 /**
- * Describes a plugin: what a bundler calls it, and what it writes.
+ * A plugin's name and the single step that emits its output.
  */
 export interface Stated {
   /**
-   * The name the bundler reports in a build trace and in an error.
+   * Name the bundler reports in a build trace and in an error.
    */
   name: string;
 
@@ -53,9 +53,9 @@ export interface Stated {
    *   The call happens at `generateBundle`, where the module graph is complete
    *   and nothing has reached disk yet, so a file emitted here still lands in
    *   the output. A returned promise is awaited before the bundle is written.
-   * @param bundling - The build to read the graph from and emit files through.
-   * @param at - The project directory, which under a task runner differs from
-   *   the working directory.
+   * @param bundling - Build to read the graph from and emit files through.
+   * @param at - Project directory, which under a task runner differs from the
+   *   working directory.
    */
   writes: (bundling: Bundling, at: string) => Promise<void> | void;
 }
@@ -81,7 +81,7 @@ export function plugin(stated: Stated): Plugin {
     },
 
     /**
-     * Hands the finished module graph and the project directory to the write step.
+     * Passes the finished module graph and the project directory to the write step.
      *
      * @remarks
      *   The promise a write step returns is passed straight back, so the

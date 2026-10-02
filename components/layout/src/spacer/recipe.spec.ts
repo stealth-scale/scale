@@ -1,27 +1,37 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, recipeViolations } from "@stealthscale/testing-theme";
 
 import { recipe } from "#spacer/recipe.ts";
+import page from "#spacer/spacer.specimen.tsx";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("covers every variant axis in the scenes of its specimen page", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("has no scene that writes a value the recipe does not offer", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Spacer"] })).toStrictEqual([]);
   });
 
-  it("names its class spacer", () => {
+  it("sets className to spacer", () => {
     expect(recipe.className).toBe("spacer");
   });
 
-  it("offers no axis because there is nothing about empty room a caller picks", () => {
+  it("declares no variant axis", () => {
     expect(axesOf(recipe)).toStrictEqual([]);
   });
 
-  it("grows into whatever a stack has not given its other children", () => {
+  it("grows from a zero flex basis in the base", () => {
     expect(recipe.base).toMatchObject({ flexBasis: "0", flexGrow: "1" });
   });
 
-  it("tracks the tag a consumer writes it under", () => {
+  it("matches the Spacer JSX tag", () => {
     expect(recipe.jsx).toStrictEqual([/^Spacer$/u]);
   });
 });

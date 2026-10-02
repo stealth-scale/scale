@@ -1,10 +1,9 @@
 /**
- * Binds the hidden text's recipe to the element that draws it.
+ * Binds the visually-hidden recipe to React.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. A recipe file that also bound one would put the runtime behind
- *   every compiler configuration that reads it.
+ *   The binding is a separate module from the recipe, because the theme compiler imports the recipe
+ *   at build time and must not load the React runtime.
  */
 
 import { createRecipeContext } from "@stealthscale/theme";
@@ -12,6 +11,10 @@ import { createRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#visually-hidden/recipe.ts";
 
 /**
- * Binds the recipe once, for the hidden text and for whatever sets its variants from above.
+ * Creates the visually-hidden recipe's `withContext` binding and its `PropsProvider`.
+ *
+ * @remarks
+ *   `PropsProvider` sets variants on every element bound below it. The package exports it as
+ *   `VisuallyHiddenPropsProvider`.
  */
 export const { PropsProvider, withContext } = createRecipeContext(recipe);

@@ -1,6 +1,6 @@
 /**
- * Publishes the way past the navigation, composed as `SkipNav.Link` at the top of the document
- * and `SkipNav.Target` where the content starts.
+ * Exposes the skip-nav parts to the package barrel, which publishes them as the `SkipNav`
+ * namespace.
  */
 
 export { Link, type LinkProps, SKIP_NAV_TARGET } from "#skip-nav/link.ts";

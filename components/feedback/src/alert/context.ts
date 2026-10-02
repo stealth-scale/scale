@@ -1,10 +1,9 @@
 /**
- * Binds the alert's recipe to the elements that draw its parts.
+ * Binds the alert slot recipe to React.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. A recipe file that also bound one would put the runtime behind
- *   every compiler configuration that reads it.
+ *   The binding is a separate module from the recipe, because an application's compiler imports the
+ *   recipe at build time and the binding needs the React runtime.
  */
 
 import { createSlotRecipeContext } from "@stealthscale/theme";
@@ -12,6 +11,6 @@ import { createSlotRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#alert/recipe.ts";
 
 /**
- * Binds the recipe once. The root provides the variants and every other part reads them.
+ * Factories for the parts. The root resolves the variants once and the other parts read them.
  */
 export const { withContext, withProvider } = createSlotRecipeContext(recipe);

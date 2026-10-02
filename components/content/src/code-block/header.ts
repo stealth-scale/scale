@@ -1,5 +1,5 @@
 /**
- * Draws the row across the top of the panel, holding the title and the control.
+ * Renders the bar at the top of the panel with the title at the start and the controls at the end.
  */
 
 import { type ComponentProps } from "react";
@@ -7,11 +7,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#code-block/context.ts";
 
 /**
- * Draws the row at the size the root states.
+ * Renders the header slot as one row above the code.
  */
 export const Header = withContext("div", "header");
 
 /**
- * Describes what the header takes.
+ * Describes the props of `Header`: the props of the styled `div`.
  */
 export type HeaderProps = ComponentProps<typeof Header>;

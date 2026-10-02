@@ -10,13 +10,13 @@ import { recipe } from "#button/recipe.ts";
 const NAMED = { "aria-label": "Close" };
 
 describe("IconButton", () => {
-  it("conforms as a button element", () => {
+  it("returns no conformance violation for its BUTTON root", () => {
     expect(
       violations(IconButton, { as: true, children: true, element: "BUTTON", props: NAMED }),
     ).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule holding a glyph", async () => {
+  it("returns no accessibility violation for an aria-hidden icon under an aria-label", async () => {
     await expect(
       accessibilityViolations(IconButton, {
         props: { ...NAMED, children: <svg aria-hidden="true" /> },
@@ -24,7 +24,7 @@ describe("IconButton", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("emits a class for every variant value the recipe declares", () => {
     expect(
       boundViolations(recipe, (props) => render(<IconButton {...NAMED} {...props} />).container, {
         defaults: { shape: "square" },
@@ -32,13 +32,13 @@ describe("IconButton", () => {
     ).toStrictEqual([]);
   });
 
-  it("draws the square shape when nothing is picked", () => {
+  it("applies the square shape class when no shape is passed", () => {
     const { container } = render(<IconButton {...NAMED} />);
 
     expect(recipeClasses(container, "button")).toContain(variantClass("button", "shape", "square"));
   });
 
-  it("requires an accessible name", () => {
+  it("requires aria-label or aria-labelledby in its props type", () => {
     expectTypeOf<{ "aria-label": string }>().toExtend<IconButtonProps>();
     expectTypeOf<{ "aria-labelledby": string }>().toExtend<IconButtonProps>();
     expectTypeOf<{ children: string }>().not.toExtend<IconButtonProps>();

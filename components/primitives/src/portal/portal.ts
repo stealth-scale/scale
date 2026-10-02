@@ -1,70 +1,69 @@
 /**
- * Draws what it holds somewhere else in the document rather than where it is written.
+ * Renders its children into another element of the document.
  *
  * @remarks
- *   A box positioned against the viewport inside a page that clips or stacks is clipped or stacked
- *   with it, which is the reason to reach for a portal at all. The portal draws nothing until it
- *   has mounted, so a server renders nothing and the first client render matches it: drawing on
- *   the server is impossible, because a portal needs a document, and drawing on the first client
- *   render instead would be a mismatch a browser reports. A caller who wants the content where it
- *   was written says so rather than leaving the portal out, so the tree is the same either way.
+ *   An ancestor with `overflow` clipping or its own stacking context clips and stacks a fixed or
+ *   absolute descendant, and a portal moves the content out of that ancestor. The portal renders
+ *   nothing on the server and in the hydrating render, because the server has no document and the
+ *   hydrating render must match the server's HTML. `disabled` renders the children in place, so
+ *   the component tree is the same with and without the move.
  */
 
 import { type ReactNode, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 
 /**
- * Ends a subscription to a fact that never changes, which takes nothing.
+ * Does nothing, because the subscription has nothing to release.
  */
 function unsubscribe(): void {}
 
 /**
- * Subscribes to whether a document is there, which nothing ever reports a change to.
+ * Returns the no-op unsubscribe, because the presence of a document never changes.
  */
 function subscribe(): () => void {
   return unsubscribe;
 }
 
 /**
- * Reports the document a browser draws into.
+ * Returns the client snapshot: true, because the client has a document.
  */
-function drawn(): boolean {
+function clientSnapshot(): boolean {
   return true;
 }
 
 /**
- * Reports no document, which is what rendering a page to a string has.
+ * Returns the server snapshot: false, because rendering to a string has no document.
  */
-function undrawn(): boolean {
+function serverSnapshot(): boolean {
   return false;
 }
 
 /**
- * Describes what a portal takes.
+ * Describes the props of Portal: the content, the destination and the opt-out.
  */
 export interface PortalProps {
   /**
-   * The content the portal draws.
+   * Content to render at the destination.
    */
   children?: ReactNode | undefined;
 
   /**
-   * Where the content is drawn, which is the document's body where a caller names nothing.
+   * Element to render into. Defaults to `document.body`.
    */
   container?: Element | null | undefined;
 
   /**
-   * Whether the content is drawn where it was written instead.
+   * Renders the content in place instead of moving it.
    */
   disabled?: boolean | undefined;
 }
 
 /**
- * Draws its content at the container rather than where it sits in the tree.
+ * Renders the children into the container, in place while `disabled`, and nothing on the server.
  */
 export function Portal(props: PortalProps): ReactNode {
   const { children, container, disabled = false } = props;
-  const mounted = useSyncExternalStore(subscribe, drawn, undrawn);
+  const mounted = useSyncExternalStore(subscribe, clientSnapshot, serverSnapshot);
 
   if (disabled) return children;
   if (!mounted) return undefined;

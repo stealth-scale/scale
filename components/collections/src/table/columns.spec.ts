@@ -3,22 +3,22 @@ import { describe, expect, it } from "vitest";
 import { type Column, depth, leaves, named, spans } from "#table/columns.ts";
 
 /**
- * Describes one record the columns read.
+ * Describes one record of the fixture.
  */
 interface Account {
   /**
-   * What the account came to.
+   * Amount of the account.
    */
   amount: string;
 
   /**
-   * The account's name.
+   * Name of the account.
    */
   name: string;
 }
 
 /**
- * A flat list of columns, none of them spanning.
+ * A row-header column beside a numeric column.
  */
 const FLAT: ReadonlyArray<Column<Account>> = [
   { key: "name", label: "Account", rowHeader: true },
@@ -26,7 +26,7 @@ const FLAT: ReadonlyArray<Column<Account>> = [
 ];
 
 /**
- * A list holding a name over two columns beside a column of its own.
+ * A leaf column beside a branch over two leaves.
  */
 const SPANNED: ReadonlyArray<Column<Account>> = [
   { key: "name", label: "Account", rowHeader: true },
@@ -40,73 +40,76 @@ const SPANNED: ReadonlyArray<Column<Account>> = [
 ];
 
 describe("spans", () => {
-  it("tells a name over columns from a column of values", () => {
+  it("returns true for a branch and false for a leaf", () => {
     expect(SPANNED.map((column) => spans(column))).toStrictEqual([false, true]);
   });
 });
 
 describe("leaves", () => {
-  it("answers the columns themselves where none of them span", () => {
+  it("returns flat columns unchanged", () => {
     expect(leaves(FLAT).map((column) => column.key)).toStrictEqual(["name", "amount"]);
   });
 
-  it("flattens a spanning name to the columns beneath it in the order they are drawn", () => {
+  it("flattens a branch to its leaves in render order", () => {
     expect(leaves(SPANNED).map((column) => column.key)).toStrictEqual(["name", "jan", "feb"]);
   });
 });
 
 describe("depth", () => {
-  it("answers one row of names for a list where nothing spans", () => {
+  it("returns 1 for flat columns", () => {
     expect(depth(FLAT)).toBe(1);
   });
 
-  it("answers a row per level of naming", () => {
+  it("returns one more per level of branches", () => {
     expect(depth(SPANNED)).toBe(2);
   });
 
-  it("answers one row for a list of no columns at all", () => {
+  it("returns 1 for no columns", () => {
     expect(depth([])).toBe(1);
   });
 });
 
 describe("named", () => {
-  it("draws one row of names where nothing spans", () => {
+  it("returns one header row for flat columns", () => {
     expect(named(FLAT)).toHaveLength(1);
   });
 
-  it("gives every name one column and one row where nothing spans", () => {
+  it("spans every flat header one column and one row", () => {
     expect(named(FLAT)[0]).toMatchObject([
       { colSpan: 1, rowSpan: 1 },
       { colSpan: 1, rowSpan: 1 },
     ]);
   });
 
-  it("draws a row per level of naming", () => {
+  it("returns one header row per level", () => {
     expect(named(SPANNED)).toHaveLength(2);
   });
 
-  it("spans a name across the columns beneath it", () => {
+  it("spans a branch across its leaves", () => {
     expect(named(SPANNED)[0]?.[1]).toMatchObject({ colSpan: 2, label: "Q1", rowSpan: 1 });
   });
 
-  it("takes a name with nothing under it down to the line the deepest name closes on", () => {
+  it("spans a leaf beside a branch down every header row", () => {
     expect(named(SPANNED)[0]?.[0]).toMatchObject({ colSpan: 1, label: "Account", rowSpan: 2 });
   });
 
-  it("draws the spanned columns on the row beneath their name", () => {
+  it("returns a branch's leaves on the next header row", () => {
     expect(named(SPANNED)[1]?.map((name) => name.key)).toStrictEqual(["jan", "feb"]);
   });
 
-  it("names a spanning row after the first column it spans", () => {
+  it("keys a branch by its first leaf", () => {
     expect(named(SPANNED)[0]?.[1]?.key).toBe("jan");
   });
 
-  it("names a spanning row after nothing where it spans no columns at all", () => {
+  it("keys a branch without leaves by an empty string", () => {
     expect(named([{ columns: [], label: "Empty" }])[0]?.[0]?.key).toBe("");
   });
 
-  it("carries the column itself on a name that heads one and not on a name that spans", () => {
+  it("returns the leaf on a leaf's header", () => {
     expect(named(SPANNED)[0]?.[0]?.column?.key).toBe("name");
+  });
+
+  it("returns no leaf on a branch's header", () => {
     expect(named(SPANNED)[0]?.[1]?.column).toBeUndefined();
   });
 });

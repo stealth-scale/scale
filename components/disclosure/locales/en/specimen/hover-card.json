@@ -1,0 +1,58 @@
+{
+  "about": "Opens a card beside a link while a pointer rests on the link or the link has keyboard focus, and closes it once both leave. The card previews what the link leads to. It is outside the tab order and has no role, so everything in it is also on the page it previews.",
+  "delays": {
+    "about": "`openDelay` at 0, 300 and 600 milliseconds, the machine's default. At 600 a pointer that crosses a link on its way elsewhere opens no card. `closeDelay`, 300 by default, keeps the card open while the pointer moves from the link onto the card.",
+    "title": "Delays"
+  },
+  "disabled": {
+    "about": "`disabled` keeps the link and opens no card, for a link with no preview, such as the profile of a deactivated account. Rest the pointer on each link.",
+    "title": "Disabled"
+  },
+  "issue": {
+    "about": "A card that previews an issue: its repository, title, summary and state, with the data package's `Badge`. It opens at `bottom-start`, level with the start of the link, and has no arrow.",
+    "heading": "Cost model counts index scans twice",
+    "opened": "Opened 3 days ago",
+    "reference": "#1204",
+    "repository": "stealth/planner",
+    "state": "Open",
+    "summary": "A plan with two index scans on one table reports twice their cost.",
+    "title": "Issue preview"
+  },
+  "people": {
+    "ada": {
+      "name": "Ada Lovelace",
+      "role": "Staff engineer, Compiler",
+      "verdict": "Approved"
+    },
+    "alan": {
+      "name": "Alan Turing",
+      "role": "Research engineer, Planner",
+      "verdict": "Commented"
+    },
+    "grace": {
+      "name": "Grace Hopper",
+      "role": "Engineering manager, Tooling",
+      "verdict": "Changes requested"
+    }
+  },
+  "placement": {
+    "about": "The card on each side of the link, set by the machine's `positioning.placement`. The machine flips a card that would cross the edge of the window to the opposite side.",
+    "title": "Placement"
+  },
+  "profile": {
+    "bio": "Leads the query planner and reviews every change to the cost model.",
+    "handle": "@ada",
+    "name": "Ada Lovelace",
+    "role": "Staff engineer, Compiler",
+    "time": "14:32 local time"
+  },
+  "reviewers": {
+    "about": "A pull request's reviewers in a data list, whose three name links share one card. Each passes its own `value`, and `onTriggerValueChange` tells the example whose details to show. The card opens to the right, because a card below one name covers the next, and falls back to `bottom-start` through `positioning.flip` in a window too narrow for it. With the card open, a pointer that moves to the next name moves the card at once.",
+    "title": "Shared card"
+  },
+  "title": "Hover card",
+  "variant": {
+    "about": "Every look at every size. Rest the pointer on a link or focus it to open its card. The size sets the card's padding and the size of its text.",
+    "title": "Looks and sizes"
+  }
+}

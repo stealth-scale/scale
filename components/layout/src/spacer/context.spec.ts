@@ -8,14 +8,14 @@ import { recipeClasses } from "@stealthscale/testing-theme";
 import { PropsProvider, withContext } from "#spacer/context.ts";
 
 describe("context", () => {
-  it("draws the recipe's class on an element it binds", () => {
+  it("applies the spacer class to a bound element", () => {
     const Probe = withContext("span");
     const { container } = render(createElement(Probe));
 
     expect(recipeClasses(container, "spacer")).toContain("spacer");
   });
 
-  it("draws the recipe's class on an element below a provider", () => {
+  it("applies the spacer class to a bound element below PropsProvider", () => {
     const Probe = withContext("span");
     const { container } = render(createElement(PropsProvider, { value: {} }, createElement(Probe)));
 

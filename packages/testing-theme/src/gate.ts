@@ -1,27 +1,26 @@
 /**
- * Runs the checks a specification leaves standing and reports what each found.
+ * Runs the checks a specification does not skip, and reports what each one found.
  *
  * @remarks
- *   Every gate in this package reports the same way: a skip without a reason first, then each
- *   violation opening with the name of the check that reported it. The checks themselves take
- *   different subjects, so a caller hands over a call per check rather than a subject, and the
- *   signature of each check stays where the check is written.
+ *   Every gate in this package reports the same way: unreasoned skips first, then each violation
+ *   prefixed with the name of the check that raised it. The checks take different subjects, so the
+ *   caller passes a callback per check and each check keeps the signature it was declared with.
  */
 
 /**
- * Describes what a specification states about which checks to leave out.
+ * The checks a specification skips, each with its reason.
  *
  * @typeParam Check - The names of the checks the gate offers.
  */
 export interface Skippable<Check extends string> {
   /**
-   * The checks to leave out, each with a reason a reviewer can weigh.
+   * The checks to skip, each against the reason a reviewer can weigh.
    */
   skip?: Readonly<Partial<Record<Check, string>>> | undefined;
 }
 
 /**
- * Reports a skip that gives no reason.
+ * Reports the skips that give no reason.
  */
 function unreasoned<Check extends string>(stated: Skippable<Check>): readonly string[] {
   return Object.entries(stated.skip ?? {})
@@ -30,12 +29,13 @@ function unreasoned<Check extends string>(stated: Skippable<Check>): readonly st
 }
 
 /**
- * Runs every check the specification leaves standing, in the order they are listed.
+ * Runs every check the specification does not skip, in the order the caller listed them.
  *
  * @typeParam Check - The names of the checks the gate offers.
- * @param runners - Each check against the call that performs it.
- * @param stated - The specification's own options, read for its skips.
- * @returns Each violation, opening with the check that reported it.
+ * @param runners - Each check name paired with the callback that runs it.
+ * @param stated - The options the specification passed, read here for its skips.
+ * @returns Every violation, prefixed with the name of the check that raised it, behind any
+ *   unreasoned skip.
  */
 export function gated<Check extends string>(
   runners: ReadonlyArray<readonly [Check, () => readonly string[]]>,

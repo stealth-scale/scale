@@ -8,7 +8,7 @@ import { ItemCheckbox } from "#listbox/item-checkbox.ts";
 import { offered } from "#listbox/listbox.fixtures.tsx";
 
 describe("ItemCheckbox", () => {
-  it("draws a span inside the root it needs above it", () => {
+  it("renders a span", () => {
     const { container } = render(offered(<ItemCheckbox />));
 
     expect(slotElement(container, "listbox", "itemCheckbox").tagName).toBe("SPAN");
@@ -26,7 +26,7 @@ describe("ItemCheckbox", () => {
     ).toStrictEqual([]);
   });
 
-  it("says nothing to a screen reader, because the row says whether it is chosen", () => {
+  it("hides the checkbox from assistive technology", () => {
     const { container } = render(offered(<ItemCheckbox />));
 
     expect(slotElement(container, "listbox", "itemCheckbox").getAttribute("aria-hidden")).toBe(
@@ -34,7 +34,7 @@ describe("ItemCheckbox", () => {
     );
   });
 
-  it("takes the size the root states", () => {
+  it("applies the root's size class", () => {
     const { container } = render(offered(<ItemCheckbox />, { size: "lg" }));
 
     expect(slotElement(container, "listbox", "itemCheckbox").className).toContain("lg");

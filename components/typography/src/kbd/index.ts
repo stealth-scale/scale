@@ -1,5 +1,6 @@
 /**
- * Publishes the key: a key a reader is asked to press, drawn as a keycap.
+ * Exposes the keycap parts to the package barrel, which publishes them as the `Kbd` namespace.
  */
 
-export { Kbd, type KbdProps } from "#kbd/kbd.ts";
+export { Group, type GroupProps } from "#kbd/group.tsx";
+export { Root, type RootProps } from "#kbd/root.ts";

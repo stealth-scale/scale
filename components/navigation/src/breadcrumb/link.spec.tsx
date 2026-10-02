@@ -10,7 +10,7 @@ import { recipe } from "#breadcrumb/recipe.ts";
 import { Root } from "#breadcrumb/root.ts";
 
 describe("Link", () => {
-  it("conforms as an anchor inside the landmark it needs above it", () => {
+  it("conforms as an anchor inside the root", () => {
     expect(
       violations(Link, {
         as: true,
@@ -22,7 +22,7 @@ describe("Link", () => {
     ).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule", async () => {
+  it("returns no accessibility violation", async () => {
     await expect(
       accessibilityViolations(Link, {
         props: { children: "Invoices", href: "/invoices" },
@@ -31,7 +31,7 @@ describe("Link", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value set on the root", () => {
     expect(
       boundViolations(
         recipe,
@@ -46,7 +46,7 @@ describe("Link", () => {
     ).toStrictEqual([]);
   });
 
-  it("keeps the address a caller states", () => {
+  it("forwards href to the anchor", () => {
     const { container } = render(trailed(<Link href="/invoices">Invoices</Link>));
 
     expect(slotElement(container, "breadcrumb", "link").getAttribute("href")).toBe("/invoices");

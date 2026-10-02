@@ -76,7 +76,7 @@ describe("dependencies", () => {
     ]);
   });
 
-  it("records where a package is and what it depends on", () => {
+  it("records a Dependency for each package the walk reached", () => {
     const [deep, kit] = walked({
       ...root(["@acme/kit"]),
       ...installed("@acme/kit", ["@acme/deep"]),
@@ -102,7 +102,7 @@ describe("dependencies", () => {
     ).toStrictEqual(["@acme/base", "@acme/extra"]);
   });
 
-  it("lists a package two others depend on once and before both", () => {
+  it("places a shared dependency once ahead of both dependents", () => {
     expect(
       named({
         ...root(["@acme/one", "@acme/two"]),
@@ -113,13 +113,13 @@ describe("dependencies", () => {
     ).toStrictEqual(["@acme/base", "@acme/one", "@acme/two"]);
   });
 
-  it("passes over a package that is not installed", () => {
+  it("skips a package that is not installed", () => {
     expect(
       named({ ...root(["@acme/absent", "@acme/kit"]), ...installed("@acme/kit") }),
     ).toStrictEqual(["@acme/kit"]);
   });
 
-  it("ends the descent at a cycle and lists both packages", () => {
+  it("lists both packages when two depend on each other", () => {
     expect(
       named({
         ...root(["@acme/one"]),
@@ -129,7 +129,7 @@ describe("dependencies", () => {
     ).toStrictEqual(["@acme/two", "@acme/one"]);
   });
 
-  it("reaches a package that does not publish its manifest", () => {
+  it("lists a package whose exports map withholds package.json", () => {
     expect(
       named({
         ...root(["@acme/shy"]),
@@ -138,7 +138,7 @@ describe("dependencies", () => {
     ).toStrictEqual(["@acme/shy"]);
   });
 
-  it("reaches a package that publishes for import alone", () => {
+  it("lists a package that publishes under the import condition alone", () => {
     expect(
       named({
         ...root(["@acme/esm"]),
@@ -170,7 +170,7 @@ describe("dependencies", () => {
     expect(named({ "package.json": "{ not json" })).toStrictEqual([]);
   });
 
-  it("passes over a package whose manifest does not parse", () => {
+  it("skips a package whose manifest does not parse", () => {
     expect(
       named({
         ...root(["@acme/kit"]),
@@ -223,7 +223,7 @@ describe("dependencies", () => {
     ).toBeUndefined();
   });
 
-  it("resolves the entry of a package that publishes for import alone", () => {
+  it("resolves the entry of a package that publishes under the import condition alone", () => {
     const entry = withScratchWorkspace(
       {
         ...root(["@acme/esm"]),
@@ -235,7 +235,7 @@ describe("dependencies", () => {
     expect(entry).toBe("node_modules/@acme/esm/index.js");
   });
 
-  it("resolves the entry of a package that withholds require and publishes for import", () => {
+  it("resolves the entry of a package that withholds the require condition", () => {
     const withheld = Object.fromEntries([
       ["require", null],
       ["import", "./index.js"],
@@ -277,7 +277,7 @@ describe("dependencies", () => {
     ).toBeUndefined();
   });
 
-  it("resolves an entry through a graph handed in", () => {
+  it("resolves an entry through a graph the caller passed in", () => {
     const entry = withScratchWorkspace(
       {
         ...root(["@acme/theme"]),

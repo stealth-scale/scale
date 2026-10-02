@@ -1,11 +1,10 @@
 /**
- * Draws the landmark the trail sits in.
+ * Renders the navigation landmark around the trail.
  *
  * @remarks
- *   The element is `nav`, which is the landmark a person navigating by landmark reaches. It is
- *   named by default, because a page usually holds more than one navigation landmark and an
- *   unnamed one is announced as `navigation` with nothing to tell it from the others. A caller
- *   with a better name states it, and a page with one trail loses nothing by keeping this.
+ *   The element is `nav`. Its `aria-label` defaults to `Breadcrumb`, because a page with a site
+ *   navigation and a breadcrumb has two navigation landmarks, and screen readers list an unnamed
+ *   one as `navigation`. A caller passes a translated label through `aria-label`.
  */
 
 import { type ComponentProps } from "react";
@@ -13,13 +12,13 @@ import { type ComponentProps } from "react";
 import { withProvider } from "#breadcrumb/context.ts";
 
 /**
- * Draws the landmark and sets the size and look every part below it reads.
+ * Renders a `nav` and provides the size and variant to every part inside it.
  */
 export const Root = withProvider("nav", "root", {
   defaultProps: { "aria-label": "Breadcrumb" },
 });
 
 /**
- * Describes what the landmark takes.
+ * Describes the props of Breadcrumb.Root: the recipe's variants and the props of a nav element.
  */
 export type RootProps = ComponentProps<typeof Root>;

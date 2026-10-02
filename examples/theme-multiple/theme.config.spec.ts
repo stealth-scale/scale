@@ -63,7 +63,7 @@ describe("theme.config", () => {
     );
   });
 
-  it("compiles a published theme's primary as the color it states where that color carries its label", () => {
+  it("compiles a published theme's primary as the stated color when it meets the label contrast", () => {
     expect(declared(css, "[data-theme=neon]", "--colors-primary-solid")).toMatch(
       /^light-dark\(#8C00FF, /u,
     );
@@ -72,7 +72,7 @@ describe("theme.config", () => {
     );
   });
 
-  it("compiles a published theme's primary as the brand stated it where it stands from the page", () => {
+  it("compiles a published theme's primary as the stated color when it meets the page contrast", () => {
     expect(declared(css, "[data-theme=cinder]", "--colors-primary-solid")).toBe(
       "light-dark(#D72323, oklch(67.7% 0.1957 27.5))",
     );
@@ -81,7 +81,7 @@ describe("theme.config", () => {
     );
   });
 
-  it("states the preset of the application's own recipes", () => {
+  it("declares the preset of the application's own recipes", () => {
     expect(statement.presets?.map((each) => each.name)).toStrictEqual([
       "@stealthscale/example-theme-multiple",
     ]);
@@ -120,7 +120,7 @@ describe("theme.config", () => {
     );
   });
 
-  it("restates the foundation's font under a theme that states none of its own", () => {
+  it("declares the foundation's font under a theme that declares no font", () => {
     expect(declared(css, "[data-theme=forge]", "--fonts-body")).toContain("ui-sans-serif");
     expect(declared(css, "[data-theme=folio]", "--fonts-body")).toContain("Georgia");
   });
@@ -154,9 +154,9 @@ describe("theme.config", () => {
     expect(css).not.toContain("compound__");
   });
 
-  it("compiles the square the icon button fixes through a default prop", () => {
+  it("compiles the square shape and its squared compound", () => {
     expect(declared(css, ".button--square", "aspect-ratio")).toBe("var(--aspect-ratios-square)");
-    expect(declared(css, ".button--square", "padding-inline")).toBe("var(--spacing-0)");
+    expect(declared(css, ".button--squared", "padding-inline")).toBe("var(--spacing-0)");
   });
 
   it("compiles the card slot recipe the surfaces package publishes with one class per slot", () => {
@@ -166,7 +166,7 @@ describe("theme.config", () => {
     expect(css).toContain(".card__footer");
   });
 
-  it("compiles forge's card extension under its attribute alone on the band it names", () => {
+  it("compiles forge's card extension on the slot it names under its attribute alone", () => {
     expect(
       declared(
         css,
@@ -219,16 +219,16 @@ describe("theme.config", () => {
     );
   });
 
-  it("states the color scheme on either color mode attribute", () => {
+  it("declares the color scheme on each color mode attribute", () => {
     expect(declared(css, "[data-color-mode=dark]", "color-scheme")).toBe("dark");
     expect(declared(css, "[data-color-mode=light]", "color-scheme")).toBe("light");
   });
 
-  it("registers the angle the moving border sweeps through", () => {
+  it("registers the --angle property of the moving border", () => {
     expect(css).toContain("@property --angle");
   });
 
-  it("names the compiler nowhere in the stylesheet", () => {
+  it("omits the compiler's name from the stylesheet", () => {
     expect(css).not.toContain("panda");
   });
 });

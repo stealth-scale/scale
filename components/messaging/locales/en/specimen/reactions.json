@@ -1,0 +1,23 @@
+{
+  "about": "The reactions under a message: a toggle button for each reaction with the number of people who reacted, and a picker that adds one. Each button is named by the reaction, the count and whether the reader is among the people who reacted.",
+  "ada": "Ada Okafor",
+  "add": "Add a reaction",
+  "choose": "Choose a reaction",
+  "eyes": "Eyes",
+  "heart": "Heart",
+  "label": "Reactions",
+  "laugh": "Laughing face",
+  "mine_one": "{{name}}, you",
+  "mine_other": "{{name}}, {{count}} people, including you",
+  "party": "Party popper",
+  "reacting": {
+    "about": "Press a reaction to join it or to leave it: `aria-pressed` states whether the reader is among the people who reacted, and a pressed reaction takes the primary palette. The picker adds a reaction and closes, and focus returns to its button.",
+    "title": "Reactions under a message"
+  },
+  "rocket": "Rocket",
+  "shipped": "The September invoices are out. Thanks, everyone!",
+  "theirs_one": "{{name}}, {{count}} person",
+  "theirs_other": "{{name}}, {{count}} people",
+  "thumbs": "Thumbs up",
+  "title": "Reactions"
+}

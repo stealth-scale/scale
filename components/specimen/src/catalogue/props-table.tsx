@@ -1,5 +1,6 @@
 /**
- * Draws one table of what a part accepts: the prop, the type, the fallback, and what it does.
+ * Renders the props table of one part: the name, the accepted type, the default and the summary of
+ * each prop.
  */
 
 import { type ReactElement } from "react";
@@ -14,59 +15,50 @@ import { PropsType } from "#catalogue/props-type.tsx";
 import { useWords } from "#words.ts";
 
 /**
- * The widths the four columns are drawn at, which every table on the page shares.
+ * Column widths shared by every props table on a page.
  *
  * @remarks
- *   Stated rather than measured. A table that sizes its own columns lines up with nothing else on
- *   the page, so a reader comparing two parts reads two shapes.
- *   The sentence takes the most room. It is the column that runs to several lines, and every line
- *   it wraps to is a line the whole row grows by, so a narrow one left one row three lines tall
- *   beside another of one. The type is second: it runs long but wraps at every bar in a union.
+ *   Fixed widths align the columns of consecutive tables. The summary column is widest, because it
+ *   wraps to the most lines. The type column is second, because a union wraps at each bar.
  */
 const WIDTHS = { accepts: "26%", fallback: "10%", name: "20%", says: "44%" };
 
 /**
- * The widths the three columns are drawn at where no prop states a fallback, which is what the
- * fallback column would otherwise be: ten per cent of the row saying nothing.
+ * Column widths when no prop has a default, without the default column.
  */
 const NARROWED = { accepts: "28%", name: "22%", says: "50%" };
 
 /**
- * Cancels the room a snippet holds its fill off its words by, so the name reads from the same line
- * its column name does.
+ * Negative inline margin that aligns a prop name rendered as `Code` with its column heading.
  *
  * @remarks
- *   Every other column holds plain words, which start where the cell's own room ends. A name drawn
- *   as a filled snippet starts a step further in than that, and a column whose values are all a
- *   step right of its heading is the one thing a reader notices about a table of names.
- *   Written as the snippet writes it rather than as a plain token, because a snippet scales its own
- *   room by the density in force where it is drawn.
+ *   `Code` pads its fill by one inset, so its text starts one inset further in than plain text. The
+ *   value repeats the way `Code` writes its padding, including the density multiplier.
  */
 const PULL = "calc(token(spacing.inset.xs) * var(--density, 1) * -1)";
 
 /**
- * Describes what a table takes.
+ * Describes the props of PropsTable.
  */
 export interface PropsTableProps {
   /**
-   * Read out as the name of the table, which is the part it belongs to.
+   * Accessible name of the table, the name of the part.
    */
   readonly label: string;
 
   /**
-   * The props to draw, one per row.
+   * Props to render, one per row.
    */
   readonly rows: readonly Row[];
 }
 
 /**
- * Draws a prop's name, marked where a caller has to pass it and, on a table holding both kinds,
- * where a theme moves it.
+ * Renders a prop's name, with an `axis` badge in a table of mixed kinds and a `required` badge on
+ * a required prop.
  *
  * @remarks
- *   The kind is marked only where the table holds both. A part whose props are every one of them an
- *   axis is the usual case, and a mark on every row of such a table is a column of marks that tells
- *   two rows apart from nothing.
+ *   The `axis` badge renders only when the table holds variant and non-variant props, because in a
+ *   table of axes only it would mark every row.
  */
 function named(row: Row, mixed: boolean): ReactElement {
   const { kind, name, required } = row.prop;
@@ -75,12 +67,12 @@ function named(row: Row, mixed: boolean): ReactElement {
     <Group gap="xs" marginInlineStart={PULL}>
       <Code size="sm">{name}</Code>
       {mixed && kind === "variant" ? (
-        <Badge size="sm" status="info">
+        <Badge palette="info" size="sm">
           {"axis"}
         </Badge>
       ) : null}
       {required ? (
-        <Badge size="sm" status="error">
+        <Badge palette="error" size="sm">
           {"required"}
         </Badge>
       ) : null}
@@ -89,45 +81,35 @@ function named(row: Row, mixed: boolean): ReactElement {
 }
 
 /**
- * Draws the type a prop accepts, each named type in it opening on what it holds.
+ * Renders the type a prop accepts.
  */
 function accepts(row: Row): ReactElement {
   return <PropsType accepts={row.prop.accepts} shows={row.shows} />;
 }
 
 /**
- * Draws the value a prop falls back to, or nothing where the declaration states none.
+ * Renders the default value of a prop, or nothing when the declaration has none.
  */
 function fallback(row: Row): null | ReactElement {
   return row.prop.fallback === "" ? null : <Code size="sm">{row.prop.fallback}</Code>;
 }
 
 /**
- * Draws the opening sentence of a prop's doc comment.
+ * Renders the first sentence of a prop's doc comment.
  */
 function says(row: Row): ReactElement {
   return <Text size="sm">{row.prop.says}</Text>;
 }
 
 /**
- * Draws what a part accepts, one row per prop.
+ * Renders one row per prop of a part.
  *
  * @remarks
- *   One table for the whole part rather than one per kind. The axes a theme moves and the props a
- *   page sets are read by different people, but they are read in one list and looked up by name, so
- *   splitting them means searching two tables for a name that is in one of them. The kind is a mark
- *   on the row instead, which is what tells the two apart without breaking the list.
- *   The type wraps. A union of a dozen members is one line of a hundred characters, and a table
- *   that scrolled it sideways would hide the members past the edge of the card.
- *   A prop the declaration says nothing about is left blank rather than dashed. A column of dashes
- *   is a column a reader has to look past to find the sentences.
- *   The table is named rather than captioned. A caption is drawn under the table, and the part's
- *   own heading sits right above it, so a caption repeats at the far end what was just read.
- *   Every table is raised on a panel of its own. A band of a dozen parts is a dozen tables one
- *   under another, and drawn flat against the page they ran together into one grid with a heading
- *   dropped into it every few rows. The panel gives each one an edge and a shadow.
- * @param props - The name of the table and the props to draw.
- * @returns One row per prop, under a band of four column names.
+ *   One table covers every prop of a part, so a prop is found by name in one place, and the `axis`
+ *   badge marks the kind. The type column wraps, so a long union shows every member. A prop without
+ *   a doc comment has an empty summary cell. The table is named with `aria-label` and has no
+ *   caption, because the part's heading is directly above it. Every table renders in the surface
+ *   variant, so consecutive tables have separate edges and shadows.
  */
 export function PropsTable({ label, rows }: PropsTableProps): ReactElement {
   const { t } = useWords();

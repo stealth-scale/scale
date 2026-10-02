@@ -1,10 +1,9 @@
 /**
- * Draws the frame the trigger and the block sit in, and runs the machine they share.
+ * Renders the collapsible's root and starts the machine its parts share.
  *
  * @remarks
- *   The element is `div` and carries no role. A disclosure is a button and the block it shows, and
- *   both of those carry their own meaning, so a role on the pair would announce a thing that is not
- *   there.
+ *   The element is a `div` without a role. The trigger is a button and the content a block, and a
+ *   role on the root would announce a widget that does not exist.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -18,25 +17,26 @@ import {
 } from "#collapsible/machine.ts";
 
 /**
- * Draws the frame and sets the variants every part below it reads.
+ * Renders the `div` that provides the recipe's variants.
  */
 const Framed = withProvider("div", "root");
 
 /**
- * Describes what the root takes: the machine's options, the recipe's variants, and the element's.
+ * Describes the props of the root: the machine's options, the recipe's variants and the props of a
+ * `div`.
  *
  * @remarks
- *   The element's own `id` and `dir` are left out, because the machine states both. It builds every
- *   ARIA reference from the id, and it reads the direction to decide which way the block opens.
+ *   The element's `id` and `dir` are left out, because the machine takes both. It derives every
+ *   ARIA reference from `id`.
  */
 export interface RootProps
   extends CollapsibleOptions, Omit<ComponentProps<typeof Framed>, "dir" | "id"> {}
 
 /**
- * Shows and hides the block beneath a control.
+ * Renders the root and provides the machine's api to the parts.
  *
- * @param props - The machine's options, the recipe's variants and the element's props together.
- * @returns The frame, holding the parts, under the running machine.
+ * @param props - The machine's options, the recipe's variants and the props of a `div`.
+ * @returns The `div` element inside the api provider.
  */
 export function Root(props: RootProps): ReactElement {
   const [options, rest] = splitCollapsibleProps(props);

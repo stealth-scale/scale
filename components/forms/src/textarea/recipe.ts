@@ -1,21 +1,23 @@
 /**
- * Defines the styles a textarea is drawn with.
+ * Recipe for the multi-line text field.
  *
  * @remarks
- *   Two parts. The root is the box that measures the text, and the control is the textarea itself.
- *   The surface, the edge, the ink and every state come from the theme's field fragment, so a theme
- *   decides what a field looks like once for every field.
- *   A growing textarea is drawn without measuring anything in JavaScript. The root is a grid of one
- *   cell holding both the control and a copy of its text, and the copy is what gives the cell its
- *   height. The copy is the `content` of the root's `::after`, read from an attribute the component
- *   writes, so the box grows on the same frame a person types and no state is written from an
- *   effect.
- *   The trailing space in the copy holds the height open while a line ends in a newline, which a
- *   browser otherwise collapses. The root carries the inset and the two measured boxes carry none,
- *   so both wrap at the same width.
+ *   Two slots. The root is the box that carries the edge and measures the text, and the control is
+ *   the `textarea`. The surface, edge, ink and states come from the theme's wrapped field fragment,
+ *   read through the control inside the box. A growing field measures nothing in JavaScript: the
+ *   root is a grid of one cell that holds the control and a hidden copy of its text, and the copy
+ *   sets the cell's height. The copy is the root's `::after`, whose `content` reads an attribute
+ *   the component writes. The trailing space in the copy keeps a final empty line open. A growing
+ *   field with a row limit caps the copy at that many lines, so the cell stops growing and the
+ *   control scrolls. The root carries the inset and the two measured boxes carry none, so both wrap
+ *   at the same width. The
+ *   inset is one size smaller than the size, the same as the input's inline inset. The recipe has
+ *   no `palette` axis, because a field's color reports a state, and no `effect` axis, because a
+ *   glow or a pulse would compete with the focus ring and the status edge.
  */
 
 import {
+  below,
   CONTROL_INSET_END,
   CONTROL_INSET_START,
   defineSlotRecipe,
@@ -30,13 +32,23 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * The attribute the root carries a copy of the text in.
+ * Attribute on the root that carries a copy of the text.
  */
 export const VALUE = "data-value";
 
 /**
- * Writes what the control and the copy of its text share, so the two wrap identically and the copy
- * measures what the control draws.
+ * Attribute on the root of a growing field that has a row limit.
+ */
+export const CAPPED = "data-capped";
+
+/**
+ * Custom property on the root that carries the row limit of a growing field.
+ */
+export const MAX_ROWS = "--textarea-max-rows";
+
+/**
+ * Styles the control and the copy alike, so both wrap at the same width and the copy measures what
+ * the control renders.
  */
 const MEASURED = {
   font: "inherit",
@@ -49,7 +61,8 @@ const MEASURED = {
 };
 
 /**
- * Draws an outlined textarea at the middle size until a caller says otherwise.
+ * Defines the textarea recipe: an outline field at size `md` with a vertical resize handle by
+ * default.
  */
 export const recipe = defineSlotRecipe({
   base: {
@@ -85,11 +98,11 @@ export const recipe = defineSlotRecipe({
   staticCss: [statusEmitted()],
   variants: {
     /**
-     * Which way a person can drag the box bigger, which is the CSS `resize` property.
+     * Axes the resize handle drags along. Each value writes the CSS `resize` property.
      *
      * @remarks
-     *   Named `grip` rather than `resize`, because a styled element already takes every CSS
-     *   property as a prop and a style prop of the same name shadows the axis.
+     *   The axis is not named `resize`, because a styled element takes every CSS property as a prop
+     *   and a style prop of the same name shadows the axis.
      */
     grip: {
       both: { control: { resize: "both" } },
@@ -98,33 +111,60 @@ export const recipe = defineSlotRecipe({
     },
 
     /**
-     * Whether the box takes its height from the text rather than from a number of lines.
+     * Whether the field takes its height from its content. The control hides its own scrollbar
+     * until the field reaches its row limit.
+     *
+     * @remarks
+     *   The limit is written here and not in the base, because the compiler puts the variants in a
+     *   later cascade layer and this value's `overflow` would override a base rule.
      */
-    grows: { true: { control: { overflow: "hidden" } } },
+    grows: {
+      true: {
+        control: { [`[${CAPPED}] > &`]: { overflowY: "auto" }, overflow: "hidden" },
+        root: {
+          [`&[${CAPPED}]::after`]: {
+            maxBlockSize: `calc(var(${MAX_ROWS}) * 1lh)`,
+            overflow: "hidden",
+          },
+        },
+      },
+    },
 
+    /**
+     * Text size and inset. The text reads the body role, and the inset on every side reads the
+     * inset scale one size smaller.
+     */
     size: onSlots({
       root: sizeVariants(
         (size) => ({
-          paddingBlock: dense(`{spacing.inset.${size}}`),
-          paddingInlineEnd: `var(${CONTROL_INSET_END}, ${dense(`{spacing.inset.${size}}`)})`,
-          paddingInlineStart: `var(${CONTROL_INSET_START}, ${dense(`{spacing.inset.${size}}`)})`,
+          paddingBlock: dense(`{spacing.inset.${below(size)}}`),
+          paddingInlineEnd: `var(${CONTROL_INSET_END}, ${dense(`{spacing.inset.${below(size)}}`)})`,
+          paddingInlineStart: `var(${CONTROL_INSET_START}, ${dense(`{spacing.inset.${below(size)}}`)})`,
           textStyle: `body.${size}`,
         }),
         ["sm", "md", "lg"],
       ),
     }),
 
+    /**
+     * Status the field reports. Each value sets the edge and the focus ring from that status's
+     * palette.
+     */
     status: onSlot("root", fieldStatusVariants()),
 
     /**
-     * How the edge of the field is drawn.
+     * Edges and surface of the field.
+     *
+     * @remarks
+     *   `flushed` keeps the smallest inset of the scale at every size, the same as the flushed
+     *   input.
      */
     variant: onSlot("root", {
       ...wrappedFieldVariants(),
       flushed: {
         layerStyle: "field.wrapped.flushed",
-        paddingInlineEnd: `var(${CONTROL_INSET_END}, {spacing.0})`,
-        paddingInlineStart: `var(${CONTROL_INSET_START}, {spacing.0})`,
+        paddingInlineEnd: `var(${CONTROL_INSET_END}, ${dense("{spacing.inset.xs}")})`,
+        paddingInlineStart: `var(${CONTROL_INSET_START}, ${dense("{spacing.inset.xs}")})`,
       },
     }),
   },

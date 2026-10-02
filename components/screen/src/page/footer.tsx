@@ -1,34 +1,35 @@
 /**
- * Draws the band at the foot of the page.
+ * Renders the band at the end of the page.
  *
  * @remarks
- *   The element is `footer`, which is plain content inside a page rather than a contentinfo
- *   landmark, because the shell around it owns the one a screen has.
- *   The column is at least as tall as what holds it, so this sits at the foot of the screen on a
- *   short page rather than partway up it.
+ *   The element is `footer`, which is plain content inside a page, because the shell renders the
+ *   one contentinfo landmark a screen has. The root is at least as tall as its container, so the
+ *   footer of a short page renders at the container's end. `when` renders it at one width of the
+ *   page alone.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
 
 import { withContext } from "#page/context.ts";
+import { useShown, type WhenProps } from "#page/state.ts";
 import { type StickyProps, stuck } from "#page/sticky.ts";
 
 /**
- * Draws the band at the room the column states.
+ * Renders the `footer` with the recipe's footer class.
  */
 const Banded = withContext("footer", "footer");
 
 /**
- * Describes what the footer takes.
+ * Describes the props of the footer: `sticky`, `when` and the props of a `footer`.
  */
-export interface FooterProps extends ComponentProps<typeof Banded>, StickyProps {}
+export interface FooterProps extends ComponentProps<typeof Banded>, StickyProps, WhenProps {}
 
 /**
- * Closes the page, and stays put where a caller asks.
+ * Renders the footer at the width `when` names, with `data-sticky` when it sticks to the bottom.
  *
- * @param props - Whether it stays put, and everything a styled footer takes.
- * @returns The band, carrying whether it sticks.
+ * @param props - Whether it sticks, the width and the props of a `footer`.
+ * @returns The `footer` element, or nothing at the other width.
  */
-export function Footer({ sticky, ...rest }: FooterProps): ReactElement {
-  return <Banded {...rest} data-sticky={stuck(sticky)} />;
+export function Footer({ sticky, when, ...rest }: FooterProps): null | ReactElement {
+  return useShown(when) ? <Banded {...rest} data-sticky={stuck(sticky)} /> : null;
 }

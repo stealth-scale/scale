@@ -1,0 +1,127 @@
+{
+  "about": "Walks a person through a page one step at a time. A step is a card: centred over a dimmed page when it points at nothing, beside a ringed element when it points at one, or fixed to a corner of the window. Back, Next, the arrow keys, Escape and the close button move through the tour or end it, and focus returns to the button that started it.",
+  "announcement": {
+    "about": "One step without a backdrop that points at a new control. Got it ends the tour.",
+    "description": "Download any report as a CSV file, filtered the way you see it.",
+    "dismiss": "Got it",
+    "export": "Export",
+    "heading": "New: export to CSV",
+    "start": "What's new",
+    "title": "Announcement"
+  },
+  "back": "Back",
+  "checklist": {
+    "about": "Floating steps with no target, fixed to the bottom corner of the window. A press outside the card leaves the tour open, because the tour sets `closeOnInteractOutside` to false.",
+    "bank": {
+      "description": "Link an account so paid invoices reconcile on their own.",
+      "title": "Connect your bank"
+    },
+    "invite": {
+      "description": "Add the people who send and approve invoices.",
+      "title": "Invite your team"
+    },
+    "invoice": {
+      "description": "Send one to a customer, or to yourself to see what they receive.",
+      "title": "Send your first invoice"
+    },
+    "start": "Getting started",
+    "title": "Floating steps"
+  },
+  "close": "End the tour",
+  "done": "Done",
+  "next": "Next",
+  "onboarding": {
+    "about": "A first-run tour: a welcome dialog, three steps beside the search field, the New invoice button and the overdue count, and a closing dialog. The welcome step offers Skip tour. The line below the page reads the status the tour reports.",
+    "create": {
+      "button": "New invoice",
+      "description": "Bill a customer from a template. Drafts are saved as you type.",
+      "title": "Create an invoice"
+    },
+    "finish": {
+      "description": "Take the tour again from the help button at any time.",
+      "title": "You are all set"
+    },
+    "heading": "Invoices",
+    "overdue": {
+      "badge": "3 overdue",
+      "description": "Invoices past their due date. Send a reminder from each one.",
+      "title": "Chase late payments"
+    },
+    "search": {
+      "description": "Search by customer, invoice number or amount.",
+      "label": "Search invoices",
+      "title": "Find an invoice"
+    },
+    "start": "Take the tour",
+    "status": {
+      "completed": "You finished the tour.",
+      "dismissed": "You closed the tour at step {{step}}.",
+      "idle": "The tour has not started.",
+      "not-found": "The tour stopped at step {{step}}, because its target is missing.",
+      "skipped": "You skipped the tour.",
+      "started": "The tour is running."
+    },
+    "title": "Onboarding",
+    "welcome": {
+      "description": "Five steps, about a minute. Skip it now and take it later from the help button.",
+      "title": "Welcome to invoicing"
+    }
+  },
+  "palette": {
+    "about": "The ring around the target in each palette. Press the lightbulb in a cell to walk its tour.",
+    "title": "Palette"
+  },
+  "placement": {
+    "about": "One target and four steps: above it, to its right, below it and to its left. The machine flips a step to the opposite side where the window has no room.",
+    "bottom": "This step is placed below its target.",
+    "heading": "Around the target",
+    "left": "This step is placed to the left of its target.",
+    "right": "This step is placed to the right of its target.",
+    "start": "Start the tour",
+    "title": "Placement",
+    "top": "This step is placed above its target."
+  },
+  "progress": "{{current}} of {{total}}",
+  "project": {
+    "about": "A step whose effect waits for the person: it shows the step, listens to the field, and moves on once a name is typed. The field takes the pointer and the keyboard while the step is open.",
+    "create": {
+      "button": "Create project",
+      "description": "Create the project. It opens with an empty board.",
+      "title": "Create it"
+    },
+    "label": "Project name",
+    "name": {
+      "description": "Type a name for the project. The tour moves on once you do.",
+      "title": "Name the project"
+    },
+    "placeholder": "Project name",
+    "start": "Show me how",
+    "title": "Step effects"
+  },
+  "size": {
+    "about": "Padding of the card and the size of its title, description, progress and close button.",
+    "title": "Size"
+  },
+  "skip": "Skip tour",
+  "start": "Start",
+  "tips": {
+    "export": {
+      "description": "Download the rows in view as a CSV file.",
+      "title": "Export"
+    },
+    "filter": {
+      "description": "Narrow the rows by status, owner or date.",
+      "title": "Filter"
+    },
+    "sort": {
+      "description": "Order the rows by any column, then reverse the order.",
+      "title": "Sort"
+    },
+    "start": "Show tips"
+  },
+  "title": "Tour",
+  "variant": {
+    "about": "Surface of the card at each size: `elevated`, the panel surface with an extra-large shadow, or `surface`, the popover surface inside a hairline edge. Press the lightbulb in a cell to walk its tour.",
+    "title": "Variant"
+  }
+}

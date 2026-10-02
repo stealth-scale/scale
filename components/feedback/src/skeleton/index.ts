@@ -1,6 +1,5 @@
 /**
- * Publishes the skeleton: the box standing in for content that has not arrived, and the provider
- * that sets its variants from above.
+ * Exports the skeleton and the provider that sets its variants for descendants.
  */
 
 export { PropsProvider as SkeletonPropsProvider } from "#skeleton/context.ts";

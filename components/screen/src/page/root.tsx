@@ -1,66 +1,89 @@
 /**
- * Draws the column a page's bands sit in, and measures its own width.
+ * Renders the column of a page's bands and measures its own width.
  *
  * @remarks
- *   The element is `div` and carries no landmark. The shell around it owns `main`, and a page that
- *   claimed one would give a reader two to choose between on the same screen.
- *   The column measures itself rather than the window and states `folded` when it is too narrow for
- *   a header laid out in one row. A page beside an open sidebar therefore folds on its own room,
- *   and a consumer writes no breakpoint.
- *   It writes `data-narrow` beside the variant, because a row of actions inside the page folds on
- *   that attribute and a variant class reaches only the parts this recipe draws.
+ *   The element is `div` and no landmark. The shell renders the one `main` a screen has. The root
+ *   measures its own width rather than the window's, and below the `sm` breakpoint, 40rem, sets
+ *   `folded`, so a page beside an open sidebar folds on its own room. It also sets `data-narrow`,
+ *   because a row of actions in the page folds on that attribute and a variant class styles only
+ *   this recipe's parts. The root measures its sticky bands, so each one sticks under the bands
+ *   before it, and provides the panel `Page.TabList` sets and `Page.Body` renders as.
  */
 
-import { type ComponentProps, type ReactElement, useMemo, useRef } from "react";
+import { type ComponentProps, type ReactElement, useMemo, useRef, useState } from "react";
 
+import { useStickyOffsets } from "@stealthscale/hooks";
 import { useNarrow, widthOf } from "@stealthscale/provider-viewport";
 
 import { withProvider } from "#page/context.ts";
+import { STICKY_OFFSET, STICKY_TOP } from "#page/recipe.ts";
 import { PageProvider, type PageSize } from "#page/state.ts";
+import { type Panel, PanelContext } from "#page/tabs-state.ts";
 
 /**
- * The breakpoint whose width the header lays itself out in more than one row below.
+ * Breakpoint whose start width the root compares its own width against.
  *
  * @remarks
- *   Read as a width and compared to the column's own, not asked as a media query. A page beside an
- *   open sidebar is narrow while the window is wide, and that is the case this has to answer.
+ *   The root compares widths and asks no media query, because a page beside an open sidebar is
+ *   narrow while the window is wide.
  */
-const FOLDS_BELOW = "md";
+const FOLDS_BELOW = "sm";
 
 /**
- * Draws the column and sets the variants every band below it reads.
+ * Selects the bands that stick to the top, in the order they stack, and names the properties the
+ * root sets.
+ *
+ * @remarks
+ *   The footer sticks to the bottom and the aside within its own row, so neither adds to the
+ *   height of what sticks at the top.
+ */
+const STICKING = {
+  bands: ":scope > :is(.page__header, .page__nav, .page__toolbar)[data-sticky]",
+  offset: STICKY_OFFSET,
+  total: STICKY_TOP,
+};
+
+/**
+ * Renders the `div` with the recipe's root class, which provides the variants to the bands.
  */
 const Columned = withProvider("div", "root");
 
 /**
- * Describes what the column takes, less what it measures for itself.
+ * Describes the props of the page: its size, the recipe's variants without `folded`, which the
+ * page measures, and the props of a `div`.
  */
 export interface RootProps extends Omit<ComponentProps<typeof Columned>, "folded" | "size"> {
   /**
-   * How large the page draws what names it, which a section inside it reads too.
+   * Size of the page, which a section in it reads too.
    */
   readonly size?: PageSize | undefined;
 }
 
 /**
- * Lays a page out: a banner, a header, a navigation, a body and a footer.
+ * Renders the page with its measured width and provides its state to the parts.
  *
- * @param props - The recipe's variants and everything a styled div takes.
- * @returns The column, carrying whether it has folded.
+ * @param props - The size, the recipe's variants and the props of a `div`.
+ * @returns The `div` element, with `folded` and `data-narrow` while it is narrow.
  */
 export function Root({ size = "md", ...rest }: RootProps): ReactElement {
   const measured = useRef<HTMLDivElement>(null);
   const folded = useNarrow(measured, widthOf(FOLDS_BELOW), FOLDS_BELOW);
   const state = useMemo(() => ({ narrow: folded, size }), [folded, size]);
+  const [panel, setPanel] = useState<Panel | undefined>();
+  const panelled = useMemo(() => ({ panel, setPanel }), [panel]);
+
+  useStickyOffsets(measured, true, STICKING);
 
   return (
     <PageProvider value={state}>
-      <Columned
-        {...rest}
-        {...(folded ? { "data-narrow": "", folded: true } : {})}
-        ref={measured}
-        size={size}
-      />
+      <PanelContext value={panelled}>
+        <Columned
+          {...rest}
+          {...(folded ? { "data-narrow": "", folded: true } : {})}
+          ref={measured}
+          size={size}
+        />
+      </PanelContext>
     </PageProvider>
   );
 }

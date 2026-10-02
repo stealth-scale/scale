@@ -8,7 +8,7 @@ import { slotClass, slotClasses, variantClass } from "@stealthscale/testing-them
 import { withContext, withProvider } from "#listbox/context.ts";
 
 describe("context", () => {
-  it("draws the slot's class on an element it binds", () => {
+  it("applies the slot class to an element it binds", () => {
     const Framed = withProvider("div", "root");
     const Listed = withContext("ul", "content");
     const { container } = render(createElement(Framed, null, createElement(Listed)));
@@ -16,7 +16,7 @@ describe("context", () => {
     expect(slotClasses(container, "listbox", "content")).toContain(slotClass("listbox", "content"));
   });
 
-  it("hands the root's variants to a row below it", () => {
+  it("applies the root's variant class to a row inside it", () => {
     const Framed = withProvider("div", "root");
     const Offered = withContext("li", "item");
     const { container } = render(

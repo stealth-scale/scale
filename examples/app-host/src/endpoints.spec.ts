@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { endpoints, join, where } from "#endpoints.ts";
 
 /**
- * Collects what the federation runtime was handed, one array per call.
+ * Records the arguments `registerRemotes` was called with, one array per call.
  */
 const registered: unknown[][] = [];
 
@@ -14,10 +14,10 @@ vi.mock(import("@module-federation/runtime"), () => ({
 }));
 
 /**
- * Answers every fetch with one body, the way a deployment serving the file would.
+ * Stubs `fetch` to resolve one body for every request.
  *
- * @param body - What the file holds, parsed.
- * @param ok - Whether the deployment serves the file at all.
+ * @param body - The parsed contents of the remotes file.
+ * @param ok - Whether the response reports success.
  */
 function serving(body: unknown, ok = true): void {
   vi.stubGlobal("fetch", () =>
@@ -26,7 +26,7 @@ function serving(body: unknown, ok = true): void {
 }
 
 describe("endpoints", () => {
-  it("reads every endpoint the deployment named", async () => {
+  it("returns every endpoint the remotes file declares", async () => {
     serving([{ entry: "https://app1.example.test/remoteEntry.js", name: "remote" }]);
 
     await expect(endpoints("/remotes.json")).resolves.toStrictEqual([
@@ -34,31 +34,31 @@ describe("endpoints", () => {
     ]);
   });
 
-  it("ignores an entry missing either half", async () => {
+  it("returns an empty array when no entry declares both entry and name", async () => {
     serving([{ name: "remote" }, { entry: "https://a.test/e.js" }, 7, null]);
 
     await expect(endpoints("/remotes.json")).resolves.toStrictEqual([]);
   });
 
-  it("returns undefined when the deployment named nothing", async () => {
+  it("returns an empty array when the file declares no endpoint", async () => {
     serving([]);
 
     await expect(endpoints("/remotes.json")).resolves.toStrictEqual([]);
   });
 
-  it("returns undefined when the file holds something other than an array", async () => {
+  it("returns an empty array when the file parses to an object", async () => {
     serving({ remote: "https://a.test/e.js" });
 
     await expect(endpoints("/remotes.json")).resolves.toStrictEqual([]);
   });
 
-  it("throws when the deployment serves no such file", async () => {
+  it("rejects when the response reports 404", async () => {
     serving(undefined, false);
 
     await expect(endpoints("/remotes.json")).rejects.toThrow(/was answered 404/u);
   });
 
-  it("gives the runtime each application location in the shape it expects", () => {
+  it("registers every endpoint with a module type", () => {
     join([{ entry: "https://app1.example.test/remoteEntry.js", name: "remote" }]);
 
     expect(registered.at(-1)).toStrictEqual([
@@ -66,19 +66,19 @@ describe("endpoints", () => {
     ]);
   });
 
-  it("gives the runtime nothing when the deployment named nothing", () => {
+  it("registers nothing when the endpoint list is empty", () => {
     join([]);
 
     expect(registered.at(-1)).toStrictEqual([]);
   });
 
-  it("locates the file beside the documents under the path the application is served at", () => {
+  it("resolves the remotes path under a path-only base", () => {
     expect(where("/")).toBe("/remotes.json");
     expect(where("/design/")).toBe("/design/remotes.json");
     expect(where("/design")).toBe("/design/remotes.json");
   });
 
-  it("locates the file at the root of the origin when the assets live on another host", () => {
+  it("resolves the remotes path at the origin root when the base names a host", () => {
     expect(where("https://cdn.example.test/assets/")).toBe("/remotes.json");
   });
 });

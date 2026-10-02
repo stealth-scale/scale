@@ -1,15 +1,16 @@
 # @stealthscale/pandacss-naming
 
 `@stealthscale/pandacss-naming` writes the class names of a Panda CSS design system in one readable
-scheme. The same functions run in the browser, where the generated runtime writes a class, and on
-the compiled stylesheet, where the selectors are renamed, so the two sides agree by construction.
+scheme. The same functions run in the browser, where the generated runtime writes a class, and over
+the compiled stylesheet, where the build renames the selectors, so a class written at run time
+matches the selector the stylesheet declares.
 
 | Kind                      | The compiler writes                               | The scheme writes                                |
 | ------------------------- | ------------------------------------------------- | ------------------------------------------------ |
 | Variant on a string axis  | `button--size_lg`                                 | `button--lg`                                     |
 | Variant on a boolean axis | `card__content--bleed_true`, `…--bleed_false`     | `card__content--bleed`, and no class for `false` |
 | Slot                      | `card__root`                                      | `card__root`                                     |
-| Compound                  | `button--compound__size_lg__variant_solid`        | `button--expose`, the name the author gave it    |
+| Compound                  | `button--compound__size_lg__variant_solid`        | `button--expose`, the name the recipe declared   |
 | Atomic                    | `grid-ar_{sizes.32}`, `md:grid-tc_repeat(3,_1fr)` | `grid-ar-sizes-32`, `md:grid-tc-repeat-3-1fr`    |
 | Value with a capital      | `bg_colorPalette.solid`, `ff_Segoe_UI`            | `bg-color-palette-solid`, `ff-segoe-ui`          |
 | Custom property           | `--stagger_0`                                     | `stagger-0`                                      |
@@ -17,8 +18,8 @@ the compiled stylesheet, where the selectors are renamed, so the two sides agree
 | Condition                 | `focusVisible:c_red`, `[&_>_*]:c_red`             | `focus-visible:c-red`, `[&_>_*]:c-red`           |
 
 The compiler's separator, `_` by default, sits between an axis and its value and between a
-property's class and its value. The scheme reads it on both sides and writes a hyphen, and it takes
-the separator the compiler was configured with, `_`, `-` or `=`.
+property's class and its value. The scheme reads that separator on both sides and writes a hyphen in
+its place. It accepts the three separators the compiler supports: `_`, `-` and `=`.
 
 ## Install
 
@@ -57,19 +58,19 @@ rename("md:grid-tc_repeat(3,_minmax(0,_1fr))", config); // "md:grid-tc-repeat-3-
 
 ## The rules
 
-The scheme is sound under four rules, which a gate holds and this package trusts:
+The scheme is sound under four rules. The gate enforces them and this package assumes them:
 
 - The values of one recipe are unique across its axes, and no value equals a boolean axis's name or
-  a compound's name. `size: lg` and `radius: lg` in one recipe would both read `button--lg`.
-- A compound carries a name. The name is unique in its recipe, is not a value of any axis, and does
+  a compound's name. `size: lg` and `radius: lg` in one recipe would both produce `button--lg`.
+- A compound declares a name. The name is unique in its recipe, is not a value of any axis, and does
   not start with an axis and the separator.
 - An axis name does not contain the separator. Where one axis name prefixes another, `rename` reads
-  the longest axis that fits, so `on-off` wins over `on` for `card--on-off_true`.
+  the longest axis that fits, so it matches `on-off` and not `on` in `card--on-off_true`.
 - Two different classes of one stylesheet never sanitise to one name. The stylesheet rewrite checks
   this and reports a collision.
 
 The scheme reads a class as the compiler writes it with `hash` off and no `prefix`. A hashed class
-has no structure to read, and a prefix is not read from a recipe's class.
+has no structure to read, and the scheme does not strip a prefix from a recipe's class.
 
 ## Reference
 

@@ -20,7 +20,7 @@ function listed(children: ReactNode): ReactElement {
 }
 
 describe("Indicator", () => {
-  it("conforms as a span element inside the root it needs above it", () => {
+  it("passes the component conformance checks as a span element inside Root", () => {
     expect(
       violations(Indicator, {
         as: true,
@@ -32,19 +32,19 @@ describe("Indicator", () => {
     ).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule beside an entry", async () => {
+  it("returns no accessibility violation inside an item", async () => {
     await expect(
       accessibilityViolations(Indicator, { props: { children: "•" }, wrapper: listed }),
     ).resolves.toStrictEqual([]);
   });
 
-  it("hides the mark from assistive technology", () => {
+  it("sets aria-hidden to true", () => {
     const { container } = render(listed(<Indicator>•</Indicator>));
 
     expect(slotElement(container, "list", "indicator").getAttribute("aria-hidden")).toBe("true");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value to the indicator slot", () => {
     expect(
       boundViolations(
         recipe,

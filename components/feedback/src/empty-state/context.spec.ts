@@ -8,14 +8,14 @@ import { slotClasses, slotVariantClass } from "@stealthscale/testing-theme";
 import { withContext, withProvider } from "#empty-state/context.ts";
 
 describe("context", () => {
-  it("draws the root's slot class on the element it binds", () => {
+  it("applies the root slot class to an element bound with withProvider", () => {
     const Root = withProvider("div", "root");
     const { container } = render(createElement(Root));
 
     expect(slotClasses(container, "empty-state", "root")).toContain("empty-state__root");
   });
 
-  it("hands the root's variants to a part below it", () => {
+  it("applies a size set on the root to a part bound with withContext", () => {
     const Root = withProvider("div", "root");
     const Title = withContext("h2", "title");
     const { container } = render(

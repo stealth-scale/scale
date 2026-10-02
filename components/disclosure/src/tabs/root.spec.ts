@@ -9,11 +9,11 @@ import { type RootProps } from "#tabs/root.tsx";
 import { composed } from "#tabs/tabs.fixtures.tsx";
 
 describe("Root", () => {
-  it("breaks no accessibility rule holding a strip and its panels", async () => {
+  it("returns no accessibility violation", async () => {
     await expect(accessibilityViolations(() => composed())).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", async () => {
+  it("applies the class of every value its recipe offers", async () => {
     await expect(
       boundMachineViolations(
         recipe,
@@ -23,19 +23,19 @@ describe("Root", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("carries no role because the strip and the panels carry their own", async () => {
+  it("sets no role", async () => {
     const { container } = await drawn(composed());
 
     expect(slotElement(container, "tabs", "root").hasAttribute("role")).toBe(false);
   });
 
-  it("shows the panel a caller starts it on", async () => {
+  it("selects the defaultValue tab", async () => {
     await drawn(composed());
 
     expect(screen.getByRole("tab", { name: "First" }).getAttribute("aria-selected")).toBe("true");
   });
 
-  it("shows another panel when its control is pressed", async () => {
+  it("selects a tab on a press", async () => {
     await drawn(composed());
     fireEvent.click(screen.getByRole("tab", { name: "Second" }));
     await settled();
@@ -43,7 +43,7 @@ describe("Root", () => {
     expect(screen.getByRole("tab", { name: "Second" }).getAttribute("aria-selected")).toBe("true");
   });
 
-  it("tells a caller each time the panel changes", async () => {
+  it("calls onValueChange with the new value", async () => {
     const told = vi.fn<(details: { readonly value: null | string }) => void>();
 
     await drawn(composed({ onValueChange: told }));
@@ -53,7 +53,7 @@ describe("Root", () => {
     expect(told).toHaveBeenLastCalledWith(expect.objectContaining({ value: "second" }));
   });
 
-  it("follows a caller that drives it", async () => {
+  it("keeps a controlled value on a press", async () => {
     await drawn(composed({ value: "second" }));
     fireEvent.click(screen.getByRole("tab", { name: "First" }));
     await settled();
@@ -61,7 +61,15 @@ describe("Root", () => {
     expect(screen.getByRole("tab", { name: "Second" }).getAttribute("aria-selected")).toBe("true");
   });
 
-  it("passes over a control a caller disabled", async () => {
+  it("deselects the selected tab on a press under deselectable", async () => {
+    await drawn(composed({ deselectable: true }));
+    fireEvent.click(screen.getByRole("tab", { name: "First" }));
+    await settled();
+
+    expect(screen.getByRole("tab", { name: "First" }).getAttribute("aria-selected")).toBe("false");
+  });
+
+  it("ignores a press on a disabled tab", async () => {
     await drawn(composed());
     fireEvent.click(screen.getByRole("tab", { name: "Third" }));
     await settled();
@@ -69,13 +77,13 @@ describe("Root", () => {
     expect(screen.getByRole("tab", { name: "Third" }).getAttribute("aria-selected")).toBe("false");
   });
 
-  it("says which way the set runs", async () => {
+  it("sets data-orientation", async () => {
     const { container } = await drawn(composed({ orientation: "vertical" }));
 
     expect(slotElement(container, "tabs", "root").dataset["orientation"]).toBe("vertical");
   });
 
-  it("draws the element as names", async () => {
+  it("renders the element as names", async () => {
     const { container } = await drawn(composed({ as: "section" }));
 
     expect(slotElement(container, "tabs", "root").tagName).toBe("SECTION");

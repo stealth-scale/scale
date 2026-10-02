@@ -1,33 +1,32 @@
 {
-  "about": "Draws a heading, in a heading role, an ink, an effect and a motion, at the level `as` names.",
+  "about": "Renders a heading in a heading text role, a text ink, a text effect and an entrance motion. `as` sets the heading level.",
   "display": {
-    "about": "The theme's loudest role, at the three sizes it reaches.",
+    "about": "The heading at size `2xl` in the heading text role and in the display text role. The display role is heavier and tighter.",
     "title": "Display"
   },
-  "effects": {
-    "about": "The two effects a heading can carry: a gradient across the words, and a shine that passes over them.",
+  "effect": {
+    "about": "`gradient` fills the words with a gradient. `shine` moves a highlight across them.",
     "title": "Effects"
   },
-  "inks": {
-    "about": "Every ink. The inverted one is for a dark surface and reads as nothing on the page.",
-    "title": "Inks"
-  },
+  "migration": "Migrate every workspace to the new billing plan before the end of the quarter",
   "motion": {
-    "about": "How a heading enters the page.",
+    "about": "The animation a heading enters with. Each one runs once when the heading mounts.",
     "title": "Motion"
   },
-  "quarterly": "Quarterly report",
-  "release": "Release notes",
+  "report": "Quarterly report",
   "settings": "Account settings",
-  "sizes": {
-    "about": "Every size, from a caption to a page title. The size states the heading's prominence rather than its level, which `as` names.",
+  "size": {
+    "about": "The eight steps of the heading text role. `size` sets the prominence and `as` sets the level.",
     "title": "Sizes"
   },
   "title": "Heading",
+  "tone": {
+    "about": "Every text ink. The inverted ink is for a dark surface, so its cell renders on `bg.inverted`.",
+    "title": "Inks"
+  },
   "truncate": {
-    "about": "A heading cut to one line beside one left to wrap.",
+    "about": "A heading that wraps, and the same heading cut to one line with an ellipsis, in a 512px room.",
     "title": "Truncate"
   },
-  "welcome": "Welcome back, Ada",
-  "winding": "A long title for a page that could have used a shorter one and wraps onto a second line"
+  "welcome": "Welcome back, Ada"
 }

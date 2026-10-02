@@ -1,152 +1,146 @@
 /**
- * Draws the text roles a recipe names instead of a size: body, heading, label, caption, code and
- * display, each with the face, the weight, the leading and the tracking it is read at.
+ * Builds the text roles a recipe names in place of a size: body, heading, label, caption, code and
+ * display, each with a face, a weight, a leading and a tracking.
  *
  * @remarks
- *   A role states what the text is for. A heading role names the heading face, so a theme that
- *   sets a display face once changes every heading, and a label role is what a control's text
- *   reads, so a theme that tightens its controls restates one role rather than every recipe. The
- *   label grows slower than the control above `xl`, so a hero's words stay words while its box
- *   grows to a hero's. The heading role steps over two sizes above `2xl`, because a document
- *   heading and a hero heading are different things and a size between them reads as neither. A
- *   role names its leading and tracking from the token scales rather than from the size table,
- *   because the leading of a heading is a decision and the leading of a size is a computation. A
- *   theme moves a role once: a heavier or tighter heading, a body with more air, or a lighter
- *   label reaches every recipe that reads the role.
+ *   A theme restates a role once and every recipe that reads it follows. The heading role sets the
+ *   heading face. The label role sets a control's text. Above `xl` the label grows more slowly
+ *   than its control: the label sizes at `xl` to `4xl` are 20.25, 20.25, 20.25 and 22.78px at the
+ *   foundation's scale, while the control grows from 48 to 80px. The heading role skips two sizes
+ *   per step above `2xl`, because a document heading and a hero heading are separate uses. A role
+ *   reads its leading and tracking from the token scales, not from the size table.
  */
 
 import { type TextStyle, type TextStyles } from "#pandacss.ts";
 
 /**
- * Describes what a theme states about the body role.
+ * Describes the body role settings a theme can state.
  */
 export interface BodyRole {
   /**
-   * The leading body text is read at, as a step of the line-height scale. `normal` unless stated.
+   * Leading of body text, as a step of the line-height scale. Defaults to `normal`.
    */
   leading?: string | undefined;
 }
 
 /**
- * Describes what a theme states about the heading role, which every step of the role takes.
+ * Describes the heading role settings a theme can state. Each setting applies to every step.
  */
 export interface HeadingRole {
   /**
-   * The leading, as a step of the line-height scale. Each step's own unless stated.
+   * Leading, as a step of the line-height scale. Defaults to each step's own.
    */
   leading?: string | undefined;
 
   /**
-   * The tracking, as a step of the letter-spacing scale. Each step's own unless stated.
+   * Tracking, as a step of the letter-spacing scale. Defaults to each step's own.
    */
   tracking?: string | undefined;
 
   /**
-   * The weight, as a step of the weight scale. Semibold below `xl` and bold from it unless
-   * stated.
+   * Weight, as a step of the weight scale. Defaults to semibold below `xl` and bold from `xl`.
    */
   weight?: string | undefined;
 }
 
 /**
- * Describes what a theme states about the label role.
+ * Describes the label role settings a theme can state.
  */
 export interface LabelRole {
   /**
-   * The tracking a control's words are set at, as a step of the letter-spacing scale. `normal`
-   * unless stated.
+   * Tracking of a control's text, as a step of the letter-spacing scale. Defaults to `normal`.
    *
    * @remarks
-   *   Stated here rather than in a recipe extension. The role is written into every size variant,
-   *   and the compiler layers a recipe's variants over its base, so tracking written into a
-   *   theme's `base` never reaches a control that has a size.
+   *   The setting is part of the role, not a recipe extension. The role is written into every size
+   *   variant, and the compiler puts variants in a later cascade layer than the base, so tracking
+   *   in a theme's `base` never applies to a control that has a size.
    */
   tracking?: string | undefined;
 
   /**
-   * The weight a control's words are set in. `medium` unless stated.
+   * Weight of a control's text. Defaults to `medium`.
    */
   weight?: string | undefined;
 }
 
 /**
- * Describes the roles a theme moves.
+ * Describes the roles a theme can restate.
  */
 export interface Roles {
   /**
-   * The role body text is read at.
+   * Settings of the body role.
    */
   body?: BodyRole | undefined;
 
   /**
-   * The role every heading is read at.
+   * Settings of the heading role.
    */
   heading?: HeadingRole | undefined;
 
   /**
-   * The role a control's words are read at.
+   * Settings of the label role.
    */
   label?: LabelRole | undefined;
 }
 
 /**
- * Describes what a role states beyond its size.
+ * Describes one role at one size.
  */
 interface Role {
   /**
-   * The face, which is the body face unless the role says otherwise.
+   * Face. Defaults to the body face.
    */
   family?: string | undefined;
 
   /**
-   * The leading, as a step of the line-height scale.
+   * Leading, as a step of the line-height scale.
    */
   leading: string;
 
   /**
-   * The size, as a step of the size scale.
+   * Size, as a step of the font-size scale.
    */
   size: string;
 
   /**
-   * The tracking, as a step of the letter-spacing scale.
+   * Tracking, as a step of the letter-spacing scale.
    */
   tracking: string;
 
   /**
-   * The weight, as a step of the weight scale.
+   * Weight, as a step of the weight scale.
    */
   weight: string;
 }
 
 /**
- * Describes one step of the heading role: the size it is set at, and the leading, tracking and
- * weight of its own that the theme may override.
+ * Describes one step of the heading role: its size, and the leading, tracking and weight a theme
+ * can override.
  */
 interface HeadingStep {
   /**
-   * The leading, as a step of the line-height scale.
+   * Leading, as a step of the line-height scale.
    */
   leading: string;
 
   /**
-   * The size, as a step of the size scale.
+   * Size, as a step of the font-size scale.
    */
   size: string;
 
   /**
-   * The tracking, as a step of the letter-spacing scale. `normal` unless the step says otherwise.
+   * Tracking, as a step of the letter-spacing scale. Defaults to `normal`.
    */
   tracking?: string | undefined;
 
   /**
-   * The weight, as a step of the weight scale. `semibold` unless the step says otherwise.
+   * Weight, as a step of the weight scale. Defaults to `semibold`.
    */
   weight?: string | undefined;
 }
 
 /**
- * Writes one role as a text style.
+ * Returns one role as a text style token.
  */
 function role(stated: Role): Record<"value", TextStyle> {
   return {
@@ -161,14 +155,11 @@ function role(stated: Role): Record<"value", TextStyle> {
 }
 
 /**
- * Writes a heading role at one step, in the heading face, with what the theme states over the
- * step's own leading, tracking and weight.
+ * Returns one heading step in the heading face, with the theme's settings over the step's own.
  *
  * @remarks
- *   The leading and the tracking are the step's to state, because a heading of a document and a
- *   heading of a page are read differently: a section title at the text's own size keeps the
- *   text's leading and no tracking, a page title is set a little closer, and a hero heading is set
- *   tight and tracked in.
+ *   Each step states its own leading and tracking. A section heading at body size keeps normal
+ *   leading, a page heading is snug, and a hero heading is tight with tight tracking.
  */
 function heading(stated: Roles, step: HeadingStep): Record<"value", TextStyle> {
   return role({
@@ -181,7 +172,7 @@ function heading(stated: Roles, step: HeadingStep): Record<"value", TextStyle> {
 }
 
 /**
- * Writes a body role at one size, at the leading the theme states or the normal one.
+ * Returns the body role at one size, at the theme's leading or `normal`.
  */
 function body(stated: Roles, size: string): Record<"value", TextStyle> {
   return role({
@@ -193,8 +184,7 @@ function body(stated: Roles, size: string): Record<"value", TextStyle> {
 }
 
 /**
- * Writes a label role at one size, which is what a control's text is set in, at the weight the
- * theme states or medium.
+ * Returns the label role at one size, at the theme's weight or `medium`.
  */
 function label(stated: Roles, size: string): Record<"value", TextStyle> {
   return role({
@@ -206,23 +196,23 @@ function label(stated: Roles, size: string): Record<"value", TextStyle> {
 }
 
 /**
- * Writes a code role at one size, in the monospaced face.
+ * Returns the code role at one size, in the monospaced face.
  */
 function code(size: string): Record<"value", TextStyle> {
   return role({ family: "mono", leading: "normal", size, tracking: "normal", weight: "normal" });
 }
 
 /**
- * Writes a display role at one size: bold, with no leading and the tightest tracking.
+ * Returns the display role at one size: bold, with no leading and the tightest tracking.
  */
 function display(size: string): Record<"value", TextStyle> {
   return role({ family: "heading", leading: "none", size, tracking: "tighter", weight: "bold" });
 }
 
 /**
- * Draws the text roles over the sizes, with what the theme states about each role.
+ * Returns every text role at every size it offers, with the theme's settings applied.
  *
- * @param stated - The roles the theme moves, each the foundation's unless stated.
+ * @param stated - Role settings the theme states. Each defaults to the foundation's.
  */
 export function roles(stated: Roles = {}): TextStyles {
   return {
@@ -247,7 +237,7 @@ export function roles(stated: Roles = {}): TextStyles {
       xs: heading(stated, { leading: "normal", size: "md" }),
     },
     label: {
-      "2xl": label(stated, "lg"),
+      "2xl": label(stated, "xl"),
       "3xl": label(stated, "xl"),
       "4xl": label(stated, "2xl"),
       lg: label(stated, "lg"),

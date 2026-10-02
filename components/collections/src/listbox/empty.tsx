@@ -1,13 +1,9 @@
 /**
- * Draws the words a list says when it holds nothing.
+ * Renders the text a list shows while its collection is empty.
  *
  * @remarks
- *   A list narrowed to nothing, or one a page has not filled yet, draws no rows at all and reads
- *   as a component that failed rather than as a list with nothing in it. This says which.
- *   It draws nothing while there are rows, rather than hiding itself, because an element kept in
- *   the document with nothing in it is still a thing a screen reader walks through.
- *   The words are the caller's. This package publishes none, and a list of ports says something
- *   different when it is empty than a list of invoices does.
+ *   The part renders nothing while the collection has rows, so no empty element reaches a screen
+ *   reader. The text is the caller's.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -16,20 +12,20 @@ import { withContext } from "#listbox/context.ts";
 import { useListbox } from "#listbox/machine.ts";
 
 /**
- * Draws the words where the list has none of its own.
+ * Renders the `span` with the listbox's empty class.
  */
 const Nothing = withContext("span", "empty");
 
 /**
- * Describes what the empty words take: everything a styled span element takes.
+ * Describes the props of the empty text: the props of a `span`.
  */
 export type EmptyProps = ComponentProps<typeof Nothing>;
 
 /**
- * Says the list holds nothing, and draws nothing while it holds something.
+ * Renders the empty text while the collection has no rows.
  *
- * @param props - The words, and everything a styled span takes.
- * @returns The words, or nothing at all where the list has rows.
+ * @param props - Attributes and children of the `span` element.
+ * @returns The `span` element, or `null` while the collection has rows.
  */
 export function Empty(props: EmptyProps): null | ReactElement {
   const api = useListbox();

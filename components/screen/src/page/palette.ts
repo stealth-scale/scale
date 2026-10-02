@@ -1,10 +1,9 @@
 /**
- * Draws the panel the picker opens.
+ * Renders the panel the picker opens.
  *
  * @remarks
- *   It takes the picker's own width, so the list lines up under the control that opened it rather
- *   than floating at a width of its own. Put a popover's content here with `as`, and the command
- *   palette or a list of links inside that.
+ *   The panel takes the picker's width, `--reference-width`, so the list lines up under the
+ *   control that opened it. Render a menu's or a popover's content as it with `as`.
  */
 
 import { type ComponentProps } from "react";
@@ -12,11 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#page/context.ts";
 
 /**
- * Draws the panel at the width the control that opened it has.
+ * Renders the `div` with the recipe's palette class.
  */
 export const Palette = withContext("div", "palette");
 
 /**
- * Describes what the panel takes.
+ * Describes the props of the panel: the props of a `div`.
  */
 export type PaletteProps = ComponentProps<typeof Palette>;

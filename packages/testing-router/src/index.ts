@@ -1,5 +1,5 @@
 /**
- * Publishes the helpers a specification mounts a route tree with.
+ * Mounts a route tree and renders the page a path matches, for a specification.
  *
  * @packageDocumentation
  */

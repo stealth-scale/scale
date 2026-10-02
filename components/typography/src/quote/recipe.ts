@@ -1,19 +1,17 @@
 /**
- * Defines the styles a q element is drawn with.
+ * Styles an inline quotation's marks, text ink and entrance motion.
  *
  * @remarks
- *   The base is empty. A quotation inside a line is drawn in the text around it, and the marks are
- *   the browser's, chosen for the language the element sits under. The class is the hook a theme
- *   extends to state other marks. The `marks` axis defaults to `auto`, so the recipe states the
- *   behaviour rather than leaving the element on the browser's initial value, and `none`
- *   suppresses the marks for a caller who writes the punctuation into the text. That is the case
- *   for a quotation already inside one.
+ *   The recipe has no base, so a quotation inherits the font of its line. The browser adds the
+ *   quotation marks from the `quotes` property, which resolves against the element's `lang`, so a
+ *   German page gets German marks. The recipe has no `palette` axis, because a text ink is not a
+ *   colour of its own, and no `effect` axis, because a quotation renders no box.
  */
 
 import { defineRecipe, motionVariants, toneVariants } from "@stealthscale/theme/authoring";
 
 /**
- * Draws a quotation in the ink the line is written in, with the marks the browser chooses.
+ * Defaults to the browser's quotation marks and inherits the ink of the line.
  */
 export const recipe = defineRecipe({
   className: "quote",
@@ -21,14 +19,26 @@ export const recipe = defineRecipe({
   jsx: [/Quote$/u],
   variants: {
     /**
-     * Whether the browser draws the marks for the language in force.
+     * Quotation marks.
+     *
+     * @remarks
+     *   `auto` sets `quotes: auto`, so a theme can extend the class with other marks. `none`
+     *   removes the marks, for text that contains its own punctuation, such as a quotation inside
+     *   another.
      */
     marks: {
       auto: { quotes: "auto" },
       none: { quotes: "none" },
     },
 
+    /**
+     * Entrance animation. Each value reads the theme's animation style of the same name.
+     */
     motion: motionVariants(["fade", "rise", "reveal"]),
+
+    /**
+     * Foreground token of the text.
+     */
     tone: toneVariants(),
   },
 });

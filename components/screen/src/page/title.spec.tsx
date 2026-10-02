@@ -7,19 +7,19 @@ import { paged } from "#page/page.fixtures.tsx";
 import { Title } from "#page/title.ts";
 
 describe("Title", () => {
-  it("draws a first-level heading inside the column it needs above it", () => {
+  it("renders an h1", () => {
     const { container } = render(paged(<Title>April</Title>));
 
     expect(slotElement(container, "page", "title").tagName).toBe("H1");
   });
 
-  it("is the heading a reader jumping by heading lands on first", () => {
+  it("sets role heading at level 1", () => {
     render(paged(<Title>April</Title>));
 
     expect(screen.getByRole("heading", { level: 1, name: "April" })).toBeTruthy();
   });
 
-  it("draws the level a screen holding two pages needs", () => {
+  it("renders the level as names", () => {
     render(paged(<Title as="h2">April</Title>));
 
     expect(screen.getByRole("heading", { level: 2 })).toBeTruthy();

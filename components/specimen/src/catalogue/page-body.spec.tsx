@@ -33,6 +33,11 @@ const SCENES: readonly Listed[] = [
     title: "Sizes",
   },
   { id: "looks", scene: { draw: marked, title: "Looks" }, title: "Looks" },
+  {
+    id: "filters",
+    scene: { draw: marked, example: { source: "<Filters />" }, title: "Filters" },
+    title: "Filters",
+  },
 ];
 
 function bodied(imports?: string): ReactElement {
@@ -44,32 +49,32 @@ function bodied(imports?: string): ReactElement {
 }
 
 describe("Body", () => {
-  it("opens with the statement the page declares", async () => {
+  it("renders the import statement the page declares", async () => {
     const { container } = await drawn(bodied(STATEMENT));
 
     expect(slotElement(container, "code-block", "code").textContent).toBe(STATEMENT);
   });
 
-  it("draws each scene as a section", async () => {
+  it("renders each scene as a region named by its title", async () => {
     const { getByRole } = await drawn(bodied(STATEMENT));
 
     expect(getByRole("region", { name: "Sizes" })).toBeDefined();
     expect(getByRole("region", { name: "Looks" })).toBeDefined();
   });
 
-  it("folds the source a scene carries under its stage", async () => {
+  it("renders a source control for each scene with a source", async () => {
     const { getAllByRole } = await drawn(bodied(STATEMENT));
 
-    expect(getAllByRole("button", { name: "Source" })).toHaveLength(1);
+    expect(getAllByRole("button", { name: "Source" })).toHaveLength(2);
   });
 
-  it("says a scene carrying no source has none", async () => {
+  it("renders the no-source message for each scene without a source", async () => {
     const { getAllByText } = await drawn(bodied(STATEMENT));
 
     expect(getAllByText("No source for this scene")).toHaveLength(1);
   });
 
-  it("draws no import line for a page that declares no statement", async () => {
+  it("renders no import code block when the page declares no imports", async () => {
     const { container } = await drawn(bodied());
 
     expect(container.querySelector(".code-block__root")).toBeNull();

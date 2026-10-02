@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import * as parts from "#table/parts.ts";
 
 describe("parts", () => {
-  it("names every part a table is built from", () => {
+  it("exports every part", () => {
     expect(Object.keys(parts).toSorted()).toStrictEqual([
       "Body",
       "Caption",
@@ -21,7 +21,7 @@ describe("parts", () => {
     ]);
   });
 
-  it("holds back the whole table that is built from these", () => {
+  it("exports no Simple", () => {
     expect(Object.keys(parts)).not.toContain("Simple");
   });
 });

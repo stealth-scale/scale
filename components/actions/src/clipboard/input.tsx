@@ -1,10 +1,10 @@
 /**
- * Draws the field that shows the value.
+ * Renders the field that shows the value to copy.
  *
  * @remarks
- *   The element is `input`, read-only rather than disabled. It can still be focused and selected,
- *   which is what a person falls back on where the browser refuses the copy. The machine selects
- *   the whole value on focus and counts a copy made from the field as one it reports.
+ *   The `input` is read-only and enabled, so it keeps focus and text selection. A person copies by
+ *   hand from the field when the browser denies clipboard access. The machine selects the whole
+ *   value on focus and reports a manual copy from the field as a copy.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,23 +15,23 @@ import { withContext } from "#clipboard/context.ts";
 import { useClipboard } from "#clipboard/machine.ts";
 
 /**
- * Draws the field the recipe places in the row.
+ * `input` bound to the input slot.
  */
-const Fielded = withContext("input", "input");
+const Styled = withContext("input", "input");
 
 /**
- * Describes what the input takes.
+ * Props of `Clipboard.Input`: the props of the styled `input`.
  */
-export type InputProps = ComponentProps<typeof Fielded>;
+export type InputProps = ComponentProps<typeof Styled>;
 
 /**
- * Shows the value a person is about to copy.
+ * Renders the field with the caller's props merged over the machine's.
  *
- * @param props - Everything a styled input takes.
- * @returns The field, holding the value read-only.
+ * @param props - Props of the styled `input`.
+ * @returns The read-only field that holds the machine's value.
  */
 export function Input(props: InputProps): ReactElement {
   const api = useClipboard();
 
-  return <Fielded {...mergeProps(api.getInputProps(), props)} />;
+  return <Styled {...mergeProps(api.getInputProps(), props)} />;
 }

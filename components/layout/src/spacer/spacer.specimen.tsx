@@ -1,48 +1,45 @@
 /**
- * Shows the spacer: a heading pushed to one end of a row and its action to the other.
+ * Catalogue page for the spacer.
  *
  * @remarks
- *   The spacer has no axis, so the scene draws the one arrangement it is for rather than a
- *   matrix. The words are keys under `spacer` in the catalogue's namespace, kept beside this file
- *   in `locales/en/specimen/spacer.json`.
+ *   The recipe has no axis, so the page has one hand-written scene: a page header in a 672px room,
+ *   whose spacer pushes two buttons to the end of the row. `uncovered` in the recipe spec fails
+ *   when an axis is added and no scene renders it. The scene renders a component from `examples/`
+ *   and shows that file as its source. The words are keys under `spacer` in
+ *   `locales/en/specimen/spacer.json`.
  */
 
 import { type ReactElement } from "react";
 
-import { type Scene, specimen, Tile, useWords } from "@stealthscale/specimen";
+import { Room, type Scene, specimen } from "@stealthscale/specimen";
 
-import { Spacer } from "#spacer/spacer.ts";
-import { Stack } from "#stack/stack.ts";
+import * as header from "#spacer/examples/header.example.tsx";
 
 /**
- * Draws a heading, the room, and an action.
+ * Renders the page header in a 672px room.
  */
-function Room(): ReactElement {
-  const { t } = useWords("spacer");
-
+function Header(): ReactElement {
   return (
-    <Stack direction="row">
-      <Tile>{t("invoices")}</Tile>
-      <Spacer />
-      <Tile>{t("edit")}</Tile>
-    </Stack>
+    <Room size="2xl">
+      <header.Header />
+    </Room>
   );
 }
 
 /**
- * The room between a heading and its action.
+ * Hand-written scene for a spacer between a heading and its actions.
  */
-export const room: Scene = {
-  about: "spacer.room.about",
-  draw: Room,
-  title: "spacer.room.title",
+export const heading: Scene = {
+  about: "spacer.header.about",
+  draw: Header,
+  example: header,
+  title: "spacer.header.title",
 };
 
 export default specimen({
   about: "spacer.about",
-  group: "Layout",
-  id: "layout/spacer",
-  imports: 'import { Spacer, Stack } from "@stealthscale/component-layout";',
-  scenes: [room],
+  id: "components/layout/spacer",
+  imports: 'import { Spacer } from "@stealthscale/component-layout";',
+  scenes: [heading],
   title: "spacer.title",
 });

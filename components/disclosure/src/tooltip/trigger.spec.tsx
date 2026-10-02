@@ -8,13 +8,13 @@ import { composed, hinted } from "#tooltip/tooltip.fixtures.tsx";
 import { Trigger } from "#tooltip/trigger.tsx";
 
 describe("Trigger", () => {
-  it("draws a button inside the root it needs above it", () => {
+  it("renders a button", () => {
     const { container } = render(hinted(<Trigger>Save</Trigger>));
 
     expect(slotElement(container, "tooltip", "trigger").tagName).toBe("BUTTON");
   });
 
-  it("points at the box so a screen reader reads it as a description", async () => {
+  it("sets aria-describedby to the content's id", async () => {
     render(composed({ defaultOpen: true }));
     await settled();
 
@@ -23,7 +23,7 @@ describe("Trigger", () => {
     );
   });
 
-  it("keeps a handler a caller hands it beside the machine's own", async () => {
+  it("calls a caller's onFocus beside the machine's handler", async () => {
     const heard = vi.fn<() => void>();
 
     render(hinted(<Trigger onFocus={heard}>Save</Trigger>));
@@ -33,7 +33,7 @@ describe("Trigger", () => {
     expect(heard).toHaveBeenCalledOnce();
   });
 
-  it("draws the element as names for a control that is not a button", () => {
+  it("renders the element as names", () => {
     const { container } = render(hinted(<Trigger as="a">Read on</Trigger>));
 
     expect(slotElement(container, "tooltip", "trigger").tagName).toBe("A");

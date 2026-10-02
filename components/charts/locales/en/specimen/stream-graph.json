@@ -1,0 +1,54 @@
+{
+  "about": "Many series stacked about a moving baseline, so each band's rise and fall reads across a long span. The graph gives up the total and every band's measure for that shape, so it renders no value axis and no grid, and the stack fills the plot's height.",
+  "campaign": {
+    "about": "defaultIndex opens the tooltip at a week when the chart first renders. The tooltip writes each source's own visits in the legend's order, because no value reads off a band against an axis.",
+    "caption": "In the week of July 20 social brought 38K visits, a third of the week's total.",
+    "title": "Tooltip"
+  },
+  "listening": {
+    "about": "baseline=\"silhouette\" centres the stack on a straight line, so the stream is symmetric about the middle of the plot. Hours of listening per month by genre.",
+    "caption": "Electronic listening peaked in July, and classical peaked in December.",
+    "classical": "Classical",
+    "electronic": "Electronic",
+    "genres": "Genres",
+    "hiphop": "Hip-hop",
+    "jazz": "Jazz",
+    "label": "Listening hours per month by genre",
+    "pop": "Pop",
+    "rock": "Rock",
+    "title": "Centred baseline"
+  },
+  "narrow": {
+    "about": "The traffic graph in a room 20rem wide, the column of a phone.",
+    "title": "Narrow room"
+  },
+  "ordered": {
+    "about": "insideOut={false} stacks the bands in the series' order, the first at the bottom, for an order a reader already knows. The late email band is then inside the stack and moves every band above it.",
+    "caption": "Visits per source in the series' order, organic at the bottom.",
+    "title": "Series order"
+  },
+  "quiet": {
+    "about": "A range without rows renders the empty state in the plot's place, at the plot's ratio.",
+    "caption": "Visits per source per week.",
+    "empty": "No visits recorded yet.",
+    "title": "Empty"
+  },
+  "replay": {
+    "about": "animate reveals each band from the start of the axis when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the bands at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "title": "Stream graph",
+  "traffic": {
+    "about": "Weekly visits from five sources over sixteen weeks. The bands stack inside out: the sources whose visits arrive early are in the middle and the late ones outside, so a late source does not move the bands beneath it. Each source keeps its color and its place in the legend.",
+    "caption": "A July campaign lifted social visits to 38K a week before they fell back, while email grew from none to 22K a week.",
+    "direct": "Direct",
+    "email": "Email",
+    "label": "Visits per source per week",
+    "organic": "Organic",
+    "referral": "Referral",
+    "social": "Social",
+    "sources": "Sources",
+    "title": "Traffic sources"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "about": "Renders a number field with a button on either side that steps the value down or up. The arrow keys step the value from the field. The value is formatted for `locale` and clamped to `min` and `max` on blur.",
+  "add": "Add 50 euros",
+  "capped": "Up to 50% off the list price.",
+  "controlled": {
+    "about": "The caller holds the value in state, passes it as `value` and takes each change from `onValueChange`. The helper text shows the total at 12 euros a licence, and asks for a number while the field is empty.",
+    "title": "Controlled"
+  },
+  "discount": "Discount",
+  "fewer": "Remove a seat",
+  "fewerLicences": "Remove a licence",
+  "field": {
+    "about": "Inside a field the input takes its name from the field's label and its description from the helper text. `formatOptions` formats the value as euros in `en-GB`, and `step` moves it by 50.",
+    "title": "In a field"
+  },
+  "leading": "Line height",
+  "less": "Remove 50 euros",
+  "licences": "Licences",
+  "looks": {
+    "about": "The input group's three looks. The buttons are 4px from the box's ends and use the field's muted ink on each look.",
+    "title": "Looks"
+  },
+  "lower": "Lower the discount",
+  "more": "Add a seat",
+  "moreLicences": "Add a licence",
+  "noTotal": "Enter a number of licences to see the total.",
+  "paid": "Paid out on the next business day.",
+  "payout": "Payout amount",
+  "percent": {
+    "about": "`style: \"percent\"` formats the value as a percentage. The value is the text the field shows, `15%`, and `valueAsNumber` is 0.15. `step` moves it by five points, and `max` stops it at 50%.",
+    "title": "Percentage"
+  },
+  "raise": "Raise the discount",
+  "scrubber": {
+    "about": "Drag the arrows sideways to change the value. The arrow keys in the field do the same, so the scrubber needs no keyboard of its own.",
+    "title": "Scrubber"
+  },
+  "seats": "Seats",
+  "size": {
+    "about": "Every size of the box. The buttons read the tag scale at the same size and are never under 24px.",
+    "title": "Sizes"
+  },
+  "states": {
+    "about": "A value over the maximum of 50 is invalid until the field clamps it on blur. A read-only input and a disabled one disable both buttons.",
+    "title": "States"
+  },
+  "title": "Number input",
+  "total": "{{total}} a month"
+}

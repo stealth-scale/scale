@@ -1,43 +1,70 @@
 {
-  "about": "Lays its entries out in columns, as a root holding items that may span more than one of them.",
-  "alignment": {
-    "about": "Where an entry sits in a row taller than it is: a short entry beside one that runs to a second line.",
+  "about": "Lays out items in columns. `Grid.Root` sets the columns and `Grid.Item` sets how many columns an item spans.",
+  "align": {
+    "about": "Block alignment of each item in its row, with a short card beside one that wraps. Each item is the card itself.",
     "title": "Alignment"
   },
-  "article": "Article",
-  "aside": "Aside",
   "counts": {
-    "about": "Every count, each drawing that many equal columns and wrapping the twelve entries into them.",
+    "about": "Every column count from 1 to 12, each laying out 12 calendar days in an 896px room.",
     "title": "Counts"
   },
-  "distribution": {
-    "about": "How the columns share the room along the row. The columns of every measure fill the grid, so the shares read alike until a theme narrows the tracks.",
-    "title": "Distribution"
+  "day": {
+    "about": "An event at `span=\"1\"` in a calendar of 12 columns. The title is a truncating `Text` without a card, because a card's inset is wider than a column at a 420px viewport.",
+    "title": "One column"
   },
   "filled": {
-    "about": "Every measure that keeps the columns a short row leaves empty, so the six entries hold their measure rather than stretching across the row.",
-    "title": "Filled"
+    "about": "One plan in a 672px room. `fit-xs` stretches the item across the row. `fill-xs` keeps the empty track, so the item keeps the 320px width.",
+    "title": "Fit and fill"
   },
   "fitted": {
-    "about": "Every measure that draws as many columns as there is room for and wraps the rest, which is the whole of the grid's responsiveness.",
+    "about": "Three plans at `fit-xs` in rooms of 320, 576 and 672px. The room holds as many 320px columns as fit, and the columns stretch over the row.",
     "title": "Fitted"
   },
   "flow": {
-    "about": "Which way the entries are placed: along the rows, down the columns, or along the rows with a later entry pulled back into a hole an earlier one left.",
+    "about": "Auto-placement of a dashboard whose first two widgets span two of three columns. `dense` moves a later widget into the hole beside the first.",
     "title": "Flow"
   },
-  "footer": "Footer",
-  "gaps": {
-    "about": "Every gap of the scale, between three columns of entries.",
+  "gap": {
+    "about": "Every gap token between two columns and between the two rows the third plan wraps into.",
     "title": "Gaps"
   },
-  "header": "Header",
-  "main": "Main",
-  "navigation": "Navigation",
-  "note": "A note that runs on to a second line in its column",
-  "spans": {
-    "about": "Every span an entry can take in a grid of twelve, drawn on the first entry with the rest a column wide.",
+  "justify": {
+    "about": "Inline alignment of each item in its column. Unset, the items stretch to the column.",
+    "title": "Justify"
+  },
+  "launch": "Product launch",
+  "notes": {
+    "overdue": "Invoice INV-2039 is 14 days overdue. A reminder goes out tomorrow.",
+    "paid": "Paid"
+  },
+  "plans": {
+    "growth": {
+      "name": "Growth",
+      "price": "€49 per month"
+    },
+    "scale": {
+      "name": "Scale",
+      "price": "€199 per month"
+    },
+    "starter": {
+      "name": "Starter",
+      "price": "Free"
+    }
+  },
+  "span": {
+    "about": "An event card at every span from 2 to `full` in a calendar of 12 columns, followed by the days after it. The title truncates when the card is too narrow for it.",
     "title": "Spans"
   },
-  "title": "Grid"
+  "statuses": {
+    "overdue": "Overdue",
+    "paid": "Paid",
+    "pending": "Pending"
+  },
+  "title": "Grid",
+  "widgets": {
+    "disputes": "Disputes",
+    "payouts": "Payouts",
+    "refunds": "Refunds",
+    "revenue": "Revenue"
+  }
 }

@@ -1,19 +1,21 @@
 /**
- * Draws the landmark the rail sits in, and runs the machine its parts share.
+ * Renders the navigation landmark of the table of contents and runs the machine the parts share.
  *
  * @remarks
- *   The element is `nav`, which is the landmark a person navigating by landmark reaches. The
- *   machine names it after the title, so a page holding a rail beside its other navigation
- *   landmarks announces this one by the words the title holds. Draw a title, or the landmark is
- *   named by nothing. Every heading on screen is marked, read through an observer over the band
- *   `rootMargin` states. The machine's own band leaves out the foot of the viewport, so a short
- *   last section is never marked. A rail beside a page of sections states `rootMargin="0px"`, which
- *   marks every section in view and the last one once the page reaches its end.
+ *   The element is `nav`. The machine sets `aria-labelledby` to the title's ID, so render a
+ *   `Toc.Title` or the landmark has no name. The machine marks each heading inside the
+ *   `IntersectionObserver` band that `rootMargin` sets. Its default band excludes the bottom of
+ *   the viewport, so a short last section is never marked. Pass `rootMargin="0px"` to mark every
+ *   visible heading, and the last one once the page reaches its end. With `placement="aside"` the
+ *   root renders its children in the primitives package's scroll area, whose viewport takes no tab
+ *   stop, because every link scrolls into view as it takes focus.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
 
-import { withProvider } from "#toc/context.ts";
+import { ScrollArea } from "@stealthscale/component-primitives";
+
+import { withContext, withProvider } from "#toc/context.ts";
 import {
   ApiProvider,
   splitTocProps,
@@ -23,42 +25,61 @@ import {
 } from "#toc/machine.ts";
 
 /**
- * Draws the landmark and sets the variants every part below it reads.
+ * Nav element that provides the recipe's variants to the parts.
  */
 const Landmark = withProvider("nav", "root");
 
 /**
- * Describes what the root takes: the machine's options, the recipe's variants, and the element's.
+ * Renders the scroll area's root with the recipe's class, which leaves the focus ring room.
+ */
+const Scroller = withContext(ScrollArea.Root, "scroller");
+
+/**
+ * Renders the scroll area's content with the recipe's class, a padded column of the children.
+ */
+const Column = withContext(ScrollArea.Content, "content");
+
+/**
+ * Describes the props of Toc.Root: the machine options, the recipe's variants and the props of a
+ * nav element.
  *
  * @remarks
- *   The element's own `id` and `dir` are left out, because the machine states both. It builds the
- *   reference between the landmark and its title from the id, and it writes the direction onto
- *   every part. The style prop of the same name as the machine's `scrollBehavior` is left out too,
- *   so the name reaches the machine, which scrolls the page to a heading by it. The headings are
- *   the one setting a caller has to give, because a rail over no headings lists nothing.
+ *   The element's `id` and `dir` are omitted, because the machine sets both. It derives the
+ *   landmark's `aria-labelledby` from the ID and writes the direction to every part. The CSS
+ *   `scrollBehavior` style prop is omitted, so the name reaches the machine option that scrolls
+ *   the page to a heading.
  */
 export interface RootProps
   extends Omit<ComponentProps<typeof Landmark>, "dir" | "id" | "scrollBehavior">, TocOptions {
   /**
-   * The headings on the page, in the order they are on it: the id of each in the document, and
-   * how deep it sits.
+   * Headings of the page in document order, each with its element ID as `value` and its level as
+   * `depth`.
    */
   readonly items: TocItem[];
 }
 
 /**
- * Lists the headings on a page and marks the ones on screen.
- *
- * @param props - The machine's options, the recipe's variants and the element's props together.
- * @returns The landmark, holding the parts, under the running machine.
+ * Renders a `nav` that runs the machine and provides its api to the parts, around a scroll area
+ * in the aside placement.
  */
 export function Root(props: RootProps): ReactElement {
-  const [options, rest] = splitTocProps(props);
+  const [options, { children, ...rest }] = splitTocProps(props);
   const api = useTocMachine(options);
 
   return (
     <ApiProvider value={api}>
-      <Landmark {...rest} {...api.getRootProps()} />
+      <Landmark {...rest} {...api.getRootProps()}>
+        {rest.placement === "aside" ? (
+          <Scroller>
+            <ScrollArea.Viewport focusable={false}>
+              <Column>{children}</Column>
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar />
+          </Scroller>
+        ) : (
+          children
+        )}
+      </Landmark>
     </ApiProvider>
   );
 }

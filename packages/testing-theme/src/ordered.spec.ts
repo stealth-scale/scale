@@ -4,7 +4,10 @@ import { orderViolations } from "#ordered.ts";
 import { type Declared } from "#recipe.ts";
 
 /**
- * Writes a recipe offering one axis with the values a case states.
+ * Builds a recipe named `probe` offering one axis with the values the case lists, in that order.
+ *
+ * @param axis - The axis name, which decides which vocabulary the values are read against.
+ * @param values - The values the axis offers, in the order the recipe declares them.
  */
 function offering(axis: string, values: readonly string[]): Declared {
   return {
@@ -14,39 +17,39 @@ function offering(axis: string, values: readonly string[]): Declared {
 }
 
 describe("orderViolations", () => {
-  it("accepts a scale that runs from its smallest step up", () => {
+  it("reports nothing for a scale ordered from its smallest step up", () => {
     expect(orderViolations(offering("size", ["sm", "md", "lg"]))).toStrictEqual([]);
   });
 
-  it("reports a scale listed alphabetically", () => {
+  it("names the order a size axis should take when it is listed alphabetically", () => {
     expect(orderViolations(offering("size", ["lg", "md", "sm"]))).toStrictEqual([
       "probe offers size as lg, md, sm rather than sm, md, lg",
     ]);
   });
 
-  it("accepts a set of looks that runs from the loudest down", () => {
+  it("reports nothing for a set of looks ordered from the loudest down", () => {
     expect(orderViolations(offering("variant", ["subtle", "outline", "plain"]))).toStrictEqual([]);
   });
 
-  it("reports a set of looks listed alphabetically", () => {
+  it("names the order a variant axis should take when it is listed alphabetically", () => {
     expect(orderViolations(offering("variant", ["outline", "plain", "subtle"]))).toStrictEqual([
       "probe offers variant as outline, plain, subtle rather than subtle, outline, plain",
     ]);
   });
 
-  it("leaves an axis holding a value no vocabulary names alone", () => {
+  it("skips an axis offering a value no vocabulary of that axis names", () => {
     expect(orderViolations(offering("variant", ["plain", "enclosed", "line"]))).toStrictEqual([]);
   });
 
-  it("leaves an axis of one value alone", () => {
+  it("skips an axis offering a single value", () => {
     expect(orderViolations(offering("size", ["md"]))).toStrictEqual([]);
   });
 
-  it("leaves an axis no vocabulary covers alone", () => {
+  it("skips an axis it holds no vocabulary order for", () => {
     expect(orderViolations(offering("placement", ["end", "start"]))).toStrictEqual([]);
   });
 
-  it("reads every axis a recipe offers", () => {
+  it("reports one line per axis when a recipe has two out of order", () => {
     const recipe: Declared = {
       className: "probe",
       variants: {
@@ -61,7 +64,7 @@ describe("orderViolations", () => {
     ]);
   });
 
-  it("accepts a recipe with no axes at all", () => {
+  it("reports nothing for a recipe declaring no variants at all", () => {
     expect(orderViolations({ className: "probe" })).toStrictEqual([]);
   });
 });

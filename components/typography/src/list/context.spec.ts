@@ -8,7 +8,7 @@ import { slotClasses, slotVariantClass } from "@stealthscale/testing-theme";
 import { withContext, withProvider } from "#list/context.ts";
 
 describe("context", () => {
-  it("draws each part's slot class", () => {
+  it("applies the slot class to each bound part", () => {
     const Root = withProvider("div", "root");
     const Item = withContext("span", "item");
     const { container } = render(createElement(Root, null, createElement(Item, null, "One")));
@@ -17,7 +17,7 @@ describe("context", () => {
     expect(slotClasses(container, "list", "item")).toContain("list__item");
   });
 
-  it("hands the root's variants to a part below it", () => {
+  it("applies the variant set on the root to a part below it", () => {
     const Root = withProvider("div", "root");
     const Item = withContext("span", "item");
     const { container } = render(

@@ -9,13 +9,13 @@ import { type RootProps } from "#card/root.ts";
 import { Title } from "#card/title.ts";
 
 describe("Title", () => {
-  it("draws an h3 inside the root it needs above it", () => {
+  it("renders an h3 for the title slot inside a root", () => {
     const { container } = render(carded(<Title>Invoice</Title>));
 
     expect(slotElement(container, "card", "title").tagName).toBe("H3");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the title slot class for every variant value", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "title",
@@ -23,13 +23,13 @@ describe("Title", () => {
     ).toStrictEqual([]);
   });
 
-  it("is read as a heading at the third level", () => {
+  it("exposes a level 3 heading named by its text", () => {
     render(carded(<Title>Invoice</Title>));
 
     expect(screen.getByRole("heading", { level: 3, name: "Invoice" })).toBeDefined();
   });
 
-  it("draws the level a page's outline needs", () => {
+  it("renders the heading level passed as as", () => {
     render(carded(<Title as="h2">Invoice</Title>));
 
     expect(screen.getByRole("heading", { level: 2, name: "Invoice" })).toBeDefined();

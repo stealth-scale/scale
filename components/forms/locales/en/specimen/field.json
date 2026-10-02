@@ -1,24 +1,53 @@
 {
-  "about": "Wraps a control in everything that explains it: a label, the text a person needs in advance, a count and what went wrong.",
+  "about": "Wraps a control in a label, the text a person needs in advance, a count and what is wrong. The root provides the state, identifiers and limit to every part.",
+  "backup": "Backup email",
+  "badge": "optional",
+  "company": "Company",
+  "count": {
+    "about": "`Field.Counter` shows the length of the value against the root's `maxLength` and updates as a person types. It counts UTF-16 code units, the unit `maxLength` limits. The control lists the counter in `aria-describedby`. `Field.Textarea` takes every prop of `Textarea`, so this field grows to six rows.",
+    "title": "Count"
+  },
+  "courier": "The courier reads these at the door.",
   "email": "Email",
+  "family": "Family name",
+  "given": "Given name",
   "helper": "We only write about invoices.",
-  "orientations": {
-    "about": "The label above the control, and the label beside it.",
+  "invoiced": "Printed on every invoice we send you.",
+  "monthly": "We send one letter a month.",
+  "note": "Leave the parcel at the side door. The front bell is broken.",
+  "notes": "Delivery notes",
+  "optional": {
+    "about": "A label that holds a badge in place of the required mark. The label lays its children out in a row.",
+    "title": "Optional"
+  },
+  "orientation": {
+    "about": "The label above the control, beside it, and floating inside it. Beside the control, the label is centred against it. A floating label rests inside an empty control and rises once the control has focus or a value. It reads emptiness from `:placeholder-shown`, so the control needs a placeholder, and a single space works.",
     "title": "Orientations"
   },
-  "sizes": {
-    "about": "Every size, which every part reads.",
+  "paired": {
+    "about": "Two fields in a grid. A field fills the column it is given and states no width of its own.",
+    "title": "Two on a line"
+  },
+  "phone": "Phone number",
+  "reported": {
+    "error": "Enter the number with its country code.",
+    "info": "We send the receipt here as well as the invoice.",
+    "success": "That name is free.",
+    "warning": "That address bounced the last time we wrote to it."
+  },
+  "size": {
+    "about": "Every size. The size reaches the control, the label reads the label role at the size, and the texts under the control read the body role one size smaller.",
     "title": "Sizes"
   },
   "states": {
-    "about": "A field as it is, required, disabled, read only, and wrong. The error text draws nothing where the field is not wrong, and the mark draws nothing where it is optional.",
+    "about": "Rest, required, disabled, read-only and invalid. The required mark renders only on a required field, and the error text replaces the helper text while the field is invalid.",
     "title": "States"
   },
-  "statuses": {
-    "about": "Every status on a field that is wrong, which the error text and the mark read.",
+  "status": {
+    "about": "One field per status. A status sets the control's edge and the ink of the error text, which leads with a mark so the four read apart without color. Only the error marks the control invalid and sets `role=\"alert\"`.",
     "title": "Statuses"
   },
   "title": "Field",
   "unknown": "That address is not one we recognise.",
-  "used": "12 of 80"
+  "username": "Username"
 }

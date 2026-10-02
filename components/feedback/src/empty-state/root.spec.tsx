@@ -14,7 +14,7 @@ describe("Root", () => {
     expect(violations(Root, { as: true, children: true, element: "DIV" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule holding a title", async () => {
+  it("returns no accessibility violation when it holds a content column", async () => {
     await expect(
       accessibilityViolations(Root, {
         props: {
@@ -28,19 +28,19 @@ describe("Root", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(recipe, (props) => render(<Root {...props} />).container, { slot: "root" }),
     ).toStrictEqual([]);
   });
 
-  it("carries no role so a page of empty panels is not a page of landmarks", () => {
+  it("sets no role", () => {
     const { container } = render(<Root />);
 
     expect(slotElement(container, "empty-state", "root").hasAttribute("role")).toBe(false);
   });
 
-  it("draws the element as names", () => {
+  it("renders the element passed as as", () => {
     const { container } = render(<Root as="section" />);
 
     expect(slotElement(container, "empty-state", "root").tagName).toBe("SECTION");

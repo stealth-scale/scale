@@ -7,13 +7,13 @@ import { Header } from "#section/header.ts";
 import { blocked } from "#section/section.fixtures.tsx";
 
 describe("Header", () => {
-  it("draws a header inside the block it needs above it", () => {
+  it("renders a header", () => {
     const { container } = render(blocked(<Header>Billing</Header>));
 
     expect(slotElement(container, "section", "header").tagName).toBe("HEADER");
   });
 
-  it("places its parts on a grid rather than nesting them", () => {
+  it("renders its children with no wrapper", () => {
     const { container } = render(blocked(<Header>Billing</Header>));
 
     expect(slotElement(container, "section", "header").children).toHaveLength(0);

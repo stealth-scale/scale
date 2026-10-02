@@ -1,11 +1,9 @@
 /**
- * Draws a skeleton through its recipe.
+ * Renders a skeleton through its recipe.
  *
  * @remarks
- *   The element is `div` and carries no role. A stand-in is not a thing a screen reader should
- *   announce, and a reader who is told a region is busy learns more from the region than from each
- *   box inside it. A page states `aria-busy` on whatever is waiting, which is one announcement
- *   rather than one per bar.
+ *   The element is a `div` with no role, so screen readers skip the placeholder. Set `aria-busy`
+ *   on the region that is loading, so a screen reader announces the state once for the region.
  */
 
 import { type ComponentProps } from "react";
@@ -13,12 +11,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#skeleton/context.ts";
 
 /**
- * Stands in for content that has not arrived, taking the box of whatever it wraps.
+ * Renders a div that takes the box of the content it wraps.
  */
 export const Skeleton = withContext("div");
 
 /**
- * Describes what a skeleton takes: the variants its recipe offers, and everything a styled div
- * takes.
+ * Describes the props of Skeleton: the recipe's variants and the props of a div element.
  */
 export type SkeletonProps = ComponentProps<typeof Skeleton>;

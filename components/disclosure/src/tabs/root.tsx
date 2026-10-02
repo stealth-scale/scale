@@ -1,48 +1,73 @@
 /**
- * Draws the frame the strip and the panels sit in, and runs the machine they share.
+ * Renders the tabs' root and starts the machine its parts share.
  *
  * @remarks
- *   The element is `div` and carries no role. The strip carries the tablist role, each control the
- *   tab role and each panel the tabpanel role, all written by the machine, so a role on the frame
- *   would announce a thing that is not there.
+ *   The element is a `div` without a role. The machine sets `tablist` on the list, `tab` on each
+ *   trigger and `tabpanel` on each panel, and a role on the root would announce a widget that does
+ *   not exist.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
 
+import { type CloseDetails, closeTab } from "#tabs/closing.ts";
 import { withProvider } from "#tabs/context.ts";
-import { ApiProvider, splitTabsProps, type TabsOptions, useTabsMachine } from "#tabs/machine.ts";
+import {
+  ActionsProvider,
+  ApiProvider,
+  splitTabsProps,
+  type TabsOptions,
+  useTabsMachine,
+} from "#tabs/machine.ts";
 
 /**
- * Draws the frame and sets the variants every part below it reads.
+ * Renders the `div` that provides the recipe's variants.
  */
 const Framed = withProvider("div", "root");
 
 /**
- * Describes what the root takes: the machine's options, the recipe's variants, and the element's.
+ * Describes the props of the root: the machine's options, the close handler, the recipe's
+ * variants and the props of a `div`.
  *
  * @remarks
- *   The element's own `id` and `dir` are left out, because the machine states both. It builds every
- *   ARIA reference from the id, and it reads the direction to decide which arrow key moves which
- *   way.
+ *   The element's `id` and `dir` are left out, because the machine takes both. It derives every
+ *   ARIA reference from `id`, and reads `dir` for the arrow keys.
  */
 export interface RootProps
   extends
-    Omit<ComponentProps<typeof Framed>, "defaultValue" | "dir" | "id" | "onChange" | "value">,
-    TabsOptions {}
+    Omit<
+      ComponentProps<typeof Framed>,
+      "defaultValue" | "dir" | "id" | "onChange" | "onClose" | "value"
+    >,
+    TabsOptions {
+  /**
+   * Called with the value of a closable tab that a person closes, after the selection has moved
+   * off it. The caller removes the tab and its panel.
+   */
+  readonly onClose?: ((details: CloseDetails) => void) | undefined;
+}
 
 /**
- * Shows one panel at a time, chosen from a strip of controls.
+ * Renders the root and provides the machine's api and the root's actions to the parts.
  *
- * @param props - The machine's options, the recipe's variants and the element's props together.
- * @returns The frame, holding the parts, under the running machine.
+ * @param props - The machine's options, the close handler, the recipe's variants and the props of
+ *   a `div`.
+ * @returns The `div` element inside the providers.
  */
-export function Root(props: RootProps): ReactElement {
+export function Root({ onClose, ...props }: RootProps): ReactElement {
   const [options, rest] = splitTabsProps(props);
-  const api = useTabsMachine(options);
+  const { api, measure } = useTabsMachine(options);
+  const actions = {
+    close: (tab: HTMLElement): void => {
+      closeTab(tab, api, onClose);
+    },
+    measure,
+  };
 
   return (
     <ApiProvider value={api}>
-      <Framed {...rest} {...api.getRootProps()} />
+      <ActionsProvider value={actions}>
+        <Framed {...rest} {...api.getRootProps()} />
+      </ActionsProvider>
     </ApiProvider>
   );
 }

@@ -14,7 +14,7 @@ import { quality } from "#pack/quality.ts";
 import { source } from "#pack/source.ts";
 
 /**
- * Gathers what holds for every published library, whatever it runs on.
+ * Returns the pack layers every published library extends, whatever runtime it targets.
  *
  * @remarks
  *   The group derives its entries from the manifest, so a package extending it states what it
@@ -25,26 +25,23 @@ export function base(): readonly Layer[] {
 }
 
 /**
- * Extends the base group for a library that only ever runs on a server.
+ * Returns the base group with the platform set to node, for a library that runs only on a server.
  *
  * @remarks
- *   The platform is stated rather than left to the packer's default, which happens to be node, so
- *   the choice is visible where it is made and survives a packer whose default changes.
+ *   The platform is stated where the packer would default to it, so the choice survives a change
+ *   to that default.
  */
 export function node(): readonly Layer[] {
   return [...base(), platform("node")];
 }
 
 /**
- * Extends the base group for a library a browser has to be able to load.
+ * Returns the base group with the platform set to neutral and a layer refusing Node built-ins.
  *
  * @remarks
- *   The runtime is fixed to neutral rather than to the browser, because a library reaching the
- *   browser is usually also imported by a server rendering it. Neutral says nothing about
- *   built-ins, so the pack refuses them separately: a Node built-in reached from such a library
- *   fails the pack rather than the browser. A package on this tier that states
- *   `pack.platform("node")` over it, because it reads files under a test runner, is packed for node
- *   and refused nothing.
+ *   The platform is neutral and not browser, because a server rendering the library usually
+ *   imports it too. Neutral tells the packer nothing about built-ins, so `pack.builtins` refuses
+ *   them separately and an import of one fails the pack.
  */
 export function web(): readonly Layer[] {
   return [...base(), platform("neutral"), builtins()];

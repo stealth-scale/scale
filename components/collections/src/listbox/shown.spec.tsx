@@ -6,9 +6,9 @@ import { describe, expect, it } from "vitest";
 import { ShownProvider, useShown } from "#listbox/shown.ts";
 
 /**
- * Reads the row shape and draws what the list handed it.
+ * Renders the settings it reads.
  *
- * @returns Whether a box is drawn, and the two marks the list was given.
+ * @returns A `span` with `boxed` and the two marks.
  */
 function Reader(): ReactElement {
   const { boxed, mark, mixedMark } = useShown();
@@ -23,7 +23,7 @@ function Reader(): ReactElement {
 }
 
 describe("useShown", () => {
-  it("hands a row the shape the list states", () => {
+  it("returns the settings the provider states", () => {
     render(
       <ShownProvider value={{ boxed: true, mark: "check", mixedMark: "dash" }}>
         <Reader />
@@ -33,7 +33,7 @@ describe("useShown", () => {
     expect(screen.getByTestId("shape").textContent).toBe("truecheckdash");
   });
 
-  it("throws where a ready-made part is drawn outside a list", () => {
+  it("throws outside a provider", () => {
     expect(() => render(<Reader />)).toThrow(/Listbox/u);
   });
 });

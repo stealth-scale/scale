@@ -1,31 +1,33 @@
 {
-  "about": "Copies a value and says so for a moment. The trigger draws no look of its own, so a page draws it as a button.",
+  "about": "Copies a value to the clipboard and shows the copied state for a moment. The trigger has no styles of its own, so a page renders it as a `Button` or an `IconButton`.",
   "alone": {
-    "about": "Press it. The indicator holds both marks and swaps on the state the machine publishes, then swaps back after a timeout, so the button says it worked without anything else on the page having to.",
-    "title": "On its own"
+    "about": "A button with visible text that copies the link. During the copied state the icon becomes a check mark and the text becomes `copiedLabel`. `label` and `copiedLabel` repeat the visible text, so the accessible name contains the label in both states.",
+    "title": "Copy button"
   },
   "beside": {
-    "about": "Beside the value it copies, so a reader sees what they are about to take. The field is read-only rather than disabled: it can still be focused and selected, which is the fallback where the browser refuses the copy.",
+    "about": "An icon button next to a read-only field. The field is focusable and selectable, so a person can copy by hand when the browser denies clipboard access.",
     "title": "Beside a field"
   },
   "copied": "Copied",
+  "copiedValue": "Copied {{value}}",
   "copy": "Copy the link",
+  "copyValue": "Copy {{value}}",
   "held": {
-    "about": "How long the mark stays before the button goes back to offering the copy. Press both. The default three seconds is long enough that a reader who looked away still catches it, and a quarter of a second is over before the eye returns.",
-    "title": "How long it says so"
+    "about": "`timeout` sets the duration of the copied state in milliseconds. The default is 3000. Press both buttons to compare 250 and 3000.",
+    "title": "Copied-state duration"
   },
   "label": "Link to the payout",
   "own": {
-    "about": "A control the page draws itself, reading the state and the copy method off the machine. Reach for this where the trigger is not a plain button, or where the words change with the state.",
-    "title": "Your own control"
+    "about": "A button the page builds with `Clipboard.Consumer`, which reads `copied` and calls `copy`. Use it when the control is not a plain button or its text changes with the state.",
+    "title": "Custom control"
   },
-  "sizes": {
-    "about": "The labelled row at every size. The size steps the label and the gaps, and the field and the button read their own size beside it.",
+  "size": {
+    "about": "The labelled row at each size. The root size sets the label and the gaps. The field and the button take the same size through their providers.",
     "title": "Sizes"
   },
   "title": "Clipboard",
   "value": {
-    "about": "The value itself as the thing pressed. Reach for this where the copy is a convenience rather than the point of the row.",
-    "title": "The value itself"
+    "about": "The value is the button text. `label` and `copiedLabel` name the action and the value, so the accessible name contains the visible text.",
+    "title": "Value as the trigger"
   }
 }

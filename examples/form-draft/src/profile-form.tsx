@@ -1,11 +1,11 @@
 /**
- * Draws the profile form in two steps: starts from the saved record or the draft, writes the
+ * Renders the profile form in two steps: starts from the saved record or the draft, writes the
  * draft as a person types, and saves the record on submit.
  */
 
 import { type ReactElement } from "react";
 
-import { useSchemaForm } from "@stealthscale/example-form-fields";
+import { useSchemaForm } from "@stealthscale/component-forms/form";
 import { type SettingStore } from "@stealthscale/settings";
 
 import { type Profile, writeProfile } from "#records.ts";
@@ -32,14 +32,14 @@ export interface ProfileFormProps {
 }
 
 /**
- * Draws the profile form.
+ * Renders the profile form.
  *
  * @remarks
  *   The draft is kept under the record's identifier, so a draft of one profile never opens over
  *   another. The form starts from the record's values written over the schema's defaults, and the
  *   draft's values written over those where there is a draft. The password is never in the draft,
  *   and the schema's default fills it back in. The hook writes the draft as a person types and
- *   forgets it once the submit returns, and `form.Fields` draws the steps, opens on the step the
+ *   forgets it once the submit returns, and `form.Fields` renders the steps, opens on the step the
  *   draft was left on, and writes the step as a person leaves it.
  */
 export function ProfileForm({ onSaved, record, store }: ProfileFormProps): ReactElement {

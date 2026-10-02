@@ -31,7 +31,7 @@ const KEY = draftKey("docs", "signup");
 const HASH = schemaHash(signup);
 
 /**
- * Refuses a password that holds the name, marking the password.
+ * Refuses a password that contains the name, marking the password.
  */
 const apart: SchemaValidators<Signup> = {
   onSubmit: ({ value }) =>
@@ -41,7 +41,7 @@ const apart: SchemaValidators<Signup> = {
 };
 
 /**
- * Builds the signup form and draws it, with a draft kept in the store given.
+ * Builds the signup form and renders it, with a draft kept in the store given.
  */
 function Page({
   onSubmit,
@@ -86,6 +86,16 @@ function stored(store: SettingStore): unknown {
  */
 function shown(): HTMLElement[] {
   return screen.getAllByRole("alert").filter((alert) => alert.textContent !== "");
+}
+
+/**
+ * Builds the form and keeps the element that renders its fields, as a compiled build does.
+ */
+function Kept({ translate }: { readonly translate: Translate }): ReactElement {
+  const form = useSchemaForm<Signup>({ schema: signup, translate });
+  const fields = useMemo(() => <form.Fields />, [form]);
+
+  return <form.AppForm>{fields}</form.AppForm>;
 }
 
 describe("createSchemaForm", () => {
@@ -268,20 +278,9 @@ describe("useSchemaForm", () => {
     expect(render(<Translated />).getByLabelText("Your name")).toBeDefined();
   });
 
-  it("draws the fields again through a kept element when the translator changes", () => {
+  it("renders the fields again through a kept element when the translator changes", () => {
     const english = translateFrom({ "signup.fields.name.label": "Your name" });
     const dutch = translateFrom({ "signup.fields.name.label": "Je naam" });
-
-    /**
-     * Builds the form and keeps the element that draws its fields, as a compiled build does.
-     */
-    function Kept({ translate }: { readonly translate: Translate }): ReactElement {
-      const form = useSchemaForm<Signup>({ schema: signup, translate });
-      const fields = useMemo(() => <form.Fields />, [form]);
-
-      return <form.AppForm>{fields}</form.AppForm>;
-    }
-
     const { getByLabelText, rerender } = render(<Kept translate={english} />);
 
     rerender(<Kept translate={dutch} />);

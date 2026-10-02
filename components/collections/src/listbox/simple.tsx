@@ -1,20 +1,11 @@
 /**
- * Draws a whole listbox from what it is told about the list, rather than from parts a caller
- * composes.
+ * Renders a whole listbox from props: a label, a filter field or a select-all row, the rows, the
+ * empty text and a summary.
  *
  * @remarks
- *   Almost every list is the same shape: a label, a field or a select-all row above the rows, the
- *   rows, and something said where there are none. Composing that by hand is a page of code per
- *   list and a chance to leave out the empty part or the label every time. This draws it from
- *   props, and a list that wants something else composes the parts instead, which are published
- *   beside this and are what this is built from.
- *   Narrowing stays the caller's. The field reports what was typed and the caller hands back a
- *   collection holding what is left, because the machine never filters and a component that did
- *   would hold two lists and disagree with itself.
- *   A name given as `aria-label` goes on the rows rather than on the frame round them, and only
- *   where the list carries no label of its own. The rows are the listbox as far as a screen reader
- *   is concerned, a name on the frame names something with no role at all, and a name beside a
- *   label a reader can see is the one a reader cannot see winning.
+ *   A list with another structure composes the parts. Filtering stays the caller's: the field
+ *   reports the text and the caller passes a filtered collection. An `aria-label` goes on the
+ *   element with `role="listbox"`, and only when the list has no visible label.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -25,6 +16,7 @@ import {
   Content,
   type ContentProps,
   Empty,
+  Frame,
   Input,
   type InputProps,
   ItemGroup,
@@ -40,104 +32,104 @@ import { ROW_HEIGHT } from "#listbox/recipe.ts";
 import { Row } from "#listbox/row.tsx";
 
 /**
- * Describes the field a reader narrows the list from.
+ * Describes the filter field above the rows.
  */
 export interface Narrowing {
   /**
-   * Drawn inside the control that empties the field, which is drawn only where one is given.
+   * Icon of the clear control. The control renders only when an icon is given.
    */
   readonly clearIndicator?: ReactNode | undefined;
 
   /**
-   * Reads out as the name of the control that empties the field.
+   * Accessible name of the clear control.
    */
   readonly clearLabel?: string | undefined;
 
   /**
-   * Hears what was typed, so the caller hands back a collection holding what is left.
+   * Called with the field's text on every change. The caller passes back a filtered collection.
    */
   readonly onNarrow: (typed: string) => void;
 
   /**
-   * Drawn in the field while it is empty.
+   * Placeholder of the field.
    */
   readonly placeholder?: string | undefined;
 }
 
 /**
- * Describes what a whole listbox takes beyond everything its root takes.
+ * Describes the props of a whole listbox: the root's props and the parts it renders.
  *
- * @typeParam Row - What one row holds.
+ * @typeParam Row - Type of one collection item.
  */
 export interface SimpleProps<Row> extends Omit<RootProps, "children" | "collection"> {
   /**
-   * The rows, in the order they are drawn.
+   * Rows in render order.
    */
   readonly collection: ListCollection<Row>;
 
   /**
-   * Written under a row's name, for a name that does not tell a reader enough to choose.
+   * Returns the description rendered under a row's text.
    */
   readonly description?: ((row: Row) => ReactNode) | undefined;
 
   /**
-   * Said where the list holds nothing at all.
+   * Text rendered while the collection is empty.
    */
   readonly empty?: ReactNode | undefined;
 
   /**
-   * Reads the heading a row is gathered under, for a list drawn in groups.
+   * Returns the key of the group a row belongs to.
    */
   readonly groupBy?: ((row: Row) => string) | undefined;
 
   /**
-   * Reads the words a heading is drawn by, where they are not the heading's own key.
+   * Returns the label of a group from its key. Defaults to the key.
    */
   readonly groupLabel?: ((under: string) => ReactNode) | undefined;
 
   /**
-   * Drawn before a row's name, saying what kind of thing the row is.
+   * Returns the icon rendered before a row's text.
    */
   readonly icon?: ((row: Row) => ReactNode) | undefined;
 
   /**
-   * Words above the list naming it.
+   * Label rendered above the list.
    */
   readonly label?: ReactNode | undefined;
 
   /**
-   * A field above the rows that narrows them as a reader types.
+   * Filter field rendered above the rows.
    */
   readonly narrowing?: Narrowing | undefined;
 
   /**
-   * Words on a row above the list that turns the whole of it on.
+   * Text of the select-all row rendered above the rows.
    */
   readonly selectAll?: ReactNode | undefined;
 
   /**
-   * Written under the list, following whatever is picked. The words stand in while nothing is.
+   * Placeholder of the summary rendered under the list, which shows the selected rows' text.
    */
   readonly summary?: string | undefined;
 
   /**
-   * How many rows tall the list is. A list told this draws only the rows near enough to be seen,
-   * whatever the collection holds.
+   * Height of the list in rows. A list with a height renders only the rows in or near its
+   * viewport.
    */
   readonly tall?: number | undefined;
 }
 
 /**
- * Describes what drawing one row needs beyond the row.
+ * Describes the props one row reads.
  *
- * @typeParam Row - What one row holds.
+ * @typeParam Row - Type of one collection item.
  */
 type Drawing<Row> = Pick<SimpleProps<Row>, "collection" | "description" | "icon">;
 
 /**
- * Draws one row of the list.
+ * Returns one ready-made row.
  *
- * @typeParam Row - What one row holds.
+ * @typeParam Row - Type of one collection item.
  */
 function drawn<Row>({ collection, description, icon }: Drawing<Row>, row: Row): ReactElement {
   return (
@@ -153,9 +145,9 @@ function drawn<Row>({ collection, description, icon }: Drawing<Row>, row: Row): 
 }
 
 /**
- * Gathers the rows under their headings, in the order the headings first appear.
+ * Returns the rows grouped by key, in the order each key first appears.
  *
- * @typeParam Row - What one row holds.
+ * @typeParam Row - Type of one collection item.
  */
 function gathered<Row>(rows: readonly Row[], under: (row: Row) => string): Map<string, Row[]> {
   const groups = new Map<string, Row[]>();
@@ -170,9 +162,9 @@ function gathered<Row>(rows: readonly Row[], under: (row: Row) => string): Map<s
 }
 
 /**
- * Draws the rows, gathered under headings where the list is told how to gather them.
+ * Returns the rows, in groups when the list states `groupBy`.
  *
- * @typeParam Row - What one row holds.
+ * @typeParam Row - Type of one collection item.
  */
 function listed<Row>(props: SimpleProps<Row>, rows: readonly Row[]): ReactNode {
   const { groupBy, groupLabel } = props;
@@ -188,22 +180,17 @@ function listed<Row>(props: SimpleProps<Row>, rows: readonly Row[]): ReactNode {
 }
 
 /**
- * Writes what the field takes out of what the list was told about narrowing.
- *
- * @remarks
- *   The two differ by one name. A list hears what was typed through `onNarrow`, because what it
- *   does with the text is hand back a shorter collection, and the field reports it through the name
- *   every driven field in this house reports a value under.
+ * Returns the field's props from the filter settings, with `onNarrow` passed as `onValueChange`.
  */
 function narrowed({ onNarrow, ...rest }: Narrowing): InputProps {
   return { ...rest, onValueChange: onNarrow };
 }
 
 /**
- * Writes what the box holding the rows takes: the name, where the list carries no label to take it
- * from, and the room it stands in, where the list is held to a count of rows.
+ * Returns the content's props: `aria-label` when the list has no label, and a height in rows when
+ * the list states one.
  *
- * @typeParam Row - What one row holds.
+ * @typeParam Row - Type of one collection item.
  */
 function boxed<Row>({ "aria-label": named, label, tall }: SimpleProps<Row>): ContentProps {
   return {
@@ -215,11 +202,16 @@ function boxed<Row>({ "aria-label": named, label, tall }: SimpleProps<Row>): Con
 }
 
 /**
- * Draws a whole listbox from what it is told about the list.
+ * Renders a whole listbox from props.
  *
- * @typeParam Row - What one row holds.
- * @param props - The rows, what each one draws, and what stands above and below them.
- * @returns The list, holding its label, its field, its rows and what it says when it has none.
+ * @remarks
+ *   The field, the select-all row and the empty text render in the frame, outside the element with
+ *   `role="listbox"`, which allows only options and groups. The rows scroll inside that element, so
+ *   the field and the select-all row stay in place. The label and the summary render outside the
+ *   frame.
+ * @typeParam Row - Type of one collection item.
+ * @param props - The collection, the row renderers and the parts above and below the rows.
+ * @returns The listbox.
  */
 export function Simple<Row>(props: SimpleProps<Row>): ReactElement {
   const {
@@ -241,18 +233,20 @@ export function Simple<Row>(props: SimpleProps<Row>): ReactElement {
   return (
     <Root {...root} collection={collection}>
       {label === undefined ? null : <Label>{label}</Label>}
-      <Content {...boxed(props)}>
+      <Frame>
         {narrowing === undefined ? null : <Input {...narrowed(narrowing)} />}
         {selectAll === undefined ? null : <SelectAll>{selectAll}</SelectAll>}
-        {tall === undefined ? (
-          listed(props, collection.items)
-        ) : (
-          <Window count={collection.size}>
-            {({ first, last }) => listed(props, collection.items.slice(first, last))}
-          </Window>
-        )}
+        <Content {...boxed(props)}>
+          {tall === undefined ? (
+            listed(props, collection.items)
+          ) : (
+            <Window count={collection.size}>
+              {({ first, last }) => listed(props, collection.items.slice(first, last))}
+            </Window>
+          )}
+        </Content>
         {empty === undefined ? null : <Empty>{empty}</Empty>}
-      </Content>
+      </Frame>
       {summary === undefined ? null : <ValueText placeholder={summary} />}
     </Root>
   );

@@ -8,7 +8,7 @@ import { slotClass, slotClasses, variantClass } from "@stealthscale/testing-them
 import { withContext, withProvider } from "#transfer/context.ts";
 
 describe("context", () => {
-  it("draws the slot's class on an element it binds", () => {
+  it("applies the slot class to a bound element", () => {
     const Framed = withProvider("div", "root");
     const Between = withContext("div", "controls");
     const { container } = render(createElement(Framed, null, createElement(Between)));
@@ -18,7 +18,7 @@ describe("context", () => {
     );
   });
 
-  it("hands the root's variants to a control below it", () => {
+  it("passes the root's size to a control below it", () => {
     const Framed = withProvider("div", "root");
     const Pressed = withContext("button", "control");
     const { container } = render(createElement(Framed, { size: "lg" }, createElement(Pressed)));

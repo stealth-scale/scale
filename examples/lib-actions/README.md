@@ -25,21 +25,29 @@ graph by that subpath.
 
 ## The recipe
 
-`src/button/button.recipe.ts` states what a button is with the helpers of
-`@stealthscale/theme/authoring`: `interactive()` for the hand, the transition and the focus ring,
-`stack()` for the row, `controlSizes()` for a size axis, `lookVariants()` for a look axis and
-`statusVariants()` for a status axis. Every value is a semantic token, a layer style or a text
-style, so a theme can change all of them. The recipe points at the `primary` palette, and the status
-axis points the palette at an intent, so an error button and a primary button are one recipe.
+`src/button/button.recipe.ts` declares the button with the helpers of
+`@stealthscale/theme/authoring`:
+
+- `interactive()` for the cursor, the transition and the focus ring.
+- `stack()` for the row.
+- `controlSizes()` for the `size` axis.
+- `lookVariants()` for the `variant` axis.
+- `paletteVariants()` for the `palette` axis, with the eight semantic palettes.
+
+Every value is a semantic token, a layer style or a text style, so a theme can change each of them.
+The base sets the `primary` palette, and `palette` replaces it, so an error button and a primary
+button share one recipe. The axis matches the `palette` axis of `@stealthscale/component-actions`,
+whose recipe has the same class name. An application that installs both packages compiles one set of
+`button--palette_*` classes.
 
 ## The component
 
 `src/button/button.ts` binds the recipe with `createRecipeContext` from `@stealthscale/theme` and
-draws a `button` element through the binding. The binding stamps `data-recipe="button"` on the
-element and writes the class of each variant a caller picks. Color, size and margin are the
-recipe's, so a theme restyles every button by extending it. The binding types the component by a
-name the theme package publishes, so the declaration this package publishes refers to that package
-alone, and `ButtonProps` is read off the component.
+renders a `button` element through the binding. The binding sets `data-recipe="button"` on the
+element and applies the class of each variant the caller passes. The recipe owns color, size and
+margin, so a theme restyles every button by extending it. The binding types the component with a
+type the theme package exports, so this package's declaration file imports only that package.
+`ButtonProps` is derived from the component with `ComponentProps`.
 
 ## The preset
 

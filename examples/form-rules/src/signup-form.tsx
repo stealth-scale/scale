@@ -1,11 +1,11 @@
 /**
- * Draws the signup form, whose rules come from four places: the schema, the engine, a field
+ * Renders the signup form, whose rules come from four places: the schema, the engine, a field
  * validator and a form validator.
  */
 
 import { type ReactElement } from "react";
 
-import { useSchemaForm } from "@stealthscale/example-form-fields";
+import { useSchemaForm } from "@stealthscale/component-forms/form";
 
 import { isTaken } from "#accounts.ts";
 import { apart } from "#apart.ts";
@@ -22,14 +22,14 @@ export interface SignupFormProps {
 }
 
 /**
- * Draws the signup form from its schema.
+ * Renders the signup form from its schema.
  *
  * @remarks
  *   The schema goes in the dynamic slot with the page's engine, so the VAT format and the
  *   matching keyword apply. The username asks the accounts service on blur, debounced, through
  *   the library's own field validator, given by path, and the library skips that request while
  *   the schema refuses the field. The rule across the password and the username is a form
- *   validator in the submit slot. The VAT field is drawn where the schema resolved against the
+ *   validator in the submit slot. The VAT field renders where the schema resolved against the
  *   values declares it.
  */
 export function SignupForm({ onDone }: SignupFormProps): ReactElement {

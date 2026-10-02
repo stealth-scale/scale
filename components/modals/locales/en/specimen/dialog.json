@@ -1,0 +1,165 @@
+{
+  "about": "Opens a panel over a dimmed page and keeps focus in it until the reader closes it. Escape, a press on the backdrop, the close button and an action button close it, and focus returns to the trigger.",
+  "alert": {
+    "about": "An alert dialog before a destructive action. It takes `role=\"alertdialog\"` and focuses Cancel, its first button, when it opens. A press on the backdrop leaves it open. The status line below the trigger announces the result.",
+    "title": "Alert"
+  },
+  "cancel": "Cancel",
+  "close": "Close",
+  "commands": {
+    "about": "The command palette in a `plain` dialog, which renders no panel of its own around the palette. The trigger, ⌘K and Ctrl+K open it, and running a command closes it.",
+    "title": "Command palette"
+  },
+  "confirm": {
+    "confirm": "Revoke key",
+    "description": "Services that use this key stop working at once. You cannot undo it.",
+    "done": "The production key was revoked.",
+    "title": "Revoke the production key?",
+    "trigger": "Revoke key"
+  },
+  "done": "Done",
+  "form": {
+    "about": "A form in the body with its submit button in the footer, joined by the button's `form` attribute. Send checks the address and keeps the dialog open with the error until the address is valid.",
+    "title": "Form"
+  },
+  "invite": {
+    "check": "Enter an email address such as name@example.com.",
+    "description": "They get an email with a link to join the workspace.",
+    "email": "Email address",
+    "send": "Send invite",
+    "title": "Invite a teammate",
+    "trigger": "Invite teammate"
+  },
+  "members": {
+    "labels": {
+      "email": "Email",
+      "joined": "Joined",
+      "role": "Role"
+    },
+    "people": {
+      "ada": {
+        "email": "ada@example.com",
+        "joined": "12 March 2024",
+        "name": "Ada Lovelace",
+        "role": "Admin",
+        "title": "Engineering lead"
+      },
+      "alan": {
+        "email": "alan@example.com",
+        "joined": "30 June 2025",
+        "name": "Alan Turing",
+        "role": "Viewer",
+        "title": "Research"
+      },
+      "grace": {
+        "email": "grace@example.com",
+        "joined": "8 January 2025",
+        "name": "Grace Hopper",
+        "role": "Member",
+        "title": "Staff engineer"
+      }
+    }
+  },
+  "nested": {
+    "about": "A dialog opened from another. The second backdrop dims the first dialog, Escape closes the top dialog alone, and Delete project closes both.",
+    "title": "Nested"
+  },
+  "palette": {
+    "actions": {
+      "duplicate": "Duplicate invoice",
+      "new": "New invoice",
+      "overview": "Go to overview",
+      "settings": "Go to settings"
+    },
+    "clear": "Clear the query",
+    "commands": "Commands",
+    "groups": {
+      "invoices": "Invoices",
+      "navigation": "Navigation"
+    },
+    "label": "Command palette",
+    "none": "No command matches",
+    "placeholder": "Type a command",
+    "trigger": "Search commands"
+  },
+  "placement": {
+    "about": "The panel at the top of the window, in the middle and at the bottom. A panel taller than the window starts at the top under every placement.",
+    "title": "Placements"
+  },
+  "scrollBehavior": {
+    "about": "Terms longer than the window. Inside, the body scrolls and the header and the footer remain in view. Outside, the window scrolls the whole panel.",
+    "title": "Scrolling"
+  },
+  "settings": {
+    "danger": "Deleting the project removes its 12 dashboards for everyone in the workspace.",
+    "deletion": {
+      "cancel": "Cancel",
+      "confirm": "Delete project",
+      "description": "This removes the project and its dashboards. You cannot undo it.",
+      "title": "Delete the Atlas project?",
+      "trigger": "Delete project"
+    },
+    "description": "Atlas, created 4 February 2025",
+    "title": "Project settings",
+    "trigger": "Project settings"
+  },
+  "shared": {
+    "about": "One dialog opened by three triggers. Each trigger passes its `value`, the root reports the pressed one as `triggerValue`, and focus returns to that trigger.",
+    "title": "Shared"
+  },
+  "shortcuts": {
+    "commands": {
+      "palette": "Open the command palette",
+      "save": "Save",
+      "search": "Search",
+      "undo": "Undo"
+    },
+    "description": "Press these anywhere in the workspace.",
+    "title": "Keyboard shortcuts",
+    "trigger": "Keyboard shortcuts"
+  },
+  "size": {
+    "about": "The five widths from 24 to 56rem, then `cover`, which fills the window inside a margin, and `full`, which fills the window. A panel is never wider than the window less its margin.",
+    "title": "Sizes"
+  },
+  "terms": {
+    "sections": {
+      "accounts": {
+        "body": "You are responsible for the activity on your account and for keeping its password secret. Tell us at once if you suspect someone else has used it.",
+        "title": "Your account"
+      },
+      "billing": {
+        "body": "Paid plans renew each month or each year until you cancel. We charge the card on file at the start of each period and send a receipt to the billing address.",
+        "title": "Billing"
+      },
+      "changes": {
+        "body": "We tell you by email at least 30 days before a change takes effect. If you keep using the service after that date, the new terms apply.",
+        "title": "Changes to these terms"
+      },
+      "contact": {
+        "body": "Send questions about these terms to legal@example.com. We reply within five working days.",
+        "title": "Contact"
+      },
+      "content": {
+        "body": "You keep every right to what you upload. You give us permission to store, copy and display it only to run the service for you.",
+        "title": "Your content"
+      },
+      "liability": {
+        "body": "The service is provided as it is. Our total liability for any claim is limited to the amount you paid us in the 12 months before the claim.",
+        "title": "Liability"
+      },
+      "privacy": {
+        "body": "We collect what we need to run the service and nothing else. The privacy notice lists every kind of data we keep and how long we keep it.",
+        "title": "Privacy"
+      },
+      "termination": {
+        "body": "You can close your account at any time from the settings page. We delete your content 30 days after you close it.",
+        "title": "Closing your account"
+      }
+    },
+    "title": "Terms of service",
+    "trigger": "Terms of service",
+    "updated": "Last updated 1 September 2026"
+  },
+  "title": "Dialog"
+}

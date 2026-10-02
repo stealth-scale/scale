@@ -1,17 +1,18 @@
 {
-  "about": "Draws a placeholder while content loads, taking the size of what it wraps.",
-  "corners": {
-    "about": "Every corner, each round a tile the placeholder hides.",
-    "title": "Corners"
-  },
+  "about": "A placeholder over content that is still loading, at the size of the content it wraps.",
   "loading": {
-    "about": "The placeholder over the content, and the content once it has arrived. Wrap the content rather than replacing it, so the page does not jump.",
+    "about": "The loaded card and the placeholder over it. Wrap the content in the skeleton instead of replacing it, so the layout does not shift when the content arrives.",
     "title": "Loading"
   },
   "motion": {
-    "about": "Every motion: still, pulsing, or shimmering.",
+    "about": "Every motion: none, pulse and shimmer. The theme stops both animations under reduced motion.",
     "title": "Motion"
   },
-  "profile": "Ada Lovelace, analyst",
+  "name": "Ada Lovelace",
+  "radius": {
+    "about": "Every corner of the placeholder.",
+    "title": "Corners"
+  },
+  "role": "Analyst",
   "title": "Skeleton"
 }

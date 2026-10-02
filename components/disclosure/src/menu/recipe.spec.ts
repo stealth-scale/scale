@@ -1,19 +1,29 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
 
+import page from "#menu/menu.specimen.tsx";
 import { recipe } from "#menu/recipe.ts";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("covers every axis in the scenes of its specimen", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("leaves no scene naming a value the recipe lacks", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Menu"] })).toStrictEqual([]);
   });
 
-  it("names its class menu", () => {
+  it("sets className to menu", () => {
     expect(recipe.className).toBe("menu");
   });
 
-  it("draws the nineteen parts a menu is composed of", () => {
+  it("declares twenty-one slots", () => {
     expect([...recipe.slots].toSorted()).toStrictEqual([
       "arrow",
       "arrowTip",
@@ -31,99 +41,154 @@ describe("recipe", () => {
       "itemText",
       "positioner",
       "root",
+      "rows",
       "separator",
       "trigger",
       "triggerItem",
+      "viewport",
     ]);
   });
 
-  it("takes part in no layout at the root the machine does not name", () => {
+  it("sets display contents on the root", () => {
     expect(recipe.base?.["root"]).toStrictEqual({ display: "contents" });
   });
 
-  it("offers the four axes a menu takes", () => {
-    expect(axesOf(recipe)).toStrictEqual(["highlight", "inset", "size", "variant"]);
+  it("declares five axes", () => {
+    expect(axesOf(recipe)).toStrictEqual(["highlight", "inset", "palette", "size", "variant"]);
   });
 
-  it("draws a surfaced menu at the middle size tinting the highlighted row by default", () => {
+  it("defaults to the surface look at md in neutral with the tint highlight", () => {
     expect(defaultsOf(recipe)).toStrictEqual({
       highlight: "tint",
+      palette: "neutral",
       size: "md",
       variant: "surface",
     });
   });
 
-  it("offers the three steps a list of rows is read at", () => {
+  it("declares three sizes", () => {
     expect(valuesOf(recipe, "size")).toStrictEqual(["lg", "md", "sm"]);
   });
 
-  it("offers the three ways the panel is set off from the page", () => {
+  it("declares three looks", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual(["elevated", "glass", "surface"]);
   });
 
-  it("offers the three ways the row the reader is on is marked", () => {
+  it("declares three highlights", () => {
     expect(valuesOf(recipe, "highlight")).toStrictEqual(["bar", "fill", "tint"]);
   });
 
-  it("marks a submenu's control the same way as a row beside it", () => {
+  it("sets the palette on the panel", () => {
+    expect(recipe.variants?.["palette"]?.["info"]).toStrictEqual({
+      content: { colorPalette: "info" },
+    });
+  });
+
+  it("emits every palette", () => {
+    expect(recipe.staticCss).toContainEqual({
+      palette: ["primary", "secondary", "accent", "neutral", "info", "success", "warning", "error"],
+    });
+  });
+
+  it("highlights a submenu's trigger row like any row", () => {
     expect(recipe.variants?.["highlight"]?.["fill"]).toMatchObject({
       item: { _highlighted: { layerStyle: "fill.solid" } },
       triggerItem: { _highlighted: { layerStyle: "fill.solid" } },
     });
   });
 
-  it("caps the panel at the height the machine measured for it", () => {
-    expect(recipe.base?.["content"]).toMatchObject({
-      maxBlockSize: "var(--available-height)",
-      overflowY: "auto",
+  it("caps the panel at --available-height", () => {
+    expect(recipe.base?.["content"]).toMatchObject({ maxBlockSize: "var(--available-height)" });
+  });
+
+  it("leaves the scrolling to the scroll area inside the panel", () => {
+    expect(recipe.base?.["content"]).not.toHaveProperty("overflowY");
+  });
+
+  it("contains the viewport's overscroll", () => {
+    expect(recipe.base?.["viewport"]).toStrictEqual({ overscrollBehavior: "contain" });
+  });
+
+  it("stacks the rows in a column", () => {
+    expect(recipe.base?.["rows"]).toStrictEqual({ display: "flex", flexDirection: "column" });
+  });
+
+  it("pads the rows a gap step below the size", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["rows"]).toStrictEqual({
+      padding: "calc({spacing.gap.sm} * var(--density, 1))",
     });
   });
 
-  it("keeps a scroll inside the panel rather than passing it to the page", () => {
-    expect(recipe.base?.["content"]).toMatchObject({ overscrollBehavior: "contain" });
+  it("keeps a revealed row the rows' padding from the viewport's edge", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["viewport"]).toStrictEqual({
+      scrollPadding: "calc({spacing.gap.sm} * var(--density, 1))",
+    });
   });
 
-  it("enters from the side the machine placed the panel on", () => {
+  it("animates the panel with slide-fade", () => {
     expect(recipe.base?.["content"]).toMatchObject({
       _closed: { animationStyle: "slide-fade.out" },
       _open: { animationStyle: "slide-fade.in" },
     });
   });
 
-  it("stacks the panel on the dropdown rung rather than the popover rung", () => {
-    expect(recipe.base?.["content"]).toMatchObject({ zIndex: "dropdown" });
+  it("stacks the panel on the dropdown z-index plus its depth", () => {
+    expect(recipe.base?.["content"]).toMatchObject({
+      zIndex: "calc({zIndex.dropdown} + var(--menu-depth, 0))",
+    });
   });
 
-  it("opens the panel at least as wide as its control and as wide as its widest row", () => {
-    expect(recipe.base?.["content"]).toMatchObject({ minInlineSize: "var(--reference-width)" });
+  it("sets no z-index on the positioner", () => {
+    expect(recipe.base?.["positioner"]).not.toHaveProperty("zIndex");
+  });
+
+  it("sizes the panel from sizes.44 to its widest row", () => {
+    expect(recipe.base?.["content"]).toMatchObject({ minInlineSize: "44" });
     expect(recipe.base?.["content"]).not.toHaveProperty("inlineSize");
   });
 
-  it("draws no ring on the panel the machine focuses as it opens", () => {
+  it("hides the focus ring of the rows' scroll area", () => {
+    expect(recipe.base?.["content"]).toMatchObject({ "--scroll-area-ring-style": "none" });
+  });
+
+  it("sets no outline on the panel", () => {
     expect(recipe.base?.["content"]).toMatchObject({ outline: "0" });
     expect(recipe.base?.["content"]).not.toHaveProperty("_focusVisible");
   });
 
-  it("leaves no gutter on a row that carries a tick", () => {
+  it("leaves no gutter on a checkable row", () => {
     expect(recipe.base?.["item"]).not.toHaveProperty("&[data-type]");
   });
 
-  it("leaves the same gutter on every row when the menu is inset", () => {
+  it("pads only a row without a leading icon or mark by the gutter when inset is true", () => {
+    const unmarked = {
+      "&:not(:has(> svg:first-child, > .menu__itemMark:first-child))": {
+        paddingInlineStart: "var(--menu-gutter)",
+      },
+    };
+
     expect(recipe.variants?.["inset"]?.["true"]).toStrictEqual({
-      item: { paddingInlineStart: "var(--menu-gutter)" },
-      triggerItem: { paddingInlineStart: "var(--menu-gutter)" },
+      item: unmarked,
+      triggerItem: unmarked,
     });
   });
 
-  it("measures the gutter from the room at the edge the mark and the gap beside it", () => {
+  it("sizes the gutter from the row's padding the icon and the gap at the density", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["item"]).toMatchObject({
-      "--menu-gutter": "calc({spacing.inset.sm} + {sizes.icon.sm} + {spacing.gap.md})",
+      "--menu-gutter":
+        "calc(calc({spacing.inset.sm} * var(--density, 1)) + calc({sizes.icon.sm} * var(--density, 1)) + calc({spacing.gap.md} * var(--density, 1)))",
     });
   });
 
-  it("reads a row one step below the name the menu was asked for and rounds its corners", () => {
-    expect(recipe.variants?.["size"]?.["md"]?.["item"]).toStrictEqual({
-      "--menu-gutter": "calc({spacing.inset.sm} + {sizes.icon.sm} + {spacing.gap.md})",
+  it("sizes a leading icon one size smaller than the row", () => {
+    expect(recipe.variants?.["size"]?.["lg"]?.["item"]?.["& > svg"]).toStrictEqual({
+      boxSize: "calc({sizes.icon.md} * var(--density, 1))",
+      flexShrink: "0",
+    });
+  });
+
+  it("sets a row on the body role one size smaller with rounded corners", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["item"]).toMatchObject({
       gap: "calc({spacing.gap.md} * var(--density, 1))",
       paddingBlock: "calc({spacing.gap.sm} * var(--density, 1))",
       paddingInline: "calc({spacing.inset.sm} * var(--density, 1))",
@@ -132,17 +197,17 @@ describe("recipe", () => {
     expect(recipe.base?.["item"]).toMatchObject({ borderRadius: "l1" });
   });
 
-  it("runs a rule out to the panel's edge whatever width the rows took", () => {
+  it("sizes the separator to the panel's width", () => {
     expect(recipe.base?.["separator"]).toMatchObject({ inlineSize: "auto" });
   });
 
-  it("draws a submenu's control as a row", () => {
+  it("sizes a submenu's trigger row like a row", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["triggerItem"]).toStrictEqual(
       recipe.variants?.["size"]?.["md"]?.["item"],
     );
   });
 
-  it("reads a group's label smaller and lighter than the rows it names", () => {
+  it("sets a group label two sizes smaller in fg.subtle", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["itemGroupLabel"]).toMatchObject({
       textStyle: "body.xs",
     });
@@ -152,7 +217,7 @@ describe("recipe", () => {
     });
   });
 
-  it("pushes the keys that run a row to its end a step quieter and smaller", () => {
+  it("puts the keys at the row's end two sizes smaller in fg.muted", () => {
     expect(recipe.base?.["itemCommand"]).toMatchObject({
       color: "fg.muted",
       marginInlineStart: "auto",
@@ -162,28 +227,28 @@ describe("recipe", () => {
     });
   });
 
-  it("runs a rule out to the panel's edge through the room round the rows", () => {
+  it("extends the separator through the rows' padding", () => {
     expect(recipe.variants?.["size"]?.["md"]?.["separator"]).toStrictEqual({
       marginBlock: "calc({spacing.gap.sm} * var(--density, 1))",
       marginInline: "calc(-1 * calc({spacing.gap.sm} * var(--density, 1)))",
     });
   });
 
-  it("draws a row that undoes something in the error palette", () => {
+  it("sets a critical row in the error palette", () => {
     expect(recipe.base?.["item"]).toMatchObject({
       "&[data-tone=critical]": { color: "colorPalette.fg", colorPalette: "error" },
     });
   });
 
-  it("draws a row in the neutral palette until its tone says otherwise", () => {
-    expect(recipe.base?.["item"]).toMatchObject({ colorPalette: "neutral" });
+  it("sets no palette on a row", () => {
+    expect(recipe.base?.["item"]).not.toHaveProperty("colorPalette");
   });
 
-  it("draws the arrow over a row rather than the hand", () => {
+  it("sets the menuitem cursor on a row", () => {
     expect(recipe.base?.["item"]).toMatchObject({ cursor: "menuitem" });
   });
 
-  it("pushes the tick to the end of the row and keeps its box while the row is off", () => {
+  it("shows a row's indicator at the row's end only while checked", () => {
     expect(recipe.base?.["itemIndicator"]).toMatchObject({
       "&[data-state=checked]": { visibility: "visible" },
       marginInlineStart: "auto",
@@ -193,7 +258,7 @@ describe("recipe", () => {
     expect(recipe.base?.["itemIndicator"]).not.toHaveProperty("position");
   });
 
-  it("cuts a label too long for its row rather than wrapping it", () => {
+  it("truncates a row's text", () => {
     expect(recipe.base?.["itemText"]).toMatchObject({
       overflow: "hidden",
       textOverflow: "ellipsis",
@@ -201,7 +266,7 @@ describe("recipe", () => {
     });
   });
 
-  it("draws a row's mark as a tinted square the size of a tag", () => {
+  it("sizes a row's mark as a tag on bg.muted", () => {
     expect(recipe.base?.["itemMark"]).toMatchObject({
       background: "bg.muted",
       borderRadius: "l1",
@@ -214,7 +279,7 @@ describe("recipe", () => {
     });
   });
 
-  it("stacks a row's words over the line about them and fills the row with the pair", () => {
+  it("stacks a row's lines in a growing column", () => {
     expect(recipe.base?.["itemLines"]).toStrictEqual({
       display: "flex",
       flex: "1",
@@ -223,7 +288,7 @@ describe("recipe", () => {
     });
   });
 
-  it("draws the line under a row's words in the caption's type and the subtle ink", () => {
+  it("sets a row's description on the caption role in fg.subtle", () => {
     expect(recipe.base?.["itemDescription"]).toMatchObject({
       color: "fg.subtle",
       textStyle: "caption",
@@ -231,27 +296,47 @@ describe("recipe", () => {
     });
   });
 
-  it("fills the point from the same custom property the panel states its surface as", () => {
+  it("fills the arrow from --menu-surface", () => {
     expect(recipe.base?.["arrow"]).toMatchObject({ "--arrow-background": "var(--menu-surface)" });
     expect(recipe.variants?.["variant"]?.["surface"]?.["content"]).toMatchObject({
       "--menu-surface": "colors.bg.popover",
     });
   });
 
-  it("states nothing about where the panel goes", () => {
+  it("sets no offset on the positioner", () => {
     expect(recipe.base?.["positioner"]).toStrictEqual({ position: "relative" });
   });
 
-  it("pushes the mark that opens the panel to the end of its control and holds it still", () => {
-    expect(recipe.base?.["indicator"]).toStrictEqual({
+  it("gives the elevated panel a transparent hairline edge", () => {
+    expect(recipe.variants?.["variant"]?.["elevated"]?.["content"]).toMatchObject({
+      borderColor: "transparent",
+      borderStyle: "solid",
+      borderWidth: "hairline",
+    });
+  });
+
+  it("puts the indicator at its trigger's end", () => {
+    expect(recipe.base?.["indicator"]).toMatchObject({
+      "& > svg": { boxSize: "100%" },
       alignItems: "center",
       display: "inline-flex",
       flexShrink: "0",
+      justifyContent: "center",
       marginInlineStart: "auto",
     });
   });
 
-  it("tracks the tag named Menu and every part under it", () => {
+  it("mirrors the indicator in a right-to-left menu", () => {
+    expect(recipe.base?.["indicator"]?.["_rtl"]).toStrictEqual({ scale: "-1 1" });
+  });
+
+  it("sizes the indicator like a checked row's mark", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["indicator"]).toStrictEqual({
+      boxSize: "calc({sizes.icon.sm} * var(--density, 1))",
+    });
+  });
+
+  it("matches every Menu tag", () => {
     expect(recipe.jsx).toStrictEqual([/^Menu(\.\w+)?$/u]);
   });
 });

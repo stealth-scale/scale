@@ -1,56 +1,51 @@
 /**
- * Writes the styles a row of actions folds by, which the page, the toolbar and the section share.
+ * Styles an action that folds to its icon while its row is narrow, for the page, the toolbar and
+ * the section.
  *
  * @remarks
- *   Folding is three rules and no JavaScript. A primary action keeps its words at every width. A
- *   secondary one keeps its mark and reads its words to a screen reader alone. A tertiary one
- *   leaves the row, and whatever the row keeps for the actions it drops holds it instead.
- *   The rules are written against `data-narrow`, which the row measures on itself, so a row beside
- *   an open sidebar folds on its own width rather than the window's and a consumer writes no
- *   breakpoint.
- *   The source this was ported from did it the other way round: an action registered itself into a
- *   menu the row held, from an effect, and the row kept that list in state. React 19 reports state
- *   written from an effect, and the list arrived one render after the row was drawn, so the menu
- *   filled in after it opened. Nothing here writes state and nothing measures an action.
+ *   A secondary action shows its icon alone, and its words remain for a screen reader. A tertiary
+ *   action renders nothing on a narrow row and runs from the row's menu, which the action registers
+ *   with. The row measures its own width, so a row beside an open sidebar folds on its own width
+ *   and the caller does not write a breakpoint.
  */
 
 /**
- * Selects a part inside a row that has measured itself as narrow.
- */
-const NARROW = "[data-narrow] &";
-
-/**
- * The attribute an action states how much it matters in.
+ * Attribute an action sets on itself while its own row is narrow.
  *
  * @remarks
- *   An attribute rather than an axis of the recipe. A slot recipe's variants are set on the root
- *   and read by every part, so an axis would fold every action in a row the same way. Each one has
- *   to say for itself.
+ *   The action reads the state from its row's context, so a narrow ancestor folds no action of a
+ *   wider row inside it. A bar fixed to the window is wider than the page around it in the
+ *   document.
+ */
+export const NARROW = "data-narrow";
+
+/**
+ * Attribute an action sets to its priority.
+ *
+ * @remarks
+ *   The priority is an attribute and not an axis, because a slot recipe resolves its variants once,
+ *   at the root, and each action in a row folds on its own priority.
  */
 export const PRIORITY = "data-priority";
 
 /**
- * Writes what a narrow row does with an action, read off the priority the action states.
+ * Styles an action by its priority while its row is narrow.
  *
  * @remarks
- *   Every action keeps its words on one line at every width, because the row gives way around them
- *   and a control that wrapped would be the thing that made the row taller.
- *   A secondary action keeps its words in the document under `srOnly` rather than dropping them,
- *   because a control with no accessible name is one a screen reader cannot announce. A tertiary
- *   one leaves the document rather than being hidden, so a keyboard does not reach a control
- *   nobody can see. A primary one states nothing and is left alone.
+ *   Every action keeps its words on one line at every width, because a wrapped control would make
+ *   the row taller. A secondary action hides its element children other than its icon with
+ *   `srOnly`, so it keeps its accessible name, and renders as a square around its icon. Its words
+ *   must be in an element, because a CSS selector cannot select a bare text node. A primary action
+ *   is unchanged.
  */
 export const FOLDING = {
-  [`&[${PRIORITY}=secondary]`]: { [NARROW]: { "& > :not(svg)": { srOnly: true } } },
-  [`&[${PRIORITY}=tertiary]`]: { [NARROW]: { display: "none" } },
+  [`&[${PRIORITY}=secondary]`]: {
+    [`&[${NARROW}]`]: {
+      "& > :not(svg)": { srOnly: true },
+      aspectRatio: "square",
+      justifyContent: "center",
+      paddingInline: "0",
+    },
+  },
   whiteSpace: "nowrap",
 };
-
-/**
- * Writes what the control a row keeps for the actions it drops is drawn with.
- *
- * @remarks
- *   It appears only where the row is narrow, because a row keeping every action has nothing to put
- *   behind it.
- */
-export const FOLDED = { display: "none", [NARROW]: { display: "inline-flex" } };

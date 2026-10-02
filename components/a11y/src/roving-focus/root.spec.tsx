@@ -9,7 +9,7 @@ import { recipe } from "#roving-focus/recipe.ts";
 import { Root } from "#roving-focus/root.tsx";
 
 describe("Root", () => {
-  it("breaks no accessibility rule as a toolbar holding a button", async () => {
+  it("returns no accessibility violation as a toolbar with a button", async () => {
     await expect(
       accessibilityViolations(Root, {
         props: { children: <Item as="button">Cut</Item>, role: "toolbar" },
@@ -17,13 +17,13 @@ describe("Root", () => {
     ).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(recipe, (props) => render(<Root {...props} />).container, { slot: "root" }),
     ).toStrictEqual([]);
   });
 
-  it("tells a screen reader which way a group with a role runs", () => {
+  it("sets aria-orientation when the caller supplies a role", () => {
     const { container } = render(<Root orientation="vertical" role="toolbar" />);
 
     expect(slotElement(container, "roving-focus", "root").getAttribute("aria-orientation")).toBe(
@@ -31,7 +31,7 @@ describe("Root", () => {
     );
   });
 
-  it("tells a screen reader nothing about a group with no role", () => {
+  it("omits aria-orientation when the caller supplies no role", () => {
     const { container } = render(<Root orientation="vertical" />);
 
     expect(
@@ -39,7 +39,7 @@ describe("Root", () => {
     ).toBeNull();
   });
 
-  it("tells a screen reader nothing where the arrows move on both axes", () => {
+  it("omits aria-orientation when the orientation is both", () => {
     const { container } = render(<Root orientation="both" role="toolbar" />);
 
     expect(
@@ -47,7 +47,7 @@ describe("Root", () => {
     ).toBeNull();
   });
 
-  it("draws the element as names", () => {
+  it("renders a nav when as is nav", () => {
     const { container } = render(<Root as="nav" />);
 
     expect(slotElement(container, "roving-focus", "root").tagName).toBe("NAV");

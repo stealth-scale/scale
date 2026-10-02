@@ -1,8 +1,11 @@
 /**
- * Checks a theme against the contract a type cannot hold it to: a role stated in one mode, a
- * reference that points nowhere, an extension aimed at a recipe nobody publishes, a variant value
- * or a part the runtime never writes a class for, a compound the runtime never applies, an
- * extension file the theme does not list, and a style with nothing in it.
+ * Checks a theme against the contract where its type cannot.
+ *
+ * @remarks
+ *   The checks report a role stated in one mode, a reference that points nowhere, an extension
+ *   aimed at a recipe nobody publishes, a variant value or a part the runtime never writes a class
+ *   for, a compound the runtime never applies, an extension file the theme does not list, and a
+ *   style with nothing in it.
  */
 
 import { existsSync } from "node:fs";
@@ -15,6 +18,7 @@ import {
   FOREGROUNDS,
   MODES,
   ROLES,
+  SERIES,
   STATUSES,
   type Theme,
 } from "@stealthscale/theme/authoring";
@@ -26,13 +30,14 @@ import { colorsOf, extendedRecipes, palettesOf, resolved, type Resolving } from 
 import { leaves, nodeAt, stated } from "#tokens.ts";
 
 /**
- * Lists the four families against the members each states.
+ * Lists the five families against the members each states.
  */
 const FAMILIES: ReadonlyArray<readonly [family: string, members: readonly string[]]> = [
   ["bg", [...BACKGROUNDS, ...STATUSES]],
   ["border", [...BORDERS, ...STATUSES]],
   ["code", CODE],
   ["fg", [...FOREGROUNDS, ...STATUSES]],
+  ["series", SERIES],
 ];
 
 /**
@@ -41,7 +46,7 @@ const FAMILIES: ReadonlyArray<readonly [family: string, members: readonly string
 const OWNED = ["className", "slots"];
 
 /**
- * Reports a palette that leaves one of the twelve roles out, and a family that leaves one of its
+ * Reports a palette that leaves one of the eleven roles out, and a family that leaves one of its
  * members out.
  */
 export function roles(theme: Theme): readonly string[] {
@@ -110,11 +115,11 @@ export function references(theme: Theme, options: Resolving): readonly string[] 
 
 /**
  * Reports an extension that names a recipe key the workspace does not publish, or that names one
- * of the two keys the component owns.
+ * of the two keys that belong to the component.
  *
  * @remarks
  *   The keys the workspace publishes are the caller's to state. Left unstated, the keys go
- *   unchecked and the two owned keys are still refused.
+ *   unchecked, and the two keys that belong to the component are still reported.
  */
 export function extensions(theme: Theme, recipes?: readonly string[]): readonly string[] {
   const extend = theme.preset.theme?.extend;
@@ -126,7 +131,7 @@ export function extensions(theme: Theme, recipes?: readonly string[]): readonly 
         ? []
         : [`${theme.name} extends ${key}, which no package publishes`];
     const owned = OWNED.filter((field) => field in extension).map(
-      (field) => `${theme.name} extends ${key} with ${field}, which the component owns`,
+      (field) => `${theme.name} extends ${key} with ${field}, which belongs to the component`,
     );
 
     return unpublished.concat(owned);
@@ -175,7 +180,7 @@ function variantsOf(
 
   return Object.entries(held).flatMap(([axis, values]) =>
     typeof values === "object" && values !== null
-      ? // eslint-disable-next-line typescript/no-unsafe-type-assertion -- an object is read by its keys, whatever they hold
+      ? // eslint-disable-next-line typescript/no-unsafe-type-assertion -- an object is read by its keys, whatever they contain
         [[axis, values as Readonly<Record<string, unknown>>] as const]
       : [],
   );
@@ -188,8 +193,8 @@ function variantsOf(
  * @remarks
  *   The runtime writes a variant class from the component's recipe alone, and writes a part's
  *   variant class only where the recipe styles that part under the value. A theme's styles for
- *   any other axis, value or part compile to a rule no element carries the class for. A key the
- *   map leaves out goes unchecked here, and the extensions check reports it.
+ *   any other axis, value or part compile to a rule for a class no element has. This check skips a
+ *   key the map leaves out, and the extensions check reports it.
  */
 export function variants(
   theme: Theme,
@@ -226,14 +231,14 @@ export function variants(
 
 /**
  * Reports a theme's compound for a selection the recipe declares no compound for, a compound
- * matched on a value a class name cannot carry, and a compound styling a part the recipe's own
- * compound does not.
+ * matched on a value that cannot be part of a class name, and a compound styling a part the
+ * recipe's own compound does not.
  *
  * @remarks
  *   The runtime takes a compound's class from the component's recipe alone, so a theme's compound
- *   reaches an element only where the recipe declares the same selection, and reaches a part only
+ *   applies to an element only where the recipe declares the same selection, and to a part only
  *   where the recipe's compound styles that part. Any other compound is compiled and never
- *   applied. A key the map leaves out goes unchecked here, and the extensions check reports it.
+ *   applied. This check skips a key the map leaves out, and the extensions check reports it.
  */
 export function compounds(
   theme: Theme,
@@ -260,7 +265,7 @@ export function compounds(
 
       if (selection === undefined) {
         return [
-          `${theme.name} extends ${key} with a compound matched on a value a class name cannot carry`,
+          `${theme.name} extends ${key} with a compound matched on a value that cannot be part of a class name`,
         ];
       }
 

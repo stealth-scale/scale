@@ -1,10 +1,8 @@
 /**
- * Draws the words of one row.
+ * Renders the text of one row.
  *
  * @remarks
- *   The words are cut short rather than wrapped, so every row is one line and the list keeps a
- *   rhythm a reader scans down. A row whose words need more than a line belongs in a different
- *   component.
+ *   The text truncates to one line in a vertical list.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -15,25 +13,25 @@ import { withContext } from "#listbox/context.ts";
 import { type ListboxItem, useListbox } from "#listbox/machine.ts";
 
 /**
- * Draws the words at the size the root states.
+ * Renders the `span` with the listbox's item text class.
  */
 const Named = withContext("span", "itemText");
 
 /**
- * Describes what a row's words take.
+ * Describes the props of a row's text: its collection item and the props of a `span`.
  */
 export interface ItemTextProps extends ComponentProps<typeof Named> {
   /**
-   * The row of the collection these words belong to.
+   * Collection item the text belongs to.
    */
   readonly item: ListboxItem;
 }
 
 /**
- * Labels one row, on the screen and to a screen reader.
+ * Renders a row's text with the machine's item text props.
  *
- * @param props - The row it names, and everything a styled span takes.
- * @returns The words, cut short where the row is too narrow for them.
+ * @param props - The collection item, and the attributes and children of the `span` element.
+ * @returns The `span` element.
  */
 export function ItemText({ item, ...rest }: ItemTextProps): ReactElement {
   const api = useListbox();

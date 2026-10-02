@@ -43,38 +43,38 @@ describe("rename", () => {
     expect(rename("button--expose", CONFIG)).toBe("button--expose");
   });
 
-  it("reads a recipe whose class starts with another recipe's class", () => {
+  it("rewrites a variant of a recipe whose class starts with another recipe's class", () => {
     expect(rename("button-group--size-lg", CONFIG)).toBe("button-group--lg");
   });
 
   it.each([
     ["on", "on-off"],
     ["on-off", "on"],
-  ])("reads the longest axis that fits when the axes are declared as %s then %s", (...axes) => {
+  ])("matches the longest axis when the axes are declared as %s then %s", (...axes) => {
     const config: CompilerConfig = { recipes: [{ axes, className: "card" }], separator: "-" };
 
     expect(rename("card--on-off-true", config)).toBe("card--on-off");
     expect(rename("card--on-true", config)).toBe("card--on");
   });
 
-  it("rewrites an atomic class no recipe claims", () => {
+  it("rewrites an atomic class no recipe owns", () => {
     expect(rename("md:grid-tc-repeat(3,_minmax(0,_1fr))", CONFIG)).toBe(
       "md:grid-tc-repeat-3-minmax-0-1fr",
     );
   });
 
-  it("reads the separator the compiler was configured with", () => {
+  it("splits a variant at the separator the compiler was configured with", () => {
     expect(rename("button--size_lg", { ...CONFIG, separator: "_" })).toBe("button--lg");
     expect(rename("button--size=lg", { ...CONFIG, separator: "=" })).toBe("button--lg");
   });
 
-  it("leaves a class no recipe claims and no declaration wrote as the markup carries it", () => {
+  it("returns a class unchanged when no recipe owns it and it holds no separator", () => {
     expect(rename("childBox", CONFIG)).toBe("childBox");
     expect(rename("prose", CONFIG)).toBe("prose");
     expect(rename("md:childBox", CONFIG)).toBe("md:childBox");
   });
 
-  it("writes a slot named in camel case the way the runtime writes it", () => {
+  it("rewrites a slot named in camel case into kebab case", () => {
     const config: CompilerConfig = {
       recipes: [{ axes: ["size"], className: "card", slots: ["iconBox"] }],
       separator: "-",

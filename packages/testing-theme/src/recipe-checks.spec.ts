@@ -322,9 +322,11 @@ describe("recipeViolations", () => {
     ["oklch(50% 0.1 200)", "writes the color oklch(50% 0.1 200)"],
     ["{colors.blue.500}", "references {colors.blue.500}"],
     ["blue.500", "names the ramp step blue.500"],
+    ["series.9", "names the ramp step series.9"],
     ["blue.solid", "names the hue blue.solid"],
     ["red", "names the hue red"],
     ["white", "names white, which is not a semantic color token"],
+    ["contrast-color(fg)", "names contrast-color(fg), which is not a semantic color token"],
     ["fg.mutd", "names fg.mutd, which is not a semantic color token"],
     ["colorPalette.nope", "reads colorPalette.nope, which is not a role of the palette"],
   ])("reports %s as a color a theme cannot move", (value, fault) => {
@@ -340,6 +342,9 @@ describe("recipeViolations", () => {
     "primary.fg",
     "transparent",
     "var(--ink)",
+    "contrast-color(var(--fill))",
+    "series.1",
+    "series.8",
   ])("passes %s as a color", (value) => {
     expect(recipeViolations({ base: { background: value }, className: "x" })).toStrictEqual([]);
   });
@@ -548,7 +553,7 @@ describe("recipeViolations", () => {
     ).toStrictEqual([]);
   });
 
-  it("says nothing about a recipe that offers no status", () => {
+  it("reports nothing for a recipe that offers no status", () => {
     expect(
       recipeViolations({ base: INK, className: "x", variants: { size: SIZES } }),
     ).toStrictEqual([]);

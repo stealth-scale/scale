@@ -1,27 +1,27 @@
 /**
- * Builds the toolbar a part's specification needs above it.
+ * Renders the toolbars the part specifications test.
  */
 
 import { type ReactElement, type ReactNode } from "react";
 
+import { Action } from "#toolbar/action.tsx";
 import { Center } from "#toolbar/center.ts";
 import { End } from "#toolbar/end.ts";
 import { Item } from "#toolbar/item.tsx";
 import { Root, type RootProps } from "#toolbar/root.tsx";
-import { Search } from "#toolbar/search.tsx";
 import { Start } from "#toolbar/start.ts";
 
 /**
- * Describes what a case sets on the row, less the name the fixture already states.
+ * Describes the props a case sets: the root's props without the name the fixture sets.
  */
 export type Settings = Omit<RootProps, "aria-label">;
 
 /**
- * Draws whatever a case wants measured inside the row that hands down the variants.
+ * Renders a part inside a toolbar root.
  *
  * @param children - The part under test.
- * @param props - Whatever the case sets on the row.
- * @returns The row, holding it.
+ * @param props - The root's props.
+ * @returns The toolbar.
  */
 export function ranged(children: ReactNode, props: Settings = {}): ReactElement {
   return (
@@ -32,31 +32,28 @@ export function ranged(children: ReactNode, props: Settings = {}): ReactElement 
 }
 
 /**
- * Draws a row holding the control that opens the search and the search it opens.
+ * Renders a toolbar with a primary, a secondary and a tertiary action.
  *
- * @remarks
- *   The control stays in the document either way, so a case can read where the reader was put when
- *   the field covered the row and where they were handed back to when it left.
- * @param opened - Whether the search covers the row.
- * @param props - Whatever the case sets on the row.
- * @returns The row, holding the control and the search.
+ * @param props - The root's props.
+ * @returns The toolbar.
  */
-export function searched(opened: boolean, props: Settings = {}): ReactElement {
+export function folding(props: Settings = {}): ReactElement {
   return (
     <Root aria-label="Invoice" {...props}>
-      <Item>Open the search</Item>
-      <Search opened={opened}>
-        <input aria-label="Search invoices" type="search" />
-      </Search>
+      <Start>
+        <Action primary>Filter</Action>
+        <Action icon={<svg aria-hidden="true" />}>Export</Action>
+        <Action>Columns</Action>
+      </Start>
     </Root>
   );
 }
 
 /**
- * Draws a whole toolbar, so a case can read how its bands are placed.
+ * Renders a toolbar with a start, a centre and an end band.
  *
- * @param props - Whatever the case sets on the row.
- * @returns The parts composed the way a caller composes them.
+ * @param props - The root's props.
+ * @returns The toolbar.
  */
 export function composed(props: Settings = {}): ReactElement {
   return (

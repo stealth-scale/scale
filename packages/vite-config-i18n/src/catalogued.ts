@@ -1,5 +1,5 @@
 /**
- * Adds the catalogue plugin to the plugins a tier already built.
+ * Contributes the catalogue plugin to a composed configuration's plugins array.
  */
 
 import { contribute, type Contribution } from "@stealthscale/vite-config-core";
@@ -8,7 +8,7 @@ import { loaded } from "#loaded.ts";
 import { type Options } from "#types.ts";
 
 /**
- * The configuration key the plugin joins.
+ * The configuration key the contribution appends to.
  */
 const AT = "plugins";
 
@@ -16,11 +16,11 @@ const AT = "plugins";
  * Appends `i18n()` to the plugins of a package or an application with catalogues.
  *
  * @remarks
- *   The plugin package is loaded when the plugin is constructed and not when the layer is stated,
- *   so reading the configuration for its metadata loads no plugin. Each composition constructs a
- *   plugin instance of its own.
- * @param stated - The plugin options a repository departs on. Omitting it searches under the
- *   defaults the plugin documents.
+ *   The contribution imports the plugin package inside `itemOf`, so a task runner that reads the
+ *   configuration for its metadata alone loads no plugin. Each composition constructs its own
+ *   plugin instance.
+ * @param stated - The plugin options. The plugin applies its documented default for each option
+ *   omitted.
  */
 export function catalogued(stated: Options = {}): Contribution {
   return contribute({

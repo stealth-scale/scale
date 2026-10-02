@@ -1,11 +1,10 @@
 /**
- * Draws the heading naming a block of destinations.
+ * Renders the heading that labels a nav block.
  *
  * @remarks
- *   It carries the identifier the block points at, so writing this part is what names the landmark
- *   and a caller states no identifier.
- *   On a collapsed sidebar the words go out of sight rather than out of the document, so the block
- *   keeps its name for a screen reader while the rail shows marks alone.
+ *   The label takes its `id` from the block, and the block's `aria-labelledby` points at it, so the
+ *   label names the block's landmark and the caller writes no identifier. A collapsed sidebar hides
+ *   the label visually and keeps it for screen readers.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -14,20 +13,20 @@ import { withContext } from "#sidebar/context.ts";
 import { useNav } from "#sidebar/state.ts";
 
 /**
- * Draws the heading at the size the column states.
+ * Renders the heading `h2` at the sidebar's size.
  */
 const Headed = withContext("h2", "navLabel");
 
 /**
- * Describes what a heading takes, less the identifier the block gives it.
+ * Describes the props of `NavLabel`, less the `id` the block sets.
  */
 export type NavLabelProps = Omit<ComponentProps<typeof Headed>, "id">;
 
 /**
- * Labels a block of destinations, and names its landmark by doing so.
+ * Renders the label of a nav block.
  *
- * @param props - Everything a styled heading takes, less its identifier.
- * @returns The heading, carrying the identifier the block points at.
+ * @param props - The `h2` element's props, less `id`.
+ * @returns The heading, with the identifier the block's `aria-labelledby` points at.
  */
 export function NavLabel(props: NavLabelProps): ReactElement {
   const nav = useNav();

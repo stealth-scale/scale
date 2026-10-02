@@ -1,6 +1,6 @@
 /**
- * Supplies the scratch workspaces, manifests, measurements and plugin drivers a spec runs against,
- * and nothing an application bundle carries.
+ * Supplies the scratch workspaces, manifests, measurements and plugin drivers a specification runs
+ * against.
  *
  * @packageDocumentation
  */

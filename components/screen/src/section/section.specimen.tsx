@@ -1,105 +1,122 @@
 /**
- * Shows the section: both looks at every size, and the heading beside the body as an annotation.
+ * Catalogue page for the section.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every section holds the same block: a title, a description, one action
- *   and a body. The title is drawn as an `h3`, under the scene's own `h2`. The words are keys
- *   under `section` in the catalogue's namespace, kept beside this file in
+ *   The settings scene renders the settings example in a screen box, because a page renders its
+ *   gutter at its own edges. The annotated and the folding scenes render their cards twice: in a
+ *   room wider than the width the section folds at, and in a room a phone's width, because a
+ *   section folds on its own width. The sizes scene renders one page per size in a screen box. The
+ *   boxes and the rooms never appear in the examples. The words are keys under `section` in
  *   `locales/en/specimen/section.json`.
  */
 
-import { type ReactElement } from "react";
+import { Stack } from "@stealthscale/component-layout";
+import { Room, type Scene, Screen, specimen } from "@stealthscale/specimen";
 
-import { Matrix, type Scene, specimen, Tile, useWords, valuesOf } from "@stealthscale/specimen";
-
-import * as Section from "#section/index.ts";
-import { recipe } from "#section/recipe.ts";
-
-/**
- * The two answers to a boolean prop.
- */
-const EITHER = [false, true] as const;
+import type * as Page from "#page/index.ts";
+import * as examples from "#section/examples/index.ts";
+import type * as Section from "#section/index.ts";
 
 /**
- * Draws the block every section holds.
+ * Hand-written scene for a settings page of plain sections and a card.
  */
-function Payment(): ReactElement {
-  const { t } = useWords("section");
-
-  return (
-    <>
-      <Section.Header>
-        <Section.Title as="h3">{t("payment")}</Section.Title>
-        <Section.Description>{t("cards")}</Section.Description>
-        <Section.Actions>
-          <Section.Action priority="secondary">{t("add")}</Section.Action>
-        </Section.Actions>
-      </Section.Header>
-      <Section.Body>
-        <Tile>{t("content")}</Tile>
-      </Section.Body>
-    </>
-  );
-}
-
-/**
- * Draws the section in both looks at every size.
- */
-function Looks(): ReactElement {
-  return (
-    <Matrix
-      across={{ knob: "size", of: valuesOf(recipe, "size") }}
-      knob="variant"
-      of={valuesOf(recipe, "variant")}
-    >
-      {(variant, size) => (
-        <Section.Root size={size} variant={variant}>
-          <Payment />
-        </Section.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the section with its heading above the body and beside it.
- */
-function Annotated(): ReactElement {
-  return (
-    <Matrix direction="column" knob="annotated" of={EITHER}>
-      {(annotated) => (
-        <Section.Root annotated={annotated} variant="surface">
-          <Payment />
-        </Section.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Both looks at every size.
- */
-export const looks: Scene = {
-  about: "section.looks.about",
-  draw: Looks,
-  title: "section.looks.title",
+export const settings: Scene = {
+  about: "section.settings.about",
+  draw: () => (
+    <Screen>
+      <examples.settings.Settings />
+    </Screen>
+  ),
+  example: examples.settings,
+  title: "section.settings.title",
 };
 
 /**
- * The heading above beside the heading alongside.
+ * Hand-written scene for two sections raised as cards.
+ */
+export const cards: Scene = {
+  about: "section.variant.about",
+  axes: ["variant"],
+  draw: () => (
+    <Stack gap="lg">
+      <examples.cards.Cards />
+    </Stack>
+  ),
+  example: examples.cards,
+  title: "section.variant.title",
+};
+
+/**
+ * Hand-written scene for the header in a column beside the cards, wide and at a phone's width.
  */
 export const annotated: Scene = {
   about: "section.annotated.about",
-  draw: Annotated,
+  axes: ["annotated"],
+  draw: () => (
+    <Stack gap="xl">
+      <Room size="4xl">
+        <Stack gap="lg">
+          <examples.cards.Cards annotated />
+        </Stack>
+      </Room>
+      <Room size="sm">
+        <Stack gap="lg">
+          <examples.cards.Cards annotated />
+        </Stack>
+      </Room>
+    </Stack>
+  ),
+  example: examples.cards,
+  props: { annotated: true } satisfies Section.RootProps,
   title: "section.annotated.title",
+};
+
+/**
+ * Hand-written scene for one card wide and folded at a phone's width.
+ */
+export const folding: Scene = {
+  about: "section.folding.about",
+  draw: () => (
+    <Stack gap="xl">
+      <examples.members.Members />
+      <Room size="sm">
+        <examples.members.Members />
+      </Room>
+    </Stack>
+  ),
+  example: examples.members,
+  title: "section.folding.title",
+};
+
+/**
+ * Sizes the sizes scene renders, from the largest.
+ */
+const SIZES = ["lg", "md", "sm"] as const;
+
+/**
+ * Hand-written scene for the three sizes, each on a page of that size.
+ */
+export const sizes: Scene = {
+  about: "section.size.about",
+  axes: ["size"],
+  draw: () => (
+    <Stack gap="xl">
+      {SIZES.map((size) => (
+        <Screen key={size}>
+          <examples.sizes.Sizes size={size} />
+        </Screen>
+      ))}
+    </Stack>
+  ),
+  example: examples.sizes,
+  props: { size: "lg" } satisfies Page.RootProps,
+  title: "section.size.title",
 };
 
 export default specimen({
   about: "section.about",
-  group: "Screen",
-  id: "screen/section",
+  id: "components/screen/section",
   imports: 'import { Section } from "@stealthscale/component-screen";',
-  scenes: [looks, annotated],
+  scenes: [settings, cards, annotated, folding, sizes],
   title: "section.title",
 });

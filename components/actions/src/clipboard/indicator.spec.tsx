@@ -8,7 +8,7 @@ import { clipped, composed, pressed } from "#clipboard/clipboard.fixtures.tsx";
 import { Indicator } from "#clipboard/indicator.tsx";
 
 describe("Indicator", () => {
-  it("conforms as a span inside the root it needs above it", () => {
+  it("returns no conformance violation for its SPAN slot inside a root", () => {
     expect(
       violations(Indicator, {
         as: true,
@@ -20,20 +20,20 @@ describe("Indicator", () => {
     ).toStrictEqual([]);
   });
 
-  it("shows the glyph at rest before a press", () => {
+  it("renders its children while no copy has happened", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "clipboard", "indicator").textContent).toBe("⧉");
   });
 
-  it("shows the copied glyph after a press", async () => {
+  it("renders the copied prop once the trigger is clicked", async () => {
     const { container } = render(composed());
     await pressed(screen.getByRole("button"));
 
     expect(slotElement(container, "clipboard", "indicator").textContent).toBe("✓");
   });
 
-  it("shows the glyph at rest again once the mark clears", async () => {
+  it("renders its children again once the timeout has elapsed", async () => {
     vi.useFakeTimers();
 
     try {
@@ -47,7 +47,7 @@ describe("Indicator", () => {
     }
   });
 
-  it("keeps its mark out of the name the trigger is announced by", () => {
+  it("sets aria-hidden to true when the caller passes no value for it", () => {
     const { container } = render(clipped(<Indicator>⧉</Indicator>));
 
     expect(slotElement(container, "clipboard", "indicator").getAttribute("aria-hidden")).toBe(
@@ -55,7 +55,7 @@ describe("Indicator", () => {
     );
   });
 
-  it("reads a mark out where a caller says it means something", () => {
+  it("keeps aria-hidden false when passed false", () => {
     const { container } = render(clipped(<Indicator aria-hidden={false}>Copy</Indicator>));
 
     expect(slotElement(container, "clipboard", "indicator").getAttribute("aria-hidden")).toBe(
@@ -63,7 +63,7 @@ describe("Indicator", () => {
     );
   });
 
-  it("stays shown whichever glyph it holds", async () => {
+  it("leaves the hidden property false after a copy", async () => {
     const { container } = render(composed());
     await pressed(screen.getByRole("button"));
 

@@ -1,605 +1,336 @@
 /**
- * Shows the table: both looks at every size, every alignment, both layouts, every corner, the rules
- * it is drawn with, the rows striped and responding, names that span columns, names that span rows,
- * and the three ways names are held in view while a table scrolls.
+ * Catalogue page for the table.
  *
  * @remarks
- *   Every scene draws `Table.Simple` from one list of columns, which is what a caller reaches for,
- *   and every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. The two scenes that span names compose the parts instead, because a name
- *   spanning rows is the shape a list of columns does not describe.
- *   Every table holds the same three accounts and closes on a total, because a table of figures
- *   with nothing summing them is half a table.
- *   The words are keys under `table` in the catalogue's namespace, kept beside this file in
+ *   `scenesOf` generates the sizes by looks, alignment, corners, rules, stripes, banded names,
+ *   interactive rows and palettes, each from an example. The interactive and palette scenes stage a
+ *   hover on the second row, and the held scenes stage a scroll position, so the behaviour shows in
+ *   a still image. The layout scene is hand-written, because a fixed layout needs declared widths
+ *   an auto layout does not. Sorting, spanning headers, row groups, sections, an empty table and
+ *   the three held tables have hand-written scenes. Every scene renders a component from
+ *   `examples/` and shows that file as its source. The words are keys under `table` in
  *   `locales/en/specimen/table.json`.
  */
 
-import { type ReactElement, type ReactNode, useId } from "react";
+import { type ReactElement, type ReactNode, useEffect, useState } from "react";
 
 import {
-  Board,
+  landmarked,
   Matrix,
   Room,
-  Sample,
   type Scene,
+  scenesOf,
   specimen,
   useWords,
-  valuesOf,
 } from "@stealthscale/specimen";
 
-import * as Table from "#table/index.ts";
+import * as examples from "#table/examples/index.ts";
+import type * as Table from "#table/index.ts";
 import { recipe } from "#table/recipe.ts";
 
 /**
- * The ways the rows can be drawn beside the rows as they are.
+ * Props a generated scene passes to an example: the recipe's variants and the scroller's props.
  */
-const ROWS = ["default", "striped", "interactive"] as const;
+type Drawn = Omit<Table.ScrollerProps, "columns">;
 
 /**
- * Describes one account a table draws.
+ * Layouts of the layout scene.
  */
-interface Account {
+const LAYOUTS: ReadonlyArray<NonNullable<Table.ScrollerProps["layout"]>> = ["auto", "fixed"];
+
+/**
+ * Describes what a staged scene sets after it mounts.
+ */
+interface StagedProps {
   /**
-   * The amount the account came to.
+   * The table to stage.
    */
-  readonly amount: string;
+  readonly children: ReactNode;
 
   /**
-   * The key the account's name and its note are read under.
+   * Number of columns after the first to scroll under the first.
    */
-  readonly key: string;
+  readonly columns?: number | undefined;
 
   /**
-   * The account's name, in the reader's language.
+   * Whether the second body row takes `data-hover`, the attribute the hover condition reads.
    */
-  readonly name: string;
+  readonly hover?: boolean | undefined;
 
   /**
-   * What the account says under its name.
+   * Number of body rows to scroll under the header.
    */
-  readonly note: string;
-
-  /**
-   * The state the account is in, in the reader's language.
-   */
-  readonly state: string;
+  readonly rows?: number | undefined;
 }
 
 /**
- * The accounts every table holds: the key, the state it is in, and what it comes to.
- */
-const ACCOUNTS = [
-  ["bridge", "settled", "4,120.00"],
-  ["halden", "held", "880.40"],
-  ["perrin", "queued", "12,500.00"],
-] as const;
-
-/**
- * What the accounts come to, which the footer states.
- */
-const TOTAL = "17,500.40";
-
-/**
- * The months a wide table runs across, three to a quarter.
- */
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"];
-
-/**
- * Reads the accounts in the reader's language.
- */
-function useAccounts(): readonly Account[] {
-  const { t } = useWords("table");
-
-  return ACCOUNTS.map(([key, state, amount]) => ({
-    amount,
-    key,
-    name: t(key),
-    note: t(`${key}Note`),
-    state: t(state),
-  }));
-}
-
-/**
- * Reads what the last row holds under one column: the word `Total` under the names, the sum under
- * the figures, and nothing under the rest.
- */
-function summed(column: Table.Leaf<Account>, label: string): ReactNode {
-  if (column.key === "name") return label;
-
-  return column.key === "amount" ? TOTAL : null;
-}
-
-/**
- * Describes what a scene asks the shared table to draw beyond its variants.
- */
-interface PayoutsProps {
-  /**
-   * Whether the state each account is in is left out, for a scene comparing looks in a narrow cell.
-   */
-  readonly brief?: boolean | undefined;
-
-  /**
-   * Whether the note each account carries stands in place of its state, for a scene whose rows run
-   * to more than one line.
-   */
-  readonly noted?: boolean | undefined;
-}
-
-/**
- * Draws the accounts as a captioned table closing on a total.
- *
- * @param props - What the table shows beyond its figures, and everything the scroller takes.
- * @returns The table.
- */
-function Payouts({
-  brief = false,
-  noted = false,
-  ...rest
-}: Omit<Table.SimpleProps<Account>, "columns" | "rows" | "rowToKey"> & PayoutsProps): ReactElement {
-  const { t } = useWords("table");
-  const rows = useAccounts();
-
-  const middle: Table.Leaf<Account> = noted
-    ? { key: "note", label: t("note") }
-    : { key: "state", label: t("state") };
-
-  return (
-    <Table.Simple<Account>
-      caption={t("caption")}
-      columns={[
-        { key: "name", label: t("account"), rowHeader: true },
-        ...(brief ? [] : [middle]),
-        {
-          key: "amount",
-          label: t("amount"),
-          numeric: true,
-          sorted: "descending",
-          sortLabel: t("sortAmount"),
-        },
-      ]}
-      rows={rows}
-      rowToKey={(row) => row.key}
-      total={(column) => summed(column, t("totals"))}
-      {...rest}
-    />
-  );
-}
-
-/**
- * Draws the accounts in both looks at every size.
- */
-function Looks(): ReactElement {
-  return (
-    <Matrix
-      across={{ knob: "size", of: valuesOf(recipe, "size") }}
-      direction="column"
-      knob="variant"
-      of={valuesOf(recipe, "variant")}
-    >
-      {(variant, size) => <Payouts size={size} variant={variant} />}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the accounts with a note that wraps, so the alignment tells itself apart.
- */
-function Alignment(): ReactElement {
-  return (
-    <Matrix knob="align" of={valuesOf(recipe, "align")}>
-      {(align) => (
-        <Room size="sm">
-          <Payouts align={align} noted variant="surface" />
-        </Room>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the accounts in both layouts, the fixed one stating its widths.
+ * Returns the distance from the end of one element to the start of another, on one axis.
  *
  * @remarks
- *   A fixed layout sizes the columns from the first row and the column declarations alone, so it
- *   reads none of the rows below. A width on a column is where that is stated, which is once for
- *   the table rather than once on the first cell of every row.
+ *   The staging scrolls by this distance, so a whole row or column meets the sticky edge and no
+ *   part of one shows under it.
  */
-function Layouts(): ReactElement {
-  const { t } = useWords("table");
-  const rows = useAccounts();
+function between(
+  scroller: HTMLElement,
+  from: string,
+  to: string,
+  axis: "block" | "inline",
+): number {
+  const start = scroller.querySelector(from)?.getBoundingClientRect();
+  const end = scroller.querySelector(to)?.getBoundingClientRect();
 
-  return (
-    <Matrix direction="column" knob="layout" of={valuesOf(recipe, "layout")}>
-      {(layout) => (
-        <Room size="sm">
-          {layout === "auto" ? (
-            <Payouts layout={layout} variant="surface" />
-          ) : (
-            <Table.Simple<Account>
-              caption={t("caption")}
-              columns={[
-                { key: "name", label: t("account"), rowHeader: true, width: "40%" },
-                { key: "state", label: t("state"), width: "35%" },
-                { key: "amount", label: t("amount"), numeric: true, width: "25%" },
-              ]}
-              layout={layout}
-              rows={rows}
-              rowToKey={(row) => row.key}
-              total={(column) => summed(column, t("totals"))}
-              variant="surface"
-            />
-          )}
-        </Room>
-      )}
-    </Matrix>
-  );
+  if (start === undefined || end === undefined) return 0;
+
+  return axis === "block" ? end.top - start.bottom : end.left - start.right;
 }
 
 /**
- * Draws the surface at every corner.
- */
-function Corners(): ReactElement {
-  return (
-    <Matrix knob="radius" of={valuesOf(recipe, "radius")}>
-      {(radius) => <Payouts brief radius={radius} variant="surface" />}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the table with every set of rules it offers.
- */
-function Ruled(): ReactElement {
-  return (
-    <Matrix knob="rules" of={valuesOf(recipe, "rules")}>
-      {(rules) => <Payouts brief rules={rules} variant="surface" />}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the rows each way they can be drawn.
- */
-function Rows(): ReactElement {
-  return (
-    <Matrix knob="rows" of={ROWS}>
-      {(rows) => (
-        <Payouts
-          brief
-          interactive={rows === "interactive"}
-          striped={rows === "striped"}
-          variant="surface"
-        />
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws a name spanning the three columns of its quarter, over a row naming each month.
+ * Renders a table and sets a hover or a scroll position on it after it mounts.
  *
  * @remarks
- *   A column holding columns spans them. The span, the second row of names and the `colgroup` scope
- *   are worked out from the shape rather than written, because a `col` scope on a spanning name
- *   says the cells directly under it answer to the name, which is the row of months rather than the
- *   figures.
+ *   A still image shows no pointer and no scroll, so the scene sets the attribute or the position
+ *   the page would. The staging never appears in an example.
  */
-function Quarters(): ReactElement {
-  const { t } = useWords("table");
-  const rows = useAccounts();
+function Staged({ children, columns = 0, hover = false, rows = 0 }: StagedProps): ReactElement {
+  const [box, setBox] = useState<HTMLDivElement | null>(null);
 
-  return (
-    <Table.Simple<Account>
-      caption={t("caption")}
-      columns={[
-        { key: "name", label: t("account"), rowHeader: true },
-        ...[0, 1, 2].map((at) => ({
-          columns: MONTHS.slice(at * 3, at * 3 + 3).map((month) => ({
-            cell: (row: Account) => row.amount,
-            key: month,
-            label: month,
-            numeric: true,
-          })),
-          label: `Q${String(at + 1)}`,
-        })),
-      ]}
-      rows={rows}
-      rowToKey={(row) => row.key}
-      rules="all"
-      variant="surface"
-    />
-  );
+  useEffect((): (() => void) | undefined => {
+    const scroller = box?.querySelector<HTMLElement>(".table__viewport");
+    const row = hover ? box?.querySelector<HTMLElement>("tbody > tr:nth-child(2)") : undefined;
+
+    if (scroller === undefined || scroller === null) return undefined;
+
+    scroller.scrollTo({
+      left: between(scroller, "thead th", `thead th:nth-child(${String(columns + 2)})`, "inline"),
+      top: between(scroller, "thead", `tbody > tr:nth-child(${String(rows + 1)})`, "block"),
+    });
+    if (row !== undefined && row !== null) row.dataset["hover"] = "";
+
+    return () => {
+      if (row !== undefined && row !== null) delete row.dataset["hover"];
+    };
+  }, [box, columns, hover, rows]);
+
+  return <div ref={setBox}>{children}</div>;
 }
 
 /**
- * Draws a name spanning the rows under it, for a table of several runs per account.
- *
- * @remarks
- *   Composed from the parts rather than drawn from a list of columns. A name spanning rows belongs
- *   to a group of records rather than to a column, and each group is a `tbody` of its own, because
- *   a row that spans out of its section is a row a browser is free to redraw anywhere.
- */
-function Runs(): ReactElement {
-  const { t } = useWords("table");
-  const rows = useAccounts();
-  const id = useId();
-  const months = MONTHS.slice(0, 2);
-
-  return (
-    <Table.Scroller aria-labelledby={id} variant="surface">
-      <Table.Root>
-        <Table.Caption id={id}>{t("caption")}</Table.Caption>
-        <Table.Header>
-          <Table.Row>
-            <Table.ColumnHeader>{t("account")}</Table.ColumnHeader>
-            <Table.ColumnHeader>{t("month")}</Table.ColumnHeader>
-            <Table.ColumnHeader data-numeric>{t("amount")}</Table.ColumnHeader>
-          </Table.Row>
-        </Table.Header>
-        {rows.map((row) => (
-          <Table.Body key={row.key}>
-            {months.map((month, at) => (
-              <Table.Row key={month}>
-                {at === 0 ? (
-                  <Table.RowHeader rowSpan={months.length} scope="rowgroup">
-                    {row.name}
-                  </Table.RowHeader>
-                ) : null}
-                <Table.Cell>{month}</Table.Cell>
-                <Table.Cell data-numeric>{row.amount}</Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        ))}
-      </Table.Root>
-    </Table.Scroller>
-  );
-}
-
-/**
- * Draws the accounts gathered into a section per state, and a table holding nothing at all.
- *
- * @remarks
- *   A section per heading rather than a heading row inside one. A group of rows is a group of rows
- *   to a screen reader as well as on the screen, and the heading states `rowgroup` as its scope so
- *   the rows under it answer to it.
- */
-function Gathered(): ReactElement {
-  const { t } = useWords("table");
-  const rows = useAccounts();
-
-  return (
-    <Board place="start">
-      <Sample of={t("gathered.of")}>
-        <Table.Simple<Account>
-          caption={t("caption")}
-          columns={[
-            { key: "name", label: t("account"), rowHeader: true },
-            { key: "amount", label: t("amount"), numeric: true },
-          ]}
-          groupBy={(row) => row.state}
-          rows={rows}
-          rowToKey={(row) => row.key}
-          variant="surface"
-        />
-      </Sample>
-      <Sample of={t("gathered.none")}>
-        <Table.Simple<Account>
-          caption={t("caption")}
-          columns={[
-            { key: "name", label: t("account"), rowHeader: true },
-            { key: "amount", label: t("amount"), numeric: true },
-          ]}
-          empty={t("nothing")}
-          rows={[]}
-          rowToKey={(row) => row.key}
-          variant="surface"
-        />
-      </Sample>
-    </Board>
-  );
-}
-
-/**
- * How many weeks the held tables run to, which is more than any of their boxes shows.
- */
-const WEEKS = Array.from({ length: 12 }, (_, at) => at + 1);
-
-/**
- * Describes which way a held table is held.
+ * Describes the props of a held table: the sticky axes and how far to scroll.
  */
 interface HeldProps {
   /**
-   * Whether the week's own name stays put as the table scrolls sideways.
+   * Number of columns after the first to scroll under the first.
+   */
+  readonly columns?: number | undefined;
+
+  /**
+   * Number of body rows to scroll under the header.
+   */
+  readonly rows?: number | undefined;
+
+  /**
+   * Whether the first column sticks.
    */
   readonly stickyColumn?: boolean | undefined;
 
   /**
-   * Whether the column names stay put as the table scrolls down.
+   * Whether the header rows stick.
    */
   readonly stickyHeader?: boolean | undefined;
 }
 
 /**
- * Draws a table longer and wider than its box, held whichever way a scene asks for.
- *
- * @remarks
- *   The box is held to a height and the table is laid out fixed. A header sticks within the box
- *   that scrolls, so the box needs a height before there is anything to stick to, and a column
- *   measured from its contents is a column that moves as the rows under it change.
- *   The table is named by `aria-label` rather than by a caption. A caption belongs to the table and
- *   scrolls with it, so one under a table longer than its box is a line nobody reads until they
- *   reach the last row.
- *   A table scrolls only on the axis the scene is about. The height is capped where the names are
- *   held and left alone where the first column is, because a scene about one axis that also scrolls
- *   on the other shows two things and settles neither.
+ * Renders the weeks table scrolled, named after its sticky axes so each region's name is unique.
  */
-function Held({ stickyColumn = false, stickyHeader = false }: HeldProps): ReactElement {
+function Held({
+  columns,
+  rows,
+  stickyColumn = false,
+  stickyHeader = false,
+}: HeldProps): ReactElement {
   const { t } = useWords("table");
-  const weeks = stickyHeader ? WEEKS : WEEKS.slice(0, 4);
+  const sticky = { stickyColumn, stickyHeader };
 
   return (
     <Room size="sm">
-      <Table.Simple
-        aria-label={t("caption")}
-        columns={[
-          { key: "week", label: t("week"), rowHeader: true, width: "7rem" },
-          ...MONTHS.map((month) => ({
-            cell: () => TOTAL,
-            key: month,
-            label: month,
-            numeric: true,
-            width: "7rem",
-          })),
-        ]}
-        layout="fixed"
-        rows={weeks.map((week) => ({ week: t("weekAt", { at: String(week) }) }))}
-        rowToKey={(row) => row.week}
-        stickyColumn={stickyColumn}
-        stickyHeader={stickyHeader}
-        {...(stickyHeader ? { style: { maxBlockSize: "13rem" } } : {})}
-        variant="surface"
-      />
+      <Staged columns={columns} rows={rows}>
+        <examples.weeks.Weeks aria-label={landmarked(t("caption"), sticky)} {...sticky} />
+      </Staged>
     </Room>
   );
 }
 
 /**
- * Draws the column names held while the table scrolls down.
- */
-function StickyHeader(): ReactElement {
-  return <Held stickyHeader />;
-}
-
-/**
- * Draws the week's own name held while the table scrolls sideways.
- */
-function StickyColumn(): ReactElement {
-  return <Held stickyColumn />;
-}
-
-/**
- * Draws both held, with the corner between them held in each direction.
- */
-function StickyBoth(): ReactElement {
-  return <Held stickyColumn stickyHeader />;
-}
-
-/**
- * Both looks at every size.
- */
-export const looks: Scene = {
-  about: "table.looks.about",
-  draw: Looks,
-  title: "table.looks.title",
-};
-
-/**
- * Every alignment.
- */
-export const alignment: Scene = {
-  about: "table.alignment.about",
-  draw: Alignment,
-  title: "table.alignment.title",
-};
-
-/**
- * Both layouts.
+ * Hand-written scene for the two layouts.
  */
 export const layouts: Scene = {
-  about: "table.layouts.about",
-  draw: Layouts,
-  title: "table.layouts.title",
+  about: "table.layout.about",
+  axes: ["layout"],
+  draw: () => (
+    <Matrix knob="layout" of={LAYOUTS}>
+      {(layout) => (
+        <Room size="sm">
+          {layout === "fixed" ? <examples.fixed.Fixed /> : <examples.accounts.Accounts />}
+        </Room>
+      )}
+    </Matrix>
+  ),
+  example: examples.fixed,
+  title: "table.layout.title",
 };
 
 /**
- * Every corner.
+ * Hand-written scene for columns that sort on a press.
  */
-export const corners: Scene = {
-  about: "table.corners.about",
-  draw: Corners,
-  title: "table.corners.title",
+export const sorting: Scene = {
+  about: "table.sorting.about",
+  draw: () => (
+    <Room size="sm">
+      <examples.sortable.Sortable />
+    </Room>
+  ),
+  example: examples.sortable,
+  title: "table.sorting.title",
 };
 
 /**
- * Every set of rules.
- */
-export const ruled: Scene = {
-  about: "table.ruled.about",
-  draw: Ruled,
-  title: "table.ruled.title",
-};
-
-/**
- * The rows each way.
- */
-export const rows: Scene = { about: "table.rows.about", draw: Rows, title: "table.rows.title" };
-
-/**
- * A name spanning the columns under it.
+ * Hand-written scene for headers that span columns.
  */
 export const quarters: Scene = {
   about: "table.quarters.about",
-  draw: Quarters,
+  draw: examples.quarters.Quarters,
+  example: examples.quarters,
   title: "table.quarters.title",
 };
 
 /**
- * A name spanning the rows under it.
+ * Hand-written scene for headers that span rows.
  */
-export const runs: Scene = { about: "table.runs.about", draw: Runs, title: "table.runs.title" };
-
-/**
- * Rows gathered into sections, and a table holding nothing.
- */
-export const gathered: Scene = {
-  about: "table.gathered.about",
-  draw: Gathered,
-  title: "table.gathered.title",
+export const runs: Scene = {
+  about: "table.runs.about",
+  draw: () => (
+    <Room size="sm">
+      <examples.runs.Runs />
+    </Room>
+  ),
+  example: examples.runs,
+  title: "table.runs.title",
 };
 
 /**
- * The column names held while the table scrolls down.
+ * Hand-written scene for rows grouped into sections.
+ */
+export const sections: Scene = {
+  about: "table.sections.about",
+  draw: () => (
+    <Room size="sm">
+      <examples.sections.Sections />
+    </Room>
+  ),
+  example: examples.sections,
+  title: "table.sections.title",
+};
+
+/**
+ * Hand-written scene for a table with no rows.
+ */
+export const empty: Scene = {
+  about: "table.empty.about",
+  draw: () => (
+    <Room size="sm">
+      <examples.empty.Empty />
+    </Room>
+  ),
+  example: examples.empty,
+  title: "table.empty.title",
+};
+
+/**
+ * Hand-written scene for sticky header rows, scrolled down two rows.
  */
 export const stickyHeader: Scene = {
   about: "table.stickyHeader.about",
-  draw: StickyHeader,
+  axes: ["stickyHeader"],
+  draw: () => <Held rows={2} stickyHeader />,
+  example: examples.weeks,
+  props: { stickyHeader: true },
   title: "table.stickyHeader.title",
 };
 
 /**
- * The first column held while the table scrolls sideways.
+ * Hand-written scene for a sticky first column, scrolled sideways.
  */
 export const stickyColumn: Scene = {
   about: "table.stickyColumn.about",
-  draw: StickyColumn,
+  axes: ["stickyColumn"],
+  draw: () => <Held columns={2} stickyColumn />,
+  example: examples.weeks,
+  props: { stickyColumn: true },
   title: "table.stickyColumn.title",
 };
 
 /**
- * Both held at once.
+ * Hand-written scene for sticky header rows and a sticky first column, scrolled both ways.
  */
 export const stickyBoth: Scene = {
   about: "table.stickyBoth.about",
-  draw: StickyBoth,
+  axes: ["stickyColumn", "stickyHeader"],
+  draw: () => <Held columns={2} rows={2} stickyColumn stickyHeader />,
+  example: examples.weeks,
+  props: { stickyColumn: true, stickyHeader: true },
   title: "table.stickyBoth.title",
 };
 
 export default specimen({
   about: "table.about",
-  group: "Collections",
-  id: "collections/table",
+  id: "components/collections/table",
   imports: 'import { Table } from "@stealthscale/component-collections";',
   scenes: [
-    looks,
-    alignment,
+    ...scenesOf<Drawn>(recipe, {
+      axes: {
+        align: {
+          draw: (props) => (
+            <Room size="sm">
+              <examples.notes.Notes {...props} />
+            </Room>
+          ),
+          example: examples.notes,
+        },
+        interactive: {
+          draw: (props) => (
+            <Staged hover>
+              <examples.linked.Linked {...props} />
+            </Staged>
+          ),
+          example: examples.linked,
+        },
+        palette: {
+          draw: (props) => (
+            <Staged hover>
+              <examples.linked.Linked {...props} />
+            </Staged>
+          ),
+          example: examples.linked,
+          with: { interactive: true },
+        },
+        size: { across: "variant" },
+      },
+      draw: (props) => <examples.payouts.Payouts {...props} />,
+      example: examples.payouts,
+      namespace: "table",
+      order: ["size", "align", "radius", "rules", "striped", "banded", "interactive", "palette"],
+      skip: {
+        layout: "a fixed layout needs declared widths, so a hand-written scene draws both layouts",
+        stickyColumn: "the three held scenes at the foot of the page stage a scroll position",
+        stickyHeader: "the three held scenes at the foot of the page stage a scroll position",
+      },
+    }),
     layouts,
-    corners,
-    ruled,
-    rows,
+    sorting,
     quarters,
     runs,
-    gathered,
+    sections,
+    empty,
     stickyHeader,
     stickyColumn,
     stickyBoth,

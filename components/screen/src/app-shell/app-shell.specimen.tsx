@@ -1,155 +1,97 @@
 /**
- * Shows the application shell: every look, both ways of scrolling, and the hairlines beside none.
+ * Catalogue page for the app shell.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every shell holds the same parts: a header with the navigation's trigger,
- *   a navbar holding a sidebar, the page, an aside, and a footer. A shell is the height of the
- *   window, so each cell is a screen and the cells run down the page, and every scene says it
- *   fills the window, so a device shows a shell at the window's edges. The words are keys under
- *   `app-shell` in the catalogue's namespace, kept beside this file in
- *   `locales/en/specimen/app-shell.json`.
+ *   Eleven applications, each laid out on the one shell: an operations console, a chat client, a
+ *   mail client, a checkout, a handbook, a design tool, a billing console, a reader, a storefront,
+ *   a journal and a music player. The kit's `Screen` gives each shell a window of a fixed height
+ *   and contains its sheets, and scrolls the three shells that scroll the window. Every scene
+ *   bleeds to the card's edges, so a shell is as wide as the card allows. The boxes never appear in
+ *   the examples. The words are keys under `app-shell` in `locales/en/specimen/app-shell.json`.
  */
 
-import { type ReactElement } from "react";
+import { type ComponentType, type ReactElement } from "react";
 
-import { NavList } from "@stealthscale/component-navigation";
-import { Matrix, type Scene, specimen, Tile, useWords, valuesOf } from "@stealthscale/specimen";
+import { type Scene, Screen, specimen } from "@stealthscale/specimen";
 
-import * as AppShell from "#app-shell/index.ts";
-import { recipe } from "#app-shell/recipe.ts";
-import * as Sidebar from "#sidebar/index.ts";
+import * as examples from "#app-shell/examples/index.ts";
+import type * as AppShell from "#app-shell/index.ts";
 
 /**
- * The two answers to a boolean prop.
+ * Describes a scene's window and the recipe axes the scene renders.
  */
-const EITHER = [false, true] as const;
+interface Window {
+  /**
+   * The recipe axes the scene renders.
+   */
+  readonly axes?: readonly string[];
 
-/**
- * Draws the parts every shell holds.
- */
-function Application(): ReactElement {
-  const { t } = useWords("app-shell");
+  /**
+   * Whether the box is the window a shell scrolls.
+   */
+  readonly scrolls?: boolean;
 
-  return (
-    <>
-      <AppShell.Header>
-        <AppShell.Trigger>{t("navigation")}</AppShell.Trigger>
-      </AppShell.Header>
-      <AppShell.Body>
-        <AppShell.Navbar>
-          <Sidebar.Root variant="subtle">
-            <Sidebar.Header>{t("acme")}</Sidebar.Header>
-            <Sidebar.Content>
-              <Sidebar.Nav aria-label={t("navigation")}>
-                <NavList.Root>
-                  <NavList.Item>
-                    <NavList.Link aria-current="page" href="#overview">
-                      {t("overview")}
-                    </NavList.Link>
-                  </NavList.Item>
-                  <NavList.Item>
-                    <NavList.Link href="#invoices">{t("invoices")}</NavList.Link>
-                  </NavList.Item>
-                </NavList.Root>
-              </Sidebar.Nav>
-            </Sidebar.Content>
-          </Sidebar.Root>
-        </AppShell.Navbar>
-        <AppShell.Main>
-          <Tile>{t("page")}</Tile>
-        </AppShell.Main>
-        <AppShell.Aside aria-label={t("detail")}>
-          <Tile>{t("detail")}</Tile>
-        </AppShell.Aside>
-      </AppShell.Body>
-      <AppShell.Footer>
-        <Tile>{t("footer")}</Tile>
-      </AppShell.Footer>
-    </>
-  );
+  /**
+   * Height of the box.
+   */
+  readonly size: "lg" | "md" | "sm" | "xs";
 }
 
 /**
- * Draws the shell in every look.
+ * Returns a scene that renders one application in a window.
+ *
+ * @param name - The scene's key under `app-shell`, and the example's name.
+ * @param example - The example module.
+ * @param Application - The example's component.
+ * @param window - The window's height, whether it scrolls and the axes the scene renders.
+ * @returns The scene.
  */
-function Looks(): ReactElement {
-  return (
-    <Matrix direction="column" knob="variant" of={valuesOf(recipe, "variant")}>
-      {(variant) => (
-        <AppShell.Root variant={variant}>
-          <Application />
-        </AppShell.Root>
-      )}
-    </Matrix>
-  );
+function applied(
+  name: string,
+  example: object,
+  Application: ComponentType<AppShell.RootProps>,
+  window: Window,
+): Scene {
+  return {
+    about: `app-shell.${name}.about`,
+    axes: [...(window.axes ?? [])],
+    draw: (): ReactElement => (
+      <Screen scrolls={window.scrolls ?? false} size={window.size}>
+        <Application />
+      </Screen>
+    ),
+    example,
+    frame: "bleed",
+    title: `app-shell.${name}.title`,
+  };
 }
-
-/**
- * Draws the shell scrolling each way.
- */
-function Scroll(): ReactElement {
-  return (
-    <Matrix direction="column" knob="scroll" of={valuesOf(recipe, "scroll")}>
-      {(scroll) => (
-        <AppShell.Root scroll={scroll}>
-          <Application />
-        </AppShell.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the shell with its hairlines and without.
- */
-function Divided(): ReactElement {
-  return (
-    <Matrix direction="column" knob="divided" of={EITHER}>
-      {(divided) => (
-        <AppShell.Root divided={divided}>
-          <Application />
-        </AppShell.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Every look.
- */
-export const looks: Scene = {
-  about: "app-shell.looks.about",
-  draw: Looks,
-  title: "app-shell.looks.title",
-  viewport: true,
-};
-
-/**
- * Both ways of scrolling.
- */
-export const scroll: Scene = {
-  about: "app-shell.scroll.about",
-  draw: Scroll,
-  title: "app-shell.scroll.title",
-  viewport: true,
-};
-
-/**
- * Hairlines beside none.
- */
-export const divided: Scene = {
-  about: "app-shell.divided.about",
-  draw: Divided,
-  title: "app-shell.divided.title",
-  viewport: true,
-};
 
 export default specimen({
   about: "app-shell.about",
-  group: "Screen",
-  id: "screen/app-shell",
-  imports: 'import { AppShell, Sidebar } from "@stealthscale/component-screen";',
-  scenes: [looks, scroll, divided],
+  id: "components/screen/app-shell",
+  imports: 'import { AppShell } from "@stealthscale/component-screen";',
+  scenes: [
+    applied("console", examples.console, examples.console.Console, { size: "lg" }),
+    applied("chat", examples.chat, examples.chat.Chat, { size: "sm" }),
+    applied("mail", examples.mail, examples.mail.Mail, { size: "sm" }),
+    applied("checkout", examples.checkout, examples.checkout.Checkout, { size: "sm" }),
+    applied("handbook", examples.handbook, examples.handbook.Handbook, {
+      axes: ["variant"],
+      size: "md",
+    }),
+    applied("canvas", examples.canvas, examples.canvas.Canvas, {
+      axes: ["divided", "variant"],
+      size: "sm",
+    }),
+    applied("billing", examples.billing, examples.billing.Billing, { size: "sm" }),
+    applied("reader", examples.reader, examples.reader.Reader, { size: "sm" }),
+    applied("storefront", examples.storefront, examples.storefront.Storefront, {
+      axes: ["scroll"],
+      scrolls: true,
+      size: "xs",
+    }),
+    applied("journal", examples.journal, examples.journal.Journal, { scrolls: true, size: "xs" }),
+    applied("player", examples.player, examples.player.Player, { scrolls: true, size: "xs" }),
+  ],
   title: "app-shell.title",
 });

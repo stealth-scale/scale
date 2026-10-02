@@ -12,11 +12,11 @@ import { Trigger } from "#clipboard/trigger.tsx";
 const UNSET: string | undefined = undefined;
 
 describe("Root", () => {
-  it("breaks no accessibility rule holding a label, a field and a trigger", async () => {
+  it("returns no accessibility violation for a label, a field and a trigger together", async () => {
     await expect(accessibilityViolations(() => composed())).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("emits a root-slot class for every variant value the recipe declares", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "root",
@@ -24,26 +24,26 @@ describe("Root", () => {
     ).toStrictEqual([]);
   });
 
-  it("carries no role because the field and the trigger carry their own meaning", () => {
+  it("renders no role attribute on the container", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "clipboard", "root").hasAttribute("role")).toBe(false);
   });
 
-  it("draws the element as names", () => {
+  it("renders a SECTION when as is set to section", () => {
     const { container } = render(composed({ as: "section" }));
 
     expect(slotElement(container, "clipboard", "root").tagName).toBe("SECTION");
   });
 
-  it("writes the value to the clipboard when the trigger is pressed", async () => {
+  it("writes the value to the system clipboard when the trigger is clicked", async () => {
     render(composed());
     await pressed(screen.getByRole("button"));
 
     await expect(navigator.clipboard.readText()).resolves.toBe(LINK);
   });
 
-  it("marks every part copied for a while after a press", async () => {
+  it("sets data-copied on the root, the control and the trigger after a copy", async () => {
     const { container } = render(composed());
     await pressed(screen.getByRole("button"));
 
@@ -52,13 +52,13 @@ describe("Root", () => {
     expect(slotElement(container, "clipboard", "trigger").dataset["copied"]).toBe("");
   });
 
-  it("marks nothing copied before a press", () => {
+  it("leaves data-copied off the root before any copy", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "clipboard", "root").dataset["copied"]).toBeUndefined();
   });
 
-  it("clears the mark after the timeout a caller sets", async () => {
+  it("removes data-copied once the caller's timeout has elapsed", async () => {
     vi.useFakeTimers();
 
     try {
@@ -72,7 +72,7 @@ describe("Root", () => {
     }
   });
 
-  it("tells a caller each time it copies", async () => {
+  it("calls onStatusChange once with copied true per copy", async () => {
     const told = vi.fn<(details: { readonly copied: boolean }) => void>();
 
     render(composed({ onStatusChange: told }));
@@ -81,20 +81,20 @@ describe("Root", () => {
     expect(told).toHaveBeenCalledExactlyOnceWith({ copied: true });
   });
 
-  it("copies a default value a caller sets without driving it", async () => {
+  it("copies defaultValue when the caller passes no value", async () => {
     render(clipped(<Trigger>Copy</Trigger>, { defaultValue: "4109", value: UNSET }));
     await pressed(screen.getByRole("button"));
 
     await expect(navigator.clipboard.readText()).resolves.toBe("4109");
   });
 
-  it("builds the reference between the label and the field from the id a caller names", () => {
+  it("derives the field's id from the id the caller passes", () => {
     render(composed({ id: "payout" }));
 
     expect(screen.getByLabelText("Link to the payout").id).toContain("payout");
   });
 
-  it("generates an id where a caller names none", () => {
+  it("renders two roots side by side when neither is given an id", () => {
     render(<Root />);
     render(<Root />);
 

@@ -52,17 +52,20 @@
     "test": "vp test"
   },
   "dependencies": {
+    "@zag-js/accordion": "catalog:",
     "@zag-js/collapsible": "catalog:",
+    "@zag-js/hover-card": "catalog:",
     "@zag-js/menu": "catalog:",
     "@zag-js/popover": "catalog:",
     "@zag-js/react": "catalog:",
+    "@zag-js/steps": "catalog:",
     "@zag-js/tabs": "catalog:",
     "@zag-js/tooltip": "catalog:",
     "@zag-js/types": "catalog:"
   },
   "devDependencies": {
     "@arethetypeswrong/core": "catalog:",
-    "@rolldown/plugin-babel": "catalog:",
+    "@stealthscale/component-a11y": "workspace:^",
     "@stealthscale/component-actions": "workspace:^",
     "@stealthscale/component-primitives": "workspace:^",
     "@stealthscale/hooks": "workspace:^",
@@ -77,7 +80,6 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@zag-js/focus-visible": "catalog:",
-    "babel-plugin-react-compiler": "catalog:",
     "happy-dom": "catalog:",
     "lucide-react": "catalog:",
     "oxc-transform-react": "catalog:",
@@ -88,6 +90,8 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
+    "@stealthscale/component-a11y": "workspace:^",
+    "@stealthscale/component-primitives": "workspace:^",
     "@stealthscale/hooks": "workspace:^",
     "@stealthscale/theme": "workspace:^",
     "react": "catalog:"

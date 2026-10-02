@@ -1,16 +1,15 @@
 /**
- * States what a set of tabs is: one strip of controls, and the panel each of them shows.
+ * Recipe for the tabs: a list of tabs, the panel of each, and the indicator under the selected
+ * tab.
  *
  * @remarks
- *   Five parts. The root frames the whole, the list is the strip, a trigger is one tab, the content
- *   is a panel, and the indicator is the bar that slides under the tab in force.
- *   Which way the set runs is the machine's, not an axis of its own. It writes the orientation onto
- *   every part, and the compiler ships a condition that reads it, so the strip turns into a column
- *   and the indicator moves to its inline edge without a caller stating anything twice.
- *   The indicator is positioned from custom properties the machine measures, so the recipe states
- *   its thickness and its colour and never its place. Every tab is painted over the indicator,
- *   because a filled indicator stands behind the whole tab in force and would otherwise cover its
- *   words.
+ *   The orientation is the machine's option, not an axis. The machine sets `data-orientation` on
+ *   every part, so the list turns into a column and the line indicator moves to the inline edge
+ *   without a second prop. The machine measures the selected tab into `--width` and `--height` and
+ *   positions the indicator, so the recipe sets its size and fill and never its position. Every
+ *   tab sits over the indicator, so a filled indicator does not cover the tab's text. The palette
+ *   is set on the root, and the line and subtle looks read it. The recipe has no `effect` axis,
+ *   because the indicator moves on every selection, and a glow would move with it.
  */
 
 import {
@@ -22,25 +21,68 @@ import {
   justifyVariants,
   onSlot,
   onSlots,
+  PALETTES,
+  paletteVariants,
 } from "@stealthscale/theme/authoring";
 
 /**
- * Fixes the box an indicator that fills the tab in force takes: the width and the height the
- * machine measured the tab at.
+ * Sizes an indicator that fills the selected tab to the tab's measured width and height.
  *
  * @remarks
- *   The machine writes the measurements as properties on the indicator and leaves it to the
- *   recipe to take them. A line indicator takes one of the two and its own stroke for the other.
- *   A filled indicator takes both, because it stands behind the whole tab rather than along one
- *   edge of it, and one that took neither collapsed to nothing and left the selected tab unmarked.
+ *   A line indicator takes one of the two and its own stroke for the other. A filled indicator
+ *   takes both. Without them it collapsed to nothing and left the selected tab unmarked.
  */
 const FILLED = { height: "var(--height)", width: "var(--width)" };
 
 /**
- * Draws a line of tabs at the middle size until a caller says otherwise.
+ * Places a line indicator under the selected tab, or at its inline start in a vertical list.
+ */
+const BAR = {
+  _horizontal: { bottom: "0", height: "{borderWidths.indicator}", width: "var(--width)" },
+  _vertical: {
+    height: "var(--height)",
+    insetInlineStart: "0",
+    width: "{borderWidths.indicator}",
+  },
+};
+
+/**
+ * Paints a bar in the system's selection colour under forced colors.
+ *
+ * @remarks
+ *   Forced colors replace every author background with `Canvas`, so a filled bar vanishes and the
+ *   selected tab keeps no mark. A system colour with `forcedColorAdjust: none` keeps the bar.
+ */
+const FORCED_BAR = { background: "Highlight", forcedColorAdjust: "none" };
+
+/**
+ * Styles the pointer's close control inside a closable tab.
+ *
+ * @remarks
+ *   The control is at least `sizes.6` square, the smallest pointer target WCAG 2.5.8 allows, and
+ *   its glyph is one text size. Negative inline margins take the box's room around the glyph back,
+ *   so the glyph sits the tab's gap from the words and the tab's inset from its end.
+ */
+const CLOSE_TRIGGER = {
+  _hover: { background: "colorPalette.muted", color: "fg" },
+  "& > svg": { blockSize: "1em", inlineSize: "1em" },
+  alignItems: "center",
+  borderRadius: "l1",
+  color: "fg.muted",
+  display: "inline-flex",
+  flexShrink: "0",
+  justifyContent: "center",
+  marginInline: "calc((1em - {sizes.6}) / 2)",
+  minBlockSize: "6",
+  minInlineSize: "6",
+};
+
+/**
+ * Defines the tabs recipe: a line of tabs at size `md` by default.
  */
 export const recipe = defineSlotRecipe({
   base: {
+    closeTrigger: CLOSE_TRIGGER,
     content: { _focusVisible: { focusVisibleRing: "outside" }, outline: "none" },
     indicator: { borderRadius: "l1", pointerEvents: "none", zIndex: "0" },
     list: {
@@ -58,6 +100,8 @@ export const recipe = defineSlotRecipe({
     trigger: {
       ...interactive(),
       _disabled: { cursor: "disabled" },
+      _vertical: { justifyContent: "flex-start" },
+      "& > svg": { blockSize: "1em", flexShrink: "0", inlineSize: "1em" },
       alignItems: "center",
       display: "inline-flex",
       justifyContent: "center",
@@ -69,25 +113,32 @@ export const recipe = defineSlotRecipe({
   className: "tabs",
   defaultVariants: { size: "md", variant: "line" },
   jsx: [/^Tabs(\.\w+)?$/u],
-  slots: ["root", "list", "trigger", "content", "indicator"],
+  slots: ["root", "list", "trigger", "closeTrigger", "content", "indicator"],
+  staticCss: [{ palette: [...PALETTES] }],
   variants: {
     /**
-     * Whether the controls share the strip's width between them.
+     * Whether the tabs share the list's width equally.
      */
     fitted: { true: { trigger: { flex: "1" } } },
 
     /**
-     * Where the controls sit when they do not fill the strip.
+     * Distribution of the tabs in a list wider than they are.
      */
     justify: onSlot("list", justifyVariants()),
 
     /**
-     * How much room the strip and the panel take.
+     * Palette of the line indicator, the subtle indicator and the selected tab's text, set on the
+     * root.
+     */
+    palette: onSlot("root", paletteVariants()),
+
+    /**
+     * Size of the tabs on the control scale and the panel's padding on the inset scale.
      */
     size: onSlots({ content: insetSizes(), trigger: controlSizes() }),
 
     /**
-     * How the strip is drawn, and what marks the tab in force.
+     * Look of the list and the indicator of the selected tab.
      */
     variant: {
       enclosed: {
@@ -105,15 +156,7 @@ export const recipe = defineSlotRecipe({
         },
       },
       line: {
-        indicator: {
-          _horizontal: { bottom: "0", height: "{borderWidths.indicator}", width: "var(--width)" },
-          _vertical: {
-            height: "var(--height)",
-            insetInlineStart: "0",
-            width: "{borderWidths.indicator}",
-          },
-          background: "colorPalette.solid",
-        },
+        indicator: { ...BAR, _highContrast: FORCED_BAR, background: "colorPalette.solid" },
         list: {
           _horizontal: { borderBlockEndColor: "border", borderBlockEndWidth: "hairline" },
           _vertical: { borderInlineEndColor: "border", borderInlineEndWidth: "hairline" },
@@ -125,11 +168,21 @@ export const recipe = defineSlotRecipe({
         },
       },
       plain: {
-        indicator: { display: "none" },
+        indicator: { ...BAR, _highContrast: { ...FORCED_BAR, display: "block" }, display: "none" },
         trigger: { _selected: { color: "fg" }, color: "fg.muted" },
       },
       subtle: {
-        indicator: { ...FILLED, background: "colorPalette.subtle", borderRadius: "l1" },
+        indicator: {
+          ...FILLED,
+          _highContrast: {
+            outlineColor: "Highlight",
+            outlineOffset: "calc({borderWidths.indicator} * -1)",
+            outlineStyle: "solid",
+            outlineWidth: "{borderWidths.indicator}",
+          },
+          background: "colorPalette.subtle",
+          borderRadius: "l1",
+        },
         trigger: { _selected: { color: "colorPalette.fg" }, color: "fg.muted" },
       },
     },

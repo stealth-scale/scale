@@ -1,42 +1,46 @@
 /**
- * Draws the control that opens and closes a panel.
+ * Renders the control that opens and closes a panel.
  *
  * @remarks
- *   It points at the panel by name, so a burger in the bar across the top opens the navigation in
- *   the body without either part having been handed the other. It states which panel it controls
- *   and whether that panel is shown, so a mark inside it can turn with the panel and a screen
- *   reader says what pressing it does. A panel that has dropped under the page is always shown and
- *   there is nothing to open, so the control leaves the document rather than standing there doing
- *   nothing. Name it for the panel rather than for itself. `Navigation` beside `aria-expanded`
- *   reads as "Navigation, collapsed, button", which says both what it opens and what state it is
- *   in.
+ *   The trigger is the library's button, a neutral ghost unless the caller states another look, so
+ *   it takes the button's sizes, shapes and focus ring. It reads its panel from the shell's store
+ *   by name, so a control in the header opens the navigation in the body without either part
+ *   receiving the other. It sets `aria-controls`, `aria-expanded` and `data-state` from the panel,
+ *   and no pressed fill, because an open panel is a state of the panel and not of the button. A
+ *   panel that has dropped under the page is always shown, so the trigger renders nothing then.
+ *   Name the control for the panel: `Navigation` with `aria-expanded` announces as "Navigation,
+ *   collapsed, button".
  */
 
 import { type ComponentProps, type ReactElement } from "react";
+
+import { Button } from "@stealthscale/component-actions";
 
 import { withContext } from "#app-shell/context.ts";
 import { useAppShellPanel } from "#app-shell/state.ts";
 
 /**
- * Draws the control at the room the shell states.
+ * Renders the library's button as a neutral ghost, typed `button` so it submits no form.
  */
-const Pressable = withContext("button", "trigger", { defaultProps: { type: "button" } });
+const Pressable = withContext(Button, "trigger", {
+  defaultProps: { palette: "neutral", type: "button", variant: "ghost" },
+});
 
 /**
- * Describes what the control takes.
+ * Describes the props of `Trigger`.
  */
 export interface TriggerProps extends Omit<ComponentProps<typeof Pressable>, "aria-controls"> {
   /**
-   * The name the panel it opens was drawn under. Default: `navbar`.
+   * Name of the panel the control opens. Defaults to `navbar`.
    */
   readonly panel?: string | undefined;
 }
 
 /**
- * Draws the control that opens and closes one panel.
+ * Renders the control that toggles one panel.
  *
- * @param props - Which panel, and everything a styled button takes.
- * @returns The control, or nothing where the panel it points at has dropped under the page.
+ * @param props - `panel` and the button's props.
+ * @returns The control, or `null` while its panel has dropped under the page.
  */
 export function Trigger({ onClick, panel = "navbar", ...rest }: TriggerProps): null | ReactElement {
   const held = useAppShellPanel(panel);

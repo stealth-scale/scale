@@ -1,26 +1,26 @@
 /**
- * Builds the rows and the collection every listbox specification picks from.
+ * Builds the rows and the collections the listbox specifications render.
  */
 
 import { ListCollection } from "@zag-js/collection";
 
 /**
- * Describes one row every case picks from.
+ * Describes one row of the fixture collection.
  */
 export interface Row {
   /**
-   * The words the row is drawn and announced by.
+   * Text the row renders and is named by.
    */
   label: string;
 
   /**
-   * The value the row is chosen by.
+   * Value the row is selected by.
    */
   value: string;
 }
 
 /**
- * The rows every case starts from.
+ * Rows of the fixture collection: Invoices, Reports and Settings.
  */
 export const ROWS: readonly Row[] = [
   { label: "Invoices", value: "invoices" },
@@ -29,7 +29,7 @@ export const ROWS: readonly Row[] = [
 ];
 
 /**
- * The collection every case draws.
+ * Collection of the three rows.
  */
 export const COLLECTION = new ListCollection<Row>({
   items: [...ROWS],
@@ -38,8 +38,7 @@ export const COLLECTION = new ListCollection<Row>({
 });
 
 /**
- * A collection holding no rows at all, for the cases that measure what a list says when it is
- * empty.
+ * Collection with no rows.
  */
 export const NOTHING = new ListCollection<Row>({
   items: [],

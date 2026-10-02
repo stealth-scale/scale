@@ -4,7 +4,7 @@
  *
  * @remarks
  *   The check renders the component through a callback the specification supplies, once with
- *   nothing picked and once per value of every axis, and reads the classes the recipe owns off the
+ *   nothing picked and once per value of every axis, and reads the recipe's classes off the
  *   element. The expected classes come from the recipe alone: the class of each value picked or
  *   defaulted that styles the element, and the class of each compound whose selection matches. A
  *   part of a slot recipe gets a value's class only where the value styles that part, which is
@@ -110,7 +110,7 @@ function selectionOf(
 }
 
 /**
- * Returns true when the value's styles reach the slot, and always where there is no slot.
+ * Returns true when the value's styles apply to the slot, and always where there is no slot.
  */
 function stylesSlot(
   recipe: Declared,
@@ -126,7 +126,7 @@ function stylesSlot(
 }
 
 /**
- * Lists the class of each compound the selection matches and whose styles reach the slot.
+ * Lists the class of each compound the selection matches and whose styles apply to the slot.
  */
 function compoundClasses(
   recipe: Declared,
@@ -144,8 +144,8 @@ function compoundClasses(
 }
 
 /**
- * Lists the classes the recipe owns that the element should have for what was picked, with the
- * defaults filled in.
+ * Lists the recipe's classes that the element should have for what was picked, with the defaults
+ * filled in.
  */
 function expectedClasses(
   recipe: Declared,
@@ -197,7 +197,7 @@ function unemitted(
 }
 
 /**
- * Reads the classes the recipe owns off the element: its own, and every one that opens with it.
+ * Reads the recipe's classes off the element: the owner class, and every class that starts with it.
  */
 function actualClasses(element: Element, owner: string): readonly string[] {
   return classesOf(element).filter((each) => each === owner || each.startsWith(`${owner}--`));
@@ -242,18 +242,18 @@ function renders(
 }
 
 /**
- * Carries what one run of the check needs: the renders it makes, and how it reads each one.
+ * Describes what one run of the check needs: the renders it makes, and how it reads each one.
  *
  * @typeParam Props - The component's props, which the check fills from the recipe's axes.
  */
 interface Planned<Props extends object> {
   /**
-   * One entry per render: the props to draw with, and how to read what came back.
+   * One entry per render: the props to render with, and how to read what came back.
    */
   readonly cases: ReadonlyArray<readonly [props: Props, read: (drawn: ParentNode) => string[]]>;
 
   /**
-   * The violations the recipe has before anything is drawn.
+   * The violations the recipe has before anything renders.
    */
   readonly stated: readonly string[];
 }
@@ -281,11 +281,9 @@ function planned<Props extends object>(recipe: Declared, options: BoundChecks): 
 
   return {
     cases: renders(recipe).map(([picked, when]) => {
-      // Each key is an axis the recipe offers and each value one the axis takes, which is what Props names.
-      // eslint-disable-next-line typescript/no-unsafe-type-assertion -- see above
-      const props = Object.fromEntries(
-        Object.entries(picked).map(([axis, value]) => [axis, propOf(value)]),
-      ) as Props;
+      const entries = Object.entries(picked).map(([axis, value]) => [axis, propOf(value)] as const);
+      // eslint-disable-next-line typescript/no-unsafe-type-assertion -- each key is an axis the recipe offers and each value one the axis takes, which is what Props names
+      const props = Object.fromEntries(entries) as Props;
 
       /**
        * Reads the classes off what one render produced and reports what differs from the recipe.
@@ -310,7 +308,7 @@ function planned<Props extends object>(recipe: Declared, options: BoundChecks): 
  * value of every axis and one with nothing picked.
  *
  * @returns Each difference as a sentence naming the class and the render, or an empty array for
- *   a component that writes the classes its recipe says.
+ *   a component that writes the classes its recipe states.
  */
 export function boundViolations<Props extends object>(
   recipe: Declared,
@@ -331,7 +329,7 @@ export function boundViolations<Props extends object>(
  *   run one after another rather than together, because each one mounts into the document and two
  *   act scopes open at once report the same thing.
  * @returns Each difference as a sentence naming the class and the render, or an empty array for
- *   a component that writes the classes its recipe says.
+ *   a component that writes the classes its recipe states.
  */
 export async function boundMachineViolations<Props extends object>(
   recipe: Declared,

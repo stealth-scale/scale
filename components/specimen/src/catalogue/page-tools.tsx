@@ -5,8 +5,8 @@
 
 import { type ReactElement, type RefObject, useId } from "react";
 
+import { Stack } from "@stealthscale/component-layout";
 import { Card } from "@stealthscale/component-surfaces";
-import { Text } from "@stealthscale/component-typography";
 
 import { Code } from "#catalogue/code.tsx";
 import { Findings } from "#catalogue/page-audit.tsx";
@@ -14,14 +14,17 @@ import { Checks } from "#catalogue/page-checks.tsx";
 import { Opens } from "#catalogue/page-opens.tsx";
 import { Rated } from "#catalogue/page-rated.tsx";
 import { usePanels } from "#catalogue/use-panels.ts";
-import { useWords } from "#words.ts";
 
 /**
  * Describes what the footer takes.
  */
 export interface ToolsProps {
   /**
-   * The scene's source, or `null` where the index cut none for it.
+   * The line a reader copies, or `null` where the scene has none.
+   *
+   * @remarks
+   *   The generator writes the line from the sample a page states. A scene written by hand without
+   *   a sample has no line, and the footer says so rather than opening on nothing.
    */
   readonly code: null | string;
 
@@ -45,38 +48,39 @@ export interface ToolsProps {
  *   round them.
  *   Both panels carry the one id, because only one of them is ever drawn and both controls point
  *   at it. A panel is drawn only while it is open, so a closed panel costs the page nothing.
- *   What the audit came to is reported at the start of the footer and the panel is opened only
- *   where the scene broke a rule. A clean audit has one thing to say, and a panel that opened to
- *   say it pushed the next scene off the screen to report that nothing was wrong. The audit control
- *   is a disclosure on the same terms: with nothing to disclose it states no panel.
- *   The report is cleared while a run is under way, so a reader pressing the control a second time
- *   does not read the last run's answer as this one's.
+ *   The audit control stands at the start of the footer with what the audit came to beside it, and
+ *   the source control stands at the end. A reader running down a page of scenes reads each result
+ *   in the same column, and the control that produced it is the one next to it. The source control
+ *   states the margin that holds the two ends apart, because it is the one drawn at every point:
+ *   the result beside the audit control appears only once an audit has run.
+ *   The panel is opened only where the scene broke a rule. A clean audit has one thing to say, and
+ *   a panel that opened to say it pushed the next scene off the screen to report that nothing was
+ *   wrong. The audit control is a disclosure on the same terms: with nothing to disclose it states
+ *   no panel.
+ *   The last report stands while a run is under way and is replaced when the new one arrives. It
+ *   was cleared for the length of the run, and on a scene that audits in a frame that read as the
+ *   footer blinking. The control goes off for the same length, which is what says a run is on.
  * @param props - The source, the element to audit, and the scene's title.
  * @returns The footer, and the open panel.
  */
 export function Tools({ code, stage, title }: ToolsProps): ReactElement {
-  const { t } = useWords();
   const { audit, open, running, toggleAudit, toggleSource } = usePanels(stage);
   const id = useId();
 
   return (
     <>
       <Card.Footer>
-        <Rated audit={running ? undefined : audit} />
-        {code === null ? (
-          <Text size="sm" tone="muted">
-            {t("code.none")}
-          </Text>
-        ) : (
-          <Opens id={id} onPress={toggleSource} open={open === "source"} />
-        )}
-        <Checks
-          id={id}
-          onPress={toggleAudit}
-          open={open === "audit"}
-          ran={audit !== undefined && audit.findings.length > 0}
-          running={running}
-        />
+        <Stack direction="row" gap="sm">
+          <Checks
+            id={id}
+            onPress={toggleAudit}
+            open={open === "audit"}
+            ran={audit !== undefined && audit.findings.length > 0}
+            running={running}
+          />
+          <Rated audit={audit} />
+        </Stack>
+        <Opens code={code} id={id} onPress={toggleSource} open={open === "source"} />
       </Card.Footer>
       {open === "source" && code !== null ? (
         <Card.Content id={id}>

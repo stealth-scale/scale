@@ -1,38 +1,39 @@
 /**
- * Declares the names and shapes a host and a remote both have to spell the same way.
+ * The federation contract: what a remote exposes, what the two sides share, and where the host
+ * looks for the entry manifest.
  *
  * @remarks
- *   The two sides are built in separate repositories and meet only at run time.
- *   A disagreement about the entry filename or a shared version range surfaces
- *   as a failed fetch, long after both builds succeeded.
+ *   Host and remote are built in separate repositories and only meet at run time. Disagree about
+ *   the entry filename or a shared version range and nothing goes wrong until the browser fetches
+ *   the remote, long after both builds went green.
  */
 
 /**
- * Maps each specifier a host imports to the module inside the remote that answers it.
+ * The modules a remote exposes, keyed by the specifier a host imports them under.
  *
  * @remarks
- *   A key is written as the remote's own root sees it, so `./Dashboard` reaches
- *   a host as `shop/Dashboard`. A value is a path relative to that root and is
- *   never resolved by the host.
+ *   Keys are relative to the remote's own root: a remote named `shop` exposing `./Dashboard` is
+ *   imported by the host as `shop/Dashboard`. Values are paths inside the remote's build, which the
+ *   host never resolves for itself: the remote resolved them at build time.
  */
 export type Exposed = Readonly<Record<string, string>>;
 
 /**
- * Lists each remote a host imports from by name, and nothing about where it is served.
+ * The remotes a host imports from, by name only.
  *
  * @remarks
- *   The address is supplied at run time by whatever registers the remote, so one
- *   built artefact runs against staging and production alike.
+ *   Addresses come from the deployment, which registers each remote at run time. One built artefact
+ *   therefore runs against staging and production without a rebuild.
  */
 export type Remotes = readonly string[];
 
 /**
- * Stands in for a remote's address until a deployment registers the real one.
+ * The placeholder address a remote carries until a deployment registers the real one.
  *
  * @remarks
- *   The `.invalid` top-level domain is reserved and resolves nowhere. A host
- *   that reaches the network for this address has skipped registration, and it
- *   fails on the fetch rather than quietly loading something else.
+ *   RFC 2606 reserves the `.invalid` top-level domain, so this resolves nowhere. A host that
+ *   actually requests it skipped registration, and failing the fetch beats quietly loading whatever
+ *   build happens to answer.
  */
 export const UNSET = "https://federation.invalid";
 
@@ -40,36 +41,36 @@ export const UNSET = "https://federation.invalid";
  * The terms a host and a remote agree on for one shared dependency.
  *
  * @remarks
- *   Each side declares the dependency independently. Whichever copy loads first
- *   takes the shared slot, so two sides that disagree about a range run
- *   whichever build happened to arrive first.
+ *   Both sides declare the dependency independently, and the copy that loads first claims the
+ *   shared slot. When the two disagree about a range, arrival order decides which copy everyone
+ *   runs.
  */
 export interface Sharing {
   /**
-   * Restricts the shared slot to a range, so a copy outside it loads on its own.
+   * The range the shared slot accepts. A copy outside it loads its own instance instead.
    */
   requiredVersion?: string;
 
   /**
-   * Collapses the host and every remote it loads onto one instance of the dependency.
+   * Whether the host and every remote it loads collapse onto a single instance.
    */
   singleton?: boolean;
 }
 
 /**
- * Lists every shared dependency under the specifier an import writes.
+ * The shared dependencies, keyed by the specifier an import writes.
  *
  * @remarks
- *   A key matches by specifier and not by package, so an entry naming a package
- *   leaves a deep import into that package unshared.
+ *   Matching is by specifier, not by package, so an entry for a package does not cover a deep
+ *   import into it. That import loads its own copy.
  */
 export type Shared = Readonly<Record<string, Sharing>>;
 
 /**
- * Points a host at the manifest listing what a remote exposes.
+ * The manifest a host fetches to find out what a remote exposes.
  *
  * @remarks
- *   The name carries no content hash. A host resolves it by URL at run time, and
- *   a hashed name would pin the host to one particular build of the remote.
+ *   Deliberately unhashed. The host resolves this by URL at run time, and a content hash would pin
+ *   it to one build of the remote.
  */
 export const ENTRY = "remoteEntry.js";

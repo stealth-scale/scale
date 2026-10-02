@@ -45,6 +45,18 @@ export const GREY = { dark: "#FFFFFF", light: oklch(27, 0.0077, TINT) };
 export const BLUE = "#2563EB";
 
 /**
+ * Fixes how far the three wells sink below the page: 0.025, 0.05 and 0.075 in lightness, against
+ * the foundation's 0.04, 0.08 and 0.13.
+ *
+ * @remarks
+ *   A step of 0.02 measures just under the gate's minimum distance between two surfaces once the
+ *   drawn colors are rounded, so each step is 0.025. On the paper the wells measure 94.5, 92 and
+ *   89.5 percent lightness, so a subtle field, a filled addon and a muted region read as a light
+ *   grey against a white panel. A control's quiet fills keep the foundation's steps.
+ */
+export const WELLS = [0.025, 0.05, 0.075] as const;
+
+/**
  * Fixes the colors the theme is drawn from.
  */
 export const COLORS: Colors = {
@@ -55,4 +67,5 @@ export const COLORS: Colors = {
   light: { ink: CHARCOAL, page: PAPER },
   primary: GREY,
   secondary: BLUE,
+  wells: WELLS,
 };

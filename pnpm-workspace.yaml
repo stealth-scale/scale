@@ -5,6 +5,7 @@ packages:
   - foundations/*
   - foundations/providers/*
   - packages/*
+  - sdk/*
   - themes/*
 
 catalogMode: prefer
@@ -12,89 +13,199 @@ catalogMode: prefer
 # What a workspace resolves `vite` to. Vite+ ships the toolchain under its own name and is
 # installed here in place of Vite, which is why this is an alias rather than a range.
 catalog:
-  "@arethetypeswrong/core": ^0.18.5
-  "@changesets/changelog-github": ^1.0.1
-  "@changesets/cli": ^3.0.2
-  "@cyclonedx/cyclonedx-library": ^10.2.0
-  "@mdx-js/rollup": ^3.1.1
+  "@arethetypeswrong/core": ^0.18
+  "@changesets/changelog-github": ^1.0
+  "@changesets/cli": ^3.0
+  "@cyclonedx/cyclonedx-library": ^10.3
+  # The graph layout by rank. `layoutGraph` places a node graph's ranks with it.
+  "@dagrejs/dagre": ^3.1
+  # The sortable kit's drag and drop engine, one minor for all four. A 0.x minor may change the
+  # API, and the kit's recipe styles the attributes the engine writes, such as
+  # `data-dnd-placeholder`. `@dnd-kit/react` asks for the other three at `^0.5.0`.
+  "@dnd-kit/abstract": ^0.5
+  "@dnd-kit/dom": ^0.5
+  "@dnd-kit/helpers": ^0.5
+  "@dnd-kit/react": ^0.5
+  # The date input's values. The machine peers on it and takes its `DateValue`.
+  "@internationalized/date": ^3.12
+  "@mdx-js/rollup": ^3.1
+  # The federation runtime, at exactly the version `@module-federation/vite` depends on. The plugin
+  # generates code against its own runtime, and an application importing another version installs a
+  # second runtime beside it.
   "@module-federation/runtime": 2.9.0
-  "@module-federation/vite": 1.21.5
-  "@pandacss/compiler": 2.0.0-beta.17
-  "@pandacss/config": 2.0.0-beta.17
-  "@pandacss/preset-base": 2.0.0-beta.17
-  "@pandacss/types": 2.0.0-beta.17
-  "@tanstack/highlight": 0.1.0
-  "@tanstack/react-form": ^1.33.5
-  "@tanstack/react-hotkeys": 0.10.0
-  "@tanstack/react-router": 1.170.34
-  "@testing-library/react": ^16.3.0
-  "@types/babel__core": ^7.20.5
-  "@types/mdx": ^2.0.14
-  "@types/node": ^26.5.1
-  "@types/react": ^19.3.0
-  "@types/react-dom": ^19.3.0
-  "@types/spdx-expression-parse": ^4.0.0
-  "@vitejs/plugin-react": ^6.1.1
-  "@vitest/browser-playwright": 4.1.11
-  "@vitest/coverage-v8": 4.1.11
+  "@module-federation/vite": ^1.22
+  # The host's flag adapter, and the core the web SDK peers on. The adapter reads the evaluation
+  # details' error codes and reasons and the provider events, so a minor release may change one.
+  "@openfeature/core": ^1.12
+  "@openfeature/web-sdk": ^1.10
+  "@pandacss/compiler": ^2.0
+  "@pandacss/config": ^2.0
+  "@pandacss/preset-base": ^2.0
+  "@pandacss/types": ^2.0
+  "@tanstack/highlight": ^0.1
+  # The hotkey parser the product build validates a command's keys with. `@tanstack/react-hotkeys`
+  # 0.12.0 depends on exactly this version, so the build parses a binding with the code that binds it
+  # on the page.
+  "@tanstack/hotkeys": 0.10.0
+  # The Markdown parser. A caret on a 0.0.x version matches that version alone: its document tree is
+  # public but pre-1.0, and the renderer maps each node type it names to a component, so a release
+  # may add or rename a node.
+  "@tanstack/markdown": ^0.0.15
+  "@tanstack/react-form": ^1.33
+  "@tanstack/react-hotkeys": ^0.12
+  # The data client, which `provider-data` builds its queries and mutations on. A minor release may
+  # deprecate a method the foundation calls, as 5.102 deprecated `ensureQueryData`.
+  "@tanstack/react-query": ^5.104
+  # The router, and the core it parses a route's path with. `provider-router` interpolates a path
+  # through the core's segment helpers, which the router does not re-export, so both are exactly the
+  # versions the router states: 1.170.40 depends on core 1.171.33. A second core would read the
+  # segments another core parsed, and their format changed between two patch releases of the core.
+  "@tanstack/react-router": 1.170.40
+  "@tanstack/router-core": 1.171.33
+  # The router's integration with the data client, which streams the queries a server render reads
+  # into the page. It depends on its core at one exact version.
+  "@tanstack/react-router-ssr-query": ^1.167
+  # The data table's engine. The kit registers every stock feature and reads each one's state and
+  # defaults, such as the page size, so a minor release that changes a default changes the table.
+  "@tanstack/react-table": ^9.2
+  # The data table's windowing. It measures and places the rendered rows, so a release may change
+  # how it estimates a row or which rows it keeps rendered.
+  "@tanstack/react-virtual": ^3.14
+  "@testing-library/react": ^16.3
+  "@types/d3-force": ^3.0
+  "@types/mdx": ^2.0
+  "@types/node": ^26.6
+  "@types/react": ^19.3
+  "@types/react-dom": ^19.3
+  "@types/spdx-expression-parse": ^4.0
+  "@vitejs/plugin-react": ^6.1
+  # The browser and coverage providers peer on one exact vitest, the one `vite-plus` depends on.
+  "@vitest/browser-playwright": 5.0.1
+  "@vitest/coverage-v8": 5.0.1
+  # The graph engine. The graph recipe restyles the classes React Flow writes, such as
+  # `react-flow__edge-path`, so a minor release may rename one the recipe selects.
+  "@xyflow/react": ^12.12
   # A machine pins its own dependencies exactly: @zag-js/checkbox@1.44.0 asks for core, types,
   # utils, anatomy, dom-query and focus-visible at 1.44.0 and no range. A caret here would let two
   # machines resolve to different minors and install two copies of all six, including
   # focus-visible, which installs a document listener. The whole set moves at one version together.
+  "@zag-js/accordion": 1.44.0
+  "@zag-js/angle-slider": 1.44.0
+  "@zag-js/avatar": 1.44.0
+  "@zag-js/carousel": 1.44.0
   "@zag-js/checkbox": 1.44.0
   "@zag-js/clipboard": 1.44.0
   "@zag-js/collapsible": 1.44.0
   "@zag-js/collection": 1.44.0
+  "@zag-js/color-picker": 1.44.0
+  "@zag-js/color-utils": 1.44.0
+  "@zag-js/combobox": 1.44.0
+  "@zag-js/date-input": 1.44.0
+  "@zag-js/date-picker": 1.44.0
+  "@zag-js/dialog": 1.44.0
+  "@zag-js/dismissable": 1.44.0
+  "@zag-js/dom-query": 1.44.0
+  "@zag-js/editable": 1.44.0
+  "@zag-js/file-upload": 1.44.0
+  "@zag-js/file-utils": 1.44.0
+  "@zag-js/floating-panel": 1.44.0
   "@zag-js/focus-visible": 1.44.0
+  "@zag-js/highlight-word": 1.44.0
+  "@zag-js/hover-card": 1.44.0
   "@zag-js/i18n-utils": 1.44.0
+  "@zag-js/image-cropper": 1.44.0
+  "@zag-js/json-tree-utils": 1.44.0
   "@zag-js/listbox": 1.44.0
+  "@zag-js/marquee": 1.44.0
   "@zag-js/menu": 1.44.0
+  "@zag-js/navigation-menu": 1.44.0
+  "@zag-js/number-input": 1.44.0
+  "@zag-js/pagination": 1.44.0
+  "@zag-js/password-input": 1.44.0
+  "@zag-js/pin-input": 1.44.0
   "@zag-js/popover": 1.44.0
+  "@zag-js/presence": 1.44.0
+  "@zag-js/progress": 1.44.0
+  "@zag-js/qr-code": 1.44.0
+  "@zag-js/radio-group": 1.44.0
+  "@zag-js/rating-group": 1.44.0
   "@zag-js/react": 1.44.0
+  "@zag-js/scroll-area": 1.44.0
+  "@zag-js/select": 1.44.0
+  "@zag-js/signature-pad": 1.44.0
+  "@zag-js/slider": 1.44.0
+  "@zag-js/splitter": 1.44.0
+  "@zag-js/steps": 1.44.0
   "@zag-js/switch": 1.44.0
   "@zag-js/tabs": 1.44.0
+  "@zag-js/tags-input": 1.44.0
+  "@zag-js/timer": 1.44.0
+  "@zag-js/toast": 1.44.0
   "@zag-js/toc": 1.44.0
+  "@zag-js/toggle-group": 1.44.0
   "@zag-js/tooltip": 1.44.0
+  "@zag-js/tour": 1.44.0
+  "@zag-js/tree-view": 1.44.0
   "@zag-js/types": 1.44.0
   "@zag-js/utils": 1.44.0
-  "@commitlint/cli": ^21.2.2
-  "@vitest/eslint-plugin": ^1.6.27
-  "@rolldown/plugin-babel": ^0.2.4
-  "@standard-schema/spec": ^1.1.0
-  babel-plugin-react-compiler: ^1.0.0
-  eslint-plugin-jsdoc: ^64.3.10
-  eslint-plugin-perfectionist: ^5.11.0
-  eslint-plugin-tsdoc: ^0.5.2
-  axe-core: ^4.13.0
-  happy-dom: ^20.14.3
-  i18next: ^26.4.2
-  i18next-resources-to-backend: ^1.2.3
-  json-schema-library: ^11.6.2
-  lefthook: ^2.1.12
+  "@commitlint/cli": ^21.2
+  "@vitest/eslint-plugin": ^1.6
+  "@standard-schema/spec": ^1.1
+  # The graph layout by force. `layoutForce` runs its simulation from a seed, so a release that
+  # changes the integrator moves every node of a seeded layout.
+  d3-force: ^3.0
+  # The code block's line and word diff. A release that changes how it splits lines or words
+  # changes which lines and words a diff marks.
+  diff: ^9.0
+  eslint-plugin-jsdoc: ^64.5
+  eslint-plugin-perfectionist: ^5.12
+  eslint-plugin-tsdoc: ^0.5
+  axe-core: ^4.13
+  happy-dom: ^20.14
+  i18next: ^26.4
+  i18next-resources-to-backend: ^1.2
+  json-schema-library: ^11.6
+  lefthook: ^2.1
+  # The phone input's formatting and validation. Each release updates the numbering plans in its
+  # metadata, so a release changes how a number formats and whether it is valid.
+  libphonenumber-js: ^1.13
   # Marks for the specimens alone. A published component takes its glyph from the page, so no
   # package depends on this at run time.
-  lucide-react: ^1.47.0
-  oxc-transform-react: ^0.149.0
-  packageurl-js: ^2.0.1
-  playwright: ^1.63.0
-  postcss: ^8.5.28
-  postcss-selector-parser: ^7.1.6
-  publint: ^0.3.24
-  react: ^19.3.0
-  react-dom: ^19.3.0
-  react-i18next: ^17.0.14
-  spdx-expression-parse: ^5.0.0
-  stylelint: ^17.15.0
-  stylelint-config-standard: ^40.0.0
-  stylelint-high-performance-animation: ^2.0.0
-  stylelint-order: ^8.1.1
-  stylelint-use-nesting: ^6.0.2
-  typescript: ^7.0.2
-  vite: npm:@voidzero-dev/vite-plus-core@0.3.3
-  vite-plugin-stylelint: ^6.3.0
-  vite-plus: 0.3.3
-  vitest: 4.1.11
-  yaml: ^2.9.1
+  lucide-react: ^1.48
+  # The input mask's engine. Only its `Mask` class is imported: the package's own input binding
+  # writes the value through React's value tracker, so React does not report the change.
+  maska: ^3.2
+  oxc-transform-react: ^0.151
+  packageurl-js: ^2.0
+  playwright: ^1.63
+  postcss: ^8.5
+  postcss-selector-parser: ^7.1
+  publint: ^0.3
+  react: ^19.3
+  react-dom: ^19.3
+  react-i18next: ^17.0
+  # The chart engine's peer. React publishes it beside react-dom, at the same version.
+  react-is: ^19.3
+  # The chart engine. The chart recipe restyles the classes recharts writes on its SVG, such as
+  # `recharts-cartesian-axis-tick-value`, so a minor release may rename one.
+  recharts: ^3.10
+  spdx-expression-parse: ^5.0
+  stylelint: ^17.15
+  stylelint-config-standard: ^40.0
+  stylelint-high-performance-animation: ^2.0
+  stylelint-order: ^8.1
+  stylelint-use-nesting: ^6.0
+  typescript: ^7.0
+  # The conversation's scroll engine. It decides when the view follows the latest message and when
+  # a reader's own scroll stops it, so a release may change either.
+  use-stick-to-bottom: ^1.1
+  vite: npm:@voidzero-dev/vite-plus-core@1.0.0
+  vite-plugin-stylelint: ^6.3
+  vite-plus: 1.0.0
+  # Exactly the vitest `vite-plus` depends on. A second vitest would give a specification's `vitest`
+  # import a different module instance from the one the runner uses.
+  vitest: 5.0.1
+  yaml: ^2.9
 
 # What a published package asks a consumer for. Separate from the default catalog because that
 # one aliases `vite` to Vite+ and pins `vite-plus` exactly, and a package manager writes a catalog
@@ -102,9 +213,9 @@ catalog:
 # install Vite+ under the name `vite`, and to install one exact Vite+ version.
 catalogs:
   peer:
-    vite: ^8.0.0
-    vite-plus: ^0.3.1
-    vitest: ^4.0.0
+    vite: ^8.3
+    vite-plus: ^1.0
+    vitest: ^5.0
 
 overrides:
   vite@*: "catalog:"
@@ -112,10 +223,6 @@ overrides:
   # peer is auto-installed, which is 5 MB and a native binary for a bundler nothing here runs.
   "@mdx-js/rollup>rollup": "-"
   "@rollup/pluginutils>rollup": "-"
-  # The React Compiler asks a node path whether it is an LVal. Babel 8 took AssignmentPattern out
-  # of that alias, so under Babel 8 the compiler refuses every `const { a = 1 } = b` and leaves the
-  # component uncompiled. The Babel bridge accepts either major, so the peer is held at 7.
-  "@rolldown/plugin-babel>@babel/core": ^7.29.0
 
 # `vite` here is Vite+ under an alias, so its version reads as the toolchain's and every package asking for
 # a real Vite range reports an unmet peer. The range they ask for is satisfied; the number they
@@ -130,16 +237,29 @@ peerDependencyRules:
 # is listed below, which is the answer to a package taken over between one release and the next.
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
-  - vite-plus@0.3.3
-  - "@voidzero-dev/vite-plus-core@0.3.3"
-  - "@voidzero-dev/vite-plus-darwin-arm64@0.3.3"
-  - "@voidzero-dev/vite-plus-darwin-x64@0.3.3"
-  - "@voidzero-dev/vite-plus-linux-arm64-gnu@0.3.3"
-  - "@voidzero-dev/vite-plus-linux-arm64-musl@0.3.3"
-  - "@voidzero-dev/vite-plus-linux-x64-gnu@0.3.3"
-  - "@voidzero-dev/vite-plus-linux-x64-musl@0.3.3"
-  - "@voidzero-dev/vite-plus-win32-arm64-msvc@0.3.3"
-  - "@voidzero-dev/vite-plus-win32-x64-msvc@0.3.3"
+  - vite-plus@0.3.3 || 1.0.0
+  - "@voidzero-dev/vite-plus-core@0.3.3 || 1.0.0"
+  - "@voidzero-dev/vite-plus-darwin-arm64@0.3.3 || 1.0.0"
+  - "@voidzero-dev/vite-plus-darwin-x64@0.3.3 || 1.0.0"
+  - "@voidzero-dev/vite-plus-linux-arm64-gnu@0.3.3 || 1.0.0"
+  - "@voidzero-dev/vite-plus-linux-arm64-musl@0.3.3 || 1.0.0"
+  - "@voidzero-dev/vite-plus-linux-x64-gnu@0.3.3 || 1.0.0"
+  - "@voidzero-dev/vite-plus-linux-x64-musl@0.3.3 || 1.0.0"
+  - "@voidzero-dev/vite-plus-win32-arm64-msvc@0.3.3 || 1.0.0"
+  - "@voidzero-dev/vite-plus-win32-x64-msvc@0.3.3 || 1.0.0"
+  - "@pandacss/compiler-darwin-arm64@2.0.0"
+  - "@pandacss/compiler-darwin-x64@2.0.0"
+  - "@pandacss/compiler-linux-arm64-gnu@2.0.0"
+  - "@pandacss/compiler-linux-arm64-musl@2.0.0"
+  - "@pandacss/compiler-linux-x64-gnu@2.0.0"
+  - "@pandacss/compiler-linux-x64-musl@2.0.0"
+  - "@pandacss/compiler-shared@2.0.0"
+  - "@pandacss/compiler-win32-arm64-msvc@2.0.0"
+  - "@pandacss/compiler-win32-x64-msvc@2.0.0"
+  - "@pandacss/compiler@2.0.0"
+  - "@pandacss/config@2.0.0"
+  - "@pandacss/preset-base@2.0.0"
+  - "@pandacss/types@2.0.0"
 
 # lefthook's postinstall installs the hooks, which the `prepare` script already does by name. A
 # dependency that runs no script at install time is one fewer thing to audit, and `prepare` fails

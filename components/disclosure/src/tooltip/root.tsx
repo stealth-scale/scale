@@ -1,54 +1,76 @@
 /**
- * Runs the machine the control and the box share, and hands the recipe's variants to both.
+ * Renders the tooltip's root and starts the machine its parts share.
  *
  * @remarks
- *   The machine names no root part, because a tooltip is a control and a box that floats beside it
- *   rather than a thing that frames the two. An element is drawn here all the same, because the
- *   two are siblings and a slot recipe hands its variants down from above them both.
- *   It is drawn with `display: contents`, so it takes part in no layout and a tooltip attached to a
- *   control inside a row leaves that row as it was. The machine writes nothing onto it, there being
- *   no root among its parts.
+ *   The machine has no root part, so the root receives no machine props. It renders a `div` with
+ *   `display: contents`, which passes the recipe's variants to the trigger and the positioner and
+ *   leaves the layout around the trigger unchanged. The root runs the content's presence: the
+ *   content is not in the document until it first opens, and it leaves once its exit animation
+ *   ends.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
 
+import { type PresenceOptions, usePresence } from "@stealthscale/hooks";
+
 import { withProvider } from "#tooltip/context.ts";
 import {
   ApiProvider,
+  PresenceProvider,
   splitTooltipProps,
   type TooltipOptions,
   useTooltipMachine,
 } from "#tooltip/machine.ts";
 
 /**
- * Draws the element that sets the variants every part below it reads, and no box.
+ * Renders the `div` that provides the recipe's variants.
  */
 const Framed = withProvider("div", "root");
 
 /**
- * Describes what the root takes: the machine's settings, the recipe's variants, and the element's.
+ * Describes the props of the root: the machine's options, the content's presence, the recipe's
+ * variants and the props of a `div`.
  *
  * @remarks
- *   The element's own `id` and `dir` are left out, because the machine states both. It names the
- *   box from the id so the control can point at it, and it reads the direction to decide which side
- *   the box opens on.
+ *   The element's `id` and `dir` are left out, because the machine takes both. It derives the
+ *   content's id from `id`, and reads `dir` for the placement. `lazyMount` and `unmountOnExit` are
+ *   true by default.
  */
 export interface RootProps
-  extends Omit<ComponentProps<typeof Framed>, "dir" | "id">, TooltipOptions {}
+  extends
+    Omit<ComponentProps<typeof Framed>, "dir" | "id">,
+    Omit<PresenceOptions, "present">,
+    TooltipOptions {}
 
 /**
- * Shows a short label beside whatever a pointer rests on.
+ * Renders the root and provides the machine's api and the content's presence to the parts.
  *
- * @param props - The machine's settings, the recipe's variants and the element's props together.
- * @returns The parts, under the running machine.
+ * @param props - The machine's options, the content's presence, the recipe's variants and the
+ *   props of a `div`.
+ * @returns The `div` element inside the providers.
  */
-export function Root(props: RootProps): ReactElement {
+export function Root({
+  lazyMount = true,
+  onExitComplete,
+  skipAnimationOnMount,
+  unmountOnExit = true,
+  ...props
+}: RootProps): ReactElement {
   const [options, rest] = splitTooltipProps(props);
   const api = useTooltipMachine(options);
+  const presence = usePresence({
+    lazyMount,
+    onExitComplete,
+    present: api.open,
+    skipAnimationOnMount,
+    unmountOnExit,
+  });
 
   return (
     <ApiProvider value={api}>
-      <Framed {...rest} />
+      <PresenceProvider value={presence}>
+        <Framed {...rest} />
+      </PresenceProvider>
     </ApiProvider>
   );
 }

@@ -1,10 +1,9 @@
 /**
- * Binds the button's recipe to the elements that draw it.
+ * Binds the button recipe to the elements that render it.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. A recipe file that also bound one would put the runtime behind
- *   every compiler configuration that reads it.
+ *   The binding is kept out of `recipe.ts` because an application's style compiler imports the
+ *   recipe at build time, and a binding there would pull the React runtime into that import.
  */
 
 import { createRecipeContext } from "@stealthscale/theme";
@@ -12,7 +11,7 @@ import { createRecipeContext } from "@stealthscale/theme";
 import { recipe } from "#button/recipe.ts";
 
 /**
- * Binds the recipe once, for the button, for the square that holds one glyph, and for whatever
- * sets their variants from above.
+ * Supplies the element factory `Button` and `IconButton` are built from, and the provider an
+ * ancestor sets their variants through.
  */
 export const { PropsProvider, withContext } = createRecipeContext(recipe);

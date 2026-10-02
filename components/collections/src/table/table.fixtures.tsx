@@ -1,5 +1,5 @@
 /**
- * Builds the table a part's specification needs above it.
+ * Builds the tables the part specifications render.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -8,20 +8,20 @@ import * as Table from "#table/index.ts";
 import { type ScrollerProps } from "#table/scroller.tsx";
 
 /**
- * Draws whatever a case wants measured inside the scroller that states the variants.
+ * Renders the children inside a scroller.
  *
- * @param children - The part under test, which the case puts in a table where one is needed.
- * @returns The scroller, holding it.
+ * @param children - The part under test.
+ * @returns The scroller with the children inside it.
  */
 export function scrolled(children: ReactNode): ReactElement {
   return <Table.Scroller>{children}</Table.Scroller>;
 }
 
 /**
- * Draws a part that only renders inside a row, in the elements a browser expects it in.
+ * Renders cells inside a scroller, a table, a body and a row.
  *
  * @param children - The row's cells.
- * @returns The scroller, the table and one row, holding them.
+ * @returns The scroller with the row inside it.
  */
 export function rowed(children: ReactNode): ReactElement {
   return (
@@ -36,10 +36,11 @@ export function rowed(children: ReactNode): ReactElement {
 }
 
 /**
- * Draws a whole table, so a case can read what every band did.
+ * Renders a table with every part: column declarations, a caption, a header with a sort button,
+ * two body rows and a total.
  *
- * @param props - Whatever the case sets on the scroller.
- * @returns Every part composed the way a caller composes them.
+ * @param props - The props of the scroller.
+ * @returns The table.
  */
 export function composed(props: ScrollerProps = {}): ReactElement {
   return (

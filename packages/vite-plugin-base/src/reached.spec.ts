@@ -1,10 +1,9 @@
 /**
- * Covers what the graph readers answer for a real package on disk.
+ * Covers the graph readers against real packages written to disk.
  *
  * @remarks
- *   Each check installs its own package in a fresh temporary directory, so the
- *   checks can run in any order and one that writes a broken manifest cannot
- *   reach another.
+ *   Each check installs a package of its own in a fresh temporary directory, so the checks can run
+ *   in any order and one that writes a broken manifest cannot disturb another.
  */
 
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
@@ -16,17 +15,15 @@ import { type Bundling } from "#plugin.ts";
 import { licensed, manifestAt, owning, reached, text } from "#reached.ts";
 
 /**
- * Installs a package under a temporary node_modules and points at its module.
+ * Writes a package into a fresh temporary `node_modules`, with one empty module inside it.
  *
  * @remarks
- *   A fresh temporary root each time keeps one check's manifest out of the
- *   reach of the next, which matters because several checks overwrite the
- *   manifest they were given with a broken one.
+ *   A new temporary root each time keeps one check's manifest away from the next, which matters
+ *   because several checks overwrite the manifest they were given with a broken one.
  * @param named - The name written into the manifest and used as the directory.
- * @param manifest - Further fields, spread after the name and able to replace
- *   it.
+ * @param manifest - Further fields, spread after the name and able to replace it.
  * @param licence - The text to file as LICENSE, or nothing to ship none.
- * @returns The package directory and the path of the one module it holds.
+ * @returns The package directory and the path of the single module inside it.
  */
 function packaged(
   named: string,
@@ -46,12 +43,11 @@ function packaged(
 }
 
 /**
- * Builds a stand-in for a finished module graph from a map of imports.
+ * Fakes a finished module graph out of a map from module to imports.
  *
  * @remarks
- *   A module named only as an import, and never as a key, is still crawled, so
- *   a graph can describe an edge into a package without listing that package's
- *   own modules.
+ *   A module that appears only as an import, and never as a key, is still crawled, so a graph can
+ *   describe an edge into a package without listing that package's own modules.
  */
 function building(imports: Readonly<Record<string, readonly string[]>>): Bundling {
   return {
@@ -61,29 +57,37 @@ function building(imports: Readonly<Record<string, readonly string[]>>): Bundlin
 }
 
 describe("reached", () => {
-  it("reads a text field and returns undefined when it is not text", () => {
+  it("reads a manifest field that holds a string", () => {
     expect(text({ name: "held" }, "name")).toBe("held");
+  });
+
+  it("returns undefined for a manifest field that holds something other than a string", () => {
     expect(text({ name: 3 }, "name")).toBeUndefined();
   });
 
-  it("finds the package a file belongs to by walking up to its manifest", () => {
+  it("finds the package directory a module file sits in", () => {
     const held = packaged("one");
 
     expect(owning(held.module)).toBe(held.at);
   });
 
-  it("returns undefined for a file with no manifest above it", () => {
+  it("returns undefined for a path with no manifest anywhere above it", () => {
     expect(owning("/nonexistent-3f9a/deeper/file.js")).toBeUndefined();
   });
 
-  it("reads a manifest and returns undefined when the directory has none", () => {
+  it("parses the manifest a package directory holds", () => {
     const held = packaged("one", { version: "1.2.3" });
 
     expect(manifestAt(held.at)?.["version"]).toBe("1.2.3");
+  });
+
+  it("returns undefined for a directory that holds no manifest", () => {
+    const held = packaged("one", { version: "1.2.3" });
+
     expect(manifestAt(join(held.at, "nowhere"))).toBeUndefined();
   });
 
-  it("returns undefined when the manifest parses to a non-object", () => {
+  it("returns undefined for a manifest that parses to something other than an object", () => {
     const held = packaged("one");
 
     writeFileSync(join(held.at, "package.json"), "null");
@@ -91,7 +95,7 @@ describe("reached", () => {
     expect(manifestAt(held.at)).toBeUndefined();
   });
 
-  it("reads one package once however many of its modules the build reached", () => {
+  it("counts a package once however many of its modules the build reached", () => {
     const one = packaged("one");
 
     writeFileSync(join(one.at, "second.js"), "");
@@ -101,14 +105,14 @@ describe("reached", () => {
     expect(reached(building({ [one.module]: [], [second]: [] })).size).toBe(1);
   });
 
-  it("ignores an import from outside node_modules", () => {
+  it("records no dependency when a package imports a file outside node_modules", () => {
     const one = packaged("one");
     const found = reached(building({ [one.module]: ["/repository/src/main.ts"] }));
 
     expect([...(found.get(one.at)?.dependsOn ?? [])]).toStrictEqual([]);
   });
 
-  it("returns undefined when the manifest does not parse", () => {
+  it("returns undefined for a manifest that is not valid JSON", () => {
     const held = packaged("one");
 
     writeFileSync(join(held.at, "package.json"), "{ not json");
@@ -116,7 +120,7 @@ describe("reached", () => {
     expect(manifestAt(held.at)).toBeUndefined();
   });
 
-  it("gathers every installed package the build reached", () => {
+  it("returns one entry per installed package the build reached", () => {
     const one = packaged("one");
     const other = packaged("other");
 
@@ -125,11 +129,11 @@ describe("reached", () => {
     ).toStrictEqual([one.at, other.at].toSorted());
   });
 
-  it("ignores anything outside node_modules", () => {
+  it("returns an empty map when the build reached nothing under node_modules", () => {
     expect(reached(building({ "/repository/src/main.ts": [] })).size).toBe(0);
   });
 
-  it("ignores a package whose manifest names nothing", () => {
+  it("skips a package whose manifest declares no name", () => {
     const held = packaged("one");
 
     writeFileSync(join(held.at, "package.json"), JSON.stringify({ version: "1.0.0" }));
@@ -137,7 +141,7 @@ describe("reached", () => {
     expect(reached(building({ [held.module]: [] })).size).toBe(0);
   });
 
-  it("records what one package imported from another", () => {
+  it("records a dependency on the package directory an import resolved into", () => {
     const one = packaged("one");
     const other = packaged("other");
     const found = reached(building({ [one.module]: [other.module], [other.module]: [] }));
@@ -145,7 +149,7 @@ describe("reached", () => {
     expect([...(found.get(one.at)?.dependsOn ?? [])]).toStrictEqual([other.at]);
   });
 
-  it("does not record a package as importing itself", () => {
+  it("records no dependency when a package imports another of its own modules", () => {
     const one = packaged("one");
 
     writeFileSync(join(one.at, "second.js"), "");
@@ -155,22 +159,22 @@ describe("reached", () => {
     expect([...(found.get(one.at)?.dependsOn ?? [])]).toStrictEqual([]);
   });
 
-  it("reads the licence text a package ships", () => {
+  it("reads the name and text of a licence file a package ships", () => {
     const held = packaged("one", {}, "MIT License\n\nPermission is hereby granted");
 
     expect(licensed(held.at)[0]?.named).toBe("LICENSE");
     expect(licensed(held.at)[0]?.text).toContain("Permission is hereby granted");
   });
 
-  it("returns none when the package ships no licence text", () => {
+  it("returns no licences for a package that ships no licence file", () => {
     expect(licensed(packaged("one").at)).toStrictEqual([]);
   });
 
-  it("returns none when the directory cannot be read", () => {
+  it("returns no licences for a directory that cannot be read", () => {
     expect(licensed("/nonexistent-3f9a")).toStrictEqual([]);
   });
 
-  it("ignores a module under node_modules with no manifest above it", () => {
+  it("skips a module under node_modules with no manifest above it", () => {
     const root = mkdtempSync(join(tmpdir(), "stealth-reached-"));
     const at = join(root, "node_modules");
 
@@ -180,7 +184,7 @@ describe("reached", () => {
     expect(reached(building({ [join(at, "loose.js")]: [] })).size).toBe(0);
   });
 
-  it("reads a build that knows nothing about a module it listed", () => {
+  it("records a package whose module the build reports no info for", () => {
     const one = packaged("one");
     const bundling = {
       getModuleIds: () => [one.module],
@@ -190,15 +194,21 @@ describe("reached", () => {
     expect(reached(bundling).size).toBe(1);
   });
 
-  it("ignores an import made by something other than an installed package", () => {
+  it("records a package reached only by an import from outside node_modules", () => {
     const one = packaged("one");
     const held = reached(building({ "/repository/src/main.ts": [one.module] }));
 
     expect(held.size).toBe(1);
+  });
+
+  it("records no dependency on a package imported from outside node_modules", () => {
+    const one = packaged("one");
+    const held = reached(building({ "/repository/src/main.ts": [one.module] }));
+
     expect([...(held.get(one.at)?.dependsOn ?? [])]).toStrictEqual([]);
   });
 
-  it("ignores a package whose manifest the build cannot read", () => {
+  it("skips a package whose manifest is not valid JSON", () => {
     const one = packaged("one");
 
     writeFileSync(join(one.at, "package.json"), "{ not json");

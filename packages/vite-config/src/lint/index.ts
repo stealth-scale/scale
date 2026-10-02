@@ -2,7 +2,7 @@
  * Publishes the lint presets and the departures written beside them.
  *
  * @remarks
- *   The rule groups stay behind this boundary. A repository names the rule it
+ *   The module does not export the rule groups. A repository names the rule it
  *   wants changed and states why, rather than importing a group and editing it.
  */
 
@@ -14,6 +14,7 @@ export {
   forbid,
   type Forbidden,
   type LintOverride,
+  registered,
   relax,
   type Ruled,
   specified,

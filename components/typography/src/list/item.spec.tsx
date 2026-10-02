@@ -15,7 +15,7 @@ function listed(children: ReactNode): ReactElement {
 }
 
 describe("Item", () => {
-  it("conforms as a list item element inside the root it needs above it", () => {
+  it("passes the component conformance checks as an li element inside Root", () => {
     expect(
       violations(Item, {
         as: true,
@@ -27,7 +27,7 @@ describe("Item", () => {
     ).toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value to the item slot", () => {
     expect(
       boundViolations(
         recipe,

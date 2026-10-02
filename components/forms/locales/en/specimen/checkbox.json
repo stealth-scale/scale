@@ -1,35 +1,98 @@
 {
-  "about": "Draws a box a person turns on and off, and the words that name it.",
-  "alignment": {
-    "about": "Where the box sits against a label that runs to more than one line: halfway down the block, or on the first line.",
+  "about": "Renders a box a person checks and unchecks, and the text that names it. A press anywhere on the row toggles the box.",
+  "accept": "Accept the terms to continue.",
+  "align": {
+    "about": "The box's position against a label that wraps: on the first line, or halfway down the text.",
     "title": "Alignment"
   },
-  "corners": {
+  "all": "All channels",
+  "channels": {
+    "email": "Email",
+    "push": "Push notifications",
+    "sms": "Text messages"
+  },
+  "consent": {
+    "about": "A checkbox inside a field takes the field's required and invalid states, and its input lists the helper and error texts in `aria-describedby`. The field is invalid until the box is checked, so a press swaps the error text for the helper text.",
+    "title": "In a field"
+  },
+  "days": "Delivery days",
+  "everything": {
+    "about": "`Checkbox.Group` holds the channels as one value. The box marked `parent` checks every value of `allValues`, and shows the partly-on state while some are checked. Press it to check all of them, and again to clear them. The channels start one box and one gap further in, under the parent's label.",
+    "title": "Select all"
+  },
+  "formats": {
+    "helper": "Pick every format the export should include.",
+    "legend": "Export formats",
+    "names": {
+      "csv": "CSV",
+      "pdf": "PDF",
+      "xlsx": "Excel workbook"
+    },
+    "required": "Pick at least one format.",
+    "submit": "Export"
+  },
+  "group": {
+    "size": {
+      "about": "The group at each size. The gaps between the rows and the indent under the parent box grow with the boxes, and every box takes the group's size.",
+      "title": "Group sizes"
+    }
+  },
+  "inline": {
+    "about": "`orientation=\"horizontal\"` runs the boxes in a row that wraps. The day names come from `Intl.DateTimeFormat` in the reader's language.",
+    "title": "Horizontal group"
+  },
+  "limited": {
+    "about": "`maxSelectedValues` disables every unchecked box once three reports are pinned. Clear one to pick another. The count reads the value the example controls.",
+    "title": "Limit"
+  },
+  "long": "Send me a summary of every invoice at the end of the week, with the totals and anything still unpaid",
+  "motion": {
+    "about": "How the mark enters when the box turns on.",
+    "title": "Motion"
+  },
+  "palette": {
+    "about": "Every palette in every look. The palette fills a checked box.",
+    "title": "Palettes"
+  },
+  "pinned": {
+    "count": "{{pinned}} of {{limit}} pinned",
+    "helper": "Pin up to {{limit}} reports.",
+    "legend": "Reports on the home page",
+    "reports": {
+      "disputes": "Disputes",
+      "fees": "Fees",
+      "payouts": "Payouts",
+      "refunds": "Refunds",
+      "revenue": "Revenue"
+    }
+  },
+  "radius": {
     "about": "Every corner.",
     "title": "Corners"
   },
-  "long": "Send me a summary of every invoice at the end of the week, with the totals and anything still unpaid",
-  "looks": {
-    "about": "Every look at every size, each turned on so the fill shows.",
-    "title": "Looks and sizes"
-  },
-  "motion": {
-    "about": "How the row enters the page.",
-    "title": "Motion"
+  "read": "Read them before you continue.",
+  "reminders": "Send payment reminders by",
+  "required": {
+    "about": "The form checks on submit that at least one format is picked. The fieldset is then invalid, every box reports it, and the error text is announced.",
+    "title": "At least one"
   },
   "spread": {
-    "about": "A row that takes what it needs, and a settings row that takes the width it is given with the box at the far end.",
+    "about": "A row at its own width, and a settings row that takes the width it is given with the box at the far end.",
     "title": "Spread"
   },
   "states": {
-    "about": "Off, on, partly on, and out of reach, in every look.",
+    "about": "Off, on, partly on and disabled, in every look. A partly-on box takes the look's fill, the same as a checked one.",
     "title": "States"
   },
-  "statuses": {
-    "about": "Every status in every look.",
+  "status": {
+    "about": "Every status in every look. A status sets the edge and overrides the palette.",
     "title": "Statuses"
   },
   "terms": "Accept the terms",
   "title": "Checkbox",
+  "variant": {
+    "about": "Every look at every size, each checked so the fill shows. The mark scales with the box.",
+    "title": "Looks and sizes"
+  },
   "weekly": "Weekly summary"
 }

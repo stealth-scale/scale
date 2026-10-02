@@ -1,71 +1,78 @@
 /**
- * Reads the outline of a region: what a reader or a screen reader meets on it.
+ * Reads the outline of a region: its headings, landmarks, controls, recipes and untranslated keys.
  */
 
 import { type Locator } from "playwright";
 
 /**
- * Describes what the outline reports.
+ * Describes the outline of a region.
  */
 export interface Outline {
   /**
-   * Every control a reader can act on: its role and its accessible name, with a count where
-   * several read alike.
+   * Every control with its role and accessible name, with a count where several match.
    */
   readonly controls: readonly string[];
 
   /**
-   * The errors the console reported while the page loaded.
+   * Console errors the page logged while loading.
    */
   readonly errors: readonly string[];
 
   /**
-   * Every heading, with its level.
+   * Every heading with its level.
    */
   readonly headings: readonly string[];
 
   /**
-   * Every landmark, with its name where it has one.
+   * Every landmark with its name, where it has one.
    */
   readonly landmarks: readonly string[];
 
   /**
-   * Any text left as the key it was looked up by.
+   * Text rendered as an untranslated key.
    */
   readonly raw: readonly string[];
 
   /**
-   * A count of elements per recipe.
+   * Element count per recipe.
    */
   readonly recipes: Readonly<Record<string, number>>;
 
   /**
-   * The titles of the scenes on the page.
+   * Scene titles on the page.
    */
   readonly scenes: readonly string[];
 }
 
 /**
- * Reads the outline of the first element a locator finds.
+ * Reads the outline of the first element a locator matches.
  *
  * @remarks
- *   The reading runs inside the browser, so everything it uses is written inside the callback.
+ *   The reading runs inside the browser, so every helper it calls is declared inside the callback.
+ *   A key is lowercase words joined by dots. A file name such as `send.tsx`, a host name such as
+ *   `ledger.internal` and a token name such as `bg.inverted` have the same shape. Text that ends in
+ *   a common file extension or in a top-level domain reserved for examples and private networks,
+ *   and text anywhere inside a `code` element, are not reported as keys, because a scene's words
+ *   render a token name as code.
  */
 export function outlined(root: Locator): Promise<Omit<Outline, "errors" | "scenes">> {
   return root.first().evaluate((element) => {
     const KEY = /^[a-z][a-z-]*(?:\.[a-z][a-z-]*)+$/u;
+    const FILE =
+      /\.(?:[cm]?[jt]sx?|json|csv|css|md|mdx|ya?ml|sh|html|svg|png|jpe?g|webp|pdf|log|txt|toml|xlsx|mov)$/u;
+    const HOST = /\.(?:example|internal|invalid|local|localhost|test)$/u;
     const LANDMARK = /^(?:nav|main|aside|section|form)$/u;
     const CONTROLS =
       "a[href], button, input, select, textarea, [role=menuitem], [role=menuitemradio], [role=menuitemcheckbox], [role=option], [role=tab], [role=switch], [role=checkbox]";
 
     /**
-     * Reads an element's text, trimmed, or nothing for no element.
+     * Returns an element's trimmed text, or an empty string for no element.
      */
     // eslint-disable-next-line unicorn/consistent-function-scoping -- the function runs inside the browser, where only what is written inside the callback exists
     const textOf = (one: Element | null): string => one?.textContent?.trim() ?? "";
 
     /**
-     * Reads an element's accessible name from its label or what labels it.
+     * Returns an element's accessible name from `aria-label` or `aria-labelledby`.
      */
     const named = (one: Element): string => {
       const label = one.getAttribute("aria-label");
@@ -81,7 +88,7 @@ export function outlined(root: Locator): Promise<Omit<Outline, "errors" | "scene
     };
 
     /**
-     * Reads an element's role, or its tag where it states none.
+     * Returns an element's role, or its tag when it has no role attribute.
      */
     // eslint-disable-next-line unicorn/consistent-function-scoping -- as above
     const roleOf = (one: Element): string => one.getAttribute("role") ?? one.tagName.toLowerCase();
@@ -117,9 +124,9 @@ export function outlined(root: Locator): Promise<Omit<Outline, "errors" | "scene
       recipes[recipe] = (recipes[recipe] ?? 0) + 1;
     }
 
-    const raw = [...element.querySelectorAll("*")]
-      .filter((one) => one.children.length === 0 && KEY.test(textOf(one)))
-      .map((one) => textOf(one));
+    const raw = [...element.querySelectorAll(":not(code, code *)")]
+      .map((one) => (one.children.length === 0 ? textOf(one) : ""))
+      .filter((text) => KEY.test(text) && !FILE.test(text) && !HOST.test(text));
 
     return { controls, headings, landmarks, raw, recipes };
   });

@@ -8,7 +8,7 @@ import * as published from "#index.ts";
 const PATTERNS = ["src/**/*.specimen.tsx"];
 
 describe("@stealthscale/vite-config-specimen", () => {
-  it("keeps the config package contract", async () => {
+  it("reports no violations of the config package contract", async () => {
     await expect(
       violations({
         arguments: {

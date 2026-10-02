@@ -1,123 +1,109 @@
 /**
- * Shows the multi-line box: every look at every size, every status in every look, every grip, and
- * a box that grows beside one that does not.
+ * Catalogue page for the textarea.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every box is named with `aria-label`. The words are keys under `textarea`
- *   in the catalogue's namespace, kept beside this file in `locales/en/specimen/textarea.json`.
+ *   `scenesOf` generates the sizes scene and the statuses scene, each crossed with the looks, and
+ *   the grip and grows scenes. The states scene is hand-written, because focus, `disabled`,
+ *   `readOnly` and `aria-invalid` are element states, not recipe axes. Its focused row renders each
+ *   look inside `Focused`. The grows scene renders more lines of text than the field's three rows,
+ *   so the fixed field scrolls and the growing field takes the height of the text. The row limit
+ *   scene is hand-written, because `maxRows` is a prop, not a recipe axis: the same text at a limit
+ *   of 3 and of 5, so one field stops and the other grows further. Every scene renders a component
+ *   from `examples/` and shows that file as its source. The words are keys under `textarea` in
+ *   `locales/en/specimen/textarea.json`.
  */
 
-import { type ReactElement } from "react";
+import { Focused, Matrix, type Scene, scenesOf, specimen, valuesOf } from "@stealthscale/specimen";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
-
+import * as capped from "#textarea/examples/capped.example.tsx";
+import * as delivery from "#textarea/examples/delivery.example.tsx";
+import * as notes from "#textarea/examples/notes.example.tsx";
+import * as reply from "#textarea/examples/reply.example.tsx";
 import { recipe } from "#textarea/recipe.ts";
-import { Textarea } from "#textarea/textarea.tsx";
 
 /**
- * The two answers to a boolean prop.
- */
-const EITHER = [false, true] as const;
-
-/**
- * Every look the recipe draws.
+ * Look values, crossed with the sizes, the statuses and the states.
  */
 const LOOKS = valuesOf(recipe, "variant");
 
 /**
- * Draws the box in every look at every size.
+ * States of the states scene, in reading order.
  */
-function Looks(): ReactElement {
-  const { t } = useWords("textarea");
-
-  return (
-    <Matrix across={{ knob: "size", of: valuesOf(recipe, "size") }} knob="variant" of={LOOKS}>
-      {(variant, size) => <Textarea aria-label={t("notes")} size={size} variant={variant} />}
-    </Matrix>
-  );
-}
+const STATES = ["rest", "focused", "disabled", "readOnly", "invalid"] as const;
 
 /**
- * Draws the box in every status in every look.
+ * Maps each state to the props that put a field in it. `Focused` stages the focused state.
  */
-function Statuses(): ReactElement {
-  const { t } = useWords("textarea");
-
-  return (
-    <Matrix across={{ knob: "variant", of: LOOKS }} knob="status" of={valuesOf(recipe, "status")}>
-      {(status, variant) => <Textarea aria-label={t("notes")} status={status} variant={variant} />}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the box with every grip.
- */
-function Grip(): ReactElement {
-  const { t } = useWords("textarea");
-
-  return (
-    <Matrix knob="grip" of={valuesOf(recipe, "grip")}>
-      {(grip) => <Textarea aria-label={t("notes")} grip={grip} />}
-    </Matrix>
-  );
-}
-
-/**
- * Draws four lines in a box of three rows, and in one that grows to hold them.
- */
-function Grows(): ReactElement {
-  const { t } = useWords("textarea");
-
-  return (
-    <Matrix knob="grows" of={EITHER}>
-      {(grows) => <Textarea aria-label={t("notes")} defaultValue={t("written")} grows={grows} />}
-    </Matrix>
-  );
-}
-
-/**
- * Every look at every size.
- */
-export const looks: Scene = {
-  about: "textarea.looks.about",
-  draw: Looks,
-  title: "textarea.looks.title",
+const STATED: Readonly<Record<(typeof STATES)[number], Parameters<typeof reply.Reply>[0]>> = {
+  disabled: { disabled: true },
+  focused: {},
+  invalid: { "aria-invalid": true },
+  readOnly: { readOnly: true },
+  rest: {},
 };
 
 /**
- * Every status in every look.
+ * Row limits of the row limit scene: one under the text's line count and one over it.
  */
-export const statuses: Scene = {
-  about: "textarea.statuses.about",
-  draw: Statuses,
-  title: "textarea.statuses.title",
+const LIMITS = [3, 5] as const;
+
+/**
+ * Hand-written scene for a growing field that stops at its row limit, beside one that grows
+ * further.
+ */
+export const limit: Scene = {
+  about: "textarea.limit.about",
+  draw: () => (
+    <Matrix knob="maxRows" of={LIMITS}>
+      {(maxRows) => <capped.Capped maxRows={maxRows} />}
+    </Matrix>
+  ),
+  example: capped,
+  props: { maxRows: 3 },
+  title: "textarea.limit.title",
 };
 
 /**
- * Every grip.
+ * Hand-written scene for the focus, disabled, read-only and invalid states on every look.
  */
-export const grip: Scene = {
-  about: "textarea.grip.about",
-  draw: Grip,
-  title: "textarea.grip.title",
-};
-
-/**
- * A box that grows beside one that does not.
- */
-export const grows: Scene = {
-  about: "textarea.grows.about",
-  draw: Grows,
-  title: "textarea.grows.title",
+export const states: Scene = {
+  about: "textarea.states.about",
+  draw: () => (
+    <Matrix across={{ knob: "variant", of: LOOKS }} knob="state" of={STATES}>
+      {(state, variant) =>
+        state === "focused" ? (
+          <Focused>
+            <reply.Reply variant={variant} />
+          </Focused>
+        ) : (
+          <reply.Reply {...STATED[state]} variant={variant} />
+        )
+      }
+    </Matrix>
+  ),
+  example: reply,
+  props: { readOnly: true, variant: "outline" },
+  title: "textarea.states.title",
 };
 
 export default specimen({
   about: "textarea.about",
-  group: "Forms",
-  id: "forms/textarea",
+  id: "components/forms/textarea",
   imports: 'import { Textarea } from "@stealthscale/component-forms";',
-  scenes: [looks, statuses, grip, grows],
+  scenes: [
+    ...scenesOf<Parameters<typeof notes.Notes>[0]>(recipe, {
+      axes: {
+        grows: { draw: (props) => <delivery.Delivery {...props} />, example: delivery },
+        size: { across: "variant" },
+        status: { across: "variant" },
+      },
+      draw: (props) => <notes.Notes {...props} />,
+      example: notes,
+      namespace: "textarea",
+      order: ["size", "status", "grip", "grows"],
+    }),
+    limit,
+    states,
+  ],
   title: "textarea.title",
 });

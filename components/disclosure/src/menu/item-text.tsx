@@ -1,11 +1,9 @@
 /**
- * Draws the words of a row.
+ * Renders a row's text.
  *
  * @remarks
- *   The row above hands down what the machine needs to read its state, so this takes no props of
- *   its own. It fills the room the mark and any artwork leave, and a label too long for the panel
- *   is cut with an ellipsis rather than wrapped, because a menu whose rows are different heights is
- *   harder to aim at.
+ *   The text reads the row's state from the item provider, so it takes no value of its own. It
+ *   grows to fill the row and truncates with an ellipsis.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -16,20 +14,20 @@ import { withContext } from "#menu/context.ts";
 import { useMenu, useMenuItem } from "#menu/machine.ts";
 
 /**
- * Draws the words at the size the root states.
+ * Renders the `span` with the menu's item text class.
  */
 const Worded = withContext("span", "itemText");
 
 /**
- * Describes what the words take.
+ * Describes the props of a row's text: the props of a `span`.
  */
 export type ItemTextProps = ComponentProps<typeof Worded>;
 
 /**
- * Says what the row offers.
+ * Renders the text with the machine's item text props merged over the caller's.
  *
- * @param props - Everything a styled span takes.
- * @returns The words, carrying the row's state.
+ * @param props - The props of a `span`.
+ * @returns The `span` element.
  */
 export function ItemText(props: ItemTextProps): ReactElement {
   const { api } = useMenu();

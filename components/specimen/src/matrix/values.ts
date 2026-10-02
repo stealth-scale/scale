@@ -33,8 +33,12 @@ const SIZE = "size";
 
 /**
  * The steps of the scale in order, read as words so a value of any axis can be looked up.
+ *
+ * @remarks
+ *   `2xs` comes first. The theme's scale starts at `xs`, and a component that offers a step below
+ *   it names that step `2xs`: the avatar's 24px box.
  */
-const STEPS: readonly string[] = SCALE;
+const STEPS: readonly string[] = ["2xs", ...SCALE];
 
 /**
  * Orders the values of the size axis by the scale, keeping any value the scale does not name after

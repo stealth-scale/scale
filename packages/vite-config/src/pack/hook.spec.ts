@@ -29,28 +29,28 @@ function refined(config: UserConfig, hooks: Record<string, () => void>): Record<
 }
 
 describe("hook", () => {
-  it("runs the code it was given at the moment it named", () => {
+  it("schedules the code at the moment it names", () => {
     expect(refined({}, { "build:before": one })["build:before"]).toBe(one);
   });
 
-  it("keeps a hook another layer already asked for", () => {
+  it("keeps a moment another layer scheduled", () => {
     const held = refined({ pack: { hooks: { "build:before": one } } }, { "build:done": two });
 
     expect(held["build:before"]).toBe(one);
     expect(held["build:done"]).toBe(two);
   });
 
-  it("wins over a hook stated for the same moment", () => {
+  it("replaces a moment another layer scheduled", () => {
     const held = refined({ pack: { hooks: { "build:before": one } } }, { "build:before": two });
 
     expect(held["build:before"]).toBe(two);
   });
 
-  it("adds hooks to a config that named none", () => {
+  it("schedules a moment when the configuration states no hooks", () => {
     expect(refined({ pack: {} }, { "build:prepare": one })["build:prepare"]).toBe(one);
   });
 
-  it("keeps a registrar another layer wrote and adds the moments to its table after it", async () => {
+  it("adds the stated moments to the registrar's table after it runs", async () => {
     const calls: string[] = [];
     const registrar = (table: { addHooks: (hooks: object) => void }): void => {
       calls.push("registrar");
@@ -82,7 +82,7 @@ describe("hook", () => {
     expect(held.test?.globals).toBe(true);
   });
 
-  it("schedules the moments on every bundle of a packer configured as a list", () => {
+  it("schedules the moments on every bundle when pack is an array", () => {
     const held = hook({ because: "why", hooks: { "build:done": two } }).refine(ANY, {
       pack: [{ dts: true }, { hooks: { "build:before": one } }],
     });
@@ -93,25 +93,25 @@ describe("hook", () => {
     ]);
   });
 
-  it("keeps the reason", () => {
+  it("keeps the reason hook is given", () => {
     expect(hook({ because: "a theme writes its stylesheet", hooks: {} }).because).toBe(
       "a theme writes its stylesheet",
     );
   });
 
-  it("names the moments it runs at", () => {
+  it("names the override for the moments it schedules", () => {
     const held = hook({ because: "why", hooks: { "build:before": one, "build:done": two } });
 
     expect(held.name).toBe("pack.hook(build:before, build:done)");
   });
 
-  it("names each moment for the call a repository wrote", () => {
+  it("names each override for the call that produced it", () => {
     expect(buildPrepare({ because: "why", runs: one }).name).toBe("pack.buildPrepare");
     expect(buildBefore({ because: "why", runs: one }).name).toBe("pack.buildBefore");
     expect(buildDone({ because: "why", runs: one }).name).toBe("pack.buildDone");
   });
 
-  it("runs the code at the moment its name says", () => {
+  it("schedules the code at the moment the factory names", () => {
     const held = buildBefore({ because: "why", runs: one }).refine(ANY, {}) as {
       pack: { hooks: Record<string, unknown> };
     };
@@ -119,7 +119,7 @@ describe("hook", () => {
     expect(held.pack.hooks["build:before"]).toBe(one);
   });
 
-  it("keeps the reason each was given", () => {
+  it("keeps the reason a moment factory is given", () => {
     expect(buildDone({ because: "a theme reads what it built", runs: one }).because).toBe(
       "a theme reads what it built",
     );

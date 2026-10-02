@@ -197,7 +197,6 @@ a package composes and merges like any other. Both tools then ignore it.
 | [`lib-ui`](examples/lib-ui)                       | A component library four of the example applications share                                     |
 | [`lib-actions`](examples/lib-actions)             | A button drawn by a recipe, with the preset that registers it                                  |
 | [`lib-surfaces`](examples/lib-surfaces)           | A card of four parts drawn by one slot recipe, with the preset that registers it               |
-| [`form-fields`](examples/form-fields)             | The field components the form examples share, bound to the form foundation                     |
 | [`form-basic`](examples/form-basic)               | A contact form drawn from a JSON Schema, read from a catalogue in two languages                |
 | [`form-rules`](examples/form-rules)               | A format and a keyword in the engine, a field that asks a server, and a rule across two fields |
 | [`form-presentation`](examples/form-presentation) | A form drawn from the presentation its schema carries, through a renderer registry             |

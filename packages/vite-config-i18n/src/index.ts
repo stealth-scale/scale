@@ -1,6 +1,5 @@
 /**
- * Configures a package or an application that ships catalogues: the plugin that finds and types
- * them, and the setup file that puts the fallback language in scope for its specifications.
+ * Configures a package or an application that ships translation catalogues.
  *
  * @packageDocumentation
  */

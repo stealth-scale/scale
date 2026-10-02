@@ -1,6 +1,5 @@
 /**
- * Loads a page's module for the entry the index holds, and follows the hot updates the index
- * reports for the page.
+ * Loads the module for an index entry and applies the hot updates reported for its page.
  */
 
 import { useEffect, useState } from "react";
@@ -11,17 +10,18 @@ import { useUpdated } from "#catalogue/updated.ts";
 import { type Specimen } from "#page.ts";
 
 /**
- * Describes what {@link useDeclared} returns: the page, or why there is none.
+ * Describes the page {@link useDeclared} loaded, or the error that stopped it.
  */
 export interface Loaded {
   /**
-   * Why the page could not be loaded, or nothing where it loaded or is still loading.
+   * The error the module rejected with. Undefined while the module is pending and after it
+   * resolves.
    */
   readonly failure: Error | undefined;
 
   /**
-   * The page as declared, or nothing until it has loaded, where it failed, or where the module
-   * declares none.
+   * The page the module declares. Undefined while the module is pending, after a failure, and when
+   * the module declares none.
    */
   readonly page: Specimen | undefined;
 }
@@ -38,31 +38,30 @@ interface Declared extends Loaded {
 }
 
 /**
- * Nothing loaded, which is what a reader sees until the module arrives and where no entry is named.
+ * The result returned before the module resolves and when no entry is given.
  */
 const NOTHING: Loaded = { failure: undefined, page: undefined };
 
 /**
- * Turns whatever a rejected import carried into an error a reader can be shown.
+ * Converts the reason a rejected import supplied into an Error.
  */
 function failed(reason: unknown): Error {
   return reason instanceof Error ? reason : new Error(String(reason));
 }
 
 /**
- * Loads the page an entry names, and keeps what the index later reports as replaced.
+ * Loads the page an entry names and replaces it when the index reports a hot update.
  *
  * @remarks
- *   The module is loaded rather than imported, because the index reaches every page through a
- *   dynamic import and the bundler emits one chunk for each. Opening a page is the first time its
- *   components are fetched. The page is kept beside the entry it was loaded for and read back only
- *   while the entry is the same, so a change of entry shows nothing rather than the page before it,
- *   without a state reset in the effect. A hot update the index reports for the page replaces its
- *   module in place. A module that fails to load is reported as the failure it was, and not as a
- *   page with nothing on it: a chunk a deployment no longer serves reads the same as an empty page
- *   otherwise, and a reader cannot tell the two apart.
- * @param entry - The entry the index holds for the page, or nothing where no page is named yet.
- * @returns The page as declared, or the failure, or neither until the module has loaded.
+ *   The index reaches every page through a dynamic import, so the bundler emits one chunk per page
+ *   and opening a page is the first fetch of its components. The result is stored against the entry
+ *   it was loaded for and read back only while that entry is current, so changing the entry returns
+ *   no page without a state reset in the effect. A rejected module is reported as its error and not
+ *   as a page with no scenes, because a chunk the current deployment does not serve would otherwise
+ *   be indistinguishable from an empty page.
+ * @param entry - The index entry for the page, or undefined when no page is selected.
+ * @returns The page the module declares, the error it rejected with, or neither while the module is
+ *   pending.
  */
 export function useDeclared(entry: Indexed | undefined): Loaded {
   const [loaded, setLoaded] = useState<Declared | undefined>();
@@ -71,7 +70,7 @@ export function useDeclared(entry: Indexed | undefined): Loaded {
     let watching = true;
 
     /**
-     * Loads the module and keeps what it declares, unless the entry has moved on.
+     * Stores the page the module declares, unless the effect was already cleaned up.
      */
     async function open(named: Indexed): Promise<void> {
       try {

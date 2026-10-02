@@ -1,17 +1,11 @@
 /**
- * Draws the box at the start of a row that says whether the row is in the set.
+ * Renders the checkbox at the start of a row in a list that allows several selected rows.
  *
  * @remarks
- *   For a list a person picks several rows from. A check at the end of a row says a row is on; a
- *   box at the start of every row says the list is one a reader may take several from, before they
- *   touch it. That is the difference a reader needs before the first press, so a list in the
- *   multiple mode draws boxes and a list in the single mode draws a check.
- *   The box carries nothing of the machine. The row above it already says whether it is chosen,
- *   through `data-selected`, and the box reads that from the row rather than asking the machine a
- *   second time. It is hidden from a screen reader for the same reason: the row announces its own
- *   state, and a box that announced it again would say it twice.
- *   It is not a checkbox. A control inside a row a person presses is a second thing to reach and a
- *   second thing to read out, and the row is already both.
+ *   The checkbox shows before the first press that the list allows several rows. It reads the
+ *   selected state from its parent row's `data-selected` or `data-state`, and from no further
+ *   ancestor, because tabs, menus and other machines also set `data-selected`. It is `aria-hidden`,
+ *   because the row reports `aria-selected`. It is not a control: the row is the target.
  */
 
 import { type ComponentProps } from "react";
@@ -19,13 +13,13 @@ import { type ComponentProps } from "react";
 import { withContext } from "#listbox/context.ts";
 
 /**
- * Draws the box, filled from the row's own state.
+ * Renders the `span` with the listbox's item checkbox class, hidden from assistive technology.
  */
 export const ItemCheckbox = withContext("span", "itemCheckbox", {
   defaultProps: { "aria-hidden": true },
 });
 
 /**
- * Describes what a row's box takes: everything a styled span element takes.
+ * Describes the props of a row's checkbox: the props of a `span`.
  */
 export type ItemCheckboxProps = ComponentProps<typeof ItemCheckbox>;

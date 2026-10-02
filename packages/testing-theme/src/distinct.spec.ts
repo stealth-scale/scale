@@ -9,7 +9,7 @@ import { foundationTheme, paletteTheme } from "#theme.fixtures.ts";
 const BASE = { base: foundation };
 
 describe("distinct", () => {
-  it("passes the foundation on every pair of surfaces and inks and lines", () => {
+  it("reports nothing for the foundation's surfaces inks and lines", () => {
     const theme = foundationTheme();
 
     expect(surfaces(theme, {}, THRESHOLDS)).toStrictEqual([]);
@@ -17,7 +17,7 @@ describe("distinct", () => {
     expect(lines(theme, {}, THRESHOLDS)).toStrictEqual([]);
   });
 
-  it("passes a palette drawn over the foundation's pages on every pair of steps", () => {
+  it("reports nothing for a palette derived over the foundation's pages", () => {
     expect(fills(paletteTheme(), BASE, THRESHOLDS)).toStrictEqual([]);
   });
 
@@ -35,7 +35,7 @@ describe("distinct", () => {
     ]);
   });
 
-  it("reports two fills closer than the distance with what it measured", () => {
+  it("reports two fills closer than the threshold with the distance it measured", () => {
     const theme = paletteTheme({ muted: { value: "oklch(92.0% 0.02 262)" } });
 
     expect(fills(theme, BASE, THRESHOLDS)).toStrictEqual([
@@ -43,7 +43,7 @@ describe("distinct", () => {
     ]);
   });
 
-  it("reports a resting fill a reader cannot tell from a surface it sits on", () => {
+  it("reports a resting fill closer than the threshold to a surface it sits on", () => {
     const theme = paletteTheme({ subtle: { value: "{colors.bg.panel}" } });
 
     expect(fills(theme, BASE, THRESHOLDS)).toStrictEqual([
@@ -53,13 +53,13 @@ describe("distinct", () => {
     ]);
   });
 
-  it("holds the steps to the distance it was handed", () => {
+  it("reports nothing when the thresholds lower the distinct distance", () => {
     const theme = paletteTheme({ muted: { value: "oklch(92.0% 0.02 262)" } });
 
     expect(fills(theme, BASE, { ...THRESHOLDS, distinct: 0.001 })).toStrictEqual([]);
   });
 
-  it("reports a surface it cannot measure without a base", () => {
+  it("reports a surface that cannot be measured when no base is given", () => {
     expect(surfaces(paletteTheme(), {}, THRESHOLDS)[0]).toBe(
       "audited bg and bg.panel cannot be measured in base",
     );

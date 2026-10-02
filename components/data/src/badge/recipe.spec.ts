@@ -1,40 +1,59 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
+import { PALETTES } from "@stealthscale/theme/authoring";
 
+import page from "#badge/badge.specimen.tsx";
 import { recipe } from "#badge/recipe.ts";
+import { chipSize } from "#chip.ts";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("covers every variant axis in the scenes of its specimen page", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("leaves no scene referring to a variant value the recipe has dropped", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Badge"] })).toStrictEqual([]);
   });
 
-  it("names its class badge", () => {
+  it("sets className to badge", () => {
     expect(recipe.className).toBe("badge");
   });
 
-  it("offers the four axes a badge takes", () => {
-    expect(axesOf(recipe)).toStrictEqual(["radius", "size", "status", "variant"]);
+  it("declares the effect palette radius size and variant axes", () => {
+    expect(axesOf(recipe)).toStrictEqual(["effect", "palette", "radius", "size", "variant"]);
   });
 
-  it("draws the middle size in the subtle look at the middle corner by default", () => {
+  it("defaults to the subtle look at the md size with the l2 corner", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ radius: "l2", size: "md", variant: "subtle" });
   });
 
-  it("offers the eight sizes every component shares", () => {
-    expect(valuesOf(recipe, "size")).toStrictEqual([
-      "2xl",
-      "3xl",
-      "4xl",
-      "lg",
-      "md",
-      "sm",
-      "xl",
-      "xs",
-    ]);
+  it("reads the primary palette in the base", () => {
+    expect(recipe.base).toMatchObject({ colorPalette: "primary" });
   });
 
-  it("offers the five flat looks", () => {
+  it("declares every semantic palette on the palette axis", () => {
+    expect(valuesOf(recipe, "palette")).toStrictEqual([...PALETTES].toSorted());
+  });
+
+  it("lists every palette in staticCss", () => {
+    expect(recipe.staticCss).toStrictEqual([{ palette: [...PALETTES] }]);
+  });
+
+  it("declares sm md lg and xl on the size axis", () => {
+    expect(valuesOf(recipe, "size")).toStrictEqual(["lg", "md", "sm", "xl"]);
+  });
+
+  it("reads the chip metrics at md", () => {
+    expect(recipe.variants?.["size"]?.["md"]).toStrictEqual(chipSize("md"));
+  });
+
+  it("declares the five flat looks on the variant axis", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual([
       "outline",
       "plain",
@@ -44,38 +63,25 @@ describe("recipe", () => {
     ]);
   });
 
-  it("leaves the ghost look out because a badge repaints under no pointer", () => {
-    expect(valuesOf(recipe, "variant")).not.toContain("ghost");
+  it("declares glow and pulse on the effect axis", () => {
+    expect(valuesOf(recipe, "effect")).toStrictEqual(["glow", "pulse"]);
   });
 
-  it("offers the four statuses and the neutral palette", () => {
-    expect(valuesOf(recipe, "status")).toStrictEqual([
-      "error",
-      "info",
-      "neutral",
-      "success",
-      "warning",
-    ]);
-  });
-
-  it("emits every status whether or not a page writes it", () => {
-    expect(recipe.staticCss).toStrictEqual([
-      { status: ["info", "success", "warning", "error"] },
-      { status: ["neutral"] },
-    ]);
-  });
-
-  it("offers the four corners the theme draws", () => {
+  it("declares every corner on the radius axis", () => {
     expect(valuesOf(recipe, "radius")).toStrictEqual(["full", "l1", "l2", "l3"]);
   });
 
-  it("reads the tag scale rather than the control scale at every size", () => {
-    expect(recipe.variants?.["size"]?.["md"]).toMatchObject({
-      height: "calc({sizes.tag.md} * var(--density, 1))",
+  it("outlines the badge in CanvasText under forced colors", () => {
+    expect(recipe.base).toMatchObject({
+      _highContrast: {
+        outlineColor: "CanvasText",
+        outlineStyle: "solid",
+        outlineWidth: "hairline",
+      },
     });
   });
 
-  it("tracks every tag whose name ends in Badge", () => {
+  it("matches JSX tag names ending in Badge", () => {
     expect(recipe.jsx).toStrictEqual([/Badge$/u]);
   });
 });

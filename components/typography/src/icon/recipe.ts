@@ -1,15 +1,12 @@
 /**
- * States what an icon is: a mark drawn as vector artwork a caller hands in, at a size, in an ink,
- * moved where a page wants it, and flipped where the page reads right to left.
+ * Styles an icon's size, text ink, motion and mirroring.
  *
  * @remarks
- *   Every value is a semantic icon size, a foreground role or an animation style, so a theme moves
- *   all of them. The component draws no artwork of its own. The inherit size follows the font
- *   size around the mark, which is what keeps a mark beside a word the height of the word, and
- *   the ink is the current colour until a caller picks a tone. The fill follows the ink too,
- *   because a path with no fill of its own is drawn black by the browser, which vanishes on a dark
- *   surface; a path that states `fill="none"` keeps it. A mark that points, an arrow or a chevron,
- *   is mirrored in a right-to-left page, and a mark that does not, a clock or a star, is not.
+ *   Every value reads an icon size token, a foreground token or an animation style. The component
+ *   ships no artwork: a caller passes paths as children or an icon component through `as`, such as
+ *   `as={StarIcon}` from `lucide-react`. The `inherit` size is `1em`, so an icon beside text is the
+ *   height of the text. The recipe has no `palette` axis, because an icon takes a text ink, and no
+ *   `effect` axis, because an icon renders no box.
  */
 
 import {
@@ -20,14 +17,18 @@ import {
 } from "@stealthscale/theme/authoring";
 
 /**
- * Draws a mark at the size of the text around it in the current colour until a caller says
- * otherwise, with no motion until a caller asks for one.
+ * Defaults to the `inherit` size in the current colour, with no motion.
+ *
+ * @remarks
+ *   An `svg` without a `fill` attribute fills with the current colour, because the browser fills a
+ *   path with no fill in black. An `svg` that sets `fill`, such as a lucide icon with
+ *   `fill="none"`, keeps its own value.
  */
 export const recipe = defineRecipe({
   base: {
+    "&:not([fill])": { fill: "currentcolor" },
     color: "currentcolor",
     display: "inline-block",
-    fill: "currentcolor",
     flexShrink: "0",
     verticalAlign: "middle",
   },
@@ -36,28 +37,31 @@ export const recipe = defineRecipe({
   jsx: [/Icon$/u],
   variants: {
     /**
-     * Whether the mark turns around where the page reads right to left.
+     * Mirrors the icon in a right-to-left page, for an icon that points, such as an arrow.
      *
      * @remarks
-     *   Written as `scale` rather than as a `transform` function. The `spin` motion animates
-     *   `transform`, and an animation overrides a declaration of the same property, so a mirrored
-     *   mark that also spins lost its mirror for as long as it turned. The two are separate
-     *   properties and compose.
+     *   The value sets `scale` and not `transform`, because the `spin` motion animates `transform`
+     *   and would override it.
      */
     mirrored: {
       true: { _rtl: { scale: "-1 1" } },
     },
-    motion: motionVariants(["float", "spin", "twinkle"]),
-    size: { ...iconSizes(), inherit: { boxSize: "1em" } },
+
     /**
-     * The ink the mark is drawn in.
+     * Motion. Each value reads the theme's animation style of the same name.
+     */
+    motion: motionVariants(["float", "spin", "twinkle"]),
+
+    /**
+     * Box size from the icon scale, or `1em` at `inherit`.
+     */
+    size: { ...iconSizes(), inherit: { boxSize: "1em" } },
+
+    /**
+     * Foreground token of the icon.
      *
      * @remarks
-     *   The full set of inks, the same one every other component that draws ink alone offers. Drawn
-     *   from a shorter set, a mark beside a word could not be quietened to the subtle ink or turned
-     *   over on a filled surface, which the words next to it could.
-     *   `current` is the mark's own and is what it takes until a caller says otherwise: a mark in a
-     *   line of words is drawn in the ink of those words.
+     *   The values are the text inks, and `current` is the current colour, which is the default.
      */
     tone: {
       ...toneVariants(),

@@ -22,7 +22,7 @@ describe("lookVariants", () => {
 
   it("reads a layer style for each look it was handed", () => {
     expect(lookVariants(["solid", "outline"])).toStrictEqual({
-      outline: { layerStyle: "outline.solid" },
+      outline: { layerStyle: "outline.muted" },
       solid: { layerStyle: "fill.solid" },
     });
   });
@@ -30,7 +30,7 @@ describe("lookVariants", () => {
   it("reads a fill for every look but the outline", () => {
     expect(lookVariants(LOOKS)).toStrictEqual({
       ghost: { layerStyle: "fill.ghost" },
-      outline: { layerStyle: "outline.solid" },
+      outline: { layerStyle: "outline.muted" },
       plain: { layerStyle: "fill.plain" },
       solid: { layerStyle: "fill.solid" },
       subtle: { layerStyle: "fill.subtle" },

@@ -1,0 +1,76 @@
+{
+  "about": "Renders a few options side by side, one of them chosen, with a thumb that slides to the chosen option. A press on an option checks it, and the arrow keys move the choice along the track.",
+  "alignment": "Text alignment",
+  "alignments": {
+    "center": "Center",
+    "left": "Left",
+    "right": "Right"
+  },
+  "closed": {
+    "about": "A disabled option keeps its place and its width, and the arrow keys skip it. Here the plan keeps 30 days of history.",
+    "title": "One option disabled"
+  },
+  "field": {
+    "about": "Inside a field the group takes its name from the field's label and its description from the helper text. `fitted` spreads the options across the field's width.",
+    "title": "In a field"
+  },
+  "fitted": {
+    "about": "`fitted` stretches the track to the width of its container and gives every option an equal share. Without it the track is as wide as its options.",
+    "title": "Fitted"
+  },
+  "iconic": {
+    "about": "`iconic` squares every option and hides its words visually. The words remain the radio's accessible name.",
+    "title": "Icons only"
+  },
+  "icons": {
+    "about": "An icon renders before an option's words, one icon size smaller than the group's size.",
+    "title": "Icons and words"
+  },
+  "listed": "Sold homes show the price they sold for.",
+  "listing": "Listing",
+  "listings": {
+    "buy": "For sale",
+    "rent": "For rent",
+    "sold": "Sold"
+  },
+  "orientation": {
+    "about": "`orientation=\"vertical\"` stacks the options, and the thumb slides down the track. The up and down arrow keys move the choice.",
+    "title": "Orientation"
+  },
+  "palette": {
+    "about": "Every palette in every look, at size `sm`. The palette fills the solid thumb, tints the outline thumb and colors the focus ring.",
+    "title": "Palettes"
+  },
+  "period": "Reporting period",
+  "periods": {
+    "month": "Month",
+    "quarter": "Quarter",
+    "week": "Week"
+  },
+  "range": "Chart range",
+  "size": {
+    "about": "Every size from `xs` to `xl`. The track is a control's height, so a group is level with a button or an input of the same size.",
+    "title": "Sizes"
+  },
+  "ranges": {
+    "day": "Today",
+    "month": "30 days",
+    "week": "7 days",
+    "year": "1 year"
+  },
+  "states": {
+    "about": "One option chosen, none chosen, invalid, read-only and disabled. A group with no value renders no thumb. A read-only group shows its value and ignores presses.",
+    "title": "States"
+  },
+  "title": "Segment group",
+  "variant": {
+    "about": "`surface` raises a panel-colored thumb off the muted track, `solid` fills the thumb with the palette, and `outline` draws the track's edge and tints the thumb.",
+    "title": "Looks"
+  },
+  "view": "View",
+  "views": {
+    "board": "Board",
+    "calendar": "Calendar",
+    "list": "List"
+  }
+}

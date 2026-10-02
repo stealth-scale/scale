@@ -1,5 +1,5 @@
 /**
- * Builds the menu a part's specification needs above it, every part reading one machine.
+ * Renders the menus the part specifications test.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -25,20 +25,21 @@ import {
 } from "#menu/index.ts";
 
 /**
- * Draws whatever a case wants measured inside the root that runs the machine.
+ * Renders a part inside a closed root.
  *
  * @param children - The part under test.
- * @returns The root, holding it.
+ * @returns The root.
  */
 export function listed(children: ReactNode): ReactElement {
   return <Root>{children}</Root>;
 }
 
 /**
- * Draws a whole menu, so a case can press the control and read what the panel does.
+ * Renders a menu with a trigger, an arrow, four rows and a separator. The third row is disabled
+ * and the fourth is critical.
  *
- * @param props - Whatever the case sets on the root.
- * @returns The parts composed the way a caller composes them.
+ * @param props - The root's props.
+ * @returns The menu.
  */
 export function composed(props: RootProps = {}): ReactElement {
   return (
@@ -68,10 +69,10 @@ export function composed(props: RootProps = {}): ReactElement {
 }
 
 /**
- * Draws a menu whose rows are grouped and carry choices, so a case can read a mark and a heading.
+ * Renders a menu with a labelled radio group and a checked checkbox row.
  *
- * @param props - Whatever the case sets on the root.
- * @returns The parts composed the way a caller composes them.
+ * @param props - The root's props.
+ * @returns The menu.
  */
 export function grouped(props: RootProps = {}): ReactElement {
   return (
@@ -102,11 +103,11 @@ export function grouped(props: RootProps = {}): ReactElement {
 }
 
 /**
- * Draws a whole menu whose control carries a handler of the caller's own.
+ * Renders a menu whose trigger takes a caller's click handler.
  *
- * @param onClick - Told each time the control is pressed.
- * @param props - Whatever the case sets on the root.
- * @returns The parts composed the way a caller composes them.
+ * @param onClick - The trigger's click handler.
+ * @param props - The root's props.
+ * @returns The menu.
  */
 export function handled(onClick: () => void, props: RootProps = {}): ReactElement {
   return (
@@ -122,10 +123,10 @@ export function handled(onClick: () => void, props: RootProps = {}): ReactElemen
 }
 
 /**
- * Draws a menu opened by a right-click over a region rather than by a control.
+ * Renders a menu that a context trigger opens.
  *
- * @param props - Whatever the case sets on the root.
- * @returns The parts composed the way a caller composes them.
+ * @param props - The root's props.
+ * @returns The menu.
  */
 export function righted(props: RootProps = {}): ReactElement {
   return (
@@ -142,12 +143,11 @@ export function righted(props: RootProps = {}): ReactElement {
 }
 
 /**
- * Draws a menu holding one row that carries a choice, so a case can turn it off and read what the
- * machine reports.
+ * Renders a menu with one checked checkbox row that keeps the menu open on select.
  *
- * @param onCheckedChange - Told each time the reader turns the row on or off.
- * @param props - Whatever the case sets on the root.
- * @returns The parts composed the way a caller composes them.
+ * @param onCheckedChange - The row's change handler.
+ * @param props - The root's props.
+ * @returns The menu.
  */
 export function optioned(
   onCheckedChange: (checked: boolean) => void,
@@ -175,11 +175,10 @@ export function optioned(
 }
 
 /**
- * Draws a menu whose rows stay open when chosen, so a case can read what a row that keeps the menu
- * up does.
+ * Renders a menu whose two rows keep it open on select.
  *
- * @param props - Whatever the case sets on the root.
- * @returns The parts composed the way a caller composes them.
+ * @param props - The root's props.
+ * @returns The menu.
  */
 export function kept(props: RootProps = {}): ReactElement {
   return (
@@ -200,19 +199,20 @@ export function kept(props: RootProps = {}): ReactElement {
 }
 
 /**
- * Draws a menu holding a submenu, so a case can read what the nest does.
+ * Renders a menu with a submenu between two rows.
  *
- * @param props - Whatever the case sets on the outermost root.
- * @returns The two menus, the inner one written inside the panel of the outer.
+ * @param props - The outer root's props.
+ * @param submenu - The submenu root's props.
+ * @returns The outer menu, with the submenu inside its content.
  */
-export function nested(props: RootProps = {}): ReactElement {
+export function nested(props: RootProps = {}, submenu: RootProps = {}): ReactElement {
   return (
     <Root {...props}>
       <Trigger>File</Trigger>
       <Positioner>
         <Content>
           <Item value="new">New</Item>
-          <Root>
+          <Root {...submenu}>
             <TriggerItem>Share</TriggerItem>
             <Positioner>
               <Content>
@@ -229,10 +229,10 @@ export function nested(props: RootProps = {}): ReactElement {
 }
 
 /**
- * Draws an open menu holding one row named Acme, with whatever a case puts beside the words.
+ * Renders an open menu with one row whose text reads Acme.
  *
- * @param children - The part under test, drawn in the row before the words.
- * @returns The menu, open, holding the row.
+ * @param children - The part under test, rendered before the text.
+ * @returns The open menu.
  */
 export function rowed(children: ReactNode): ReactElement {
   return (

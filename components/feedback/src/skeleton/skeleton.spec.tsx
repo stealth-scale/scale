@@ -12,23 +12,23 @@ describe("Skeleton", () => {
     expect(violations(Skeleton, { as: true, children: true, element: "DIV" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule", async () => {
+  it("returns no accessibility violation", async () => {
     await expect(accessibilityViolations(Skeleton)).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(recipe, (props) => render(<Skeleton {...props} />).container),
     ).toStrictEqual([]);
   });
 
-  it("carries no role so a screen reader is told once by the region rather than by each bar", () => {
+  it("sets no role", () => {
     const { container } = render(<Skeleton />);
 
     expect(recipeElement(container, "skeleton").hasAttribute("role")).toBe(false);
   });
 
-  it("takes the box of whatever it wraps", () => {
+  it("renders its children inside the element", () => {
     const { container } = render(
       <Skeleton>
         <p>Words that have not arrived</p>
@@ -38,7 +38,7 @@ describe("Skeleton", () => {
     expect(recipeElement(container, "skeleton").textContent).toBe("Words that have not arrived");
   });
 
-  it("draws the element as names", () => {
+  it("renders the element passed as as", () => {
     const { container } = render(<Skeleton as="span" />);
 
     expect(recipeElement(container, "skeleton").tagName).toBe("SPAN");

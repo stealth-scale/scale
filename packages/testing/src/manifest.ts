@@ -1,9 +1,9 @@
 /**
- * Writes the manifests a scratch workspace is built out of.
+ * Builds the manifest text and the file entries a scratch workspace is written from.
  *
  * @remarks
- *   Nothing here touches the disk. Each function returns file contents keyed by path, so a spec
- *   spreads several of them into one object and hands that to a workspace to write.
+ *   Nothing here writes to disk. Each function returns file contents keyed by path, and a
+ *   specification passes the merged object to a scratch workspace.
  */
 
 import { type ScratchFiles } from "#scratch.ts";
@@ -12,8 +12,8 @@ import { type ScratchFiles } from "#scratch.ts";
  * The fields a generated manifest declares.
  *
  * @remarks
- *   The index signature takes any further field and writes it through unread, so a misspelled
- *   `dependencies` reaches the manifest and the package manager that reads it stays quiet.
+ *   The index signature passes any further field through unread. A misspelled `dependencies`
+ *   reaches the manifest, and the package manager reports nothing.
  */
 export interface ManifestFields {
   /**
@@ -31,20 +31,20 @@ export interface ManifestFields {
  * Serialises manifest fields as the JSON text a package manager reads.
  *
  * @remarks
- *   The version is `0.0.0` unless the fields carry one, which keeps a spec from declaring a version
- *   it does not care about. The text ends in a newline, so a spec may compare it to a file written
- *   by a formatter.
+ *   The version is `0.0.0` unless `fields` declares one, so a specification states a version only
+ *   where it asserts on one. The text ends in a newline, so a specification can compare it to a
+ *   file a formatter wrote.
  */
 export function manifest(fields: ManifestFields): string {
   return `${JSON.stringify({ version: "0.0.0", ...fields }, null, 2)}\n`;
 }
 
 /**
- * Places a package's manifest and the rest of its files under one directory.
+ * Returns a package's manifest and the rest of its files, each keyed under one directory.
  *
  * @remarks
- *   Every key in `files` is read as a path inside the package, and one that already names the
- *   directory nests it twice rather than failing.
+ *   Every key in `files` is a path inside the package. A key that repeats the directory name nests
+ *   the file twice and raises no error.
  * @param directory - Where the package sits below the workspace root, without a trailing slash.
  * @param fields - The manifest fields for this package.
  * @param files - Further file contents, keyed by a path inside the package.
@@ -66,11 +66,11 @@ export function packageFiles(
 }
 
 /**
- * Declares a workspace root over the globs its packages live under.
+ * Returns the manifest of a workspace root declaring the globs its packages live under.
  *
  * @remarks
- *   The root is called `root` and marked private, so a spec cannot publish it by accident. The
- *   extra fields are merged over both, which is how a caller renames the root or adds a catalog.
+ *   The root is named `root` and marked private, so a specification cannot publish it by accident.
+ *   `fields` is merged over both, so a caller can rename the root or add a catalog.
  */
 export function workspaceFiles(
   workspaces: readonly string[],

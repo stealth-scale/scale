@@ -8,7 +8,7 @@ import { slotClass, slotClasses, variantClass } from "@stealthscale/testing-them
 import { withContext, withProvider } from "#app-shell/context.ts";
 
 describe("context", () => {
-  it("draws the slot's class on an element it binds", () => {
+  it("applies the slot class to a bound element", () => {
     const Columned = withProvider("div", "root");
     const Barred = withContext("header", "header");
     const { container } = render(createElement(Columned, null, createElement(Barred)));
@@ -18,7 +18,7 @@ describe("context", () => {
     );
   });
 
-  it("hands the shell's variants to a part below it", () => {
+  it("applies the root's variant to a part below it", () => {
     const Columned = withProvider("div", "root");
     const Framed = withContext("main", "main");
     const { container } = render(

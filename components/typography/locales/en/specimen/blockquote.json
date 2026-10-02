@@ -1,22 +1,26 @@
 {
-  "about": "Draws a quotation set as its own block, as a figure holding an icon, the content and a caption.",
-  "author": "Antoine de Saint-Exupéry",
-  "distribution": {
-    "about": "Where the quotation sits in the width it is given.",
-    "title": "Distribution"
-  },
-  "looks": {
-    "about": "Every look in every status. The look styles the root and the icon, and the status points the palette at the semantic palette of its name.",
-    "title": "Looks and statuses"
+  "about": "Renders a quotation as its own block: a `figure` with an icon, the quotation and a caption.",
+  "author": "Priya Raman, Head of Finance at Northwind",
+  "justify": {
+    "about": "The three alignments in a 512px room. At `start` the icon hangs in a start gutter, and at `center` and `end` it sits above the quotation.",
+    "title": "Alignment"
   },
   "motion": {
-    "about": "How the quotation enters the page.",
+    "about": "The animation a quotation enters with. Each one runs once when the quotation mounts.",
     "title": "Motion"
   },
-  "quotation": "Perfection is reached when there is nothing left to take away.",
-  "sizes": {
-    "about": "Every size, which sets the root's inset and the content's type.",
+  "palette": {
+    "about": "Every palette in the surface look: the fill in `colorPalette.subtle`, the rule and the icon in `colorPalette.solid`.",
+    "title": "Palettes"
+  },
+  "quotation": "Moving billing to one ledger cut our month-end close from nine days to two.",
+  "size": {
+    "about": "The five sizes. Each sets the body text style, the gaps and the start padding, and the icon is one line of the quotation tall.",
     "title": "Sizes"
   },
-  "title": "Blockquote"
+  "title": "Blockquote",
+  "variant": {
+    "about": "`subtle` and `solid` render a rule down the start edge. `surface` adds a fill and rounds the end corners. `glass` renders the theme's glass surface. `plain` renders no rule.",
+    "title": "Looks"
+  }
 }

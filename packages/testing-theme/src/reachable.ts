@@ -1,31 +1,31 @@
 /**
  * Checks a recipe for the classes the runtime writes that no rule reaches: a value or a compound
- * that states no styles, a default naming a value no axis offers, a compound matched on such a
+ * that declares no styles, a default naming a value no axis offers, a compound matched on such a
  * value, and a tag pattern that misses the component's name.
  *
  * @remarks
- *   The runtime writes a class for every value it is handed and the compiler emits a rule only for
- *   a value that states styles, so each of these puts a class on the page that nothing styles, and
- *   nothing before this check reported it. The pattern check reads the other way: a tag the
- *   patterns miss leaves the component's variants out of an application's sheet.
+ *   The runtime writes a class for every value it is passed, and the compiler emits a rule only
+ *   for a value that declares styles, so each of these leaves a class on the page with no rule
+ *   behind it. The pattern check runs the other way: a tag the patterns miss leaves the
+ *   component's variants out of an application's sheet.
  */
 
 import { type Declared } from "#recipe.ts";
 
 /**
- * Lists the keys of a compound that are not axes.
+ * Keys of a compound that select nothing, so a match check skips them.
  */
 const UNMATCHED = new Set(["className", "classNames", "css", "name"]);
 
 /**
- * Reports whether a value is a plain object, which an axis's values and a compound are.
+ * Reports whether a value is a plain object, which an axis's values and a compound both are.
  */
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /**
- * Lists each axis of a recipe against the values it takes, each with the styles it states.
+ * Returns each axis of a recipe with the values it offers and the styles declared under each.
  */
 function axesOf(
   recipe: Declared,
@@ -37,21 +37,21 @@ function axesOf(
 }
 
 /**
- * Reports whether a style object declares nothing, which the compiler emits no rule for.
+ * Reports whether a style object declares nothing, in which case the compiler emits no rule.
  */
 function isEmpty(styles: unknown): boolean {
   return !isRecord(styles) || Object.keys(styles).length === 0;
 }
 
 /**
- * Reports whether a slot recipe's value, base or compound states styles on one slot.
+ * Reports whether a slot recipe's value, base or compound declares styles on one named slot.
  */
 export function slotStyled(slotted: unknown, slot: string): boolean {
   return isRecord(slotted) && !isEmpty(slotted[slot]);
 }
 
 /**
- * Reports whether styles reach the element a recipe draws, or any slot of a slot recipe.
+ * Reports whether styles reach the element a recipe styles, or any slot of a slot recipe.
  */
 function reaches(recipe: Declared, styles: unknown): boolean {
   return recipe.slots === undefined
@@ -60,13 +60,13 @@ function reaches(recipe: Declared, styles: unknown): boolean {
 }
 
 /**
- * Reports every value and compound the compiler emits no rule for, because the runtime still
- * writes their classes.
+ * Reports every value and compound that declares no styles, so the compiler emits no rule while
+ * the runtime still writes the class.
  *
  * @remarks
- *   For a slot recipe a value counts as styled where any slot under it states styles. A base that
- *   states nothing is not reported: the recipe's class and each slot's class are written either
- *   way, and a theme extends the base through them.
+ *   For a slot recipe a value counts as styled where any slot under it declares styles. A base
+ *   that declares nothing is not reported: the recipe's class and each slot's class are written
+ *   either way, and a theme extends the base through them.
  */
 export function emptyViolations(recipe: Declared): readonly string[] {
   const values = axesOf(recipe).flatMap(([axis, offered]) =>
@@ -87,8 +87,8 @@ export function emptyViolations(recipe: Declared): readonly string[] {
 }
 
 /**
- * Reports every default that names an axis the recipe does not offer, or a value the axis does
- * not offer.
+ * Reports every default set on an axis the recipe does not offer, or to a value that axis does not
+ * offer.
  */
 export function defaultViolations(recipe: Declared): readonly string[] {
   if (!isRecord(recipe.defaultVariants)) return [];
@@ -152,7 +152,7 @@ function tracks(pattern: RegExp | string, name: string): boolean {
 }
 
 /**
- * The axis whose values an application reads off its data rather than writing at the call site.
+ * Axis whose values an application reads from its data instead of writing at the call site.
  */
 const MEASURED = "status";
 
@@ -160,11 +160,10 @@ const MEASURED = "status";
  * Reports whether a `staticCss` entry emits the values of an axis.
  *
  * @remarks
- *   `*` for a whole recipe and a list of values for one axis are the two forms the compiler acts
- *   on. `true` is not one of them, although the compiler's own types offer it for an axis: a recipe
- *   written that way type-checks, emits nothing, and reads as though it had been handled. Listing
- *   the values keeps the two in step, and a list written from the vocabulary's own array cannot go
- *   stale.
+ *   The compiler acts on two forms: `*` for a whole recipe and a list of values for one axis.
+ *   `true` is not one of them, although the compiler's types accept it for an axis, so a recipe
+ *   written that way type-checks and emits nothing. Listing the values keeps the two in step, and
+ *   a list built from the vocabulary's array cannot go stale.
  */
 function emits(entry: unknown, axis: string): boolean {
   return entry === "*" || (isRecord(entry) && Array.isArray(entry[axis]));
@@ -175,11 +174,11 @@ function emits(entry: unknown, axis: string): boolean {
  *
  * @remarks
  *   The compiler emits a rule for a value it reads from a literal in an application's source. A
- *   status is the one axis an application usually does not write: it hands over what a record, a
- *   validator or a server said, and the compiler sees a name it cannot follow. The class lands on
- *   the element with no rule behind it, and the component draws in its default palette while
- *   reporting an error. Listing the axis under `staticCss` emits every value whether an application
- *   writes one or not, which for a four-value status measured at 0.19 kB over the wire.
+ *   status is the one axis an application usually does not write: it passes what a record, a
+ *   validator or a server returned, and the compiler sees a name it cannot follow. The class lands
+ *   on the element with no rule behind it, and the component renders in its default palette while
+ *   reporting an error. Listing the axis under `staticCss` emits every value whether an
+ *   application writes one or not, measured at 0.19 kB over the wire for a four-value status.
  */
 export function emittedViolations(recipe: Declared): readonly string[] {
   if (!isRecord(recipe.variants) || !Object.hasOwn(recipe.variants, MEASURED)) return [];

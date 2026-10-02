@@ -1,11 +1,9 @@
 /**
- * Draws the square that gives the point its shape.
+ * Renders the arrow's tip: a square rotated 45 degrees with an edge on two sides.
  *
  * @remarks
- *   It is turned a quarter revolution and carries an edge on two of its sides, so the two that show
- *   past the panel continue the panel's own edge and the two behind it are covered by the panel.
- *   The fill is the panel's, read from the custom property the look sets, so a point under any of
- *   the three looks is drawn in the same fill as the panel it leaves.
+ *   The two sides past the panel continue the panel's edge, and the panel covers the other two.
+ *   The tip reads `--menu-surface`, so it shares the panel's fill in every look.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -16,20 +14,20 @@ import { withContext } from "#menu/context.ts";
 import { useMenu } from "#menu/machine.ts";
 
 /**
- * Draws the square at the look the root states.
+ * Renders the `div` with the menu's arrow tip class.
  */
 const Tipped = withContext("div", "arrowTip");
 
 /**
- * Describes what the square takes.
+ * Describes the props of the arrow tip: the props of a `div`.
  */
 export type ArrowTipProps = ComponentProps<typeof Tipped>;
 
 /**
- * Gives the point its shape.
+ * Renders the arrow tip with the machine's arrow tip props merged over the caller's.
  *
- * @param props - Everything a styled div takes.
- * @returns The square, carrying the place the machine measured.
+ * @param props - The props of a `div`.
+ * @returns The `div` element.
  */
 export function ArrowTip(props: ArrowTipProps): ReactElement {
   const { api } = useMenu();

@@ -1,19 +1,19 @@
 /**
- * Runs the machine the control and the panel share, hands the recipe's variants to both, and joins
- * a submenu to the menu it opens from.
+ * Renders a menu's root, starts its machine and joins a submenu to the menu it opens from.
  *
  * @remarks
- *   The machine names no root, because a menu is a control and a panel that floats beside it rather
- *   than a thing that frames the two. An element is drawn here all the same, because the two are
- *   siblings and a slot recipe hands its variants down from above them both. It is drawn with
- *   `display: contents`, so it takes part in no layout and a menu attached to a control inside a
- *   row leaves that row as it was. The machine writes nothing onto it, there being no root among
- *   its parts. A root written inside the content of another is a submenu. It finds the menu above
- *   it, joins the two machines so a pointer and the arrow keys travel between them, and draws
- *   itself in the variants that menu was given unless it picks its own.
+ *   The machine has no root part. The root renders a `div` with `display: contents`, which passes
+ *   the recipe's variants to the trigger and the positioner and leaves the layout around the
+ *   trigger unchanged. A root inside another menu's content is a submenu: it registers its machine
+ *   with the parent's, takes the parent's variants unless it sets its own, and takes the parent's
+ *   `dir`, because the machine chooses a submenu's side from the submenu's own direction. The root
+ *   runs the panel's presence: the panel is not in the document until it first opens, and it leaves
+ *   once its exit animation ends.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
+
+import { type PresenceOptions, usePresence } from "@stealthscale/hooks";
 
 import { withProvider } from "#menu/context.ts";
 import {
@@ -27,39 +27,58 @@ import {
 import { splitMenuVariants } from "#menu/variants.ts";
 
 /**
- * Draws the element that sets the variants every part below it reads, and no box.
+ * Renders the `div` that provides the recipe's variants.
  */
 const Framed = withProvider("div", "root");
 
 /**
- * Describes what the root takes: the machine's settings, the recipe's variants, and the element's.
+ * Describes the props of the root: the machine's options, the panel's presence, the recipe's
+ * variants and the props of a `div`.
  *
  * @remarks
- *   The element's own `id` and `dir` are left out, because the machine states both. It names every
- *   part from the id, and it reads the direction to decide which side a submenu opens on. The
- *   element's `onSelect` is left out too: a div reports a text selection under that name, and the
- *   machine reports the row the reader chose.
+ *   The element's `id` and `dir` are left out, because the machine takes both. The element's
+ *   `onSelect` is left out too, because a `div` reports a text selection under that name and the
+ *   machine reports the chosen row. `lazyMount` and `unmountOnExit` are true by default.
  */
 export interface RootProps
-  extends MenuOptions, Omit<ComponentProps<typeof Framed>, "dir" | "id" | "onSelect"> {}
+  extends
+    MenuOptions,
+    Omit<PresenceOptions, "present">,
+    Omit<ComponentProps<typeof Framed>, "dir" | "id" | "onSelect"> {}
 
 /**
- * Opens a list of things a reader chooses from, beside the control that opens it.
+ * Renders the root, provides its menu level to the parts and registers a submenu with its parent.
  *
- * @param props - The machine's settings, the recipe's variants and the element's props together.
- * @returns The parts, under the running machine.
+ * @param props - The machine's options, the panel's presence, the recipe's variants and the props
+ *   of a `div`.
+ * @returns The `div` element inside the api provider.
  */
-export function Root(props: RootProps): ReactElement {
+export function Root({
+  lazyMount = true,
+  onExitComplete,
+  skipAnimationOnMount,
+  unmountOnExit = true,
+  ...props
+}: RootProps): ReactElement {
   const parent = useEnclosingMenu();
   const [options, rest] = splitMenuProps(props);
   const [picked, others] = splitMenuVariants(rest);
-  const [api, service] = useMenuMachine(options);
+  const dir = options.dir ?? parent?.dir;
+  const [api, service] = useMenuMachine(dir === undefined ? options : { ...options, dir });
   const variants = { ...parent?.variants, ...picked };
+  const depth = parent === undefined ? 0 : parent.depth + 1;
+  const presence = usePresence({
+    lazyMount,
+    onExitComplete,
+    present: api.open,
+    skipAnimationOnMount,
+    unmountOnExit,
+  });
 
   useNestedMenu(service, parent?.service);
 
   return (
-    <ApiProvider value={{ api, parent, service, variants }}>
+    <ApiProvider value={{ api, depth, dir, parent, presence, service, variants }}>
       <Framed {...variants} {...others} />
     </ApiProvider>
   );

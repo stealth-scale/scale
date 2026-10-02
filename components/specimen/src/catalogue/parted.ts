@@ -1,79 +1,80 @@
 /**
- * Shapes what a page's parts accept into the rows a table draws.
+ * Converts the anatomy of a page into the parts and rows the props band renders.
  */
 
 import { type Anatomy, type Dropped, type Member, type Prop } from "#catalogue/types.ts";
 
 /**
- * Describes one named type a prop refers to, and what is in it.
+ * A named type that a prop refers to, with its members.
  */
 export interface Shown {
   /**
-   * The members of the type, or empty where it is named but not listed, which is what the reader
-   * does past its cap or its depth.
+   * Members of the type. Empty when the reader named the type but did not list it, past its member
+   * cap or its depth.
    */
   members: readonly Member[];
 
   /**
-   * The name the type is printed under, which is what a reader opens it by.
+   * Printed name of the type.
    */
   name: string;
 }
 
 /**
- * Describes one row: the prop, and each named type it refers to.
+ * Table row for a prop and the named types it refers to.
  */
 export interface Row {
   /**
-   * The prop the row is drawn for.
+   * The prop the row renders.
    */
   prop: Prop;
 
   /**
-   * Each named type the prop refers to, in the order the prop named them. Kept apart rather than
-   * merged, so a type opened from the table shows its own members and not the members of every type
-   * the prop names.
+   * Named types the prop refers to, in the order the prop names them.
+   *
+   * @remarks
+   *   Each type is kept separate, so a type opened from the table shows its own members only.
    */
   shows: readonly Shown[];
 }
 
 /**
- * Describes one part, split into the two groups a table heads separately.
+ * One part of a page, with its props split into the two groups a table heads separately.
  */
 export interface Part {
   /**
-   * The component the props belong to, as a caller writes it.
+   * Component the props belong to, written the way a caller writes it.
    */
   component: string;
 
   /**
-   * The counts of what the reader resolved and no table draws.
+   * Counts of the props the reader resolved and no table renders.
    */
   dropped: Dropped;
 
   /**
-   * The name the part is exported under.
+   * Exported name of the part's props type.
    */
   name: string;
 
   /**
-   * The props a caller sets, sorted by name.
+   * Props a caller sets, sorted by name.
    */
   options: readonly Row[];
 
   /**
-   * The axes a theme moves, sorted by name.
+   * Recipe axes a theme changes, sorted by name.
    */
   variants: readonly Row[];
 }
 
 /**
- * The counts to report for a part the reader recorded no drops against.
+ * Drop counts for a part without recorded drops.
  */
 const NONE: Dropped = { conditions: 0, foreign: 0 };
 
 /**
- * Returns one row per prop, each carrying the members of the types it refers to.
+ * Returns one row per prop, each with the members of the types it refers to.
  */
 function rowsOf(props: readonly Prop[], shapes: Anatomy["shapes"]): readonly Row[] {
   return props.map((prop) => ({
@@ -83,59 +84,76 @@ function rowsOf(props: readonly Prop[], shapes: Anatomy["shapes"]): readonly Row
 }
 
 /**
- * Reads the name a type is printed under, off the key the reader holds it by.
+ * Returns the printed name of a type from the key the reader stores it under.
  *
  * @remarks
- *   The reader keys a shape by the package that declared it and the name, `kit.Scale`, so two
- *   packages exporting one name are two shapes. The compiler prints the name alone, so a table
- *   matching a printed type against the key matches nothing at all.
- * @param key - The key the reader holds the shape by.
- * @returns The name the compiler prints it under.
+ *   The reader keys a shape by its package and its name, such as `kit.Scale`, so two packages that
+ *   export the same name produce two shapes. The compiler prints the name alone.
+ * @param key - Key of the shape.
+ * @returns The printed name.
  */
 export function shortOf(key: string): string {
   return key.slice(key.lastIndexOf(".") + 1);
 }
 
 /**
- * Counts what a part accepts, which is what decides where it is listed.
+ * Returns the number of props a part accepts, which decides its position in the list.
  */
 function accepts(part: Part): number {
   return part.options.length + part.variants.length;
 }
 
 /**
- * Returns the component a part's props belong to, as a caller writes it.
+ * Returns the namespace a page's parts are exported under, from the page ID.
  *
  * @remarks
- *   A part is keyed by the interface it declares, `RootProps`, which names a type and not a thing
- *   to draw. The component is the page and the part together, `Menu.Root`, because a package of
- *   parts is exported as one namespace and that is how every example on the page writes it.
- *   A part whose name is the page's own is the whole component rather than a part of it, so
- *   `ButtonProps` on the button's page is `Button` and not `Button.Button`.
- * @param page - The page's title, which is the namespace the parts are exported under.
- * @param part - The name the part is exported under.
- * @returns The component, as a caller writes it.
+ *   The last segment of the ID converts from kebab case to Pascal case, so
+ *   `components/data/color-swatch` returns `ColorSwatch`. The page title is a translation key, not
+ *   the name of an export.
+ * @param id - Page ID.
+ * @returns The namespace in Pascal case.
+ */
+export function namespaceOf(id: string): string {
+  return id
+    .slice(id.lastIndexOf("/") + 1)
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join("");
+}
+
+/**
+ * Returns the component a part's props belong to, written the way a caller writes it.
+ *
+ * @remarks
+ *   A part is keyed by its props interface, such as `RootProps`. A namespaced part is written as
+ *   the namespace and the part, such as `Menu.Root`. A part named after the namespace is the whole
+ *   component, so `ButtonProps` on the button page is `Button`. A part whose name contains the
+ *   namespace is a standalone export, so `ColorSwatchMixProps` is `ColorSwatchMix` and
+ *   `IconButtonProps` is `IconButton`.
+ * @param page - Namespace of the page, from {@link namespaceOf}.
+ * @param part - Exported name of the part's props type.
+ * @returns The component name.
  */
 export function componentOf(page: string, part: string): string {
   const short = part.endsWith("Props") ? part.slice(0, -"Props".length) : part;
 
-  return short === "" || short === page ? page : `${page}.${short}`;
+  if (short === "" || short === page) return page;
+
+  return short.includes(page) ? short : `${page}.${short}`;
 }
 
 /**
- * Returns each part of a page, its props split by kind and its dropped counts beside them.
+ * Returns each part of a page with its props split by kind and its drop counts.
  *
  * @remarks
- *   The parts that accept something are listed first, each group sorted by name, so a table drawn
- *   from this is stable across reads. A part the reader found nothing for is kept and listed after
- *   them: it is a part a caller can draw, and its dropped counts are the answer to why its table is
- *   empty, but four of them at the head of the band push every part with something to say off the
- *   first screen.
- *   A part whose props are every one of them the element's own is the usual case for a slot bound
- *   through a context, which takes its variants from the root rather than from a caller.
- * @param anatomy - The parts, shapes and dropped counts the reader resolved for the page.
- * @param page - The page's title, which names the component the parts belong to.
- * @returns Each part, the ones that accept something first.
+ *   Parts that accept props come first, and each group is sorted by name, so the table order is
+ *   stable across reads. A part without props is kept after them. Its drop counts explain the
+ *   empty table, and four empty parts at the top would push the useful tables below the fold. A
+ *   slot bound through a context usually has only element props, because it takes its variants
+ *   from the root.
+ * @param anatomy - Parts, shapes and drop counts the reader resolved for the page.
+ * @param page - Namespace of the page, from {@link namespaceOf}.
+ * @returns Each part, with the parts that accept props first.
  */
 export function parted(anatomy: Anatomy, page: string): readonly Part[] {
   return Object.entries(anatomy.parts)

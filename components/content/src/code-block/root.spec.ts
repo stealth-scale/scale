@@ -1,57 +1,83 @@
-import { render } from "@testing-library/react";
+import { render, renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { accessibilityViolations, violations } from "@stealthscale/testing-react";
 import { boundViolations, slotElement } from "@stealthscale/testing-theme";
 
-import { composed, SOURCE } from "#code-block/code-block.fixtures.tsx";
+import { coded, composed, diffed, SOURCE } from "#code-block/code-block.fixtures.tsx";
 import { recipe } from "#code-block/recipe.ts";
 import { Root } from "#code-block/root.tsx";
+import { useCode } from "#code-block/state.ts";
 
 describe("Root", () => {
-  it("conforms as a div", () => {
+  it("satisfies the component contract with div as its default element", () => {
     expect(
       violations(Root, { as: true, children: true, element: "DIV", props: { code: SOURCE } }),
     ).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule holding a header and the code", async () => {
+  it("reports no axe violation with every slot composed", async () => {
     await expect(accessibilityViolations(() => composed())).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("emits a class for every variant value the recipe declares", () => {
     expect(
       boundViolations(recipe, (props) => render(composed(props)).container, { slot: "root" }),
     ).toStrictEqual([]);
   });
 
-  it("switches the panel to the dark mode whatever the page is in", () => {
+  it("sets the colour mode attribute to dark when no mode is given", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "code-block", "root").dataset["colorMode"]).toBe("dark");
   });
 
-  it("switches the panel to the light mode where a caller says so", () => {
+  it("sets the colour mode attribute to light when mode is light", () => {
     const { container } = render(composed({ mode: "light" }));
 
     expect(slotElement(container, "code-block", "root").dataset["colorMode"]).toBe("light");
   });
 
-  it("leaves the panel in the page's mode where a caller says inherit", () => {
+  it("omits the colour mode attribute when mode is inherit", () => {
     const { container } = render(composed({ mode: "inherit" }));
 
     expect(slotElement(container, "code-block", "root").dataset["colorMode"]).toBeUndefined();
   });
 
-  it("hands the code to the passage", () => {
+  it("publishes the code prop to the code slot below it", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "code-block", "code").textContent).toBe(SOURCE);
   });
 
-  it("draws the element as names", () => {
+  it("renders the root slot as section when as is section", () => {
     const { container } = render(composed({ as: "section" }));
 
     expect(slotElement(container, "code-block", "root").tagName).toBe("SECTION");
+  });
+
+  it("provides the lines of the diff from before to the code", () => {
+    const { result } = renderHook(() => useCode(), { wrapper: ({ children }) => diffed(children) });
+
+    expect(
+      result.current.changes?.map((line) => line.kind).filter((kind) => kind !== "context"),
+    ).toStrictEqual(["removed", "added", "removed", "added"]);
+  });
+
+  it("provides no changes without before", () => {
+    const { result } = renderHook(() => useCode(), { wrapper: ({ children }) => coded(children) });
+
+    expect(result.current.changes).toBeUndefined();
+  });
+
+  it("returns the same changes on a render with the same before and code", () => {
+    const { rerender, result } = renderHook(() => useCode(), {
+      wrapper: ({ children }) => diffed(children),
+    });
+    const first = result.current.changes;
+
+    rerender();
+
+    expect(result.current.changes).toBe(first);
   });
 });

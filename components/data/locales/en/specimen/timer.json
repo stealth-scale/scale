@@ -1,0 +1,49 @@
+{
+  "about": "Counts down or up in tabular figures, with buttons that start, pause, resume and reset the count. The count is a `timer` region named by the time in words.",
+  "effect": {
+    "about": "`glow` puts a halo around each tile. `pulse` animates the halo and stops for a reader who asked for less motion.",
+    "title": "Effects"
+  },
+  "launch": {
+    "about": "The countdown shows twelve days to a launch in tiles of the subtle look, with a unit letter after each part. The time left is stated in days, hours, minutes and seconds and parsed with `Timer.parse`.",
+    "days": "d",
+    "hours": "h",
+    "minutes": "m",
+    "seconds": "s",
+    "title": "Countdown in days"
+  },
+  "palette": {
+    "about": "The palette colors the tiles, shown here in the subtle look.",
+    "title": "Palettes"
+  },
+  "pause": "Pause",
+  "pomodoro": {
+    "about": "The timer runs a 25-minute focus and a 5-minute break. `onTick` feeds the progress bar, and `onComplete` switches to the other phase, which restarts the timer at its new `startMs`. Restart shows in every state.",
+    "break": "Break",
+    "focus": "Focus",
+    "title": "Pomodoro"
+  },
+  "reset": "Reset",
+  "resend": {
+    "about": "A code can be sent again after 30 seconds. `onComplete` enables the button, and a press starts the next wait.",
+    "action": "Resend code",
+    "title": "Resend a code",
+    "wait": "Resend the code in"
+  },
+  "restart": "Restart",
+  "resume": "Resume",
+  "size": {
+    "about": "The count reads the heading scale: 18, 22.8 and 32.4px. The buttons take the timer's size.",
+    "title": "Sizes"
+  },
+  "start": "Start",
+  "stopwatch": {
+    "about": "The stopwatch counts up in milliseconds. It ticks every 10ms. A press on Start moves focus to Pause, because the machine hides the pressed button.",
+    "title": "Stopwatch"
+  },
+  "title": "Timer",
+  "variant": {
+    "about": "Each part is bare, or set in a tile of a flat look. The figures are tabular, so the count keeps its width while it ticks.",
+    "title": "Looks"
+  }
+}

@@ -1,12 +1,9 @@
 /**
- * Draws the list that says what each mark in the grid means.
+ * Renders the legend: each state's mark beside its label, under the grid.
  *
  * @remarks
- *   A grid of marks is unreadable until a reader has been told what a mark is. The legend is the
- *   one place the vocabulary is written out, and it is drawn under the grid rather than over it,
- *   because a reader consults it once and then reads the grid.
- *   The list is named, so a reader moving by landmark hears what it is a list of. A list of marks
- *   announced as a list of five items is a list nobody stops at.
+ *   The element is a `ul` named by `aria-label`, so a screen reader announces what the list is
+ *   about.
  */
 
 import { type ReactElement } from "react";
@@ -16,35 +13,35 @@ import { Mark } from "#status-matrix/mark.tsx";
 import { type MatrixState } from "#status-matrix/states.ts";
 
 /**
- * Lays the states along one line, wrapping where they do not fit.
+ * Renders the `ul` that wraps the states onto more lines where they do not fit.
  */
 const List = withContext("ul", "legend");
 
 /**
- * Draws one state beside its words.
+ * Renders the `li` of one state.
  */
 const Item = withContext("li", "legendItem");
 
 /**
- * Describes what the legend takes.
+ * Describes the props of the legend: its accessible name and the states.
  */
 export interface LegendProps {
   /**
-   * Reads out as the name of the list. A legend nobody can name is a row of marks.
+   * Accessible name of the list.
    */
   readonly label: string;
 
   /**
-   * The states to explain, in the order they are written.
+   * Entries of the legend, in render order.
    */
   readonly states: readonly MatrixState[];
 }
 
 /**
- * Writes out each state's mark beside the words for it.
+ * Renders each state's mark beside its label.
  *
- * @param props - The states, and what the list is called.
- * @returns The list.
+ * @param props - The accessible name and the states.
+ * @returns The `ul` element.
  */
 export function Legend({ label, states }: LegendProps): ReactElement {
   return (

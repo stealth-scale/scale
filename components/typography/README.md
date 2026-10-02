@@ -1,13 +1,10 @@
 # @stealthscale/component-typography
 
-Draws the components that are text: a heading, a paragraph, a snippet of code, a key a reader is
-asked to press, a stressed run, an important run, a mark, a list and a quotation. Every component
-binds a recipe and draws nothing of its own, so a theme restyles all of them by extending the
-recipe. The preset under `./theme` registers the recipes with an application's compiler.
-
-Every value a theme can change on a component is an axis of its recipe, so a caller sets it as a
-prop and writes no style. A caller changes the element a component draws with `as`. A component with
-parts is published as a namespace, `List.Root` and `Blockquote.Content`.
+Text components: a paragraph, a heading, inline code, keycaps, runs of stressed, important,
+highlighted and quoted text, the matches of a search, an icon, a list and a block quotation. Each
+component binds a recipe, and a theme restyles it by extending the recipe. Every value a theme can
+change is an axis of the recipe, so a caller sets it as a prop. `as` changes the element. A
+component with parts is a namespace, such as `Kbd.Root` and `List.Item`.
 
 ## Install
 
@@ -15,261 +12,334 @@ parts is published as a namespace, `List.Root` and `Blockquote.Content`.
 pnpm add @stealthscale/component-typography
 ```
 
-The package peers on `react` and `@stealthscale/theme`. An application lists the preset under
-`./theme` among the presets its compiler installs.
+The package peers on `react`, `@stealthscale/theme` and `@stealthscale/hooks`, whose `useHighlight`
+finds the matches `Highlight` marks. Add the preset under `./theme` to the presets of the
+application's compiler.
 
 ## Text
 
-Draws a paragraph, in a size, an ink, a weight and an alignment, cut to one line where a caller sets
-`truncate`, and animated or masked where a page sets those axes. The element is `p`.
+`Text` renders a paragraph in a `p` element. Set `as="span"` for text inside a line.
 
 ```tsx
 import { Text } from "@stealthscale/component-typography";
 
 <Text size="lg" tone="muted" weight="medium">
-  A sentence set large, muted and a little heavier.
+  Your session ends in five minutes.
 </Text>;
-<Text align="center" motion="fade">
-  A sentence that fades in, centred.
+<Text align="center" truncate>
+  Payouts settle within two business days in 34 countries.
 </Text>;
 ```
 
-`truncate` hides words and `mask` fades them out. Keep the full words reachable, in a `title` or in
-text nearby. Use `Span` to cut a run inside a line.
+`truncate` hides the end of the text and `mask` fades part of it. Show the full text elsewhere, such
+as in a detail view. Set the `inverted` ink only on a `bg.inverted` surface. It fails the text
+contrast ratio on the page.
 
-| Axis       | Values                                                                | Default |
-| ---------- | --------------------------------------------------------------------- | ------- |
-| `size`     | `xs`, `sm`, `md`, `lg`, `xl`                                          | `md`    |
-| `tone`     | `default`, `muted`, `inverted`, `info`, `success`, `warning`, `error` | inherit |
-| `weight`   | `normal`, `medium`, `semibold`, `bold`                                | inherit |
-| `align`    | `start`, `center`, `end`, `justify`                                   | inherit |
-| `truncate` | `true`                                                                | off     |
-| `motion`   | `fade`, `rise`, `reveal`                                              | none    |
-| `mask`     | `bottom`                                                              | none    |
+| Axis       | Values                                                                          | Default   |
+| ---------- | ------------------------------------------------------------------------------- | --------- |
+| `size`     | `xs`, `sm`, `md`, `lg`, `xl`                                                    | `md`      |
+| `tone`     | `default`, `muted`, `subtle`, `inverted`, `info`, `success`, `warning`, `error` | inherited |
+| `weight`   | `normal`, `medium`, `semibold`, `bold`                                          | inherited |
+| `align`    | `start`, `center`, `end`, `justify`                                             | inherited |
+| `truncate` | `true`                                                                          | off       |
+| `motion`   | `fade`, `rise`, `reveal`                                                        | none      |
+| `mask`     | `bottom`, `edges`, `radial`                                                     | none      |
 
 ## Heading
 
-Draws a heading, in a heading role, an ink, an effect and a motion, at the level `as` names. The
-element is `h2`, and the size states the heading's prominence rather than its level.
+`Heading` renders a heading in an `h2` element. `as` sets another level. `size` sets the prominence
+and is independent of the level.
 
 ```tsx
 import { Heading } from "@stealthscale/component-typography";
 
-<Heading as="h1" size="2xl" effect="gradient">
-  A page title
+<Heading as="h1" display size="4xl">
+  Welcome back, Ada
 </Heading>;
-<Heading motion="reveal">A section title that rises into view</Heading>;
+<Heading as="h3" size="md" tone="muted">
+  Account settings
+</Heading>;
 ```
 
-| Axis       | Values                                                                | Default |
-| ---------- | --------------------------------------------------------------------- | ------- |
-| `size`     | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl`                     | `lg`    |
-| `tone`     | `default`, `muted`, `inverted`, `info`, `success`, `warning`, `error` | inherit |
-| `effect`   | `gradient`, `shine`                                                   | none    |
-| `motion`   | `fade`, `rise`, `reveal`                                              | none    |
-| `truncate` | `true`                                                                | off     |
+`display` sets the display text role: its `sm` step at `2xl`, its `lg` step at `4xl` and its `md`
+step at every other size. `Text` and `Heading` set `overflow-wrap: anywhere`, so a word wider than
+its container breaks.
+
+| Axis       | Values                                                                          | Default   |
+| ---------- | ------------------------------------------------------------------------------- | --------- |
+| `size`     | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl`                               | `lg`      |
+| `display`  | `true`                                                                          | off       |
+| `tone`     | `default`, `muted`, `subtle`, `inverted`, `info`, `success`, `warning`, `error` | inherited |
+| `effect`   | `gradient`, `shine`                                                             | none      |
+| `motion`   | `fade`, `rise`, `reveal`                                                        | none      |
+| `truncate` | `true`                                                                          | off       |
 
 ## Code
 
-Draws a snippet of code inside a line, in a look, a size and the palette of its status. The element
-is `code`.
+`Code` renders code inside a line of text in a `code` element. A block of code with lines, a title
+and a copy control is `CodeBlock` in `@stealthscale/component-content`.
 
 ```tsx
-import { Code } from "@stealthscale/component-typography";
+import { Code, Text } from "@stealthscale/component-typography";
 
-<Code>pnpm add</Code>;
-<Code variant="solid" status="error">
+<Text>
+  Run <Code>pnpm add @stealthscale/theme</Code> in the application's directory.
+</Text>;
+<Code palette="error" variant="solid">
   ENOENT
 </Code>;
 ```
 
-| Axis      | Values                                           | Default  |
-| --------- | ------------------------------------------------ | -------- |
-| `variant` | `solid`, `subtle`, `surface`, `outline`, `plain` | `subtle` |
-| `size`    | `sm`, `md`                                       | `md`     |
-| `status`  | `info`, `success`, `warning`, `error`            | none     |
+| Axis      | Values                                                                             | Default   |
+| --------- | ---------------------------------------------------------------------------------- | --------- |
+| `variant` | `solid`, `subtle`, `surface`, `outline`, `plain`                                   | `subtle`  |
+| `size`    | `sm`, `md`                                                                         | `md`      |
+| `palette` | `primary`, `secondary`, `accent`, `neutral`, `info`, `success`, `warning`, `error` | `neutral` |
 
 ## Em
 
-Marks a run of words the writer stressed. The element is `em`, and it exposes the `emphasis` role.
+`Em` marks stressed text in an `em` element, which has the `emphasis` role. The recipe sets the
+italic face.
 
 ```tsx
-import { Em } from "@stealthscale/component-typography";
+import { Em, Text } from "@stealthscale/component-typography";
 
-<Em>never</Em>;
-<Em tone="error">deleted</Em>;
-<Em as="i">Beagle</Em>;
+<Text>
+  The export starts <Em>after</Em> the backup finishes.
+</Text>;
+<Em as="i">Stealth Scale</Em>;
 ```
 
-| Axis     | Values                                                                | Default |
-| -------- | --------------------------------------------------------------------- | ------- |
-| `tone`   | `default`, `muted`, `inverted`, `info`, `success`, `warning`, `error` | inherit |
-| `motion` | `fade`, `rise`, `reveal`                                              | none    |
+Set `as="i"` for italic text with no stress, such as a product name or a term. An `i` element has no
+role.
 
-Set `as="i"` for a run drawn in italic for another reason, such as a ship's name or a term being
-introduced. That element states no stress.
+| Axis     | Values                                                                          | Default   |
+| -------- | ------------------------------------------------------------------------------- | --------- |
+| `tone`   | `default`, `muted`, `subtle`, `inverted`, `info`, `success`, `warning`, `error` | inherited |
+| `motion` | `fade`, `rise`, `reveal`                                                        | none      |
 
 ## Strong
 
-Marks a run of words as more important than the words around it. The element is `strong`, and it
-exposes the `strong` role.
+`Strong` marks text as more important than the surrounding text, in a `strong` element, which has
+the `strong` role. The `weight` axis has no `normal` value.
 
 ```tsx
-import { Strong } from "@stealthscale/component-typography";
+import { Strong, Text } from "@stealthscale/component-typography";
 
-<Strong>Do not</Strong>;
-<Strong weight="bold" tone="error">
-  Deleting is permanent
-</Strong>;
+<Text>
+  Deleting a workspace <Strong tone="error">cannot be undone.</Strong>
+</Text>;
 ```
 
-| Axis     | Values                                                                | Default    |
-| -------- | --------------------------------------------------------------------- | ---------- |
-| `weight` | `medium`, `semibold`, `bold`                                          | `semibold` |
-| `tone`   | `default`, `muted`, `inverted`, `info`, `success`, `warning`, `error` | inherit    |
-| `motion` | `fade`, `rise`, `reveal`                                              | none       |
+Set `as="b"` for bold text with no importance, such as a keyword in a definition. A `b` element has
+no role.
 
-Set `as="b"` for a run drawn heavy for another reason, such as a keyword in a definition. That
-element states no importance.
+| Axis     | Values                                                                          | Default    |
+| -------- | ------------------------------------------------------------------------------- | ---------- |
+| `weight` | `medium`, `semibold`, `bold`                                                    | `semibold` |
+| `tone`   | `default`, `muted`, `subtle`, `inverted`, `info`, `success`, `warning`, `error` | inherited  |
+| `motion` | `fade`, `rise`, `reveal`                                                        | none       |
 
 ## Mark
 
-Picks a run of words out of the text around it, for a search hit or a term a page wants noticed. The
-element is `mark`, and it exposes the `mark` role. `MarkPropsProvider` sets the variants of every
-mark below it.
+`Mark` highlights text inside a line, such as a search hit, in a `mark` element, which has the
+`mark` role. `MarkPropsProvider` sets the variants of every mark below it.
 
 ```tsx
-import { Mark, MarkPropsProvider } from "@stealthscale/component-typography";
+import { Mark, MarkPropsProvider, Text } from "@stealthscale/component-typography";
 
-<Mark>chassis</Mark>;
-<MarkPropsProvider value={{ radius: "l1", status: "warning", variant: "solid" }}>
-  <Results />
+<Text>
+  Found <Mark>chassis</Mark> in 3 files.
+</Text>;
+<MarkPropsProvider value={{ palette: "warning", variant: "solid" }}>
+  <SearchResults />
 </MarkPropsProvider>;
 ```
 
-| Axis      | Values                                                   | Default  |
-| --------- | -------------------------------------------------------- | -------- |
-| `variant` | `solid`, `subtle`, `surface`, `outline`, `plain`, `text` | `subtle` |
-| `status`  | `info`, `success`, `warning`, `error`                    | none     |
-| `radius`  | `l1`, `l2`, `l3`, `full`                                 | `l1`     |
-| `inset`   | `xs`, `sm`, `md`                                         | `xs`     |
-| `motion`  | `fade`, `rise`, `reveal`                                 | none     |
-| `effect`  | `glow`, `shine`                                          | none     |
+A highlight that conveys meaning needs a second cue. The `text` look sets a heavier weight, and a
+`VisuallyHidden` beside the run states the meaning to a screen reader. Most screen readers announce
+a `mark` only when the user enables it, and WCAG 1.4.1 fails a distinction made by colour alone.
 
-Give a highlight that carries meaning a second cue. Take the `text` variant for one in weight, or
-put the meaning in a `VisuallyHidden` beside the run. Most screen readers announce a `mark` only
-where the reader has turned that on, and WCAG 1.4.1 fails a distinction drawn in colour alone.
+| Axis      | Values                                                                             | Default   |
+| --------- | ---------------------------------------------------------------------------------- | --------- |
+| `variant` | `solid`, `subtle`, `surface`, `outline`, `plain`, `text`                           | `subtle`  |
+| `palette` | `primary`, `secondary`, `accent`, `neutral`, `info`, `success`, `warning`, `error` | inherited |
+| `radius`  | `l1`, `l2`, `l3`, `full`                                                           | `l1`      |
+| `inset`   | `none`, `xs`, `sm`, `md`. The `plain` and `text` looks set no inset                | `xs`      |
+| `motion`  | `fade`, `rise`, `reveal`                                                           | none      |
+| `effect`  | `glow`, `shine`                                                                    | none      |
+
+`none` is for a match inside a word, where padding splits the word: "Pay" marked in "Payout" reads
+"Pay out" at `xs`.
+
+## Highlight
+
+`Highlight` renders a string with every match of a search query in a `Mark`, so a reader sees why a
+result matched.
+
+```tsx
+import { Highlight, Text } from "@stealthscale/component-typography";
+
+<Text>
+  <Highlight query={query}>{article.title}</Highlight>
+</Text>;
+<Highlight palette="warning" query={["refund", "chargeback"]} variant="solid">
+  {entry.summary}
+</Highlight>;
+```
+
+| Prop         | Values                               | Default    |
+| ------------ | ------------------------------------ | ---------- |
+| `children`   | the text, a string                   | required   |
+| `query`      | a term, or an array of terms         | required   |
+| `ignoreCase` | `true`, `false`                      | `true`     |
+| `inset`      | the mark's insets                    | `none`     |
+| every other  | the mark's axes and a `mark`'s props | the mark's |
+
+- The matching is `useHighlight`'s from `@stealthscale/hooks`: every occurrence of every term, by
+  substring, letter case ignored unless `ignoreCase` is false, each term trimmed, the longer term
+  first. It matches as a filter scope keeps rows, so a result the filter keeps shows its match.
+- Every match renders in `Mark` with the props the caller passes, at the `none` inset unless the
+  caller passes another.
+- The component renders no element of its own. The text between the matches renders as it is, so a
+  highlight goes wherever its string would.
+- A screen reader announces a `mark` only where its user turns highlights on.
+
+Not offered:
+
+- Marking the first occurrence alone.
+- Matching whole words only.
+- Matching `cafe` to `café`, which a filter scope does not match either.
 
 ## Quote
 
-Quotes a run of words inside the line around it. The element is `q`, and the browser draws the marks
-for the `lang` in force. Write none yourself.
+`Quote` renders a quotation inside a line of text in a `q` element. The browser adds the quotation
+marks of the language in `lang`, so the text contains no marks. `cite` takes the address of the
+source.
 
 ```tsx
-import { Quote } from "@stealthscale/component-typography";
+import { Quote, Text } from "@stealthscale/component-typography";
 
-<Quote cite="https://example.org/paper">a measured claim</Quote>;
-<Quote marks="none">the caller writes the punctuation</Quote>;
+<Text>
+  The auditor called the report{" "}
+  <Quote cite="https://example.org/audit">complete and accurate</Quote>.
+</Text>;
 ```
 
-| Axis     | Values                                                                | Default |
-| -------- | --------------------------------------------------------------------- | ------- |
-| `marks`  | `auto`, `none`                                                        | `auto`  |
-| `tone`   | `default`, `muted`, `inverted`, `info`, `success`, `warning`, `error` | inherit |
-| `motion` | `fade`, `rise`, `reveal`                                              | none    |
+Set `marks="none"` for text that contains its own punctuation, such as a quotation inside another. A
+quotation set as its own block is `Blockquote.Root`.
 
-Set `marks="none"` where the text already holds its punctuation, as a quotation inside another one
-does. Use `Blockquote.Root` for a quotation set as its own block, which is a `figure` with its own
-content, caption and icon. State `cite` with the source's address where there is one.
+| Axis     | Values                                                                          | Default   |
+| -------- | ------------------------------------------------------------------------------- | --------- |
+| `marks`  | `auto`, `none`                                                                  | `auto`    |
+| `tone`   | `default`, `muted`, `subtle`, `inverted`, `info`, `success`, `warning`, `error` | inherited |
+| `motion` | `fade`, `rise`, `reveal`                                                        | none      |
 
 ## Span
 
-Draws a run of words inside a line without starting a block. The element is `span`, which carries no
-meaning, so a screen reader reads the words as part of the line around them.
+`Span` renders text inside a line in a `span` element, which has no semantics. The recipe has no
+`size` axis, so a span inherits the font of its line. `Text` with `as="span"` sets the `md` body
+size, which resets the size inside a heading.
 
 ```tsx
-import { Span } from "@stealthscale/component-typography";
+import { Span, Text } from "@stealthscale/component-typography";
 
-<Span data-testid="total">1,024</Span>;
-<Span truncate>a path that would otherwise wrap</Span>;
+<Text>
+  Due <Span weight="semibold">€1,024.00</Span>
+</Text>;
+<Span truncate>/var/log/nginx/access.log.2026-09-19.gz</Span>;
 ```
 
-| Axis       | Values                                                                | Default |
-| ---------- | --------------------------------------------------------------------- | ------- |
-| `tone`     | `default`, `muted`, `inverted`, `info`, `success`, `warning`, `error` | inherit |
-| `weight`   | `normal`, `medium`, `semibold`, `bold`                                | inherit |
-| `truncate` | `true`                                                                | off     |
-| `motion`   | `fade`, `rise`, `reveal`                                              | none    |
+Use the element with semantics where one applies: `Em` for stress, `Strong` for importance, `Mark`
+for a highlight and `Quote` for a quotation.
 
-A span takes no size and inherits the surrounding line's. Use it over a `Text` drawn as one wherever
-the run has to keep that size, such as inside a heading.
-
-Use a run that carries meaning where there is one: `Em` for stress, `Strong` for importance, `Mark`
-for a highlight, `Quote` for a quotation.
+| Axis       | Values                                                                          | Default   |
+| ---------- | ------------------------------------------------------------------------------- | --------- |
+| `tone`     | `default`, `muted`, `subtle`, `inverted`, `info`, `success`, `warning`, `error` | inherited |
+| `weight`   | `normal`, `medium`, `semibold`, `bold`                                          | inherited |
+| `truncate` | `true`                                                                          | off       |
+| `motion`   | `fade`, `rise`, `reveal`                                                        | none      |
 
 ## Kbd
 
-Draws a key a reader is asked to press, as a keycap in a look, a size and the palette of its status.
-The element is `kbd`.
+`Kbd.Root` renders one keycap in a `kbd` element. `Kbd.Group` renders a key combination: a `kbd`
+around one `kbd` per key, which is the HTML markup for a combination. The group sets its `size`,
+`variant` and `palette` on every keycap inside it, and a value set on a keycap takes precedence.
 
 ```tsx
-import { Kbd } from "@stealthscale/component-typography";
+import { Kbd, Text } from "@stealthscale/component-typography";
 
-<Kbd>⌘</Kbd>;
-<Kbd variant="outline" size="sm">
-  Esc
-</Kbd>;
+<Text>
+  Press{" "}
+  <Kbd.Group>
+    <Kbd.Root>⌘</Kbd.Root>
+    <Kbd.Root>K</Kbd.Root>
+  </Kbd.Group>{" "}
+  to search.
+</Text>;
+<Kbd.Root variant="outline">Esc</Kbd.Root>;
 ```
 
-| Axis      | Values                                 | Default  |
-| --------- | -------------------------------------- | -------- |
-| `variant` | `raised`, `outline`, `subtle`, `plain` | `raised` |
-| `size`    | `sm`, `md`, `lg`                       | `md`     |
-| `status`  | `info`, `success`, `warning`, `error`  | none     |
+A keycap is 19.2, 21.6 or 24px tall at `sm`, `md` and `lg`, so it fits a 24px line of body text. A
+one-character key is square. The keycap uses the body face, which renders `⌘`, `⇧` and `⌥` at the
+height of the letters.
+
+| Axis      | Values                                                                             | Default   |
+| --------- | ---------------------------------------------------------------------------------- | --------- |
+| `variant` | `raised`, `outline`, `subtle`, `plain`                                             | `raised`  |
+| `size`    | `sm`, `md`, `lg`                                                                   | `md`      |
+| `palette` | `primary`, `secondary`, `accent`, `neutral`, `info`, `success`, `warning`, `error` | `neutral` |
 
 ## Icon
 
-Draws the artwork a caller passes in, at a size, in an ink and with a motion, and ships no artwork
-of its own. The element is `svg` in the `img` role, hidden from assistive technology unless a caller
-labels it with `aria-hidden={false}` and `aria-label`. A mark that points is `mirrored`, so it flips
-in a right-to-left page.
+`Icon` renders an icon in an `svg` element with the `img` role. Pass the artwork as paths in the
+children, or pass an icon component through `as`. The icon is hidden from assistive technology by
+default. For an icon without text beside it, set `aria-hidden={false}` and `aria-label`.
 
 ```tsx
+import { StarIcon } from "lucide-react";
+
 import { Icon } from "@stealthscale/component-typography";
 
-<Icon size="md" tone="warning" viewBox="0 0 24 24">
+<Icon aria-hidden={false} aria-label="Favourite" as={StarIcon} size="lg" tone="warning" />;
+<Icon viewBox="0 0 24 24">
   <path d="M12 2 2 22h20Z" />
-</Icon>;
-<Icon motion="spin" aria-hidden={false} aria-label="Loading" viewBox="0 0 24 24">
-  <path d="M12 2a10 10 0 1 0 10 10" />
 </Icon>;
 ```
 
-| Axis       | Values                                                       | Default   |
-| ---------- | ------------------------------------------------------------ | --------- |
-| `size`     | `inherit`, `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl` | `inherit` |
-| `tone`     | `current`, `muted`, `info`, `success`, `warning`, `error`    | inherit   |
-| `motion`   | `spin`, `float`, `twinkle`                                   | none      |
-| `mirrored` | `true`                                                       | off       |
+An `svg` without a `fill` attribute fills with the current colour. An icon that sets `fill`, such as
+a lucide icon with `fill="none"`, keeps it. Set `mirrored` on an icon that points, such as an arrow.
+The icon then flips in a right-to-left page.
+
+| Axis       | Values                                                                                     | Default   |
+| ---------- | ------------------------------------------------------------------------------------------ | --------- |
+| `size`     | `inherit`, `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl`                               | `inherit` |
+| `tone`     | `current`, `default`, `muted`, `subtle`, `inverted`, `info`, `success`, `warning`, `error` | `current` |
+| `motion`   | `spin`, `float`, `twinkle`                                                                 | none      |
+| `mirrored` | `true`                                                                                     | off       |
 
 ## List
 
-Draws a list, as `List.Root` holding `List.Item`, each with a `List.Indicator` where the caller
-draws the mark. The root is `ul`, and `as="ol"` numbers the entries. The root takes the variants and
-every entry draws them. The indicator is hidden from assistive technology, as the browser's own
-bullet is, so a mark inside it is not read aloud before every entry.
+`List.Root` renders a `ul` element with `List.Item` entries. Set `as="ol"` for a numbered list. The
+`plain` look removes the browser's markers, and each item renders its mark in a `List.Indicator`.
+The indicator is one line tall and centres its content. Assistive technology skips it, as it skips
+the browser's marker. Put the meaning of a mark, such as a done state, in the item's text.
 
 ```tsx
-import { List } from "@stealthscale/component-typography";
+import { CheckIcon } from "lucide-react";
+
+import { Icon, List } from "@stealthscale/component-typography";
 
 <List.Root as="ol" gap="sm">
-  <List.Item>First</List.Item>
-  <List.Item>Second</List.Item>
+  <List.Item>Verify your email address</List.Item>
+  <List.Item>Connect a bank account</List.Item>
 </List.Root>;
-<List.Root variant="plain" motion="rise">
+<List.Root variant="plain">
   <List.Item>
-    <List.Indicator>✓</List.Indicator>
-    Done
+    <List.Indicator>
+      <Icon as={CheckIcon} tone="success" />
+    </List.Indicator>
+    Unlimited invoices
   </List.Item>
 </List.Root>;
 ```
@@ -278,56 +348,65 @@ import { List } from "@stealthscale/component-typography";
 | --------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------- | --------------------- |
 | `variant` | `marker`, `plain`                                                                                                                        | `marker`      | the root and the item |
 | `gap`     | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl`                                                                                        | `md`          | the root              |
-| `align`   | `start`, `center`, `end`                                                                                                                 | inherit       | the item              |
+| `align`   | `start`, `center`, `end`                                                                                                                 | `start`       | the item              |
 | `marker`  | `disc`, `circle`, `square`, `dash`, `decimal`, `leading-zero`, `lower-roman`, `upper-roman`, `lower-alpha`, `upper-alpha`, `lower-greek` | the element's | the item              |
 | `motion`  | `rise`, `reveal`                                                                                                                         | none          | the item              |
 
 ## Blockquote
 
-Draws a quotation, as `Blockquote.Root` holding `Blockquote.Icon`, `Blockquote.Content` and
-`Blockquote.Caption`. The root is `figure`, the content `blockquote` and the caption `figcaption`.
-The icon is the library's own `Icon` bound to the quotation's icon slot, so it takes the icon's size
-and the quotation's colour.
+A block quotation is a `Blockquote.Root` `figure` that contains `Blockquote.Icon`,
+`Blockquote.Content` (a `blockquote`) and `Blockquote.Caption` (a `figcaption`).
 
 ```tsx
 import { Blockquote } from "@stealthscale/component-typography";
 
-<Blockquote.Root variant="solid" status="info" motion="reveal">
-  <Blockquote.Icon size="lg" viewBox="0 0 24 24">
-    <path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z" />
-  </Blockquote.Icon>
+<Blockquote.Root palette="accent" variant="surface">
+  <Blockquote.Icon />
   <Blockquote.Content>
-    Perfection is reached when there is nothing left to take away.
+    Moving billing to one ledger cut our month-end close from nine days to two.
   </Blockquote.Content>
-  <Blockquote.Caption>Antoine de Saint-Exupéry</Blockquote.Caption>
+  <Blockquote.Caption>Priya Raman, Head of Finance at Northwind</Blockquote.Caption>
 </Blockquote.Root>;
 ```
 
-| Axis      | Values                                | Default  | Styles                   |
-| --------- | ------------------------------------- | -------- | ------------------------ |
-| `variant` | `subtle`, `solid`, `plain`, `glass`   | `subtle` | the root and the icon    |
-| `size`    | `xs`, `sm`, `md`, `lg`, `xl`          | `md`     | the root and the content |
-| `justify` | `start`, `center`, `end`              | `start`  | the root                 |
-| `status`  | `info`, `success`, `warning`, `error` | none     | the root                 |
-| `motion`  | `rise`, `reveal`                      | none     | the root                 |
+- `Blockquote.Icon` renders the library's quote mark when it has no children. Children replace the
+  mark, such as a lucide icon with `viewBox="0 0 24 24"` on the part.
+- The icon is one line of the quotation tall at every size. At `justify="start"` it hangs in a start
+  gutter beside the quotation and the caption. At `center` and `end` the icon is above the
+  quotation.
+- The quotation is upright. Use `Em` for stress inside it.
+
+| Axis      | Values                                                                             | Default   | Styles                |
+| --------- | ---------------------------------------------------------------------------------- | --------- | --------------------- |
+| `variant` | `subtle`, `solid`, `surface`, `plain`, `glass`                                     | `subtle`  | the root and the icon |
+| `palette` | `primary`, `secondary`, `accent`, `neutral`, `info`, `success`, `warning`, `error` | `neutral` | the root              |
+| `size`    | `xs`, `sm`, `md`, `lg`, `xl`                                                       | `md`      | the root              |
+| `justify` | `start`, `center`, `end`                                                           | `start`   | the root and the icon |
+| `motion`  | `rise`, `reveal`                                                                   | none      | the root              |
 
 ## Types
 
-| Type                   | Declaration | What it describes                                        |
-| ---------------------- | ----------- | -------------------------------------------------------- |
-| `TextProps`            | `type`      | The paragraph's variants and everything a `p` takes      |
-| `HeadingProps`         | `type`      | The heading's variants and everything an `h2` takes      |
-| `CodeProps`            | `type`      | The snippet's variants and everything a `code` takes     |
-| `EmProps`              | `type`      | The run's variants and everything an `em` takes          |
-| `StrongProps`          | `type`      | The run's variants and everything a `strong` takes       |
-| `MarkProps`            | `type`      | The highlight's variants and everything a `mark` takes   |
-| `QuoteProps`           | `type`      | The quotation's variants and everything a `q` takes      |
-| `SpanProps`            | `type`      | The run's variants and everything a `span` takes         |
-| `KbdProps`             | `type`      | The key's variants and everything a `kbd` takes          |
-| `IconProps`            | `type`      | The icon's variants and everything an `svg` takes        |
-| `List.RootProps`       | `type`      | The list's variants and everything a `ul` takes          |
-| `List.ItemProps`       | `type`      | Everything an `li` takes                                 |
-| `Blockquote.RootProps` | `type`      | The quotation's variants and everything a `figure` takes |
+| Type                      | Props of                                                           |
+| ------------------------- | ------------------------------------------------------------------ |
+| `TextProps`               | `Text`: the recipe's variants and a `p` element's props            |
+| `HeadingProps`            | `Heading`: the recipe's variants and an `h2` element's props       |
+| `CodeProps`               | `Code`: the recipe's variants and a `code` element's props         |
+| `EmProps`                 | `Em`: the recipe's variants and an `em` element's props            |
+| `StrongProps`             | `Strong`: the recipe's variants and a `strong` element's props     |
+| `MarkProps`               | `Mark`: the recipe's variants and a `mark` element's props         |
+| `HighlightProps`          | `Highlight`: the text, the query, `ignoreCase` and `MarkProps`     |
+| `QuoteProps`              | `Quote`: the recipe's variants and a `q` element's props           |
+| `SpanProps`               | `Span`: the recipe's variants and a `span` element's props         |
+| `Kbd.RootProps`           | `Kbd.Root`: the recipe's variants and a `kbd` element's props      |
+| `Kbd.GroupProps`          | `Kbd.Group`: `size`, `variant`, `palette` and a `kbd`'s props      |
+| `IconProps`               | `Icon`: the recipe's variants and an `svg` element's props         |
+| `List.RootProps`          | `List.Root`: the recipe's variants and a `ul` element's props      |
+| `List.ItemProps`          | `List.Item`: an `li` element's props                               |
+| `List.IndicatorProps`     | `List.Indicator`: a `span` element's props                         |
+| `Blockquote.RootProps`    | `Blockquote.Root`: the recipe's variants and a `figure`'s props    |
+| `Blockquote.IconProps`    | `Blockquote.Icon`: the icon recipe's variants and an `svg`'s props |
+| `Blockquote.ContentProps` | `Blockquote.Content`: a `blockquote` element's props               |
+| `Blockquote.CaptionProps` | `Blockquote.Caption`: a `figcaption` element's props               |
 
 ## Licence
 

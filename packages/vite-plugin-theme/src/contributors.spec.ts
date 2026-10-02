@@ -98,7 +98,7 @@ describe("contributors", () => {
     expect(named({ ...root(["@vendor/highlight"]), ...stranger })).toStrictEqual([]);
   });
 
-  it("lists a publisher that depends on the system package rather than peering on it", () => {
+  it("lists a publisher that declares the system package as a dependency", () => {
     const kit = packageFiles(
       "node_modules/@acme/kit",
       { dependencies: { "@acme/design": "*" }, exports: PUBLISHED, name: "@acme/kit" },
@@ -110,7 +110,7 @@ describe("contributors", () => {
     ]);
   });
 
-  it("places the system package first whatever the graph says", () => {
+  it("places the system package first regardless of the graph order", () => {
     expect(
       named({
         ...root(["@acme/kit", "@acme/design"]),
@@ -120,7 +120,7 @@ describe("contributors", () => {
     ).toStrictEqual(["@acme/design", "@acme/kit"]);
   });
 
-  it("places a package after the package it builds on", () => {
+  it("places a package after the package it depends on", () => {
     expect(
       named({
         ...root(["@acme/extra"]),
@@ -201,7 +201,7 @@ describe("contributors", () => {
     expect(globs).toStrictEqual(["node_modules/@acme/kit/dist/**/*.{js,mjs}"]);
   });
 
-  it("reads an installed contributor whose export map names no entry under dist", () => {
+  it("writes a glob under dist for a contributor whose export map names no entry", () => {
     const globs = withScratchWorkspace(
       { ...root(["@acme/kit"]), ...installed("@acme/kit", [], true) },
       (workspace) => {

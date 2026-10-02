@@ -1,18 +1,15 @@
 /**
- * Captures a page of the catalogue, one scene of it, or one element on it, as an image: in a
- * theme, in a colour mode, at a viewport, in a browser, and in the states a control takes.
+ * Captures a catalogue page, one scene, or one element as PNG files, per theme, colour mode,
+ * width, browser and control state.
  *
  * @remarks
  *   Run against a catalogue that is already serving. Each combination of page, theme, mode and
- *   width is one image, named for all of them, under `.scratch/shots` unless another directory is
- *   named. A scene is captured on its own by clipping to its section, an element by clipping to
- *   the first the selector finds. A whole page is captured to the fold unless `--full` asks for
- *   everything. A control is captured in each state named, hovered, focused from the keyboard or
- *   held down, one image per state. Animations are held still while capturing, so two captures
- *   of one thing can be laid over each other.
- *   Usage: node scripts/catalogue/shot.ts --page actions/button [--scene looks]
- *   [--element "[data-recipe=button]"] [--state rest,hover,focus,active] [--theme prism]
- *   [--mode dark] [--full] [--out .scratch/shots]
+ *   width writes one file under `.scratch/shots` unless `--out` names another directory. A scene or
+ *   an element is clipped to its box plus `--margin`. A page is captured to the fold unless
+ *   `--full` is set. Each `--state` writes one more file, with the control hovered, focused by Tab
+ *   or pressed. Animations are frozen, so two captures of one element overlay pixel for pixel.
+ *   Usage: `node scripts/catalogue/shot.ts --page components/actions/button`, plus the options
+ *   `--help` lists.
  */
 
 import { mkdir } from "node:fs/promises";
@@ -33,12 +30,12 @@ import {
 } from "./options.ts";
 
 /**
- * Where the images go unless a directory is named.
+ * Default output directory.
  */
 const OUT = ".scratch/shots";
 
 /**
- * The command's own options.
+ * Options this command adds to the shared ones.
  */
 const OWN = {
   element: { default: "", short: "e", type: "string" },
@@ -49,67 +46,66 @@ const OWN = {
 } as const;
 
 /**
- * The help this command prints.
+ * Help text the command prints for `--help`.
  */
 const HELP = [
-  "Captures a page of the catalogue, one scene of it, or one element on it, as an image.",
+  "Captures a catalogue page, one scene, or one element as PNG files.",
   "",
-  "Usage: node scripts/catalogue/shot.ts --page <path> [options]",
+  "Usage: node scripts/catalogue/shot.ts --page <id> [options]",
   "",
   ...SHARED_HELP,
-  "  -e, --element <css>   capture the first element the selector finds",
-  `      --state <states>  ${STATES.join(", ")}, or several with commas; needs --element`,
-  "  -f, --full            capture the whole page rather than to the fold",
-  "      --margin <px>     room round a scene or an element for a ring or a shadow, 8 by default",
-  `  -o, --out <dir>       where the images go, ${OUT} by default`,
+  "  -e, --element <css>   capture the first visible match of the selector",
+  `      --state <states>  ${STATES.join(", ")}, commas for several; needs --element`,
+  "  -f, --full            capture the whole page instead of the fold",
+  "      --margin <px>     space around a scene or an element for a ring or a shadow, 8 by default",
+  `  -o, --out <dir>       output directory, ${OUT} by default`,
   "",
   "Examples:",
-  "  node scripts/catalogue/shot.ts -p actions/button -t asphalt,prism -m light,dark",
-  "  node scripts/catalogue/shot.ts -p layout/stack -s gaps -w 420,1024,3072",
-  '  node scripts/catalogue/shot.ts -p actions/button -e "[data-recipe=button]" --state rest,hover,focus,active',
-  '  node scripts/catalogue/shot.ts -p disclosure/menu --open "[data-recipe=menu] button" -e "[role=menu]"',
+  "  node scripts/catalogue/shot.ts -p components/actions/button -t asphalt,prism -m light,dark",
+  "  node scripts/catalogue/shot.ts -p components/layout/stack -s gaps -w 420,1024,3072",
+  '  node scripts/catalogue/shot.ts -p components/actions/button -e "[data-recipe=button]" --state rest,hover,focus,active',
+  '  node scripts/catalogue/shot.ts -p components/disclosure/menu --open "[data-recipe=menu] button" -e "[role=menu]"',
 ];
 
 /**
- * Describes what the command was asked to capture, beyond the targets.
+ * Captures requested on the command line, beyond the targets.
  */
 interface Asked {
   /**
-   * The element to capture, or nothing for the page or the scene.
+   * Selector of the element to capture, or an empty string for the page or the scene.
    */
   readonly element: string;
 
   /**
-   * Whether the whole page is captured rather than the fold.
+   * Captures the whole page instead of the fold.
    */
   readonly full: boolean;
 
   /**
-   * The room left round a scene or an element, in CSS pixels, for a ring or a shadow outside its
-   * box.
+   * Space around a scene or an element, in CSS pixels, for a ring or a shadow outside its box.
    */
   readonly margin: number;
 
   /**
-   * Where the images go.
+   * Output directory.
    */
   readonly out: string;
 
   /**
-   * The scene named, or undefined.
+   * Scene named, or undefined.
    */
   readonly scene: string | undefined;
 
   /**
-   * The states the element is captured in, none for one capture at rest.
+   * Control states to capture. An empty array captures the element once at rest.
    */
   readonly states: ReadonlyArray<(typeof STATES)[number]>;
 }
 
 /**
- * Reads what was asked off the values parsed.
+ * Parses the requested captures from the command-line values.
  *
- * @throws {@link Error} When states are named without an element to put in them.
+ * @throws {@link Error} When `--state` is given without `--element`.
  */
 function askedOf(values: Values, scene: string | undefined): Asked {
   const element = stringAt(values, "element");
@@ -130,10 +126,9 @@ function askedOf(values: Values, scene: string | undefined): Asked {
 }
 
 /**
- * Captures one locator to a file, with animations held still and a margin round its box, so a
- * focus ring or a shadow drawn outside the box is in the image.
+ * Captures one locator to a file with animations frozen and `margin` pixels around its box.
  *
- * @throws {@link Error} When the element has no box, which a hidden element has not.
+ * @throws {@link Error} When the element has no box.
  */
 async function captured(subject: Locator, path: string, margin: number): Promise<void> {
   await subject.scrollIntoViewIfNeeded();
@@ -154,7 +149,7 @@ async function captured(subject: Locator, path: string, margin: number): Promise
 }
 
 /**
- * Captures one open page as asked, and returns the paths written.
+ * Captures one open page as requested and returns the paths written.
  */
 async function shot(page: Page, target: Target, asked: Asked): Promise<readonly string[]> {
   const found = await rooted(page, asked.scene, asked.element);
@@ -192,7 +187,7 @@ async function shot(page: Page, target: Target, asked: Asked): Promise<readonly 
 }
 
 /**
- * Captures every target named on the command line.
+ * Captures every target named on the command line and prints each path written.
  */
 async function main(): Promise<void> {
   const values = parsed(OWN, process.argv.slice(2));

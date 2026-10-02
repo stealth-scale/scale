@@ -1,12 +1,12 @@
 /**
- * Measures whether the steps a page and a palette are drawn from can be told apart: consecutive
- * surfaces, fills, inks and lines differ in lightness by at least a minimum.
+ * Checks that consecutive surfaces, fills, inks and lines differ in lightness by at least a
+ * minimum.
  *
  * @remarks
- *   The contrast gate reads a pair of a text and its surface. It says nothing about two surfaces
- *   beside each other, and a theme that places a hovered fill on the same step as the fill at rest
- *   passes every text pair with a hover that no reader sees. The distance is measured on the OKLab
- *   lightness axis, which is the axis the foundation's own ladders are stepped along.
+ *   The contrast gate only ever reads a text against its surface. It says nothing about two
+ *   adjacent surfaces, so a theme that puts a hovered fill on the same step as the fill at rest
+ *   passes every text pair and still renders a hover nobody can see. Distance is measured on the
+ *   OKLab lightness axis, the axis the foundation's ladders are stepped along.
  */
 
 import { MODES, type Theme } from "@stealthscale/theme/authoring";
@@ -15,12 +15,12 @@ import { type Thresholds } from "#contrast.ts";
 import { lightnessAt, palettesOf, type Resolving } from "#theme.ts";
 
 /**
- * Lists the surfaces a reader tells apart: the page from the raised surface and from the first
- * well, the raised surfaces from the first well, and each well from the next.
+ * The surface pairs that have to differ: the page against the raised surface and against the first
+ * well, the raised surfaces against the first well, and each well against the next.
  *
  * @remarks
- *   The panel and the popover are not paired, because both clamp at white on a light page and a
- *   floating surface is told from a raised one by its shadow.
+ *   The panel and the popover are deliberately not paired. Both clamp at white on a light page, and
+ *   a shadow already separates a floating surface from a raised one.
  */
 const SURFACE_STEPS: ReadonlyArray<readonly [string, string]> = [
   ["bg", "bg.panel"],
@@ -32,7 +32,7 @@ const SURFACE_STEPS: ReadonlyArray<readonly [string, string]> = [
 ];
 
 /**
- * Lists the inks in the order they fade.
+ * The ink pairs, in the order the inks fade.
  */
 const INK_STEPS: ReadonlyArray<readonly [string, string]> = [
   ["fg", "fg.muted"],
@@ -40,7 +40,7 @@ const INK_STEPS: ReadonlyArray<readonly [string, string]> = [
 ];
 
 /**
- * Lists the lines in the order they weigh.
+ * The line pairs, running from the lightest border to the heaviest.
  */
 const LINE_STEPS: ReadonlyArray<readonly [string, string]> = [
   ["border.subtle", "border.muted"],
@@ -49,8 +49,8 @@ const LINE_STEPS: ReadonlyArray<readonly [string, string]> = [
 ];
 
 /**
- * Lists the steps of one palette a reader tells apart: the three quiet fills, the solid and its
- * hover, and the line and its hover.
+ * The pairs within one palette that have to differ: the three quiet fills, the solid against its
+ * hover, and the line against its hover.
  */
 const PALETTE_STEPS: ReadonlyArray<readonly [string, string]> = [
   ["subtle", "muted"],
@@ -60,14 +60,14 @@ const PALETTE_STEPS: ReadonlyArray<readonly [string, string]> = [
 ];
 
 /**
- * Lists the surfaces a palette's resting fill has to be told from, so a subtle control is seen
- * on the page, on a card and on a menu.
+ * The surfaces a palette's resting fill has to differ from, so a subtle control stays visible on
+ * the page, on a card and on a menu.
  */
 const FILL_SURFACES = ["bg", "bg.panel", "bg.popover"];
 
 /**
- * Reports each pair of steps closer in lightness than the minimum, in either mode, or one that
- * could not be measured.
+ * Measures every pair in both modes and reports the ones below the minimum, along with any pair
+ * that could not be measured at all.
  */
 function apart(
   theme: Theme,
@@ -96,7 +96,7 @@ function apart(
 }
 
 /**
- * Reports two surfaces a reader cannot tell apart.
+ * Reports the surface pairs that sit closer in lightness than the minimum.
  */
 export function surfaces(
   theme: Theme,
@@ -107,22 +107,23 @@ export function surfaces(
 }
 
 /**
- * Reports two consecutive inks a reader cannot tell apart.
+ * Reports the consecutive ink pairs that sit closer in lightness than the minimum.
  */
 export function inks(theme: Theme, options: Resolving, thresholds: Thresholds): readonly string[] {
   return apart(theme, INK_STEPS, options, thresholds.distinct);
 }
 
 /**
- * Reports two consecutive lines a reader cannot tell apart.
+ * Reports the consecutive line pairs that sit closer in lightness than the minimum.
  */
 export function lines(theme: Theme, options: Resolving, thresholds: Thresholds): readonly string[] {
   return apart(theme, LINE_STEPS, options, thresholds.distinct);
 }
 
 /**
- * Reports two steps of a palette a reader cannot tell apart: a fill from the next, a solid from
- * its hover, a line from its hover, or the resting fill from a surface it sits on.
+ * Reports, for every palette, the pairs that sit closer in lightness than the minimum: a fill and
+ * the next, a solid and its hover, a line and its hover, or the resting fill and a surface it sits
+ * on.
  */
 export function fills(theme: Theme, options: Resolving, thresholds: Thresholds): readonly string[] {
   return palettesOf(theme).flatMap((palette) =>

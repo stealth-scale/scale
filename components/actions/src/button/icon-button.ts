@@ -1,11 +1,11 @@
 /**
- * Draws a button that holds one glyph and no words, through the button's recipe.
+ * Renders a square button that contains one icon and requires an accessible name.
  *
  * @remarks
- *   The same recipe as the button, bound once more with the square shape as its default, so a
- *   theme that moves the button moves this with it. A glyph names nothing, so the props require
- *   an accessible name: `aria-label`, or `aria-labelledby` pointing at the words that name it.
- *   The type refuses a nameless icon button where a lint rule would only report one.
+ *   It binds the button recipe with `shape` defaulting to `square`, so a theme that restyles the
+ *   button restyles it too. An icon provides no text, so the props type requires `aria-label` or
+ *   `aria-labelledby`. The union makes an unnamed icon button a type error, where a lint rule would
+ *   only warn.
  */
 
 import { type ComponentProps, type JSX } from "react";
@@ -13,41 +13,41 @@ import { type ComponentProps, type JSX } from "react";
 import { withContext } from "#button/context.ts";
 
 /**
- * Binds the button's recipe with the square shape fixed, beside the button's own default type.
+ * Renders a button with `shape` defaulting to `square` and `type` defaulting to `button`.
  */
 const Square = withContext("button", { defaultProps: { shape: "square", type: "button" } });
 
 /**
- * Gives the control a label of its own.
+ * Describes the prop that gives the control its accessible name as text.
  */
 interface Labelled {
   /**
-   * The words that name the control.
+   * The accessible name a screen reader announces in place of the icon.
    */
   "aria-label": string;
 }
 
 /**
- * Points the control at the element that holds its name.
+ * Describes the prop that takes the control's accessible name from another element.
  */
 interface LabelledBy {
   /**
-   * The id of the element that holds the words.
+   * The id of the element whose text names the control.
    */
   "aria-labelledby": string;
 }
 
 /**
- * Requires an accessible name for a control whose content gives it none.
+ * Requires `aria-label` or `aria-labelledby`.
  */
 export type Named = Labelled | LabelledBy;
 
 /**
- * Describes what an icon button takes: everything a button takes, and an accessible name.
+ * Combines the square button's props with the accessible-name requirement.
  */
 export type IconButtonProps = ComponentProps<typeof Square> & Named;
 
 /**
- * Draws a square button in a look, a size and a status, named in words for the glyph it holds.
+ * Renders a square button around one icon, named by `aria-label` or `aria-labelledby`.
  */
 export const IconButton: (props: IconButtonProps) => JSX.Element = Square;

@@ -1,34 +1,45 @@
 import { describe, expect, it } from "vitest";
 
+import { stale, uncovered } from "@stealthscale/specimen";
 import { axesOf, defaultsOf, recipeViolations, valuesOf } from "@stealthscale/testing-theme";
+import { PALETTES } from "@stealthscale/theme/authoring";
 
+import page from "#mark/mark.specimen.tsx";
 import { recipe } from "#mark/recipe.ts";
 
 describe("recipe", () => {
-  it("writes no value a theme cannot move", () => {
+  it("covers every variant axis in the scenes of its specimen page", () => {
+    expect(uncovered(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("has no scene that writes a value the recipe does not offer", () => {
+    expect(stale(recipe, page.scenes)).toStrictEqual([]);
+  });
+
+  it("references a token on every value a theme has to be able to change", () => {
     expect(recipeViolations(recipe, { names: ["Mark"] })).toStrictEqual([]);
   });
 
-  it("names its class mark", () => {
+  it("sets className to mark", () => {
     expect(recipe.className).toBe("mark");
   });
 
-  it("offers the six axes a highlight takes", () => {
+  it("declares six variant axes", () => {
     expect(axesOf(recipe)).toStrictEqual([
       "effect",
       "inset",
       "motion",
+      "palette",
       "radius",
-      "status",
       "variant",
     ]);
   });
 
-  it("draws a finished highlight when nothing is asked for", () => {
+  it("defaults to the subtle look at the xs inset with the l1 corner", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ inset: "xs", radius: "l1", variant: "subtle" });
   });
 
-  it("offers the five flat looks and the weight", () => {
+  it("declares six looks on the variant axis", () => {
     expect(valuesOf(recipe, "variant")).toStrictEqual([
       "outline",
       "plain",
@@ -39,40 +50,52 @@ describe("recipe", () => {
     ]);
   });
 
-  it("offers the four statuses", () => {
-    expect(valuesOf(recipe, "status")).toStrictEqual(["error", "info", "success", "warning"]);
+  it("declares the eight semantic palettes on the palette axis", () => {
+    expect(valuesOf(recipe, "palette")).toStrictEqual([...PALETTES].toSorted());
   });
 
-  it("offers the four corners", () => {
+  it("lists every palette under staticCss", () => {
+    expect(recipe.staticCss).toStrictEqual([{ palette: [...PALETTES] }]);
+  });
+
+  it("declares four corners on the radius axis", () => {
     expect(valuesOf(recipe, "radius")).toStrictEqual(["full", "l1", "l2", "l3"]);
   });
 
-  it("offers the three tightest insets", () => {
-    expect(valuesOf(recipe, "inset")).toStrictEqual(["md", "sm", "xs"]);
+  it("declares four insets on the inset axis", () => {
+    expect(valuesOf(recipe, "inset")).toStrictEqual(["md", "none", "sm", "xs"]);
   });
 
-  it("writes paddingInline alone so the inset never overflows the line above", () => {
+  it("sets no inline padding at the none inset", () => {
+    expect(recipe.variants?.["inset"]?.["none"]).toStrictEqual({ paddingInline: "0" });
+  });
+
+  it("sets only padding-inline at each inset", () => {
     expect(recipe.variants?.["inset"]?.["md"]).toStrictEqual({
       paddingInline: "calc({spacing.inset.md} * var(--density, 1))",
     });
   });
 
-  it("clones the box decoration so a fill runs onto a second line whole", () => {
+  it.each(["plain", "text"] as const)("sets no inline padding in the %s look", (look) => {
+    expect(recipe.variants?.["variant"]?.[look]).toMatchObject({ paddingInline: "0" });
+  });
+
+  it("repeats the inset and corners on every line of a wrapped highlight", () => {
     expect(recipe.base).toMatchObject({ boxDecorationBreak: "clone" });
   });
 
-  it("tints the ink where a status meets a look that writes no fill", () => {
+  it("sets color to colorPalette.fg in the tinted compound", () => {
     expect(recipe.compoundVariants).toStrictEqual([
       {
         className: "mark--tinted",
         css: { color: "colorPalette.fg" },
-        status: ["error", "info", "success", "warning"],
+        palette: [...PALETTES],
         variant: ["plain", "text"],
       },
     ]);
   });
 
-  it("tracks every tag whose name ends in Mark", () => {
+  it("matches every JSX tag that ends in Mark", () => {
     expect(recipe.jsx).toStrictEqual([/Mark$/u]);
   });
 });

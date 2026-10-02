@@ -1,17 +1,19 @@
 {
-  "about": "Draws a box a person types one line into.",
-  "email": "name@example.com",
-  "looks": {
-    "about": "Every look at every size. The size reads the control scale, so a field lines up with a button of the same size beside it.",
-    "title": "Looks and sizes"
-  },
+  "about": "Renders a single-line text field. Name it with a label, with `aria-label`, or by composing it into `Field`.",
+  "email": "Email",
+  "query": "Search",
+  "reference": "Invoice number",
   "search": "Search invoices",
+  "size": {
+    "about": "Every size in every look. The sizes read the control scale, so an input and a button of the same size are the same height.",
+    "title": "Sizes and looks"
+  },
   "states": {
-    "about": "A field as it is, disabled, read only, and wrong. A field that is wrong states `aria-invalid`, so the styling and what a screen reader reads cannot disagree.",
+    "about": "Rest, keyboard focus, disabled, read-only and invalid in every look. The subtle and flushed looks report focus by widening their edge to 2px in the ring color. A read-only field dashes its edges. The invalid state reads `aria-invalid`, the attribute a screen reader also reads.",
     "title": "States"
   },
-  "statuses": {
-    "about": "Every status in every look.",
+  "status": {
+    "about": "Every status in every look. A status sets the edge and the focus ring from its palette.",
     "title": "Statuses"
   },
   "title": "Input"

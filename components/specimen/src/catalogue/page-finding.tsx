@@ -1,6 +1,6 @@
 /**
- * Draws one rule a scene broke: how bad it is, what it asks for, where it is written out, and
- * every element it was broken on.
+ * Renders one axe finding: its impact, its rule, the rule's message, the elements it matched and a
+ * link to the rule's documentation.
  */
 
 import { type ReactElement } from "react";
@@ -14,14 +14,14 @@ import { type Finding, type Impact } from "#catalogue/audited.ts";
 import { useWords } from "#words.ts";
 
 /**
- * Lists the palette each impact is drawn in.
+ * Maps each axe impact to the palette of its badge.
  *
  * @remarks
- *   The two that break a control for somebody take the error palette and the two that make it
- *   harder take the warning one. A finding axe left unrated takes the neutral palette rather than
- *   a guess, because a rating the catalogue invented would be read as axe's.
+ *   `critical` and `serious` read the error palette, and `moderate` and `minor` read the warning
+ *   palette. A finding without an impact reads the neutral palette, so the catalogue adds no rating
+ *   of its own.
  */
-const TONE: Readonly<Record<Impact, "error" | "warning">> = {
+const PALETTE: Readonly<Record<Impact, "error" | "warning">> = {
   critical: "error",
   minor: "warning",
   moderate: "warning",
@@ -29,25 +29,22 @@ const TONE: Readonly<Record<Impact, "error" | "warning">> = {
 };
 
 /**
- * Describes what one finding takes.
+ * Describes the props of Found.
  */
 export interface FindingProps {
   /**
-   * The finding.
+   * The axe finding.
    */
   readonly finding: Finding;
 }
 
 /**
- * Draws one finding.
+ * Renders one finding.
  *
  * @remarks
- *   The rule's own identifier is drawn as code, because it is what a reader turns off in a
- *   configuration or searches the rule set for. The elements are listed under it as selectors, so
- *   a reader can put one into the console and look at what the audit was looking at. The link
- *   opens the rule in a new tab, since the audit it belongs to is lost on a navigation.
- * @param props - The finding.
- * @returns The finding, drawn.
+ *   The rule ID renders as code, because a developer searches for it or disables it by that ID. The
+ *   matched elements render as selectors that paste into the browser console. The link opens in a
+ *   new tab, because a navigation discards the audit.
  */
 export function Found({ finding }: FindingProps): ReactElement {
   const { t } = useWords();
@@ -56,7 +53,7 @@ export function Found({ finding }: FindingProps): ReactElement {
   return (
     <Stack gap="xs">
       <Stack align="baseline" direction="row" gap="sm" wrap>
-        <Badge size="sm" status={impact === undefined ? "neutral" : TONE[impact]}>
+        <Badge palette={impact === undefined ? "neutral" : PALETTE[impact]} size="sm">
           {impact ?? t("audit.unrated")}
         </Badge>
         <Code size="sm">{rule}</Code>

@@ -1,13 +1,11 @@
 # @stealthscale/component-layout
 
-Arranges what is already there and draws nothing of its own: a stack, a grid, the measure a page is
-read at, a frame round a picture, a line between things and the room left over. Every component
-binds a recipe and draws no surface, ink or border, so a theme restyles all of them by extending the
-recipe. The preset under `./theme` registers the recipes with an application's compiler.
+Layout components: a stack, a group of controls, a grid, a width container, a picture frame, a
+divider and a spacer. Each component binds a recipe, and a theme restyles it by extending the
+recipe. Every value a theme can change is an axis of the recipe, so a caller sets it as a prop. `as`
+changes the element. The grid is a namespace: `Grid.Root` and `Grid.Item`.
 
-A layout responds to the room it is in rather than to the width of the window. A grid fits as many
-columns of one measure as it has space for, and a stack wraps when its children will not sit in a
-row. Nothing here reads a breakpoint and no page states one.
+The components respond to the width of their container, not of the window.
 
 ## Install
 
@@ -15,28 +13,30 @@ row. Nothing here reads a breakpoint and no page states one.
 pnpm add @stealthscale/component-layout
 ```
 
-The package peers on `react` and `@stealthscale/theme`. An application lists the preset under
-`./theme` among the presets its compiler installs.
+The package peers on `react` and `@stealthscale/theme`. Add the preset under `./theme` to the
+presets of the application's compiler.
 
 ## Stack
 
-Lays its children out along one direction, a semantic gap apart. A row centres its children across
-the flow and a column stretches them, so a row of a mark and a word states no alignment. The element
-is `div`, and a stack of a list of things takes `as="ul"`.
+`Stack` lays out its children in one direction with a gap token between them. It renders a `div`.
+Set `as="ul"` for a list, so a screen reader counts the items.
 
 ```tsx
-import { Spacer, Stack } from "@stealthscale/component-layout";
+import { Stack } from "@stealthscale/component-layout";
 
 <Stack gap="lg">
-  <p>One</p>
-  <p>Two</p>
+  <h2>Payouts</h2>
+  <p>Payouts reach your bank account two business days after a charge settles.</p>
 </Stack>;
-<Stack direction="row" justify="between">
-  <p>Title</p>
-  <Spacer />
-  <p>Action</p>
+<Stack direction="row" justify="between" wrap>
+  <span>Invoice INV-2041</span>
+  <button type="button">Pay</button>
 </Stack>;
 ```
+
+A row centres its children on the cross axis, and a column stretches them. A stated `align`
+overrides both. `justify` and `align` cannot share a value, because the class name contains the
+value and not the axis, so `align` offers the CSS spellings `flex-start` and `flex-end`.
 
 | Axis        | Values                                                  | Default |
 | ----------- | ------------------------------------------------------- | ------- |
@@ -46,29 +46,30 @@ import { Spacer, Stack } from "@stealthscale/component-layout";
 | `align`     | `flex-start`, `flex-end`, `stretch`, `baseline`         | by row  |
 | `wrap`      | `true`                                                  | off     |
 
-`align` carries the spellings CSS gives it because a class name carries the value and not the axis,
-so `justify` and `align` cannot both offer `center`. A row centres its children already, which is
-the case the short name would have been for.
-
 ## Group
 
-Lays controls along one direction, a semantic gap apart or attached into one control with several
-parts.
+`Group` lays out controls in one direction, a gap token apart or attached into one control. It
+renders a `div`. Set `as="fieldset"` and an `aria-label` when the children are one set of choices.
 
 ```tsx
-import { Button, IconButton } from "@stealthscale/component-actions";
+import { Button } from "@stealthscale/component-actions";
 import { Group } from "@stealthscale/component-layout";
 
-<Group>
-  <Button>Save</Button>
+<Group aria-label="Period" as="fieldset" attached>
+  <Button variant="outline">Day</Button>
+  <Button variant="outline">Week</Button>
+  <Button variant="outline">Month</Button>
+</Group>;
+<Group grow>
+  <Button variant="outline">Save</Button>
   <Button variant="subtle">Discard</Button>
 </Group>;
-<Group attached>
-  <Button>Day</Button>
-  <Button>Week</Button>
-  <Button>Month</Button>
-</Group>;
 ```
+
+`attached` squares the corners between neighbours and overlaps their borders by the control border
+width, so each shared border renders once. An attached group does not wrap and ignores `gap`. `grow`
+and `justify` make the group as wide as its container. `dim` blurs and fades every child except a
+hovered, keyboard-focused or `aria-pressed="true"` one.
 
 | Axis          | Values                                                  | Default      |
 | ------------- | ------------------------------------------------------- | ------------ |
@@ -76,112 +77,161 @@ import { Group } from "@stealthscale/component-layout";
 | `gap`         | `xs`, `sm`, `md`, `lg`, `xl`                            | `sm`         |
 | `attached`    | `true`                                                  | off          |
 | `grow`        | `true`                                                  | off          |
-| `justify`     | `start`, `center`, `end`, `between`, `around`, `evenly` | start        |
+| `dim`         | `true`                                                  | off          |
+| `justify`     | `start`, `center`, `end`, `between`, `around`, `evenly` | none         |
 | `align`       | `flex-start`, `flex-end`, `stretch`, `baseline`         | stretch      |
-
-Set `attached` for controls that read as one. The corners between neighbours are squared and the
-border between them is drawn once, so three buttons read as one control with three parts. An
-attached group does not wrap and ignores `gap`.
-
-Set `grow` for children that share the room evenly rather than taking what each needs.
-
-Name the set where the children are one choice. `Group` draws a `div` and says nothing about what it
-holds, so a group of options takes `as="fieldset"` or a role and a label from you.
 
 ## Grid
 
-Lays its entries out in columns, as `Grid.Root` holding `Grid.Item`. The columns axis states a count
-or a measure: a count draws that many equal columns, and `fit-<measure>` draws as many columns of
-that measure as there is room for and wraps the rest. A column narrows rather than overflowing when
-the grid is narrower than the measure. `fill-<measure>` draws the same columns and keeps the ones a
-short row leaves empty, so an entry alone on a row keeps its measure rather than stretching across
-the row.
+`Grid.Root` lays out its children in columns. `Grid.Item` sets how many columns a child spans. A
+child that spans one column needs no `Grid.Item`.
 
 ```tsx
 import { Grid } from "@stealthscale/component-layout";
 
-<Grid.Root columns="fit-sm" gap="lg">
-  <Grid.Item>One</Grid.Item>
-  <Grid.Item>Two</Grid.Item>
+<Grid.Root columns="fit-xs" gap="lg">
+  <PlanCard plan="starter" />
+  <PlanCard plan="growth" />
+  <PlanCard plan="scale" />
 </Grid.Root>;
-<Grid.Root columns="12" gap="md">
-  <Grid.Item span="8">Article</Grid.Item>
-  <Grid.Item span="4">Aside</Grid.Item>
+<Grid.Root columns="12">
+  <Grid.Item span="8">
+    <Article />
+  </Grid.Item>
+  <Grid.Item span="4">
+    <Aside />
+  </Grid.Item>
 </Grid.Root>;
 ```
+
+A count renders that many equal columns, each at least 0 wide, so a long word in one child cannot
+widen a column. `fit-<width>` renders as many columns of the width token as the container fits and
+stretches them over the row. `fill-<width>` renders the same columns and keeps the empty tracks, so
+a lone child keeps the column width. `justify` sets `justify-items`, because every template already
+fills the row. `dense` fills the hole an earlier spanning child left with a later child.
 
 | Axis      | Values                                                          | Default | Styles   |
 | --------- | --------------------------------------------------------------- | ------- | -------- |
 | `columns` | `1` to `12`, `fit-xs` to `fit-8xl`, and `fill-xs` to `fill-8xl` | `1`     | the root |
 | `gap`     | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl`               | `md`    | the root |
-| `justify` | `start`, `center`, `end`, `between`, `around`, `evenly`         | start   | the root |
+| `justify` | `start`, `center`, `end`                                        | stretch | the root |
 | `align`   | `flex-start`, `flex-end`, `stretch`, `baseline`                 | stretch | the root |
-| `flow`    | `row`, `column`, `dense`                                        | row     | the root |
+| `flow`    | `row`, `dense`                                                  | row     | the root |
 | `span`    | `1` to `12`, and `full`                                         | one     | the item |
 
 ## Container
 
-Holds a page to one measure and centres it in whatever holds it, with a gutter down each side. The
-element is `div`, and a page whose container is its main region takes `as="main"`.
+`Container` limits its content to a maximum inline size, centres it in its parent and pads each side
+with the `lg` inset. It renders a `div`. Set `as="main"` on the container of a page's main content.
 
 ```tsx
 import { Container } from "@stealthscale/component-layout";
 
-<Container size="prose">
-  <p>Running text at the measure it is read at.</p>
+<Container as="main" size="6xl">
+  <Dashboard />
 </Container>;
-<Container as="main" size="6xl" />;
+<Container flush size="prose">
+  <p>Payouts reach your bank account two business days after a charge settles.</p>
+</Container>;
 ```
 
-| Axis    | Values                              | Default |
-| ------- | ----------------------------------- | ------- |
-| `size`  | `xs` to `8xl`, `prose`, `full`      | `3xl`   |
-| `flush` | `true`, which takes the gutter away | off     |
+`prose` is `60ch`, so it follows the theme's body face. `flush` removes the gutter.
+
+| Axis    | Values                         | Default |
+| ------- | ------------------------------ | ------- |
+| `size`  | `xs` to `8xl`, `full`, `prose` | `3xl`   |
+| `flush` | `true`                         | off     |
 
 ## Frame
 
-Holds a picture, a video or a map to one shape, clipped to its corners. Whatever the frame holds is
-drawn at the frame's own size, so a picture of any dimensions fills the shape rather than setting
-it. The frame names nothing itself, so the alternative text stays with the picture inside it.
+`Frame` clips a picture, a video or a map to an aspect ratio and a corner radius. It renders a `div`
+and sizes its child to 100% in both directions, so the aspect ratio sets the frame's height from its
+width. The frame has no accessible name, so put the alternative text on the child picture.
 
 ```tsx
 import { Frame } from "@stealthscale/component-layout";
 
-<Frame ratio="video" radius="l2">
-  <img alt="A hillside at dusk" src="/hill.avif" />
+<Frame radius="l2" ratio="video">
+  <img alt="Green hills with pine trees under a yellow sun" src={hillside} />
 </Frame>;
 <Frame radius="full">
-  <img alt="Ada Lovelace" src="/ada.avif" />
+  <img alt="Ada Lovelace" src={portrait} />
 </Frame>;
 ```
+
+`cover` crops the child to the frame and `contain` shows the whole child. `blur` applies one of the
+theme's blur layer styles to the child and scales it by 1.06, 1.09 or 1.12, so the frame clips the
+softened edge.
 
 | Axis     | Values                                                                    | Default  |
 | -------- | ------------------------------------------------------------------------- | -------- |
 | `ratio`  | `square`, `landscape`, `portrait`, `golden`, `video`, `wide`, `ultrawide` | `square` |
 | `radius` | `l1`, `l2`, `l3`, `full`                                                  | none     |
 | `fit`    | `cover`, `contain`                                                        | `cover`  |
+| `blur`   | `sm`, `md`, `lg`                                                          | none     |
 
 ## Divider
 
-Draws one line between things. The element is `hr`, which a browser gives the separator role, so a
-screen reader announces that what follows is apart from what came before. A divider standing up in a
-row states `aria-orientation="vertical"` beside its variant.
+`Divider` renders a hairline `hr` in the `border` color, which has the `separator` role. It sets
+`aria-orientation` from `orientation`, whether the prop or `DividerPropsProvider` sets it. A
+vertical divider stretches to the height of its row.
+
+A divider with a `label` is a `div` with the label between two hairlines. The `div` has no role,
+because a separator's children are presentational and a screen reader would skip the label. The
+lines are `::before` and `::after`, so a screen reader reads the label and no line. `labelPlacement`
+puts the label at the start, the centre or the end. `start` and `end` follow the writing direction
+and drop the line on their side. A vertical divider renders no label.
 
 ```tsx
-import { Divider } from "@stealthscale/component-layout";
+import { Divider, Stack } from "@stealthscale/component-layout";
 
 <Divider />;
-<Divider aria-orientation="vertical" orientation="vertical" />;
+<Stack direction="row" gap="sm">
+  <button type="button">Undo</button>
+  <Divider orientation="vertical" />
+  <button type="button">Bold</button>
+</Stack>;
+<Divider label="or" />;
+<Divider label="Today" labelPlacement="start" />;
 ```
 
-| Axis          | Values                   | Default      |
-| ------------- | ------------------------ | ------------ |
-| `orientation` | `horizontal`, `vertical` | `horizontal` |
+| Axis             | Values                   | Default      |
+| ---------------- | ------------------------ | ------------ |
+| `orientation`    | `horizontal`, `vertical` | `horizontal` |
+| `labelPlacement` | `start`, `center`, `end` | `center`     |
 
 ## Spacer
 
-Takes the room a stack has left over, which pushes what follows it to the far end. It holds nothing
-and is hidden from assistive technology, because empty room is not announced.
+`Spacer` takes the free space along a stack's main axis, which pushes the children after it to the
+end. It renders an empty `div` with `aria-hidden`, so a screen reader skips it. The recipe has no
+axis.
+
+```tsx
+import { Spacer, Stack } from "@stealthscale/component-layout";
+
+<Stack direction="row">
+  <h2>Invoices</h2>
+  <Spacer />
+  <button type="button">New invoice</button>
+</Stack>;
+```
+
+## Types
+
+| Type             | Props of                                                       |
+| ---------------- | -------------------------------------------------------------- |
+| `StackProps`     | `Stack`: the recipe's variants and a `div` element's props     |
+| `GroupProps`     | `Group`: the recipe's variants and a `div` element's props     |
+| `Grid.RootProps` | `Grid.Root`: the recipe's root variants and a `div`'s props    |
+| `Grid.ItemProps` | `Grid.Item`: `span` and a `div` element's props                |
+| `ContainerProps` | `Container`: the recipe's variants and a `div` element's props |
+| `FrameProps`     | `Frame`: the recipe's variants and a `div` element's props     |
+| `DividerProps`   | `Divider`: the recipe's variants, `label` and `hr` props       |
+| `SpacerProps`    | `Spacer`: a `div` element's props                              |
+
+Every component except the grid parts has a props provider that sets its variants on every instance
+below it: `StackPropsProvider`, `GroupPropsProvider`, `ContainerPropsProvider`,
+`FramePropsProvider`, `DividerPropsProvider` and `SpacerPropsProvider`.
 
 ## Licence
 

@@ -1,50 +1,156 @@
 {
-  "about": "Draws a panel a reader takes in on its own: a picture, a header, the substance, and whatever they act on.",
-  "backdrop": {
-    "about": "Every pattern the theme draws behind a card, at the medium size.",
-    "title": "Backdrops"
+  "about": "A panel of bands: a picture, a header, content or sections, and a footer of controls.",
+  "article": {
+    "date": "Published on 12 September",
+    "read": "6 min read",
+    "summary": "Batching by currency cut settlement from five days to two. The ledger balances at every step.",
+    "title": "How we settle payouts in two days",
+    "topic": "Engineering"
+  },
+  "balance": {
+    "help": "Up 8% on August",
+    "label": "Outstanding",
+    "value": "£12,480"
+  },
+  "disabled": {
+    "about": "An interactive card at rest and disabled. A disabled card takes no pointer events.",
+    "title": "Disabled"
   },
   "divided": {
-    "about": "The header and the footer ruled apart from the band between them, beside a card left whole.",
+    "about": "Rules between the header, the content and the footer, beside a card without them.",
     "title": "Divided"
   },
   "effect": {
-    "about": "The light a card is drawn under, in the informational palette.",
+    "about": "The glow around a card, in the info palette.",
     "title": "Effect"
   },
+  "expandable": {
+    "amount": "£3,240 to Northwind Ltd",
+    "show": "Show the three transfers",
+    "title": "Payout 1093",
+    "transfers": {
+      "first": "12 September · £1,200",
+      "second": "14 September · £1,040",
+      "third": "16 September · £1,000"
+    }
+  },
   "interactive": {
-    "about": "A card a reader presses, which follows the link in its title and shows its focus, beside one that only holds.",
+    "about": "A card whose whole face follows the link in its title, beside a static card with the same link.",
     "title": "Interactive"
   },
-  "invoice": "Invoice 4821",
-  "issued": "Issued on 2 September",
-  "justify": {
-    "about": "How the footer shares its room among the controls.",
-    "title": "Distribution"
+  "invoice": {
+    "issued": "Issued on 2 September",
+    "lines": "Three lines, one unbilled.",
+    "more": "More actions for invoice 4821",
+    "remind": "Remind",
+    "send": "Send",
+    "title": "Invoice 4821"
   },
-  "lines": "Three lines, one unbilled.",
-  "more": "More about this invoice",
+  "justify": {
+    "about": "Each alignment of the footer's controls.",
+    "title": "Footer alignment"
+  },
+  "loading": {
+    "label": "Loading a profile"
+  },
   "motion": {
-    "about": "How the card enters the page.",
+    "about": "How the card enters the page. Every motion stops under reduced motion.",
     "title": "Motion"
   },
   "orientation": {
-    "about": "The bands stacked, and the bands side by side.",
+    "about": "The picture across the top of a vertical card, and along the leading third of a horizontal one.",
     "title": "Orientation"
   },
-  "pressable": {
-    "about": "A card whose whole face follows the link in its title, in the looks worth pressing.",
-    "title": "Pressable"
+  "palette": {
+    "about": "Every palette on a subtle balance card, which fills and borders in the palette.",
+    "title": "Palettes"
+  },
+  "plan": {
+    "features": {
+      "exports": "Ledger exports",
+      "payouts": "Unlimited payouts",
+      "reconcile": "Daily reconciliation",
+      "support": "Priority support"
+    },
+    "for": "For teams that reconcile daily",
+    "name": "Growth",
+    "per": "per seat, per month",
+    "popular": "Popular",
+    "price": "£29",
+    "start": "Start a trial"
+  },
+  "product": {
+    "add": "Add to basket",
+    "detail": "Oiled walnut, 32 × 12 cm",
+    "name": "Walnut desk tray",
+    "new": "New",
+    "price": "£48"
+  },
+  "profile": {
+    "bio": "Runs month-end close across four entities and owns the payouts calendar.",
+    "close": "Month-end close",
+    "message": "Message",
+    "name": "Amara Okafor",
+    "payouts": "Payouts",
+    "role": "Finance lead, Lagos",
+    "treasury": "Treasury"
   },
   "radius": {
-    "about": "Every corner at every size.",
-    "title": "Corners and sizes"
+    "about": "Every corner radius on a medium card.",
+    "title": "Corners"
   },
-  "remind": "Remind",
-  "send": "Send",
+  "scenes": {
+    "article": {
+      "about": "An interactive card with a linked title and a picture, with a badge and a caption over a scrim.",
+      "title": "Article"
+    },
+    "balance": {
+      "about": "A subtle card around a stat.",
+      "title": "Balance"
+    },
+    "expandable": {
+      "about": "A subtle collapsible in the content. Its trigger toggles the list, and the card is static.",
+      "title": "Expandable"
+    },
+    "loading": {
+      "about": "Skeletons in the avatar, the title, the description and the content while the data loads.",
+      "title": "Loading"
+    },
+    "plan": {
+      "about": "An outline card in the primary palette, with a badge in the aside and the features in a section.",
+      "title": "Pricing plan"
+    },
+    "product": {
+      "about": "A picture with a badge in the overlay, a price in the content and one action.",
+      "title": "Product"
+    },
+    "profile": {
+      "about": "A banner picture, an avatar in the indicator, an action in the aside and badges in the footer.",
+      "title": "Profile"
+    },
+    "settings": {
+      "about": "One section per switch. Each rule spans the full width of the card.",
+      "title": "Settings"
+    }
+  },
+  "scrim": {
+    "about": "The overlay's caption over a picture, without and with the scrim behind it.",
+    "title": "Scrim"
+  },
+  "settings": {
+    "about": "Choose what reaches your inbox.",
+    "digest": "Weekly digest",
+    "overdue": "Invoice overdue",
+    "payouts": "Payout settled",
+    "title": "Notifications"
+  },
+  "size": {
+    "about": "Each size sets the inset, the gap, the title style and the indicator's icon.",
+    "title": "Sizes"
+  },
   "title": "Card",
   "variant": {
-    "about": "Every look in every status.",
-    "title": "Looks and statuses"
+    "about": "Every look of the panel.",
+    "title": "Looks"
   }
 }

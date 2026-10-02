@@ -1,9 +1,8 @@
 /**
- * Draws the words of whatever is chosen.
+ * Renders the text of the selected rows.
  *
  * @remarks
- *   A caller that draws its own summary needs none of this. It reads the machine's own text for
- *   the chosen rows, so a list of several answers one line rather than the caller joining them.
+ *   The text is the machine's `valueAsString`, which joins the selected rows' text.
  */
 
 import { type ComponentProps, type ReactElement, type ReactNode } from "react";
@@ -14,29 +13,27 @@ import { withContext } from "#listbox/context.ts";
 import { useListbox } from "#listbox/machine.ts";
 
 /**
- * Draws the words at the size the root states.
+ * Renders the `span` with the listbox's value text class.
  */
 const Chosen = withContext("span", "valueText");
 
 /**
- * Describes what the value text takes.
+ * Describes the props of the value text: a placeholder and the props of a `span`.
  */
 export interface ValueTextProps extends ComponentProps<typeof Chosen> {
   /**
-   * The words drawn while nothing is chosen.
+   * Text rendered while nothing is selected.
    */
   readonly placeholder?: ReactNode;
 }
 
 /**
- * Reports what is chosen, and draws the placeholder while nothing is.
+ * Renders the selected rows' text, or the placeholder while nothing is selected.
  *
  * @remarks
- *   Children override both. The source this was ported from tested the three with `||`, which
- *   passed an empty string over to the placeholder and also let a caller's children win silently.
- *   The empty case is named here, so the placeholder shows for nothing chosen and for nothing else.
- * @param props - The words for the empty case, and everything a styled span takes.
- * @returns The words of the chosen rows.
+ *   Children render in place of both. The placeholder renders only while `valueAsString` is empty.
+ * @param props - The placeholder, and the attributes and children of the `span` element.
+ * @returns The `span` element.
  */
 export function ValueText({ children, placeholder, ...rest }: ValueTextProps): ReactElement {
   const api = useListbox();

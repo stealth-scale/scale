@@ -1,19 +1,20 @@
 /**
- * Walks every style a recipe writes and reports each string with the property it is written
- * under and the category that property reads.
+ * Walks every style a recipe writes and reports each string alongside the property it sits under
+ * and the category that property reads.
  *
  * @remarks
- *   A key is a property where the compiler resolves one of that name, and nests otherwise, so a
- *   breakpoint, a condition, a selector and a slot each carry the property above them down to the
- *   value. The compiler derives a condition from every breakpoint, so a value written under
- *   `smDown` is read against the same property as one written under `sm`.
+ *   A key counts as a property where the compiler resolves one of that name, and as a group
+ *   otherwise, so a breakpoint, a condition, a selector and a slot each keep the property declared
+ *   above them in force all the way down to the value. The compiler derives a condition from every
+ *   breakpoint, which is why a value under `smDown` is read against the same property as one under
+ *   `sm`.
  */
 
 import { categoryOf, isProperty } from "#categories.ts";
 import { type Declared } from "#recipe.ts";
 
 /**
- * Describes one string a recipe writes, and where.
+ * One string the walk found, with where it was written and what it is read as.
  */
 export interface Written {
   /**
@@ -38,7 +39,7 @@ export interface Written {
 }
 
 /**
- * Describes one condition a recipe nests styles under, and where.
+ * One condition the recipe nests styles under, with the path it was found at.
  */
 export interface Nested {
   /**
@@ -53,7 +54,7 @@ export interface Nested {
 }
 
 /**
- * Carries everything a walk found.
+ * The result of one walk: every condition and every string it found.
  */
 export interface Walked {
   /**
@@ -68,7 +69,7 @@ export interface Walked {
 }
 
 /**
- * Describes where the walk is: the property and category in force, and the path so far.
+ * The walk's position: the path so far, and the property and category inherited from above it.
  */
 interface Site {
   /**
@@ -88,18 +89,18 @@ interface Site {
 }
 
 /**
- * Joins one more key onto a path.
+ * Appends one key to a path.
  *
  * @remarks
- *   Every walk starts at a named path: `base`, one compound's `css`, or one value of one axis. No
- *   key is ever joined onto nothing.
+ *   Every walk starts from a named path: `base`, one compound's `css`, or one value of one axis, so
+ *   a key is never joined onto an empty string.
  */
 function under(path: string, key: string): string {
   return `${path}.${key}`;
 }
 
 /**
- * Walks one node, collecting into the two lists.
+ * Recurses through one node, pushing what it finds onto the two lists.
  */
 function walk(node: unknown, site: Site, strings: Written[], conditions: Nested[]): void {
   if (typeof node === "string") {
@@ -128,7 +129,7 @@ function walk(node: unknown, site: Site, strings: Written[], conditions: Nested[
 }
 
 /**
- * Reads the styles of one compound variant, or undefined where the entry is not an object.
+ * Reads the `css` off one compound variant, or undefined where the entry is not an object.
  */
 function cssOf(compound: unknown): unknown {
   return typeof compound === "object" && compound !== null
@@ -141,18 +142,18 @@ function cssOf(compound: unknown): unknown {
  * variants.
  *
  * @remarks
- *   The axis and the value of a variant are walked by name rather than as styles, because a value
- *   is free to be called anything and some of the names a recipe reaches for are also properties
- *   the compiler resolves. A highlight called `fill` read as the SVG property of that name, and
- *   every value under it that the compiler has no category for was then measured as a color:
- *   `outlineStyle: "solid"` was reported as a color token that no theme defines.
+ *   An axis and its values are entered by name rather than walked as styles, because a value can be
+ *   called anything and some of those names are properties the compiler resolves. A value named
+ *   `fill` reads as the SVG property, which makes the walk treat every string beneath it as a
+ *   color. That is how `outlineStyle: "solid"` came to be reported as a color token no theme
+ *   defines.
  */
 export function walked(recipe: Declared): Walked {
   const strings: Written[] = [];
   const conditions: Nested[] = [];
 
   /**
-   * Walks one style object from a path, with no property carried in from above it.
+   * Starts a walk at one path, with nothing inherited from above it.
    */
   const styles = (node: unknown, path: string): void => {
     walk(node, { category: undefined, path, property: undefined }, strings, conditions);

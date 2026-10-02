@@ -1,172 +1,197 @@
 /**
- * Declares what a page of a catalogue is and what is drawn on it.
+ * Types and identity helpers for declaring catalogue pages and their scenes.
  *
  * @remarks
- *   Every field is declared rather than derived from the file's path. A path only hints at where a
- *   page belongs, and a rule written for one repository layout is silently wrong for another.
+ *   A page declares every field explicitly. The catalogue derives nothing from file paths, because
+ *   a path-based rule fits one repository layout and silently breaks on another.
  */
 
 import { type FC } from "react";
 
+import { sampled } from "#scenes/written.ts";
+
 /**
- * Selects how a scene meets the card it is drawn on.
+ * How a scene is framed on its card.
  */
 export type Frame = "bare" | "bleed" | "inset";
 
 /**
- * Lists the frames, quietest first.
+ * All frame values, from the least to the most change to the card.
  */
 export const FRAMES: readonly Frame[] = ["inset", "bleed", "bare"];
 
 /**
- * Describes one thing on a page: what it is called, what it shows, and what draws it.
+ * A scene on a catalogue page.
  */
 export interface Scene {
   /**
-   * The sentence the scene opens with, where the title alone does not say what it shows.
+   * Introductory sentence, for a scene whose title does not describe what it shows.
    */
   about?: string;
 
   /**
-   * The axes of the page's recipe this scene draws, so a check can tell which axes a page shows
-   * and which it leaves undrawn.
+   * Recipe axes the scene renders. The coverage check reads the field to find unrendered axes.
    *
    * @remarks
-   *   Stated rather than read off what the scene renders, because a scene renders a component and
-   *   a component's props are not the recipe's axes: a scene may turn one axis while holding three
-   *   others fixed to make it visible.
-   *   A scene built by `scenesOf` states this itself. A scene written by hand states it where it
-   *   stands in for a generated one, and leaves it out where it shows something other than an
-   *   axis, such as a page's anatomy or a worked example.
+   *   The axes are declared explicitly because the props of a scene are not the recipe's axes. A
+   *   scene can vary one axis while it fixes three others. `scenesOf` sets the field on generated
+   *   scenes. A hand-written scene sets it when it replaces a generated scene, and omits it when it
+   *   shows no axis, such as an anatomy or a usage example.
    */
   axes?: readonly string[] | undefined;
 
   /**
-   * Draws the scene.
+   * Component that renders the scene.
    *
    * @remarks
-   *   A component rather than a node, so a scene that holds state declares its hooks in its own
-   *   render. Called as a function, those hooks would belong to whatever drew it.
+   *   The field takes a component, not a node, so a stateful scene calls its hooks in its own
+   *   render. A scene called as a function would register its hooks on the caller.
    */
   draw: FC;
 
   /**
-   * How the scene meets the card it is drawn on. Inset when absent.
+   * Namespace of the example module the scene renders. The catalogue shows its `source` export.
    *
    * @remarks
-   *   `inset` leaves the card's own room round the scene, which is right for a component that
-   *   carries no surface of its own. `bleed` takes that room back, so a component that is already
-   *   a panel reaches the card's edges rather than sitting as a box inside a box. `bare` drops the
-   *   card's surface, for a scene that should stand on the page as it would in an application.
-   *   The source control keeps the card's room in every frame, because a control flush to the
-   *   page's edge reads as part of the scene rather than as part of the catalogue.
+   *   Example files are named `<component>/examples/<name>.example.tsx` and contain consumer code.
+   *   The specimen plugin appends the text of each file to its module as a `source` string export,
+   *   with `#` imports rewritten to the package name. The field takes the module, not the text,
+   *   because the export exists only where the plugin runs. Under a plain test runner the scene
+   *   has no source.
+   */
+  example?: object | undefined;
+
+  /**
+   * How the scene is framed on its card. Defaults to `inset`.
+   *
+   * @remarks
+   *   `inset` keeps the card padding, for a component without a surface. `bleed` removes the
+   *   padding, so a panel reaches the card edges. `bare` removes the card surface, so the scene
+   *   renders as it would in an application. The source control keeps the card padding in every
+   *   frame, because a control flush with the page edge reads as part of the scene.
    */
   frame?: Frame;
 
   /**
-   * The source a reader copies, where the scene carries its own rather than leaving the index to
-   * cut one out of the file.
+   * Props of the first cell of a hand-written scene, written into the `{...props}` spreads of its
+   * example.
    *
    * @remarks
-   *   The index cuts a snippet by finding the scene's declaration in the specimen's text, so a
-   *   scene built at runtime has nothing to cut and shows none. A built scene writes what a
-   *   consumer would write instead: the component, once per value of the axis, which is what the
-   *   scene is drawn to demonstrate. That reads better than the matrix wiring it replaces, which
-   *   is the catalogue's plumbing rather than the component's use.
+   *   A hand-written scene that lays an example out in a `Matrix` passes each cell's props through
+   *   the example's `props` parameter. The Source shows the example with these props in place of
+   *   the spreads and without the parameter, the way `scenesOf` writes a generated scene.
+   */
+  props?: Readonly<Record<string, unknown>> | undefined;
+
+  /**
+   * Source text shown for the scene. Takes precedence over `example`.
+   *
+   * @remarks
+   *   `scenesOf` writes the source of a generated scene from the props of its first cell. A
+   *   hand-written scene sets `example`, or sets this field when it has no example file.
    */
   source?: string | undefined;
 
   /**
-   * The name the scene is headed with, which also keys its source in the catalogue.
+   * Scene heading. The catalogue also uses it as the key of the scene's source.
    */
   title: string;
 
   /**
-   * Whether the scene fills the window it is drawn in. False when absent.
+   * Whether the scene fills the device window. Defaults to false.
    *
    * @remarks
-   *   A shell is the height of its window, so a device shows one at the window's edges, whatever
-   *   frame the scene meets its card with, because room round it would push it past the window's
-   *   foot. Everything else is drawn in the device the way it meets its card.
+   *   An application shell is as tall as its window, so a device renders it edge to edge whatever
+   *   the frame. Padding would push the shell past the bottom of the window.
    */
   viewport?: boolean;
 }
 
 /**
- * Describes one page: where it belongs, what it is called, and what is on it.
+ * A catalogue page.
  */
 export interface Specimen {
   /**
-   * The sentence or two the page opens with.
+   * Introductory sentences of the page.
    */
   about?: string;
 
   /**
-   * The group a navigation rail lists the page under. Listed on its own when absent.
+   * Navigation group the rail lists the page under. The page is ungrouped when the field is
+   * absent.
    */
   group?: string;
 
   /**
-   * The address of the page, unique across the catalogue.
+   * Page address, unique across the catalogue.
    *
    * @remarks
-   *   Stable and never displayed, so a title can be rewritten or translated without a link moving.
-   *   Two pages declaring one identifier leave the second unreachable, which the index refuses.
+   *   The ID is never displayed, so a title can change or be translated without breaking links.
+   *   The index rejects a duplicate ID, because the second page would be unreachable.
    */
   id: string;
 
   /**
-   * The statement a reader copies first, which the page opens with. No import line when absent.
+   * Import statement shown at the top of the page. No import line renders when the field is
+   * absent.
    *
    * @remarks
-   *   Written out rather than read off the file's own imports, because a page imports the
-   *   catalogue's kit and its icons beside the components it shows, and no rule separates the two
-   *   reliably. A page whose scenes share one sample states the sample's imports here.
+   *   The statement is declared explicitly. A specimen file imports the catalogue kit and icons
+   *   alongside the components it documents, and no rule separates the two reliably. A page whose
+   *   scenes share one sample declares the sample's imports here.
    */
   imports?: string;
 
   /**
-   * The catalogue namespace the page's words are keys in: the title, the opening, and each
-   * scene's title and opening. The catalogue's own, `specimen`, when absent.
+   * Translation namespace of the page and scene titles and introductions. Defaults to
+   * `specimen`.
    *
    * @remarks
-   *   Stated as a literal, because the index plugin reads it out of the source. The words follow
-   *   the language a reader chose, and a key with no entry is shown as the key, so a page written
-   *   in plain words reads as written.
+   *   The value must be a string literal, because the index plugin reads it from source text. A key
+   *   without a translation renders as the key, so plain text works as well.
    */
   namespace?: string;
 
   /**
-   * The scenes, in the order they are drawn.
+   * Scenes in display order.
    *
    * @remarks
-   *   Listed rather than gathered from the file's exports. A module returns its names in
-   *   alphabetical order, so a page written Variants, States, Anatomy would be read back Anatomy,
-   *   States, Variants in every catalogue built on it.
+   *   The scenes are listed explicitly because a module namespace enumerates its exports in
+   *   alphabetical order. A page written as Variants, States, Anatomy would otherwise render as
+   *   Anatomy, States, Variants.
    */
   scenes: readonly Scene[];
 
   /**
-   * The name the page is headed with. Derived from the last segment of the identifier when absent.
+   * Page heading. Defaults to the last segment of the ID.
    */
   title?: string;
 }
 
 /**
- * Declares a page of the catalogue.
+ * Returns the page declaration unchanged.
  *
  * @remarks
- *   A function rather than a bare object, so what a page may declare is checked where it is
- *   written rather than wherever a catalogue reads it. The index parses the call out of the source
- *   and never evaluates it, so the return value is the argument unchanged.
+ *   The function exists so TypeScript checks the declaration where the page is written. The index
+ *   plugin parses the call from source text and never evaluates it.
  */
 export function specimen(page: Specimen): Specimen {
   return page;
 }
 
 /**
- * Declares one scene.
+ * Returns the scene declaration unchanged, typed as a {@link Scene}.
  */
 export function scene(shown: Scene): Scene {
   return shown;
+}
+
+/**
+ * Returns the source text shown for a scene.
+ *
+ * @returns `source` if set, otherwise the `source` export of `example` with `props` written in, or
+ *   undefined when neither is a string.
+ */
+export function sourceOf(shown: Scene): string | undefined {
+  return shown.source ?? sampled(shown.example, shown.props ?? {});
 }

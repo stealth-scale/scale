@@ -8,14 +8,14 @@ import { recipeClasses } from "@stealthscale/testing-theme";
 import { PropsProvider, withContext } from "#skeleton-text/context.ts";
 
 describe("context", () => {
-  it("draws the recipe's class on an element it binds", () => {
+  it("applies the recipe class to an element bound with withContext", () => {
     const Probe = withContext("div");
     const { container } = render(createElement(Probe));
 
     expect(recipeClasses(container, "skeleton-text")).toContain("skeleton-text");
   });
 
-  it("publishes a provider for whatever sets the column's props from above", () => {
+  it("applies the recipe class inside an empty PropsProvider", () => {
     const Probe = withContext("div");
     const { container } = render(createElement(PropsProvider, { value: {} }, createElement(Probe)));
 

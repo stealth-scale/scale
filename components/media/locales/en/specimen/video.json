@@ -1,0 +1,32 @@
+{
+  "about": "Plays a clip in a frame that keeps its shape before the clip loads. A clip that starts by itself shows its poster to a reader who asks for reduced motion, shows the browser's controls, and plays muted.",
+  "background": {
+    "about": "A decorative loop with `controls={false}` and a button of its own that pauses it, because moving content that starts by itself needs a way to stop it. With reduced motion on, the loop does not start, and the button starts it.",
+    "title": "Background with a pause button"
+  },
+  "fit": {
+    "about": "A 16:9 clip in a square. `cover` fills the square and crops the sides, and `contain` shows the whole frame between `bg.emphasized` bars.",
+    "title": "Fits"
+  },
+  "loop": {
+    "about": "`autoPlay` starts the loop muted, inline and with the browser's controls, so the reader can pause it. Turn on reduced motion in the system settings and reload: the loop shows its poster, and the controls start it.",
+    "title": "Playing by itself"
+  },
+  "loopCaption": "The dashboard updates as each payment settles.",
+  "pause": "Pause the background",
+  "play": "Play the background",
+  "radius": {
+    "about": "The four corners of the theme, from the tightest to the fully round.",
+    "title": "Corners"
+  },
+  "ratio": {
+    "about": "The theme's seven ratios. The element keeps its shape before the clip's metadata loads, so nothing below it moves while the clip loads.",
+    "title": "Ratios"
+  },
+  "title": "Video",
+  "tour": {
+    "about": "The reader starts the clip from the browser's controls, which a keyboard and a screen reader already operate. The figure's caption names the clip.",
+    "title": "Started by the reader"
+  },
+  "tourCaption": "A two-minute tour of the reconciliation screen."
+}

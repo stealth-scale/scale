@@ -1,5 +1,5 @@
 /**
- * Builds the shell a part's specification needs above it.
+ * Builds the shells the part specifications render.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -13,25 +13,26 @@ import { Header } from "#app-shell/header.tsx";
 import { Main } from "#app-shell/main.tsx";
 import { Navbar, type NavbarProps } from "#app-shell/navbar.tsx";
 import { Root, type RootProps } from "#app-shell/root.tsx";
+import { Status } from "#app-shell/status.tsx";
 import { Trigger } from "#app-shell/trigger.tsx";
 
 /**
- * Draws whatever a case wants measured inside the column that hands down the variants.
+ * Renders a part inside the root, which provides the variants and the store.
  *
  * @param children - The part under test.
- * @param props - Whatever the case sets on the column.
- * @returns The column, holding it.
+ * @param props - The root's props.
+ * @returns The root with the part inside it.
  */
 export function shell(children: ReactNode, props: RootProps = {}): ReactElement {
   return <Root {...props}>{children}</Root>;
 }
 
 /**
- * Draws whatever a case wants measured inside the body, which is where a panel belongs.
+ * Renders a part inside the body inside the root.
  *
  * @param children - The part under test.
- * @param props - Whatever the case sets on the column.
- * @returns The column, holding the body, holding it.
+ * @param props - The root's props.
+ * @returns The root with a body around the part.
  */
 export function bodied(children: ReactNode, props: RootProps = {}): ReactElement {
   return (
@@ -42,30 +43,31 @@ export function bodied(children: ReactNode, props: RootProps = {}): ReactElement
 }
 
 /**
- * Draws a subtree at the width of a phone, which is what folds a panel out of the body.
+ * Renders a subtree in a 375px viewport, where both panels fold.
  *
  * @param children - The shell under test.
- * @returns The subtree, laid out for a phone.
+ * @returns The subtree inside the viewport provider.
  */
 export function narrowed(children: ReactNode): ReactElement {
   return <ViewportProvider defaultWidth={375}>{children}</ViewportProvider>;
 }
 
 /**
- * Draws a subtree at the width of a tablet, which holds the start side and folds the end side.
+ * Renders a subtree in an 820px viewport, where the start side fits and the end side folds.
  *
  * @param children - The shell under test.
- * @returns The subtree, laid out for a tablet.
+ * @returns The subtree inside the viewport provider.
  */
 export function tablet(children: ReactNode): ReactElement {
   return <ViewportProvider defaultWidth={820}>{children}</ViewportProvider>;
 }
 
 /**
- * Draws a whole shell, so a case can read how its bands and panels are placed.
+ * Renders a whole shell: a header with the trigger, the three regions of the body, a footer and a
+ * status bar.
  *
- * @param props - Whatever the case sets on the navigation panel.
- * @returns The parts composed the way a caller composes them.
+ * @param props - The navbar's props.
+ * @returns The shell.
  */
 export function composed(props: NavbarProps = {}): ReactElement {
   return (
@@ -81,6 +83,7 @@ export function composed(props: NavbarProps = {}): ReactElement {
         <Aside aria-label="Detail">Totals</Aside>
       </Body>
       <Footer>Acme</Footer>
+      <Status>Saved</Status>
     </Root>
   );
 }

@@ -1,153 +1,104 @@
 /**
- * Shows the tabs: every look at every size, the controls fitted to the strip, every share of a
- * strip they do not fill, and the strip run down the side.
+ * Catalogue page for the tabs.
  *
  * @remarks
- *   Every axis is read off the recipe, so a value added to the theme reaches the page without
- *   this file changing. Every set holds the same three panels with the first open. The words are
- *   keys under `tabs` in the catalogue's namespace, kept beside this file in
+ *   `scenesOf` generates the looks, palettes, sizes, fitted tabs and distributions from the account
+ *   example, whose list scrolls sideways where the tabs are wider than their room. The fitted scene
+ *   uses the enclosed look, where each tab's width shows. The orientation scene is hand-written,
+ *   because the orientation is the machine's option and not an axis, and draws a vertical list of
+ *   preferences. Three more hand-written scenes close tabs: files in a `2xl` room, drafts that
+ *   overflow an `md` room, and a controlled list closed from outside. Each generated set renders in
+ *   an `md` room, open on its first panel. The words are keys under `tabs` in
  *   `locales/en/specimen/tabs.json`.
  */
 
-import { type ReactElement } from "react";
+import { Room, type Scene, scenesOf, specimen } from "@stealthscale/specimen";
 
-import { Matrix, type Scene, specimen, useWords, valuesOf } from "@stealthscale/specimen";
-
-import * as Tabs from "#tabs/index.ts";
+import * as examples from "#tabs/examples/index.ts";
+import type * as Tabs from "#tabs/index.ts";
 import { recipe } from "#tabs/recipe.ts";
 
 /**
- * The two answers to a boolean prop.
- */
-const EITHER = [false, true] as const;
-
-/**
- * The two ways the strip can run.
- */
-const ORIENTATIONS = ["horizontal", "vertical"] as const;
-
-/**
- * Draws the strip and the three panels every set holds.
- */
-function Account(): ReactElement {
-  const { t } = useWords("tabs");
-
-  return (
-    <>
-      <Tabs.List>
-        <Tabs.Trigger value="overview">{t("overview")}</Tabs.Trigger>
-        <Tabs.Trigger value="activity">{t("activity")}</Tabs.Trigger>
-        <Tabs.Trigger value="settings">{t("settings")}</Tabs.Trigger>
-        <Tabs.Indicator />
-      </Tabs.List>
-      <Tabs.Content value="overview">{t("holds")}</Tabs.Content>
-      <Tabs.Content value="activity">{t("lately")}</Tabs.Content>
-      <Tabs.Content value="settings">{t("tuned")}</Tabs.Content>
-    </>
-  );
-}
-
-/**
- * Draws the set in every look at every size.
- */
-function Looks(): ReactElement {
-  return (
-    <Matrix
-      across={{ knob: "size", of: valuesOf(recipe, "size") }}
-      knob="variant"
-      of={valuesOf(recipe, "variant")}
-    >
-      {(variant, size) => (
-        <Tabs.Root defaultValue="overview" size={size} variant={variant}>
-          <Account />
-        </Tabs.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the set with its controls taking what they need, and sharing the strip.
- */
-function Fitted(): ReactElement {
-  return (
-    <Matrix direction="column" knob="fitted" of={EITHER}>
-      {(fitted) => (
-        <Tabs.Root defaultValue="overview" fitted={fitted} variant="enclosed">
-          <Account />
-        </Tabs.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the set with its controls at every place in the strip.
- */
-function Distribution(): ReactElement {
-  return (
-    <Matrix direction="column" knob="justify" of={valuesOf(recipe, "justify")}>
-      {(justify) => (
-        <Tabs.Root defaultValue="overview" justify={justify}>
-          <Account />
-        </Tabs.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Draws the set with its strip run each way.
- */
-function Orientation(): ReactElement {
-  return (
-    <Matrix knob="orientation" of={ORIENTATIONS}>
-      {(orientation) => (
-        <Tabs.Root defaultValue="overview" orientation={orientation}>
-          <Account />
-        </Tabs.Root>
-      )}
-    </Matrix>
-  );
-}
-
-/**
- * Every look at every size.
- */
-export const looks: Scene = { about: "tabs.looks.about", draw: Looks, title: "tabs.looks.title" };
-
-/**
- * Taking what they need beside sharing the strip.
- */
-export const fitted: Scene = {
-  about: "tabs.fitted.about",
-  draw: Fitted,
-  title: "tabs.fitted.title",
-};
-
-/**
- * Every share of the strip.
- */
-export const distribution: Scene = {
-  about: "tabs.distribution.about",
-  draw: Distribution,
-  title: "tabs.distribution.title",
-};
-
-/**
- * The strip run each way.
+ * Hand-written scene for a vertical list.
  */
 export const orientation: Scene = {
   about: "tabs.orientation.about",
-  draw: Orientation,
+  draw: () => (
+    <Room size="lg">
+      <examples.preferences.Preferences />
+    </Room>
+  ),
+  example: examples.preferences,
   title: "tabs.orientation.title",
+};
+
+/**
+ * Hand-written scene for closable tabs over a list of files.
+ */
+export const closing: Scene = {
+  about: "tabs.closing.about",
+  draw: () => (
+    <Room size="2xl">
+      <examples.files.Files />
+    </Room>
+  ),
+  example: examples.files,
+  title: "tabs.closing.title",
+};
+
+/**
+ * Hand-written scene for a list of tabs wider than its room.
+ */
+export const scrolling: Scene = {
+  about: "tabs.scrolling.about",
+  draw: () => (
+    <Room size="md">
+      <examples.drafts.Drafts />
+    </Room>
+  ),
+  example: examples.drafts,
+  title: "tabs.scrolling.title",
+};
+
+/**
+ * Hand-written scene for a close from outside the list.
+ */
+export const controlled: Scene = {
+  about: "tabs.controlled.about",
+  draw: () => (
+    <Room size="md">
+      <examples.reader.Reader />
+    </Room>
+  ),
+  example: examples.reader,
+  title: "tabs.controlled.title",
 };
 
 export default specimen({
   about: "tabs.about",
-  group: "Disclosure",
-  id: "disclosure/tabs",
+  id: "components/disclosure/tabs",
   imports: 'import { Tabs } from "@stealthscale/component-disclosure";',
-  scenes: [looks, fitted, distribution, orientation],
+  scenes: [
+    ...scenesOf<Tabs.RootProps>(recipe, {
+      axes: {
+        fitted: { direction: "column", with: { variant: "enclosed" } },
+        justify: { direction: "column" },
+        size: { direction: "column" },
+        variant: { direction: "column" },
+      },
+      draw: (props) => (
+        <Room size="md">
+          <examples.account.Account {...props} />
+        </Room>
+      ),
+      example: examples.account,
+      namespace: "tabs",
+      order: ["variant", "palette", "size", "fitted", "justify"],
+    }),
+    orientation,
+    closing,
+    scrolling,
+    controlled,
+  ],
   title: "tabs.title",
 });

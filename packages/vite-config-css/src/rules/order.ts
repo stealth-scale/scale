@@ -1,15 +1,15 @@
 /**
- * Puts the declarations in a block into one order every author reproduces.
+ * Fixes the order of the declarations inside a CSS block.
  */
 
 /**
  * Sorts every declaration in a block alphabetically by property name.
  *
  * @remarks
- *   An alphabetical sort is arbitrary and total. Grouping by meaning reads
- *   better to whoever grouped it, and two authors place the same property
- *   differently, which turns a one-line change into a reshuffled block in
- *   review.
+ *   Alphabetical is arbitrary but total, and total is the point. Grouping by
+ *   meaning reads better only to whoever did the grouping; two authors place
+ *   the same property differently, which turns a one-line change into a
+ *   reshuffled block at review.
  */
 export const ORDER = {
   "order/properties-alphabetical-order": true,

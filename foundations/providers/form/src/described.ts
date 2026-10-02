@@ -1,5 +1,5 @@
 /**
- * Builds the description of a form from what the hook is given and what the provider holds.
+ * Builds the description of a form from what the hook is given and what the provider supplies.
  */
 
 import { useFormEnvironment } from "#environment.ts";
@@ -21,7 +21,7 @@ export interface Drawing {
   readonly layouts: Layouts;
 
   /**
-   * The renderers the package draws fields with, before the provider's.
+   * The renderers the package renders fields with, before the provider's.
    */
   readonly renderers: readonly Renderer[];
 }
@@ -37,7 +37,7 @@ interface Typed {
   readonly fieldOptions: FormDescription["fieldOptions"];
 
   /**
-   * How the form is drawn.
+   * How the form is rendered.
    */
   readonly presentation: Presentation;
 }
@@ -48,7 +48,7 @@ interface Typed {
  * @remarks
  *   The presentation is read from the schema and the call site, then checked against the paths
  *   the engine lists, so a member naming a path the schema lacks throws where the form is built
- *   rather than drawing nothing. The identifier given takes precedence over the presentation's.
+ *   rather than rendering nothing. The identifier given takes precedence over the presentation's.
  *   The package's renderers come before the provider's, so an application overrides a default
  *   by registering after it.
  * @typeParam Values - The form's values.
@@ -63,11 +63,12 @@ export function useDescription<Values>(
   const schema = schemaOf(options.schema);
   const given =
     options.id === undefined ? options.presentation : { ...options.presentation, id: options.id };
-  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- a presentation and field options over typed values are the untyped ones with their paths narrowed, which the compiler cannot relate across a type parameter
-  const typed = {
+  const members = {
     fieldOptions: options.fieldOptions ?? {},
     presentation: presentationOf(schema, given),
-  } as Typed;
+  };
+  // eslint-disable-next-line typescript/no-unsafe-type-assertion -- a presentation and field options over typed values are the untyped ones with their paths narrowed, which the compiler cannot relate across a type parameter
+  const typed = members as Typed;
 
   validatePresentation(typed.presentation, engine.paths(schema));
 

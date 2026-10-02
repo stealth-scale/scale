@@ -1,0 +1,46 @@
+{
+  "about": "The work left per period against a straight ideal line, and the trend projected past the last reading. burndownFinish returns the period the projection falls to zero, which the caption states.",
+  "ahead": {
+    "about": "A sprint burning faster than the ideal line. The projection falls to zero before the sprint ends, and the chart plots it at zero after that.",
+    "label": "Checkout sprint burndown",
+    "title": "Ahead of plan"
+  },
+  "finish": "At the current rate the work runs out on day {{day}} of a {{days}}-day sprint.",
+  "ideal": "Ideal",
+  "narrow": {
+    "about": "The sprint in a room 20rem wide, the column of a phone.",
+    "title": "Narrow room"
+  },
+  "projected": "Projected",
+  "quiet": {
+    "about": "A sprint without periods renders the empty state in the plot's place, at the plot's ratio.",
+    "caption": "Remaining story points per day.",
+    "empty": "The sprint has not started.",
+    "title": "Empty"
+  },
+  "remaining": "Remaining",
+  "replay": {
+    "about": "animate reveals each line from the start of the axis when the chart mounts, and Replay mounts the chart again. Under reduced motion recharts renders the lines at once.",
+    "replay": "Replay",
+    "title": "Animation"
+  },
+  "scope": {
+    "about": "Work added mid-sprint turns the trend upward. A trend that does not fall has no finish, so the chart renders no projection and burndownFinish returns nothing.",
+    "caption": "8 points joined the sprint on September 16, so the remaining work is not falling and no finish is projected.",
+    "label": "Billing sprint burndown",
+    "title": "Scope added"
+  },
+  "series": "Series",
+  "sprint": {
+    "about": "Story points left at the end of each working day, read on the first seven. The ideal line runs from 60 to zero over the ten days, and the projection continues the trend from the last reading.",
+    "label": "Search sprint burndown",
+    "title": "Behind plan"
+  },
+  "stalled": "The remaining work is not falling, so no finish is projected.",
+  "title": "Burndown chart",
+  "today": {
+    "about": "defaultIndex opens the tooltip at the last reading when the chart first renders. The tooltip writes each line's value that day.",
+    "caption": "On September 22, 36 points remained against an ideal of 20.",
+    "title": "Tooltip"
+  }
+}

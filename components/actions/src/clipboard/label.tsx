@@ -1,9 +1,9 @@
 /**
- * Draws the words that name the value.
+ * Renders the text that identifies the value.
  *
  * @remarks
- *   The element is `label`, and the machine points it at the input, so a screen reader names the
- *   field by these words. Where a caller draws no input, the words stand as a caption.
+ *   The element is a `label` that the machine associates with the input, so a screen reader reads
+ *   it when the field receives focus. Without an input, it renders as a caption.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -14,23 +14,23 @@ import { withContext } from "#clipboard/context.ts";
 import { useClipboard } from "#clipboard/machine.ts";
 
 /**
- * Draws the words at the size the root states.
+ * `label` bound to the label slot.
  */
-const Worded = withContext("label", "label");
+const Styled = withContext("label", "label");
 
 /**
- * Describes what the label takes.
+ * Props of `Clipboard.Label`: the props of the styled `label`.
  */
-export type LabelProps = ComponentProps<typeof Worded>;
+export type LabelProps = ComponentProps<typeof Styled>;
 
 /**
- * Captions the value the clipboard copies.
+ * Renders the label with the caller's props merged over the machine's.
  *
- * @param props - Everything a styled label takes.
- * @returns The words, pointed at the field.
+ * @param props - Props of the styled `label`.
+ * @returns The label, whose `for` attribute points at the field.
  */
 export function Label(props: LabelProps): ReactElement {
   const api = useClipboard();
 
-  return <Worded {...mergeProps(api.getLabelProps(), props)} />;
+  return <Styled {...mergeProps(api.getLabelProps(), props)} />;
 }

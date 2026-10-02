@@ -1,67 +1,54 @@
 /**
- * Runs a branch's machine and carries what it answers down to the three parts that draw it.
+ * Provides the defaults a list below a provider starts from, and the state a list gives its rows.
  *
  * @remarks
- *   A branch runs the collapsible machine rather than a flag of its own, because the machine
- *   measures the list beneath the row and writes its height as a custom property, which is what
- *   the list's motion runs to, and keeps the list in the document until that motion has ended. It
- *   borrows the machine alone and none of the collapsible's recipe: a collapsible's trigger reads
- *   the control scale, which would put a second height on a row that already states one, and the
- *   height a reader saw would come down to the order the stylesheet was written in.
- *   The machine is connected once, at the branch, so every part reads one api from one running
- *   machine. A part drawn outside a branch throws where it was written rather than drawing wrongly
- *   and saying nothing.
+ *   A sidebar collapsed to a rail sets `iconic` once through the provider, and every list in it
+ *   renders its rows as icons. A list's own prop overrides the provider. A row reads whether its
+ *   list is iconic to decide whether it shows its tooltip.
  */
 
-import { useId } from "react";
+import { createContext, use } from "react";
 
-import * as collapsible from "@zag-js/collapsible";
-import { normalizeProps, useMachine } from "@zag-js/react";
-
-import { createRequiredContext, splitEnumerable } from "@stealthscale/hooks";
-
-import { stated } from "#stated.ts";
+import { createRequiredContext } from "@stealthscale/hooks";
 
 /**
- * Describes what the machine answers: a prop getter per part, beside its state and its methods.
- *
- * @remarks
- *   Inferred off `connect` rather than named, so the parts take exactly what the machine hands
- *   them. The inferred type reaches `@zag-js/types`, which this package declares for that reason
- *   alone: a declaration file naming a type from a package nobody declared is not portable.
+ * Describes the defaults a provider sets for every list below it.
  */
-export type BranchApi = ReturnType<typeof collapsible.connect>;
+export interface Defaults {
+  /**
+   * Whether the lists render their rows as icons.
+   */
+  readonly iconic?: boolean | undefined;
 
-/**
- * Describes what a caller sets on the machine, less the id it is given.
- */
-export type BranchOptions = Partial<collapsible.Props>;
-
-/**
- * Hands the running machine to every part, and reads it back.
- */
-export const [BranchProvider, useBranch] = createRequiredContext<BranchApi>("NavList.Branch");
-
-/**
- * Starts the machine and connects it.
- *
- * @param options - The settings the caller handed the branch, less the id where it named none.
- * @returns The api every part reads.
- */
-export function useBranchMachine(options: BranchOptions): BranchApi {
-  const generated = useId();
-
-  return collapsible.connect(
-    useMachine(collapsible.machine, { ...stated(options), id: options.id ?? generated }),
-    normalizeProps,
-  );
+  /**
+   * Size of the lists' rows.
+   */
+  readonly size?: "lg" | "md" | "sm" | undefined;
 }
 
 /**
- * Splits what the machine reads from what the element does.
- *
- * @remarks
- *   The machine states which props are its own, so the branch never lists them and never drifts
- *   from the version it is built against.
+ * Context through which a provider sets the defaults of the lists below it.
  */
-export const splitBranchProps = splitEnumerable(collapsible.splitProps);
+export const DefaultsContext = createContext<Defaults>({});
+
+/**
+ * Reads the defaults the nearest provider sets, or none outside a provider.
+ */
+export function useDefaults(): Defaults {
+  return use(DefaultsContext);
+}
+
+/**
+ * Describes the state a list gives its rows.
+ */
+export interface ListState {
+  /**
+   * Whether the list renders its rows as icons.
+   */
+  readonly iconic: boolean;
+}
+
+/**
+ * Creates the context through which a list provides its state to its rows.
+ */
+export const [ListProvider, useList] = createRequiredContext<ListState>("NavList");

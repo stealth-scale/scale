@@ -1,32 +1,27 @@
 /**
- * States what a paragraph of skeleton is: a column of bars standing in for lines of text that have
- * not arrived.
+ * Declares the recipe of the skeleton text column: one bar per line, spaced by half a line.
  *
  * @remarks
- *   Every length here is read off the line the bars stand in for. A bar is one line tall and the
- *   space between two is half a line, so a column of stand-ins occupies what the real paragraph
- *   will occupy and the page does not jump when the words land. Nothing states a size of its own,
- *   which is what lets a caller drop a paragraph of stand-ins wherever text is read and have it
- *   come out the size of that text.
- *   The last bar of several is short. A paragraph rarely fills its final line, and a block of bars
- *   all the same width reads as a table rather than as prose.
+ *   Every length is in `lh`, the line height of the text the bars replace, so the placeholder
+ *   takes the size of the text around it without an absolute length. Each bar is `1lh` tall and
+ *   the column's gap is `0.5lh`. The gap is on the column and not a clipped inset on the bar,
+ *   because the skeleton's `loading` variant sets `background` and `background-clip: padding-box`
+ *   in the variants layer, which overrides any clip this base sets on a bar. With two or more bars
+ *   the last is capped at 80% width, so the stack reads as a paragraph and not as a table.
  */
 
 import { defineRecipe } from "@stealthscale/theme/authoring";
 
 /**
- * Draws a column of bars, each the height of the line it stands in for.
+ * Skeleton text recipe: a full-width flex column of line-height bars.
  */
 export const recipe = defineRecipe({
   base: {
-    "& > *": {
-      backgroundClip: "content-box",
-      blockSize: "1lh",
-      paddingBlock: "0.15lh",
-    },
+    "& > *": { blockSize: "1lh" },
     "& > *:last-child:not(:only-child)": { maxWidth: "80%" },
     display: "flex",
     flexDirection: "column",
+    gap: "0.5lh",
     width: "full",
   },
   className: "skeleton-text",

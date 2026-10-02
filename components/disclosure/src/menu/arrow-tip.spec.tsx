@@ -7,19 +7,19 @@ import { ArrowTip } from "#menu/arrow-tip.tsx";
 import { composed, listed } from "#menu/menu.fixtures.tsx";
 
 describe("ArrowTip", () => {
-  it("draws a div inside the root it needs above it", async () => {
+  it("renders a div", async () => {
     const { container } = await drawn(listed(<ArrowTip />));
 
     expect(slotElement(container, "menu", "arrowTip").tagName).toBe("DIV");
   });
 
-  it("is placed by the machine rather than by the recipe", async () => {
+  it("takes the machine's rotation", async () => {
     const { container } = await drawn(composed({ defaultOpen: true }));
 
     expect(slotElement(container, "menu", "arrowTip").style.transform).toContain("rotate");
   });
 
-  it("takes the look the root states, as the panel does", async () => {
+  it("applies the root's variant class with the panel", async () => {
     const { container } = await drawn(composed({ defaultOpen: true, variant: "glass" }));
 
     expect(slotClasses(container, "menu", "arrowTip")).toContain(
@@ -30,7 +30,7 @@ describe("ArrowTip", () => {
     );
   });
 
-  it("draws the element as names", async () => {
+  it("renders the element as names", async () => {
     const { container } = await drawn(listed(<ArrowTip as="span" />));
 
     expect(slotElement(container, "menu", "arrowTip").tagName).toBe("SPAN");

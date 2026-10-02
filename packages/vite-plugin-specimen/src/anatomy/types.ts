@@ -1,14 +1,17 @@
 /**
- * Re-exports the compiler types the reader is written against.
+ * Re-exports the types the reader is written against: the compiler's, the store's and the
+ * anatomy's.
  *
  * @remarks
- *   Gathered here because a top-level `export type` is erased, where an inline `import { type X }`
- *   from a package still loads that package at run time. TypeScript is an optional peer, so a
- *   catalogue that reads no props must not load it, and every module below imports its types from
- *   this file instead.
+ *   Collected in one file because a top-level `export type` is erased at compile time, while an
+ *   inline `import { type X }` still loads the package at run time. TypeScript is an optional peer,
+ *   so a catalogue that reads no props must never load it. Every module in this directory imports
+ *   its types from here.
  */
 
+export type { Store } from "#anatomy/cache.ts";
 export type { Compiler } from "#anatomy/compiler.ts";
+export type { Anatomy } from "#contract.ts";
 export type {
   Checker,
   Program,

@@ -8,23 +8,23 @@ import { slotClasses, variantClass } from "@stealthscale/testing-theme";
 import { withContext, withProvider } from "#input-group/context.ts";
 
 describe("context", () => {
-  it("draws the slot's class on an element it binds", () => {
+  it("applies the slot class to an element it binds", () => {
     const Box = withProvider("div", "root");
-    const Mark = withContext("div", "start");
+    const Mark = withContext("span", "mark");
     const { container } = render(createElement(Box, null, createElement(Mark, null, "€")));
 
-    expect(slotClasses(container, "input-group", "start")).toContain("input-group__start");
+    expect(slotClasses(container, "input-group", "mark")).toContain("input-group__mark");
   });
 
-  it("hands the root's variants to a part below it", () => {
+  it("applies the root's variant to a part inside it", () => {
     const Box = withProvider("div", "root");
-    const Mark = withContext("div", "start");
+    const Mark = withContext("span", "mark");
     const { container } = render(
       createElement(Box, { size: "lg" }, createElement(Mark, null, "€")),
     );
 
-    expect(slotClasses(container, "input-group", "start")).toContain(
-      variantClass("input-group__start", "size", "lg"),
+    expect(slotClasses(container, "input-group", "mark")).toContain(
+      variantClass("input-group__mark", "size", "lg"),
     );
   });
 });

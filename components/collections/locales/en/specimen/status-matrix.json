@@ -1,43 +1,46 @@
 {
-  "about": "Draws one set against another, a mark at every crossing.",
+  "about": "Renders the state of one set of items against another, with a mark at every crossing. The last column rolls each row up to its worst state.",
   "caption": "Service health by region",
+  "checks": "Checks by site",
   "corner": "Service",
   "crossing": "{{row}} in {{column}}: {{state}}",
   "discovery": "Discovery",
   "down": "Down",
+  "empty": {
+    "about": "A matrix with no rows renders the `empty` content in one full-width row.",
+    "title": "An empty matrix"
+  },
   "fine": "Healthy",
+  "flat": {
+    "about": "Rows without a `group` render in one body. The matrix renders sections only when every row states a group, so rows that state one only in part render flat.",
+    "title": "Without sections"
+  },
   "gap": {
-    "about": "The same grid twice, the second with APAC never run. A crossing nobody measured draws its own mark rather than a blank, and it counts as unknown in the rollup, which outranks both a pass and a crossing that does not apply. Left blank, a region nobody checked would read as a region with nothing wrong.",
-    "every": "every crossing measured",
-    "short": "APAC never run",
-    "title": "A gap outranks a pass"
+    "about": "Three services with APAC never run. A crossing with no cell renders the unmeasured mark. The rollup ranks a gap above a pass and a crossing that does not apply, and below a warning, so auth rolls up to Not measured and billing to Down.",
+    "title": "A gap ranks above a pass"
   },
   "legend": "States",
-  "looks": {
-    "about": "Every step the grid is read at. A matrix is scanned rather than read, so the step decides how many rows fit on one screen.",
-    "title": "Sizes"
-  },
-  "measured": {
-    "about": "Every crossing measured, gathered into a section per team, closing on the worst state along each row. Nothing in the grid is pressable and nothing in it is a tab stop, because no caller is listening for a crossing. Hover a crossing to light its row and its column.",
-    "title": "Every crossing measured"
-  },
   "nothing": "No services measured yet",
   "nothingYet": "Nothing picked yet",
   "payments": "Payments",
   "picked": "Picked {{row}} in {{column}}: {{state}}",
   "picking": {
-    "about": "Given a handler, every crossing becomes a button and the grid takes a tab stop per crossing. A crossing nobody measured is a button as well, because that is the pair somebody wants to go and measure. The hover stays a quiet neutral rather than the accent: the mark's own colour is the data, and a strong fill under it destroys what the crossing is saying.",
+    "about": "With `onSelectCell`, every crossing is a button, a crossing with no cell included, and a press reports the row, the column and the cell. Without it the matrix has no tab stop. The pointer rests on notifications in Reston, and the crosshair fills that row and that column with `bg.subtle`.",
     "title": "Picking a crossing"
   },
-  "plain": {
-    "about": "The rows drawn straight through rather than gathered, and a grid with no rows at all. Sections are drawn where every row states one, so a list where only some do is drawn as one body rather than under a heading half of it does not belong to.",
-    "none": "holding nothing",
-    "through": "no sections",
-    "title": "Without sections"
-  },
+  "platform": "Platform",
+  "queue": "Queue",
+  "queues": "Queue health by site",
   "rolling": "Rolling out",
+  "rollout": "Rollout health by region",
+  "shared": "Shared services by site",
+  "size": {
+    "about": "Every size. The size sets the text, the cell padding and the marks, so it decides how many rows fit on a screen.",
+    "title": "Sizes"
+  },
   "skipped": "Not applicable",
   "slow": "Degraded",
+  "streaming": "Streaming",
   "title": "Status matrix",
   "unmeasured": "Not measured",
   "worst": "Worst"

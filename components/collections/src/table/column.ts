@@ -1,12 +1,10 @@
 /**
- * Declares one column of the table.
+ * Renders one column declaration.
  *
  * @remarks
- *   The element is `col`, which draws no box of its own. A browser reads four things off it:
- *   the width, the background, the border and whether the column is drawn at all. Everything else
- *   stated here is ignored, so a column is tinted and sized from this and styled from its cells.
- *   A column a caller highlights sets its own background here, which reaches every cell of the
- *   column in one declaration rather than one per row.
+ *   The element is a `col`. A browser reads its width, background, border and visibility, and
+ *   ignores every other property, so a column's width and tint are set here and its other styles
+ *   on its cells.
  */
 
 import { type ComponentProps } from "react";
@@ -14,11 +12,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#table/context.ts";
 
 /**
- * Declares one column, for its width and its tint.
+ * Renders the `col` with the table's column class.
  */
 export const Column = withContext("col", "column");
 
 /**
- * Describes what the column takes: everything a styled col takes.
+ * Describes the props of a column: the props of a `col`.
  */
 export type ColumnProps = ComponentProps<typeof Column>;

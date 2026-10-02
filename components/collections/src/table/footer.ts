@@ -1,9 +1,8 @@
 /**
- * Draws the band the table's totals sit in.
+ * Renders the group of footer rows, such as a total.
  *
  * @remarks
- *   The element is `tfoot`, which a screen reader reads as the summary of the table rather than as
- *   another row of figures. A total written as an ordinary row says nothing about being one.
+ *   The element is a `tfoot`, which a screen reader announces as the table's footer.
  */
 
 import { type ComponentProps } from "react";
@@ -11,11 +10,11 @@ import { type ComponentProps } from "react";
 import { withContext } from "#table/context.ts";
 
 /**
- * Closes the table with whatever its rows add up to.
+ * Renders the `tfoot` with the table's footer class.
  */
 export const Footer = withContext("tfoot", "footer");
 
 /**
- * Describes what the band takes: everything a styled tfoot takes.
+ * Describes the props of the footer: the props of a `tfoot`.
  */
 export type FooterProps = ComponentProps<typeof Footer>;

@@ -8,23 +8,23 @@ import { recipe } from "#text/recipe.ts";
 import { Text } from "#text/text.ts";
 
 describe("Text", () => {
-  it("conforms as a paragraph element", () => {
+  it("passes the component conformance checks as a p element", () => {
     expect(violations(Text, { as: true, children: true, element: "P" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule", async () => {
+  it("returns no accessibility violation", async () => {
     await expect(
       accessibilityViolations(Text, { props: { children: "Words" } }),
     ).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(recipe, (props) => render(<Text {...props}>Words</Text>).container),
     ).toStrictEqual([]);
   });
 
-  it("draws the element as names", () => {
+  it("renders a span when as is span", () => {
     const { container } = render(<Text as="span">Words</Text>);
 
     expect(recipeElement(container, "text").tagName).toBe("SPAN");

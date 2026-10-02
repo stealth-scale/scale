@@ -1,6 +1,6 @@
 /**
- * Publishes the switch's four parts, which a caller composes as `Switch.Root` holding the track
- * and the words that name it.
+ * Exports the switch's four parts. A caller renders `Switch.Root` around a `Switch.Label` and a
+ * `Switch.Control` that contains a `Switch.Thumb`.
  */
 
 export { Control, type ControlProps } from "#switch/control.tsx";

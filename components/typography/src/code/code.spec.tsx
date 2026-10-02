@@ -8,25 +8,25 @@ import { Code } from "#code/code.ts";
 import { recipe } from "#code/recipe.ts";
 
 describe("Code", () => {
-  it("conforms as a code element", () => {
+  it("passes the component conformance checks as a code element", () => {
     expect(violations(Code, { as: true, children: true, element: "CODE" })).toStrictEqual([]);
   });
 
-  it("breaks no accessibility rule", async () => {
+  it("returns no accessibility violation", async () => {
     await expect(
       accessibilityViolations(Code, { props: { children: "npm" } }),
     ).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value", () => {
     expect(
       boundViolations(recipe, (props) => render(<Code {...props}>npm</Code>).container),
     ).toStrictEqual([]);
   });
 
-  it("draws the element as names", () => {
-    const { container } = render(<Code as="kbd">npm</Code>);
+  it("renders a samp element when as is samp", () => {
+    const { container } = render(<Code as="samp">npm</Code>);
 
-    expect(recipeElement(container, "code").tagName).toBe("KBD");
+    expect(recipeElement(container, "code").tagName).toBe("SAMP");
   });
 });

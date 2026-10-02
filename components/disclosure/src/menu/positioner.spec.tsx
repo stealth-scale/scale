@@ -3,33 +3,47 @@ import { describe, expect, it } from "vitest";
 import { drawn } from "@stealthscale/testing-react";
 import { slotElement } from "@stealthscale/testing-theme";
 
-import { composed, listed } from "#menu/menu.fixtures.tsx";
-import { Positioner } from "#menu/positioner.tsx";
+import { Content, Positioner, Root } from "#menu/index.ts";
+import { composed } from "#menu/menu.fixtures.tsx";
 
 describe("Positioner", () => {
-  it("draws a div inside the root it needs above it", async () => {
-    const { container } = await drawn(listed(<Positioner />));
+  it("renders a div", async () => {
+    const { container } = await drawn(composed({ defaultOpen: true }));
 
     expect(slotElement(container, "menu", "positioner").tagName).toBe("DIV");
   });
 
-  it("is placed by the machine rather than by the recipe", async () => {
+  it("takes the machine's absolute position", async () => {
     const { container } = await drawn(composed({ defaultOpen: true }));
 
     expect(slotElement(container, "menu", "positioner").style.position).toBe("absolute");
   });
 
-  it("holds the panel so the panel can read the room left on the screen", async () => {
+  it("contains the content", async () => {
     const { container } = await drawn(composed({ defaultOpen: true }));
 
     expect(
-      slotElement(container, "menu", "positioner").querySelector("[data-part=content]"),
+      slotElement(container, "menu", "positioner").querySelector(
+        "[data-scope=menu][data-part=content]",
+      ),
     ).not.toBeNull();
   });
 
-  it("draws the element as names so a caller can portal it", async () => {
-    const { container } = await drawn(listed(<Positioner as="span" />));
+  it("renders the element as names", async () => {
+    const { container } = await drawn(
+      <Root defaultOpen>
+        <Positioner as="span">
+          <Content />
+        </Positioner>
+      </Root>,
+    );
 
     expect(slotElement(container, "menu", "positioner").tagName).toBe("SPAN");
+  });
+
+  it("renders nothing while closed", async () => {
+    const { container } = await drawn(composed());
+
+    expect(container.querySelector(".menu__positioner")).toBeNull();
   });
 });

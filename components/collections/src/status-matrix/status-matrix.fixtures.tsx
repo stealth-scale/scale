@@ -1,5 +1,5 @@
 /**
- * Builds the matrix every specification draws, so no case states the same eight props.
+ * Fixtures for the status matrix specs: a vocabulary, two axes, the cells and a matrix builder.
  */
 
 import { type ReactElement, type ReactNode } from "react";
@@ -9,22 +9,22 @@ import { type MatrixCell, type MatrixHeading, type MatrixState } from "#status-m
 import { StatusMatrix, type StatusMatrixProps } from "#status-matrix/status-matrix.tsx";
 
 /**
- * Provides the variants every part below the root reads.
+ * Renders the root `div` that provides the variants.
  */
 const Framed = withProvider("div", "root");
 
 /**
- * Draws whatever a case wants measured inside the root that states the variants.
+ * Renders a part inside the root that provides the variants.
  *
- * @param children - The part under test, which a case puts in a matrix where one is needed.
- * @returns The root, holding it.
+ * @param children - The part under test.
+ * @returns The root with the part inside it.
  */
 export function framed(children: ReactNode): ReactElement {
   return <Framed>{children}</Framed>;
 }
 
 /**
- * The vocabulary every case reads its cells against.
+ * Vocabulary of five states, one per tone.
  */
 export const STATES: Readonly<Record<string, MatrixState>> = {
   down: { label: "Down", mark: "x", tone: "error" },
@@ -35,12 +35,12 @@ export const STATES: Readonly<Record<string, MatrixState>> = {
 };
 
 /**
- * Drawn at a crossing nobody measured.
+ * State of a pair without a cell, with no mark.
  */
 export const UNMEASURED: MatrixState = { label: "Not measured", tone: "neutral" };
 
 /**
- * The rows every case draws, gathered into two sections.
+ * Three rows in two groups.
  */
 export const ROWS: readonly MatrixHeading[] = [
   { group: "Payments", id: "checkout", label: "checkout-api" },
@@ -49,7 +49,7 @@ export const ROWS: readonly MatrixHeading[] = [
 ];
 
 /**
- * The columns every case draws.
+ * Three columns.
  */
 export const COLUMNS: readonly MatrixHeading[] = [
   { id: "eu", label: "EU" },
@@ -58,7 +58,7 @@ export const COLUMNS: readonly MatrixHeading[] = [
 ];
 
 /**
- * The crossings every case reads. The APAC column of `search` is left out, so one pair is a gap.
+ * Cells for every pair but `search` in `apac`, which is a gap.
  */
 export const CELLS: readonly MatrixCell[] = [
   { column: "eu", row: "checkout", state: "fine" },
@@ -72,10 +72,11 @@ export const CELLS: readonly MatrixCell[] = [
 ];
 
 /**
- * Draws a matrix, less whatever a case states itself.
+ * Renders a matrix over the fixtures with a caption, a corner, a legend and a rollup, and the
+ * props the case sets.
  *
- * @param props - Whatever the case sets on the matrix.
- * @returns The grid and its legend.
+ * @param props - The props the case sets.
+ * @returns The matrix.
  */
 export function graded(props: Partial<StatusMatrixProps> = {}): ReactElement {
   return (

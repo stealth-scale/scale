@@ -14,7 +14,15 @@ describe("recipe", () => {
   });
 
   it("draws the bar over the stage that holds the frame", () => {
-    expect(recipe.slots).toStrictEqual(["root", "bar", "picker", "size", "stage", "frame"]);
+    expect(recipe.slots).toStrictEqual([
+      "root",
+      "bar",
+      "picker",
+      "size",
+      "stage",
+      "content",
+      "frame",
+    ]);
   });
 
   it("offers no axis because a device is one thing", () => {
@@ -26,9 +34,12 @@ describe("recipe", () => {
     expect(recipe.base?.["size"]).toStrictEqual({ marginInlineStart: "auto" });
   });
 
-  it("scrolls the stage across rather than shrinking the frame", () => {
-    expect(recipe.base?.["stage"]).toMatchObject({ overflowX: "auto" });
+  it("keeps the frame at its size in the stage", () => {
     expect(recipe.base?.["frame"]).toMatchObject({ display: "block", flexShrink: "0" });
+  });
+
+  it("leaves the scrolling to the stage's scroll area", () => {
+    expect(recipe.base?.["stage"]).toStrictEqual({ maxInlineSize: "full" });
   });
 
   it("outlines the frame with a dashed hairline outside its box and leaves it see-through", () => {
@@ -39,7 +50,7 @@ describe("recipe", () => {
       outlineWidth: "hairline",
     });
     expect(recipe.base?.["frame"]).not.toHaveProperty("borderWidth");
-    expect(recipe.base?.["stage"]).toHaveProperty("padding");
+    expect(recipe.base?.["content"]).toHaveProperty("padding");
   });
 
   it("sizes the frame from the properties the root writes", () => {

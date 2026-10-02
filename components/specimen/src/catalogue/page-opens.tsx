@@ -1,5 +1,6 @@
 /**
- * Draws the control at the foot of a scene's card that shows and hides its source.
+ * Renders the end of a scene's footer: the control that shows and hides the scene's source, or a
+ * line saying the scene has none.
  */
 
 import { type ReactElement } from "react";
@@ -7,48 +8,64 @@ import { type ReactElement } from "react";
 import { CodeXmlIcon } from "lucide-react";
 
 import { Button } from "@stealthscale/component-actions";
+import { Text } from "@stealthscale/component-typography";
 
 import { useWords } from "#words.ts";
 
 /**
- * Describes what the control takes.
+ * Describes the props of `Opens`.
  */
 export interface OpensProps {
   /**
-   * The id of the panel it opens, which it points `aria-controls` at.
+   * The source snippet, or `null` when the scene has none.
+   */
+  readonly code: null | string;
+
+  /**
+   * The id of the source panel, referenced by `aria-controls`.
    */
   readonly id: string;
 
   /**
-   * Told when a reader presses it.
+   * Called when the control is pressed.
    */
   readonly onPress: () => void;
 
   /**
-   * Whether the panel it opens is open.
+   * Whether the source panel is open.
    */
   readonly open: boolean;
 }
 
 /**
- * Shows and hides a scene's source.
+ * Renders the source disclosure control, or a line saying the scene has no source.
  *
  * @remarks
- *   A disclosure. It states `aria-expanded` and the id of the panel it controls, and the words on
- *   it do not change with its state, because the state is what `aria-expanded` announces.
- * @param props - The panel it opens, whether that panel is open, and what to tell on a press.
- * @returns The control.
+ *   The control is a disclosure. It sets `aria-expanded` and `aria-controls`, and its label does
+ *   not change with its state, because `aria-expanded` announces the state. A hand-written scene
+ *   without a sample has no source, so the footer renders a line of text instead of a control that
+ *   opens an empty panel.
+ * @param props - The snippet, the panel id, the open state and the press handler.
+ * @returns The control, or the line of text in its place.
  */
-export function Opens({ id, onPress, open }: OpensProps): ReactElement {
+export function Opens({ code, id, onPress, open }: OpensProps): ReactElement {
   const { t } = useWords();
+
+  if (code === null) {
+    return (
+      <Text size="sm" tone="muted">
+        {t("code.none")}
+      </Text>
+    );
+  }
 
   return (
     <Button
       aria-controls={id}
       aria-expanded={open}
       onClick={onPress}
+      palette="neutral"
       size="sm"
-      status="neutral"
       variant="ghost"
     >
       <CodeXmlIcon aria-hidden size="1em" />

@@ -12,10 +12,10 @@ import {
 } from "#clipboard/machine.ts";
 
 /**
- * Runs the machine and reports what it returns, so a case can read its state off the screen.
+ * Starts a machine and publishes its api over a reader a case can inspect.
  *
- * @param props - The settings the machine is started with.
- * @returns The state, drawn as text.
+ * @param props - The settings the machine starts with.
+ * @returns The reader, beneath a provider holding the connected api.
  */
 function Running(props: ClipboardOptions): ReactElement {
   const api = useClipboardMachine(props);
@@ -28,9 +28,9 @@ function Running(props: ClipboardOptions): ReactElement {
 }
 
 /**
- * Reads the running machine through the hook a part reads it through.
+ * Renders the api's state through the same hook the parts use.
  *
- * @returns The value and whether it was copied.
+ * @returns A span holding the value and the copied flag, separated by a colon.
  */
 function Reader(): ReactElement {
   const api = useClipboard();
@@ -43,19 +43,19 @@ function Reader(): ReactElement {
 }
 
 describe("splitClipboardProps", () => {
-  it("takes the machine's settings out of what the root was handed", () => {
+  it("returns the machine's own settings in the first half", () => {
     const [options] = splitClipboardProps({ timeout: 250, value: "4109" });
 
     expect(options).toStrictEqual({ timeout: 250, value: "4109" });
   });
 
-  it("leaves everything the element takes behind", () => {
+  it("returns a prop the machine does not declare in the second half", () => {
     const [, rest] = splitClipboardProps({ size: "lg", value: "4109" });
 
     expect(rest).toStrictEqual({ size: "lg" });
   });
 
-  it("reads the list off the machine rather than one this package keeps", () => {
+  it("routes defaultValue to the machine and className to the element", () => {
     const [options, rest] = splitClipboardProps({ className: "mine", defaultValue: "4109" });
 
     expect(options).toStrictEqual({ defaultValue: "4109" });
@@ -64,13 +64,13 @@ describe("splitClipboardProps", () => {
 });
 
 describe("useClipboardMachine", () => {
-  it("returns a running machine a part can read", () => {
+  it("returns the start value through useClipboard", () => {
     render(<Running value="4109" />);
 
     expect(screen.getByTestId("state").textContent).toBe("4109:idle");
   });
 
-  it("starts with nothing to copy where a caller says nothing", () => {
+  it("starts idle on an empty value when given no options", () => {
     render(<Running />);
 
     expect(screen.getByTestId("state").textContent).toBe(":idle");

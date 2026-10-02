@@ -1,19 +1,19 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
-import { accessibilityViolations } from "@stealthscale/testing-react";
+import { accessibilityViolations, drawn, settled } from "@stealthscale/testing-react";
 import { boundViolations, slotElement } from "@stealthscale/testing-theme";
 
-import { composed } from "#listbox/listbox.fixtures.tsx";
+import { composed, overflowing } from "#listbox/listbox.fixtures.tsx";
 import { recipe } from "#listbox/recipe.ts";
 import { type RootProps } from "#listbox/root.tsx";
 
 describe("Root", () => {
-  it("breaks no accessibility rule holding a label and a list of rows", async () => {
+  it("returns no accessibility violation for a label and a list", async () => {
     await expect(accessibilityViolations(() => composed())).resolves.toStrictEqual([]);
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every value its recipe offers", () => {
     expect(
       boundViolations(
         recipe,
@@ -23,30 +23,51 @@ describe("Root", () => {
     ).toStrictEqual([]);
   });
 
-  it("draws a frame carrying no role of its own", () => {
+  it("renders a div", () => {
     const { container } = render(composed());
 
     expect(slotElement(container, "listbox", "root").tagName).toBe("DIV");
+  });
+
+  it("sets no role on the root", () => {
+    const { container } = render(composed());
+
     expect(slotElement(container, "listbox", "root").getAttribute("role")).toBeNull();
   });
 
-  it("names the list from the label beside it", () => {
+  it("names the list from its label", () => {
     render(composed());
 
     expect(screen.getByRole("listbox", { name: "Places" })).toBeTruthy();
   });
 
-  it("offers one option per row of the collection", () => {
+  it("renders one option per collection item", () => {
     render(composed());
 
     expect(screen.getAllByRole("option")).toHaveLength(3);
   });
 
-  it("marks the row a caller says is chosen", () => {
+  it("selects the rows in value", () => {
     render(composed({ value: ["reports"] }));
 
     expect(screen.getByRole("option", { name: "Reports" }).getAttribute("aria-selected")).toBe(
       "true",
     );
+  });
+
+  it("scrolls the row an arrow key highlights into view in the scroll area's viewport", async () => {
+    const reveal = vi.spyOn(HTMLElement.prototype, "scrollIntoView");
+
+    overflowing();
+    const { container } = await drawn(composed());
+    slotElement(container, "listbox", "viewport").style.overflowY = "auto";
+    fireEvent.keyDown(screen.getByRole("listbox"), { key: "ArrowDown" });
+    await settled();
+    const highlighted = screen.getByRole("listbox").getAttribute("aria-activedescendant");
+
+    expect([reveal.mock.contexts.at(-1), reveal.mock.lastCall]).toStrictEqual([
+      document.querySelector(`[id="${String(highlighted)}"]`),
+      [{ block: "nearest" }],
+    ]);
   });
 });

@@ -1,0 +1,48 @@
+{
+  "about": "A native `details` element. The browser opens and closes it without a script, gives the summary its role, its name and its expanded state, and opens a closed details to show a fragment the address points into. Details with the same `name` form an exclusive group.",
+  "declined": {
+    "about": "The full error of a declined payment in a small details under its alert. A reader who needs the codes opens it, and everyone else reads the alert.",
+    "description": "The customer's bank declined the card. Ask them to pay with another card or to call their bank.",
+    "fields": {
+      "code": "Code",
+      "reason": "Decline code",
+      "request": "Request"
+    },
+    "heading": "Payment failed",
+    "show": "Show the full error",
+    "title": "Under an alert"
+  },
+  "faq": {
+    "about": "Three answers with one `name`. Opening one closes the others without a script, and every summary keeps its tab stop.",
+    "currencies": {
+      "answer": "Payouts go out in the currency of the bank account. A balance in another currency is converted at the day's rate when the payout is created.",
+      "question": "Which currencies can I receive?"
+    },
+    "fees": {
+      "answer": "A standard payout is free. An instant payout costs 1% of the amount, and at least €0.50.",
+      "question": "Do payouts cost anything?"
+    },
+    "timing": {
+      "answer": "A payout created before 14:00 reaches the bank the next business day. A later payout leaves a day later.",
+      "question": "When do payouts reach my bank?"
+    },
+    "title": "Exclusive group"
+  },
+  "palette": {
+    "about": "Every palette in the subtle look, which fills the box.",
+    "title": "Palettes"
+  },
+  "refund": {
+    "answer": "A refund reaches the customer's card within 5 to 10 business days. The fee of the original payment is not returned.",
+    "question": "How long does a refund take?"
+  },
+  "size": {
+    "about": "Every size, closed. The summary is at least a control's height, the indicator is an icon's size, and the content pads on the inset scale.",
+    "title": "Sizes"
+  },
+  "title": "Details",
+  "variant": {
+    "about": "Every look, open. The looks are the collapsible's: a filled box, a raised surface, an edge, and none.",
+    "title": "Looks"
+  }
+}

@@ -1,18 +1,17 @@
 /**
- * States what a set of controls under one tab stop is: a row or a column of items, laid out the
- * way the arrows move through them.
+ * Styles a roving focus group as a flex row or column in the direction its arrow keys move.
  *
  * @remarks
- *   The orientation is one axis because it decides two things that have to agree: which arrows
- *   move focus, which the root reads, and which way the items run, which the recipe draws. A group
- *   the arrows move through in both directions wraps, because a set a reader moves through on two
- *   axes is a set that runs onto a second line.
+ *   One `orientation` axis sets both the layout and the arrow keys, so a column never responds to
+ *   the left and right arrows. `both` wraps the row, because a group navigable on both axes runs
+ *   onto more lines. The recipe has no `palette` or `effect` axis, because the group renders no
+ *   box of its own.
  */
 
 import { defineSlotRecipe } from "@stealthscale/theme/authoring";
 
 /**
- * Lays the items out in a row the arrows run along until a caller says otherwise.
+ * Defaults to a horizontal group.
  */
 export const recipe = defineSlotRecipe({
   base: { item: { minInlineSize: "0" }, root: { display: "flex" } },
@@ -21,6 +20,9 @@ export const recipe = defineSlotRecipe({
   jsx: [/^RovingFocus(\.\w+)?$/u],
   slots: ["root", "item"],
   variants: {
+    /**
+     * Flex direction of the root, matching the arrow keys the group handles.
+     */
     orientation: {
       both: { root: { flexDirection: "row", flexWrap: "wrap" } },
       horizontal: { root: { flexDirection: "row" } },

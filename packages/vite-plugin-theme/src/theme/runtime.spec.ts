@@ -190,7 +190,7 @@ describe("runtime", () => {
     expect(written.watched).toContain("src/theme.ts");
   });
 
-  it("generates from the packer's plugin where it is told the root and nothing generated yet", async () => {
+  it("generates from the packer's plugin when it is told the root and nothing generated yet", async () => {
     const written = await withScratchWorkspaceAsync(SYSTEM, async (workspace) => {
       const shared = generator();
       const context = hookContext([], "build");
@@ -227,20 +227,25 @@ describe("runtime", () => {
 
   it("names the packer's plugin for the runtime it regenerates", () => {
     expect(packed(generator()).name).toBe("stealth:theme.runtime(pack)");
+  });
+
+  it("starts a generator watching nothing", () => {
     expect(generator().watching).toStrictEqual([]);
   });
 
-  it("starts a generator at the working directory and takes another root", () => {
-    const shared = generator();
+  it("starts a generator at the working directory", () => {
+    expect(generator().loading.root).toBe(process.cwd());
+  });
 
-    expect(shared.loading.root).toBe(process.cwd());
+  it("takes a root the caller assigns", () => {
+    const shared = generator();
 
     shared.loading = { root: "/elsewhere" };
 
     expect(shared.loading).toStrictEqual({ root: "/elsewhere" });
   });
 
-  it("holds the package's lock while it generates and releases it after", async () => {
+  it("releases the package's lock after it generates", async () => {
     const left = await withScratchWorkspaceAsync(SYSTEM, async (workspace) => {
       await configured(runtime(), { ...RESOLVED, root: workspace.root });
 
@@ -250,7 +255,7 @@ describe("runtime", () => {
     expect(left).toBe(false);
   });
 
-  it("leaves a generated file the change did not reach as it was when regenerating", async () => {
+  it("leaves a generated file the change did not reach unchanged", async () => {
     const past = new Date("2020-01-01T00:00:00Z");
     const modified = await withScratchWorkspaceAsync(SYSTEM, async (workspace) => {
       const plugin = runtime();

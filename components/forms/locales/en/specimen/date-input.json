@@ -1,0 +1,73 @@
+{
+  "about": "A field a person types a date into one segment at a time: the month, the day and the year in the order and with the separators of the locale, and the hour and the minute where the granularity asks for them. Each segment is a spin button named in the locale, and the arrow keys step it. A hidden input submits the date in ISO 8601 with a form.",
+  "appointment": {
+    "clear": "Clear date",
+    "label": "Appointment"
+  },
+  "birth": {
+    "adult": "You must be 18 or older.",
+    "help": "You must be 18 or older to open an account.",
+    "label": "Date of birth",
+    "missing": "Enter your date of birth.",
+    "sent": "Submitted birthDate={{date}}",
+    "submit": "Continue"
+  },
+  "locales": {
+    "de": "Germany",
+    "gb": "United Kingdom",
+    "jp": "Japan",
+    "us": "United States"
+  },
+  "localized": {
+    "about": "The locale sets the order of the segments, their separators, their placeholders and the names a screen reader reads, such as Monat in German. The same date reads 10/14/2026, 14/10/2026, 14.10.2026 and 2026/10/14.",
+    "title": "Locales"
+  },
+  "meeting": {
+    "label": "Kick-off",
+    "local": "Starts {{time}} in Amsterdam",
+    "none": "No start set"
+  },
+  "ranged": {
+    "about": "With selectionMode range the input edits two dates, each in its own group named by the label and its own aria-label. A form receives stay[0] and stay[1]. The output counts the nights and reports a check-out before the check-in.",
+    "title": "A range of two dates"
+  },
+  "size": {
+    "about": "The sizes a field passes down. The segment group is a control of the same size as a text field, so a date input, a select and an input of one size line up in a form.",
+    "title": "Sizes"
+  },
+  "stated": {
+    "about": "A disabled input dims and takes no focus. A read-only input takes focus, steps nothing and hides its clear trigger. An invalid input takes the error edge, and its segments report aria-invalid.",
+    "title": "Disabled, read-only and invalid"
+  },
+  "states": {
+    "disabled": "Disabled",
+    "invalid": "Invalid",
+    "readOnly": "Read-only"
+  },
+  "status": {
+    "about": "The status sets the edge and the focus ring of the segment group from its palette, the same as a text field's.",
+    "title": "Statuses"
+  },
+  "stay": {
+    "end": "Check-out",
+    "label": "Stay",
+    "nights_one": "{{count}} night",
+    "nights_other": "{{count}} nights",
+    "order": "Check-out must be after check-in.",
+    "pick": "Pick both dates",
+    "start": "Check-in"
+  },
+  "timed": {
+    "about": "With granularity minute the hour, the minute and the day period follow the date. A value with a time zone adds its zone as a read-only segment, and timeZone sets the zone the segments show. The output converts the controlled value to Amsterdam's time.",
+    "title": "A date with a time"
+  },
+  "title": "Date input",
+  "validated": {
+    "about": "Inside a field the input takes the field's label, texts and required and invalid states, and a form receives the date in ISO 8601. max stops a date after today on blur. Submit it empty, or with a date less than 18 years ago, to see the errors.",
+    "title": "In a validated field"
+  },
+  "variant": {
+    "about": "The three field looks of the theme on the segment group, the same as a text field's and a select's.",
+    "title": "Looks"
+  }
+}

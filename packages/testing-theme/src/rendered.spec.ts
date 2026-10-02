@@ -17,7 +17,7 @@ describe("rendered", () => {
     expect(recipeElement(container, "button").tagName).toBe("BUTTON");
   });
 
-  it("throws naming the recipe it could not find", () => {
+  it("throws naming the recipe when no element declares it", () => {
     expect(() => recipeElement(drawn("<div></div>"), "button")).toThrow(/data-recipe="button"/u);
   });
 
@@ -39,13 +39,21 @@ describe("rendered", () => {
     expect(slotElement(container, "card", "header").tagName).toBe("HEADER");
   });
 
-  it("throws naming the part and the slot class it could not find", () => {
+  it("returns the slot class over another component's part of the same name", () => {
+    const container = drawn(
+      '<div data-part="root" class="scroll-area__root"><nav class="nav-list__root"></nav></div>',
+    );
+
+    expect(slotElement(container, "nav-list", "root").tagName).toBe("NAV");
+  });
+
+  it("throws naming the part and the slot class when no element has either", () => {
     expect(() => slotElement(drawn("<div></div>"), "dialog", "content")).toThrow(
       /data-part="content".*\.dialog__content/u,
     );
   });
 
-  it("lists every class an element carries sorted", () => {
+  it("lists every class on an element sorted", () => {
     expect(classesOf(drawn('<i class="z a m"></i>').children[0] as Element)).toStrictEqual([
       "a",
       "m",
@@ -54,7 +62,7 @@ describe("rendered", () => {
     expect(classesOf(drawn("<i></i>").children[0] as Element)).toStrictEqual([]);
   });
 
-  it("lists the classes the element carrying a recipe was given", () => {
+  it("lists the classes on the element a recipe applies to", () => {
     const container = drawn(
       '<button data-recipe="button" class="button button--variant-solid"></button>',
     );
@@ -62,7 +70,7 @@ describe("rendered", () => {
     expect(recipeClasses(container, "button")).toStrictEqual(["button", "button--variant-solid"]);
   });
 
-  it("lists the classes one slot was given", () => {
+  it("lists the classes on one slot", () => {
     const container = drawn('<div class="dialog__content dialog__content--lg"></div>');
 
     expect(slotClasses(container, "dialog", "content")).toStrictEqual([

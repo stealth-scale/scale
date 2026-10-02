@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest";
 import * as build from "#build/index.ts";
 
 describe("vite-config", () => {
-  it("publishes the presets an application picks from", () => {
+  it("exports base and web under preset", () => {
     expect(Object.keys(build.preset).toSorted()).toStrictEqual(["base", "web"]);
   });
 
-  it("publishes the layers an application adds one at a time", () => {
+  it("exports every build layer by name", () => {
     for (const verb of [
       "base",
       "chunks",
@@ -21,7 +21,7 @@ describe("vite-config", () => {
     }
   });
 
-  it("publishes nothing a layer here uses internally", () => {
+  it("exports nothing beyond the build layers and preset", () => {
     expect(Object.keys(build).toSorted()).toStrictEqual([
       "base",
       "chunks",

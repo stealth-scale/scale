@@ -2,8 +2,8 @@
  * Validates every catalogue against the fallback language.
  *
  * @remarks
- *   An undefined key, a dropped placeholder and a key one package declares twice are all invisible
- *   to a translator, so the build reports them instead.
+ *   An undefined key, a dropped placeholder and a key one package declares twice all reach the page
+ *   as a wrong string. The build reports them rather than shipping them.
  */
 
 import { type CatalogueIndex, nested, type Words } from "#emit.ts";
@@ -14,7 +14,7 @@ import { type Catalogue } from "#find.ts";
  */
 export interface Problem {
   /**
-   * The absolute path of the file holding the fault.
+   * Absolute path of the file the fault is in.
    */
   readonly file: string;
 
@@ -24,26 +24,26 @@ export interface Problem {
   readonly key: string;
 
   /**
-   * The fault, phrased as a clause that follows the key.
+   * The fault, phrased as a clause that follows the key in the reported line.
    */
   readonly says: string;
 }
 
 /**
- * Matches an i18next placeholder, `{{name}}` or `{{name, format}}`.
+ * Pattern for an i18next placeholder, `{{name}}` or `{{name, format}}`, capturing the name.
  */
 const PLACEHOLDER = /\{\{\s*([^,}\s]+)/gu;
 
 /**
- * Matches a plural suffix, which is one of the six categories CLDR defines.
+ * Pattern for a plural suffix, one of the six categories CLDR defines.
  */
 const PLURAL = /_(?:zero|one|two|few|many|other)$/u;
 
 /**
  * Flattens nested contents to the dotted keys i18next addresses them by.
  *
- * @param words - The contents, nested as the file stores them.
- * @param prefix - The path down to these contents, empty at the top level.
+ * @param words - Contents, nested as the file stores them.
+ * @param prefix - Path down to these contents. Empty at the top level.
  */
 function flattened(words: Words, prefix = ""): ReadonlyMap<string, string> {
   const flat = new Map<string, string>();
@@ -59,9 +59,9 @@ function flattened(words: Words, prefix = ""): ReadonlyMap<string, string> {
 }
 
 /**
- * Lists the placeholder names one string carries.
+ * Lists the placeholder names one string contains.
  *
- * @param word - One translated string.
+ * @param word - A translated string.
  * @returns Each name once, sorted.
  */
 function placeholdersOf(word: string): readonly string[] {
@@ -73,6 +73,10 @@ function placeholdersOf(word: string): readonly string[] {
 /**
  * Strips a plural or context suffix, so `pages_one` can be checked against any `pages_*`.
  *
+ * @remarks
+ *   Everything after the last underscore is taken as the suffix, whether or not it is one. A key
+ *   whose own name carries an underscore loses its tail here and matches more broadly than it
+ *   should.
  * @param key - A dotted key, with or without a suffix.
  */
 function stem(key: string): string {
@@ -82,11 +86,11 @@ function stem(key: string): string {
 }
 
 /**
- * Lists the placeholders a translation has to carry.
+ * Lists the placeholders a translation is required to carry.
  *
  * @remarks
- *   Every placeholder the fallback carries, except `count` in a plural form. Some languages spell
- *   the number out for one of their forms, so `één pagina` is valid against `{{count}} page`.
+ *   A plural form drops `count` from the requirement. Some languages spell the number out in one of
+ *   their forms, so `één pagina` is valid against `{{count}} page`.
  * @param key - The translated key.
  * @param against - The fallback string for that key.
  */
@@ -97,13 +101,13 @@ function wanted(key: string, against: string): readonly string[] {
 }
 
 /**
- * Reports a placeholder a restated key drops.
+ * Reports the placeholders an overriding string drops.
  *
- * @param file - The file restating the key.
- * @param key - The key being restated.
- * @param word - The string this file gives it.
- * @param against - The string the fallback gives it.
- * @returns One problem, or an empty array when every placeholder survives.
+ * @param file - The file that overrides the key.
+ * @param key - The key being overridden.
+ * @param word - The string the overriding file gives the key.
+ * @param against - The string already defined for the key.
+ * @returns One problem, or an empty array when the string carries every placeholder.
  */
 function placeholdersChecked(
   file: Catalogue,
@@ -128,6 +132,10 @@ function placeholdersChecked(
 /**
  * Validates one translation against the fallback's definition of its namespace.
  *
+ * @remarks
+ *   A key with no exact match falls back to the `_other` form of its stem, so a language carrying
+ *   more plural categories than the fallback is checked against the fallback's plural string rather
+ *   than reported as undefined.
  * @param file - The translation to check.
  * @param defined - The fallback's contents for that namespace, flattened.
  */
@@ -152,32 +160,30 @@ function checked(file: Catalogue, defined: ReadonlyMap<string, string>): readonl
 }
 
 /**
- * One key as the fallback has defined it so far in the merge.
+ * One key as the merge has defined it so far.
  */
 interface Defined {
   /**
-   * The file that defined it last.
+   * The file that defined the key most recently.
    */
   readonly file: Catalogue;
 
   /**
-   * The string that file gave it.
+   * The string that file gave the key.
    */
   readonly word: string;
 }
 
 /**
- * Builds the fallback's definition of one namespace, collecting faults as it merges.
+ * Merges the fallback's files for one namespace and collects the faults the merge exposes.
  *
  * @remarks
- *   A package defines whatever keys it ships. Another package may override one, and the override is
- *   checked for placeholders. The application may override too, but may not add a key to a
- *   namespace a package owns, because a key nobody else defines is a typo. Which files are the
- *   application's own is the search's call, and a package under its own root has none: what it
- *   adds to a namespace is what it ships. One owner declaring a key in two files is a fault
- *   wherever it happens, because the merge would silently pick one.
+ *   A package defines whatever keys it ships and another package may override one. An application
+ *   may override a key too, but a key it adds to a namespace a package owns is reported as a typo.
+ *   One owner declaring a key in two files is a fault wherever it happens, because the merge picks
+ *   one of them silently.
  * @param files - The fallback files of the namespace, in merge order.
- * @param found - The array faults are pushed onto.
+ * @param found - Array the faults are pushed onto.
  * @returns The namespace's contents, flattened.
  */
 function definition(files: readonly Catalogue[], found: Problem[]): ReadonlyMap<string, string> {
@@ -207,12 +213,14 @@ function definition(files: readonly Catalogue[], found: Problem[]): ReadonlyMap<
 }
 
 /**
- * Validates every catalogue: the fallback's files against each other, then each translation against
- * the fallback.
+ * Validates the fallback's files against each other, then every translation against the fallback.
  *
+ * @remarks
+ *   An index with no entry for the fallback language reports nothing, on the grounds that there is
+ *   nothing to check against.
  * @param index - The indexed catalogues.
  * @param fallback - The language that defines every key.
- * @returns Every fault, the fallback's first, then in file order.
+ * @returns Every fault, the fallback's first and the rest in file order.
  */
 export function problems(index: CatalogueIndex, fallback: string): readonly Problem[] {
   const defining = index.get(fallback);

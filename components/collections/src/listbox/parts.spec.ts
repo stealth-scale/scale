@@ -3,10 +3,11 @@ import { describe, expect, it } from "vitest";
 import * as parts from "#listbox/parts.ts";
 
 describe("parts", () => {
-  it("names every part the ready-made components are built from", () => {
+  it("exports every part", () => {
     expect(Object.keys(parts).toSorted()).toStrictEqual([
       "Content",
       "Empty",
+      "Frame",
       "Input",
       "Item",
       "ItemCheckbox",
@@ -24,8 +25,9 @@ describe("parts", () => {
     ]);
   });
 
-  it("holds back the ready-made components that are built from these", () => {
-    expect(Object.keys(parts)).not.toContain("Row");
-    expect(Object.keys(parts)).not.toContain("Simple");
+  it("exports neither Row nor Simple", () => {
+    expect(Object.keys(parts).filter((name) => name === "Row" || name === "Simple")).toStrictEqual(
+      [],
+    );
   });
 });

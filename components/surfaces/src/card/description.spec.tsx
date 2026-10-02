@@ -9,13 +9,13 @@ import { recipe } from "#card/recipe.ts";
 import { type RootProps } from "#card/root.ts";
 
 describe("Description", () => {
-  it("draws a p inside the root it needs above it", () => {
+  it("renders a p for the description slot inside a root", () => {
     const { container } = render(carded(<Description>Issued today</Description>));
 
     expect(slotElement(container, "card", "description").tagName).toBe("P");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the description slot class for every variant value", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "description",
@@ -23,7 +23,7 @@ describe("Description", () => {
     ).toStrictEqual([]);
   });
 
-  it("draws what a caller puts in it", () => {
+  it("renders its children as its text", () => {
     const { container } = render(carded(<Description>Issued today</Description>));
 
     expect(slotElement(container, "card", "description").textContent).toBe("Issued today");

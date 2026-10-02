@@ -1,17 +1,25 @@
 /**
- * Binds the key's recipe to the element that draws it.
+ * Binds the kbd and kbd-group recipes to React.
  *
  * @remarks
- *   Apart from the recipe, because an application's compiler reads the recipe at build time and
- *   the binding needs the runtime. A recipe file that also bound one would put the runtime behind
- *   every compiler configuration that reads it.
+ *   The bindings are a separate module from the recipes, because the theme compiler imports a
+ *   recipe at build time and must not load the React runtime.
  */
 
 import { createRecipeContext } from "@stealthscale/theme";
 
+import { recipe as group } from "#kbd/kbd-group.recipe.ts";
 import { recipe } from "#kbd/recipe.ts";
 
 /**
- * Binds the recipe once, for the key and for whatever sets its variants from above.
+ * Creates the kbd recipe's `withContext` binding and its `PropsProvider`.
+ *
+ * @remarks
+ *   `Kbd.Group` sets its size, look and palette on every keycap inside it through `PropsProvider`.
  */
 export const { PropsProvider, withContext } = createRecipeContext(recipe);
+
+/**
+ * Creates the kbd-group recipe's `withContext` binding.
+ */
+export const { withContext: withGroupContext } = createRecipeContext(group);

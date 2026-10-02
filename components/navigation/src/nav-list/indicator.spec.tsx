@@ -7,13 +7,13 @@ import { Indicator } from "#nav-list/indicator.tsx";
 import { branched } from "#nav-list/nav-list.fixtures.tsx";
 
 describe("Indicator", () => {
-  it("draws a span inside the branch it needs above it", () => {
+  it("renders a SPAN element inside a branch", () => {
     const { container } = render(branched(<Indicator>v</Indicator>));
 
     expect(slotElement(container, "nav-list", "indicator").tagName).toBe("SPAN");
   });
 
-  it("keeps the mark out of the accessibility tree", () => {
+  it("sets aria-hidden to true", () => {
     const { container } = render(branched(<Indicator>v</Indicator>));
 
     expect(slotElement(container, "nav-list", "indicator").getAttribute("aria-hidden")).toBe(
@@ -21,13 +21,13 @@ describe("Indicator", () => {
     );
   });
 
-  it("reports the branch as closed while its list is hidden", () => {
+  it("sets data-state to closed while the branch is closed", () => {
     const { container } = render(branched(<Indicator>v</Indicator>));
 
     expect(slotElement(container, "nav-list", "indicator").dataset["state"]).toBe("closed");
   });
 
-  it("reports the branch as open while its list is shown", () => {
+  it("sets data-state to open while the branch is open", () => {
     const { container } = render(branched(<Indicator>v</Indicator>, { defaultOpen: true }));
 
     expect(slotElement(container, "nav-list", "indicator").dataset["state"]).toBe("open");

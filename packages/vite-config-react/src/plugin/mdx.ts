@@ -1,10 +1,10 @@
 /**
- * Configures the MDX plugin that compiles a document into a component.
+ * Configures the compiler that turns an MDX document into a React component.
  *
  * @remarks
- *   The compiler is an optional peer, loaded when a plugin is constructed and not when this module
- *   is imported, so a repository that compiles no document imports the React tier with the peer
- *   absent. A repository that states the layer without the peer is told which package to install.
+ *   `@mdx-js/rollup` is an optional peer and nothing here imports it at module scope. The import
+ *   waits until a plugin is constructed, so the React tier loads without the compiler installed.
+ *   Declare the layer without the peer and you get an error that names the package to install.
  */
 
 import { type Plugin } from "vite";
@@ -23,51 +23,55 @@ import { FACTORY } from "#plugin/refresh.ts";
 import { type DocumentOptions } from "#plugin/types.ts";
 
 /**
- * The configuration key the packer reads its plugins from.
+ * The configuration key the packer reads its plugin list from.
  */
 const PACKED = "pack.plugins";
 
 /**
- * The compiler package, named as a value so the bundler that reads a configuration leaves the
- * import to Node.
+ * The compiler package, in a variable so that the specifier below is not a literal.
+ *
+ * @remarks
+ *   Vite bundles a configuration file before it runs it, and it resolves a literal specifier
+ *   inside a dynamic import at bundle time. That fails when the peer is not installed. A variable
+ *   leaves the specifier for {@link located} to resolve when the plugin is constructed.
  */
 const PEER = "@mdx-js/rollup";
 
 /**
- * The one document format the plugin compiles.
+ * The only extension this plugin compiles.
  *
  * @remarks
- *   At its default the plugin claims every markdown extension as well, and a `.md` file imported
- *   with `?raw` then arrives as a component rather than as a string.
+ *   Left alone, the compiler also takes `.md`. A `.md` file imported with `?raw` would then come
+ *   back as a component instead of a string.
  */
 const FORMAT = "mdx";
 
 /**
- * Narrows the transform a document is compiled under.
+ * Options for {@link mdx}.
  */
 export interface Documented {
   /**
-   * The package the automatic runtime imports the JSX factory from. A caller that changes it
-   * passes the same value to `plugin.refresh`.
+   * The package the automatic runtime imports the JSX factory from. Pass the same value to
+   * `plugin.refresh`.
    */
   from?: string;
 }
 
 /**
- * Fills in what a caller left out and hands the result to the MDX plugin.
+ * Returns the compiler's options, defaulting the JSX import source to the one refresh expects.
  */
 export function options(stated: Documented): DocumentOptions {
   return { format: FORMAT, jsxImportSource: stated.from ?? FACTORY };
 }
 
 /**
- * Loads the compiler package, and says what to install where nothing resolves it.
+ * Imports the compiler, naming the package to install where the import does not resolve.
  *
- * @throws {@link Error} When the peer is not installed beside this package.
+ * @throws {@link Error} When the peer is not installed alongside this package.
  */
 async function loaded(): Promise<typeof import("@mdx-js/rollup")> {
   try {
-    // eslint-disable-next-line typescript/no-unsafe-type-assertion -- a specifier held in a value is typed by nobody, and the header says why it is held that way
+    // eslint-disable-next-line typescript/no-unsafe-type-assertion -- a dynamic import of a specifier in a variable resolves to any, and the header gives the reason for the variable
     return (await import(located(PEER, import.meta.url))) as typeof import("@mdx-js/rollup");
   } catch (error) {
     throw new Error(
@@ -80,21 +84,21 @@ async function loaded(): Promise<typeof import("@mdx-js/rollup")> {
 }
 
 /**
- * Constructs the compiler's plugin, once the package is loaded.
+ * Loads the compiler package and constructs its plugin from the stated options.
  */
 async function constructed(stated: Documented): Promise<Plugin> {
   return (await loaded()).default(options(stated));
 }
 
 /**
- * Puts the MDX plugin ahead of every plugin the tree built.
+ * Puts the MDX plugin ahead of every plugin the layers contributed.
  *
  * @remarks
- *   The React Compiler runs in the same `pre` phase and fails on raw MDX when it runs first. An
- *   override refines the configuration after every contribution has landed, so the plugin is
- *   first whatever order a caller wrote the layers in. The plugin is a promise the bundler settles
- *   before it sorts the list, and nothing is loaded while the toolchain reads the configuration
- *   for its metadata alone.
+ *   The React Compiler runs in the same `pre` phase and throws on raw MDX, so MDX has to go first.
+ *   Refining runs after every contribution, which is why the order the caller wrote the layers in
+ *   does not matter. Vite awaits a promised plugin before it sorts, so this may stay a promise.
+ *   A configuration resolved for metadata alone constructs nothing, so `vp pack` can read a
+ *   package's metadata without the peer installed.
  */
 function compiled(stated: Documented): Override {
   return override({
@@ -111,11 +115,12 @@ function compiled(stated: Documented): Override {
 }
 
 /**
- * Adds the MDX plugin to the plugins the packer runs.
+ * Adds the MDX plugin to the plugins `vp pack` runs.
  *
  * @remarks
- *   The packer reads `pack.plugins` and nothing under `plugins`, so a library that publishes a
- *   document needs the plugin stated a second time.
+ *   The packer builds from `pack.plugins` and ignores `plugins` entirely, so a library that ships
+ *   a compiled document needs the plugin declared in both places. This contribution is the second
+ *   declaration.
  */
 function packed(stated: Documented): Contribution {
   return contribute({
@@ -127,14 +132,12 @@ function packed(stated: Documented): Contribution {
 }
 
 /**
- * Compiles `.mdx` files into components, in the build and in the packer.
+ * Compiles `.mdx` files into components, in the build and in `vp pack`.
  *
  * @remarks
- *   Each plugin instance is constructed when the configuration is composed, not when this call
- *   runs, so two compositions produce two independent pairs and a composition read for its
- *   metadata alone constructs none.
- * @param stated - The parts of the transform to change. Omitting it compiles a document rendering
- *   through React itself.
+ *   Composing a configuration constructs the two plugin instances, not this call. Two
+ *   compositions get a pair each.
+ * @param stated - The options to change. Omit it to render through React itself.
  */
 export function mdx(stated: Documented = {}): readonly Layer[] {
   return [compiled(stated), packed(stated)];

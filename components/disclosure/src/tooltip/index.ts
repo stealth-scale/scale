@@ -1,6 +1,6 @@
 /**
- * Publishes the tooltip's six parts, which a caller composes as `Tooltip.Root` holding a trigger
- * and the box it opens.
+ * Exports the tooltip's six parts, composed as `Tooltip.Root` around a trigger and a positioner
+ * that places the content.
  */
 
 export { ArrowTip, type ArrowTipProps } from "#tooltip/arrow-tip.tsx";

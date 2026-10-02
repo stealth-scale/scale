@@ -1,0 +1,88 @@
+{
+  "about": "Renders a set of cards a person chooses one of, each with a title, a description, a circle and an optional addon row. A press anywhere on a card checks it, and a horizontal set gives every card in a row the same height.",
+  "align": {
+    "about": "The words at the start of the card, or centred.",
+    "title": "Alignment"
+  },
+  "choose": "Choose a delivery speed to continue.",
+  "continue": "Continue",
+  "cycle": "Billing cycle",
+  "cycles": {
+    "monthly": {
+      "note": "Cancel any time",
+      "price": "€12 per seat each month",
+      "title": "Monthly"
+    },
+    "yearly": {
+      "note": "Two months free",
+      "price": "€120 per seat each year",
+      "title": "Yearly"
+    }
+  },
+  "layout": {
+    "about": "The circle at the end of the words, or above them.",
+    "title": "Layout"
+  },
+  "palette": {
+    "about": "Every palette on the outline look. The palette sets the checked card's edge and the circle's fill.",
+    "title": "Palettes"
+  },
+  "plan": "Workspace plan",
+  "plans": {
+    "enterprise": {
+      "about": "Single sign-on and an audit log. Talk to sales to switch.",
+      "title": "Enterprise"
+    },
+    "starter": {
+      "about": "One workspace and up to three people.",
+      "title": "Starter"
+    },
+    "team": {
+      "about": "Unlimited workspaces and roles for every member.",
+      "title": "Team"
+    }
+  },
+  "required": {
+    "about": "A required choice in a field. Continue without a card chosen marks the set invalid and shows the field's error text, and choosing a card clears it. The field's label names the set.",
+    "title": "Required, in a field"
+  },
+  "size": {
+    "about": "The padding, the gaps, the circle and the words step together.",
+    "title": "Sizes"
+  },
+  "speed": "Delivery speed",
+  "speeds": {
+    "next": {
+      "about": "Leaves the warehouse overnight.",
+      "price": "£4.95",
+      "title": "Next day"
+    },
+    "same": {
+      "about": "Leaves before six in the evening.",
+      "price": "£12.00",
+      "title": "Same day"
+    },
+    "standard": {
+      "about": "Three to five working days.",
+      "price": "Free",
+      "title": "Standard"
+    }
+  },
+  "stacked": {
+    "about": "`layout=\"stacked\"` puts the circle above the words and `align=\"center\"` centres them, for a short choice such as a billing cycle. The addon states what the choice gives.",
+    "title": "Stacked and centred"
+  },
+  "states": {
+    "about": "One card chosen, an invalid set with none chosen, and a disabled set. A disabled card rests on the subtle surface.",
+    "title": "States"
+  },
+  "title": "Radio card",
+  "variant": {
+    "about": "Every look with Next day checked. `solid` fills the checked card, `subtle` deepens a muted card, `surface` tints the checked card and `outline` sets its edge.",
+    "title": "Looks"
+  },
+  "vertical": {
+    "about": "A vertical set in a phone's width. Enterprise is disabled, because it needs a call with sales. The input of each card lists its description in `aria-describedby`.",
+    "title": "Vertical set"
+  }
+}

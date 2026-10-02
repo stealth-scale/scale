@@ -9,13 +9,13 @@ import { type RootProps } from "#alert/root.tsx";
 import { Title } from "#alert/title.ts";
 
 describe("Title", () => {
-  it("draws a span inside the root it needs above it", () => {
+  it("renders a span by default", () => {
     const { container } = render(alerted(<Title>Payment failed</Title>));
 
     expect(slotElement(container, "alert", "title").tagName).toBe("SPAN");
   });
 
-  it("writes the class of every value its recipe offers", () => {
+  it("applies the class of every variant value set on the root", () => {
     expect(
       boundViolations(recipe, (props: RootProps) => render(composed(props)).container, {
         slot: "title",
@@ -23,13 +23,13 @@ describe("Title", () => {
     ).toStrictEqual([]);
   });
 
-  it("puts no level in the outline for something that is gone a moment later", () => {
+  it("renders no heading role by default", () => {
     render(alerted(<Title>Payment failed</Title>));
 
     expect(screen.queryByRole("heading")).toBeNull();
   });
 
-  it("takes the level a page needs where a notice stays on it", () => {
+  it("renders a level 2 heading when as is h2", () => {
     render(alerted(<Title as="h2">Payment failed</Title>));
 
     expect(screen.getByRole("heading", { level: 2, name: "Payment failed" })).toBeDefined();

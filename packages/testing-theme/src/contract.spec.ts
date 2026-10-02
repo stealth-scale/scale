@@ -77,6 +77,16 @@ describe("contract", () => {
     expect(roles(theme)[0]).toBe("audited code.string is not stated");
   });
 
+  it("reports a step the series family leaves out", () => {
+    const theme = {
+      ...paletteTheme(),
+      variant: { semanticTokens: { colors: { series: { "1": { value: "x" } } } } },
+    };
+
+    expect(roles(theme)).toHaveLength(7);
+    expect(roles(theme)[0]).toBe("audited series.2 is not stated");
+  });
+
   it("reports a color stated in one mode and not the other", () => {
     expect(modes(paletteTheme({ solid: { value: { base: "x" } } }))).toStrictEqual([
       "audited primary.solid is not stated in _dark",
@@ -124,7 +134,7 @@ describe("contract", () => {
     expect(extensions(theme)).toStrictEqual([]);
   });
 
-  it("reports an extension naming a key the component owns", () => {
+  it("reports an extension naming className or slots", () => {
     const theme = defineTheme({
       extends: foundationTheme(),
       name: "abyss",
@@ -135,8 +145,8 @@ describe("contract", () => {
     Object.assign(extension ?? {}, { className: "dialog", slots: ["content"] });
 
     expect(extensions(theme, ["dialog"])).toStrictEqual([
-      "abyss extends dialog with className, which the component owns",
-      "abyss extends dialog with slots, which the component owns",
+      "abyss extends dialog with className, which belongs to the component",
+      "abyss extends dialog with slots, which belongs to the component",
     ]);
   });
 
@@ -166,7 +176,7 @@ describe("contract", () => {
     ]);
   });
 
-  it("reports a compound matched on a value a class name cannot carry", () => {
+  it("reports a compound matched on an object value", () => {
     const theme = defineTheme({
       extends: foundationTheme(),
       name: "abyss",
@@ -178,7 +188,7 @@ describe("contract", () => {
     Object.assign(extend ?? {}, { compoundVariants: [{ css: {}, size: { color: "fg" } }] });
 
     expect(compounds(theme, { button: recipe })).toStrictEqual([
-      "abyss extends button with a compound matched on a value a class name cannot carry",
+      "abyss extends button with a compound matched on a value that cannot be part of a class name",
     ]);
   });
 
@@ -195,7 +205,7 @@ describe("contract", () => {
     expect(compounds(theme, { button })).toStrictEqual([]);
   });
 
-  it("reports rather than throws when the recipe's own compound carries such a value", () => {
+  it("reports rather than throws when the recipe's own compound matches on such a value", () => {
     const theme = defineTheme({
       extends: foundationTheme(),
       name: "abyss",

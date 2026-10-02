@@ -1,52 +1,140 @@
 /**
- * Defines the styles an alert is drawn with.
+ * Declares the alert slot recipe for a notice with an icon, a title, a description, trailing
+ * controls and a close trigger.
  *
  * @remarks
- *   Six parts. The root is the box, the indicator holds a mark, the content stacks the title and
- *   the description, and the aside holds whatever a reader acts on.
- *   The status picks the palette and nothing else, so one set of looks and sizes draws a warning
- *   and an error alike and a theme retints every alert at once. Colour never carries the status on
- *   its own: the indicator holds a mark and the title holds words, because an alert that said
- *   `error` in red alone would say nothing to a reader who cannot tell the two reds apart. WCAG
- *   1.4.1 fails a distinction drawn in colour alone.
- *   The looks read the `flat` layer styles, whose fill and ink are the palette pairs the contrast
- *   gate measures. The indicator takes no colour of its own and reads the root's, so a solid alert
- *   marks itself in the ink the gate measured against that fill.
+ *   `status` sets `colorPalette` and nothing else, so it combines freely with `variant` and `size`
+ *   and a theme retints every alert through the palettes. The title states the severity in words,
+ *   because WCAG 1.4.1 rejects a status told by color alone. `variant` reads the `flat.*` layer
+ *   styles, whose fill and ink are the pairs the contrast gate measures. The indicator and the
+ *   close trigger inherit the root's ink, so a solid alert draws both in the contrast ink. The
+ *   recipe has no `effect` axis, because `motion` already animates the root.
  */
 
 import {
   cornerVariants,
   defineSlotRecipe,
   dense,
+  type Flat,
   flatVariants,
   iconSizes,
+  interactive,
   motionVariants,
   onSlot,
   onSlots,
   sizeVariants,
   statusEmitted,
   statusVariants,
+  touchTarget,
 } from "@stealthscale/theme/authoring";
 
 /**
- * The steps an alert offers, which are the three a notice is read at.
+ * Sizes of the icon box and the root's gap, inset and text style.
  */
 const SIZES = ["sm", "md", "lg"] as const;
 
 /**
- * Draws a subtle alert about something worth knowing, at the middle size, until a caller says
- * otherwise.
+ * Maps each edge to the border that draws it, in the palette's solid at the indicator width.
+ */
+const EDGES = {
+  bottom: { borderBlockEndColor: "colorPalette.solid", borderBlockEndWidth: "indicator" },
+  end: { borderInlineEndColor: "colorPalette.solid", borderInlineEndWidth: "indicator" },
+  top: { borderBlockStartColor: "colorPalette.solid", borderBlockStartWidth: "indicator" },
+};
+
+/**
+ * Looks whose layer style sets the `border-width` and `border-color` shorthands.
+ */
+const BORDERED: Flat[] = ["outline", "surface"];
+
+/**
+ * Alert slot recipe, a subtle info notice at the md size by default.
+ *
+ * @remarks
+ *   The indicator, the content and the trailing controls are centred on the notice's full height,
+ *   so the icon aligns with the middle of a text block of any length.
  */
 export const recipe = defineSlotRecipe({
   base: {
     aside: { alignItems: "center", display: "flex", flex: "0 0 auto" },
+
+    /**
+     * The close trigger is a square of 1.5em, at least 24px, with a 1em glyph. A negative end
+     * margin of half the box less the glyph puts the glyph on the padding edge, level with the
+     * indicator at the start: 12, 16 and 20px from the edge at `sm`, `md` and `lg`. Its focus ring
+     * is drawn inside, because a ring outside it falls on the alert's fill.
+     */
+    closeTrigger: {
+      ...interactive(),
+      ...touchTarget(),
+      _hover: { background: "colorPalette.emphasized" },
+      "& > svg": { boxSize: "1em" },
+      alignItems: "center",
+      appearance: "none",
+      background: "transparent",
+      borderRadius: "l1",
+      borderStyle: "none",
+      boxSize: "max({sizes.6}, 1.5em)",
+      color: "currentcolor",
+      display: "inline-flex",
+      flex: "0 0 auto",
+      focusVisibleRing: "inside",
+      justifyContent: "center",
+      marginInlineEnd: "calc((1em - max({sizes.6}, 1.5em)) / 2)",
+      padding: "0",
+    },
     content: { display: "flex", flex: "1", minInlineSize: "0" },
     description: { color: "inherit" },
-    indicator: { alignItems: "center", display: "inline-flex", flex: "0 0 auto" },
-    root: { alignItems: "flex-start", display: "flex", inlineSize: "full" },
+    indicator: {
+      "& > svg": { boxSize: "100%" },
+      alignItems: "center",
+      display: "inline-flex",
+      flex: "0 0 auto",
+    },
+    /**
+     * The root draws a hairline outline in forced colors, where the browser replaces the fill and
+     * the solid, subtle and plain looks have no border to mark the box.
+     */
+    root: {
+      _highContrast: {
+        outlineColor: "CanvasText",
+        outlineOffset: "calc({borderWidths.hairline} * -1)",
+        outlineStyle: "solid",
+        outlineWidth: "hairline",
+      },
+      alignItems: "center",
+      display: "flex",
+      inlineSize: "full",
+    },
     title: { fontWeight: "medium" },
   },
   className: "alert",
+  compoundVariants: [
+    /**
+     * The close trigger on a solid alert hovers to a tint of the contrast ink and draws its focus
+     * ring in the contrast ink. The `emphasized` role is lighter than the solid fill, and the
+     * `focusRing` role is as dark as it.
+     */
+    {
+      css: {
+        closeTrigger: {
+          _hover: { background: "colorPalette.contrast/20" },
+          focusRingColor: "colorPalette.contrast",
+        },
+      },
+      name: "contrasted",
+      variant: "solid",
+    },
+
+    /**
+     * The outline and surface looks restate the edge. Their layer style sets the border shorthands
+     * in the `variant` axis, which the compiler emits after `edge` and which reset the edge's
+     * width and color.
+     */
+    { css: { root: EDGES.top }, edge: "top", name: "edged-top", variant: BORDERED },
+    { css: { root: EDGES.bottom }, edge: "bottom", name: "edged-bottom", variant: BORDERED },
+    { css: { root: EDGES.end }, edge: "end", name: "edged-end", variant: BORDERED },
+  ],
   defaultVariants: {
     layout: "stacked",
     radius: "l3",
@@ -55,30 +143,29 @@ export const recipe = defineSlotRecipe({
     variant: "subtle",
   },
   jsx: [/^Alert(\.\w+)?$/u],
-  slots: ["root", "indicator", "content", "title", "description", "aside"],
+  slots: ["root", "indicator", "content", "title", "description", "aside", "closeTrigger"],
   staticCss: [statusEmitted(), { status: ["neutral"] }],
   variants: {
     /**
-     * Which edge carries a bar in the palette's own colour.
+     * The edge with a rule in the palette's solid color. Unset by default.
      *
      * @remarks
-     *   The three bars the theme draws, each one a layer style that paints a pseudo-element along
-     *   one edge. They were drawn by the theme and reachable from no component until this axis
-     *   named them.
-     *   The bar reads the palette's solid, so an alert's status colours it and a theme moves it.
-     *   `end` is the inline edge a page's writing runs towards, so a bar asked for there stands at
-     *   the right of a page read left to right and at the left of one read the other way.
+     *   The rule is a border on the root, so it follows the root's rounded corners, tapers into
+     *   the side border and shows under forced colors. The theme's `indicator.*` layer styles are
+     *   not used, because their bar is a 2px pseudo-element whose corner radius the browser scales
+     *   down to fit. `end` is logical: the right edge in a left-to-right document and the left edge
+     *   in a right-to-left one.
      */
     edge: {
-      top: { root: { layerStyle: "indicator.top" } },
+      top: { root: EDGES.top },
 
-      bottom: { root: { layerStyle: "indicator.bottom" } },
+      bottom: { root: EDGES.bottom },
 
-      end: { root: { layerStyle: "indicator.end" } },
+      end: { root: EDGES.end },
     },
 
     /**
-     * Whether the title and the description stack or run together on one line.
+     * Whether the title is above the description or on the same line with it.
      */
     layout: {
       inline: {
@@ -103,7 +190,7 @@ export const recipe = defineSlotRecipe({
     }),
 
     /**
-     * What the alert is about, which picks the palette and nothing else.
+     * The severity of the alert. It sets `colorPalette` and nothing else.
      */
     status: {
       ...onSlot("root", statusVariants()),
@@ -112,7 +199,7 @@ export const recipe = defineSlotRecipe({
     },
 
     /**
-     * How the alert is set off from the page.
+     * The fill and edge of the alert, from the `flat.*` layer styles.
      */
     variant: onSlot("root", flatVariants()),
   },

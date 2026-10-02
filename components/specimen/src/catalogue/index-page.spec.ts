@@ -12,11 +12,16 @@ const LISTED = [
 
 const THEMING = [written("docs.theming.overview", "Theming", "Overview")];
 
+const FILED = [
+  entry("components/actions/button", "", "Button", "Presses once."),
+  entry("components/widgets/gauge", "", "Gauge"),
+];
+
 describe("Index", () => {
   it("heads the page out of the catalogue rather than the key", async () => {
     const { result } = await mountRoute(treeOver(LISTED), "/docs");
 
-    expect(result.getByRole("heading", { level: 1 }).textContent).toBe("Components");
+    expect(result.getByRole("heading", { level: 1 }).textContent).toBe("Catalogue");
   });
 
   it("heads one section per group with the group's name", async () => {
@@ -51,8 +56,29 @@ describe("Index", () => {
 
   it("writes no opening on a card whose page declares none", async () => {
     const { result } = await mountRoute(treeOver(LISTED), "/docs");
+    const cards = result.container.querySelectorAll(".card__root p");
 
-    expect(result.getAllByRole("paragraph")).toHaveLength(1);
+    expect(cards).toHaveLength(1);
+  });
+
+  it("lists every page of a section on the section's index", async () => {
+    const { result } = await mountRoute(treeOver(FILED), "/docs/components");
+
+    expect(
+      result.getAllByRole("heading", { level: 3 }).map((one) => one.textContent),
+    ).toStrictEqual(["Button", "Gauge"]);
+  });
+
+  it("opens a group's own index with the sentence written for the group", async () => {
+    const { result } = await mountRoute(treeOver(FILED), "/docs/components/actions");
+
+    expect(result.getByText("What a reader presses, and what answers when they do.")).toBeDefined();
+  });
+
+  it("writes no opening on the index of a group nobody wrote a sentence for", async () => {
+    const { result } = await mountRoute(treeOver(FILED), "/docs/components/widgets");
+
+    expect(result.container.querySelector(".page__description")).toBeNull();
   });
 
   it("lists a page an application wrote beside the pages the plugin found", async () => {

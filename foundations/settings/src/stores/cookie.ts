@@ -8,10 +8,10 @@ import { cache, type SettingStore, watchers } from "#store.ts";
  * Describes the part of the Cookie Store API this store uses, which is the change event alone.
  *
  * @remarks
- *   Declared here rather than taken from the DOM library, because the interface reached Baseline
- *   in June 2025 and the library this repository compiles against does not carry it yet. Only the
- *   event is used: reading goes through `document.cookie`, which answers at once, where the Cookie
- *   Store answers a promise and a snapshot has to be read during a render.
+ *   Declared here rather than taken from the DOM library, because the interface became Baseline in
+ *   June 2025 and the library this repository compiles against does not declare it yet. Only the
+ *   event is used: reading goes through `document.cookie`, which returns at once, where the Cookie
+ *   Store returns a promise and a snapshot has to be read during a render.
  */
 interface CookieChanges {
   /**
@@ -52,7 +52,7 @@ function changes(): CookieChanges | undefined {
  */
 export interface CookieStoreOptions {
   /**
-   * The `Cookie` header of the request being answered, for a store built on a server. The
+   * The `Cookie` header of the request being served, for a store built on a server. The
    * document's own cookies are read where this is absent.
    */
   header?: string | undefined;
@@ -101,10 +101,10 @@ function valueIn(header: string, name: string): null | string {
  *
  * @remarks
  *   A cookie is the one place a setting is visible to the server, so the first response already
- *   carries the remembered value and no script has to correct the page after it paints. Nothing
- *   fires when a cookie changes, so a store reports its own writes and a change made in another
- *   tab arrives on the next load rather than at once. Use this for a setting that decides the
- *   first paint, and the local store for everything else.
+ *   contains the remembered value and no script has to correct the page after it paints. A store
+ *   reports its own writes. A browser without the Cookie Store reports no change to a cookie, so
+ *   there a change made in another tab arrives on the next load rather than at once. Use this for
+ *   a setting that decides the first paint, and the local store for everything else.
  * @param options - How to write the cookie, and the request header to read on a server.
  * @returns A store that keeps each setting in a cookie of its own.
  */
@@ -114,7 +114,7 @@ export function cookieStore(options: CookieStoreOptions = {}): SettingStore {
   const held = cache();
 
   /**
-   * Forgets what the cache holds and tells whatever is watching.
+   * Forgets what the cache contains and tells whatever is watching.
    */
   const changed = (key: null | string): void => {
     held.forget(key);
@@ -148,9 +148,11 @@ export function cookieStore(options: CookieStoreOptions = {}): SettingStore {
       const store = changes();
 
       /**
-       * Answers any cookie changing, because the event names what changed only in browsers that
-       * ship the whole interface, and forgetting every key costs one parse on the next read.
+       * Forgets every key when any cookie changes, because the event names what changed only in
+       * browsers that ship the whole interface, and forgetting every key costs one parse on the
+       * next read.
        */
+      // eslint-disable-next-line unicorn/consistent-function-scoping -- each subscription removes the listener it added, and an event target keeps one copy of a function added twice
       const listener = (): void => {
         changed(null);
       };

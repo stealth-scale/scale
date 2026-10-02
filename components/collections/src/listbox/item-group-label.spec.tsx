@@ -7,13 +7,13 @@ import { ItemGroupLabel } from "#listbox/item-group-label.tsx";
 import { offered } from "#listbox/listbox.fixtures.tsx";
 
 describe("ItemGroupLabel", () => {
-  it("draws a span inside the root it needs above it", () => {
+  it("renders a span", () => {
     const { container } = render(offered(<ItemGroupLabel htmlFor="recent">Recent</ItemGroupLabel>));
 
     expect(slotElement(container, "listbox", "itemGroupLabel").tagName).toBe("SPAN");
   });
 
-  it("is no row of the list itself", () => {
+  it("renders no option", () => {
     render(offered(<ItemGroupLabel htmlFor="recent">Recent</ItemGroupLabel>));
 
     expect(screen.queryByRole("option")).toBeNull();

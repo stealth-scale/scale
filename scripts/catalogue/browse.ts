@@ -52,6 +52,11 @@ const TAB_LIMIT = 400;
  */
 export interface Target {
   /**
+   * Where the catalogue is served, which a page's identifier resolves against.
+   */
+  readonly base: string;
+
+  /**
    * The browser to open it in.
    */
   readonly browser: (typeof BROWSERS)[number];
@@ -74,20 +79,15 @@ export interface Target {
   /**
    * A control to press before anything is read, so a panel it opens is open. Semicolons separate
    * several, pressed in the order they are written, because a panel two presses deep needs the
-   * first press to draw the control the second names. A comma cannot separate them: a comma is
-   * already how one selector names a list of elements.
+   * first press to render the control the second selects. Commas separate the elements of one
+   * selector, so they cannot separate controls.
    */
   readonly open?: string | undefined;
 
   /**
-   * The page's path under `/components`, such as `actions/button`.
+   * The page's address, which is its identifier, such as `components/actions/button`.
    */
   readonly page: string;
-
-  /**
-   * The port the catalogue's server listens on.
-   */
-  readonly port: number;
 
   /**
    * Keys to type once the page is open, so a reading shows what the keyboard does. Commas separate
@@ -148,7 +148,7 @@ function stored(name: string, value: string | undefined): string {
 }
 
 /**
- * Launches a browser by name, once for every target that names it.
+ * Launches the browser with the given name.
  */
 export function launched(name: (typeof BROWSERS)[number]): Promise<Browser> {
   const launchers = { chromium, firefox, webkit };
@@ -157,10 +157,17 @@ export function launched(name: (typeof BROWSERS)[number]): Promise<Browser> {
 }
 
 /**
- * Builds the address of a page.
+ * Builds the address of a page, resolving its identifier against the catalogue it is read from.
+ *
+ * @remarks
+ *   A base rather than a port, so a catalogue served anywhere is readable: a container, another
+ *   machine, or a deployment under a prefix. A base is given a trailing slash before the page is
+ *   resolved against it, because `new URL` drops the last segment of one without.
  */
 export function addressOf(target: Target): string {
-  return `http://localhost:${String(target.port)}/components/${target.page}`;
+  const base = target.base.endsWith("/") ? target.base : `${target.base}/`;
+
+  return new URL(target.page, base).href;
 }
 
 /**
@@ -435,8 +442,10 @@ export function staged(
  *
  * @remarks
  *   The catalogue scrolls its main region rather than the document, and a full-page capture only
- *   sees what the document scrolls. Each scrolling region is given its full height and the boxes
- *   above it are let grow, until the document stops growing.
+ *   sees what the document scrolls. Each scrolling region outside the scenes is given its full
+ *   height and the boxes above it are let grow, until the document stops growing. A region inside
+ *   a scene keeps its height, so a list that scrolls within a fixed height is captured as a reader
+ *   sees it.
  */
 export async function unclamped(page: Page): Promise<void> {
   for (let round = 0; round < 6; round += 1) {
@@ -452,7 +461,8 @@ export async function unclamped(page: Page): Promise<void> {
 
         if (
           !(scrolls || style.overflowY === "hidden") ||
-          each.scrollHeight <= each.clientHeight + 4
+          each.scrollHeight <= each.clientHeight + 4 ||
+          each.closest("main section") !== null
         ) {
           continue;
         }
