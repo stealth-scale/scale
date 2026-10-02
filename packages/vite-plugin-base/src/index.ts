@@ -8,7 +8,14 @@
 export { dependencies, type Dependency, packageAt, resolvedOnGraph } from "#dependencies.ts";
 export { exportTarget } from "#exports.ts";
 export { emptyDir, syncDir, writeIfChanged } from "#fs.ts";
-export { type Imported, imported, type Importer, importer, type Loading } from "#load.ts";
+export {
+  type Imported,
+  imported,
+  type Importer,
+  importer,
+  type Loaded,
+  type Loading,
+} from "#load.ts";
 export { type Locking, withLock } from "#lock.ts";
 export { type Installed, installedOf, locked } from "#locked.ts";
 export { type Bundling, type Plugin, plugin, type Stated } from "#plugin.ts";

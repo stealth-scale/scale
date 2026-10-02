@@ -9,6 +9,7 @@
  *   the module comes back to the plugin as a hot update.
  */
 
+import { isAbsolute } from "node:path";
 import {
   createRunnableDevEnvironment,
   isRunnableDevEnvironment,
@@ -38,6 +39,21 @@ export interface Loading {
 }
 
 /**
+ * Describes one module an import loaded, with the namespace its evaluation produced.
+ */
+export interface Loaded {
+  /**
+   * The module's namespace object.
+   */
+  exports: Readonly<Record<string, unknown>>;
+
+  /**
+   * Absolute path of the module's file.
+   */
+  file: string;
+}
+
+/**
  * An imported module together with the files its evaluation read.
  */
 export interface Imported<Module> {
@@ -46,6 +62,13 @@ export interface Imported<Module> {
    * externalised is missing, because Node evaluated it and Vite read no file for it.
    */
   files: readonly string[];
+
+  /**
+   * Every module the import loaded, with its namespace, in the order the runner evaluates them:
+   * each after every module it imports, the imported module last. A built-in is left out, because
+   * its file is not a path.
+   */
+  loaded: readonly Loaded[];
 
   /**
    * The module's namespace object.
@@ -58,9 +81,9 @@ export interface Imported<Module> {
  * environment once.
  *
  * @remarks
- *   Over a dev server's runner, `close` is a no-op: the server owns that environment and keeps it
- *   running. Over an environment this module built, `close` releases it, and nothing can be
- *   imported afterwards.
+ *   Over a dev server's runner, `close` is a no-op, because the server created that environment and
+ *   keeps it running. Over an environment this module built, `close` releases it, and nothing can
+ *   be imported afterwards.
  */
 export interface Importer {
   /**
@@ -69,46 +92,115 @@ export interface Importer {
   close: () => Promise<void>;
 
   /**
-   * Imports one module and returns it with the files behind it.
+   * Imports one module and returns it with the files and the modules behind it.
    *
    * @throws {@link Error} When the specifier does not resolve or the module fails to evaluate.
    */
   import: <Module>(id: string) => Promise<Imported<Module>>;
+
+  /**
+   * Drops the transforms of the files given and every module the runner evaluated, so the next
+   * import evaluates every module again and transforms the files given again.
+   *
+   * @remarks
+   *   Over a dev server's runner it drops nothing, because the server invalidates its own modules.
+   */
+  invalidate: (files: readonly string[]) => void;
 }
 
 /**
- * The runner's evaluated-module registry, reached through the environment type so nothing here has
- * to import a Vite subpath for it.
+ * The runner's evaluated-module registry, typed through the environment type so nothing here
+ * imports a Vite subpath for it.
  */
 type Evaluated = RunnableDevEnvironment["runner"]["evaluatedModules"];
 
 /**
- * Walks an evaluated module's imports and collects the files behind it, its own first, skipping
- * anything externalised.
+ * One module the runner evaluated.
+ */
+type Evaluation = NonNullable<ReturnType<Evaluated["getModuleById"]>>;
+
+/**
+ * Walks an evaluated module's imports and returns every module behind it, its own first.
  *
  * @remarks
- *   The walk follows the runner's own import records, so a file Vite transformed is listed and a
- *   package Node loaded is not. A module reached down two paths is listed once.
+ *   The walk follows the runner's own import records. A module imported along two paths is listed
+ *   once.
  */
-function filesOf(evaluated: Evaluated, id: string): string[] {
-  const files: string[] = [];
+function modulesOf(evaluated: Evaluated, id: string): readonly Evaluation[] {
+  const modules: Evaluation[] = [];
   const seen = new Set<string>();
   const queue = [id];
 
-  for (let held = queue.shift(); held !== undefined; held = queue.shift()) {
-    if (seen.has(held)) continue;
+  for (let next = queue.shift(); next !== undefined; next = queue.shift()) {
+    if (seen.has(next)) continue;
 
-    seen.add(held);
+    seen.add(next);
 
-    const node = evaluated.getModuleById(held);
+    const node = evaluated.getModuleById(next);
 
     if (node === undefined) continue;
-    if (node.meta === undefined || !("externalize" in node.meta)) files.push(node.file);
 
+    modules.push(node);
     queue.push(...node.imports);
   }
 
-  return files;
+  return modules;
+}
+
+/**
+ * Returns every module behind an evaluated module in the order the runner evaluates them: each
+ * after every module it imports, the module itself last.
+ *
+ * @remarks
+ *   The walk is a depth-first search over the runner's import records, in the order each module
+ *   imports. A module imported along two paths is listed once, where the first path finishes it.
+ */
+function evaluationOf(evaluated: Evaluated, id: string): readonly Evaluation[] {
+  const order: Evaluation[] = [];
+  const seen = new Set<string>();
+
+  /**
+   * Lists the modules behind one module, then the module itself.
+   */
+  const visit = (next: string): void => {
+    const node = seen.has(next) ? undefined : evaluated.getModuleById(next);
+
+    seen.add(next);
+
+    if (node === undefined) return;
+
+    for (const dependency of node.imports) visit(dependency);
+
+    order.push(node);
+  };
+
+  visit(id);
+
+  return order;
+}
+
+/**
+ * Returns the files of the modules Vite transformed, leaving out every module it externalised.
+ */
+function filesOf(modules: readonly Evaluation[]): string[] {
+  return modules.flatMap((node) =>
+    node.meta === undefined || !("externalize" in node.meta) ? [node.file] : [],
+  );
+}
+
+/**
+ * Returns each module whose file is a path, with the namespace its evaluation produced.
+ */
+function loadedOf(modules: readonly Evaluation[]): Loaded[] {
+  return modules.flatMap((node) => {
+    if (!isAbsolute(node.file)) return [];
+
+    const namespace: unknown = node.exports;
+    // eslint-disable-next-line typescript/no-unsafe-type-assertion -- the runner sets a namespace object on every module an import evaluated
+    const exports = namespace as Readonly<Record<string, unknown>>;
+
+    return [{ exports, file: node.file }];
+  });
 }
 
 /**
@@ -116,7 +208,7 @@ function filesOf(evaluated: Evaluated, id: string): string[] {
  *
  * @remarks
  *   The specifier is resolved before the import because the runner records its modules under
- *   resolved ids, and {@link filesOf} has to find the module again afterwards.
+ *   resolved ids, and {@link modulesOf} has to find the module again afterwards.
  */
 async function through<Module>(
   environment: RunnableDevEnvironment,
@@ -125,8 +217,13 @@ async function through<Module>(
   const resolved = await environment.pluginContainer.resolveId(id);
   const target = resolved?.id ?? id;
   const module = await environment.runner.import<Module>(target);
+  const { evaluatedModules } = environment.runner;
 
-  return { files: filesOf(environment.runner.evaluatedModules, target), module };
+  return {
+    files: filesOf(modulesOf(evaluatedModules, target)),
+    loaded: loadedOf(evaluationOf(evaluatedModules, target)),
+    module,
+  };
 }
 
 /**
@@ -186,6 +283,7 @@ export async function importer(loading: Loading, server?: ViteDevServer): Promis
     return {
       close: () => Promise.resolve(),
       import: <Module>(id: string): Promise<Imported<Module>> => through(running, id),
+      invalidate: () => {},
     };
   }
 
@@ -194,6 +292,11 @@ export async function importer(loading: Loading, server?: ViteDevServer): Promis
   return {
     close: () => environment.close(),
     import: <Module>(id: string): Promise<Imported<Module>> => through(environment, id),
+    invalidate: (files) => {
+      for (const file of files) environment.moduleGraph.onFileChange(file);
+
+      environment.runner.clearCache();
+    },
   };
 }
 

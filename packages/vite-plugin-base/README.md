@@ -111,8 +111,8 @@ export function registry(): Plugin {
 | ------------ | ----------------------------------------------------------------------------------------------- |
 | `Bundling`   | The build a bundler binds to `this` while it generates a bundle                                 |
 | `Dependency` | One package the walk reached, under `at`, `dependsOn`, `manifest` and `named`                   |
-| `Imported`   | A module under `module`, with the `files` its evaluation read                                   |
-| `Importer`   | An `import` function over one environment, and the `close` that releases it                     |
+| `Imported`   | A module under `module`, with the `files` its evaluation read and the modules it `loaded`       |
+| `Importer`   | An `import` function over one environment, `invalidate`, and the `close` that releases it       |
 | `Installed`  | What a lockfile pinned for one package: `integrity`, `registry` and `resolution`, each optional |
 | `Licensed`   | One licence file, under `named` and `text`                                                      |
 | `Loading`    | Where an import resolves from, under `root`, and the `conditions` it resolves under             |
@@ -185,11 +185,24 @@ file behind the module reaches the plugin as a hot update. Without one, a new en
 for the single import and closed afterwards. `files` lists every file the evaluation read, the
 module's file first, which is what a plugin passes to `addWatchFile`.
 
+`loaded` lists every module the import evaluated, each with its `file` and its `exports`, in the
+order the runner evaluates them: each module after every module it imports, the imported module
+last. A module that re-exports an object imports the module that defines it, so the first module to
+export an object is the one that defines it. A built-in is left out.
+
 `importer` opens that environment once and returns an `import` function and a `close`. A plugin that
 loads a statement and every preset behind it imports them all through one importer, because building
 an environment resolves a configuration and starts a module runner, and that cost is taken once
 rather than once per module. Closing an importer over a dev server leaves the server's environment
 running.
+
+An importer keeps every module it evaluated. A second import of a module returns the first
+evaluation. `invalidate(files)` drops the transforms of the files given and every evaluated module.
+The next import then evaluates every module again and transforms only those files again. Vite keeps
+a closed environment reachable, so an importer per change would keep every module each importer
+transformed. A plugin that loads the same module after each change keeps one importer and
+invalidates the changed files. Over a dev server's runner, `invalidate` leaves the modules alone.
+The server invalidates its own.
 
 ## Reading the lockfile
 
