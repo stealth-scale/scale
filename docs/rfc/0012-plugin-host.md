@@ -4,7 +4,7 @@ title: "The plugin host: state, evaluation and failure"
 author: Roy Klopper, drafted with Claude
 status: Draft
 created: 2026-09-30
-updated: 2026-10-01
+updated: 2026-10-02
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -86,18 +86,22 @@ createRoot(element).render(
 );
 ```
 
-| Piece              | Package    | Built                           | Responsible for                                                                    |
-| ------------------ | ---------- | ------------------------------- | ---------------------------------------------------------------------------------- |
-| `virtual:product`  | the build  | Once per build                  | The resolved product: every declaration, placement and warning (RFC-0011)          |
-| `createHostRoutes` | `sdk-host` | Once per route tree             | The plugin routes and the settings routes, compiled under the root                 |
-| `createHost`       | `sdk-host` | Once per page, once per request | The stores, the bus, the toaster, the quarantine and the report                    |
-| `HostRoot`         | `sdk-host` | The root route's component      | The `layout` and `overlay` regions around the product's frame (RFC-0013)           |
-| `HostNotFound`     | `sdk-host` | The root's not-found component  | The not-found page and its reasons (RFC-0013)                                      |
-| `HostProvider`     | `sdk-host` | Once per render tree            | The host's contexts, `DataProvider`, the `root` region, and invalidation on change |
-| `Frame`            | product    | Product code                    | The product's `AppShell` and the regions it renders                                |
+| Piece                  | Package    | Built                           | Responsible for                                                                                       |
+| ---------------------- | ---------- | ------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `virtual:product`      | the build  | Once per build                  | The resolved product: every declaration, placement and warning (RFC-0011)                             |
+| `createHostRoutes`     | `sdk-host` | Once per route tree             | The plugin routes and the settings routes, compiled under the root                                    |
+| `createHost`           | `sdk-host` | Once per page, once per request | The stores, the bus, the toaster, the quarantine and the report                                       |
+| `HostRoot`             | `sdk-host` | The root route's component      | The `layout` and `overlay` regions around the product's frame, inside a last boundary (RFC-0013)      |
+| `HostNotFound`         | `sdk-host` | The root's not-found component  | The not-found page and its reasons (RFC-0013)                                                         |
+| `HostProvider`         | `sdk-host` | Once per render tree            | The host's contexts, `DataProvider`, the `root` region, the last boundary, and invalidation on change |
+| `setupHostIntegration` | `sdk-host` | Once per router                 | The host's state in a server render's dehydrated state, and the browser's host hydrated from it       |
+| `Frame`                | product    | Product code                    | The product's `AppShell` and the regions it renders                                                   |
 
 A route's condition reads the host from the router's context rather than from the tree, so one tree
-serves every request on a server, as RFC-0006 requires.
+serves every request on a server, as RFC-0006 requires. `HostProvider` renders, from the outside in,
+the last boundary, the host's context, `DataProvider`, the router's context and the `root` region
+around the product's tree, so the `root` region's extensions read the router's matches outside every
+route.
 
 ### Creating a host
 
@@ -130,14 +134,21 @@ export interface HostOptions {
   readonly flagsTimeout?: number | undefined;
 
   /**
-   * Reads and writes flag overrides. On by default outside a production build (RFC-0015).
+   * Glyphs the settings sections' forms render: the mark in a checked box, a select's chevron and
+   * the others the forms package names. A form renders no mark it has no glyph for (RFC-0017).
+   */
+  readonly glyphs?: FormGlyphs | undefined;
+
+  /**
+   * Reads and writes flag overrides in the tab's session storage. On by default outside a
+   * production build (RFC-0015).
    */
   readonly overrides?: boolean | undefined;
 
   /**
-   * The resolved product, from `virtual:product`.
+   * The resolved product with each installed plugin's manifest, from `virtual:product`.
    */
-  readonly product: ResolvedProduct;
+  readonly product: Product;
 
   /**
    * Failed renders in a row after which a route or an extension is quarantined. 3 by default.
@@ -201,10 +212,18 @@ export interface Host {
 ```
 
 - `createHost` checks every declared route, extension, command and component section against the
-  manifests, and throws where one lacks code. The types of `definePlugin` prevent it, so the check
-  covers an untyped caller.
+  manifests, and throws where one lacks code, with one sentence per missing entry:
+  `No manifest maps the route time-off/overview to code.` The types of `definePlugin` prevent it, so
+  the check covers an untyped caller. The host renders its own routes and takes no manifest for
+  them.
 - `createHost` subscribes to the session source, the setting store, the flag source and the access
-  source when it is created. `dispose` ends the subscriptions.
+  source when it is created, and starts the flag source's first `identify` and the eager plugins'
+  imports. `ready()` returns one promise per host, and its flag timeout counts from its first call.
+  `dispose` ends the subscriptions and cancels the data client's fetches.
+- `createHost` and `createHostRoutes` read every module through the manifests' importers, which the
+  host wraps once per product object, so a product that passes one object to both measures each
+  plugin's first import once and recovers from a missing chunk once (see "A chunk that no longer
+  exists").
 
 ### The router context
 
@@ -217,27 +236,46 @@ export interface HostRouterContext extends DataContext, RoutesContext {
    * The host whose state every route condition reads.
    */
   readonly host: Host;
+
+  /**
+   * Every declared id, against the route compiled for it. The sign-in redirect resolves the sign-in
+   * route's path through it.
+   */
+  readonly routes: RouteMap;
 }
 ```
 
-`routerOptions({ data, host, routes })` puts the host and its data client in the context. A route's
+`routerOptions({ data, host, routes })` puts the host, its data client and the route map in the
+context. `RoutesContext` states `routes` optional, and the host's context requires it. A route's
 loader reads the client from there (RFC-0005), and a route's `beforeLoad` reads the host, which
-needs one change to `provider-router`: `Evaluate` receives the route's context as its second
-argument.
+needs a change to `provider-router`: `Evaluate` receives the route's context as its second argument,
+and the address the navigation enters as its third.
 
 ```ts
+/**
+ * Describes the address a navigation enters, as a route's condition reads it.
+ */
+export interface EnteredLocation {
+  /**
+   * The path, the search and the hash of the address, without its origin.
+   */
+  readonly href: string;
+}
+
 /**
  * Returns whether a route's condition is true for the router whose context is given.
  */
 export type Evaluate<Condition = unknown, Context = unknown> = (
   when: Condition,
   context: Context,
+  location?: EnteredLocation,
 ) => boolean;
 ```
 
-The compiler's gate passes `beforeLoad`'s own `context` through
-(`foundations/providers/router/src/compile.ts:384-390`). An evaluator that ignores the second
-argument keeps working.
+The compiler's gate passes `beforeLoad`'s own `context` and `location` through
+(`foundations/providers/router/src/compile.ts:390-396`), before the navigation commits, so the
+sign-in redirect of RFC-0014 states the address the person asked for. A menu evaluates a condition
+without a location. An evaluator that ignores the second and third arguments keeps working.
 
 ### Stores
 
@@ -262,18 +300,18 @@ export interface Store<T> {
 }
 ```
 
-| Store          | Value                                                           | Changes when                                                         | Read by                                                     |
-| -------------- | --------------------------------------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `session`      | The session, with its permissions and entitlements as sets      | The session source reports a change                                  | `useSession`, `usePermission`, `useEntitlement`, conditions |
-| `flags`        | Every flag the page has read, with its value and its source     | A first read, the flag source reports a change, an override          | `useFeatureFlag`, conditions (RFC-0015)                     |
-| `switches`     | Every switchable plugin's switch, as the person set it          | A person switches a plugin, or another tab does                      | The Plugins page, `availability`                            |
-| `availability` | Every plugin's state: on, or the reason it is not               | A switch, a kill switch, a plugin condition or a requirement changes | Conditions, the route evaluator, `usePluginStatuses`        |
-| `access`       | Decisions on single resources for the session's subject         | A decision arrives, is primed, is forgotten, or the source reports   | `useAccess` (RFC-0014)                                      |
-| `placements`   | The person's placements per slot                                | A person changes a placement, or another tab does                    | `Slot`, `useSlot`, `usePlacements`                          |
-| `quarantine`   | Every quarantined target, with its last error                   | A target fails its last allowed render, or `retry` lifts it          | `Slot`, the route evaluator, the not-found page, reports    |
-| `mounted`      | Every slot on screen, with the outcome of each mounted instance | A `Slot` mounts, unmounts or renders other extensions                | `useExtensionStatuses`, reports                             |
-| `pages`        | Every page contribution made with `Into`                        | An `Into` mounts, changes or unmounts                                | `Slot`, `useSlot`                                           |
-| `reports`      | The last 100 runtime report entries                             | The host reports an entry                                            | `useHostReports`                                            |
+| Store          | Value                                                       | Changes when                                                         | Read by                                                     |
+| -------------- | ----------------------------------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `session`      | The session, with its permissions and entitlements as sets  | The session source reports a change                                  | `useSession`, `usePermission`, `useEntitlement`, conditions |
+| `flags`        | Every flag the page has read, with its value and its source | A first read, the flag source reports a change, an override          | `useFeatureFlag`, conditions (RFC-0015)                     |
+| `switches`     | Every switchable plugin's switch, as the person set it      | A person switches a plugin, or another tab does                      | The Plugins page, `availability`                            |
+| `availability` | Every plugin's state: on, or the reason it is not           | A switch, a kill switch, a plugin condition or a requirement changes | Conditions, the route evaluator, `usePluginStatuses`        |
+| `access`       | Decisions on single resources for the session's subject     | A decision arrives, is primed, is forgotten, or the source reports   | `useAccess` (RFC-0014)                                      |
+| `placements`   | The person's placements per slot                            | A person changes a placement, or another tab does                    | `Slot`, `useSlot`, `usePlacements`                          |
+| `quarantine`   | Every quarantined target, with its last error               | A target fails its last allowed render, or `retry` lifts it          | `Slot`, the route evaluator, the not-found page, reports    |
+| `mounted`      | Every slot on screen and every page's decorations, by key   | A `Slot` or a page mounts, unmounts or renders other extensions      | `useExtensionStatuses`, reports                             |
+| `pages`        | Every page contribution made with `Into`                    | An `Into` mounts, changes or unmounts                                | `Slot`, `useSlot`                                           |
+| `reports`      | The last 100 runtime report entries                         | The host reports an entry                                            | `useHostReports`                                            |
 
 - `sdk-plugin`'s `HostStores` lists every store but `switches`. The host alone reads and writes the
   switches, and a plugin reads their effect through `availability`.
@@ -283,9 +321,12 @@ export interface Store<T> {
   hook that builds an object selects a string signature of it, such as the JSON of a slot's ids, and
   builds the object after the selection, so React compares a string.
 - The selector is the server snapshot as well, because a host per request keeps the request's
-  stores.
+  stores. In the browser after a server render, the stores start from the server's values (see "On a
+  server").
 
-The `mounted` store keeps one outcome per mounted instance of a slot:
+The `mounted` store keeps one outcome per mounted instance, under a key: a slot's qualified id, or
+`route:<id>` for the extensions a page renders around itself. `mount(key, slot)` records an instance
+and returns the function that removes it:
 
 ```ts
 /**
@@ -325,10 +366,12 @@ A plugin is on where it passes these four tests:
 | Every plugin it requires without `optional` is on            | `requirement`         |
 
 - The `availability` store computes every plugin's state in requirement order, which the build
-  guarantees is acyclic (RFC-0011). It computes again when a store that any plugin condition reads
-  changes: the session, the flags or the switches.
+  guarantees is free of rings of conditions and requirements (RFC-0011). It computes on its first
+  read, and again when a store that any plugin condition reads changes: the session, the flags or
+  the switches. A computation that changes no plugin's state notifies no reader.
 - `context.on(pluginId)` in a condition reads this store, so `when: { plugin }` is false for a
-  plugin that is not on, whatever the reason.
+  plugin that is not on, whatever the reason. The host is always on: `context.on("host")` is true,
+  so the host's settings pages and menu entries follow their own conditions alone.
 - A plugin that is not on has every route not found, every extension unplaced, every command
   disabled, every settings page and section hidden, and every menu entry unlisted.
 
@@ -361,6 +404,8 @@ export interface HostCondition {
 }
 ```
 
+`createHostRoutes(product)` builds the evaluator over the product's plugins and its sign-in route.
+The evaluator reads the stores from the host in the router's context, so one tree serves every host.
 The route evaluator runs in `beforeLoad` on every navigation and every `router.invalidate()`:
 
 1. Where the route's plugin is not on, it throws `notFound`. The data contains the id of the plugin
@@ -370,7 +415,8 @@ The route evaluator runs in `beforeLoad` on every navigation and every `router.i
 2. Where the route is quarantined, it throws
    `notFound({ data: { reason: "quarantined", target } })`.
 3. Where `when` is false, the session is not authenticated and the sign-in rule of RFC-0014 applies,
-   it throws `redirect` to the sign-in route.
+   it throws `redirect` to the sign-in route, with the address the navigation entered as its
+   `redirect` search.
 4. Where `when` is false, it returns false, and the compiled gate throws `notFound()` without data,
    which confirms nothing about the page (ADR-0024).
 5. Otherwise it returns true.
@@ -397,38 +443,43 @@ In the browser:
 
 ### Changes while the page runs
 
-| Change                                            | Stores updated                               | Then                                                                                          |
-| ------------------------------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| The session changes                               | `session`, `availability`, `access`, `flags` | RFC-0014 lists the sequence: reset the data, invalidate, `identify`, evaluate the flags again |
-| A flag changes at the source                      | `flags`, `availability`                      | `router.invalidate()` where a value changed                                                   |
-| An override is set or removed                     | `flags`, `availability`                      | `router.invalidate()`                                                                         |
-| A person switches a plugin                        | `switches`, `availability`                   | `router.invalidate()`, and `host/pluginChanged` on the bus                                    |
-| Another tab switches a plugin                     | `switches`, `availability`                   | The same, from the setting store's notification                                               |
-| The access source reports a change                | `access`                                     | Every reader of `useAccess` asks again                                                        |
-| A person changes a placement                      | `placements`                                 | Every affected `Slot` renders again                                                           |
-| A target is quarantined or retried                | `quarantine`                                 | `router.invalidate()` for a route, a `Slot` render for an extension                           |
-| A mutation settles, or the changes stream reports | none. The data client's cache changes        | `invalidateChanges` for the changed records, and `host/recordsChanged` on the bus (RFC-0020)  |
+| Change                                            | Stores updated                               | Then                                                                                                                                                |
+| ------------------------------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The session changes                               | `session`, `availability`, `access`, `flags` | RFC-0014 lists the sequence: reset the data, invalidate, `identify`, evaluate the flags again                                                       |
+| A flag changes at the source                      | `flags`, `availability`                      | `router.invalidate()` where a value changed                                                                                                         |
+| An override is set or removed                     | `flags`, `availability`                      | `router.invalidate()`                                                                                                                               |
+| A person switches a plugin                        | `switches`, `availability`                   | `router.invalidate()`, and `host/pluginChanged` for each plugin that turned on or off                                                               |
+| Another tab switches a plugin                     | `switches`, `availability`                   | The same, from the setting store's notification                                                                                                     |
+| The access source reports a change                | `access`                                     | Every reader of `useAccess` asks again                                                                                                              |
+| A person changes a placement                      | `placements`                                 | Every affected `Slot` renders again                                                                                                                 |
+| A target is quarantined or retried                | `quarantine`                                 | `router.invalidate()` for a route, a `Slot` render for an extension                                                                                 |
+| A mutation settles, or the changes stream reports | none. The data client's cache changes        | `invalidateChanges` for the changed records, and `host/recordsChanged` on the bus for a mutation that succeeded or a batch of the stream (RFC-0020) |
 
 `HostProvider` subscribes to `session`, `flags`, `availability` and `quarantine`, and calls
-`router.invalidate()` after a change that a route condition reads. `invalidate` runs `beforeLoad`
-for every matched route. Measured on TanStack Router 1.170.34 in Chromium and Firefox, a condition
-that turns false renders the page not found inside the frame, and turning it true again mounts the
-page, with the frame's state kept (RFC-0013 lists the measurement).
+`router.invalidate()` once per task after a change that a route condition reads: the session, a
+plugin's availability, a quarantine, an override, or the value of a flag the page read. A first read
+adds a reading with the value its reader already used, so it invalidates nothing. `invalidate` runs
+`beforeLoad` for every matched route. Measured on TanStack Router 1.170.34 in Chromium and Firefox,
+a condition that turns false renders the page not found inside the frame, and turning it true again
+mounts the page, with the frame's state kept (RFC-0013 lists the measurement).
 
 ### Quarantine
 
-A render target is a kind and a qualified id: `route:time-off/overview`, `extension:billing/card`.
+A render target is a kind and a qualified id: `route:time-off/overview`, `extension:billing/card`,
+`section:time-off/reminders`.
 
 ```ts
 /**
- * Names one thing the host renders from a manifest.
+ * Names one thing the host renders from a manifest: an extension, a route or a settings section.
  */
-export type RenderTarget = `extension:${string}` | `route:${string}`;
+export type RenderTarget = `extension:${string}` | `route:${string}` | `section:${string}`;
 ```
 
-- The host renders every extension inside an error boundary of its own, and every plugin route with
-  an `errorComponent` that the compiler attaches per declaration
-  (`foundations/providers/router/src/compile.ts:26-33`).
+- The host renders every extension and every settings section inside an error boundary of its own,
+  and every plugin route with an `errorComponent` that the compiler attaches per declaration
+  (`foundations/providers/router/src/compile.ts:352-360`). The router renders the error component
+  for an error the route's loader throws as well, so a loader that fails counts towards the page's
+  quarantine.
 - Each render that throws counts one failure for its target, and the count returns to zero when a
   render commits. The count is per render rather than per second, so a page rendered sixty times a
   minute and one rendered once an hour follow the same rule.
@@ -462,22 +513,25 @@ export type HostReport =
 
 Each member of the union is an interface of `sdk-plugin` with a `kind` and the members of its kind:
 
-| Interface           | Kinds                                             | Members beside `kind`                                                                |
-| ------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `ChainCut`          | `event-chain-cut`                                 | `target`: the event whose emit the bus dropped (RFC-0016)                            |
-| `FlagExposed`       | `flag-exposed`                                    | `flag`, and `variant`: the variant the session is served                             |
-| `FlagIgnored`       | `flag-ignored`                                    | `flag`, `source` (`override`, `product` or `source`), and the `value` it stated      |
-| `RenderFailed`      | `render-failed`                                   | `error`, and `target`: a `RenderTarget`, or `host` for an error outside every plugin |
-| `RunFailed`         | `command-failed`, `event-handler-failed`          | `error`, and `target`: the command, or the event whose handler threw                 |
-| `SettingDropped`    | `setting-dropped`                                 | `key` of the stored value, and the `reason` it was dropped                           |
-| `SlotMissed`        | `slot-full`, `unplaced`                           | `slot`, and `target`: the extension that found no place                              |
-| `SourceFailed`      | `access-failed`, `flags-failed`, `session-failed` | `error` the source threw or rejected with                                            |
-| `TargetQuarantined` | `quarantined`                                     | `error` of the last render that threw, and `target`: a `RenderTarget`                |
+| Interface           | Kinds                                             | Members beside `kind`                                                                  |
+| ------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `ChainCut`          | `event-chain-cut`                                 | `target`: the event whose emit the bus dropped, and `plugin`: the emitting plugin      |
+| `FlagExposed`       | `flag-exposed`                                    | `flag`, and `variant`: the variant the session is served                               |
+| `FlagIgnored`       | `flag-ignored`                                    | `flag`, `source` (`override`, `product` or `source`), and the `value` it stated        |
+| `RenderFailed`      | `render-failed`                                   | `error`, and `target`: a `RenderTarget`, or `host` for an error outside every plugin   |
+| `RunFailed`         | `command-failed`, `event-handler-failed`          | `error`, `target`: the command or the event, and `plugin`: the plugin whose code threw |
+| `SettingDropped`    | `setting-dropped`                                 | `key` of the stored value, and the `reason` it was dropped                             |
+| `SlotMissed`        | `slot-full`, `unplaced`                           | `slot`, and `target`: the extension that found no place                                |
+| `SourceFailed`      | `access-failed`, `flags-failed`, `session-failed` | `error` the source threw or rejected with                                              |
+| `TargetQuarantined` | `quarantined`                                     | `error` of the last render that threw, and `target`: a `RenderTarget`                  |
 
-- Each entry records the plugin it concerns through its target's qualified id or its flag's.
-- The host passes each entry to `report`, which writes to the console by default with the prefix
-  `[host]`. A product passes its telemetry client, which also forwards `flag-exposed` to its
-  analytics (RFC-0015).
+- Each entry records the plugin it concerns through its target's qualified id or its flag's, or
+  through `plugin` where the target is an event or a command. `plugin` is absent for the product's
+  own code.
+- The host passes each entry to `report`, which writes to the console by default:
+  `console.error("[host] <kind>", entry)` for an entry with an error, and `console.warn` for the
+  rest. A product passes its telemetry client, which also forwards `flag-exposed` to its analytics
+  (RFC-0015).
 - The `reports` store keeps the last 100 entries for the inspector (RFC-0019).
 - The build's warnings are part of the resolved product, and the inspector lists them beside the
   runtime entries.
@@ -494,6 +548,11 @@ monitoring attributes load time and run time to plugins:
 
 A product reads them with a `PerformanceObserver` of the type `measure`, the way it reads any other
 entry of the Performance Timeline. The host adds a measure only while plugin code loads or runs.
+
+- The load measure starts at the first call of any of the plugin's importers, the eager imports
+  included, and ends when that import resolves. A first import that fails adds no measure, and no
+  later import of the plugin is measured.
+- The command measure ends when the function settles, so a command that rejects is measured too.
 
 ### Status hooks
 
@@ -570,8 +629,9 @@ export interface ExtensionStatus {
   readonly reason?: UnplacedReason | undefined;
 
   /**
-   * Qualified id of the slot that renders or drops the extension, else of the slot it targets.
-   * Undefined for an extension around a page or another extension that no mounted slot records.
+   * Key of the mounted record that renders or drops the extension: a slot's qualified id, or
+   * `route:<id>` for a page. Else the qualified id of the slot the extension targets. Undefined for
+   * an extension around a page or another extension that no mounted record lists.
    */
   readonly slot: string | undefined;
 }
@@ -653,21 +713,32 @@ Every hook of `sdk-plugin` throws outside `HostProvider`, naming itself:
 ### A chunk that no longer exists
 
 A page that loaded before a deployment asks, at its next lazy import, for a chunk the deployment
-replaced. The host recovers once per build version:
+replaced. The host recovers once per build version, which is the product's `version` (RFC-0011):
 
-- The host listens for Vite's `vite:preloadError` event and for a rejected lazy import of a plugin
-  module.
-- On the first such failure for a build version, it records the version under
-  `stealth.<productId>.reloaded` in session storage and reloads the page. The reload loads the new
-  build.
-- On a second failure for the same version, it renders the route's error component instead of
-  reloading again. A chunk that the new build also lacks cannot start a loop of reloads.
+- Every importer of the manifests imports through a wrapper, so a rejected import of a plugin
+  module, or an import that resolves with no module, starts the recovery. The wrapper recovers by
+  itself, so a failure before `HostProvider` mounts, such as an eager import's, starts it too.
+- While `HostProvider` is mounted, it listens for Vite's `vite:preloadError` event, which Vite's
+  preload helper dispatches on the window for a stylesheet that failed to preload and for a module
+  that failed to import. It cancels the event only where the page reloads. A cancelled event makes
+  the import resolve with no module.
+- On the first failure for a build version, the host records the version under
+  `stealth.<productId>.reloaded` in session storage and reloads the page. The import never settles,
+  so no error component renders while the page reloads. The reload loads the new build.
+- On a second failure for the same version, the import rejects, and the route's error component or
+  the extension's boundary renders it. A chunk that the new build also lacks cannot start a loop of
+  reloads.
+- A server has no page to reload, and a page whose storage the browser refuses cannot record the
+  version, so both render the error instead of reloading.
 
 ### An error outside every plugin
 
 Every plugin route has an error component and every extension has a boundary, so a plugin's error
 remains inside its plugin. An error in the product's frame, in a host part or in a provider escapes
-them. `HostProvider` renders a last boundary around its children for that case:
+them. `HostProvider` renders a last boundary around its children for that case. `HostRoot` renders
+another around the frame, because TanStack Router wraps the root match in a catch boundary of its
+own, which catches an error in the frame first (react-router 1.170.40 `Matches.js:43-50`). Each
+boundary:
 
 - It renders a page that states the product could not render, with a button that reloads the page.
 - It reports the error as `render-failed` with the target `host`.
@@ -679,31 +750,55 @@ them. `HostProvider` renders a last boundary around its children for that case:
 - The process builds the tree once, with `createHostRoutes`, because the tree does not depend on a
   host.
 - Each request creates a host with `constantSession`, the request's flag source, access source and
-  data transport, and a setting store over the request's cookies. The server then reads the switches
-  and placements the browser wrote.
-- Each request creates a router with that host and its data client in its context, connects them
-  with `setupDataIntegration` (RFC-0005), awaits `host.ready()`, and renders.
-- The router's dehydrated state contains the flag values the render read, the switches, the
-  placements and the primed decisions. The browser's host starts from them, so its first render
-  matches the server's.
+  data transport, and a setting store over the request's cookies. Both renders then read the
+  switches, the settings and the placements the browser wrote (RFC-0017).
+- Each request creates a router with that host and its data client in its context, connects them,
+  awaits `host.ready()`, and renders. The browser connects its own host and router the same way
+  before the router hydrates:
+
+  ```ts
+  const router = createRouter({
+    ...routerOptions({ data: host.data, host, routes: map }),
+    routeTree: tree,
+  });
+
+  setupDataIntegration({ client: host.data, router });
+  setupHostIntegration({ host, router });
+  ```
+
+- On a server, `setupHostIntegration` adds the host's snapshot to the router's dehydrated state: the
+  subject, the decisions the host knew when the router dehydrated, after the loaders and before the
+  render, and the flag readings the request took, once the render finished. The router dehydrates
+  before it renders (router-core 1.171.33 `ssr/createRequestHandler.js:33-42`), so the snapshot is a
+  promise that the router serializes and streams.
+- In the browser, the router awaits the snapshot before its first render, so the browser's hydration
+  waits for the end of the server's render. The host then reads the server's flag readings, with no
+  override and no source value, until `HostProvider` mounts, and takes the decisions where its
+  subject is the server's. Its first render matches the server's.
+- `HostProvider`'s first effect applies the tab's overrides and the browser's flag source, and React
+  renders again what changed (RFC-0015). A decision an access batch settles during the server's
+  render is left out, because the render read it as pending (RFC-0014).
 - The data integration streams each query's data into the page. The browser's host primes the
   decisions that data states as the page hydrates it (RFC-0020).
+- The server's HTML takes its `<title>` from the product's document, because the host titles the
+  document in an effect, which a server does not run (RFC-0013).
 
 ## Failure handling
 
-| Failure                                               | Detected by                 | Outcome                                                                         |
-| ----------------------------------------------------- | --------------------------- | ------------------------------------------------------------------------------- |
-| A manifest lacks code for a declared name             | `createHost`                | Throws before anything renders, naming the plugin and the name                  |
-| The open page's plugin is switched off or stopped     | The route evaluator         | Not found, with the plugin and the reason (RFC-0013)                            |
-| A page throws while rendering                         | The route's error component | Its fallback or the error component. After 3 in a row, not found with a retry   |
-| An extension throws while rendering                   | The extension's boundary    | Its fallback, or nothing. After 3 in a row, quarantined                         |
-| A lazy import fails after a deployment                | The host                    | One reload per build version, then the error component                          |
-| The session source throws                             | The host                    | The last session remains, and a `session-failed` entry is reported              |
-| The flag source fails                                 | The host                    | The previous values remain, and a `flags-failed` entry is reported (RFC-0015)   |
-| The access source fails                               | The host                    | The batch is denied for 30 seconds, and `access-failed` is reported (RFC-0014)  |
-| A stored switch, setting or placement fails its check | The host                    | The value is dropped, and a `setting-dropped` entry is reported (RFC-0017)      |
-| A hook of `sdk-plugin` renders outside a host         | The hook                    | Throws, naming the hook                                                         |
-| The frame, a host part or a provider throws           | `HostProvider`'s boundary   | A page that offers a reload, and a `render-failed` entry with the target `host` |
+| Failure                                               | Detected by                 | Outcome                                                                          |
+| ----------------------------------------------------- | --------------------------- | -------------------------------------------------------------------------------- |
+| A manifest lacks code for a declared name             | `createHost`                | Throws before anything renders, naming the plugin and the name                   |
+| The open page's plugin is switched off or stopped     | The route evaluator         | Not found, with the plugin and the reason (RFC-0013)                             |
+| A page throws while rendering                         | The route's error component | Its fallback or the error component. After 3 in a row, not found with a retry    |
+| An extension throws while rendering                   | The extension's boundary    | Its fallback, or nothing. After 3 in a row, quarantined                          |
+| A lazy import fails after a deployment                | The host                    | One reload per build version, then the error component                           |
+| A server render's snapshot is missing in the browser  | `setupHostIntegration`      | The host starts from its own sources, and React renders a mismatch on the client |
+| The session source throws                             | The host                    | The last session remains, and a `session-failed` entry is reported               |
+| The flag source fails                                 | The host                    | The previous values remain, and a `flags-failed` entry is reported (RFC-0015)    |
+| The access source fails                               | The host                    | The batch is denied for 30 seconds, and `access-failed` is reported (RFC-0014)   |
+| A stored switch, setting or placement fails its check | The host                    | The value is dropped, and a `setting-dropped` entry is reported (RFC-0017)       |
+| A hook of `sdk-plugin` renders outside a host         | The hook                    | Throws, naming the hook                                                          |
+| The frame, a host part or a provider throws           | `HostProvider`'s boundary   | A page that offers a reload, and a `render-failed` entry with the target `host`  |
 
 ## Bounds
 
@@ -751,7 +846,10 @@ the fix until somebody retries. A target that still fails is quarantined again a
 ## Drawbacks
 
 - A product composes seven pieces rather than calling one function.
-- `provider-router`'s `Evaluate` gains a second argument, which changes the published type.
+- `provider-router`'s `Evaluate` gains a second and a third argument, which changes the published
+  type.
+- A Suspense boundary that hydrates after the root commits and reads a flag hydrates against the
+  browser's values, so React renders it again on the client.
 - A reload after a deployment loses unsaved input on the page. It happens once per deployment, and
   only where a lazy import fails.
 - The number of re-renders per change is not measured. A React Profiler run on

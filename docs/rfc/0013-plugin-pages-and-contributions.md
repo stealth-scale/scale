@@ -4,7 +4,7 @@ title: "Plugin pages, the frame and contributions"
 author: Roy Klopper, drafted with Claude
 status: Draft
 created: 2026-09-30
-updated: 2026-10-01
+updated: 2026-10-02
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -59,6 +59,7 @@ __root__                      HostRoot around the product's Frame; not found: Ho
 │   └── time-off/request      parent: time-off/overview
 ├── inventory/list
 └── host/settings             the settings frame (RFC-0017)
+    ├── host/settings/index   at "/": opens the first settings page
     ├── host/settings/host/plugins
     └── host/settings/time-off/time-off
 ```
@@ -87,27 +88,33 @@ __root__                      HostRoot around the product's Frame; not found: Ho
 | `when`                              | A `HostCondition`: the plugin id, the route id, and the marker's `when` joined with the product's (RFC-0012)     |
 | `layout`, `layoutOptions`, `outlet` | Absent. The frame is the root's component, a nested frame is a parent route, and an outlet is refused (ADR-0025) |
 
-The compiler's options are the host's error component per declaration, the host's evaluator, and the
-root as the parent:
+The compiler's options are the host's error component per declaration, the host's evaluator over the
+product, and the root as the parent:
 
 ```ts
 compileRoutes(declarations, {
-  errorComponent: (declaration) => routeError(declaration.id),
-  evaluate: hostEvaluate,
+  errorComponent: ({ id }) => routeErrorOf(id, mappingOf(product, id).fallback),
+  evaluate: evaluatorOf(product),
   parent: root,
 });
 ```
 
-`routeError` renders the manifest's fallback for the route where it states one, and the host's error
-page otherwise, and counts the failure towards the route's quarantine (RFC-0012).
+`routeErrorOf` renders the manifest's fallback for the route where it states one, in the plugin's
+scope. Otherwise it renders the host's error page, an empty state titled `page.failed.title` in an
+`h1` and described by `page.failed.description`. It counts each error once towards the route's
+quarantine (RFC-0012), however often it renders the error, an error the route's loader throws
+included.
 
 The host's page component wraps the plugin's page, from the outside in:
 
 1. The plugin's scope, which `usePlugin` and `useConfig` read.
 2. The extensions whose target is the route, placed `before`, `after`, `replace` or `wrap` around
    the page, inside the extensions whose target is `{ every: "route" }`, which wrap it outermost.
-   Each receives `routeId` and `targetId`.
-3. A boundary that reports a render that commits to the quarantine count (RFC-0012).
+   Each receives `routeId` and `targetId`. `RouteDecorations` of `sdk-plugin` renders them and
+   records them in the `mounted` store under `route:<id>` (RFC-0012).
+3. An effect that returns the route's count of failed renders to zero after each render that
+   commits. A render that throws commits nothing, and a `replace` decoration in the page's place
+   commits too (RFC-0012).
 
 ### Typed search
 
@@ -175,19 +182,26 @@ committed and cached match, and a removed route is undefined there (`src/load-cl
 in router-core 1.171.33).
 
 `HostNotFound` is the root's `notFoundComponent`, so a not-found page renders inside the frame, in
-the place of the page. It reads the `data` of the not-found error:
+the place of the page. It reads the `data` of the not-found error, typed by `sdk-host` as
+`NotFoundData`: `PluginUnavailable` or `PageQuarantined`. Data of another type, from a product's own
+route, reads as none:
 
-| `data`                              | The page renders                                                                |
-| ----------------------------------- | ------------------------------------------------------------------------------- |
-| `{ plugin, reason: "off" }`         | The plugin's name, and a switch that turns it on where the person may switch it |
-| `{ plugin, reason: "unavailable" }` | That the plugin is unavailable for now, without a switch (RFC-0015)             |
-| `{ reason: "quarantined", target }` | That the page failed, and a retry that lifts the quarantine                     |
-| none                                | A plain not-found page, which confirms nothing about the address (ADR-0024)     |
+| `data`                              | The page renders                                                            |
+| ----------------------------------- | --------------------------------------------------------------------------- |
+| `{ plugin, reason: "off" }`         | The plugin's name, and a button that turns the plugin on                    |
+| `{ plugin, reason: "unavailable" }` | That the plugin is unavailable for now, without a button (RFC-0015)         |
+| `{ reason: "quarantined", target }` | That the page failed, and a retry that lifts the quarantine                 |
+| none                                | A plain not-found page, which confirms nothing about the address (ADR-0024) |
 
-- Turning the plugin on or retrying calls `router.invalidate()`, and the page mounts again. The
-  frame keeps its state, as the second row measured.
+- The `off` row's button sets the plugin's switch. The control is an empty state's action button,
+  because the page renders again in the not-found page's place once the plugin is on.
+- Turning the plugin on or retrying changes a store, `HostProvider` calls `router.invalidate()`, and
+  the page mounts again. The frame keeps its state, as the second row measured.
 - When the page a person is on becomes not found without a navigation, focus moves to the not-found
-  page's heading, so a screen reader announces what happened.
+  page's heading, so a screen reader announces what happened. The heading takes focus where the
+  router's resolved address equals the current address at its first render. The addresses are equal
+  only where no navigation led to the page, because router-core records the resolved address after a
+  navigation's matches rendered.
 
 ### Menus
 
@@ -243,8 +257,13 @@ export function useDocumentTitle(title: string): void;
 
 - The product's name is the translation of the key its definition states under `name`, in the
   product's own catalogue namespace, the product's id (RFC-0011).
-- The host titles the document with the product's name at start, and again after every navigation
-  whose page does not call `useDocumentTitle`.
+- `HostProvider` titles the document with the product's name as it mounts and when the name changes,
+  in a layout effect, which runs before a page titles the document in its own effect. A page that
+  unmounts returns the title to the product's name, so a navigation to a page that does not call
+  `useDocumentTitle` leaves the product's name.
+- A server runs no effect, so the server's HTML takes its `<title>` from the product's document. The
+  host renders no `<title>` element of its own, so the document has one `<title>`, which the host's
+  effects retitle in the browser.
 
 ### The frame
 
@@ -477,7 +496,7 @@ into the toolbar.
 | ---------------------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------- |
 | Two routes with one id, or one path under one parent | `routeMap`, and the build first | The build fails, naming both plugins (RFC-0011)                                    |
 | A route's parent is not installed                    | The build                       | The build fails, naming the route and the parent                                   |
-| The open page's plugin is switched off               | The route evaluator             | Not found inside the frame, with the switch where the person may switch it         |
+| The open page's plugin is switched off               | The route evaluator             | Not found inside the frame, with a button that turns the plugin on                 |
 | The open page's plugin is stopped by its kill switch | The route evaluator             | Not found inside the frame, stating that the plugin is unavailable                 |
 | The open page's condition turns false                | The route evaluator             | Not found without data. Focus moves to the not-found heading                       |
 | A page throws while rendering                        | The route's error component     | Its fallback or the error page. After 3 in a row, not found with a retry           |

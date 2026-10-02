@@ -4,7 +4,7 @@ title: "Composing a product from plugins at build"
 author: Roy Klopper, drafted with Claude
 status: Draft
 created: 2026-09-30
-updated: 2026-10-01
+updated: 2026-10-02
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -91,7 +91,9 @@ export interface ProductDefinition {
   readonly slots?: readonly FilledSlot[] | undefined;
 
   /**
-   * The product's own version, which each build states.
+   * The product's own version, which each build states. The host reloads a page once per version
+   * after a chunk fails to import (RFC-0012), so a deployment that keeps the version shares one
+   * reload with the build before it.
    */
   readonly version: string;
 
@@ -197,9 +199,15 @@ adds it as a layer, the way `vite-plugin-i18n` and `vite-config-i18n` pair
 export interface ProductOptions {
   /**
    * Path of the module whose default export is the product's definition. `src/product.ts` by
-   * default.
+   * default, and the generated definition under `standalone`.
    */
   readonly definition?: string | undefined;
+
+  /**
+   * The standalone page of a plugin, which the plugin serves under a development server
+   * (RFC-0019). No page where left out.
+   */
+  readonly standalone?: StandalonePage | undefined;
 }
 
 /**
@@ -208,32 +216,58 @@ export interface ProductOptions {
 export function product(options?: ProductOptions): Plugin;
 
 /**
- * Returns the layers that compose a product: the plugin, and one chunk group per plugin.
+ * Returns the layers that compose a product: the plugin, and the lint excuse for the definition
+ * module's default export.
  */
 export function layers(options?: ProductOptions): readonly Layer[];
 ```
 
 When the build starts, and when a development server starts, the plugin does this:
 
-1. It opens an importer with `importer` of `vite-plugin-base`, under the application's export
-   conditions, so a workspace package resolves to its source
-   (`packages/vite-plugin-base/src/load.ts:171-198`).
-2. It imports the definition. The importer returns the module and every file its evaluation read.
-3. It walks the product's dependencies over the scopes `vite-plugin-i18n` follows
-   (`packages/vite-plugin-i18n/src/find.ts:191-248`), and imports each package that depends on
-   `sdk-core` and exports `manifest`. The result maps each plugin id to its web package's directory
-   and its main entry.
-4. It calls `resolveProduct` with the definition and that map.
-5. It fails the build on any problem, and prints every warning. On a development server it shows the
-   problems in the error overlay and in the terminal.
-6. It writes `virtual:product`, and records the chunk group of each plugin.
-7. In a build, it writes the access, flag and operation catalogues (see "Catalogues").
+1. It opens an importer with `importer` of `vite-plugin-base` over an environment of its own, under
+   the application's server conditions, so a workspace package resolves to its source
+   (`packages/vite-plugin-base/src/load.ts:279-301`). It does not borrow a development server's
+   runner, which leaves an externalised package to Node and does not record the imports behind it.
+   The first composition opens the importer, and every later one reuses it. Before a later
+   composition, `invalidate` drops the transforms of the files that changed and every module the
+   runner evaluated. The importer closes when the bundle closes
+   (`packages/vite-plugin-product/src/plugin.ts:279-332`). Vite's resolve plugin keeps every
+   environment it served reachable after the environment closes (vite-plus-core 1.0.0
+   `dist/vite/node/chunks/node.js:34240-34262`). An environment per composition would keep every
+   module it transformed: 2.5 MB of heap per change at 30 plugins.
+2. It imports the definition. The importer returns the module, every file its evaluation read, and
+   every module it evaluated with its exports, each after the modules it imports
+   (`load.ts:158-180`).
+3. It finds each installed plugin's web package and contract package among those modules
+   (`packages/vite-plugin-product/src/discover.ts:87-155`). The web package contains the first
+   module to export the manifest, by identity. A module that re-exports the manifest imports the
+   module that defines it, and so evaluates later. The contract package is found the same way. A
+   manifest the definition builds itself, which no module exports, belongs to the package of the
+   definition module. The product's own package counts among its dependencies. A plugin the
+   product's package defines therefore has a web package. A web package outside the product's
+   package and its dependencies is left out, and the resolver reports the plugin. No package is
+   imported for the search alone, so no component package loads in Node.
+4. It reads the words from the `api` of the `stealth:i18n` plugin, which `cataloguesOf` of
+   `vite-plugin-i18n` finds among the configuration's plugins
+   (`packages/vite-plugin-i18n/src/plugin.ts:76-81`): the fallback language's catalogue of each
+   namespace, and the packages that publish each namespace. The plugin's contract package and the
+   application's own catalogues are left out of the publishers (RFC-0018). A configuration without
+   that plugin fails the build.
+5. It calls `resolveProduct` with the definition, the web packages, the words, the publishers, and
+   `validateHotkey` of `@tanstack/hotkeys` 0.10.0, the version `@tanstack/react-hotkeys` 0.12.0
+   binds keys with.
+6. It fails the build on any problem, and prints every warning. The message lists every problem,
+   then one hint for each contract package whose catalogues the i18n layer does not follow, with the
+   scope to add. On a development server it shows the message in the error overlay.
+7. It serves `virtual:product`.
+8. In a build, it writes the access, flag and operation catalogues (see "Catalogues").
 
 The importer resolves every package through Vite with `noExternal: true`
-(`packages/vite-plugin-base/src/load.ts:132-169`). Vite's module runner evaluates ES modules, and a
+(`packages/vite-plugin-base/src/load.ts:237-266`). Vite's module runner evaluates ES modules, and a
 module that imports React's CommonJS entry fails in it. A recipe that imports a React module fails
 the theme plugin the same way. For that reason RFC-0010 keeps the definition, every contract and
-every manifest entry free of React.
+every manifest entry free of React. A definition that fails to load fails the build with its error
+and that rule.
 
 ### The resolver
 
@@ -278,7 +312,8 @@ export interface ResolveOptions {
   readonly catalogues?: Readonly<Record<string, Readonly<Record<string, unknown>>>> | undefined;
 
   /**
-   * The packages that publish each namespace, by namespace.
+   * The packages that publish each namespace, by namespace, leaving out each installed plugin's
+   * contract package.
    */
   readonly namespaces?: Readonly<Record<string, readonly string[]>> | undefined;
 
@@ -387,7 +422,7 @@ that form.
 | ---------------- | ------------------------------------------------------------------------------------------------- | ------- |
 | Identity         | Two installed plugins have one id                                                                 | problem |
 |                  | An installed plugin's web package is not among the product's dependencies                         | problem |
-|                  | A plugin id is `host`, or equals the catalogue namespace of another package (RFC-0018)            | problem |
+|                  | A plugin id is `host`, or a namespace a package other than its contract package publishes         | problem |
 |                  | A manifest's API range does not admit the installed `sdk-core`                                    | problem |
 |                  | A version string is not a version                                                                 | problem |
 | Shapes           | A contract, a manifest or the definition differs from the shape its types state                   | problem |
@@ -400,6 +435,7 @@ that form.
 |                  | A reference names a name the installed contract does not declare                                  | problem |
 | Plugins          | A plugin's condition states `route`, or names its own plugin                                      | problem |
 |                  | Plugin conditions form a cycle through their `plugin` members                                     | problem |
+|                  | Plugin conditions and requirements form a ring together, where a condition names the next plugin  | problem |
 | Routes           | Two routes serve one path under one parent, through pathless routes as the router reads them      | problem |
 |                  | A route's parent is not declared by an installed plugin, or parents form a cycle                  | problem |
 |                  | A path uses `:name` in place of `$name`                                                           | problem |
@@ -441,7 +477,7 @@ that form.
 | Words            | A label or description key is missing from its plugin's fallback catalogue                        | problem |
 |                  | An installed plugin has no catalogue in the fallback language                                     | problem |
 | Manifests        | A manifest lacks code for a declared name, or has code for an undeclared one                      | problem |
-|                  | A manifest entry fails to evaluate in Node                                                        | problem |
+|                  | The definition, a contract or a manifest entry fails to evaluate in Node                          | problem |
 
 The resolver checks the shapes the type checker checked where each plugin was written, because a
 product may install a plugin compiled against other types.
@@ -488,20 +524,20 @@ export interface ResolvedProduct {
 }
 ```
 
-| Member                      | Each entry contains                                                                                                                                | Used by            |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| `plugins`                   | Id, version, `locked`, `enabled`, `eager`, the condition, its kill switch's id, requirements, the configuration over its defaults                  | RFC-0012, RFC-0017 |
-| `routes`                    | Qualified id, plugin, path, parent, navigation, condition joined with the product's, sample, data needs, and the plugins whose chunks load with it | RFC-0013, RFC-0020 |
-| `queries`, `mutations`      | Qualified id, plugin, operation id and kind, record, decision and change selectors, sample                                                         | RFC-0020           |
-| `slots`                     | Qualified id, plugin, arity, `keyed`, record kind, whether it is a region, and its extensions after the manifests' and the product's placements    | RFC-0013, RFC-0017 |
-| `extensions`                | Qualified id, plugin, target key, position, order, `match`, `required`, condition, whether it has a fallback, and whether the product disabled it  | RFC-0013           |
-| `commands`                  | The `ResolvedCommand` of RFC-0016                                                                                                                  | RFC-0016           |
-| `events`                    | Qualified id, plugin, `emit`, `sticky`                                                                                                             | RFC-0016           |
-| `flags`                     | Qualified id, plugin, kind, type, default, variants, `expires`, the product's value, description key                                               | RFC-0015           |
-| `permissions`               | Qualified id, plugin, resource kind, description key                                                                                               | RFC-0014           |
-| `resources`, `entitlements` | `ResolvedName`: qualified id, plugin, description key                                                                                              | RFC-0014           |
-| `roles`                     | Qualified id, plugin, permissions, description key                                                                                                 | RFC-0014           |
-| `settings`                  | Pages and sections with their targets, orders, conditions, schemas and versions                                                                    | RFC-0017           |
+| Member                      | Each entry contains                                                                                                                                                                                                                                      | Used by                      |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| `plugins`                   | Id, version, `locked`, `enabled`, `eager`, the condition, its kill switch's id, requirements, the configuration over its defaults                                                                                                                        | RFC-0012, RFC-0017           |
+| `routes`                    | Qualified id, plugin, path, parent, navigation, condition joined with the product's, sample, data needs, and the plugins whose chunks load with it. Each settings page is a route, `host/settings/<page id>`, under `host/settings` in the settings menu | RFC-0013, RFC-0017, RFC-0020 |
+| `queries`, `mutations`      | Qualified id, plugin, operation id and kind, record, decision and change selectors, sample                                                                                                                                                               | RFC-0020                     |
+| `slots`                     | Qualified id, plugin, arity, `keyed`, record kind, whether it is a region, and its extensions after the manifests' and the product's placements                                                                                                          | RFC-0013, RFC-0017           |
+| `extensions`                | Qualified id, plugin, target key, position, order, `match`, `required`, condition, whether it has a fallback, and whether the product disabled it                                                                                                        | RFC-0013                     |
+| `commands`                  | The `ResolvedCommand` of RFC-0016                                                                                                                                                                                                                        | RFC-0016                     |
+| `events`                    | Qualified id, plugin, `emit`, `sticky`                                                                                                                                                                                                                   | RFC-0016                     |
+| `flags`                     | Qualified id, plugin, kind, type, default, variants, `expires`, the product's value, description key, deprecation note                                                                                                                                   | RFC-0015                     |
+| `permissions`               | Qualified id, plugin, resource kind, description key, deprecation note                                                                                                                                                                                   | RFC-0014                     |
+| `resources`, `entitlements` | `ResolvedName`: qualified id, plugin, description key, deprecation note                                                                                                                                                                                  | RFC-0014                     |
+| `roles`                     | Qualified id, plugin, permissions, description key, deprecation note                                                                                                                                                                                     | RFC-0014                     |
+| `settings`                  | Pages and sections with their targets, orders, conditions, schemas and versions                                                                                                                                                                          | RFC-0017                     |
 
 - The module imports the definition, so the browser receives each manifest with its lazy importers
   and each contract with its search validators. The build writes every other member as a literal.
@@ -518,33 +554,45 @@ A build writes three files for the services beside the product, in the build's o
 | `dist/.product/flags.json`      | Every flag with its kind, values, default, date and the product's value  | The flag service                        | RFC-0015   |
 | `dist/.product/operations.json` | Every query and mutation the installed plugins declare                   | The gateway's publishing step           | RFC-0020   |
 
-- The plugin emits each as an asset in `generateBundle`, so they belong to the build that deploys
-  the product and change only with it.
-- Each description is translated from the plugin's catalogues in every language they contain. The
-  plugin reads the catalogues through `found()` of `vite-plugin-i18n`, which returns each catalogue
-  with its namespace and language (`packages/vite-plugin-i18n/src/find.ts:21-58`).
+- The plugin emits each as an asset in `generateBundle` of the build's client environment, so they
+  belong to the build that deploys the product and change only with it. A server environment and a
+  development server write none.
+- Each description is translated from the declaring plugin's catalogues into every language they
+  contain. A language whose catalogue lacks the key is left out of that description. The plugin
+  reads the catalogues and each pair's words through the `api` of the `stealth:i18n` plugin
+  (`packages/vite-plugin-i18n/src/plugin.ts:664-670`). A kill switch's description is the key
+  `flags.killSwitch` of the host's namespace, which the i18n layer finds where it follows
+  `@stealthscale`.
 - A deployment pipeline reads the files and sends them to each service before the product goes live,
   so a permission exists in the access service before a page checks it.
 - A server that must not publish the files excludes `/.product/` from the served directory.
 
 ### Chunks
 
-The layer adds one chunk group to the build, ahead of the four that `vite-config` adds
-(`packages/vite-config/src/build/chunks.ts:90-117`):
+The plugin adds one chunk group to the build in its `config` hook, ahead of the four that
+`vite-config` adds (`packages/vite-config/src/build/chunks.ts:90-117`), under a build and a
+development server alike (`packages/vite-plugin-product/src/plugin.ts:334-360`):
 
 ```ts
 {
-  name: (id) => pluginChunkOf(id),
+  debugName: "plugins",
+  name: (id, chunking) => pluginChunkOf(id, chunking, packages),
   priority: 4,
 }
 ```
 
-- `pluginChunkOf` returns `plugin-<id>` for a module inside an installed plugin's web package, and
-  null for the package's main entry and for every other module. Rolldown makes one chunk per name
-  the function returns, so each plugin's pages, extensions, commands and component sections build
-  into one chunk and load in one request.
-- The main entry is left out, because the product imports it statically. In the plugin's chunk it
-  would load the whole plugin at start.
+- `pluginChunkOf` returns `plugin-<id>` for a module inside an installed plugin's web package that
+  no entry imports statically, and null for every other module
+  (`packages/vite-plugin-product/src/chunks.ts:48-83`). It walks a module's static importers back
+  towards an entry through `chunking.getModuleInfo`. Rolldown's `$initial` tag marks the same
+  modules, but a group's `tags` filter keeps tagged modules and cannot leave them out.
+- Rolldown makes one chunk per name the function returns, so each plugin's pages, extensions,
+  commands and component sections build into one chunk and load in one request.
+- The package's main entry and its manifest are left out, because the product imports them
+  statically through its definition. In the plugin's chunk they would load the whole plugin at
+  start. A real build of a product of two plugins writes one `plugin-<id>` chunk per plugin, with
+  its lazy modules alone, and the entry chunk contains each main entry and manifest.
+- The name function reads the web packages the build start found when rolldown calls it.
 - Priority 4 places the group above `shared` (3) and below `vendor` (5), `library` (8) and
   `framework` (10). A plugin's lazy modules load through dynamic imports alone, so the three groups
   tagged `$initial` do not claim them. Rolldown picks the group with the higher priority first
@@ -561,35 +609,68 @@ The layer adds one chunk group to the build, ahead of the four that `vite-config
 
 - The plugin watches every file the importer read for the definition, the contracts and the manifest
   entries.
-- A change to one of those files resolves the product again. The development server reloads the
+- A change to one of those files resolves the product again in `watchChange`, which Vite calls for
+  the client environment alone and awaits before any hot update. The development server reloads the
   page, because the route tree is built once per router (RFC-0013).
+- Compositions run one at a time, in the order of the changes. A change skips its composition when a
+  later change arrived before its turn (`packages/vite-plugin-product/src/plugin.ts:438-493`). The
+  changes reported during one composition cost one composition together. The composition recorded
+  last starts after the last change.
+- A composition after a change transforms again only the files that changed, and evaluates every
+  module again from the transforms the importer kept. Measured on a per-file server, from the
+  watcher's event to the page's notice: 18 ms at 30 plugins and 45 ms at 100.
+- Under a server that serves one module per file, `hotUpdate` invalidates `virtual:product` in each
+  environment and sends the client's page the reload (`plugin.ts:495-510`).
+- Under a server that bundles, no hot update runs, so `watchChange` sends the reload
+  (`plugin.ts:478-493`). `virtual:product` lists every file the composition read as a watched file,
+  so the rebuild loads it again.
 - A change to a page, an extension or a command module updates in place through Fast Refresh.
-- A problem after a change shows in the error overlay, naming the plugin and the path, and the page
-  keeps the last product that resolved.
-- The plugin handles a changed file under both the bundled and the unbundled development server, as
-  `vite-plugin-i18n` handles a changed catalogue
-  (`packages/vite-plugin-i18n/src/plugin.ts:383-433`).
+- A problem after a change shows in the error overlay with every problem, and the page keeps the
+  last product that resolved. A definition that fails to load after a change shows its error the
+  same way.
+- A watching build resolves the product again at its next build start.
 
 ## Failure handling
 
 | Failure                                          | Detected by      | Outcome                                                                 |
 | ------------------------------------------------ | ---------------- | ----------------------------------------------------------------------- |
 | Any problem in the checks table                  | `resolveProduct` | The build fails and lists every problem, naming the plugin and the path |
-| The definition module does not evaluate          | The importer     | The build fails with the module's error                                 |
-| A manifest entry imports React at load           | The importer     | The build fails, naming the entry and the rule of RFC-0010              |
+| The definition module does not evaluate          | The importer     | The build fails with the module's error and the rule of RFC-0010        |
+| A manifest entry imports React at load           | The importer     | The build fails with the evaluation's error and the rule of RFC-0010    |
 | The definition has no default export             | The plugin       | The build fails, naming the file                                        |
+| The configuration has no `stealth:i18n` plugin   | The plugin       | The build fails, naming `@stealthscale/vite-config-i18n`                |
+| A contract package is outside the i18n scopes    | The plugin       | The build fails with the words problem and a hint with the scope to add |
 | A catalogue cannot be read for a description     | The plugin       | The build fails, naming the plugin and the language                     |
 | A problem after a change on a development server | The plugin       | The error overlay. The page keeps the last product that resolved        |
 | A plugin chunk is missing after a deployment     | The host         | One reload per build version (RFC-0012)                                 |
 
 ## Bounds
 
-- The resolver runs once per build and once per change on a development server. Its cost grows with
-  the number of declarations. Not measured yet on `examples/app-plugins`.
-- In the browser the host evaluates conditions alone.
-- The resolved product is a literal in the entry chunk, and its size grows with the number of
-  declarations. The first build of `examples/app-plugins` measures it, with the search validators
-  the contracts bring into the entry.
+We measured generated products of 1 to 100 plugins. Each plugin's contract declares 25 names: 2
+routes, 3 commands, 2 events, 2 flags, 2 permissions, a resource kind, an entitlement, a query, a
+mutation, a settings page and section, and a slot. Each plugin also extends a slot of the plugin
+before it. The builds resolved `sdk-core` from its source. Each value is the median of three builds,
+or of twenty changes on a per-file development server.
+
+| Plugins | Composition at build start | Composition after a change | `resolveProduct` | `virtual:product`, raw and gzip | Entry chunk, raw and gzip |
+| ------- | -------------------------- | -------------------------- | ---------------- | ------------------------------- | ------------------------- |
+| 1       | 91 ms                      | Not measured               | Not measured     | 5.6 kB and 1.4 kB               | 12.8 kB and 4.2 kB        |
+| 10      | 120 ms                     | Not measured               | 0.8 ms           | 36 kB and 3.5 kB                | 60 kB and 7.8 kB          |
+| 30      | 188 ms                     | 18 ms                      | 2.1 ms           | 104 kB and 7.7 kB               | 165 kB and 14.9 kB        |
+| 100     | 414 ms                     | 45 ms                      | 8.4 ms           | 342 kB and 22 kB                | 532 kB and 38 kB          |
+
+- The composition at build start transforms and evaluates every module behind the definition: 173
+  modules at 30 plugins and 453 at 100. Transforming them takes most of its time. A later
+  composition transforms the changed files alone.
+- `resolveProduct` reads the declared names grouped by kind, grouped once per resolution
+  (`sdk/core/src/resolve/context.ts:269-293`), so its cost grows with the number of declarations.
+- The chunk group's name function walks a plugin module's static importers back to an entry. Its
+  total grows faster than the plugin count: 0.3 ms at 1 plugin, 5 ms at 30 and 40 ms at 100.
+- In the browser the host evaluates conditions alone. The resolved product is a literal in the entry
+  chunk, about 3.4 kB per plugin of 25 declarations before compression and 0.2 kB after. Node 26
+  parses and runs the 333 kB literal of 100 plugins in 1 to 4 ms.
+- The first build of `examples/app-plugins` measures a product with real pages, and the search
+  validators the contracts bring into the entry.
 
 ## Alternatives considered
 
@@ -624,8 +705,8 @@ plugin the same priority.
 ## Drawbacks
 
 - A product's build loads every contract and every manifest entry in Node. A contract or a manifest
-  entry that imports anything beyond `sdk-core`, other contracts, its package manifest and a
-  Standard Schema library fails the build.
+  entry that imports a module Node cannot evaluate, such as React's CommonJS entry, fails the build.
+  The lint layers of RFC-0019 refuse such an import in the editor.
 - A change to a contract reloads the page on a development server.
 - A plugin whose requirement is not installed fails the build rather than running without the plugin
   it needs.
@@ -644,10 +725,11 @@ plugin the same priority.
 
 ## References
 
-| What                                       | Where                                                                               |
-| ------------------------------------------ | ----------------------------------------------------------------------------------- |
-| Importing a module through Vite            | `packages/vite-plugin-base/src/load.ts`                                             |
-| Finding catalogues on the dependency graph | `packages/vite-plugin-i18n/src/find.ts`                                             |
-| The chunk groups of every application      | `packages/vite-config/src/build/chunks.ts`                                          |
-| Rolldown's chunk groups                    | vite-plus-core 1.0.0, `dist/rolldown/shared/define-config-C7HCoqY8.d.mts:1030-1236` |
-| TanStack Hotkeys' `validateHotkey`         | https://tanstack.com/hotkeys/latest                                                 |
+| What                                  | Where                                                                               |
+| ------------------------------------- | ----------------------------------------------------------------------------------- |
+| Importing a module through Vite       | `packages/vite-plugin-base/src/load.ts`                                             |
+| The catalogue plugin's api            | `packages/vite-plugin-i18n/src/plugin.ts`                                           |
+| The build plugin                      | `packages/vite-plugin-product/src/plugin.ts`                                        |
+| The chunk groups of every application | `packages/vite-config/src/build/chunks.ts`                                          |
+| Rolldown's chunk groups               | vite-plus-core 1.0.0, `dist/rolldown/shared/define-config-C7HCoqY8.d.mts:1030-1236` |
+| TanStack Hotkeys' `validateHotkey`    | https://tanstack.com/hotkeys/latest                                                 |

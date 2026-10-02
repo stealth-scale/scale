@@ -4,7 +4,7 @@ title: "Plugin feature flags"
 author: Roy Klopper, drafted with Claude
 status: Draft
 created: 2026-09-30
-updated: 2026-10-01
+updated: 2026-10-02
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -368,6 +368,11 @@ export interface FlagSource {
 
 - The host evaluates a flag the first time a condition or a component reads it, and keeps the value
   and its source in the flag store for the session. Every later read is one lookup.
+- The host evaluates a flag through the source only once the source has identified the session:
+  - A source without `identify` is read at once.
+  - A source with `identify` is read after its latest `identify` resolved.
+- Until then, and after a rejection, a flag takes the product's value or its default.
+- The host ignores a notification that arrives while an `identify` is pending.
 - When the source calls its listener, the host evaluates again every flag in the store. Where a
   value changed, it updates the store, the readers of that flag render again, and the host calls
   `router.invalidate()`.
@@ -379,10 +384,12 @@ export interface FlagSource {
 
 ### Exposures
 
-The first time a session reads an experiment, the host reports `flag-exposed` with the experiment's
-qualified id and the variant (RFC-0012). The product's `report` function forwards the entry to its
-analytics, which compares the variants over the people exposed to each. A menu entry or an extension
-that a variant condition gates counts as an exposure, because the person saw the variant's effect.
+The first time the session's subject is served each variant of an experiment, on a first read or on
+an evaluation that serves another variant, the host reports `flag-exposed` with the experiment's
+qualified id and the variant (RFC-0012). A change of subject forgets the variants served, and an
+override counts no exposure. The product's `report` function forwards the entry to its analytics,
+which compares the variants over the people exposed to each. A menu entry or an extension that a
+variant condition gates counts as an exposure, because the person saw the variant's effect.
 
 ### The kill switch of every plugin
 
@@ -431,6 +438,14 @@ export function useFlagActions(): FlagActions;
   the default outside a production build. A product that tests in production states it.
 - The host keeps overrides in session storage under `stealth.<productId>.flag-overrides`, so an
   override applies to one tab and ends when the tab closes.
+- The host reads the stored overrides once, at creation, from `window.sessionStorage` alone. Node 26
+  defines a `sessionStorage` that every request of the process shares, so a server keeps no
+  override, and neither does a page whose storage the browser refuses.
+- A stored value of the wrong type is reported as `flag-ignored` with the source `override`. An
+  override for a flag no installed plugin declares, and text that is not a JSON object, are dropped
+  without a report. A write the storage refuses leaves the override in the page until it reloads.
+- An override drops the flag's reading, so the source is not asked about an overridden flag, and the
+  page evaluates the flag again once the override is removed.
 - The standalone host's panel and the inspector call `override` (RFC-0019). The inspector offers it
   to a person with the permission `inspector/flags.override`, and renders a notice in the `status`
   region while any override is active.
@@ -444,22 +459,43 @@ export function useFlagActions(): FlagActions;
 
 ```ts
 /**
- * Adapts an OpenFeature client to a flag source.
- *
- * @param options - The domain the host's client is bound to, `stealth.host` by default.
+ * Lists the options of the OpenFeature adapter.
  */
-export function openFeatureFlags(options?: { readonly domain?: string }): FlagSource;
+export interface OpenFeatureFlagsOptions {
+  /**
+   * Domain the host's client is bound to. `stealth.host` where left out.
+   */
+  readonly domain?: string | undefined;
+}
+
+/**
+ * Adapts an OpenFeature client to a flag source.
+ */
+export function openFeatureFlags(options?: OpenFeatureFlagsOptions): FlagSource;
 ```
 
 - `identify` calls `OpenFeature.setContext(domain, context)` with the session as the evaluation
   context: `targetingKey` from `userId`, and `authenticated`, `entitlements`, `roles` and `tenantId`
-  beside it.
-- `evaluate` calls `getBooleanDetails` for a boolean flag and `getStringDetails` for an experiment,
-  and returns undefined where the details contain an error code, so a flag the provider does not
-  know takes the product's value.
-- `subscribe` listens to the provider's `Ready`, `ConfigurationChanged` and `ContextChanged` events.
+  beside it. It resolves once the domain's provider reconciled the context. `setContext` never
+  rejects: a failing context change moves the provider to `ERROR` and emits `Error`, which the
+  adapter does not follow, so the previous values remain and no `flags-failed` is reported
+  (`@openfeature/web-sdk` 1.10.0, `dist/esm/index.js:1065-1096` and `:1171-1210`).
+- `evaluate` calls `getBooleanDetails` for a boolean flag and `getStringDetails` for an experiment.
+  It returns undefined, so the product's value applies, in three cases:
+  - The details contain an error code, as for a flag the provider does not know or one of another
+    type.
+  - The provider disabled the flag. Its details state the reason `DISABLED` with the caller's
+    default.
+  - No provider is bound to the domain. OpenFeature's no-op provider then resolves every flag to the
+    caller's default with no error code (`:236-262`), which would read every kill switch as off.
+- `subscribe` listens to the provider's `Ready`, `ConfigurationChanged` and `ContextChanged` events,
+  and calls the listener without the event's details. OpenFeature runs a `Ready` handler at once
+  where the provider is ready (`:779-799`), and the flag store ignores a notification before the
+  first identification.
 - A product sets its provider with `OpenFeature.setProvider(domain, provider)`, so a product that
   uses OpenFeature elsewhere keeps its own default provider.
+- The adapter serves the browser. OpenFeature keeps one evaluation context per domain for the page,
+  so a server passes a flag source per request.
 
 ### The flag catalogue
 
@@ -537,9 +573,15 @@ contract, released like any other, and the plugin's changelog records it.
 
 - The server builds a host per request, with a flag source bound to that request. It awaits
   `identify` before it renders, so the page's first render uses the person's flags.
-- The values of the flags the server render read are part of the router's dehydrated state. The
-  browser's host starts from them, so the browser's first render matches the server's. The browser's
-  own flag source takes over once it has identified the session.
+- The values of the flags the server render read, with their origins, are part of the router's
+  dehydrated state (`setupHostIntegration`, RFC-0012). The browser's host reads them until
+  `HostProvider` mounts, without the tab's overrides or the source's values, so the browser's first
+  render matches the server's.
+- `HostProvider`'s first effect applies the tab's overrides, and evaluates the read flags again
+  through the browser's own flag source where it has identified the session, else once it does.
+  React renders again what changed.
+- A variant the server served the browser's subject counts as served, so the browser reports no
+  second `flag-exposed` for it.
 - Overrides are in the browser's session storage, so the server renders without them, and the
   browser applies them after hydration.
 

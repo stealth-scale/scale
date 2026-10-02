@@ -4,7 +4,7 @@ title: "A plugin's words and styles"
 author: Roy Klopper, drafted with Claude
 status: Draft
 created: 2026-09-30
-updated: 2026-09-30
+updated: 2026-10-02
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -92,7 +92,7 @@ Every plugin's catalogue defines two keys the host reads:
 - The build translates every description of the access and flag declarations in every language the
   plugin's catalogues contain, and writes the translations into the catalogues for the services
   (RFC-0011). A role editor and a flag service then show a description in the language of the person
-  who reads it.
+  who reads it. A language whose catalogue lacks the key is left out of that description.
 
 ### Translating in a component and a command
 
@@ -123,7 +123,7 @@ return <Page.Title>{t("request.title", { id })}</Page.Title>;
 | A label or description key the fallback catalogue lacks       | `checks()`, the build | The test fails. The build fails          |
 | `plugin.name` or `plugin.description` missing                 | `checks()`, the build | The test fails. The build fails          |
 | An installed plugin has no catalogue in the fallback language | The build             | The build fails, naming the scope to add |
-| A plugin id equals a namespace another package publishes      | The build             | The build fails, naming both packages    |
+| Another package publishes a plugin's namespace                | The build             | The build fails, naming each publisher   |
 | A translation key the fallback language lacks                 | `vite-plugin-i18n`    | The build fails                          |
 | A translation that drops a placeholder                        | `vite-plugin-i18n`    | The build fails                          |
 | A component calls `t` with a key its namespace lacks          | The type checker      | Fails to compile                         |
@@ -140,11 +140,13 @@ the later package's words replace the earlier's key by key without a report
 (`packages/vite-plugin-i18n/src/find.ts:151-159`, `src/check.ts:202-206`). A plugin whose id matched
 a component package's namespace would change that package's words.
 
-- The product build lists the catalogues with `found` of `vite-plugin-i18n`, which returns each
-  catalogue's namespace and the package that contains it
-  (`packages/vite-plugin-i18n/src/find.ts:21-58, 232`).
+- The product build lists the catalogues through the `api` of the `stealth:i18n` plugin, which
+  returns each catalogue's namespace, the package that contains it, and whether the application
+  contains it (`packages/vite-plugin-i18n/src/plugin.ts:52-81`).
 - It refuses a product where a plugin's namespace is contained in a package other than the plugin's
   contract package, and where two installed plugins share an id (RFC-0011).
+- The application's own catalogues may contain any namespace, because an application may change the
+  words of any package it installs.
 
 ### Finding a plugin's catalogues
 
@@ -159,8 +161,10 @@ export default defineConfig({
 });
 ```
 
-The product build refuses an installed plugin whose namespace `vite-plugin-i18n` did not find, and
-names the plugin's scope in the reason.
+The product build refuses an installed plugin whose namespace has no catalogue in the fallback
+language. Where the plugin's contract package has catalogues the i18n layer did not find, a line
+after the problems states the scope to add. The layer follows scoped packages alone, and the line
+for a contract package without a scope states that.
 
 ### Loading
 
@@ -200,7 +204,7 @@ names the plugin's scope in the reason.
 | ------------------------------------------------------- | --------------------- | ------------------------------------------------------------------------------ |
 | A catalogue lacks a key a contract names                | `checks()`, the build | The test fails, and the build fails naming the plugin and the key              |
 | A plugin's catalogue is outside the i18n layer's scopes | The build             | The build fails, naming the scope                                              |
-| A plugin's namespace is contained in another package    | The build             | The build fails, naming both packages                                          |
+| A plugin's namespace is contained in another package    | The build             | The build fails, naming the plugin and each package                            |
 | A plugin's recipe lacks the plugin prefix               | `checks()`            | The test fails, naming the recipe                                              |
 | Two recipes rename to one class                         | The compiler          | The build fails with `naming/collision`                                        |
 | A language's namespace fails to load                    | `provider-i18n`       | The component's suspense does not resolve. The route's error component renders |

@@ -4,7 +4,7 @@ title: "Plugin settings, switches and placements"
 author: Roy Klopper, drafted with Claude
 status: Draft
 created: 2026-09-30
-updated: 2026-10-01
+updated: 2026-10-02
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -115,16 +115,16 @@ defineSetting({
 
 - The switch is one input of a plugin's availability, beside its kill switch, its condition and its
   requirements (RFC-0012). A person's switch turns a plugin off for that person alone.
-- Switching off a plugin that other plugins require turns them off with it. The Plugins page lists
-  those plugins under the switch before the person confirms.
+- Switching off a plugin that other plugins require without `optional` turns them off with it. The
+  Plugins page asks the person to confirm first, and names those plugins.
 - A plugin that is not on has every route not found, every extension unplaced, every command
   disabled, every settings page and section hidden, and every menu entry unlisted. For another
   plugin, `when: { plugin }` naming it is false.
-- The not-found page of a switched-off plugin's route offers the switch, where the plugin is
-  switchable (RFC-0013).
-- The host emits `host/pluginChanged` after a plugin turns on or off (RFC-0016).
-- A stored value for a locked plugin, or for a plugin the product does not install, is ignored and
-  reported.
+- The not-found page of a switched-off plugin's route offers a button that turns the plugin on
+  (RFC-0013).
+- The host emits `host/pluginChanged` for each plugin that turns on or off (RFC-0016).
+- A stored value for a locked plugin is ignored and reported. A `SettingStore` cannot list its keys,
+  so the host reads no stored value for a plugin the product does not install.
 
 ### Settings pages and sections
 
@@ -242,14 +242,26 @@ keyword outside that list (RFC-0011).
 #### Rendering
 
 - The host compiles a settings route, `host/settings`, at `settings`, whose component renders a
-  `Page` with the `host/settings` menu beside an `Outlet`. The index route opens the first page
-  whose condition is true.
-- The host compiles each settings page as a child route with the id
-  `host/settings/<pluginId>/<page>` and the path `<pluginId>/<page>`. The route's condition is the
-  page's condition and its plugin's availability, as for any plugin route.
-- The page renders its title and every section whose target is the page, whose plugin is on, and
-  whose condition is true, in order. Each section is a `Section` of `component-screen` with the
-  section's heading.
+  `Page` titled `settings.title`, with the `host/settings` menu in `Page.Nav` and an `Outlet` in
+  `Page.Body`. The menu is a wrapping row of the navigation package's links, each the router's link
+  through `createLink(Link)`, which marks the current page with `aria-current`.
+- The settings route's index, `host/settings/index` at `/` without a condition of its own, renders
+  `<Navigate replace>` to the menu's first entry. The first entry sorts by translated title among
+  unranked pages, which no `beforeLoad` can translate, so the redirect happens in the page. A server
+  renders the frame alone for the index.
+- The resolver lists each settings page as a route, with the id `host/settings/<page id>`, the path
+  `<pluginId>/<page>`, the parent `host/settings` and an entry in the settings menu (RFC-0011). The
+  menu, `routeHref` and `RouteLink` resolve a settings page as they resolve any page. The route's
+  condition is the page's condition joined with the product's, and its plugin's availability, as for
+  any plugin route. A settings page loads the plugins whose sections or extensions it renders.
+- The page titles the document with its title through `useDocumentTitle`, and renders every section
+  whose target is the page, whose plugin is on, and whose condition is true, in order. Each section
+  is a `Section` of `component-screen` with the section's heading. A page with no section to render,
+  other than the Plugins page, renders an empty state.
+- Each section renders in its plugin's scope, inside an error boundary of its own. A render that
+  throws reports `render-failed` with the target `section:<id>`, counts towards the section's
+  quarantine, and renders an error alert in the section's place, so the other sections on the page
+  keep running. A quarantined section renders the alert without rendering the section (RFC-0012).
 - A schema section renders a form built with the forms package's `useSchemaForm`:
   - The form id is `settings.<section>`, so every label, description, choice and error message is a
     key of the section's plugin catalogue under `settings.<section>.fields.<path>`, the identifiers
@@ -258,18 +270,29 @@ keyword outside that list (RFC-0011).
     beside its fields: `settings.reminders.title` beside `settings.reminders.fields`.
   - `translate` is the `t` of the section's plugin namespace.
   - `values` are the section's current values.
-  - The section's Save button submits the form. A valid submission writes the values, and the form
-    keeps them. An invalid one focuses the first refused field, which is `provider-form`'s default
-    (`foundations/providers/form/src/form-defaults.ts:27-32`).
+  - The section's Save button, `form.Submit` with the host's `settings.save`, submits the form. A
+    valid submission writes the values, the form keeps them, and the host raises a success toast,
+    `settings.saved`. An invalid one focuses the first refused field, which is `provider-form`'s
+    default (`foundations/providers/form/src/form-defaults.ts:27-32`).
+  - The form renders the glyphs the product passes to `createHost` as `glyphs` (RFC-0012): the mark
+    in a checked box, a select's chevron and the others the forms package names.
 - A component section renders the component the manifest maps its name to, with `{ sectionId }` as
   its props. The component reads and writes its values through `useSettings`, or keeps its state
   elsewhere, such as a list of connected calendars on a service.
 - A section whose target page is not rendered, because the page's plugin is not installed or is not
   on or the page's condition is false, renders on its own plugin's first settings page. Where its
-  plugin has no settings page, the host reports it as unplaced.
+  plugin has no settings page, the settings frame reports it as `unplaced` once per mount, with the
+  target page as `slot` and the section as `target`, and again where a change leaves it unplaced.
 - The host's own settings pages are `host/settings/host/plugins`, the Plugins page, and
-  `host/settings/host/account`, a page other plugins add sections to. The account page renders only
-  where a section targets it.
+  `host/settings/host/account`, a page other plugins add sections to. The account page is a route
+  only where an installed section targets it, which the build decides.
+- The Plugins page lists every installed plugin in install order with its name, its description and
+  its state, and a `Switch` where the plugin is switchable. A locked plugin reads "Always on", and a
+  plugin that is not on states why. Switching off a plugin that installed plugins require without
+  `optional` opens a confirmation that names them, and the switch applies once the person confirms.
+  The confirmation is a warning `Alert` whose words the announcer's polite region reads, because a
+  live region that mounts with its words is not announced reliably, and focus returns to the switch
+  once the person settles.
 
 #### Reading and writing values
 
@@ -413,8 +436,13 @@ The host resolves a slot's contents in this order (RFC-0013 renders the result):
   `footer`, `status` and `toolbar` (RFC-0013). A region renders extensions without props, so an
   extension moves between regions without a props mismatch. The build refuses a product's `add` to
   any other slot, and the host ignores and reports a person's.
-- The host checks stored placements when it reads them. An id no installed plugin declares is
-  dropped and reported.
+- The host checks stored placements when it reads them, once per stored text, so one value is
+  reported once per tab. A whole value is dropped and reported where it is not JSON, has no `slots`
+  object, or is not version 1. A later version reads as no placements and is not reported.
+- A slot or an extension no installed plugin declares, an `add` to a slot that is not a region, a
+  member that is not a list and a placement that is not an object are dropped and reported, each
+  reason as `<path> <predicate>`. `update` checks the change, reports what it drops and writes the
+  rest, so a stored value never contains a dropped part.
 - The host does not render a layout editor. A plugin offers one through `usePlacements`.
 
 ### Configuration
@@ -435,7 +463,7 @@ reads the switches, the settings and the placements the browser wrote, and rende
 
 | Failure                                                         | Detected by   | Outcome                                                                    |
 | --------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------- |
-| A stored switch for a locked or uninstalled plugin              | The host      | Ignored and reported                                                       |
+| A stored switch for a locked plugin                             | The host      | Ignored and reported                                                       |
 | A stored settings value does not parse                          | The host      | The defaults are returned, and a `setting-dropped` entry is reported       |
 | A stored value has no whole version or no object of values      | The host      | The defaults are returned, and a `setting-dropped` entry is reported       |
 | A stored version has no migration                               | The host      | The value is dropped and reported                                          |
@@ -446,6 +474,7 @@ reads the switches, the settings and the placements the browser wrote, and rende
 | `update` on a section no installed plugin declares              | `useSettings` | Throws                                                                     |
 | `reset` on another plugin's section                             | `useSettings` | Throws                                                                     |
 | A section's target page is not rendered                         | The host      | The section renders on its plugin's first page, or is reported as unplaced |
+| A section throws while rendering                                | Its boundary  | An error alert in its place. After 3 in a row, quarantined                 |
 | A placement names an unknown slot or extension                  | The host      | The name is dropped and reported                                           |
 | A person's `add` names a slot that is not a region              | The host      | Ignored and reported                                                       |
 | A section's schema lacks a default or uses another keyword      | The build     | The build fails, naming the section                                        |

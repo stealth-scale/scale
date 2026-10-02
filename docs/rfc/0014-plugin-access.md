@@ -4,7 +4,7 @@ title: "Plugin access: sessions, permissions and entitlements"
 author: Roy Klopper, drafted with Claude
 status: Draft
 created: 2026-09-30
-updated: 2026-10-01
+updated: 2026-10-02
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -578,7 +578,8 @@ export default defineProduct({
 - When a route's condition is false, the session is not authenticated, the product states a sign-in
   route, and the condition requires `authenticated: true` at its top level or in a top-level
   `allOf`, the evaluator throws the router's `redirect` to the sign-in route. The redirect's search
-  has `redirect` set to the address the person asked for. ADR-0024 leaves this case to the
+  has `redirect` set to the address the navigation entered, its path, its search and its hash, which
+  `beforeLoad` receives before the navigation commits (RFC-0012). ADR-0024 leaves this case to the
   evaluator.
 - Every other false condition is not found. A signed-in person without a permission is not
   redirected, because signing in again does not change their permissions.
@@ -616,16 +617,19 @@ session source learns of. The host then does this, in order:
    the same object.
 2. The host updates the session store. Every component that reads `useSession`, `usePermission` or
    `useEntitlement` renders again where its value changed.
-3. The host emits `host/sessionChanged` with the new session. The event is sticky, so a plugin that
-   subscribes later receives it at once (RFC-0016).
-4. Where `subjectOf` returns another subject, the host resets its data client, clears its access
-   decisions and its flag values, and moves the settings and placements it reads to the new
-   subject's keys (RFC-0005, RFC-0017).
-5. The host calls `router.invalidate()`. The router runs `beforeLoad` again for every matched route,
-   so a page the person may no longer see becomes not found, and a page that now requires sign-in
-   redirects.
+3. Where `subjectOf` returns another subject, the switch and placement stores move to the new
+   subject's keys, because they subscribed to the session store first (RFC-0017).
+4. The host emits `host/sessionChanged` with the new session. The event is sticky, and the host
+   emits it at start as well, so a plugin that subscribes later receives it at once (RFC-0016).
+5. Where `subjectOf` returns another subject, the host resets its data client and clears its access
+   decisions (RFC-0005). The flag values remain while the flag source identifies the new session,
+   because a cleared store would evaluate the next read against a source that still evaluates for
+   the person before.
 6. The host calls the flag source's `identify`, and evaluates again every flag the page has read
-   (RFC-0015).
+   once it resolves (RFC-0015).
+7. `HostProvider` calls `router.invalidate()` at the end of the task. The router runs `beforeLoad`
+   again for every matched route, so a page the person may no longer see becomes not found, and a
+   page that now requires sign-in redirects.
 
 When the access source calls its listener, the host clears its decisions, and every component that
 reads `useAccess` asks again. Extensions, commands and menu entries read the stores directly, so
@@ -635,11 +639,13 @@ they update in the render after the store changes, without an invalidation.
 
 - The server builds a host per request, with `constantSession` for the request's session and an
   access source bound to that request.
-- Decisions that the page's loaders prime while the server renders are part of the router's
-  dehydrated state. The browser's host starts with them, so the browser's first render matches the
-  server's.
-- A decision the server did not make is `pending` in both renders, and the browser's access source
-  decides it after hydration.
+- The decisions the host knows when the router dehydrates, after the page's loaders primed them and
+  before the render, are part of the router's dehydrated state (`setupHostIntegration`, RFC-0012).
+  The browser's host starts with them where its subject is the server's, so the browser's first
+  render matches the server's.
+- A decision an access batch settles during the server's render is left out, because the render read
+  it as `pending`. A decision the server did not make is `pending` in both renders, and the
+  browser's access source decides it after hydration.
 
 ## Failure handling
 

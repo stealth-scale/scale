@@ -4,7 +4,7 @@ title: "Plugin commands, events and notifications"
 author: Roy Klopper, drafted with Claude
 status: Draft
 created: 2026-09-30
-updated: 2026-10-01
+updated: 2026-10-02
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -190,7 +190,8 @@ export function isCommandEnabled(
    with `The command time-off/approve cannot run: its condition is false.` where the condition is
    false, so a menu rendered before a permission was revoked cannot run the command.
 3. Imports the command's module on the first run and keeps the promise, keyed by the importer, so
-   every later run reuses one import. The module exports one function.
+   every later run reuses one import. An import that fails is forgotten, so the next run imports
+   again. The module exports one function.
 4. Resolves the command's needs: each needed command becomes a function that runs it through the
    same `run`, with its own condition checked.
 5. Calls the function with the arguments, the needs and a `HostApi` bound to the command's plugin,
@@ -343,6 +344,8 @@ export interface HostApi {
 - `Toaster` and `ToastOptions` are structural, so the host passes the feedback package's toaster and
   a command's module depends on `sdk-core` alone.
 - `can` reads the host's `access` store, so a decision the page already primed costs no request.
+- The product creates the router after the host, so `HostProvider` connects the router to the host
+  when it mounts. Before that, `matched` is undefined, `navigate` rejects and `t` returns the key.
 
 A command module:
 
@@ -399,19 +402,20 @@ async function delegate(): Promise<void> {
 ### Keys
 
 - The host renders one `CommandKeys` component inside the router. It groups the resolved commands by
-  chord, normalised for the operating system, and registers each chord once with `useHotkey` of
-  `provider-hotkeys`.
+  chord, normalised with `normalizeHotkey` for the operating system, and registers each chord once
+  with `useHotkeys` of `provider-hotkeys`.
 - A press runs the first command of the chord, in install order, whose `enabled` is true, and does
   nothing where none is. Commands with conditions that exclude each other may share a chord:
   `Mod+Enter` approves on a request page and saves on a settings page.
 - One registration per chord is needed because `provider-hotkeys` runs every handler registered for
   a chord under its default `conflictBehavior: "warn"`, so two registrations of one chord would run
-  both commands on one press (`@tanstack/hotkeys` 0.8.0, `src/manager.utils.ts:212-218`).
+  both commands on one press (`@tanstack/hotkeys` 0.10.0, `dist/_registration.js:31-39`, under
+  `@tanstack/react-hotkeys` 0.12.0).
 - The binding runs the command without arguments. A command that takes arguments or resolves with a
   result has no keys, which the contract's types enforce (RFC-0010).
-- A chord with `Mod` runs while a text field has focus, and a single key or a `Shift` or `Alt` chord
-  does not. These are the library's defaults for `ignoreInputs` (`@tanstack/hotkeys` 0.8.0,
-  `src/manager.utils.ts:26-34`).
+- A chord with `Control` or `Meta` runs while a text field has focus, and so does `Escape`. A single
+  key and a `Shift` or `Alt` chord do not. These are the library's defaults for `ignoreInputs`
+  (`@tanstack/hotkeys` 0.10.0, `dist/_registration.js:18-22`).
 - The host binds `Mod+K` to open the palette. The build refuses a command that binds `Mod+K`,
   `Meta+K` or `Control+K`, because `Mod+K` is `Meta+K` on a Mac and `Control+K` elsewhere. Chords
   compare after the library's aliases resolve, so `Ctrl+K` is `Control+K`.
@@ -425,11 +429,13 @@ async function delegate(): Promise<void> {
 ### The palette
 
 The host renders the palette in the `overlay` region (RFC-0013): `Command.Root` of
-`component-modals` in a `Dialog` with the `plain` variant, which the modals package documents for a
-command palette.
+`component-modals` in a `Dialog.Root` with `variant="plain"`, which the modals package documents for
+a command palette, `placement="top"`, `size="lg"` and `scrollBehavior="inside"`. The dialog renders
+without a portal, in the `overlay` region at the frame's end, and a closed dialog renders nothing on
+a server.
 
-- `Mod+K` opens it. `Command.Root` keeps no open state, so the host's `onRun` closes the dialog
-  through its `open` and `onOpenChange`.
+- `Mod+K` opens and closes it, and `Escape` closes it through `onOpenChange`. `Command.Root` keeps
+  no open state, so a choice closes the dialog, then runs the command or navigates.
 - It lists every command that takes no arguments, resolves with no result and whose `enabled` is
   true, as one `CommandAction` each (`components/modals/src/command/action.ts:10-46`):
 
@@ -438,16 +444,21 @@ command palette.
   | `value`                | The command's qualified id                                       |
   | `label`                | The command's translated text                                    |
   | `group`                | The plugin's name, from `plugin.name` in its catalogue           |
-  | `keywords`             | The translation of `<label>.keywords` where the catalogue has it |
+  | `keywords`             | The translation of `keywords.<label>` where the catalogue has it |
   | `shortcut`             | `formatForDisplay` of the command's keys: `⌘ ⇧ R` on a Mac       |
 
-- `Command.Root` takes `aria-label` from the host's catalogue, and matches a query against `label`
-  and `keywords`, ignoring case and accents. Groups keep the order of their first command, which is
-  install order.
-- `onRun(value)` runs the command by its id and closes the dialog. A rejection is reported and shown
-  as a toast.
+- A command's keywords are under `keywords.<label>`, because a nested catalogue cannot contain
+  `<label>.keywords` beside the string at `<label>`.
+- `Command.Root` matches a query against `label` and `keywords`, ignoring case and accents. Groups
+  keep the order of their first command, which is install order.
+- A rejection is reported and shown as a toast.
 - The palette lists menu entries under a `Go to` group as well, one per entry of the `main` menu
-  whose route's condition is true, so every page a person may open is one search away.
+  whose route's condition is true, so every page a person may open is one search away. A page row's
+  value is `route:<id>`.
+- The host's catalogue states the palette's words: `palette.label` names the dialog,
+  `palette.commands` the list, `palette.search` the field, `palette.count_one` and
+  `palette.count_other` the number of rows found, `palette.goTo` the `Go to` group, and
+  `palette.none` an empty search.
 
 ### Events
 
@@ -468,30 +479,35 @@ export function useEvent<E extends EventReference>(
 export function useEmit<E extends EventReference>(event: E): (payload: EventPayload<E>) => void;
 ```
 
-| Rule                  | Behaviour                                                                                                         |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Declared events only  | An emit of an event no installed plugin declares throws `No installed plugin declares the event …`                |
-| Who may emit          | The declaring plugin alone, unless the marker states `emit: "anyone"`. Another plugin's emit throws               |
-| Delivery              | Synchronous, through `dispatchEvent`, to every subscriber, in subscription order                                  |
-| Emits during delivery | Delivered at once, depth first: the subscribers of an emit inside a handler receive it before the handler returns |
-| Nesting               | At most 16 deliveries run inside one another. The emit that would start the 17th is dropped and reported          |
-| Sticky events         | The last payload is kept and handed to each new subscriber when it subscribes                                     |
-| Failures              | A handler that throws is reported under its plugin, and the other handlers still receive the event                |
-| Disposal              | A subscription ends when its component unmounts                                                                   |
+| Rule                  | Behaviour                                                                                                          |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Declared events only  | An emit of an event no installed plugin declares throws `No installed plugin declares the event …`                 |
+| Who may emit          | The declaring plugin alone, unless the marker states `emit: "anyone"`. Another plugin's emit throws                |
+| The product's emits   | The product's own code emits an event only where the marker states `emit: "anyone"`. The host emits its own events |
+| Delivery              | Synchronous, through `dispatchEvent`, to every subscriber, in subscription order                                   |
+| Emits during delivery | Delivered at once, depth first: the subscribers of an emit inside a handler receive it before the handler returns  |
+| Nesting               | At most 16 deliveries of any events run inside one another. The emit that would start the 17th is dropped          |
+| Sticky events         | The last payload is kept and handed to each new subscriber when it subscribes. A dropped emit keeps none           |
+| Failures              | A handler that throws is reported under its plugin, and the other handlers still receive the event                 |
+| Disposal              | A subscription ends when its component unmounts                                                                    |
 
 - `useEvent` subscribes once per event and calls the handler through React's `useEffectEvent`, so a
   handler that closes over new state is always the current one and never resubscribes.
 - `useEvent` and `useEmit` act as the plugin of the scope the component renders in, and as the
   product's own code outside every plugin's scope.
-- The bus wraps each handler, which reports the handler's error as `event-handler-failed` and
-  returns. Measured in Node 26.10.0, an error that leaves a listener does not stop the other
-  listeners, and Node raises it as an uncaught exception after `dispatchEvent` returns, which ends a
-  server process that does not handle it. The wrapper keeps the process running.
+- Each subscription wraps its handler in a listener of its own, so a handler subscribed twice runs
+  twice. The wrapper reports the handler's error as `event-handler-failed` under the subscriber's
+  plugin, and returns. Measured in Node 26.10.0, an error that leaves a listener does not stop the
+  other listeners, and Node raises it as an uncaught exception after `dispatchEvent` returns, which
+  ends a server process that does not handle it. The wrapper keeps the process running.
 - A plugin that is not on has its components unmounted, so its subscriptions have ended. Its events
   remain declared, so another plugin that emits an `anyone` event of that plugin succeeds and nobody
   receives it.
-- The nesting limit stops two plugins from emitting in reply to each other forever. The dropped emit
-  is reported as `event-chain-cut`, with the event's qualified id (RFC-0012).
+- A subscription to an event no installed plugin declares receives nothing and throws nothing, so a
+  plugin subscribes to an optional plugin's event without a check.
+- The nesting limit stops two plugins from emitting in reply to each other forever, with one event
+  or with two. The dropped emit is reported as `event-chain-cut`, with the event's qualified id and
+  the emitting plugin (RFC-0012).
 - A sticky event gives a late subscriber the current value of a fact, such as the project a switcher
   selected, so a plugin reads another plugin's state without importing its code.
 
@@ -499,15 +515,23 @@ export function useEmit<E extends EventReference>(event: E): (payload: EventPayl
 
 | Event                 | Payload                     | Emitted                                                                                            | Sticky |
 | --------------------- | --------------------------- | -------------------------------------------------------------------------------------------------- | ------ |
-| `host/navigated`      | `{ href, matched }`         | After the router resolves a navigation                                                             | No     |
+| `host/navigated`      | `{ href, matched }`         | For the address resolved when `HostProvider` mounts, then after each navigation to another address | No     |
 | `host/sessionChanged` | `Session`                   | At start, and after the session changes (RFC-0014)                                                 | Yes    |
 | `host/pluginChanged`  | `{ on, pluginId, reason? }` | After a plugin turns on or off: a switch, a kill switch, its condition or a requirement (RFC-0012) | No     |
-| `host/recordsChanged` | `{ changes }`               | After a batch of changes to records, from a mutation or the changes stream (RFC-0020)              | No     |
+| `host/recordsChanged` | `{ changes }`               | After a declared mutation succeeds, and after each batch of the changes stream (RFC-0020)          | No     |
+
+- `host/navigated` follows the router's `onResolved` and emits where `hrefChanged`, so an
+  invalidation of the same address emits nothing. `matched` lists the declared route ids, outermost
+  first.
 
 ### Toasts
 
-- The host creates one toaster with `Toast.createToaster` of `component-feedback` and renders its
-  `Toast.Region` in the `overlay` region.
+- The host creates one toaster with `Toast.createToaster` of `component-feedback`, five toasts at
+  once at the end of the window's bottom edge, and renders its `Toast.Region` in the `overlay`
+  region, named by `toasts.label` of the host's catalogue.
+- Each toast renders its title, its description and its action, without a mark or a close button,
+  because the host renders no glyph of its own. It closes after its kind's duration and on `Escape`,
+  and the region pauses its toasts under the pointer and while focus is inside.
 - `useToaster()` returns it to a plugin's component, and `HostApi.toaster` returns it to a command,
   so every toast of the product stacks in one region.
 - A command that rejects when a key or the palette runs it raises an error toast with the command's

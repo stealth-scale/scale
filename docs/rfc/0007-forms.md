@@ -4,7 +4,7 @@ title: "Forms: a form built from a schema"
 author: Roy Klopper
 status: Draft
 created: 2026-09-18
-updated: 2026-09-18
+updated: 2026-10-02
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -126,9 +126,10 @@ implementers, so a caller finds out by asking for the property.
 `defaultsOf` builds the values a form starts from: every property the schema lists, `default`
 keywords applied, the values given written over them. A string with no default is `""`, a boolean
 `false`, an array `[]`, so every control is controlled from the first render. The engine's library
-fills an `enum` with its first choice and a `const` with its value, measured. A select would then
-open on a choice nobody made and a consent box would start ticked, so the foundation empties both
-where the schema states no `default`.
+fills an `enum` with its first choice and a `const` with its value, measured. It fills an array
+whose items list choices with the first choice, up to the array's `minItems`. A select would then
+open on a choice nobody made, a consent box would start ticked, and a group of checkboxes would
+start with a choice picked. The foundation empties all three where the schema states no `default`.
 
 A generated form has no type. Its values are `Record<string, unknown>`, because the library types
 the array paths of a form over `unknown` as `never`. A hand-written form states its type, from a zod
@@ -250,12 +251,14 @@ export interface Group<Values = unknown> {
 }
 
 export interface Field {
+  readonly autocomplete?: string | undefined;
   readonly control?: string | undefined;
   readonly description?: string | undefined;
   readonly label?: string | undefined;
   readonly options?: Readonly<Record<string, unknown>> | undefined;
   readonly placeholder?: string | undefined;
   readonly span?: number | undefined;
+  readonly width?: "full" | "medium" | "short" | undefined;
 }
 ```
 
@@ -264,15 +267,16 @@ A group holds its members, so order falls out of the list and a group holds `add
 the array it names, with `[]` in its members bound to each index. `steps` holds the kind and the
 list, and `of` beside `steps` is refused.
 
-The keywords in a schema: `x-control`, `x-options`, `x-span`, `x-label`, `x-description` and
-`x-placeholder` on a property, and `x-form` at the root for `id`, `of` and `steps`. The structure
-goes at the root because a group holds fields from anywhere in the data.
+The keywords in a schema: `x-control`, `x-options`, `x-span`, `x-width`, `x-autocomplete`,
+`x-label`, `x-description` and `x-placeholder` on a property, and `x-form` at the root for `id`,
+`of` and `steps`. The structure goes at the root because a group contains fields from anywhere in
+the data.
 
-A presentation carries no class, no style prop and no length. It carries what a layout recipe
-already offers: a direction, a column count, a span, and whether a group starts closed. A plugin
-writes a presentation and a host draws it, and a plugin able to write styling could draw anything
-anywhere in a host it does not own. `options` is the one hole, and a renderer closes it by parsing
-`options` as it would a prop from a stranger.
+A presentation states no class, no style prop and no length. It states what a layout recipe already
+offers: a direction, a column count, a span, one of three named widths for a control, and whether a
+group starts closed. A plugin writes a presentation and a host renders it. A plugin able to write
+styling could change anything anywhere in a host it does not own. `options` is the one hole, and a
+renderer closes it by parsing `options` as it would a prop from a stranger.
 
 Three absences are told apart. A field the schema states and no member draws is reported by
 `unplaced`. A member the resolved schema lacks and the full schema has is skipped, which is how a
@@ -285,17 +289,19 @@ found when the data came up short.
 No human-readable string is written in a presentation. Each one is a message identifier, derived
 from the form's identifier and the path.
 
-| What                            | The identifier                   |
-| ------------------------------- | -------------------------------- |
-| A field's label                 | `<id>.fields.<path>.label`       |
-| A field's help text             | `<id>.fields.<path>.description` |
-| A field's placeholder           | `<id>.fields.<path>.placeholder` |
-| One choice of an enum           | `<id>.fields.<path>.options.<v>` |
-| A group's legend                | `<id>.groups.<name>.legend`      |
-| A step's label                  | `<id>.steps.<name>.label`        |
-| An action the form offers       | `<id>.actions.<name>`            |
-| A failure from a schema keyword | `<id>.errors.<path>.<keyword>`   |
-| The same failure, anywhere      | `errors.<keyword>`               |
+| What                            | The identifier                           |
+| ------------------------------- | ---------------------------------------- |
+| A field's label                 | `<id>.fields.<path>.label`               |
+| A field's help text             | `<id>.fields.<path>.description`         |
+| A field's placeholder           | `<id>.fields.<path>.placeholder`         |
+| One choice of an enum           | `<id>.fields.<path>.options.<v>`         |
+| The words under one choice      | `<id>.fields.<path>.descriptions.<v>`    |
+| A mark beside a label           | `<id>.marks.<name>`, then `marks.<name>` |
+| A group's legend                | `<id>.groups.<name>.legend`              |
+| A step's label                  | `<id>.steps.<name>.label`                |
+| An action the form offers       | `<id>.actions.<name>`                    |
+| A failure from a schema keyword | `<id>.errors.<path>.<keyword>`           |
+| The same failure, anywhere      | `errors.<keyword>`                       |
 
 An index in a path is collapsed to `[]`, so one identifier covers every row of a repeat group and
 the row number goes into the values. The fallback is one call:
@@ -316,12 +322,12 @@ rendered.
 
 ### Drawing
 
-`form.Fields` draws a presentation over the form in scope. It resolves the schema against the
-values, walks the members, draws a group through the `Group` layout, a repeat group once per item
-through `Item`, the steps through `Step`, and every field through the renderer that suits it, inside
-the `Cell` layout. A renderer is a field component. It reads its field through the library's context
-and draws the frame itself, and the frame is one component in the package that every control
-composes.
+`form.Fields` renders a presentation over the form in scope. It resolves the schema against the
+values and renders the form's own errors through the `Errors` layout. It then walks the members. A
+group renders through the `Group` layout, a repeat group once per item through `Item`, the steps
+through `Step`, and every field through the renderer that suits it, inside the `Cell` layout. A
+renderer is a field component. It reads its field through the library's context and renders the
+frame itself. The frame is one component in the package, and every control composes it.
 
 ```ts
 export interface Renderer {
@@ -369,7 +375,7 @@ foundation publishes a factory, and the package makes one call:
 export const { useAppForm, useSchemaForm, withFieldGroup, withForm } = createSchemaForm({
   fieldComponents: { Checkbox, Number, Select, Text },
   formComponents: { Form, Submit },
-  layouts: { Cell, Group, Item, Step },
+  layouts: { Cell, Errors, Group, Item, Step },
   renderers,
 });
 ```
@@ -400,9 +406,9 @@ return (
 builds the form over `schemaFormOptions` and the library options the caller gave, and writes the
 description to a registry keyed by the form's store. The description holds the schema, the
 presentation, the engine, the translator, the layouts, the renderers and the draft. `Fields`,
-`useProperty`, `useWords` and `useResolved` read it back, so a select draws the choices the schema
-lists and a text box draws a password box where the property states `format: "password"` without
-being told.
+`useProperty`, `useWords` and `useResolved` read it back. A choice field lists the choices the
+schema states, and a property with `format: "password"` renders as a password input, without being
+told.
 
 `UseSchemaFormOptions` extends the library's `FormOptions`, less the defaults and the validators the
 schema fills, so `onSubmit` receives `{ value, formApi, meta }` and `listeners`, `onSubmitMeta`,
@@ -441,20 +447,22 @@ callback. The foundation therefore decides what the kind means. `leaveStep` mark
 member touched, calls `validateField` once with the cause `submit`, reads the members' validity and
 moves focus to the first refused. One call runs every form-level validator once, measured. A call
 per member would run the schema and every request once per member. The stepper inside `Fields` calls
-`leaveStep` before a wizard moves forward and writes the step into the draft.
+`leaveStep` before a wizard moves forward and writes the step into the draft. A wizard moves focus
+into each step it opens, so a keyboard or screen reader user is not left on a button that is gone.
+Tabs leave focus on the tab a person activated, as the WAI-ARIA tabs pattern does.
 
 ### The boundary
 
-| `foundations/providers/form`                                                         | The component package                       |
-| ------------------------------------------------------------------------------------ | ------------------------------------------- |
-| The contexts, `createSchemaForm`, `useSchemaForm`, `schemaFormOptions`               | One `createSchemaForm` call                 |
-| `Fields`, the walk, the resolve, the steps, the repeat groups                        | `Cell`, `Group`, `Item` and `Step`          |
-| `FormProvider`, the engine, the registry                                             | The default renderers, given to the factory |
-| `useProperty`, `useWords`, `useResolved`, `leaveStep`, `useDraft`                    | The frame, and every field component        |
-| `schemaOf`, `defaultsOf`, `standardOf`, `presentationOf`, `identifiers`, `catalogue` | Nothing of i18n                             |
+| `foundations/providers/form`                                                         | The component package                        |
+| ------------------------------------------------------------------------------------ | -------------------------------------------- |
+| The contexts, `createSchemaForm`, `useSchemaForm`, `schemaFormOptions`               | One `createSchemaForm` call                  |
+| `Fields`, the walk, the resolve, the steps, the repeat groups                        | `Cell`, `Errors`, `Group`, `Item` and `Step` |
+| `FormProvider`, the engine, the registry                                             | The default renderers, given to the factory  |
+| `useProperty`, `useWords`, `useResolved`, `leaveStep`, `useDraft`                    | The frame, and every field component         |
+| `schemaOf`, `defaultsOf`, `standardOf`, `presentationOf`, `identifiers`, `catalogue` | Nothing of i18n                              |
 
-The foundation draws no element. `examples/form-fields` is the reference component package until
-`components/forms` exists.
+The foundation renders no element. `components/forms` is the component package. Its `./form` entry,
+`@stealthscale/component-forms/form`, makes the one `createSchemaForm` call.
 
 ## Alternatives considered
 
@@ -562,7 +570,6 @@ stands in `described.ts`.
 
 - `provider-i18n` and `vite-plugin-i18n`, which type a catalogue's keys and serve them. The form
   takes a function, so nothing here waits on them.
-- `components/forms`, which takes `examples/form-fields` over with recipes once the theme settles.
 - Manifest validation for a presentation in the SDK, against `engine.paths` and the keyword table,
   and a plugin's renderers appended to the host's provider on registration.
 - A meta-schema for the `x-` keywords, generated from the `Presentation` type once a manifest
@@ -572,7 +579,7 @@ stands in `described.ts`.
 
 ## References
 
-- `foundations/providers/form/src/` and `examples/form-fields/src/`, the implementation.
+- `foundations/providers/form/src/` and `components/forms/src/form/`, the implementation.
 - `examples/form-basic`, `examples/form-rules`, `examples/form-draft` and
   `examples/form-presentation`, one form each.
 - `@tanstack/form-core` 1.33.5: `FormApi.d.ts`, `FieldApi.js` lines 466 to 495,

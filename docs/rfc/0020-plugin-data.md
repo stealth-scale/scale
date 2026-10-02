@@ -4,7 +4,7 @@ title: "Plugin data"
 author: Roy Klopper, drafted with Claude
 status: Draft
 created: 2026-09-30
-updated: 2026-10-01
+updated: 2026-10-02
 discussion: tbd
 supersedes: none
 superseded-by: none
@@ -382,23 +382,29 @@ const host = createHost({
 });
 ```
 
-| The host                                | Does                                                                                                                        |
-| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Creates the data client                 | With `createDataClient`, per page, or per request on a server                                                               |
-| Guards the transport                    | Refuses an operation no installed plugin declares, with `No installed plugin declares the operation <id>.`                  |
-| Renders `DataProvider`                  | In `HostProvider`, around the router                                                                                        |
-| Puts the client in the router's context | `HostRouterContext` gains `data`, the foundation's `DataContext`                                                            |
-| Primes decisions                        | Its `onData` finds the declared queries by operation id and primes the access store with one decision per record they state |
-| Resets the data                         | Calls `resetData` when the session's subject changes, beside moving the settings (RFC-0014)                                 |
-| Sends the person to sign in             | `onUnauthenticated` reads the session again and invalidates the router, so the sign-in redirect applies                     |
-| Announces changes                       | Emits `host/recordsChanged` with each batch of changes, from mutations and from the stream                                  |
+| The host                                | Does                                                                                                                                                                |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Creates the data client                 | With `createDataClient`, per page, or per request on a server                                                                                                       |
+| Guards the transport                    | Refuses an operation no installed plugin declares, and every subscription but the product's changes stream, with `No installed plugin declares the operation <id>.` |
+| Renders `DataProvider`                  | In `HostProvider`, around the router                                                                                                                                |
+| Puts the client in the router's context | `HostRouterContext` gains `data`, the foundation's `DataContext`                                                                                                    |
+| Primes decisions                        | Its `onData` finds the declared queries by operation id and primes the access store with one decision per record they state                                         |
+| Resets the data                         | Calls `resetData` when the session's subject changes, beside moving the settings (RFC-0014)                                                                         |
+| Sends the person to sign in             | `onUnauthenticated` reads the session again and invalidates the router, so the sign-in redirect applies                                                             |
+| Announces changes                       | Emits `host/recordsChanged` with the changes of each declared mutation that succeeds, and with each batch of the changes stream                                     |
 
 - `onData` runs for data a fetch returns and for data the page hydrates from a server render
   (RFC-0005), so a server-rendered list primes the decisions for its rows in the browser.
 - Where more than one plugin declares an operation, each applies its own decision selectors to the
   operation's data.
-- A decision primed from a query's data is the one `useAccess` returns for that record, so a page
-  that lists requests does not send a check for their Approve buttons (RFC-0014).
+- A primed decision is keyed by the permission's resource kind and the record's id, the key
+  `useAccess` reads. A page that lists requests then sends no check for their Approve buttons
+  (RFC-0014).
+- The guarded transport announces the changes, because it sees both sources: a mutation's run and
+  the stream's events.
+- A declared mutation that succeeds announces the changes its declarations name for its variables. A
+  refused one announces nothing, and the data client still invalidates its records once it settles.
+- Each batch of the changes stream is announced after the data client receives it.
 - `host/recordsChanged` is not sticky. A plugin that acts on a change, such as a toast for a request
   someone else approved, subscribes with `useEvent` (RFC-0016).
 
