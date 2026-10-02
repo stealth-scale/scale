@@ -7,12 +7,12 @@
     "local-storage",
     "settings"
   ],
-  "homepage": "https://github.com/stealth-scale/config/tree/main/foundations/settings#readme",
-  "bugs": "https://github.com/stealth-scale/config/issues",
+  "homepage": "https://github.com/stealth-scale/scale/tree/main/foundations/settings#readme",
+  "bugs": "https://github.com/stealth-scale/scale/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stealth-scale/config.git",
+    "url": "git+https://github.com/stealth-scale/scale.git",
     "directory": "foundations/settings"
   },
   "files": [

@@ -1,10 +1,10 @@
 # @stealthscale/scale
 
-[![ci](https://github.com/stealth-scale/config/actions/workflows/ci.yml/badge.svg)](https://github.com/stealth-scale/config/actions/workflows/ci.yml)
-[![release](https://github.com/stealth-scale/config/actions/workflows/release.yml/badge.svg)](https://github.com/stealth-scale/config/actions/workflows/release.yml)
+[![ci](https://github.com/stealth-scale/scale/actions/workflows/ci.yml/badge.svg)](https://github.com/stealth-scale/scale/actions/workflows/ci.yml)
+[![release](https://github.com/stealth-scale/scale/actions/workflows/release.yml/badge.svg)](https://github.com/stealth-scale/scale/actions/workflows/release.yml)
 [![npm](https://img.shields.io/npm/v/@stealthscale/theme?label=%40stealthscale%2Ftheme)](https://www.npmjs.com/package/@stealthscale/theme)
 [![node](https://img.shields.io/node/v/@stealthscale/theme)](https://nodejs.org)
-[![license](https://img.shields.io/github/license/stealth-scale/config)](LICENSE)
+[![license](https://img.shields.io/github/license/stealth-scale/scale)](LICENSE)
 
 `@stealthscale/scale` publishes the packages a stealthscale application is built from: the design
 system every interface is drawn with, the component libraries built on it, and the providers an

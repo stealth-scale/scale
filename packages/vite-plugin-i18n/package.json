@@ -6,12 +6,12 @@
     "i18n",
     "vite-plugin"
   ],
-  "homepage": "https://github.com/stealth-scale/config/tree/main/packages/vite-plugin-i18n#readme",
-  "bugs": "https://github.com/stealth-scale/config/issues",
+  "homepage": "https://github.com/stealth-scale/scale/tree/main/packages/vite-plugin-i18n#readme",
+  "bugs": "https://github.com/stealth-scale/scale/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stealth-scale/config.git",
+    "url": "git+https://github.com/stealth-scale/scale.git",
     "directory": "packages/vite-plugin-i18n"
   },
   "files": [

@@ -7,12 +7,12 @@
     "plugins",
     "sdk"
   ],
-  "homepage": "https://github.com/stealth-scale/config/tree/main/sdk/core#readme",
-  "bugs": "https://github.com/stealth-scale/config/issues",
+  "homepage": "https://github.com/stealth-scale/scale/tree/main/sdk/core#readme",
+  "bugs": "https://github.com/stealth-scale/scale/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stealth-scale/config.git",
+    "url": "git+https://github.com/stealth-scale/scale.git",
     "directory": "sdk/core"
   },
   "files": [
