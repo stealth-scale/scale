@@ -1,12 +1,14 @@
-import { render } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+
+import { drawn } from "@stealthscale/testing-react";
 
 import { Amount } from "#controls/amount.tsx";
 import { Harness } from "#controls/harness.fixtures.tsx";
 
 describe("Amount", () => {
-  it("draws the currency the options name beside the box", () => {
-    const { getByLabelText, getByText } = render(
+  it("formats the number in the currency the options name", async () => {
+    await drawn(
       <Harness
         draw={Amount}
         presentation={{ options: { currency: "EUR" } }}
@@ -14,12 +16,13 @@ describe("Amount", () => {
       />,
     );
 
-    expect(getByLabelText("Amount").getAttribute("type")).toBe("number");
-    expect(getByText("EUR").tagName).toBe("SPAN");
+    expect(screen.getByRole<HTMLInputElement>("spinbutton", { name: "Amount" }).value).toBe(
+      "€2.00",
+    );
   });
 
-  it("draws nothing beside the box where the currency is not a string", () => {
-    const { container } = render(
+  it("formats a plain number where the currency is not a string", async () => {
+    await drawn(
       <Harness
         draw={Amount}
         presentation={{ options: { currency: 3 } }}
@@ -27,6 +30,6 @@ describe("Amount", () => {
       />,
     );
 
-    expect(container.querySelector("span")?.textContent).toBe("");
+    expect(screen.getByRole<HTMLInputElement>("spinbutton", { name: "Amount" }).value).toBe("2");
   });
 });

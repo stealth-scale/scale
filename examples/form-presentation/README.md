@@ -45,12 +45,17 @@ every identifier the form reads with the schema's own English. The page draws th
 
 ## The renderers
 
-`@stealthscale/example-form-fields` registers a text box for a string, a number box for a number, a
-checkbox for a boolean and a select for an `enum`. `src/renderers.ts` adds two the page needs: a
-number with a currency in its options, at the rank of a constraint, and a multi-line box a field
-names by `control`, at the highest rank. `FormProvider` puts them after the library's own, and
-`rendererFor` picks the highest rank, and the later registration on a tie.
+`@stealthscale/component-forms/form` registers a renderer for each kind of property: a text box for
+a string, a number input for a number, a checkbox for a boolean, and a radio group for an `enum` of
+up to five choices. The country is such an `enum`. `src/renderers.ts` adds two renderers the page
+needs. `FormProvider` puts them after the binding's, and `rendererFor` picks the highest rank and
+the later registration on a tie:
 
-A renderer is a field component. It reads its field through the contexts, as every component of
-`@stealthscale/example-form-fields` does, and it is given the field's presentation, whether the
-resolved schema requires it, and the property's schema.
+- A number in the currency its options name, at the rank of a constraint.
+- The page's own multi-line box, which a field names by `control`. It replaces the multi-line box
+  the binding registers under the same name.
+
+Each renderer receives the field's presentation, whether the resolved schema requires the field, and
+the property's schema. `src/controls/amount.tsx` renders the binding's `NumberField` with a currency
+format. `src/controls/textarea.tsx` composes the library's `Field.Textarea` in the binding's
+`Frame`, which renders the label and the texts.

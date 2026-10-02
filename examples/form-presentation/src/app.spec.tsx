@@ -1,96 +1,175 @@
-import { fireEvent, render, type RenderResult, waitFor } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+
+import { drawn, settled } from "@stealthscale/testing-react";
 
 import { App } from "#app.tsx";
 
 /**
+ * Returns the box a label names, with or without the required mark after the label's words.
+ */
+function box(label: string): HTMLInputElement {
+  return screen.getByLabelText<HTMLInputElement>(new RegExp(`^${label}\\*?$`, "u"));
+}
+
+/**
+ * Types a value into the box a label names.
+ */
+function typed(label: string, value: string): void {
+  fireEvent.change(box(label), { target: { value } });
+}
+
+/**
+ * Types an amount into the line's number input, as a person does once it has focus.
+ */
+async function amounted(value: string): Promise<void> {
+  const amount = screen.getByRole("spinbutton", { name: /^Amount/u });
+
+  act(() => {
+    amount.focus();
+  });
+  await settled();
+  fireEvent.input(amount, { target: { value } });
+  await settled();
+}
+
+/**
  * Fills every field the schema requires of an individual.
  */
-function fill({ getByLabelText }: RenderResult): void {
-  fireEvent.change(getByLabelText("Full name"), { target: { value: "Roy" } });
-  fireEvent.change(getByLabelText("Email"), { target: { value: "roy@example.com" } });
-  fireEvent.change(getByLabelText("Kind"), { target: { value: "individual" } });
-  fireEvent.change(getByLabelText("Address"), { target: { value: "Main street 1" } });
-  fireEvent.change(getByLabelText("Postcode"), { target: { value: "2611" } });
-  fireEvent.change(getByLabelText("City"), { target: { value: "Delft" } });
-  fireEvent.change(getByLabelText("Country"), { target: { value: "NL" } });
-  fireEvent.change(getByLabelText("Description"), { target: { value: "Design" } });
-  fireEvent.change(getByLabelText("Amount"), { target: { value: "120" } });
+async function filled(): Promise<void> {
+  typed("Full name", "Roy");
+  typed("Email", "roy@example.com");
+  fireEvent.click(screen.getByRole("radio", { name: "An individual" }));
+  typed("Address", "Main street 1");
+  typed("Postcode", "2611");
+  typed("City", "Delft");
+  fireEvent.click(screen.getByRole("radio", { name: "Netherlands" }));
+  typed("Description", "Design");
+  await settled();
+  await amounted("120");
+}
+
+/**
+ * Submits the order.
+ */
+async function submitted(): Promise<void> {
+  fireEvent.click(screen.getByRole("button", { name: "Place order" }));
+  await settled();
 }
 
 describe("App", () => {
-  it("draws the fieldsets in the order the schema states with their legends", () => {
-    const { getAllByRole } = render(<App />);
+  it("renders the fieldsets in the order the schema states with their legends", async () => {
+    await drawn(<App />);
 
     expect(
-      getAllByRole("group").map((group) => group.querySelector("legend")?.textContent),
+      screen
+        .getAllByRole("group")
+        .map((group) => group.querySelector(":scope > legend")?.textContent)
+        .filter((legend) => legend !== undefined),
     ).toStrictEqual(["Who is ordering", "Billing address", "Lines"]);
   });
 
-  it("picks the control for each field from the renderers", () => {
-    const { getByLabelText, getByText } = render(<App />);
+  it("renders an email box for a string of the email format", async () => {
+    await drawn(<App />);
 
-    expect(getByLabelText("Email").getAttribute("type")).toBe("email");
-    expect(getByLabelText("Country").tagName).toBe("SELECT");
-    expect(getByLabelText("Notes").tagName).toBe("TEXTAREA");
-    expect(getByText("EUR").tagName).toBe("SPAN");
-    expect(getByLabelText("City").parentElement?.parentElement?.className).toBe("span-2");
+    expect(box("Email").type).toBe("email");
   });
 
-  it("draws the VAT number for a business alone", () => {
-    const { getByLabelText, queryByLabelText } = render(<App />);
+  it("renders a radio group for a choice of two", async () => {
+    await drawn(<App />);
 
-    expect(queryByLabelText("VAT number")).toBeNull();
-
-    fireEvent.change(getByLabelText("Kind"), { target: { value: "business" } });
-
-    expect(getByLabelText("VAT number").getAttribute("name")).toBe("vat");
+    expect(screen.getByRole("radiogroup", { name: "Country" })).toBeDefined();
   });
 
-  it("adds and removes a line", () => {
-    const { getAllByLabelText, getAllByRole, getByRole } = render(<App />);
+  it("renders the page's own textarea for the notes", async () => {
+    await drawn(<App />);
 
-    expect(getAllByLabelText("Description")).toHaveLength(1);
-
-    fireEvent.click(getByRole("button", { name: "Add" }));
-
-    expect(getAllByLabelText("Description")).toHaveLength(2);
-
-    fireEvent.click(getAllByRole("button", { name: "Remove" })[1] ?? document.body);
-
-    expect(getAllByLabelText("Description")).toHaveLength(1);
+    expect(box("Notes").tagName).toBe("TEXTAREA");
   });
 
-  it("lists the field nobody placed and every message the form reads", () => {
-    const { getByRole, getByText } = render(<App />);
+  it("renders the page's amount in the currency the options name", async () => {
+    await drawn(<App />);
 
-    expect(getByRole("listitem").textContent).toBe("reference");
-    expect(getByText("checkout.fields.billing.city.label").tagName).toBe("TD");
-    expect(getByText("checkout.groups.who.legend").tagName).toBe("TD");
+    expect(screen.getByRole<HTMLInputElement>("spinbutton", { name: /^Amount/u }).value).toContain(
+      "€",
+    );
+  });
+
+  it("spans the city over two columns", async () => {
+    await drawn(<App />);
+
+    expect(
+      box("City").closest<HTMLElement>(".form__cell")?.style.getPropertyValue("--form-span"),
+    ).toBe("2");
+  });
+
+  it("renders no VAT number for an individual", async () => {
+    await drawn(<App />);
+
+    expect(screen.queryByLabelText(/^VAT number/u)).toBeNull();
+  });
+
+  it("renders the VAT number for a business", async () => {
+    await drawn(<App />);
+    fireEvent.click(screen.getByRole("radio", { name: "A business" }));
+    await settled();
+
+    expect(box("VAT number").name).toBe("vat");
+  });
+
+  it("adds a line", async () => {
+    await drawn(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Add" }));
+    await settled();
+
+    expect(screen.getAllByLabelText(/^Description/u)).toHaveLength(2);
+  });
+
+  it("removes a line", async () => {
+    await drawn(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Add" }));
+    await settled();
+    fireEvent.click(screen.getByRole("button", { name: "Remove item 2" }));
+    await settled();
+
+    expect(screen.getAllByLabelText(/^Description/u)).toHaveLength(1);
+  });
+
+  it("lists the field nobody placed", async () => {
+    await drawn(<App />);
+
+    expect(screen.getByRole("listitem").textContent).toBe("reference");
+  });
+
+  it("lists every message the form reads", async () => {
+    await drawn(<App />);
+
+    expect([
+      screen.getByText("checkout.fields.billing.city.label").tagName,
+      screen.getByText("checkout.groups.who.legend").tagName,
+    ]).toStrictEqual(["TD", "TD"]);
   });
 
   it("shows a refusal in a line under the shared words", async () => {
-    const page = render(<App />);
-
-    fill(page);
-    fireEvent.change(page.getByLabelText("Amount"), { target: { value: "0" } });
-    fireEvent.click(page.getByRole("button", { name: "Place order" }));
+    await drawn(<App />);
+    await filled();
+    await amounted("0");
+    await submitted();
 
     await waitFor(() => {
-      expect(page.getAllByRole("alert").map((alert) => alert.textContent)).toContain(
+      expect(screen.getAllByRole("alert").map((alert) => alert.textContent)).toContain(
         "At least one",
       );
     });
   });
 
   it("submits the values once the schema accepts them", async () => {
-    const page = render(<App />);
-
-    fill(page);
-    fireEvent.click(page.getByRole("button", { name: "Place order" }));
+    await drawn(<App />);
+    await filled();
+    await submitted();
 
     await waitFor(() => {
-      expect(page.getByRole("status").textContent).toContain('"amount": 120');
+      expect(screen.getByRole("status").textContent).toContain('"amount": 120');
     });
   });
 });

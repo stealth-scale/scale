@@ -1,10 +1,10 @@
 /**
- * Draws the checkout form, generated from the presentation its schema carries.
+ * Renders the checkout form, generated from the presentation its schema states.
  */
 
 import { type ReactElement } from "react";
 
-import { useSchemaForm } from "@stealthscale/example-form-fields";
+import { useSchemaForm } from "@stealthscale/component-forms/form";
 
 import { checkout } from "#schema.ts";
 
@@ -19,10 +19,10 @@ export interface CheckoutFormProps {
 }
 
 /**
- * Draws the checkout form.
+ * Renders the checkout form.
  *
  * @remarks
- *   The schema is resolved against the values on every change, and the fields draw a member only
+ *   The schema is resolved against the values on every change, and the fields render a member only
  *   where the resolved schema has it. A generated form has no type of its own, so the values are
  *   a record of unknown values.
  */

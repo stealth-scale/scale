@@ -1,11 +1,11 @@
 /**
- * Draws one control bound to the field its schema's type asks for, for the specifications of the
+ * Renders one control bound to the field its schema's type asks for, for the specifications of the
  * controls.
  */
 
 import { type ComponentType, type ReactElement } from "react";
 
-import { useAppForm } from "@stealthscale/example-form-fields";
+import { useAppForm } from "@stealthscale/component-forms/form";
 import { type Field, type RendererProps, type Schema } from "@stealthscale/provider-form";
 
 /**
@@ -18,7 +18,7 @@ export interface HarnessProps {
   readonly draw: ComponentType<RendererProps>;
 
   /**
-   * How the field is drawn.
+   * How the field is rendered.
    */
   readonly presentation?: Field | undefined;
 
@@ -29,12 +29,12 @@ export interface HarnessProps {
 }
 
 /**
- * How a field is drawn where a specification states nothing.
+ * How a field is rendered where a specification states nothing.
  */
 const PLAIN: Field = {};
 
 /**
- * Draws the control over a form with a number, a choice and a note, bound by the schema's type.
+ * Renders the control over a form with a number, a choice and a note, bound by the schema's type.
  */
 export function Harness({ draw: Draw, presentation = PLAIN, schema }: HarnessProps): ReactElement {
   const form = useAppForm({ defaultValues: { amount: 2, note: "", pick: "" } });

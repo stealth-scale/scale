@@ -29,9 +29,9 @@ username's rule is the library's own field validator, given by path in `fieldOpt
 the username's value, and the foundation writes it onto the field it draws. The form validator goes
 in `validators`, in the submit slot.
 
-Each field component reads the schema of its property, so the select draws the choices the schema's
-`enum` lists and the text box draws a password box where the property states `format: "password"`.
-The page states neither.
+`@stealthscale/component-forms/form` renders the kind, an `enum` of two choices, as a radio group.
+`password` and `confirm` state `format: "password"`, so each renders as a password input. The page
+states neither.
 
 ## The engine
 

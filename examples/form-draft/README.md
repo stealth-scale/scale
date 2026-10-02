@@ -54,9 +54,10 @@ the step the draft was left on.
 
 ## The steps
 
-The schema's `x-form` lists the two steps of a wizard. `form.Fields` draws the step a person is on
-through the `Step` layout of `@stealthscale/example-form-fields`, which draws the back control, the
-next control and, on the last step, the submit.
+The schema's `x-form` lists the two steps of a wizard. `form.Fields` renders the step a person is on
+through the `Step` layout of `@stealthscale/component-forms/form`. The layout renders the steps as a
+progress list, the back control and the next control. The last step renders the submit in place of
+the next control.
 
 Leaving the first step marks its fields touched, calls `validateField` once with the cause `submit`,
 which runs every form-level validator, and reads the errors of that step's fields alone. A refused

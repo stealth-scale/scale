@@ -1,43 +1,67 @@
-import { fireEvent, render, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+
+import { drawn, settled } from "@stealthscale/testing-react";
 
 import { App } from "#app.tsx";
 
 describe("App", () => {
-  it("reads every label and legend from the English catalogue", () => {
-    const { getByLabelText, getByText } = render(<App />);
+  it("reads every legend from the English catalogue", async () => {
+    await drawn(<App />);
 
-    expect(getByText("Who you are").tagName).toBe("LEGEND");
-    expect(getByLabelText("Your name").getAttribute("name")).toBe("name");
-    expect(getByText("We answer within a day").tagName).toBe("P");
-    expect(getByText("Choose a topic")).toHaveProperty("value", "");
+    expect(screen.getByText("Who you are").tagName).toBe("LEGEND");
   });
 
-  it("switches every word to Dutch and back", () => {
-    const { getByLabelText, getByRole, getByText } = render(<App />);
+  it("names each field from the English catalogue", async () => {
+    await drawn(<App />);
 
-    fireEvent.click(getByRole("button", { name: "Nederlands" }));
+    expect(screen.getByRole("textbox", { name: "Your name" }).getAttribute("name")).toBe("name");
+  });
 
-    expect(getByText("Wie u bent").tagName).toBe("LEGEND");
-    expect(getByLabelText("Uw naam").getAttribute("name")).toBe("name");
-    expect(getByRole("button", { name: "Versturen" })).toBeDefined();
+  it("reads a field's help text from the English catalogue", async () => {
+    await drawn(<App />);
 
-    fireEvent.click(getByRole("button", { name: "English" }));
+    expect(screen.getByText("We reply within a day").tagName).toBe("P");
+  });
 
-    expect(getByText("Who you are").tagName).toBe("LEGEND");
+  it("switches every word to Dutch", async () => {
+    await drawn(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Nederlands" }));
+    await settled();
+
+    expect([
+      screen.getByText("Wie u bent").tagName,
+      screen.getByRole("textbox", { name: "Uw naam" }).getAttribute("name"),
+      screen.getByRole("button", { name: "Versturen" }).tagName,
+    ]).toStrictEqual(["LEGEND", "name", "BUTTON"]);
+  });
+
+  it("switches every word back to English", async () => {
+    await drawn(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Nederlands" }));
+    await settled();
+    fireEvent.click(screen.getByRole("button", { name: "English" }));
+    await settled();
+
+    expect(screen.getByText("Who you are").tagName).toBe("LEGEND");
   });
 
   it("thanks the person by name once the form is sent", async () => {
-    const { getByLabelText, getByRole } = render(<App />);
-
-    fireEvent.change(getByLabelText("Your name"), { target: { value: "Roy" } });
-    fireEvent.change(getByLabelText("Email address"), { target: { value: "roy@example.com" } });
-    fireEvent.change(getByLabelText("Topic"), { target: { value: "sales" } });
-    fireEvent.click(getByLabelText("I agree to be contacted"));
-    fireEvent.click(getByRole("button", { name: "Send" }));
+    await drawn(<App />);
+    fireEvent.change(screen.getByRole("textbox", { name: "Your name" }), {
+      target: { value: "Roy" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "Email address" }), {
+      target: { value: "roy@example.com" },
+    });
+    fireEvent.click(screen.getByRole("radio", { name: "Sales" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "I agree to be contacted" }));
+    await settled();
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+    await settled();
 
     await waitFor(() => {
-      expect(getByRole("status").textContent).toBe("Thanks Roy, we have your message");
+      expect(screen.getByRole("status").textContent).toBe("Thanks Roy, we have your message");
     });
   });
 });

@@ -1,10 +1,11 @@
 import { type ReactElement } from "react";
 
-import { act, fireEvent, render, waitFor } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { draftKey, FormProvider, schemaHash, writeDraft } from "@stealthscale/provider-form";
 import { memoryStore, type SettingStore } from "@stealthscale/settings";
+import { drawn, settled } from "@stealthscale/testing-react";
 
 import { ProfileForm } from "#profile-form.tsx";
 import { type Profile, readProfile, resetProfiles } from "#records.ts";
@@ -17,7 +18,7 @@ const RECORD: Profile = { bio: "", email: "roy@example.com", id: "p-1", name: "R
 const saved = vi.fn<(profile: Profile) => void>();
 
 /**
- * Draws the form over the record and the store given.
+ * Renders the form over the record and the store given.
  */
 function Page({ store }: { readonly store: SettingStore }): ReactElement {
   return (
@@ -25,6 +26,20 @@ function Page({ store }: { readonly store: SettingStore }): ReactElement {
       <ProfileForm onSaved={saved} record={RECORD} store={store} />
     </FormProvider>
   );
+}
+
+/**
+ * Returns the box a label names, with or without the required mark after the label's words.
+ */
+function box(label: string): HTMLInputElement {
+  return screen.getByLabelText<HTMLInputElement>(new RegExp(`^${label}\\*?$`, "u"));
+}
+
+/**
+ * Returns the words of the step's heading.
+ */
+function heading(): null | string {
+  return screen.getByRole("heading", { level: 2 }).textContent;
 }
 
 /**
@@ -37,15 +52,19 @@ function stored(store: SettingStore): unknown {
 }
 
 describe("ProfileForm", () => {
-  it("starts from the saved record on the first step", () => {
-    const { getByLabelText, getByRole } = render(<Page store={memoryStore()} />);
+  it("starts on the first step", async () => {
+    await drawn(<Page store={memoryStore()} />);
 
-    expect(getByRole("heading", { level: 2 }).textContent).toBe("Who you are");
-    expect(getByLabelText("Name")).toHaveProperty("value", "Roy");
-    expect(getByLabelText("Email")).toHaveProperty("value", "roy@example.com");
+    expect(heading()).toBe("Who you are");
   });
 
-  it("opens on the step a draft was left on with the values it kept", () => {
+  it("starts from the saved record", async () => {
+    await drawn(<Page store={memoryStore()} />);
+
+    expect([box("Name").value, box("Email").value]).toStrictEqual(["Roy", "roy@example.com"]);
+  });
+
+  it("opens on the step a draft was left on with the values it kept", async () => {
     const store = memoryStore();
 
     writeDraft(store, KEY, {
@@ -53,62 +72,73 @@ describe("ProfileForm", () => {
       step: "about",
       values: { bio: "Hi there", email: "roy@example.com", name: "Roy K" },
     });
+    await drawn(<Page store={store} />);
 
-    const { getByLabelText, getByRole } = render(<Page store={store} />);
-
-    expect(getByRole("heading", { level: 2 }).textContent).toBe("About");
-    expect(getByLabelText("About you")).toHaveProperty("value", "Hi there");
-    expect(getByLabelText("New password")).toHaveProperty("value", "");
-
-    fireEvent.click(getByRole("button", { name: "Back" }));
-
-    expect(getByLabelText("Name")).toHaveProperty("value", "Roy K");
+    expect([heading(), box("About you").value, box("New password").value]).toStrictEqual([
+      "About",
+      "Hi there",
+      "",
+    ]);
   });
 
-  it("writes the draft after a change and the debounce without the password", () => {
-    vi.useFakeTimers();
-
+  it("keeps the draft's values on the step before", async () => {
     const store = memoryStore();
-    const { getByLabelText } = render(<Page store={store} />);
 
-    fireEvent.change(getByLabelText("Name"), { target: { value: "Roy Klopper" } });
+    writeDraft(store, KEY, {
+      hash: HASH,
+      step: "about",
+      values: { bio: "Hi there", email: "roy@example.com", name: "Roy K" },
+    });
+    await drawn(<Page store={store} />);
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    await settled();
+
+    expect(box("Name").value).toBe("Roy K");
+  });
+
+  it("writes the draft without the password once a change is debounced", async () => {
+    const store = memoryStore();
+
+    await drawn(<Page store={store} />);
+    vi.useFakeTimers();
+    fireEvent.change(box("Name"), { target: { value: "Roy Klopper" } });
 
     expect(stored(store)).toBeUndefined();
 
     act(() => {
       vi.advanceTimersByTime(300);
     });
+    vi.useRealTimers();
 
     expect(stored(store)).toStrictEqual({
       hash: HASH,
       values: { bio: "", email: "roy@example.com", name: "Roy Klopper" },
     });
-    vi.useRealTimers();
   });
 
   it("keeps a person on the first step while a field of it is refused", async () => {
-    const store = memoryStore();
-    const { getAllByRole, getByLabelText, getByRole } = render(<Page store={store} />);
-
-    fireEvent.change(getByLabelText("Name"), { target: { value: "R" } });
-    fireEvent.click(getByRole("button", { name: "Next" }));
+    await drawn(<Page store={memoryStore()} />);
+    fireEvent.change(box("Name"), { target: { value: "R" } });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    await settled();
 
     await waitFor(() => {
-      expect(getAllByRole("alert").map((alert) => alert.textContent)).toContain(
+      expect(screen.getAllByRole("alert").map((alert) => alert.textContent)).toContain(
         "Enter at least two characters",
       );
     });
-    expect(getByRole("heading", { level: 2 }).textContent).toBe("Who you are");
+    expect(heading()).toBe("Who you are");
   });
 
   it("writes the step at once when the first step is left", async () => {
     const store = memoryStore();
-    const { getByRole } = render(<Page store={store} />);
 
-    fireEvent.click(getByRole("button", { name: "Next" }));
+    await drawn(<Page store={store} />);
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    await settled();
 
     await waitFor(() => {
-      expect(getByRole("heading", { level: 2 }).textContent).toBe("About");
+      expect(heading()).toBe("About");
     });
     expect(stored(store)).toStrictEqual({
       hash: HASH,
@@ -117,7 +147,7 @@ describe("ProfileForm", () => {
     });
   });
 
-  it("saves the profile and forgets the draft on submit", async () => {
+  it("saves the profile on submit", async () => {
     const store = memoryStore();
 
     resetProfiles();
@@ -126,10 +156,9 @@ describe("ProfileForm", () => {
       step: "about",
       values: { bio: "Hi", email: "roy@example.com", name: "Roy" },
     });
-
-    const { getByRole } = render(<Page store={store} />);
-
-    fireEvent.click(getByRole("button", { name: "Save" }));
+    await drawn(<Page store={store} />);
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await settled();
 
     await waitFor(() => {
       expect(saved).toHaveBeenCalledWith({
@@ -140,6 +169,23 @@ describe("ProfileForm", () => {
       });
     });
     expect(readProfile("p-1")?.bio).toBe("Hi");
-    expect(store.read(KEY)).toBeNull();
+  });
+
+  it("forgets the draft on submit", async () => {
+    const store = memoryStore();
+
+    resetProfiles();
+    writeDraft(store, KEY, {
+      hash: HASH,
+      step: "about",
+      values: { bio: "Hi", email: "roy@example.com", name: "Roy" },
+    });
+    await drawn(<Page store={store} />);
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await settled();
+
+    await waitFor(() => {
+      expect(store.read(KEY)).toBeNull();
+    });
   });
 });

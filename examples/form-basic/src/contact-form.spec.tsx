@@ -1,9 +1,10 @@
 import { type ReactElement } from "react";
 
-import { fireEvent, render, type RenderResult, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { FormProvider, translateFrom } from "@stealthscale/provider-form";
+import { drawn, settled } from "@stealthscale/testing-react";
 
 import { ContactForm } from "#contact-form.tsx";
 import { type Contact } from "#schema.ts";
@@ -12,7 +13,7 @@ import { catalogues } from "#words.ts";
 const sent = vi.fn<(value: Contact) => void>();
 
 /**
- * Draws the form under the English catalogue.
+ * Renders the form under the English catalogue.
  */
 function Page(): ReactElement {
   return (
@@ -25,64 +26,101 @@ function Page(): ReactElement {
 /**
  * Fills every field of the form with a value the schema accepts.
  */
-function fill({ getByLabelText }: RenderResult): void {
-  fireEvent.change(getByLabelText("Your name"), { target: { value: "Roy" } });
-  fireEvent.change(getByLabelText("Email address"), { target: { value: "roy@example.com" } });
-  fireEvent.change(getByLabelText("Topic"), { target: { value: "sales" } });
-  fireEvent.click(getByLabelText("I agree to be contacted"));
+async function filled(): Promise<void> {
+  fireEvent.change(screen.getByRole("textbox", { name: "Your name" }), {
+    target: { value: "Roy" },
+  });
+  fireEvent.change(screen.getByRole("textbox", { name: "Email address" }), {
+    target: { value: "roy@example.com" },
+  });
+  fireEvent.click(screen.getByRole("radio", { name: "Sales" }));
+  fireEvent.click(screen.getByRole("checkbox", { name: "I agree to be contacted" }));
+  await settled();
+}
+
+/**
+ * Submits the form.
+ */
+async function submitted(): Promise<void> {
+  fireEvent.click(screen.getByRole("button", { name: "Send" }));
+  await settled();
+}
+
+/**
+ * Returns the words of every refusal on the page.
+ */
+function refusals(): ReadonlyArray<null | string> {
+  return screen
+    .getAllByRole("alert")
+    .map((alert) => alert.textContent)
+    .filter((words) => words !== "");
 }
 
 describe("ContactForm", () => {
-  it("draws the two fieldsets the schema states with no choice made", () => {
-    const { getAllByRole, getByLabelText } = render(<Page />);
+  it("renders the two fieldsets the schema states", async () => {
+    await drawn(<Page />);
 
     expect(
-      getAllByRole("group").map((group) => group.querySelector("legend")?.textContent),
+      screen.getAllByRole("group").map((group) => group.querySelector("legend")?.textContent),
     ).toStrictEqual(["Who you are", "What you need"]);
-    expect(getByLabelText("Topic")).toHaveProperty("value", "");
-    expect(getByLabelText("I agree to be contacted")).toHaveProperty("checked", false);
+  });
+
+  it("renders the topic with no choice made", async () => {
+    await drawn(<Page />);
+
+    expect(
+      screen.getAllByRole<HTMLInputElement>("radio").map((radio) => radio.checked),
+    ).toStrictEqual([false, false]);
+  });
+
+  it("renders the consent unticked", async () => {
+    await drawn(<Page />);
+
+    expect(
+      screen.getByRole<HTMLInputElement>("checkbox", { name: "I agree to be contacted" }).checked,
+    ).toBe(false);
   });
 
   it("shows the schema's refusals in the catalogue's words after a submit", async () => {
-    const page = render(<Page />);
-
-    fireEvent.click(page.getByRole("button", { name: "Send" }));
+    await drawn(<Page />);
+    await submitted();
 
     await waitFor(() => {
-      const refusals = page
-        .getAllByRole("alert")
-        .map((alert) => alert.textContent)
-        .filter((words) => words !== "");
-
-      expect(refusals).toStrictEqual([
+      expect(refusals()).toStrictEqual([
         "Enter at least 2 characters",
         "Enter your email address",
         "Pick a topic",
         "Tick the box to continue",
       ]);
     });
-    expect(document.activeElement).toHaveProperty("name", "name");
+  });
+
+  it("moves focus to the first refused field after a submit", async () => {
+    await drawn(<Page />);
+    await submitted();
+
+    await waitFor(() => {
+      expect(document.activeElement).toHaveProperty("name", "name");
+    });
   });
 
   it("reads a refusal the whole product shares where the form has no words of its own", async () => {
-    const page = render(<Page />);
-
-    fill(page);
-    fireEvent.change(page.getByLabelText("Email address"), { target: { value: "nobody" } });
-    fireEvent.click(page.getByRole("button", { name: "Send" }));
+    await drawn(<Page />);
+    await filled();
+    fireEvent.change(screen.getByRole("textbox", { name: "Email address" }), {
+      target: { value: "nobody" },
+    });
+    await submitted();
 
     await waitFor(() => {
-      expect(page.getAllByRole("alert").map((alert) => alert.textContent)).toContain(
-        "Enter an address like name@example.com",
-      );
+      expect(refusals()).toContain("Enter an address like name@example.com");
     });
   });
 
   it("hands the values over once they pass", async () => {
-    const page = render(<Page />);
-
-    fill(page);
-    fireEvent.click(page.getByRole("button", { name: "Send" }));
+    await drawn(<Page />);
+    await filled();
+    await submitted();
 
     await waitFor(() => {
       expect(sent).toHaveBeenCalledWith({
