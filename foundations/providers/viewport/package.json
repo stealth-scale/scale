@@ -8,12 +8,12 @@
     "responsive",
     "viewport"
   ],
-  "homepage": "https://github.com/stealth-scale/config/tree/main/foundations/providers/viewport#readme",
-  "bugs": "https://github.com/stealth-scale/config/issues",
+  "homepage": "https://github.com/stealth-scale/scale/tree/main/foundations/providers/viewport#readme",
+  "bugs": "https://github.com/stealth-scale/scale/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stealth-scale/config.git",
+    "url": "git+https://github.com/stealth-scale/scale.git",
     "directory": "foundations/providers/viewport"
   },
   "files": [

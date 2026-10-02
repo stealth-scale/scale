@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Report a vulnerability
-    url: https://github.com/stealth-scale/config/security/advisories/new
+    url: https://github.com/stealth-scale/scale/security/advisories/new
     about: Report a security problem privately. Do not open a public issue for one.
   - name: Ask a question
-    url: https://github.com/stealth-scale/config/discussions
+    url: https://github.com/stealth-scale/scale/discussions
     about: Ask how a package is meant to be used, or propose a design before it is written.

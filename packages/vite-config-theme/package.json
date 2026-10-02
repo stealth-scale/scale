@@ -8,12 +8,12 @@
     "theme",
     "vite"
   ],
-  "homepage": "https://github.com/stealth-scale/config/tree/main/packages/vite-config-theme#readme",
-  "bugs": "https://github.com/stealth-scale/config/issues",
+  "homepage": "https://github.com/stealth-scale/scale/tree/main/packages/vite-config-theme#readme",
+  "bugs": "https://github.com/stealth-scale/scale/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stealth-scale/config.git",
+    "url": "git+https://github.com/stealth-scale/scale.git",
     "directory": "packages/vite-config-theme"
   },
   "files": [
