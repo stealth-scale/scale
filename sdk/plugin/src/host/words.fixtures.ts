@@ -5,11 +5,13 @@ const ENGLISH: Readonly<Record<string, Words>> = {
     navigation: { invoices: "Invoices", reports: "Reports" },
     plugin: { name: "Billing" },
   },
+  host: { settings: { account: "Account", plugins: "Plugins" } },
   payroll: { commands: { run: "Run payroll" } },
   people: { product: { name: "People" } },
   "time-off": {
     commands: { approve: "Approve request", pick: "Pick a person", request: "Request time off" },
     navigation: { calendar: "Calendar", history: "History", overview: "Time off" },
+    settings: { title: "Time off" },
   },
 };
 

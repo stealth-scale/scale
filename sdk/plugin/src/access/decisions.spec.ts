@@ -1,8 +1,16 @@
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { APPROVE, CHECK, decided, READER, UNDECLARED } from "#access/access.fixtures.ts";
-import { decisionKey, useAccess, useAccessActions } from "#access/decisions.ts";
+import {
+  APPROVE,
+  CHECK,
+  decided,
+  READER,
+  sessionWith,
+  undecided,
+  UNDECLARED,
+} from "#access/access.fixtures.ts";
+import { decisionKey, decisionOf, useAccess, useAccessActions } from "#access/decisions.ts";
 import { fixtureHost, wrapperOf } from "#host/host.fixtures.tsx";
 import { timeOffContract } from "#host/product.fixtures.ts";
 
@@ -11,6 +19,22 @@ describe("decisions", () => {
     expect(decisionKey({ permission: "p", resource: { id: "b/c", type: "a" } })).not.toBe(
       decisionKey({ permission: "p", resource: { id: "c", type: "a/b" } }),
     );
+  });
+
+  it("returns a decision the store knows before the session's permissions", () => {
+    expect(decisionOf(decided(true), sessionWith([]), CHECK)).toBe("allowed");
+  });
+
+  it("returns denied for a check whose permission the session lacks", () => {
+    expect(decisionOf(undecided(true), sessionWith([]), CHECK)).toBe("denied");
+  });
+
+  it("returns allowed for a check the host has no access source for", () => {
+    expect(decisionOf(undecided(false), sessionWith([APPROVE.id]), CHECK)).toBe("allowed");
+  });
+
+  it("returns pending for a check the access source has not decided", () => {
+    expect(decisionOf(undecided(true), sessionWith([APPROVE.id]), CHECK)).toBe("pending");
   });
 
   it("returns allowed for a decision the store knows", () => {

@@ -96,3 +96,13 @@ export function Edge({ children, targetId }: Wrapping): ReactNode {
 export function Outline({ children, targetId }: Wrapping): ReactNode {
   return <section aria-label={`outline ${targetId}`}>{children}</section>;
 }
+
+export function Notice({
+  routeId,
+  targetId,
+}: {
+  readonly routeId: string;
+  readonly targetId: string;
+}): ReactNode {
+  return <span>{`notice ${routeId} ${targetId}`}</span>;
+}

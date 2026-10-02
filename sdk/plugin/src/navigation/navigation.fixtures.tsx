@@ -1,6 +1,7 @@
 import { type ReactNode } from "react";
 
 import { Outlet } from "@stealthscale/provider-router";
+import { hostContract } from "@stealthscale/sdk-core";
 
 import { timeOffContract } from "#host/product.fixtures.ts";
 import { type NavigationEntry, useNavigation } from "#navigation/menus.ts";
@@ -24,6 +25,10 @@ export function MainMenu(): ReactNode {
 
 export function TabsMenu(): ReactNode {
   return <Links entries={useNavigation(timeOffContract.menus.tabs)} />;
+}
+
+export function SettingsMenu(): ReactNode {
+  return <Links entries={useNavigation(hostContract.menus.settings)} />;
 }
 
 export function RequestsPage(): ReactNode {

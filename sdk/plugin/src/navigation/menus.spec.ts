@@ -5,7 +5,7 @@ import { NOBODY } from "@stealthscale/sdk-core";
 
 import { fixtureHost } from "#host/host.fixtures.tsx";
 import { routed } from "#host/routed.fixtures.tsx";
-import { MainMenu, TabsMenu } from "#navigation/navigation.fixtures.tsx";
+import { MainMenu, SettingsMenu, TabsMenu } from "#navigation/navigation.fixtures.tsx";
 import { linksOf } from "#navigation/pages.fixtures.ts";
 
 describe("useNavigation", () => {
@@ -48,5 +48,32 @@ describe("useNavigation", () => {
       ["Time off", "/time-off"],
       ["Calendar", "/time-off/calendar"],
     ]);
+  });
+
+  it("lists the settings pages in the settings menu", async () => {
+    const { view } = await routed(fixtureHost(), "/time-off", {}, SettingsMenu);
+
+    expect(linksOf(view.container)).toStrictEqual([
+      ["Plugins", "/settings/host/plugins"],
+      ["Time off", "/settings/time-off/time-off"],
+    ]);
+  });
+
+  it("keeps the host's settings pages in the settings menu while every plugin is off", async () => {
+    const host = fixtureHost();
+    const { view } = await routed(host, "/time-off", {}, SettingsMenu);
+
+    act(() => {
+      host.availability.set(
+        Object.fromEntries(
+          Object.keys(host.availability.get()).map((id) => [
+            id,
+            { on: false, reason: "off" as const },
+          ]),
+        ),
+      );
+    });
+
+    expect(linksOf(view.container)).toStrictEqual([["Plugins", "/settings/host/plugins"]]);
   });
 });

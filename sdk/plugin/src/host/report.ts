@@ -4,9 +4,10 @@
  */
 
 /**
- * Lists what the host renders from a manifest: `extension:<id>` or `route:<id>`.
+ * Lists what the host renders from a manifest: `extension:<id>`, `route:<id>` or
+ * `section:<id>`, a settings section.
  */
-export type RenderTarget = `extension:${string}` | `route:${string}`;
+export type RenderTarget = `extension:${string}` | `route:${string}` | `section:${string}`;
 
 /**
  * Describes an emit the bus dropped, because 16 deliveries were already running inside one another.
@@ -16,6 +17,11 @@ export interface ChainCut {
    * The kind of the entry.
    */
   readonly kind: "event-chain-cut";
+
+  /**
+   * Id of the plugin whose emit was dropped. Absent where the product's own code emitted.
+   */
+  readonly plugin?: string | undefined;
 
   /**
    * Qualified id of the event whose emit was dropped.
@@ -101,6 +107,12 @@ export interface RunFailed {
    * The kind of the entry.
    */
   readonly kind: "command-failed" | "event-handler-failed";
+
+  /**
+   * Id of the plugin whose code threw: the command's plugin, or the plugin whose handler threw.
+   * Absent for a handler of the product's own code.
+   */
+  readonly plugin?: string | undefined;
 
   /**
    * Qualified id of the command, or of the event whose handler threw.

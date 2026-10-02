@@ -61,6 +61,10 @@ Pass `useConfig` your plugin's own schema. It throws for another plugin's.
   check after the render commits, and the host sends every check of one task in one call.
 - `useAccess` returns `denied` for a permission outside every installed contract.
 - `decisionKey(check)` returns the key the host keeps a decision under.
+- `decisionOf(access, session, check)` returns the decision the stores determine without the access
+  source: a known decision, `denied` where the session lacks the permission, `allowed` where the
+  product gave the host no source, and `pending` otherwise. `useAccess` and a command's `can` read a
+  decision through it.
 
 ## Flags
 
@@ -80,7 +84,8 @@ const layout = useFeatureFlag(timeOffContract.featureFlags.layout);
 ## Conditions
 
 `useWhen(when?)` returns true where a condition is true for the session, the flags, the plugins that
-are on and the matched routes. Check `{ plugin }` before you read an optional plugin's query.
+are on and the matched routes. Check `{ plugin }` before you read an optional plugin's query. The
+host is always on, so `{ plugin: "host" }` is true.
 
 `conditionContextOf(stores, place?)` builds the context a host's evaluator reads. It reads a flag
 only when a condition checks it.
@@ -117,7 +122,8 @@ return (
 
 - `useNavigation(menu?)` lists the entries of a menu the person may open, the host's main menu where
   you name none. Each entry has `href`, `label` and `routeId`. Ranked entries come first, by
-  `order`, then the rest by label.
+  `order`, then the rest by label. The settings menu lists every settings page the host renders, the
+  host's own included.
 - `useDocumentTitle(title)` titles the document `<title> · <product name>` from the deepest matched
   page, and restores the product's name when the page unmounts.
 
@@ -180,6 +186,18 @@ mounted slot renders the extension, with the reason where none does.
 | `moved`       | Was disabled by the product, or taken out of its slot by a placement |
 | `unmounted`   | Targets a slot or a page that is not on screen                       |
 
+### Parts a host renders
+
+- `RouteDecorations` renders a page with the extensions whose target is its route, inside the
+  wrappers of every route. It records them in the `mounted` store under `route:<id>`, so
+  `useExtensionStatuses` reads a page's decorations as it reads a slot's extensions.
+- `MountedStore.mount(key, slot)` records a mounted instance under a slot's qualified id, or under
+  `route:<id>` for a page.
+- `Boundary` renders a contribution, and its `fallback` after a render throws, until `resetKey`
+  changes. It passes each error to `onError` and calls `onRendered` after each render that commits.
+- `lazyOf(importer, id)` returns the component a manifest's importer loads. The module is imported
+  on the first render, once per importer.
+
 ## Settings and placements
 
 ```tsx
@@ -216,6 +234,8 @@ return <Button onClick={() => approve.mutate({ requestId: id })}>{t("approve")}<
 - `optimistic` returns the patches to apply at once. `scope` runs the mutations of one scope one at
   a time.
 - Both throw for a query or a mutation outside every installed contract.
+- `changesOf(declared, variables)` returns the changes one run of a mutation makes. A host announces
+  them as `host/recordsChanged` once the run succeeds.
 
 ## Status
 
@@ -226,7 +246,7 @@ return <Button onClick={() => approve.mutate({ requestId: id })}>{t("approve")}<
 
 | Report kind                                       | Reported when                                               |
 | ------------------------------------------------- | ----------------------------------------------------------- |
-| `render-failed`                                   | A page, an extension or the host's own frame throws         |
+| `render-failed`                                   | A page, an extension, a section or the host's frame throws  |
 | `quarantined`                                     | A target failed too many renders in a row                   |
 | `command-failed`, `event-handler-failed`          | A command or an event handler throws                        |
 | `event-chain-cut`                                 | An emit would start a 17th delivery inside the ones running |
@@ -235,3 +255,6 @@ return <Button onClick={() => approve.mutate({ requestId: id })}>{t("approve")}<
 | `setting-dropped`                                 | A stored setting, switch or placement fails its check       |
 | `slot-full`, `unplaced`                           | An extension finds no place                                 |
 | `access-failed`, `flags-failed`, `session-failed` | A source of the host fails                                  |
+
+A `RenderTarget` names what failed or was quarantined: `extension:<id>`, `route:<id>`, or
+`section:<id>` for a settings section.

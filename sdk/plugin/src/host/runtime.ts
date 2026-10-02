@@ -59,7 +59,7 @@ export interface HostRuntime {
    * Runs a command by its qualified id, after its condition is checked again, and resolves with its
    * result.
    */
-  readonly run: (commandId: string, args: unknown) => Promise<unknown>;
+  readonly run: (commandId: string, args?: unknown) => Promise<unknown>;
 
   /**
    * The store the host keeps a person's choices in.

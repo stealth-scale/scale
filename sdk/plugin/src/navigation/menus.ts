@@ -10,6 +10,7 @@ import { useTranslation } from "@stealthscale/provider-i18n";
 import { routeHref, useRouteMap } from "@stealthscale/provider-router";
 import {
   evaluateWhen,
+  HOST,
   hostContract,
   type MenuReference,
   type ResolvedRoute,
@@ -47,10 +48,9 @@ function isListed(
   route: ResolvedRoute,
   stores: Pick<HostStores, "availability" | "flags" | "session">,
 ): boolean {
-  return (
-    stores.availability.get()[route.plugin]?.on === true &&
-    evaluateWhen(route.when, conditionContextOf(stores))
-  );
+  const context = conditionContextOf(stores);
+
+  return context.on(route.plugin) && evaluateWhen(route.when, context);
 }
 
 /**
@@ -58,13 +58,14 @@ function isListed(
  * again when an entry is listed or left out.
  *
  * @remarks
- *   An entry without a rank follows the ranked ones. Labels compare in the person's language.
+ *   An entry without a rank follows the ranked ones. Labels compare in the person's language. The
+ *   settings menu lists every settings page the host renders, the host's own included.
  * @param menu - The menu. The host's main menu where none is given.
  */
 export function useNavigation(menu?: MenuReference): readonly NavigationEntry[] {
   const { product, stores } = useHost("useNavigation");
   const id = menu?.id ?? hostContract.menus.main.id;
-  const { i18n, t } = useTranslation(product.plugins.map((plugin) => plugin.id));
+  const { i18n, t } = useTranslation([HOST, ...product.plugins.map((plugin) => plugin.id)]);
   const map = useRouteMap();
   const routes = product.routes.flatMap((route) =>
     route.navigation?.menu === id ? [{ navigation: route.navigation, route }] : [],

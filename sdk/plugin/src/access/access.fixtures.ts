@@ -3,7 +3,7 @@ import { type AccessCheck, type PermissionReference, type Session } from "@steal
 import { decisionKey } from "#access/decisions.ts";
 import { ADA } from "#host/host.fixtures.tsx";
 import { timeOffContract } from "#host/product.fixtures.ts";
-import { type AccessState } from "#host/stores.ts";
+import { type AccessState, type SessionState } from "#host/stores.ts";
 
 export const APPROVE = timeOffContract.permissions["request.approve"];
 
@@ -24,4 +24,12 @@ export const UNDECLARED: PermissionReference<"payroll/run.approve", true> = {
 
 export function decided(allowed: boolean): AccessState {
   return { decisions: new Map([[decisionKey(CHECK), allowed]]), source: true };
+}
+
+export function undecided(source: boolean): AccessState {
+  return { decisions: new Map(), source };
+}
+
+export function sessionWith(permissions: readonly string[]): SessionState {
+  return { entitlements: new Set(), permissions: new Set(permissions), session: ADA };
 }

@@ -51,8 +51,18 @@ export function decisionKey({ permission, resource }: AccessCheck): string {
  * Returns the decision the stores determine without the access source: a known decision, `denied`
  * where the session lacks the permission, `allowed` where the product gave the host no source, and
  * `pending` otherwise.
+ *
+ * @remarks
+ *   `useAccess` reads a decision through it, and so does the host where a command asks `can`.
+ * @param access - The access store's state.
+ * @param session - The session store's state.
+ * @param check - The permission and the resource it is checked on.
  */
-function decide(access: AccessState, session: SessionState, check: AccessCheck): AccessDecision {
+export function decisionOf(
+  access: AccessState,
+  session: SessionState,
+  check: AccessCheck,
+): AccessDecision {
   const known = access.decisions.get(decisionKey(check));
 
   if (known !== undefined) return known ? "allowed" : "denied";
@@ -83,7 +93,7 @@ export function useAccess(
   const decision = useSelector([access, session], () =>
     type === undefined
       ? "denied"
-      : decide(access.get(), session.get(), {
+      : decisionOf(access.get(), session.get(), {
           permission: permission.id,
           resource: { id: resourceId, type },
         }),

@@ -41,6 +41,10 @@ describe("conditionContextOf", () => {
     expect(conditionContextOf(fixtureHost().runtime.stores).on("payroll")).toBe(false);
   });
 
+  it("returns true for the host", () => {
+    expect(conditionContextOf(fixtureHost().runtime.stores).on("host")).toBe(true);
+  });
+
   it("passes the place through", () => {
     const field = vi.fn<(path: string) => unknown>();
     const matched = new Set([timeOffContract.routes.overview.id]);

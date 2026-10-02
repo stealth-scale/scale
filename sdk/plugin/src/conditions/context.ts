@@ -2,7 +2,7 @@
  * Builds the context a condition is evaluated against from the host's stores.
  */
 
-import { type ConditionContext } from "@stealthscale/sdk-core";
+import { type ConditionContext, HOST } from "@stealthscale/sdk-core";
 
 import { type HostStores } from "#host/stores.ts";
 
@@ -12,7 +12,8 @@ import { type HostStores } from "#host/stores.ts";
  * @remarks
  *   The context reads a flag only when a condition checks it, so an experiment counts an exposure
  *   only where its variant determines what the person sees. A flag no installed plugin declares is
- *   false, and a plugin the product does not install is not on.
+ *   false, and a plugin the product does not install is not on. The host is always on: no switch,
+ *   kill switch or condition applies to it.
  * @param stores - The stores of the host that evaluates the condition.
  * @param place - The matched routes and the record's fields, where the condition is evaluated at a
  *   place that has them. A route's and a plugin's condition take neither.
@@ -30,7 +31,7 @@ export function conditionContextOf(
     field: place.field,
     flag: (id) => stores.flags.read(id) ?? false,
     matched: place.matched,
-    on: (pluginId) => availability[pluginId]?.on === true,
+    on: (pluginId) => pluginId === HOST || availability[pluginId]?.on === true,
     permitted: (id) => permissions.has(id),
   };
 }

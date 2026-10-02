@@ -1,6 +1,6 @@
 /**
- * Reads where each extension is on the current page: rendered by a mounted slot, or the reason it
- * is not.
+ * Reads where each extension is on the current page: rendered by a mounted slot or page, or the
+ * reason it is not.
  */
 
 import {
@@ -24,7 +24,7 @@ export interface ExtensionStatus {
   readonly extension: ResolvedExtension;
 
   /**
-   * True where a mounted slot renders the extension.
+   * True where a mounted slot or page renders the extension.
    */
   readonly placed: boolean;
 
@@ -34,13 +34,14 @@ export interface ExtensionStatus {
   readonly pluginReason?: PluginOffReason | undefined;
 
   /**
-   * Why no mounted slot renders the extension. Absent while it is placed.
+   * Why no mounted slot or page renders the extension. Absent while it is placed.
    */
   readonly reason?: undefined | UnplacedReason;
 
   /**
-   * Qualified id of the slot that renders or drops the extension, else of the slot it targets.
-   * Undefined for an extension around a page or another extension that no mounted slot records.
+   * Key of the mounted record that renders or drops the extension: a slot's qualified id, or
+   * `route:<id>` for a page. Else the qualified id of the slot the extension targets. Undefined for
+   * an extension around a page or another extension that no mounted record lists.
    */
   readonly slot: string | undefined;
 }
@@ -51,7 +52,7 @@ export interface ExtensionStatus {
 type StatusStores = Pick<HostStores, "availability" | "mounted" | "quarantine">;
 
 /**
- * Describes one mounted instance of a slot, with the slot's qualified id.
+ * Describes one mounted instance of a slot or a page, with the key the store keeps it under.
  */
 type Instance = readonly [string, MountedSlot];
 
@@ -127,10 +128,11 @@ function statusesOf(product: ResolvedProduct, stores: StatusStores): readonly Ex
  * renders again when that changes.
  *
  * @remarks
- *   An extension that a mounted slot renders is placed. Otherwise its reason comes from the first
- *   slot that drops it, then from the product (`moved` where it disabled the extension), its plugin
- *   (`off`, with the plugin's reason), the quarantine, and its target: `moved` where its slot is
- *   mounted, else `unmounted`. An extension around a page has no slot, so it reads as `unmounted`.
+ *   An extension that a mounted slot or page renders is placed. Otherwise its reason comes from the
+ *   first record that drops it, then from the product (`moved` where it disabled the extension),
+ *   its plugin (`off`, with the plugin's reason), the quarantine, and its target: `moved` where its
+ *   slot is mounted, else `unmounted`. An extension around a page that is not on screen reads as
+ *   `unmounted`.
  */
 export function useExtensionStatuses(): readonly ExtensionStatus[] {
   const { product, stores } = useHost("useExtensionStatuses");

@@ -97,9 +97,9 @@ export interface FlagsState {
  */
 export interface FlagStore extends Store<FlagsState> {
   /**
-   * Overrides a flag's value in this tab, or removes the override where the value is undefined.
+   * Overrides a flag's value in this tab, or removes the override where no value is given.
    */
-  readonly override: (id: string, value: boolean | string | undefined) => void;
+  readonly override: (id: string, value?: boolean | string) => void;
 
   /**
    * Returns a flag's value for the session, and evaluates the flag on its first read. Returns
@@ -210,7 +210,7 @@ export interface QuarantineStore extends Store<ReadonlyMap<RenderTarget, Quarant
 }
 
 /**
- * Describes one mounted instance of a slot, and what it renders.
+ * Describes one mounted instance of a slot or of a page, and what it renders.
  */
 export interface MountedSlot {
   /**
@@ -231,13 +231,17 @@ export interface MountedSlot {
 }
 
 /**
- * Keeps the slots on screen, with every mounted instance of each.
+ * Keeps the slots and the plugin pages on screen, with every mounted instance of each.
+ *
+ * @remarks
+ *   A slot's instances are kept under the slot's qualified id, and a page's under `route:<id>`, the
+ *   key `RouteDecorations` records the extensions around the page under.
  */
 export interface MountedStore extends Store<ReadonlyMap<string, readonly MountedSlot[]>> {
   /**
-   * Records a mounted instance of a slot until the returned function is called.
+   * Records a mounted instance under its key until the returned function is called.
    */
-  readonly mount: (slotId: string, slot: MountedSlot) => () => void;
+  readonly mount: (key: string, slot: MountedSlot) => () => void;
 }
 
 /**
@@ -295,7 +299,7 @@ export interface HostStores {
   readonly flags: FlagStore;
 
   /**
-   * The slots on screen.
+   * The slots and the plugin pages on screen.
    */
   readonly mounted: MountedStore;
 
