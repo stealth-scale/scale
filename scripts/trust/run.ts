@@ -1,12 +1,12 @@
 /**
- * Runs one command for the trust scripts and reports its exit code and both its streams.
+ * Runs one command for the trust scripts and reports how it ended.
  *
  * @remarks
- *   Every call the scripts make to pnpm and npm goes through this one function, so a specification
- *   passes a stand-in that answers offline.
+ *   Every call the scripts make to pnpm and npm goes through a {@link Runner}, so a specification
+ *   passes a stand-in that replies offline.
  */
 
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
 
 /**
  * Describes how a command ended.
@@ -49,4 +49,25 @@ export const run: Runner = (command, args, cwd) =>
         settle({ code, stderr, stdout });
       },
     );
+  });
+
+/**
+ * Runs a command found on the search path on this terminal, and resolves with its exit code once
+ * it ends.
+ *
+ * @remarks
+ *   A publish and a trust run here, because npm asks for a one-time password, or prints a browser
+ *   login, only on a terminal. The command writes to the terminal directly, so the result reports
+ *   both streams as empty.
+ */
+export const attended: Runner = (command, args, cwd) =>
+  new Promise((settle) => {
+    const child = spawn(command, [...args], { cwd, stdio: "inherit" });
+
+    child.on("error", () => {
+      settle({ code: -1, stderr: "", stdout: "" });
+    });
+    child.on("close", (code) => {
+      settle({ code: code ?? -1, stderr: "", stdout: "" });
+    });
   });
