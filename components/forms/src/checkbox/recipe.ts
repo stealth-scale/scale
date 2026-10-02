@@ -11,14 +11,16 @@
  *   and `lg`. The root is the `label`, so a press anywhere on the row toggles the box, and the row
  *   with its text meets the 24px target of WCAG 2.5.8. The disabled look applies to the box and to
  *   the label and not to the row around them, so a disabled checkbox renders at the theme's
- *   disabled opacity once. The checked and partly-on states take the look's fill. An `svg` in the
- *   indicator fills the box, so the mark scales with it. The indicator restates `display: none`
- *   under `[hidden]`, because its own display would override the attribute the machine sets. The
- *   palette axis offers the four palettes that are not statuses: primary, secondary, accent and
- *   neutral. The status axis offers the four statuses, sets the edge as well as the palette, and is
- *   declared after the palette so it overrides it. The two axes cannot share a value, because the
- *   class name leaves out the axis. The recipe has no `effect` axis, because a glow or a pulse on a
- *   16px box competes with the focus ring.
+ *   disabled opacity once. The checked and partly-on states take the look's fill, and `Highlight`
+ *   under forced colors, where the browser drops the fill and a box without a mark would read as
+ *   unchecked. The forced fill applies at rest, under the pointer and under the press. An `svg` in
+ *   the indicator fills the box, so the mark scales with it. The indicator restates
+ *   `display: none` under `[hidden]`, because its own display would override the attribute the
+ *   machine sets. The palette axis offers the four palettes that are not statuses: primary,
+ *   secondary, accent and neutral. The status axis offers the four statuses, sets the edge as well
+ *   as the palette, and is declared after the palette so it overrides it. The two axes cannot share
+ *   a value, because the class name leaves out the axis. The recipe has no `effect` axis, because a
+ *   glow or a pulse on a 16px box competes with the focus ring.
  */
 
 import {
@@ -49,10 +51,54 @@ const HUES = ["primary", "secondary", "accent", "neutral"] as const;
 const SPREAD = justifyVariants(["between"]);
 
 /**
- * Returns a look that fills the box with a layer style while it is checked or partly on.
+ * Paint of a checked or partly-on box inside a selected row under forced colors: a `HighlightText`
+ * square with the mark in `Highlight` and the focus ring in `HighlightText`.
+ */
+const INVERTED: SystemStyleObject = {
+  background: "HighlightText",
+  borderColor: "HighlightText",
+  color: "Highlight",
+  focusRingColor: "HighlightText",
+};
+
+/**
+ * Paint of a checked or partly-on box under forced colors: a `Highlight` square with the mark in
+ * `HighlightText` and the focus ring in `CanvasText`.
+ *
+ * @remarks
+ *   A selected row (`[aria-selected=true]`) fills with `Highlight` under forced colors, so a box
+ *   inside one inverts.
+ */
+const PAINT: SystemStyleObject = {
+  "[aria-selected=true] &": INVERTED,
+  background: "Highlight",
+  borderColor: "Highlight",
+  color: "HighlightText",
+  focusRingColor: "CanvasText",
+};
+
+/**
+ * Returns the forced colors of a box in one state, with the paint restated under the pointer and
+ * the press.
+ *
+ * @remarks
+ *   The look's hover and press fills apply at a higher specificity than the state alone, so the
+ *   restatement names the state a second time.
+ * @param restated - The paint nested in the state's own condition.
+ */
+function forced(restated: SystemStyleObject): SystemStyleObject {
+  return { ...PAINT, _active: restated, _hover: restated, forcedColorAdjust: "none" };
+}
+
+/**
+ * Returns a look that fills the box with a layer style while it is checked or partly on, and with
+ * `Highlight` under forced colors.
  */
 function filled(layerStyle: string): SystemStyleObject {
-  return { _checked: { layerStyle }, _indeterminate: { layerStyle } };
+  return {
+    _checked: { _highContrast: forced({ _checked: PAINT }), layerStyle },
+    _indeterminate: { _highContrast: forced({ _indeterminate: PAINT }), layerStyle },
+  };
 }
 
 /**
@@ -128,15 +174,16 @@ export const recipe = defineSlotRecipe({
     radius: onSlot("control", cornerVariants(["l1", "l2", "full"])),
 
     /**
-     * Box size, text size and gap. The box reads the icon scale, the text the label role and the
-     * gap the gap scale, each at the size.
+     * Box size, text size and gap. The box reads the icon scale, the text the body role and the gap
+     * the gap scale, each at the size. The text reads at the body weight, so it is quieter than the
+     * label of the field or the group around it.
      */
     size: onSlots({
       control: sizeVariants(
         (size) => ({ boxSize: dense(`{sizes.icon.${size}}`) }),
         ["sm", "md", "lg"],
       ),
-      label: sizeVariants((size) => ({ textStyle: `label.${size}` }), ["sm", "md", "lg"]),
+      label: sizeVariants((size) => ({ textStyle: `body.${size}` }), ["sm", "md", "lg"]),
       root: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), ["sm", "md", "lg"]),
     }),
 
@@ -154,7 +201,8 @@ export const recipe = defineSlotRecipe({
      * Surface of the box at rest, and its fill while checked or partly on.
      *
      * @remarks
-     *   No value writes a border color, so a status sets the edge in every look.
+     *   No value writes a border color outside forced colors, so a status sets the edge in every
+     *   look.
      */
     variant: onSlot("control", {
       solid: filled("fill.solid"),

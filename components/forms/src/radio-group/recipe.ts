@@ -13,9 +13,11 @@
  *   circle and to the words and not to the row around them, so a disabled row renders at the
  *   theme's disabled opacity once. A row is as wide as its circle and its words, so a press beside
  *   the words checks nothing, as with the browser's own radio. A horizontal group wraps its rows
- *   and gives the label a line of its own. The palette axis offers the four palettes that are not
- *   statuses, and the status axis, declared after it, sets the edge and the palette. The recipe has
- *   no `effect` axis, because a glow or a pulse on a 16px circle competes with the focus ring.
+ *   and gives the label a line of its own. The label lays its words and a mark after them, such as
+ *   a field's required mark, in a row the smallest gap apart, as a field's label does. The palette
+ *   axis offers the four palettes that are not statuses, and the status axis, declared after it,
+ *   sets the edge and the palette. The recipe has no `effect` axis, because a glow or a pulse on a
+ *   16px circle competes with the focus ring.
  */
 
 import {
@@ -59,7 +61,14 @@ export const recipe = defineSlotRecipe({
       focusVisibleRing: "outside",
     },
     itemText: { _disabled: { layerStyle: "disabled" }, color: "fg" },
-    label: { _disabled: { layerStyle: "disabled" }, color: "fg", fontWeight: "medium" },
+    label: {
+      _disabled: { layerStyle: "disabled" },
+      alignItems: "center",
+      color: "fg",
+      display: "inline-flex",
+      fontWeight: "medium",
+      gap: dense("{spacing.gap.xs}"),
+    },
     root: {
       _horizontal: {
         [`& > .${CLASS}__label`]: { flexBasis: "full" },
@@ -102,13 +111,15 @@ export const recipe = defineSlotRecipe({
     palette: onSlot("itemControl", paletteVariants(HUES)),
 
     /**
-     * Circle size, text size and gaps. The circle reads the icon scale, the words the label role,
-     * the gap inside a row the gap scale, and the room between horizontal rows the inset scale.
+     * Circle size, text size and gaps. The circle reads the icon scale, a choice's words the body
+     * role, the group's label the label role, the gap inside a row the gap scale, and the room
+     * between horizontal rows the inset scale. A choice reads at the body weight, which keeps the
+     * group's label the heavier of the two.
      */
     size: onSlots({
       item: sizeVariants((size) => ({ gap: dense(`{spacing.gap.${size}}`) }), SIZES),
       itemControl: circleSizes(),
-      itemText: sizeVariants((size) => ({ textStyle: `label.${size}` }), SIZES),
+      itemText: sizeVariants((size) => ({ textStyle: `body.${size}` }), SIZES),
       label: sizeVariants((size) => ({ textStyle: `label.${size}` }), SIZES),
       root: sizeVariants(
         (size) => ({

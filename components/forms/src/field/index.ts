@@ -8,6 +8,7 @@ export { Counter, type CounterProps } from "#field/counter.tsx";
 export { ErrorText, type ErrorTextProps } from "#field/error-text.tsx";
 export { HelperText, type HelperTextProps } from "#field/helper-text.tsx";
 export { Label, type LabelProps } from "#field/label.tsx";
+export { OptionalIndicator, type OptionalIndicatorProps } from "#field/optional-indicator.tsx";
 export { RequiredIndicator, type RequiredIndicatorProps } from "#field/required-indicator.tsx";
 export { Root, type RootProps } from "#field/root.tsx";
 export { type FieldState, useField } from "#field/state.ts";

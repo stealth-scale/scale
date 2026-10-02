@@ -2,7 +2,9 @@
  * Recipe for the field: a label, a control and the texts under the control.
  *
  * @remarks
- *   Seven slots: root, label, required indicator, control, helper text, counter and error text.
+ *   Eight slots: root, label, required indicator, optional indicator, control, helper text, counter
+ *   and error text. The optional indicator reads in the muted ink at the body weight, so it is
+ *   quieter than the label it follows.
  *   The root is a dense grid and every part states its column, so the layout does not depend on
  *   the order a caller writes the parts in. Any other child of the root takes the control's
  *   column, so a select, a radio group or an input group lays out as the control does. In the
@@ -13,8 +15,8 @@
  *   The status axis sets the palette on the error text, the required indicator and the control,
  *   and not on the root, because the control's focus ring reads the palette. The error text and
  *   the required indicator default to the error palette. The recipe has no `palette` axis, because
- *   a field's colors report a state, and no `effect` axis, because the field draws no box of its
- *   own.
+ *   a field's colors report a state, and no `effect` axis, because the field renders no box of
+ *   its own.
  */
 
 import {
@@ -41,14 +43,15 @@ const SIZES = ["sm", "md", "lg"] as const;
 const CLASS = "field";
 
 /**
- * Custom property that carries how far a floating label drops to the middle of the control: the
- * row gap plus half the control's height.
+ * Custom property that sets how far a floating label drops to the middle of the control: the row
+ * gap plus half the control's height.
  */
 const DROP = "--field-drop";
 
 /**
- * Custom property that carries the control's inline inset, which a floating label takes so its
- * text starts where typed text does.
+ * Custom property that sets where typed text starts inside the control: a text box's inline
+ * inset, one size below the field's, plus its edge. A floating label takes it, so its words start
+ * where typed text does: 13px from the box's edge at `md`.
  */
 const INSET = "--field-inset";
 
@@ -106,24 +109,36 @@ export const recipe = defineSlotRecipe({
       fontWeight: "medium",
       gap: dense("{spacing.gap.xs}"),
     },
+    optionalIndicator: { color: "fg.muted", fontWeight: "normal" },
     requiredIndicator: { color: "colorPalette.fg", colorPalette: "error", lineHeight: "1" },
     root: { display: "grid", gridAutoFlow: "dense", inlineSize: "full" },
   },
   className: CLASS,
   defaultVariants: { orientation: "vertical", size: "md" },
   jsx: [/^Field(\.\w+)?$/u],
-  slots: ["root", "label", "requiredIndicator", "control", "helperText", "counter", "errorText"],
+  slots: [
+    "root",
+    "label",
+    "requiredIndicator",
+    "optionalIndicator",
+    "control",
+    "helperText",
+    "counter",
+    "errorText",
+  ],
   staticCss: [statusEmitted()],
   variants: {
     /**
-     * Where the label sits against the control.
+     * Where the label is placed against the control.
      *
      * @remarks
-     *   Each value places all seven parts, because the three lay them out over different columns.
-     *   `horizontal` centres the label and the counter against the control. `floating` translates
-     *   the label down
-     *   over the control and keeps its row, so nothing under the field moves when the label rises
-     *   on focus or once the control holds a value.
+     *   Each value places the label, the control, the counter and the two texts, because the three
+     *   lay them out over different columns. `horizontal` centres the label and the counter against
+     *   the control. `floating` translates the label down over the control and keeps its row, so
+     *   nothing under the field moves when the label rises. The label rises while a text box or
+     *   textarea in the field has focus or has a value, so a box inside an input group floats its
+     *   label too. A box's placeholder is
+     *   transparent until the box takes focus, so its words never render under the resting label.
      */
     orientation: {
       floating: {
@@ -143,8 +158,9 @@ export const recipe = defineSlotRecipe({
           translate: `0 calc(50% + var(${DROP}))`,
         },
         root: {
-          [`&:has(.${CLASS}__control:focus) .${CLASS}__label,
-            &:has(.${CLASS}__control:not(:placeholder-shown)) .${CLASS}__label`]: {
+          "& :is(input, textarea):not(:focus)::placeholder": { opacity: "0" },
+          [`&:has(:is(input, textarea):focus) .${CLASS}__label,
+            &:has(:is(input, textarea):not(:placeholder-shown)) .${CLASS}__label`]: {
             color: "fg",
             paddingInline: "0",
             translate: "0 0",
@@ -188,7 +204,7 @@ export const recipe = defineSlotRecipe({
         (size) => ({
           columnGap: dense(`{spacing.gap.${size}}`),
           [DROP]: `calc(${dense(`{spacing.gap.${below(size)}}`)} + ${dense(`{sizes.control.${size}}`)} / 2)`,
-          [INSET]: dense(`{spacing.inset.${size}}`),
+          [INSET]: `calc(${dense(`{spacing.inset.${below(size)}}`)} + {borderWidths.control})`,
           rowGap: dense(`{spacing.gap.${below(size)}}`),
         }),
         SIZES,

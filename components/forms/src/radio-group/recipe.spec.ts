@@ -133,6 +133,23 @@ describe("recipe", () => {
     });
   });
 
+  it("sets a choice's words in the body role at the size", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["itemText"]).toStrictEqual({
+      textStyle: "body.md",
+    });
+  });
+
+  it("lays the label's words and a mark after them in a row the smallest gap apart", () => {
+    expect(recipe.base?.["label"]).toMatchObject({
+      display: "inline-flex",
+      gap: "calc({spacing.gap.xs} * var(--density, 1))",
+    });
+  });
+
+  it("sets the group's label in the label role at the size", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["label"]).toStrictEqual({ textStyle: "label.md" });
+  });
+
   it("tracks JSX named RadioGroup and its parts", () => {
     expect(recipe.jsx).toStrictEqual([/^RadioGroup(\.\w+)?$/u]);
   });

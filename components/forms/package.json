@@ -31,6 +31,10 @@
       "stealth-source": "./src/index.ts",
       "default": "./dist/index.js"
     },
+    "./form": {
+      "stealth-source": "./src/form.ts",
+      "default": "./dist/form.js"
+    },
     "./theme": {
       "stealth-source": "./src/theme.ts",
       "default": "./dist/theme.js"
@@ -40,6 +44,7 @@
   "publishConfig": {
     "exports": {
       ".": "./dist/index.js",
+      "./form": "./dist/form.js",
       "./theme": "./dist/theme.js",
       "./package.json": "./package.json"
     },
@@ -55,6 +60,8 @@
     "@internationalized/date": "catalog:",
     "@stealthscale/component-actions": "workspace:^",
     "@stealthscale/component-data": "workspace:^",
+    "@stealthscale/component-disclosure": "workspace:^",
+    "@stealthscale/component-feedback": "workspace:^",
     "@stealthscale/component-primitives": "workspace:^",
     "@zag-js/angle-slider": "catalog:",
     "@zag-js/checkbox": "catalog:",
@@ -89,6 +96,7 @@
     "@arethetypeswrong/core": "catalog:",
     "@stealthscale/component-layout": "workspace:^",
     "@stealthscale/hooks": "workspace:^",
+    "@stealthscale/provider-form": "workspace:^",
     "@stealthscale/provider-locale": "workspace:^",
     "@stealthscale/theme": "workspace:^",
     "@stealthscale/vite-config": "workspace:^",
@@ -111,9 +119,15 @@
   },
   "peerDependencies": {
     "@stealthscale/hooks": "workspace:^",
+    "@stealthscale/provider-form": "workspace:^",
     "@stealthscale/provider-locale": "workspace:^",
     "@stealthscale/theme": "workspace:^",
     "react": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "@stealthscale/provider-form": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=26.0.0"

@@ -21,6 +21,7 @@ import { recipe as editable } from "#editable/recipe.ts";
 import { recipe as field } from "#field/recipe.ts";
 import { recipe as fieldset } from "#fieldset/recipe.ts";
 import { recipe as fileUpload } from "#file-upload/recipe.ts";
+import { recipe as form } from "#form/recipe.ts";
 import { recipe as inputGroup } from "#input-group/recipe.ts";
 import { recipe as input } from "#input/recipe.ts";
 import { recipe as nativeSelect } from "#native-select/recipe.ts";
@@ -57,6 +58,7 @@ export default definePreset({
         field,
         fieldset,
         fileUpload,
+        form,
         inputGroup,
         nativeSelect,
         phoneInput,

@@ -10,6 +10,7 @@ const PARTS = [
   "root",
   "label",
   "requiredIndicator",
+  "optionalIndicator",
   "control",
   "helperText",
   "counter",
@@ -41,8 +42,15 @@ describe("recipe", () => {
     expect(recipe.className).toBe("field");
   });
 
-  it("declares the seven slots", () => {
+  it("declares the eight slots", () => {
     expect(recipe.slots).toStrictEqual(PARTS);
+  });
+
+  it("sets the optional indicator in the muted ink at the body weight", () => {
+    expect(recipe.base?.["optionalIndicator"]).toStrictEqual({
+      color: "fg.muted",
+      fontWeight: "normal",
+    });
   });
 
   it("declares three axes", () => {
@@ -68,15 +76,30 @@ describe("recipe", () => {
     expect(floating?.["label"]).not.toHaveProperty("position");
   });
 
-  it("raises a floating label while the control has focus or a value", () => {
+  it("raises a floating label while a text box in the field has focus or a value", () => {
     expect(recipe.variants?.["orientation"]?.["floating"]?.["root"]).toMatchObject({
-      [`&:has(.field__control:focus) .field__label,
-            &:has(.field__control:not(:placeholder-shown)) .field__label`]: {
+      [`&:has(:is(input, textarea):focus) .field__label,
+            &:has(:is(input, textarea):not(:placeholder-shown)) .field__label`]: {
         color: "fg",
         paddingInline: "0",
         translate: "0 0",
       },
     });
+  });
+
+  it("starts a floating label's words where a text box's typed text starts", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["root"]).toMatchObject({
+      "--field-inset":
+        "calc(calc({spacing.inset.sm} * var(--density, 1)) + {borderWidths.control})",
+    });
+  });
+
+  it("hides a floating field's placeholder until its text box takes focus", () => {
+    expect(
+      recipe.variants?.["orientation"]?.["floating"]?.["root"]?.[
+        "& :is(input, textarea):not(:focus)::placeholder"
+      ],
+    ).toStrictEqual({ opacity: "0" });
   });
 
   it("places every part but the label in the second column of a horizontal field", () => {

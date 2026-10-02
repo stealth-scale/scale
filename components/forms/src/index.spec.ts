@@ -46,6 +46,7 @@ describe("index", () => {
       "ErrorText",
       "HelperText",
       "Label",
+      "OptionalIndicator",
       "RequiredIndicator",
       "Root",
       "Textarea",

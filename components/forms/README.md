@@ -39,6 +39,9 @@ Every value a theme can change is an axis of a component's recipe. Set it as a p
 style. Change the element a component renders with `as`. A component with parts is exported as a
 namespace, such as `Field.Root` and `InputGroup.Root`.
 
+The `./form` entry binds these components to `@stealthscale/provider-form`, so a whole form renders
+from a JSON Schema. See [Forms from a schema](#forms-from-a-schema).
+
 ## Install
 
 ```bash
@@ -51,6 +54,11 @@ locale unless its `locale` prop states another. The package depends on `libphone
 to one release, for the phone input's formatting and country metadata. List the preset under
 `./theme` among the presets your compiler installs, with the primitives package's preset, which
 styles the scroll area of a select's and a combobox's rows.
+
+The `./form` entry also needs `@stealthscale/provider-form`, an optional peer, with its own peers.
+The form renders recipes of the a11y, actions, data, disclosure, feedback, layout and primitives
+component packages, so an application that compiles its stylesheet lists all seven among its
+dependencies.
 
 ## Fieldset
 
@@ -126,6 +134,7 @@ import { Field } from "@stealthscale/component-forms";
 | `Root`              | `div`      | The grid, and the state every part reads       |
 | `Label`             | `label`    | The control's name                             |
 | `RequiredIndicator` | `span`     | A mark on a field that requires a value        |
+| `OptionalIndicator` | `span`     | A mark on a field that does not require one    |
 | `Control`           | `input`    | The control                                    |
 | `Textarea`          | `textarea` | The package's `Textarea`, as the control       |
 | `HelperText`        | `p`        | What a person needs to know in advance         |
@@ -146,8 +155,14 @@ import { Field } from "@stealthscale/component-forms";
 - `Field.ErrorText` renders while the field is invalid or reports a status, and sets `role="alert"`
   only while it is invalid. `Field.RequiredIndicator` renders only on a required field. Both read
   the palette `status` sets, which defaults to the error palette.
-- A floating label reads whether the control is empty from `:placeholder-shown`, so give the control
-  a placeholder. A single space works.
+- `Field.OptionalIndicator` renders `(optional)` in the muted ink on a field that does not require a
+  value, and nothing on a required one. Pass other words or a `Badge` as its children. A form where
+  most fields are required marks its optional fields this way, in place of a required indicator on
+  every other field.
+- A floating label rests inside an empty text box or textarea, and rises above it while the box has
+  focus or a value. A box inside an input group, such as a password input, floats the label too. The
+  field reads whether the box is empty from `:placeholder-shown`, so give the box a placeholder. A
+  single space works. The placeholder shows only while the box has focus.
 - Another component in the field's place, such as a `NativeSelect`, a `RadioGroup` or a
   `SegmentGroup`, takes the control's column: the full width under the label, or the second column
   of a horizontal field.
@@ -2356,6 +2371,134 @@ Inside a `Field`, the group and the control are named after the field's label, t
 described by its texts, and the hidden input takes the field's control ID. The root takes the
 field's `disabled`, `invalid`, `readOnly`, `required` and `size`. Inside a `Fieldset` with no field
 around it, it takes the group's `disabled` and `size`. A prop stated on the root overrides each.
+
+## Forms from a schema
+
+`@stealthscale/component-forms/form` binds this package's components to
+`@stealthscale/provider-form` with one `createSchemaForm` call. A form renders from a JSON Schema,
+or from fields written by hand in `form.AppField`.
+
+```tsx
+import { CheckIcon, ChevronDownIcon, CircleAlertIcon } from "lucide-react";
+
+import { useSchemaForm } from "@stealthscale/component-forms/form";
+
+const glyphs = {
+  checkbox: <CheckIcon />,
+  error: <CircleAlertIcon />,
+  select: { indicator: <ChevronDownIcon />, selected: <CheckIcon /> },
+};
+
+const form = useSchemaForm<Signup>({ onSubmit: ({ value }) => save(value), schema: signup });
+
+<form.AppForm>
+  <form.Form glyphs={glyphs} mark="optional" orientation="floating">
+    <form.Fields />
+    <form.Submit />
+  </form.Form>
+</form.AppForm>;
+```
+
+| Export                                                      | What it is                                                              |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `useSchemaForm`, `useAppForm`, `withForm`, `withFieldGroup` | The hooks `createSchemaForm` returns                                    |
+| `Form`, `Submit`                                            | The `form` element and its submit button                                |
+| `fieldComponents` and nineteen field components             | The controls a renderer or `form.AppField` renders, such as `TextField` |
+| `Frame`, `useBoundField`                                    | The frame an application's own control composes, and the field it reads |
+| `layouts`, `renderers`                                      | What `form.Fields` renders groups, items, steps, errors and fields with |
+| `iban`, `phone`                                             | Formats an engine registers through `createEngine({ formats })`         |
+| `RADIO_CHOICES`, `SELECT_CHOICES`                           | The most choices an `enum` renders as a radio group, and as a select    |
+| `FormGlyphs` and its parts                                  | The glyphs a form gives its fields                                      |
+
+### The control a property renders
+
+| The property's schema                 | The control                                                   |
+| ------------------------------------- | ------------------------------------------------------------- |
+| `type: "string"`                      | A text box, of type `email` or `url` where `format` names one |
+| `format: "password"`                  | A password input                                              |
+| `format: "date"`                      | A date input                                                  |
+| `format: "phone"`                     | A phone input, whose value is a valid number in E.164         |
+| `format: "iban"`                      | An input mask, whose value is the IBAN without its spaces     |
+| `type: "number"` or `type: "integer"` | A number input, bounded by `minimum` and `maximum`            |
+| `type: "boolean"`                     | A checkbox                                                    |
+| An `enum` of up to five choices       | A radio group                                                 |
+| An `enum` of six to ten choices       | A select                                                      |
+| An `enum` of more than ten choices    | A combobox that narrows its list as a person types            |
+| An array whose items list choices     | A group of checkboxes                                         |
+| An array of other strings             | A tags input                                                  |
+
+- `x-control` picks a control at the strongest rank: `switch`, `textarea`, `select`, `radio`,
+  `combobox`, `segments`, `cards`, `slider`, `date-picker`, `phone` or `mask`. `cards` renders radio
+  cards for an `enum` and checkbox cards for an array of choices.
+- `x-options` passes a control its settings: `mask` for an input mask, `countries` and `country` for
+  a phone input, and `style`, `currency`, `unit` and `step` for a number input.
+- `x-width` sets how wide a control is: `short` for a number, a date or a code, `medium` for an
+  account or a phone number, and `full` for the column. A number input is `short` and a phone input
+  `medium` where the property states nothing. The label and the texts keep the column's width.
+- A renderer that an application gives `FormProvider` registers after the package's. The later of
+  two renderers at one rank renders the field, so an application replaces a control by registering
+  its own.
+- A slider starts at the schema's `default`. Without one the engine starts a number at 0, which a
+  slider with a `minimum` above 0 cannot show.
+
+### The form element
+
+`form.Form` renders the `form` element, and every field of the form takes its props.
+
+| Prop           | Values                 | Default    | What it sets                                                      |
+| -------------- | ---------------------- | ---------- | ----------------------------------------------------------------- |
+| `size`         | `sm`, `md`, `lg`       | `md`       | The size of every field and the gaps between them                 |
+| `orientation`  | `vertical`, `floating` | `vertical` | Labels above their controls, or inside each empty text box        |
+| `mark`         | `required`, `optional` | `required` | An asterisk on each required field, or words on each optional one |
+| `glyphs`       | `FormGlyphs`           | none       | The marks a field renders                                         |
+| `headingLevel` | `2` to `6`             | `2`        | The level of a wizard step's heading                              |
+
+- A field without its glyph renders no mark: a select no chevron, a checked box its fill alone, a
+  number input no steppers, a password input no button, a date picker no calendar, a tags input no
+  remove button, and a closed group no chevron. A field's own `glyphs` prop applies over the form's.
+- `mark="optional"` reads the words from `<id>.marks.optional`, then `marks.optional`, then
+  `(optional)`. A checkbox and a switch take no optional mark.
+- A wizard moves focus to the heading of each step it opens. Tabs leave focus on the tab a person
+  activated.
+- A fieldset that follows another member opens with a hairline, with twice the fields' gap above the
+  line and below it.
+
+### Formats
+
+The engine refuses a schema that names a format it does not register. Register `iban` and `phone`
+before a schema names them.
+
+```tsx
+import { iban, phone } from "@stealthscale/component-forms/form";
+import { createEngine, FormProvider } from "@stealthscale/provider-form";
+
+const engine = createEngine({ formats: [iban, phone] });
+
+<FormProvider engine={engine}>{children}</FormProvider>;
+```
+
+- `iban` accepts an empty string, and an IBAN whose mod-97 check digits match.
+- `phone` accepts an empty string, and a number `libphonenumber-js` reads as valid with its `min`
+  metadata.
+- Both accept an empty string, so a field a person must fill states `minLength: 1` too.
+
+### Words
+
+Each choice reads its words from `<id>.fields.<path>.options.<value>`, and a card reads the words
+under its title from `<id>.fields.<path>.descriptions.<value>`. The buttons and the messages read
+`<id>.actions.<name>`:
+
+| Name                              | English                                                     |
+| --------------------------------- | ----------------------------------------------------------- |
+| `submit`, `back`, `next`          | Submit, Back, Next                                          |
+| `add`, `remove`, `removeItem`     | Add, Remove, and the button's name `Remove item {{number}}` |
+| `choose`                          | Choose, the placeholder of an empty select                  |
+| `showChoices`, `noMatch`          | Show the choices, No match                                  |
+| `increment`, `decrement`          | Increase, Decrease                                          |
+| `showPassword`, `hidePassword`    | Show password, Hide password                                |
+| `passwordShown`, `passwordHidden` | Your password is visible, Your password is hidden           |
+| `chooseDate`, `countryCode`       | Choose a date, Country code                                 |
+| `removeTag`                       | Remove `{{value}}`                                          |
 
 ## Licence
 

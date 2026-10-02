@@ -149,7 +149,8 @@ export const recipe = defineSlotRecipe({
      * Track size, text size and gap. The track reads the control scale for its width and the tag
      * scale for its height. It writes the difference to `--switch-travel`, the distance a checked
      * thumb translates. The gap between the track and the label reads the gap token one size
-     * larger than the switch: 8, 12 and 16px at `sm`, `md` and `lg`.
+     * larger than the switch: 8, 12 and 16px at `sm`, `md` and `lg`. The label reads the body
+     * role, so it is quieter than the label of a field.
      */
     size: onSlots({
       control: sizeVariants(
@@ -160,7 +161,7 @@ export const recipe = defineSlotRecipe({
         }),
         ["sm", "md", "lg"],
       ),
-      label: sizeVariants((size) => ({ textStyle: `label.${size}` }), ["sm", "md", "lg"]),
+      label: sizeVariants((size) => ({ textStyle: `body.${size}` }), ["sm", "md", "lg"]),
       root: sizeVariants(
         (size) => ({ gap: dense(`{spacing.gap.${GAPS[size]}}`) }),
         ["sm", "md", "lg"],

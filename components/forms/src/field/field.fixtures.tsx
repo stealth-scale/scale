@@ -19,7 +19,8 @@ export function fielded(children: ReactNode, props: RootProps = {}): ReactElemen
 }
 
 /**
- * Renders a field with every part: a required label, an email control, both texts and a counter.
+ * Renders a field with every part: a label with both marks, an email control, both texts and a
+ * counter. A required field shows the required mark, and any other the optional one.
  *
  * @param props - The props of the root.
  * @returns The field.
@@ -30,6 +31,7 @@ export function composed(props: RootProps = {}): ReactElement {
       <Field.Label>
         Email
         <Field.RequiredIndicator />
+        <Field.OptionalIndicator />
       </Field.Label>
       <Field.Control type="email" />
       <Field.HelperText>We only write about invoices.</Field.HelperText>

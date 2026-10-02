@@ -30,3 +30,12 @@
 - Dim a disabled checkbox or switch once.
 - Depend on `component-primitives`.
 - Add a specimen per component, with examples.
+- Add the `./form` entry: `useSchemaForm`, `useAppForm`, `withForm` and `withFieldGroup` over
+  `provider-form`'s `createSchemaForm`.
+- Add `Form`, `Submit`, `Frame`, `useBoundField`, the layouts and the renderers to `./form`.
+- Add nineteen field components to `./form`, from `TextField` to `CheckboxCardsField`.
+- Add the `iban` and `phone` formats to `./form`.
+- Add `size`, `orientation`, `mark`, `glyphs` and `headingLevel` to `Form`.
+- Peer on `provider-form` as an optional peer.
+- Depend on `component-disclosure` and `component-feedback`.
+- Add `Field.OptionalIndicator`.

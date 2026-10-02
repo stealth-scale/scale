@@ -103,6 +103,59 @@ describe("recipe", () => {
     });
   });
 
+  it("fills a checked box with Highlight under forced colors in every look", () => {
+    expect.hasAssertions();
+
+    for (const look of scaleOf(recipe, "variant", "control", ["outline", "solid", "subtle"])) {
+      expect(look).toMatchObject({
+        _checked: { _highContrast: { background: "Highlight", forcedColorAdjust: "none" } },
+        _indeterminate: { _highContrast: { background: "Highlight", forcedColorAdjust: "none" } },
+      });
+    }
+  });
+
+  it("restates the forced fill under the pointer in every look", () => {
+    expect.hasAssertions();
+
+    for (const look of scaleOf(recipe, "variant", "control", ["outline", "solid", "subtle"])) {
+      expect(look).toMatchObject({
+        _checked: { _highContrast: { _hover: { _checked: { background: "Highlight" } } } },
+        _indeterminate: {
+          _highContrast: { _hover: { _indeterminate: { background: "Highlight" } } },
+        },
+      });
+    }
+  });
+
+  it("restates the forced fill under the press in every look", () => {
+    expect.hasAssertions();
+
+    for (const look of scaleOf(recipe, "variant", "control", ["outline", "solid", "subtle"])) {
+      expect(look).toMatchObject({
+        _checked: { _highContrast: { _active: { _checked: { background: "Highlight" } } } },
+        _indeterminate: {
+          _highContrast: { _active: { _indeterminate: { background: "Highlight" } } },
+        },
+      });
+    }
+  });
+
+  it("inverts a checked box inside a selected row under forced colors", () => {
+    expect(recipe.variants?.["variant"]?.["solid"]?.["control"]).toMatchObject({
+      _checked: {
+        _highContrast: {
+          "[aria-selected=true] &": { background: "HighlightText", color: "Highlight" },
+        },
+      },
+    });
+  });
+
+  it("rings a focused checked box in CanvasText under forced colors", () => {
+    expect(recipe.variants?.["variant"]?.["solid"]?.["control"]).toMatchObject({
+      _checked: { _highContrast: { focusRingColor: "CanvasText" } },
+    });
+  });
+
   it("writes no border color on any look", () => {
     expect.hasAssertions();
 
@@ -134,6 +187,10 @@ describe("recipe", () => {
 
   it("takes the full width on a spread row", () => {
     expect(scaleOf(recipe, "spread", "root", ["true"])[0]).toMatchObject({ inlineSize: "full" });
+  });
+
+  it("sets the label in the body role at the size", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["label"]).toStrictEqual({ textStyle: "body.md" });
   });
 
   it("tracks JSX named Checkbox and its parts", () => {

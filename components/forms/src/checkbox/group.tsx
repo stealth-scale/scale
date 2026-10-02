@@ -3,9 +3,11 @@
  *
  * @remarks
  *   The element is a `div` without a role. A `Fieldset.Root` around the group names the set through
- *   its legend and gives it its helper and error texts. The group takes the fieldset's invalid
- *   state and the field's or the fieldset's size unless it states its own, and passes its state and
- *   size to every box inside it. `data-orientation` reports the orientation to the recipe.
+ *   its legend and gives it its helper and error texts. Inside a `Field`, a caller renders the
+ *   group as a `fieldset` through `as` and names it through `aria-labelledby` at the field's label,
+ *   as the form binding does. The group takes the fieldset's invalid state and the field's or the
+ *   fieldset's size unless it states its own, and passes its state and size to every box inside it.
+ *   `data-orientation` reports the orientation to the recipe.
  */
 
 import { type ComponentProps, type ReactElement } from "react";
@@ -54,7 +56,7 @@ export interface GroupProps extends Omit<ComponentProps<typeof Listed>, "default
   readonly invalid?: boolean | undefined;
 
   /**
-   * Largest number of values the group holds. At the limit every unchecked box is disabled.
+   * Largest number of values the group takes. At the limit every unchecked box is disabled.
    */
   readonly maxSelectedValues?: number | undefined;
 

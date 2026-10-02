@@ -32,6 +32,15 @@ describe("recipe", () => {
     expect(defaultsOf(recipe)).toStrictEqual({ size: "md" });
   });
 
+  it("resets the default styles of a fieldset element", () => {
+    expect(recipe.base).toMatchObject({
+      borderStyle: "none",
+      margin: "0",
+      minInlineSize: "0",
+      padding: "0",
+    });
+  });
+
   it("indents the rows after a parent box by the box and the gap", () => {
     expect(recipe.variants?.["size"]?.["md"]?.[AFTER_PARENT]).toStrictEqual({
       marginInlineStart: dense("calc({sizes.icon.md} + {spacing.gap.md})"),

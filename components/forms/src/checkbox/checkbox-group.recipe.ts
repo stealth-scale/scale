@@ -6,6 +6,8 @@
  *   The spacing is the radio group's: rows `gap.<size>` apart in a column, and `inset.<size>` apart
  *   in a row. In a column, every row after a parent box starts one box and one gap further in, so
  *   its box lines up with the start of the parent's label: 22, 28 and 36px at `sm`, `md` and `lg`.
+ *   The group clears a `fieldset` element's border, margin, padding and minimum inline size, so a
+ *   caller renders it as one through `as` and it lays out as the `div` does.
  */
 
 import { defineRecipe, dense, sizeVariants } from "@stealthscale/theme/authoring";
@@ -22,8 +24,12 @@ export const recipe = defineRecipe({
   base: {
     _horizontal: { alignItems: "center", flexDirection: "row", flexWrap: "wrap" },
     alignItems: "flex-start",
+    borderStyle: "none",
     display: "flex",
     flexDirection: "column",
+    margin: "0",
+    minInlineSize: "0",
+    padding: "0",
   },
   className: "checkbox-group",
   defaultVariants: { size: "md" },

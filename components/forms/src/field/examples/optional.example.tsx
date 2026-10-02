@@ -12,7 +12,9 @@ export function Optional(): ReactElement {
     <Field.Root>
       <Field.Label>
         {t("company")}
-        <Badge size="sm">{t("badge")}</Badge>
+        <Field.OptionalIndicator>
+          <Badge size="sm">{t("badge")}</Badge>
+        </Field.OptionalIndicator>
       </Field.Label>
       <Field.Control autoComplete="organization" />
       <Field.HelperText>{t("invoiced")}</Field.HelperText>

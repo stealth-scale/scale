@@ -212,6 +212,10 @@ describe("recipe", () => {
     expect(scaleOf(recipe, "spread", "root", ["true"])[0]).toMatchObject({ inlineSize: "full" });
   });
 
+  it("sets the label in the body role at the size", () => {
+    expect(recipe.variants?.["size"]?.["md"]?.["label"]).toStrictEqual({ textStyle: "body.md" });
+  });
+
   it("tracks JSX named Switch and its parts", () => {
     expect(recipe.jsx).toStrictEqual([/^Switch(\.\w+)?$/u]);
   });
